@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<!--
+  ~ Copyright (c) 2010-2012 Grid Dynamics Consulting Services, Inc, All Rights Reserved
+  ~ http://www.griddynamics.com
+  ~
+  ~ This library is free software; you can redistribute it and/or modify it under the terms of
+  ~ the GNU Lesser General Public License as published by the Free Software Foundation; either
+  ~ version 2.1 of the License, or any later version.
+  ~
+  ~ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  ~ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  ~ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  ~ DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+  ~ FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  ~ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  ~ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  ~ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  ~ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  ~ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  -->
+
+<!DOCTYPE jasperReport
+        PUBLIC "-//JasperReports//DTD Report Design//EN"
+        "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+
+<jasperReport name="Report" columnCount="1"
+              pageWidth="595" pageHeight="842" orientation="Landscape" columnWidth="550" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+
+    <template class="java.io.InputStream"><![CDATA[ $P{context}.getResource("reporting/styles/default-styles.xml") ]]></template>
+    <parameter name="context" class="com.griddynamics.jagger.reporting.ReportingContext"/>
+
+    <title>
+        <band height="60" isSplitAllowed="false">
+            <rectangle>
+                <reportElement x="0" y="0" width="550" height="40" backcolor="#000000"/>
+                <graphicElement/>
+            </rectangle>
+            <staticText>
+                <reportElement x="0" y="0" width="550" height="40" positionType="Float" style="Header_Bold" forecolor="#aaaaaa"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[Jagger Report]]></text>
+            </staticText>
+        </band>
+    </title>
+
+    <detail>
+        <band height="200" isSplitAllowed="true">
+            <frame>
+                <reportElement x="0" y="0" width="550" height="200"/>
+                <subreport>
+                    <reportElement x="0" y="40" width="550" height="10" positionType="Float" />
+                    <parametersMapExpression><![CDATA[ $P{context}.getAsMap() ]]></parametersMapExpression>
+                    <dataSourceExpression><![CDATA[ $P{context}.getProvider("monitoring").getDataSource() ]]></dataSourceExpression>
+                    <subreportExpression class="net.sf.jasperreports.engine.JasperReport">
+                        <![CDATA[ (net.sf.jasperreports.engine.JasperReport) $P{context}.getProvider("monitoring").getReport() ]]>
+                    </subreportExpression>
+                </subreport>
+            </frame>
+
+            <frame>
+                <reportElement x="0" y="0" width="550" height="200"/>
+                <subreport>
+                    <reportElement x="0" y="90" width="550" height="10" positionType="Float" />
+                    <parametersMapExpression><![CDATA[ $P{context}.getAsMap() ]]></parametersMapExpression>
+                    <dataSourceExpression><![CDATA[ $P{context}.getProvider("latency-plot").getDataSource() ]]></dataSourceExpression>
+                    <subreportExpression class="net.sf.jasperreports.engine.JasperReport">
+                        <![CDATA[ (net.sf.jasperreports.engine.JasperReport) $P{context}.getProvider("latency-plot").getReport() ]]>
+                    </subreportExpression>
+                </subreport>
+            </frame>
+        </band>
+    </detail>
+
+</jasperReport>

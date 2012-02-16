@@ -1,0 +1,189 @@
+/*
+ * Copyright (c) 2010-2012 Grid Dynamics Consulting Services, Inc, All Rights Reserved
+ * http://www.griddynamics.com
+ *
+ * This library is free software; you can redistribute it and/or modify it under the terms of
+ * the GNU Lesser General Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or any later version.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+.code
+{
+	border: 1px solid black;
+	background-color: #F4F4F4;
+	padding: 5px;
+}
+
+body
+{
+	font: 12px Verdana, Arial, Helvetica, "Bitstream Vera Sans", sans-serif;
+	background-color: #fff;
+	color: #333;
+}
+
+
+/* Link colors */
+a
+{
+	color:#7b2c14;
+	text-decoration:none;
+}
+
+a:hover
+{
+	text-decoration:underline;
+}
+
+/* Headings */
+h1
+{
+	font-size:28px;
+	color:#7c0000;
+}
+
+/* Table colors */
+
+table
+{
+	border:none;
+}
+
+td
+{
+	border:none;
+	border-bottom:1px dotted #ddd;
+}
+
+th
+{
+	border:none;
+}
+
+.TableHeadingColor th
+{
+	background:#000000 url(resources/bkg_blkheader.png) repeat-x scroll left top;
+	color:#FFFFFF;
+	font-size:12px;
+	font-weight:bold;
+	height:31px;
+	text-align:left;
+	padding-left:1.5em;
+}
+
+.TableSubHeadingColor
+{
+	background: #fff7ee;
+
+}
+.TableRowColor
+{
+	background: #fff;
+}
+
+.TableRowColor a
+{
+	border-bottom:none;
+	color:#7b2c14;
+	font-weight:normal;
+}
+
+tr.TableRowColor:hover
+{
+	background:#f2eee1;
+}
+
+
+/* Font used in left-hand frame lists */
+.FrameTitleFont
+{
+	font-size: 120%;
+	font-weight:bold;
+}
+
+.FrameTitleFont a
+{
+	color: #333;
+}
+
+.FrameHeadingFont
+{
+	font-weight: bold;
+	font-size:95%;
+}
+
+.FrameItemFont
+{
+	line-height:130%;
+	font-size: 95%;
+}
+
+.FrameItemFont a
+{
+	color:#333;
+}
+
+.FrameItemFont a:hover
+{
+	color:#012499;
+	border-bottom:none;
+	text-decoration:underline;
+}
+
+/* Navigation bar fonts and colors */
+.NavBarCell1
+{
+	background-color:#fff;
+	border:none;
+}
+
+.NavBarCell1Rev
+{
+	background-color:#fae3a5;
+	border:1px solid #d09a0c;
+	padding:0;
+	margin:0;
+}
+
+.NavBarCell1 a
+{
+	color:#333;
+	text-decoration:none;
+}
+
+.NavBarFont1Rev
+{
+
+}
+
+.NavBarCell2
+{
+	border:none;
+}
+
+.NavBarCell2 a
+{
+	color:#992401;
+	font-size:90%;
+}
+
+.NavBarCell3
+{
+	border:none;
+}
+
+/* Override sizes in font tags */
+font
+{
+	font: inherit !important;
+}

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2010-2012 Grid Dynamics Consulting Services, Inc, All Rights Reserved
+  ~ http://www.griddynamics.com
+  ~
+  ~ This library is free software; you can redistribute it and/or modify it under the terms of
+  ~ the GNU Lesser General Public License as published by the Free Software Foundation; either
+  ~ version 2.1 of the License, or any later version.
+  ~
+  ~ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  ~ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  ~ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  ~ DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+  ~ FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  ~ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  ~ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  ~ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  ~ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  ~ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="exRegistry" class="com.griddynamics.jagger.extension.ExtensionRegistry">
+        <constructor-arg value="com.griddynamics.jagger.reporting.ReportProvider"/>
+        <property name="autoDiscovery" value="false"/>
+        <property name="extensions">
+            <map>
+                <entry key="monitoring">
+                    <bean class="com.griddynamics.jagger.reporting.MonitoringReportProvider">
+                        <property name="context" ref="reportingContext"/>
+                    </bean>
+                    </entry>
+                <entry key="latency-plot">
+                    <bean class="com.griddynamics.jagger.reporting.LatencyPlotReportProvider">
+                        <property name="context" ref="reportingContext"/>
+                    </bean>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="reportingContext" class="com.griddynamics.jagger.reporting.ReportingContext">
+        <property name="providerRegistry" ref="exRegistry"/>
+    </bean>
+
+    <bean id="reportingService" class="com.griddynamics.jagger.reporting.ReportingService">
+        <property name="context" ref="reportingContext"/>
+        <property name="reportType" value="PDF"/>
+        <property name="rootTemplateLocation" value="reporting/test-report-container.jrxml"/>
+        <property name="outputReportLocation" value="test-report.pdf"/>
+    </bean>
+
+</beans>

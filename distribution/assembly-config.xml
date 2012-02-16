@@ -1,0 +1,131 @@
+<!--
+  ~ Copyright (c) 2010-2012 Grid Dynamics Consulting Services, Inc, All Rights Reserved
+  ~ http://www.griddynamics.com
+  ~
+  ~ This library is free software; you can redistribute it and/or modify it under the terms of
+  ~ the GNU Lesser General Public License as published by the Free Software Foundation; either
+  ~ version 2.1 of the License, or any later version.
+  ~
+  ~ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  ~ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  ~ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  ~ DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+  ~ FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  ~ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  ~ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  ~ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  ~ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  ~ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  -->
+
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+
+    <id>full</id>
+
+    <formats>
+        <format>zip</format>
+        <format>dir</format>
+    </formats>
+
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>lib</outputDirectory>
+            <excludes>
+                <exclude>*com.griddynamics.jagger*</exclude>
+            </excludes>
+        </dependencySet>
+
+        <dependencySet>
+            <outputDirectory>modules/chassis</outputDirectory>
+            <includes>
+                <include>*com.griddynamics.jagger:chassis.util</include>
+                <include>*com.griddynamics.jagger:chassis.core</include>
+                <include>*com.griddynamics.jagger:chassis.coordinator</include>
+                <include>*com.griddynamics.jagger:chassis.coordinator.zookeeper</include>
+                <include>*com.griddynamics.jagger:chassis.coordinator.http</include>
+                <include>*com.griddynamics.jagger:monitoring.agent</include>
+                <include>*com.griddynamics.jagger:chassis.invoker.hessian</include>
+                <include>*com.griddynamics.jagger:chassis.invokers</include>
+            </includes>
+        </dependencySet>
+
+        <dependencySet>
+            <outputDirectory>modules/diagnostics</outputDirectory>
+            <includes>
+                <include>*com.griddynamics.jagger:diagnostics*</include>
+            </includes>
+        </dependencySet>
+    </dependencySets>
+
+    <fileSets>
+
+        <fileSet>
+            <directory>${basedir}/../chassis/configuration/configuration</directory>
+            <outputDirectory>configuration</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/../chassis/configuration/profiles</directory>
+            <outputDirectory>profiles</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/../cloudshaper</directory>
+            <outputDirectory>modules/cloudshaper</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/../monitoring/agent/target/lib/native/hyperic-sigar-1.6.0.14/sigar-bin/lib/</directory>
+            <outputDirectory>lib/native</outputDirectory>
+        </fileSet>
+    </fileSets>
+
+    <files>
+        <file>
+            <fileMode>0744</fileMode>
+            <source>src/main/resources/j4g_killer.sh</source>
+            <outputDirectory>.</outputDirectory>
+        </file>
+
+        <file>
+            <fileMode>0744</fileMode>
+            <source>src/main/resources/start.sh</source>
+            <outputDirectory>.</outputDirectory>
+        </file>
+
+        <file>
+            <fileMode>0744</fileMode>
+            <source>src/main/resources/start_agent.sh</source>
+            <outputDirectory>.</outputDirectory>
+        </file>
+
+        <file>
+            <fileMode>0744</fileMode>
+            <source>deploy.sh</source>
+            <outputDirectory>.</outputDirectory>
+        </file>
+
+        <file>
+            <fileMode>0744</fileMode>
+            <source>deploy_local_mode.sh</source>
+            <outputDirectory>.</outputDirectory>
+        </file>
+
+        <file>
+            <fileMode>0744</fileMode>
+            <source>deploy_local_mode_ReportOnly.sh</source>
+            <outputDirectory>.</outputDirectory>
+        </file>
+
+        <file>
+            <fileMode>0744</fileMode>
+            <source>deploy_multiple_kernels.sh</source>
+            <outputDirectory>.</outputDirectory>
+        </file>
+
+        <file>
+            <fileMode>0600</fileMode>
+            <source>ssh/jagger.vm.ssh.key</source>
+            <outputDirectory>./ssh</outputDirectory>
+        </file>
+    </files>
+</assembly>

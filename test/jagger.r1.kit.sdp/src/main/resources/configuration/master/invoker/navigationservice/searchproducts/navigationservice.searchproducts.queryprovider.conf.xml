@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2010-2012 Grid Dynamics Consulting Services, Inc, All Rights Reserved
+  ~ http://www.griddynamics.com
+  ~
+  ~ This library is free software; you can redistribute it and/or modify it under the terms of
+  ~ the GNU Lesser General Public License as published by the Free Software Foundation; either
+  ~ version 2.1 of the License, or any later version.
+  ~
+  ~ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  ~ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  ~ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  ~ DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+  ~ FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  ~ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  ~ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  ~ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  ~ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  ~ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Simple searchProducts request: -->
+
+    <bean id="searchProductsNavigationServiceQueryProvider"
+          class="com.macys.platform.providers.navigation.test.performance.invoker.SearchProductsNavigationServiceQueryProvider">
+        <property name="categoryIdsUnderTest" ref="categoriesRangeFrom1000To2700Products"/>
+        <property name="withRefinements" value="false"/>
+        <property name="pageNumber" value="1"/>
+        <property name="itemsPerPage" value="40"/>
+    </bean>
+
+    <bean id="searchProductsWithRefinementsNavigationServiceQueryProvider"
+          class="com.macys.platform.providers.navigation.test.performance.invoker.SearchProductsNavigationServiceQueryProvider">
+        <property name="categoryIdsUnderTest" ref="categoriesRangeFrom1000To2700Products"/>
+        <property name="withRefinements" value="true"/>
+        <property name="pageNumber" value="1"/>
+        <property name="itemsPerPage" value="40"/>
+    </bean>
+
+    <!-- searchProducts requests with all level (Product, UPC, Global Attributes) of filtering: -->
+
+    <bean id="searchProductsFilteredByBrandNavigationServiceQueryProvider"
+          class="com.macys.platform.providers.navigation.test.performance.invoker.SearchProductsNavigationServiceQueryProvider">
+        <property name="categoryIdsUnderTest" ref="categoriesRangeFrom1000To2700Products"/>
+        <property name="withRefinements" value="false"/>
+        <property name="pageNumber" value="1"/>
+        <property name="itemsPerPage" value="40"/>
+        <property name="filterMap" ref="filtersMapForBrand_NavigationService"/>
+    </bean>
+
+    <bean id="searchProductsFilteredByBrandWithRefinementsNavigationServiceQueryProvider"
+          class="com.macys.platform.providers.navigation.test.performance.invoker.SearchProductsNavigationServiceQueryProvider">
+        <property name="categoryIdsUnderTest" ref="categoriesRangeFrom1000To2700Products"/>
+        <property name="withRefinements" value="true"/>
+        <property name="pageNumber" value="1"/>
+        <property name="itemsPerPage" value="40"/>
+        <property name="filterMap" ref="filtersMapForBrand_NavigationService"/>
+    </bean>
+
+    <bean id="searchProductsFilteredByPriceNavigationServiceQueryProvider"
+          class="com.macys.platform.providers.navigation.test.performance.invoker.SearchProductsNavigationServiceQueryProvider">
+        <property name="categoryIdsUnderTest" ref="categoriesRangeFrom1000To2700Products"/>
+        <property name="withRefinements" value="false"/>
+        <property name="pageNumber" value="1"/>
+        <property name="itemsPerPage" value="40"/>
+        <property name="filters" ref="byPriceFilter_NavigationService"/>
+    </bean>
+
+    <bean id="searchProductsFilteredByPriceWithRefinementsNavigationServiceQueryProvider"
+          class="com.macys.platform.providers.navigation.test.performance.invoker.SearchProductsNavigationServiceQueryProvider">
+        <property name="categoryIdsUnderTest" ref="categoriesRangeFrom1000To2700Products"/>
+        <property name="withRefinements" value="true"/>
+        <property name="pageNumber" value="1"/>
+        <property name="itemsPerPage" value="40"/>
+        <property name="filters" ref="byPriceFilter_NavigationService"/>
+    </bean>
+
+    <bean id="searchProductsFilteredByUpcNavigationServiceQueryProvider"
+          class="com.macys.platform.providers.navigation.test.performance.invoker.SearchProductsNavigationServiceQueryProvider">
+        <property name="categoryIdsUnderTest" ref="categoriesRangeFrom1000To2700Products"/>
+        <property name="withRefinements" value="false"/>
+        <property name="pageNumber" value="1"/>
+        <property name="itemsPerPage" value="40"/>
+        <property name="filterMap" ref="filtersMapForUPC_NavigationService"/>
+    </bean>
+
+    <bean id="searchProductsFilteredByUpcWithRefinementsNavigationServiceQueryProvider"
+          class="com.macys.platform.providers.navigation.test.performance.invoker.SearchProductsNavigationServiceQueryProvider">
+        <property name="categoryIdsUnderTest" ref="categoriesRangeFrom1000To2700Products"/>
+        <property name="withRefinements" value="true"/>
+        <property name="pageNumber" value="1"/>
+        <property name="itemsPerPage" value="40"/>
+        <property name="filterMap" ref="filtersMapForUPC_NavigationService"/>
+    </bean>
+
+    <!-- searchProducts requests with all types of sorting: -->
+
+    <bean id="searchProductsSortedByNameNavigationServiceQueryProvider"
+          class="com.macys.platform.providers.navigation.test.performance.invoker.SearchProductsNavigationServiceQueryProvider">
+        <property name="categoryIdsUnderTest" ref="categoriesRangeFrom1000To2700Products"/>
+        <property name="withRefinements" value="false"/>
+        <property name="pageNumber" value="1"/>
+        <property name="itemsPerPage" value="40"/>
+        <property name="sortType" value="NAME"/>
+        <property name="sortOrder" value="ASCENDING"/>
+    </bean>
+
+    <bean id="searchProductsSortedByNameWithRefinementsNavigationServiceQueryProvider"
+          class="com.macys.platform.providers.navigation.test.performance.invoker.SearchProductsNavigationServiceQueryProvider">
+        <property name="categoryIdsUnderTest" ref="categoriesRangeFrom1000To2700Products"/>
+        <property name="withRefinements" value="true"/>
+        <property name="pageNumber" value="1"/>
+        <property name="itemsPerPage" value="40"/>
+        <property name="sortType" value="NAME"/>
+        <property name="sortOrder" value="ASCENDING"/>
+    </bean>
+
+    <bean id="searchProductsSortedByNewnessNavigationServiceQueryProvider"
+          class="com.macys.platform.providers.navigation.test.performance.invoker.SearchProductsNavigationServiceQueryProvider">
+        <property name="categoryIdsUnderTest" ref="categoriesRangeFrom1000To2700Products"/>
+        <property name="withRefinements" value="false"/>
+        <property name="pageNumber" value="1"/>
+        <property name="itemsPerPage" value="40"/>
+        <property name="sortType" value="NEW"/>
+        <property name="sortOrder" value="ASCENDING"/>
+    </bean>
+
+    <bean id="searchProductsSortedByNewnessWithRefinementsNavigationServiceQueryProvider"
+          class="com.macys.platform.providers.navigation.test.performance.invoker.SearchProductsNavigationServiceQueryProvider">
+        <property name="categoryIdsUnderTest" ref="categoriesRangeFrom1000To2700Products"/>
+        <property name="withRefinements" value="true"/>
+        <property name="pageNumber" value="1"/>
+        <property name="itemsPerPage" value="40"/>
+        <property name="sortType" value="NEW"/>
+        <property name="sortOrder" value="ASCENDING"/>
+    </bean>
+
+    <bean id="searchProductsSortedByPriceNavigationServiceQueryProvider"
+          class="com.macys.platform.providers.navigation.test.performance.invoker.SearchProductsNavigationServiceQueryProvider">
+        <property name="categoryIdsUnderTest" ref="categoriesRangeFrom1000To2700Products"/>
+        <property name="withRefinements" value="false"/>
+        <property name="pageNumber" value="1"/>
+        <property name="itemsPerPage" value="40"/>
+        <property name="sortType" value="PRICE"/>
+        <property name="sortOrder" value="ASCENDING"/>
+    </bean>
+
+    <bean id="searchProductsSortedByPriceWithRefinementsNavigationServiceQueryProvider"
+          class="com.macys.platform.providers.navigation.test.performance.invoker.SearchProductsNavigationServiceQueryProvider">
+        <property name="categoryIdsUnderTest" ref="categoriesRangeFrom1000To2700Products"/>
+        <property name="withRefinements" value="true"/>
+        <property name="pageNumber" value="1"/>
+        <property name="itemsPerPage" value="40"/>
+        <property name="sortType" value="PRICE"/>
+        <property name="sortOrder" value="ASCENDING"/>
+    </bean>
+
+    <bean id="searchProductsSortedByOriginalNavigationServiceQueryProvider"
+          class="com.macys.platform.providers.navigation.test.performance.invoker.SearchProductsNavigationServiceQueryProvider">
+        <property name="categoryIdsUnderTest" ref="categoriesRangeFrom1000To2700Products"/>
+        <property name="withRefinements" value="false"/>
+        <property name="pageNumber" value="1"/>
+        <property name="itemsPerPage" value="40"/>
+        <property name="sortType" value="ORIGINAL"/>
+        <property name="sortOrder" value="ASCENDING"/>
+    </bean>
+
+    <bean id="searchProductsSortedByOriginalWithRefinementsNavigationServiceQueryProvider"
+          class="com.macys.platform.providers.navigation.test.performance.invoker.SearchProductsNavigationServiceQueryProvider">
+        <property name="categoryIdsUnderTest" ref="categoriesRangeFrom1000To2700Products"/>
+        <property name="withRefinements" value="true"/>
+        <property name="pageNumber" value="1"/>
+        <property name="itemsPerPage" value="40"/>
+        <property name="sortType" value="ORIGINAL"/>
+        <property name="sortOrder" value="ASCENDING"/>
+    </bean>
+
+    <bean id="searchProductsSortedByBrandNavigationServiceQueryProvider"
+          class="com.macys.platform.providers.navigation.test.performance.invoker.SearchProductsNavigationServiceQueryProvider">
+        <property name="categoryIdsUnderTest" ref="categoriesRangeFrom1000To2700Products"/>
+        <property name="withRefinements" value="false"/>
+        <property name="pageNumber" value="1"/>
+        <property name="itemsPerPage" value="40"/>
+        <property name="sortType" value="BRAND"/>
+        <property name="sortOrder" value="ASCENDING"/>
+    </bean>
+
+    <bean id="searchProductsSortedByBrandWithRefinementsNavigationServiceQueryProvider"
+          class="com.macys.platform.providers.navigation.test.performance.invoker.SearchProductsNavigationServiceQueryProvider">
+        <property name="categoryIdsUnderTest" ref="categoriesRangeFrom1000To2700Products"/>
+        <property name="withRefinements" value="true"/>
+        <property name="pageNumber" value="1"/>
+        <property name="itemsPerPage" value="40"/>
+        <property name="sortType" value="BRAND"/>
+        <property name="sortOrder" value="ASCENDING"/>
+    </bean>
+
+
+</beans>

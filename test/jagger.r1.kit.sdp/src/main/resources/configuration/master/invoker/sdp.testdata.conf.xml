@@ -1,0 +1,1720 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2010-2012 Grid Dynamics Consulting Services, Inc, All Rights Reserved
+  ~ http://www.griddynamics.com
+  ~
+  ~ This library is free software; you can redistribute it and/or modify it under the terms of
+  ~ the GNU Lesser General Public License as published by the Free Software Foundation; either
+  ~ version 2.1 of the License, or any later version.
+  ~
+  ~ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  ~ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  ~ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  ~ DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+  ~ FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  ~ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  ~ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  ~ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  ~ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  ~ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="categoriesRangeFrom1000To2700Products" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <value>10066</value>
+                <value>6086</value>
+                <value>20626</value>
+                <value>65</value>
+                <value>18579</value>
+                <value>5449</value>
+                <value>20627</value>
+                <value>225</value>
+                <value>25122</value>
+                <value>17213</value>
+                <value>17226</value>
+            </list>
+        </property>
+    </bean>
+
+    <!--FILTERING-->
+
+    <bean id="filtersMapForBrand_NavigationService" class="org.springframework.beans.factory.config.MapFactoryBean">
+        <property name="sourceMap">
+            <map>
+                <entry key="10066" value-ref="charterClubFilter_NavigationService"/>
+                <entry key="6086" value-ref="ralphLaurenFilter_NavigationService"/>
+                <entry key="20626" value-ref="iNCInternationalConceptsFilter_NavigationService"/>
+                <entry key="65" value-ref="coleHaanFilter_NavigationService"/>
+                <entry key="18579" value-ref="iNCInternationalConceptsFilter_NavigationService"/>
+                <entry key="5449" value-ref="calvinKleinFilter_NavigationService"/>
+                <entry key="20627" value-ref="iNCInternationalConceptsFilter_NavigationService"/>
+                <entry key="225" value-ref="calvinKleinFilter_NavigationService"/>
+                <entry key="25122" value-ref="steveMaddenFilter_NavigationService"/>
+                <entry key="17213" value-ref="nineWestFilter_NavigationService"/>
+                <entry key="17226" value-ref="coleHaanFilter_NavigationService"/>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="nineWestFilter_NavigationService" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <bean class="com.macys.platform.services.navigation.dto.DefaultConstraintDTO">
+                    <constructor-arg index="0" value="BRAND"/>
+                    <constructor-arg index="1" value="Nine West"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="steveMaddenFilter_NavigationService" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <bean class="com.macys.platform.services.navigation.dto.DefaultConstraintDTO">
+                    <constructor-arg index="0" value="BRAND"/>
+                    <constructor-arg index="1" value="Steve Madden"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="charterClubFilter_NavigationService" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <bean class="com.macys.platform.services.navigation.dto.DefaultConstraintDTO">
+                    <constructor-arg index="0" value="BRAND"/>
+                    <constructor-arg index="1" value="Charter Club"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="ralphLaurenFilter_NavigationService" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <bean class="com.macys.platform.services.navigation.dto.DefaultConstraintDTO">
+                    <constructor-arg index="0" value="BRAND"/>
+                    <constructor-arg index="1" value="Ralph Lauren"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="iNCInternationalConceptsFilter_NavigationService"
+          class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <bean class="com.macys.platform.services.navigation.dto.DefaultConstraintDTO">
+                    <constructor-arg index="0" value="BRAND"/>
+                    <constructor-arg index="1" value="INC International Concepts"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="coleHaanFilter_NavigationService" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <bean class="com.macys.platform.services.navigation.dto.DefaultConstraintDTO">
+                    <constructor-arg index="0" value="BRAND"/>
+                    <constructor-arg index="1" value="Cole Haan"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="calvinKleinFilter_NavigationService" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <bean class="com.macys.platform.services.navigation.dto.DefaultConstraintDTO">
+                    <constructor-arg index="0" value="BRAND"/>
+                    <constructor-arg index="1" value="Calvin Klein"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="byPriceFilter_NavigationService" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <bean class="com.macys.platform.services.navigation.dto.DefaultConstraintDTO">
+                    <constructor-arg index="0" value="PRICE"/>
+                    <constructor-arg index="1" value="20.0"/>
+                    <constructor-arg index="2" value="40.0"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="filtersMapForUPC_NavigationService" class="org.springframework.beans.factory.config.MapFactoryBean">
+        <property name="sourceMap">
+            <map>
+                <entry key="10066" value-ref="mSize_NavigationService"/>
+                <entry key="6086" value-ref="blackColor_NavigationService"/>
+                <entry key="20626" value-ref="blueColor_NavigationService"/>
+                <entry key="65" value-ref="eightSize_NavigationService"/>
+                <entry key="18579" value-ref="pMSize_NavigationService"/>
+                <entry key="5449" value-ref="mSize_NavigationService"/>
+                <entry key="20627" value-ref="mSize_NavigationService"/>
+                <entry key="225" value-ref="mSize_NavigationService"/>
+                <entry key="25122" value-ref="eightSize_NavigationService"/>
+                <entry key="17213" value-ref="eightSize_NavigationService"/>
+                <entry key="17226" value-ref="eightSize_NavigationService"/>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="mSize_NavigationService" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <bean class="com.macys.platform.services.navigation.dto.DefaultConstraintDTO">
+                    <constructor-arg index="0" value="SIZE_NORMAL"/>
+                    <constructor-arg index="1" value="M"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="pMSize_NavigationService" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <bean class="com.macys.platform.services.navigation.dto.DefaultConstraintDTO">
+                    <constructor-arg index="0" value="SIZE_NORMAL"/>
+                    <constructor-arg index="1" value="PM"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="eightSize_NavigationService" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <bean class="com.macys.platform.services.navigation.dto.DefaultConstraintDTO">
+                    <constructor-arg index="0" value="SIZE_NORMAL"/>
+                    <constructor-arg index="1" value="8"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="blackColor_NavigationService" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <bean class="com.macys.platform.services.navigation.dto.DefaultConstraintDTO">
+                    <constructor-arg index="0" value="COLOR_NORMAL"/>
+                    <constructor-arg index="1" value="Black"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="blueColor_NavigationService" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <bean class="com.macys.platform.services.navigation.dto.DefaultConstraintDTO">
+                    <constructor-arg index="0" value="COLOR_NORMAL"/>
+                    <constructor-arg index="1" value="Blue"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="filtersMapForBrand_CatalogService" class="org.springframework.beans.factory.config.MapFactoryBean">
+        <property name="sourceMap">
+            <map>
+                <entry key="10066" value-ref="charterClubFilter_CatalogService"/>
+                <entry key="6086" value-ref="ralphLaurenFilter_CatalogService"/>
+                <entry key="20626" value-ref="iNCInternationalConceptsFilter_CatalogService"/>
+                <entry key="65" value-ref="coleHaanFilter_CatalogService"/>
+                <entry key="18579" value-ref="iNCInternationalConceptsFilter_CatalogService"/>
+                <entry key="5449" value-ref="calvinKleinFilter_CatalogService"/>
+                <entry key="20627" value-ref="iNCInternationalConceptsFilter_CatalogService"/>
+                <entry key="225" value-ref="calvinKleinFilter_CatalogService"/>
+                <entry key="25122" value-ref="steveMaddenFilter_CatalogService"/>
+                <entry key="17213" value-ref="nineWestFilter_CatalogService"/>
+                <entry key="17226" value-ref="coleHaanFilter_CatalogService"/>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="nineWestFilter_CatalogService" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <bean class="com.macys.platform.navigation.providers.catalog.dto.DefaultConstraintDTO">
+                    <constructor-arg index="0" value="BRAND"/>
+                    <constructor-arg index="1" value="Nine West"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="steveMaddenFilter_CatalogService" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <bean class="com.macys.platform.navigation.providers.catalog.dto.DefaultConstraintDTO">
+                    <constructor-arg index="0" value="BRAND"/>
+                    <constructor-arg index="1" value="Steve Madden"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="charterClubFilter_CatalogService" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <bean class="com.macys.platform.navigation.providers.catalog.dto.DefaultConstraintDTO">
+                    <constructor-arg index="0" value="BRAND"/>
+                    <constructor-arg index="1" value="Charter Club"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="ralphLaurenFilter_CatalogService" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <bean class="com.macys.platform.navigation.providers.catalog.dto.DefaultConstraintDTO">
+                    <constructor-arg index="0" value="BRAND"/>
+                    <constructor-arg index="1" value="Ralph Lauren"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="iNCInternationalConceptsFilter_CatalogService"
+          class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <bean class="com.macys.platform.navigation.providers.catalog.dto.DefaultConstraintDTO">
+                    <constructor-arg index="0" value="BRAND"/>
+                    <constructor-arg index="1" value="INC International Concepts"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="coleHaanFilter_CatalogService" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <bean class="com.macys.platform.navigation.providers.catalog.dto.DefaultConstraintDTO">
+                    <constructor-arg index="0" value="BRAND"/>
+                    <constructor-arg index="1" value="Cole Haan"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="calvinKleinFilter_CatalogService" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <bean class="com.macys.platform.navigation.providers.catalog.dto.DefaultConstraintDTO">
+                    <constructor-arg index="0" value="BRAND"/>
+                    <constructor-arg index="1" value="Calvin Klein"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="byPriceFilter_CatalogService" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <bean class="com.macys.platform.navigation.providers.catalog.dto.DefaultConstraintDTO">
+                    <constructor-arg index="0" value="PRICE"/>
+                    <constructor-arg index="1" value="20.0"/>
+                    <constructor-arg index="2" value="40.0"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="filtersMapForUPC_CatalogService" class="org.springframework.beans.factory.config.MapFactoryBean">
+        <property name="sourceMap">
+            <map>
+                <entry key="10066" value-ref="mSize_CatalogService"/>
+                <entry key="6086" value-ref="blackColor_CatalogService"/>
+                <entry key="20626" value-ref="blueColor_CatalogService"/>
+                <entry key="65" value-ref="eightSize_CatalogService"/>
+                <entry key="18579" value-ref="pMSize_CatalogService"/>
+                <entry key="5449" value-ref="mSize_CatalogService"/>
+                <entry key="20627" value-ref="mSize_CatalogService"/>
+                <entry key="225" value-ref="mSize_CatalogService"/>
+                <entry key="25122" value-ref="eightSize_CatalogService"/>
+                <entry key="17213" value-ref="eightSize_CatalogService"/>
+                <entry key="17226" value-ref="eightSize_CatalogService"/>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="mSize_CatalogService" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <bean class="com.macys.platform.navigation.providers.catalog.dto.DefaultConstraintDTO">
+                    <constructor-arg index="0" value="SIZE_NORMAL"/>
+                    <constructor-arg index="1" value="M"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="pMSize_CatalogService" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <bean class="com.macys.platform.navigation.providers.catalog.dto.DefaultConstraintDTO">
+                    <constructor-arg index="0" value="SIZE_NORMAL"/>
+                    <constructor-arg index="1" value="PM"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="eightSize_CatalogService" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <bean class="com.macys.platform.navigation.providers.catalog.dto.DefaultConstraintDTO">
+                    <constructor-arg index="0" value="SIZE_NORMAL"/>
+                    <constructor-arg index="1" value="8"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="blackColor_CatalogService" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <bean class="com.macys.platform.navigation.providers.catalog.dto.DefaultConstraintDTO">
+                    <constructor-arg index="0" value="COLOR_NORMAL"/>
+                    <constructor-arg index="1" value="Black"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="blueColor_CatalogService" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <bean class="com.macys.platform.navigation.providers.catalog.dto.DefaultConstraintDTO">
+                    <constructor-arg index="0" value="COLOR_NORMAL"/>
+                    <constructor-arg index="1" value="Blue"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+
+    <!--END OF FILTERING-->
+
+    <bean id="getCategoryList"
+          class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <value>22672</value>
+                <value>7495</value>
+                <value>118</value>
+                <value>1</value>
+                <value>16904</value>
+                <value>5991</value>
+                <value>669</value>
+                <value>13247</value>
+                <value>26846</value>
+                <value>544</value>
+                <value>3536</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="standardUPCsList"
+          class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <value>1523797</value>
+                <value>1523799</value>
+                <value>1523798</value>
+                <value>1523800</value>
+                <value>1523801</value>
+                <value>1523802</value>
+                <value>1523803</value>
+                <value>1523804</value>
+                <value>1523805</value>
+                <value>1523806</value>
+                <value>1260638</value>
+                <value>29252265</value>
+                <value>1260637</value>
+                <value>1260634</value>
+                <value>1260632</value>
+                <value>22299208</value>
+                <value>22299209</value>
+                <value>22299206</value>
+                <value>29252256</value>
+                <value>22299207</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="oneCategoryDataRepairList"
+          class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <value>5449</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="topLevelCategoryManDataRepairList"
+          class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <value>1</value>
+                <!--<value>118</value>
+                <value>22672</value>
+                <value>7495</value>
+                <value>16904</value>
+                <value>5991</value>
+                <value>669</value>
+                <value>13247</value>
+                <value>2684</value>
+                <value>544</value>
+                <value>3536</value>-->
+            </list>
+        </property>
+    </bean>
+
+    <bean id="topLevelCategoryWomanDataRepairList"
+          class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <value>118</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="dataRepairOptionsAll"
+          class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <value>REPAIR_CATEGORY_RECURSIVE</value>
+                <value>REPAIR_CATEGORY_WITH_PRODUCTS_AND_UPCS</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="largeProductsList" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <value>360940</value>
+                <value>235907</value>
+                <value>257489</value>
+                <value>325839</value>
+                <value>332085</value>
+                <value>367011</value>
+                <value>359874</value>
+                <value>359149</value>
+                <value>360368</value>
+                <value>306874</value>
+                <value>233385</value>
+                <value>233569</value>
+                <value>278913</value>
+                <value>280282</value>
+                <value>280343</value>
+                <value>369234</value>
+                <value>427730</value>
+                <value>435676</value>
+                <value>435679</value>
+                <value>185514</value>
+                <value>275717</value>
+                <value>284690</value>
+                <value>339195</value>
+                <value>303418</value>
+                <value>313232</value>
+                <value>364747</value>
+                <value>376869</value>
+                <value>400121</value>
+                <value>462131</value>
+                <value>62864</value>
+                <value>77589</value>
+                <value>80142</value>
+                <value>136834</value>
+                <value>139410</value>
+                <value>142092</value>
+                <value>150745</value>
+                <value>157151</value>
+                <value>159393</value>
+                <value>167186</value>
+                <value>198526</value>
+                <value>202863</value>
+                <value>206557</value>
+                <value>212702</value>
+                <value>225177</value>
+                <value>252323</value>
+                <value>252333</value>
+                <value>252338</value>
+                <value>256818</value>
+                <value>257302</value>
+                <value>279592</value>
+                <value>324821</value>
+                <value>330413</value>
+                <value>386714</value>
+                <value>387012</value>
+                <value>390150</value>
+                <value>401941</value>
+                <value>425608</value>
+                <value>428189</value>
+                <value>445520</value>
+                <value>447514</value>
+                <value>393120</value>
+                <value>394097</value>
+                <value>394116</value>
+                <value>394117</value>
+                <value>394118</value>
+                <value>394121</value>
+                <value>394132</value>
+                <value>394134</value>
+                <value>407449</value>
+                <value>60637</value>
+                <value>91513</value>
+                <value>290180</value>
+                <value>360207</value>
+                <value>360208</value>
+                <value>380406</value>
+                <value>442702</value>
+                <value>375549</value>
+                <value>375548</value>
+                <value>482692</value>
+                <value>250527</value>
+                <value>347755</value>
+                <value>350758</value>
+                <value>434268</value>
+                <value>463901</value>
+                <value>470402</value>
+                <value>459055</value>
+                <value>226818</value>
+                <value>404253</value>
+                <value>475306</value>
+                <value>477746</value>
+                <value>472496</value>
+                <value>472496</value>
+                <value>498117</value>
+                <value>433094</value>
+                <value>442983</value>
+                <value>448724</value>
+                <value>448702</value>
+                <value>312093</value>
+                <value>442678</value>
+                <value>442072</value>
+                <value>479686</value>
+                <value>469314</value>
+                <value>464130</value>
+                <value>455233</value>
+                <value>171100</value>
+                <value>457946</value>
+                <value>286934</value>
+                <value>408350</value>
+                <value>318360</value>
+                <value>428312</value>
+                <value>454737</value>
+                <value>397139</value>
+                <value>450478</value>
+                <value>450479</value>
+                <value>459353</value>
+                <value>459354</value>
+                <value>459355</value>
+                <value>828</value>
+                <value>75206</value>
+                <value>106344</value>
+                <value>106402</value>
+                <value>112270</value>
+                <value>168200</value>
+                <value>178703</value>
+                <value>185514</value>
+                <value>296516</value>
+                <value>333848</value>
+                <value>373904</value>
+                <value>400121</value>
+                <value>404905</value>
+                <value>407706</value>
+                <value>424681</value>
+                <value>442184</value>
+                <value>450495</value>
+                <value>450971</value>
+                <value>454067</value>
+                <value>454076</value>
+                <value>454077</value>
+                <value>457386</value>
+                <value>457567</value>
+                <value>115968</value>
+                <value>185529</value>
+                <value>185530</value>
+                <value>417973</value>
+                <value>439665</value>
+                <value>461765</value>
+                <value>469701</value>
+                <value>130456</value>
+                <value>158149</value>
+                <value>171285</value>
+                <value>193710</value>
+                <value>206338</value>
+                <value>319169</value>
+                <value>324640</value>
+                <value>360683</value>
+                <value>18712</value>
+                <value>79030</value>
+                <value>152117</value>
+                <value>171275</value>
+                <value>171291</value>
+                <value>176650</value>
+                <value>194633</value>
+                <value>221829</value>
+                <value>221935</value>
+                <value>221936</value>
+                <value>244423</value>
+                <value>248520</value>
+                <value>271696</value>
+                <value>271700</value>
+                <value>280158</value>
+                <value>283736</value>
+                <value>290536</value>
+                <value>324942</value>
+                <value>376900</value>
+                <value>412088</value>
+                <value>414663</value>
+                <value>414665</value>
+                <value>414669</value>
+                <value>431766</value>
+                <value>456680</value>
+                <value>103411</value>
+                <value>156386</value>
+                <value>198435</value>
+                <value>221567</value>
+                <value>243039</value>
+                <value>291027</value>
+                <value>310658</value>
+                <value>312904</value>
+                <value>330337</value>
+                <value>333329</value>
+                <value>334208</value>
+                <value>351216</value>
+                <value>351226</value>
+                <value>377972</value>
+                <value>103089</value>
+                <value>119115</value>
+                <value>131857</value>
+                <value>148486</value>
+                <value>181049</value>
+                <value>204243</value>
+                <value>253891</value>
+                <value>282839</value>
+                <value>294252</value>
+                <value>298626</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="listUpcSetAvailability" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <value>3173</value>
+                <value>3174</value>
+                <value>2670</value>
+                <value>2677</value>
+                <value>2669</value>
+                <value>3200</value>
+                <value>3199</value>
+                <value>3188</value>
+                <value>91873</value>
+                <value>91869</value>
+                <value>91872</value>
+                <value>2682</value>
+                <value>2680</value>
+                <value>2681</value>
+                <value>28791077</value>
+                <value>2687</value>
+                <value>2856</value>
+                <value>2689</value>
+                <value>2690</value>
+                <value>2692</value>
+                <value>336484</value>
+                <value>2691</value>
+                <value>2630</value>
+                <value>8804</value>
+                <value>2631</value>
+                <value>8816</value>
+                <value>8819</value>
+                <value>8820</value>
+                <value>8775</value>
+                <value>8776</value>
+                <value>754563</value>
+                <value>2712</value>
+                <value>2714</value>
+                <value>2715</value>
+                <value>2716</value>
+                <value>2720</value>
+                <value>2721</value>
+                <value>8827</value>
+                <value>2725</value>
+                <value>2726</value>
+                <value>2727</value>
+                <value>699647</value>
+                <value>2565</value>
+                <value>2568</value>
+                <value>2567</value>
+                <value>2566</value>
+                <value>3204</value>
+                <value>832745</value>
+                <value>699640</value>
+                <value>2963</value>
+                <value>2964</value>
+                <value>2965</value>
+                <value>2967</value>
+                <value>235541</value>
+                <value>2505</value>
+                <value>235542</value>
+                <value>235624</value>
+                <value>235539</value>
+                <value>9941</value>
+                <value>3168</value>
+                <value>3167</value>
+                <value>8176</value>
+                <value>8178</value>
+                <value>168683</value>
+                <value>168684</value>
+                <value>168685</value>
+                <value>168686</value>
+                <value>168687</value>
+                <value>464601</value>
+                <value>464603</value>
+                <value>1282938</value>
+                <value>1282939</value>
+                <value>10950</value>
+                <value>8204</value>
+                <value>8205</value>
+                <value>8206</value>
+                <value>8207</value>
+                <value>88161</value>
+                <value>88162</value>
+                <value>88163</value>
+                <value>88164</value>
+                <value>88165</value>
+                <value>88166</value>
+                <value>88167</value>
+                <value>88168</value>
+                <value>88169</value>
+                <value>88170</value>
+                <value>88172</value>
+                <value>464551</value>
+                <value>464552</value>
+                <value>464553</value>
+                <value>464554</value>
+                <value>464555</value>
+                <value>464556</value>
+                <value>464558</value>
+                <value>464559</value>
+                <value>464560</value>
+                <value>963390</value>
+                <value>963392</value>
+                <value>3161</value>
+                <value>3369</value>
+                <value>3370</value>
+                <value>3371</value>
+                <value>10951</value>
+                <value>10952</value>
+                <value>8224</value>
+                <value>88186</value>
+                <value>105158</value>
+                <value>105160</value>
+                <value>29287274</value>
+                <value>29287275</value>
+                <value>3373</value>
+                <value>8238</value>
+                <value>8239</value>
+                <value>8240</value>
+                <value>8243</value>
+                <value>8244</value>
+                <value>88206</value>
+                <value>1244463</value>
+                <value>8222</value>
+                <value>8223</value>
+                <value>88184</value>
+                <value>1121052</value>
+                <value>8232</value>
+                <value>8233</value>
+                <value>8234</value>
+                <value>964502</value>
+                <value>8186</value>
+                <value>8187</value>
+                <value>8188</value>
+                <value>88088</value>
+                <value>200045</value>
+                <value>964503</value>
+                <value>1529950</value>
+                <value>1290145</value>
+                <value>3417</value>
+                <value>3418</value>
+                <value>8245</value>
+                <value>8246</value>
+                <value>8247</value>
+                <value>8248</value>
+                <value>88230</value>
+                <value>358597</value>
+                <value>358598</value>
+                <value>8211</value>
+                <value>8262</value>
+                <value>8263</value>
+                <value>8264</value>
+                <value>8265</value>
+                <value>8266</value>
+                <value>8267</value>
+                <value>8268</value>
+                <value>96060</value>
+                <value>131756</value>
+                <value>131757</value>
+                <value>200046</value>
+                <value>297223</value>
+                <value>358599</value>
+                <value>487828</value>
+                <value>487829</value>
+                <value>487830</value>
+                <value>3426</value>
+                <value>8801</value>
+                <value>11802</value>
+                <value>3427</value>
+                <value>10947</value>
+                <value>3428</value>
+                <value>10946</value>
+                <value>10948</value>
+                <value>2825</value>
+                <value>2824</value>
+                <value>2819</value>
+                <value>3393</value>
+                <value>2827</value>
+                <value>2823</value>
+                <value>3394</value>
+                <value>2804</value>
+                <value>2795</value>
+                <value>3383</value>
+                <value>3384</value>
+                <value>3386</value>
+                <value>2792</value>
+                <value>3404</value>
+                <value>3405</value>
+                <value>11750</value>
+                <value>11751</value>
+                <value>11752</value>
+                <value>11753</value>
+                <value>11754</value>
+                <value>11756</value>
+                <value>10844</value>
+                <value>2451</value>
+                <value>2452</value>
+                <value>10848</value>
+                <value>2454</value>
+                <value>10850</value>
+                <value>10851</value>
+                <value>2839</value>
+                <value>2840</value>
+                <value>2455</value>
+                <value>2456</value>
+                <value>10852</value>
+                <value>2457</value>
+                <value>2458</value>
+                <value>2459</value>
+                <value>2469</value>
+                <value>2460</value>
+                <value>2461</value>
+                <value>11520</value>
+                <value>11521</value>
+                <value>11522</value>
+                <value>2462</value>
+                <value>2466</value>
+                <value>2464</value>
+                <value>10854</value>
+                <value>2465</value>
+                <value>10855</value>
+                <value>2467</value>
+                <value>2468</value>
+                <value>2408</value>
+                <value>2414</value>
+                <value>2417</value>
+                <value>256428</value>
+                <value>2409</value>
+                <value>2415</value>
+                <value>2418</value>
+                <value>256429</value>
+                <value>2410</value>
+                <value>2419</value>
+                <value>8791</value>
+                <value>259124</value>
+                <value>2416</value>
+                <value>2420</value>
+                <value>256431</value>
+                <value>2412</value>
+                <value>2421</value>
+                <value>2426</value>
+                <value>256430</value>
+                <value>2423</value>
+                <value>2429</value>
+                <value>2430</value>
+                <value>2431</value>
+                <value>149568</value>
+                <value>149571</value>
+                <value>149575</value>
+                <value>2432</value>
+                <value>2450</value>
+                <value>149572</value>
+                <value>149576</value>
+                <value>2433</value>
+                <value>149569</value>
+                <value>149573</value>
+                <value>149578</value>
+                <value>2434</value>
+                <value>2435</value>
+                <value>2436</value>
+                <value>149570</value>
+                <value>149574</value>
+                <value>149577</value>
+                <value>2437</value>
+                <value>2438</value>
+                <value>2439</value>
+                <value>2442</value>
+                <value>2443</value>
+                <value>2446</value>
+                <value>2488</value>
+                <value>2489</value>
+                <value>2490</value>
+                <value>2491</value>
+                <value>2492</value>
+                <value>2493</value>
+                <value>2495</value>
+                <value>2496</value>
+                <value>2497</value>
+                <value>2498</value>
+                <value>2499</value>
+                <value>2500</value>
+                <value>9512</value>
+                <value>2501</value>
+                <value>2502</value>
+                <value>3303</value>
+                <value>3403</value>
+                <value>3304</value>
+                <value>8780</value>
+                <value>3305</value>
+                <value>3306</value>
+                <value>3308</value>
+                <value>3154</value>
+                <value>3155</value>
+                <value>3156</value>
+                <value>3157</value>
+                <value>198958</value>
+                <value>185525</value>
+                <value>185526</value>
+                <value>185527</value>
+                <value>76143</value>
+                <value>199344</value>
+                <value>125018</value>
+                <value>302241</value>
+                <value>125019</value>
+                <value>125020</value>
+                <value>3331</value>
+                <value>3329</value>
+                <value>3333</value>
+                <value>3332</value>
+                <value>3339</value>
+                <value>287712</value>
+                <value>302233</value>
+                <value>8475</value>
+                <value>8478</value>
+                <value>8482</value>
+                <value>11175</value>
+                <value>102544</value>
+                <value>209174</value>
+                <value>244011</value>
+                <value>744052</value>
+                <value>1585427</value>
+                <value>1699277</value>
+                <value>10858</value>
+                <value>1031196</value>
+                <value>1031197</value>
+                <value>1031199</value>
+                <value>1031201</value>
+                <value>1031203</value>
+                <value>1031204</value>
+                <value>8538</value>
+                <value>3430</value>
+                <value>3422</value>
+                <value>3423</value>
+                <value>3377</value>
+                <value>3376</value>
+                <value>699652</value>
+                <value>3390</value>
+                <value>198960</value>
+                <value>3388</value>
+                <value>3389</value>
+                <value>7898</value>
+                <value>7899</value>
+                <value>10024</value>
+                <value>10123</value>
+                <value>10140</value>
+                <value>197060</value>
+                <value>240130</value>
+                <value>266363</value>
+                <value>358928</value>
+                <value>901152</value>
+                <value>901153</value>
+                <value>986735</value>
+                <value>1461225</value>
+                <value>1553766</value>
+                <value>10263161</value>
+                <value>29041523</value>
+                <value>10023</value>
+                <value>10120</value>
+                <value>10139</value>
+                <value>901154</value>
+                <value>901155</value>
+                <value>901156</value>
+                <value>901157</value>
+                <value>901158</value>
+                <value>1607883</value>
+                <value>10022</value>
+                <value>10122</value>
+                <value>197070</value>
+                <value>240165</value>
+                <value>266364</value>
+                <value>358929</value>
+                <value>439650</value>
+                <value>901159</value>
+                <value>901160</value>
+                <value>986736</value>
+                <value>1461224</value>
+                <value>1553764</value>
+                <value>10263160</value>
+                <value>29041524</value>
+                <value>10019</value>
+                <value>10119</value>
+                <value>10136</value>
+                <value>221106</value>
+                <value>240136</value>
+                <value>1040148</value>
+                <value>1040149</value>
+                <value>1607886</value>
+                <value>1607887</value>
+                <value>221165</value>
+                <value>1461221</value>
+                <value>1553754</value>
+                <value>10050312</value>
+                <value>10050314</value>
+                <value>10050315</value>
+                <value>10050316</value>
+                <value>10050317</value>
+                <value>10050318</value>
+                <value>10050319</value>
+                <value>10050321</value>
+                <value>10050322</value>
+                <value>10263157</value>
+                <value>29041525</value>
+                <value>10026</value>
+                <value>10125</value>
+                <value>472849</value>
+                <value>472851</value>
+                <value>472852</value>
+                <value>472853</value>
+                <value>472854</value>
+                <value>472855</value>
+                <value>1607893</value>
+                <value>10175</value>
+                <value>10177</value>
+                <value>149598</value>
+                <value>149763</value>
+                <value>901165</value>
+                <value>901166</value>
+                <value>901167</value>
+                <value>901168</value>
+                <value>1607899</value>
+                <value>10029</value>
+                <value>10129</value>
+                <value>10145</value>
+                <value>149758</value>
+                <value>240143</value>
+                <value>901169</value>
+                <value>901170</value>
+                <value>901171</value>
+                <value>1461229</value>
+                <value>1553758</value>
+                <value>10263166</value>
+                <value>29041520</value>
+                <value>10130</value>
+                <value>276760</value>
+                <value>279742</value>
+                <value>1040150</value>
+                <value>1040151</value>
+                <value>1040152</value>
+                <value>1607900</value>
+                <value>1607901</value>
+                <value>1607902</value>
+                <value>10032</value>
+                <value>10132</value>
+                <value>901172</value>
+                <value>901173</value>
+                <value>901174</value>
+                <value>1607904</value>
+                <value>1607905</value>
+                <value>1607906</value>
+                <value>29352306</value>
+                <value>10131</value>
+                <value>149759</value>
+                <value>1040153</value>
+                <value>1040154</value>
+                <value>1607908</value>
+                <value>1607909</value>
+                <value>1607910</value>
+                <value>1607911</value>
+                <value>13306866</value>
+                <value>10033</value>
+                <value>10133</value>
+                <value>197065</value>
+                <value>240147</value>
+                <value>276761</value>
+                <value>276762</value>
+                <value>901176</value>
+                <value>901177</value>
+                <value>901178</value>
+                <value>1461230</value>
+                <value>1553759</value>
+                <value>10263167</value>
+                <value>29041518</value>
+                <value>8838</value>
+                <value>10020</value>
+                <value>197066</value>
+                <value>240151</value>
+                <value>266360</value>
+                <value>358930</value>
+                <value>901179</value>
+                <value>901180</value>
+                <value>986737</value>
+                <value>1461220</value>
+                <value>1553763</value>
+                <value>10263156</value>
+                <value>29041516</value>
+                <value>10028</value>
+                <value>10127</value>
+                <value>10143</value>
+                <value>197067</value>
+                <value>240154</value>
+                <value>472845</value>
+                <value>472846</value>
+                <value>472847</value>
+                <value>472848</value>
+                <value>901181</value>
+                <value>1461228</value>
+                <value>1553757</value>
+                <value>10263165</value>
+                <value>29041510</value>
+                <value>10134</value>
+                <value>149761</value>
+                <value>240158</value>
+                <value>468487</value>
+                <value>468488</value>
+                <value>1607917</value>
+                <value>1607919</value>
+                <value>1607920</value>
+                <value>3194</value>
+                <value>3195</value>
+                <value>3196</value>
+                <value>3214</value>
+                <value>3215</value>
+                <value>3402</value>
+                <value>3347</value>
+                <value>3348</value>
+                <value>804717</value>
+                <value>804718</value>
+                <value>1595073</value>
+                <value>225257</value>
+                <value>3208</value>
+                <value>915129</value>
+                <value>1378921</value>
+                <value>7366</value>
+                <value>7367</value>
+                <value>7368</value>
+                <value>7369</value>
+                <value>7370</value>
+                <value>512116</value>
+                <value>512117</value>
+                <value>512118</value>
+                <value>24607729</value>
+                <value>29061216</value>
+                <value>29061218</value>
+                <value>29061219</value>
+                <value>512120</value>
+                <value>7092</value>
+                <value>7095</value>
+                <value>12890</value>
+                <value>12891</value>
+                <value>12893</value>
+                <value>12894</value>
+                <value>12895</value>
+                <value>12896</value>
+                <value>12897</value>
+                <value>12898</value>
+                <value>12899</value>
+                <value>12900</value>
+                <value>12901</value>
+                <value>12902</value>
+                <value>12903</value>
+                <value>12904</value>
+                <value>12907</value>
+                <value>12909</value>
+                <value>12910</value>
+                <value>12911</value>
+                <value>12912</value>
+                <value>12913</value>
+                <value>12914</value>
+                <value>12915</value>
+                <value>12916</value>
+                <value>12917</value>
+                <value>12919</value>
+                <value>12920</value>
+                <value>12922</value>
+                <value>12923</value>
+                <value>12925</value>
+                <value>12926</value>
+                <value>12927</value>
+                <value>40491</value>
+                <value>40492</value>
+                <value>40493</value>
+                <value>40494</value>
+                <value>40496</value>
+                <value>40497</value>
+                <value>40498</value>
+                <value>40499</value>
+                <value>40500</value>
+                <value>40501</value>
+                <value>63312</value>
+                <value>63313</value>
+                <value>87654</value>
+                <value>87655</value>
+                <value>223195</value>
+                <value>223201</value>
+                <value>223209</value>
+                <value>223213</value>
+                <value>223217</value>
+                <value>223219</value>
+                <value>223221</value>
+                <value>223225</value>
+                <value>223227</value>
+                <value>223229</value>
+                <value>1549145</value>
+                <value>1549146</value>
+                <value>1549147</value>
+                <value>1549148</value>
+                <value>1549149</value>
+                <value>1549150</value>
+                <value>1549151</value>
+                <value>1549152</value>
+                <value>1549153</value>
+                <value>1549154</value>
+                <value>1549155</value>
+                <value>1549156</value>
+                <value>1549157</value>
+                <value>1549158</value>
+                <value>1549159</value>
+                <value>1549160</value>
+                <value>1549161</value>
+                <value>1549162</value>
+                <value>1549163</value>
+                <value>1549164</value>
+                <value>1549165</value>
+                <value>1549166</value>
+                <value>1549167</value>
+                <value>1549168</value>
+                <value>1549169</value>
+                <value>1549170</value>
+                <value>1549171</value>
+                <value>1549172</value>
+                <value>3081</value>
+                <value>699653</value>
+                <value>12094</value>
+                <value>12095</value>
+                <value>12096</value>
+                <value>12097</value>
+                <value>12099</value>
+                <value>12100</value>
+                <value>12101</value>
+                <value>12103</value>
+                <value>12104</value>
+                <value>12106</value>
+                <value>12108</value>
+                <value>12109</value>
+                <value>12110</value>
+                <value>12111</value>
+                <value>12113</value>
+                <value>12114</value>
+                <value>12115</value>
+                <value>12116</value>
+                <value>12117</value>
+                <value>12120</value>
+                <value>12121</value>
+                <value>12123</value>
+                <value>12124</value>
+                <value>12125</value>
+                <value>12126</value>
+                <value>12129</value>
+                <value>12130</value>
+                <value>12131</value>
+                <value>12132</value>
+                <value>12133</value>
+                <value>12134</value>
+                <value>12135</value>
+                <value>12136</value>
+                <value>12137</value>
+                <value>12138</value>
+                <value>12139</value>
+                <value>12140</value>
+                <value>12142</value>
+                <value>12143</value>
+                <value>12144</value>
+                <value>12146</value>
+                <value>12147</value>
+                <value>12148</value>
+                <value>12149</value>
+                <value>12150</value>
+                <value>12151</value>
+                <value>12152</value>
+                <value>12153</value>
+                <value>1549174</value>
+                <value>1549175</value>
+                <value>1549178</value>
+                <value>1549180</value>
+                <value>1549184</value>
+                <value>1549188</value>
+                <value>1549189</value>
+                <value>1549190</value>
+                <value>1549192</value>
+                <value>1549193</value>
+                <value>1549195</value>
+                <value>1549196</value>
+                <value>2384</value>
+                <value>336488</value>
+                <value>9232</value>
+                <value>9233</value>
+                <value>9234</value>
+                <value>9236</value>
+                <value>9238</value>
+                <value>9240</value>
+                <value>9241</value>
+                <value>9242</value>
+                <value>9244</value>
+                <value>9245</value>
+                <value>9285</value>
+                <value>9287</value>
+                <value>9288</value>
+                <value>9289</value>
+                <value>9291</value>
+                <value>9292</value>
+                <value>9293</value>
+                <value>9295</value>
+                <value>9296</value>
+                <value>9297</value>
+                <value>9299</value>
+                <value>9300</value>
+                <value>9301</value>
+                <value>9303</value>
+                <value>11173</value>
+                <value>9669</value>
+                <value>9674</value>
+                <value>9675</value>
+                <value>9677</value>
+                <value>9678</value>
+                <value>9679</value>
+                <value>9688</value>
+                <value>9692</value>
+                <value>9696</value>
+                <value>9697</value>
+                <value>9698</value>
+                <value>9700</value>
+                <value>9701</value>
+                <value>9702</value>
+                <value>9705</value>
+                <value>9707</value>
+                <value>40354</value>
+                <value>40355</value>
+                <value>40356</value>
+                <value>40357</value>
+                <value>40359</value>
+                <value>40360</value>
+                <value>145340</value>
+                <value>197856</value>
+                <value>197857</value>
+                <value>197858</value>
+                <value>197859</value>
+                <value>197860</value>
+                <value>197861</value>
+                <value>197862</value>
+                <value>266302</value>
+                <value>2636</value>
+                <value>2637</value>
+                <value>2638</value>
+                <value>2900</value>
+                <value>2899</value>
+                <value>2901</value>
+                <value>2902</value>
+                <value>9747</value>
+                <value>2907</value>
+                <value>2908</value>
+                <value>777487</value>
+                <value>2911</value>
+                <value>2697</value>
+                <value>2698</value>
+                <value>2699</value>
+                <value>23072983</value>
+                <value>2705</value>
+                <value>2707</value>
+                <value>2708</value>
+                <value>3219</value>
+                <value>3220</value>
+                <value>3221</value>
+                <value>3222</value>
+                <value>3185</value>
+                <value>343932</value>
+                <value>343933</value>
+                <value>343934</value>
+                <value>343935</value>
+                <value>343936</value>
+                <value>343937</value>
+                <value>343939</value>
+                <value>343948</value>
+                <value>343949</value>
+                <value>343950</value>
+                <value>343951</value>
+                <value>441</value>
+                <value>443</value>
+                <value>109</value>
+                <value>111</value>
+                <value>112</value>
+                <value>113</value>
+                <value>115</value>
+                <value>355</value>
+                <value>1366</value>
+                <value>1367</value>
+                <value>1368</value>
+                <value>1369</value>
+                <value>87950</value>
+                <value>194935</value>
+                <value>194936</value>
+                <value>194937</value>
+                <value>194938</value>
+                <value>194939</value>
+                <value>194940</value>
+                <value>203943</value>
+                <value>447</value>
+                <value>449</value>
+                <value>450</value>
+                <value>459</value>
+                <value>308984</value>
+                <value>308985</value>
+                <value>513</value>
+                <value>516</value>
+                <value>518</value>
+                <value>226632</value>
+                <value>226624</value>
+                <value>226625</value>
+                <value>457771</value>
+                <value>919</value>
+                <value>920</value>
+                <value>3431</value>
+                <value>467</value>
+                <value>968539</value>
+                <value>1020</value>
+                <value>1024</value>
+                <value>10102</value>
+                <value>149762</value>
+                <value>197069</value>
+                <value>204421</value>
+                <value>240162</value>
+                <value>266366</value>
+                <value>358596</value>
+                <value>549665</value>
+                <value>1329668</value>
+                <value>1486672</value>
+                <value>1703305</value>
+                <value>29041517</value>
+                <value>714519</value>
+                <value>714520</value>
+                <value>714521</value>
+                <value>714522</value>
+                <value>714523</value>
+                <value>714524</value>
+                <value>714525</value>
+                <value>714526</value>
+                <value>714527</value>
+                <value>714528</value>
+                <value>714529</value>
+                <value>714530</value>
+                <value>714531</value>
+                <value>714532</value>
+                <value>714533</value>
+                <value>714534</value>
+                <value>714535</value>
+                <value>714536</value>
+                <value>714537</value>
+                <value>714538</value>
+                <value>714539</value>
+                <value>714540</value>
+                <value>714541</value>
+                <value>714542</value>
+                <value>714543</value>
+                <value>714544</value>
+                <value>714545</value>
+                <value>714546</value>
+                <value>714547</value>
+                <value>714548</value>
+                <value>8781</value>
+                <value>2447</value>
+                <value>3345</value>
+                <value>19017</value>
+                <value>10728</value>
+                <value>10732</value>
+                <value>10735</value>
+                <value>10737</value>
+                <value>10739</value>
+                <value>10740</value>
+                <value>10743</value>
+                <value>10744</value>
+                <value>10747</value>
+                <value>11869</value>
+                <value>10749</value>
+                <value>10751</value>
+                <value>11258</value>
+                <value>10789</value>
+                <value>9939</value>
+                <value>2448</value>
+                <value>2449</value>
+                <value>10981</value>
+                <value>10993</value>
+                <value>282382</value>
+                <value>282383</value>
+                <value>1009360</value>
+                <value>13144</value>
+                <value>14556</value>
+                <value>14557</value>
+                <value>3344</value>
+                <value>3205</value>
+                <value>17077</value>
+                <value>17078</value>
+                <value>17079</value>
+                <value>17080</value>
+                <value>17102</value>
+                <value>17103</value>
+                <value>17105</value>
+                <value>296160</value>
+                <value>18240</value>
+                <value>18241</value>
+                <value>18483</value>
+                <value>18997</value>
+                <value>23827</value>
+                <value>21357</value>
+                <value>21358</value>
+                <value>21359</value>
+                <value>21360</value>
+                <value>21361</value>
+                <value>21362</value>
+                <value>21363</value>
+                <value>21364</value>
+                <value>21365</value>
+                <value>21366</value>
+                <value>21367</value>
+                <value>21368</value>
+                <value>710491</value>
+                <value>710492</value>
+                <value>710493</value>
+                <value>710495</value>
+                <value>710497</value>
+                <value>710499</value>
+                <value>710503</value>
+                <value>710504</value>
+                <value>710505</value>
+                <value>710506</value>
+                <value>710507</value>
+                <value>710508</value>
+                <value>710509</value>
+                <value>13893943</value>
+                <value>29311020</value>
+                <value>21778</value>
+                <value>262273</value>
+                <value>23847</value>
+                <value>23848</value>
+                <value>23849</value>
+                <value>149434</value>
+                <value>24188</value>
+                <value>25217</value>
+                <value>25221</value>
+                <value>678226</value>
+                <value>27328</value>
+                <value>33483</value>
+                <value>33425</value>
+                <value>33431</value>
+                <value>33432</value>
+                <value>33433</value>
+                <value>33434</value>
+                <value>33442</value>
+                <value>35035</value>
+                <value>33457</value>
+                <value>39622</value>
+                <value>39623</value>
+                <value>39624</value>
+                <value>39458</value>
+                <value>37768</value>
+                <value>37769</value>
+                <value>37770</value>
+                <value>37771</value>
+                <value>37772</value>
+                <value>37773</value>
+                <value>37774</value>
+                <value>37775</value>
+                <value>37776</value>
+                <value>37777</value>
+                <value>37778</value>
+                <value>37779</value>
+                <value>37780</value>
+                <value>37781</value>
+                <value>37782</value>
+                <value>37783</value>
+                <value>37784</value>
+                <value>37785</value>
+                <value>37805</value>
+                <value>37808</value>
+                <value>37809</value>
+                <value>37810</value>
+                <value>37811</value>
+                <value>37813</value>
+                <value>37814</value>
+                <value>37816</value>
+                <value>37817</value>
+                <value>37818</value>
+                <value>37819</value>
+                <value>37820</value>
+                <value>37821</value>
+                <value>37822</value>
+                <value>37823</value>
+                <value>37824</value>
+                <value>37825</value>
+                <value>37826</value>
+                <value>37827</value>
+                <value>37828</value>
+                <value>37830</value>
+                <value>37831</value>
+                <value>37832</value>
+                <value>37833</value>
+                <value>37834</value>
+                <value>37835</value>
+                <value>37836</value>
+                <value>37837</value>
+                <value>80585</value>
+                <value>87240</value>
+            </list>
+        </property>
+    </bean>
+
+
+</beans>

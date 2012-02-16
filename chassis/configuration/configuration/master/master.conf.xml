@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2010-2012 Grid Dynamics Consulting Services, Inc, All Rights Reserved
+  ~ http://www.griddynamics.com
+  ~
+  ~ This library is free software; you can redistribute it and/or modify it under the terms of
+  ~ the GNU Lesser General Public License as published by the Free Software Foundation; either
+  ~ version 2.1 of the License, or any later version.
+  ~
+  ~ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  ~ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  ~ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  ~ DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+  ~ FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  ~ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  ~ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  ~ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  ~ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  ~ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:util="http://www.springframework.org/schema/util" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+
+    <bean class="com.griddynamics.jagger.util.PropertiesResolver">
+        <property name="registry" ref="propertiesResolverRegistry"/>
+        <property name="resources">
+            <list>
+                <value>configuration/master/session.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="master" class="com.griddynamics.jagger.master.Master">
+        <property name="configuration" ref="${chassis.master.session.configuration.bean.name}"/>
+        <property name="coordinator" ref="coordinator"/>
+        <property name="taskIdProvider" ref="taskIdProvider"/>
+        <property name="sessionIdProvider" ref="sessionIdProvider"/>
+        <property name="reconnectPeriod" value="${chassis.coordinator.reconnect.period}"/>
+        <property name="distributorRegistry" ref="distributorRegistry"/>
+        <property name="keyValueStorage" ref="h2KeyValueStorage"/>
+        <property name="reportingService" ref="reportingService"/>
+        <property name="conditions" ref="conditions"/>
+        <property name="executor" ref="coreExecutor"/>
+        <property name="agentManagementProps">
+            <map>
+                <entry key="WAIT_BEFORE" value="20000"/>
+                <!--<entry key="HALT" value="true"/>-->
+            </map>
+
+        </property>
+        <property name="timeoutConfiguration" ref="masterTimeoutConfiguration"/>
+    </bean>
+
+    <bean id="masterTimeoutConfiguration" class="com.griddynamics.jagger.master.MasterTimeoutConfiguration">
+        <property name="distributionStartTime" value="${chassis.master.distribution.start}"/>
+        <property name="distributionStopTime" value="${chassis.master.distribution.stop}"/>
+        <property name="taskExecutionTime" value="${chassis.master.task.maxtime}"/>
+        <property name="nodeAwaitTime" value="${chassis.master.node.awaittime}"/>
+    </bean>
+
+    <bean id="distributorRegistry" class="com.griddynamics.jagger.master.ConfigurableDistributorRegistry">
+        <property name="distributors">
+            <map>
+                <entry key="com.griddynamics.jagger.engine.e1.scenario.WorkloadTask"
+                       value-ref="workloadTaskDistributor"/>
+                <entry key="com.griddynamics.jagger.master.CompositeTask"
+                       value-ref="compositeTaskDistributor"/>
+                <entry key="com.griddynamics.jagger.monitoring.MonitoringTask"
+                       value-ref="monitoringTaskDistributor"/>
+            </map>
+        </property>
+
+    </bean>
+
+    <bean id="workloadTaskDistributor"
+          class="com.griddynamics.jagger.engine.e1.scenario.WorkloadTaskDistributor">
+        <property name="logInterval" value="${chassis.logging.period}"/>
+    </bean>
+
+    <bean id="compositeTaskDistributor" class="com.griddynamics.jagger.master.CompositeTaskDistributor">
+        <property name="distributorRegistry" ref="distributorRegistry"/>
+        <property name="taskIdProvider" ref="taskIdProvider"/>
+    </bean>
+
+    <bean id="conditions" class="com.griddynamics.jagger.master.Conditions">
+        <property name="monitoringEnable" value="${chassis.conditions.monitoring.enable}"/>
+        <property name="minAgentsCount" value="${chassis.conditions.min.agents.count}"/>
+        <property name="minKernelsCount" value="${chassis.conditions.min.kernels.count}"/>
+    </bean>
+
+    <bean id="taskIdProvider" class="com.griddynamics.jagger.master.ThreadSafeTaskIdProvider">
+
+    </bean>
+    <bean id="monitoringTaskDistributor" class="com.griddynamics.jagger.monitoring.MonitoringTaskDistributor">
+        <property name="ttl" value="${chassis.monitoring.command.execution.ttl}"/>
+    </bean>
+</beans>

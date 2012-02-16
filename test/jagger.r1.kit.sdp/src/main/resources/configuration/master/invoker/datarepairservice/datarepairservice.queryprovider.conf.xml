@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2010-2012 Grid Dynamics Consulting Services, Inc, All Rights Reserved
+  ~ http://www.griddynamics.com
+  ~
+  ~ This library is free software; you can redistribute it and/or modify it under the terms of
+  ~ the GNU Lesser General Public License as published by the Free Software Foundation; either
+  ~ version 2.1 of the License, or any later version.
+  ~
+  ~ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  ~ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  ~ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  ~ DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+  ~ FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  ~ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  ~ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  ~ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  ~ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  ~ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="oneCategoryCatalogDataRepairServiceQueryProvider"
+          class="com.macys.platform.providers.datarepair.test.performance.invoker.ProcessDataRepairRequestCatalogDataRepairServiceQueryProvider">
+        <property name="objIds" ref="oneCategoryDataRepairList"/>
+        <property name="type" value="CATEGORY"/>
+        <property name="operation" value="REPAIR"/>
+    </bean>
+
+    <bean id="topLevelCategoryManCatalogDataRepairServiceQueryProvider"
+          class="com.macys.platform.providers.datarepair.test.performance.invoker.ProcessDataRepairRequestCatalogDataRepairServiceQueryProvider">
+        <property name="objIds" ref="topLevelCategoryManDataRepairList"/>
+        <property name="type" value="CATEGORY"/>
+        <property name="operation" value="REPAIR"/>
+    </bean>
+
+    <bean id="topLevelCategoryWomanCatalogDataRepairServiceQueryProvider"
+          class="com.macys.platform.providers.datarepair.test.performance.invoker.ProcessDataRepairRequestCatalogDataRepairServiceQueryProvider">
+        <property name="objIds" ref="topLevelCategoryWomanDataRepairList"/>
+        <property name="type" value="CATEGORY"/>
+        <property name="operation" value="REPAIR"/>
+    </bean>
+
+    <bean id="topLevelCategoryManRecursiveCatalogDataRepairServiceQueryProvider"
+          class="com.macys.platform.providers.datarepair.test.performance.invoker.ProcessDataRepairRequestCatalogDataRepairServiceQueryProvider">
+        <property name="objIds" ref="topLevelCategoryManDataRepairList"/>
+        <property name="type" value="CATEGORY"/>
+        <property name="operation" value="REPAIR"/>
+        <property name="options" value="REPAIR_CATEGORY_RECURSIVE"/>
+    </bean>
+
+    <bean id="topLevelCategoryRecursiveWithProductSandUpcsCatalogDataRepairServiceQueryProvider"
+          class="com.macys.platform.providers.datarepair.test.performance.invoker.ProcessDataRepairRequestCatalogDataRepairServiceQueryProvider">
+        <property name="objIds" ref="topLevelCategoryManDataRepairList"/>
+        <property name="type" value="CATEGORY"/>
+        <property name="operation" value="REPAIR"/>
+        <property name="options" ref="dataRepairOptionsAll"/>
+    </bean>
+
+    <bean id="dataRefreshQueryProvider" class="com.griddynamics.jagger.invoker.http.HttpQuery">
+        <property name="method" value="GET"/>
+        <property name="methodParams">
+            <map>
+                <entry key="workGroup" value="data-refresh"/>
+            </map>
+        </property>
+        <property name="clientParams">
+            <map>
+                <entry key="http.protocol.allow-circular-redirects">
+                    <bean class="java.lang.Boolean">
+                        <constructor-arg value="false"/>
+                    </bean>
+                </entry>
+                <entry key="http.protocol.max-redirects">
+                    <bean class="java.lang.Integer">
+                        <constructor-arg value="2"/>
+                    </bean>
+                </entry>
+                <entry key="http.connection-manager.timeout">
+                    <!-- 30 mins -->
+                    <bean class="java.lang.Long">
+                        <constructor-arg value="1800000"/>
+                    </bean>
+                </entry>
+                <entry key="http.connection.timeout">
+                    <!-- 30 mins -->
+                    <bean class="java.lang.Integer">
+                        <constructor-arg value="1800000"/>
+                    </bean>
+                </entry>
+                <entry key="http.socket.timeout">
+                    <!-- 30 mins -->
+                    <bean class="java.lang.Integer">
+                        <constructor-arg value="1800000"/>
+                    </bean>
+                </entry>
+                <entry key="http.protocol.max-redirects">
+                    <bean class="java.lang.Integer">
+                        <constructor-arg value="0"/>
+                    </bean>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="makeUPCAvailableRepairProductUpcsCatalogDataRepairServiceQueryProvider"
+          class="com.macys.platform.providers.datarepair.test.performance.invoker.HandleUpdateAvailabilityCatalogDataRepairServiceQueryProvider">
+        <property name="upcIds" ref="listUpcSetAvailability"/>
+        <property name="available" value="true"/>
+        <property name="options" value="REPAIR_PRODUCT_UPCS"/>
+    </bean>
+
+    <bean id="makeUPCUnavailableRepairProductUpcsCatalogDataRepairServiceQueryProvider"
+          class="com.macys.platform.providers.datarepair.test.performance.invoker.HandleUpdateAvailabilityCatalogDataRepairServiceQueryProvider">
+        <property name="upcIds" ref="listUpcSetAvailability"/>
+        <property name="available" value="false"/>
+        <property name="options" value="REPAIR_PRODUCT_UPCS"/>
+    </bean>
+
+    <bean id="makeUPCAvailableRepairCategoryProductsCatalogDataRepairServiceQueryProvider"
+          class="com.macys.platform.providers.datarepair.test.performance.invoker.HandleUpdateAvailabilityCatalogDataRepairServiceQueryProvider">
+        <property name="upcIds" ref="listUpcSetAvailability"/>
+        <property name="available" value="true"/>
+        <property name="options" value="REPAIR_CATEGORY_PRODUCTS"/>
+    </bean>
+
+    <bean id="makeUPCUnavailableRepairCategoryProductsCatalogDataRepairServiceQueryProvider"
+          class="com.macys.platform.providers.datarepair.test.performance.invoker.HandleUpdateAvailabilityCatalogDataRepairServiceQueryProvider">
+        <property name="upcIds" ref="listUpcSetAvailability"/>
+        <property name="available" value="false"/>
+        <property name="options" value="REPAIR_CATEGORY_PRODUCTS"/>
+    </bean>
+
+    <bean id="makeUPCAvailableRepairCategoryRecursiveCatalogDataRepairServiceQueryProvider"
+          class="com.macys.platform.providers.datarepair.test.performance.invoker.HandleUpdateAvailabilityCatalogDataRepairServiceQueryProvider">
+        <property name="upcIds" ref="listUpcSetAvailability"/>
+        <property name="available" value="true"/>
+        <property name="options" value="REPAIR_CATEGORY_RECURSIVE"/>
+    </bean>
+
+    <bean id="makeUPCUnavailableRepairCategoryRecursiveCatalogDataRepairServiceQueryProvider"
+          class="com.macys.platform.providers.datarepair.test.performance.invoker.HandleUpdateAvailabilityCatalogDataRepairServiceQueryProvider">
+        <property name="upcIds" ref="listUpcSetAvailability"/>
+        <property name="available" value="false"/>
+        <property name="options" value="REPAIR_CATEGORY_RECURSIVE"/>
+    </bean>
+
+    <bean id="makeUPCAvailableRepairCategoryRecursiveWithProductsAndUPCSCatalogDataRepairServiceQueryProvider"
+          class="com.macys.platform.providers.datarepair.test.performance.invoker.HandleUpdateAvailabilityCatalogDataRepairServiceQueryProvider">
+        <property name="upcIds" ref="listUpcSetAvailability"/>
+        <property name="available" value="true"/>
+        <property name="options" value="REPAIR_CATEGORY_RECURSIVE"/>
+    </bean>
+
+    <bean id="makeUPCUnavailableRepairCategoryRecursiveWithProductsAndUPCSCatalogDataRepairServiceQueryProvider"
+          class="com.macys.platform.providers.datarepair.test.performance.invoker.HandleUpdateAvailabilityCatalogDataRepairServiceQueryProvider">
+        <property name="upcIds" ref="listUpcSetAvailability"/>
+        <property name="available" value="false"/>
+        <property name="options" ref="dataRepairOptionsAll"/>
+    </bean>
+
+
+</beans>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2010-2012 Grid Dynamics Consulting Services, Inc, All Rights Reserved
+  ~ http://www.griddynamics.com
+  ~
+  ~ This library is free software; you can redistribute it and/or modify it under the terms of
+  ~ the GNU Lesser General Public License as published by the Free Software Foundation; either
+  ~ version 2.1 of the License, or any later version.
+  ~
+  ~ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  ~ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  ~ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  ~ DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+  ~ FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  ~ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  ~ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  ~ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  ~ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  ~ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="jettyServer" class="org.eclipse.jetty.server.Server">
+
+        <property name="connectors">
+            <list>
+                <bean id="connector" class="org.eclipse.jetty.server.nio.SelectChannelConnector">
+                    <property name="port" value="${chassis.coordination.http.port}"/>
+                    <property name="requestBufferSize" value="262144"/>
+                    <property name="requestHeaderSize" value="262144"/>
+                    <property name="responseBufferSize" value="262144"/>
+                    <property name="responseHeaderSize" value="262144"/>
+                </bean>
+            </list>
+        </property>
+
+        <property name="handler">
+            <bean class="com.griddynamics.jagger.coordinator.http.server.jetty.ConfigurableServletContextHandler">
+                <constructor-arg value="/"/>
+                <property name="servletConfigurations">
+                    <list>
+                        <bean class="com.griddynamics.jagger.coordinator.http.server.jetty.ServletConfiguration">
+
+                            <property name="path" value="/registration"/>
+                            <property name="servlet">
+                                <bean class="com.griddynamics.jagger.coordinator.http.server.RegistrationServlet">
+                                    <property name="transportHandler" ref="coordinatorAdapter"/>
+                                </bean>
+                            </property>
+                        </bean>
+                        <bean class="com.griddynamics.jagger.coordinator.http.server.jetty.ServletConfiguration">
+
+                            <property name="path" value="/exchange"/>
+                            <property name="servlet">
+                                <bean class="com.griddynamics.jagger.coordinator.http.server.PackExchangeServlet">
+                                    <property name="transportHandler" ref="coordinatorAdapter"/>
+                                </bean>
+                            </property>
+                        </bean>
+                    </list>
+                </property>
+            </bean>
+        </property>
+    </bean>
+    <bean id="coordinatorAdapter" class="com.griddynamics.jagger.coordinator.http.server.CoordinatorAdapter">
+        <constructor-arg ref="coordinator"/>
+        <constructor-arg ref="coordinatorAdapterExecutor"/>
+    </bean>
+
+    <bean id="coordinatorAdapterExecutor" class="com.griddynamics.jagger.util.ConfigurableExecutor">
+        <property name="corePoolSize" value="2"/>
+        <property name="maximumPoolSize" value="10"/>
+        <property name="nameFormat" value="coordinator-http-adapter-%d"/>
+    </bean>
+
+</beans>

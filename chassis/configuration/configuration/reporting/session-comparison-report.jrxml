@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2010-2012 Grid Dynamics Consulting Services, Inc, All Rights Reserved
+  ~ http://www.griddynamics.com
+  ~
+  ~ This library is free software; you can redistribute it and/or modify it under the terms of
+  ~ the GNU Lesser General Public License as published by the Free Software Foundation; either
+  ~ version 2.1 of the License, or any later version.
+  ~
+  ~ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  ~ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  ~ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  ~ DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+  ~ FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  ~ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  ~ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  ~ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  ~ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  ~ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  -->
+
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="SessionSummary" pageWidth="595" pageHeight="842" orientation="Landscape" columnWidth="550"
+              leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+    <property name="ireport.zoom" value="1.0"/>
+    <property name="ireport.x" value="0"/>
+    <property name="ireport.y" value="0"/>
+    <import value="com.griddynamics.jagger.engine.e1.reporting.SessionComparisonReporter.TestComparisonSummaryTDO"/>
+    <template class="java.io.InputStream">
+        <![CDATA[$P{context}.getResource("configuration/reporting/styles/default-styles.xml")]]></template>
+    <parameter name="context" class="com.griddynamics.jagger.reporting.ReportingContext"/>
+    <field name="scenario" class="com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadDetails"/>
+    <field name="clock" class="java.lang.String"/>
+    <field name="throughputDeviation" class="java.lang.Double"/>
+    <field name="totalDurationDeviation" class="java.lang.Double"/>
+    <field name="successRateDeviation" class="java.lang.Double"/>
+    <field name="avgLatencyDeviation" class="java.lang.Double"/>
+    <field name="stdDevLatencyDeviation" class="java.lang.Double"/>
+    <field name="statusImage" class="java.awt.Image"/>
+    <variable name="summaryKey" class="java.lang.String">
+        <initialValueExpression><![CDATA["chassis.engine.e1.session.comparison"]]></initialValueExpression>
+    </variable>
+    <title>
+        <band height="70" splitType="Prevent">
+            <printWhenExpression>
+                <![CDATA[(((TestComparisonSummaryTDO)$P{context}.getParameters().get($V{summaryKey})).isActive()) ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
+            <rectangle>
+                <reportElement x="0" y="0" width="550" height="20" backcolor="#AAE600"/>
+                <graphicElement>
+                    <pen lineWidth="0.0" lineStyle="Solid"/>
+                </graphicElement>
+            </rectangle>
+            <staticText>
+                <reportElement style="Header_Bold" positionType="Float" x="0" y="0" width="550" height="20"
+                               forecolor="#336600"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[Session Comparison]]></text>
+            </staticText>
+            <image scaleImage="RetainShape" hAlign="Center" vAlign="Middle">
+                <reportElement x="25" y="25" width="25" height="40"/>
+                <imageExpression class="java.awt.Image">
+                    <![CDATA[((TestComparisonSummaryTDO)$P{context}.getParameters().get($V{summaryKey})).getStatusImage()]]></imageExpression>
+            </image>
+            <textField>
+                <reportElement style="Header_Bold" x="65" y="25" width="300" height="20"/>
+                <textElement textAlignment="Left" verticalAlignment="Middle"/>
+                <textFieldExpression>
+                    <![CDATA["Current Session : " + ((TestComparisonSummaryTDO)$P{context}.getParameters().get($V{summaryKey})).getCurrentSessionId()]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement style="Header_Bold" x="65" y="45" width="300" height="20"/>
+                <textElement textAlignment="Left" verticalAlignment="Middle"/>
+                <textFieldExpression>
+                    <![CDATA["Baseline Session : " + ((TestComparisonSummaryTDO)$P{context}.getParameters().get($V{summaryKey})).getBaselineSessionId()]]></textFieldExpression>
+            </textField>
+        </band>
+    </title>
+    <columnHeader>
+        <band height="35" splitType="Stretch">
+            <printWhenExpression>
+                <![CDATA[(((TestComparisonSummaryTDO)$P{context}.getParameters().get($V{summaryKey})).isActive()) ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
+            <staticText>
+                <reportElement style="Compact_Header_Bold" mode="Opaque" x="0" y="0" width="70" height="30"
+                               forecolor="#000000" backcolor="#D7FFB0"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[Status]]></text>
+            </staticText>
+            <staticText>
+                <reportElement style="Compact_Header_Bold" mode="Opaque" x="70" y="0" width="200" height="30"
+                               forecolor="#000000" backcolor="#D7FFB0"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[Scenario Name]]></text>
+            </staticText>
+            <staticText>
+                <reportElement style="Compact_Header_Bold" mode="Opaque" x="270" y="0" width="40" height="30"
+                               forecolor="#000000" backcolor="#D7FFB0"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[Scenario Version]]></text>
+            </staticText>
+            <staticText>
+                <reportElement style="Compact_Header_Bold" mode="Opaque" x="310" y="0" width="40" height="30"
+                               forecolor="#000000" backcolor="#D7FFB0"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[Clock]]></text>
+            </staticText>
+            <staticText>
+                <reportElement style="Compact_Header_Bold" mode="Opaque" x="350" y="0" width="40" height="30"
+                               forecolor="#000000" backcolor="#D7FFB0"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[Throughput Deviation]]></text>
+            </staticText>
+            <staticText>
+                <reportElement style="Compact_Header_Bold" mode="Opaque" x="390" y="0" width="40" height="30"
+                               forecolor="#000000" backcolor="#D7FFB0"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[Total Duration Deviation]]></text>
+            </staticText>
+            <staticText>
+                <reportElement style="Compact_Header_Bold" mode="Opaque" x="430" y="0" width="40" height="30"
+                               forecolor="#000000" backcolor="#D7FFB0"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[Mean Latency Deviation]]></text>
+            </staticText>
+            <staticText>
+                <reportElement style="Compact_Header_Bold" mode="Opaque" x="470" y="0" width="40" height="30"
+                               forecolor="#000000" backcolor="#D7FFB0"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[StdDev Latency Deviation]]></text>
+            </staticText>
+            <staticText>
+                <reportElement style="Compact_Header_Bold" mode="Opaque" x="510" y="0" width="40" height="30"
+                               forecolor="#000000" backcolor="#D7FFB0"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[Success Rate Deviation]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+    <detail>
+        <band height="22" splitType="Stretch">
+            <image scaleImage="RetainShape" hAlign="Center" vAlign="Middle">
+                <reportElement positionType="Float" x="0" y="0" width="70" height="20"/>
+                <imageExpression class="java.awt.Image"><![CDATA[$F{statusImage}]]></imageExpression>
+            </image>
+            <textField isStretchWithOverflow="true">
+                <reportElement style="Compact_Header_Bold" x="70" y="0" width="200" height="20"/>
+                <textElement textAlignment="Left" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{scenario}.getName()]]></textFieldExpression>
+            </textField>
+            <textField isStretchWithOverflow="true">
+                <reportElement style="Compact_Header_Bold" x="270" y="0" width="40" height="20"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{scenario}.getVersion()]]></textFieldExpression>
+            </textField>
+            <textField isStretchWithOverflow="true">
+                <reportElement style="Compact_Header_Bold" x="310" y="0" width="40" height="20"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{clock}]]></textFieldExpression>
+            </textField>
+            <textField isStretchWithOverflow="true" pattern="##0.00%">
+                <reportElement style="Compact_Header_Bold" positionType="Float" x="350" y="0" width="40" height="20"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression class="java.lang.Double"><![CDATA[$F{throughputDeviation}]]></textFieldExpression>
+            </textField>
+            <textField isStretchWithOverflow="true" pattern="##0.00%">
+                <reportElement style="Compact_Header_Bold" positionType="Float" x="390" y="0" width="40" height="20"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression class="java.lang.Double"><![CDATA[$F{totalDurationDeviation}]]></textFieldExpression>
+            </textField>
+            <textField isStretchWithOverflow="true" pattern="##0.00%">
+                <reportElement style="Compact_Header_Bold" positionType="Float" x="430" y="0" width="40" height="20"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression class="java.lang.Double"><![CDATA[$F{avgLatencyDeviation}]]></textFieldExpression>
+            </textField>
+            <textField isStretchWithOverflow="true" pattern="##0.00%">
+                <reportElement style="Compact_Header_Bold" positionType="Float" x="470" y="0" width="40" height="20"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression class="java.lang.Double"><![CDATA[$F{stdDevLatencyDeviation}]]></textFieldExpression>
+            </textField>
+            <textField isStretchWithOverflow="true" pattern="##0.00%">
+                <reportElement style="Compact_Header_Bold" positionType="Float" x="510" y="0" width="40" height="20"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression class="java.lang.Double"><![CDATA[$F{successRateDeviation}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+</jasperReport>

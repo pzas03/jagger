@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<!--
+  ~ Copyright (c) 2010-2012 Grid Dynamics Consulting Services, Inc, All Rights Reserved
+  ~ http://www.griddynamics.com
+  ~
+  ~ This library is free software; you can redistribute it and/or modify it under the terms of
+  ~ the GNU Lesser General Public License as published by the Free Software Foundation; either
+  ~ version 2.1 of the License, or any later version.
+  ~
+  ~ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  ~ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  ~ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  ~ DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+  ~ FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  ~ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  ~ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  ~ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  ~ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  ~ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  -->
+
+<!DOCTYPE jasperReport
+        PUBLIC "-//JasperReports//DTD Report Design//EN"
+        "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+
+<jasperReport name="LatencyReport" columnCount="1"
+              pageWidth="595" pageHeight="842" orientation="Landscape" columnWidth="550" leftMargin="0" rightMargin="0"
+              topMargin="0" bottomMargin="0">
+
+    <template class="java.io.InputStream">
+        <![CDATA[ $P{context}.getResource("reporting/styles/default-styles.xml") ]]></template>
+    <parameter name="context" class="com.griddynamics.jagger.reporting.ReportingContext"/>
+
+    <field name="image" class="java.awt.Image"/>
+
+    <title>
+        <band height="80" isSplitAllowed="false">
+            <rectangle>
+                <reportElement x="0" y="0" width="550" height="20" backcolor="#000000"/>
+                <graphicElement>
+                    <pen>None</pen>
+                </graphicElement>
+            </rectangle>
+            <staticText>
+                <reportElement x="0" y="0" width="550" height="20" positionType="Float" style="Header_Bold"
+                               forecolor="#aaaaaa"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[Latency Plots]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="10" y="30" width="550" height="20"/>
+                <text>Key 1 : Value 1</text>
+            </staticText>
+            <staticText>
+                <reportElement x="10" y="50" width="550" height="20"/>
+                <text>Key 2 : Value 2</text>
+            </staticText>
+        </band>
+    </title>
+
+    <detail>
+        <band height="500">
+            <image scaleImage="RetainShape" hAlign="Center" isUsingCache="true" isLazy="true">
+                <reportElement x="0" y="0" width="550" height="500"/>
+                <imageExpression class="java.awt.Image"><![CDATA[$F{image}]]></imageExpression>
+            </image>
+        </band>
+    </detail>
+</jasperReport>

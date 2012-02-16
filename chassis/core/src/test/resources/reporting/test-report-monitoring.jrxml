@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<!--
+  ~ Copyright (c) 2010-2012 Grid Dynamics Consulting Services, Inc, All Rights Reserved
+  ~ http://www.griddynamics.com
+  ~
+  ~ This library is free software; you can redistribute it and/or modify it under the terms of
+  ~ the GNU Lesser General Public License as published by the Free Software Foundation; either
+  ~ version 2.1 of the License, or any later version.
+  ~
+  ~ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  ~ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  ~ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  ~ DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+  ~ FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  ~ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  ~ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  ~ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  ~ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  ~ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  -->
+
+<!DOCTYPE jasperReport
+        PUBLIC "-//JasperReports//DTD Report Design//EN"
+        "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+
+<jasperReport name="MonitoringReport" columnCount="1"
+        pageWidth="595" pageHeight="842" orientation="Landscape" columnWidth="550" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+
+    <template class="java.io.InputStream"><![CDATA[ $P{context}.getResource("reporting/styles/default-styles.xml") ]]></template>
+    <parameter name="context" class="com.griddynamics.jagger.reporting.ReportingContext"/>
+
+    <field name="testName" class="java.lang.String"/>
+    <field name="cpuUtilization" class="java.lang.Integer"/>
+
+    <title>
+        <band height="40" isSplitAllowed="false">
+            <rectangle>
+                <reportElement x="0" y="0" width="550" height="20" backcolor="#000000"/>
+                <graphicElement pen="None"/>
+            </rectangle>
+            <staticText>
+                <reportElement x="0" y="0" width="550" height="20" positionType="Float" style="Header_Bold" forecolor="#aaaaaa"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[Monitoring]]></text>
+            </staticText>
+        </band>
+    </title>
+
+    <columnHeader>
+        <band height="23">
+            <rectangle>
+                <reportElement x="0" y="0" width="550" height="22" backcolor="#333333"/>
+                <graphicElement/>
+            </rectangle>
+            <staticText>
+                <reportElement mode="Opaque" x="0" y="0" width="40" height="21" forecolor="#ffffff" backcolor="#333333" style="Header_Bold"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text>Node ID</text>
+            </staticText>
+            <staticText>
+                <reportElement mode="Opaque" x="40" y="0" width="130" height="21" forecolor="#ffffff" backcolor="#333333" style="Header_Bold"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text>Average CPU
+Utilization</text>
+            </staticText>
+            <staticText>
+                <reportElement mode="Opaque" x="190" y="0" width="130" height="21" forecolor="#ffffff" backcolor="#333333" style="Header_Bold"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text>Average Network
+Utilization</text>
+            </staticText>
+            <staticText>
+                <reportElement mode="Opaque" x="340" y="0" width="130" height="21" forecolor="#ffffff" backcolor="#333333" style="Header_Bold"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text>Average Memory
+Utilization</text>
+            </staticText>
+        </band>
+    </columnHeader>
+
+    <detail>
+        <band height="12">
+            <textField>
+                <reportElement x="1" y="0" width="40" height="10" style="Header_Bold"/>
+                <textElement textAlignment="Center"/>
+                <textFieldExpression class="java.lang.String"><![CDATA[$F{testName}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="40" y="0" width="130" height="10" style="Header_Bold"/>
+                <textElement textAlignment="Center"/>
+                <textFieldExpression class="java.lang.Integer"><![CDATA[$F{cpuUtilization}]]></textFieldExpression>
+            </textField>
+            <line><reportElement positionType="Float" x="0" y="11" width="550" height="1" forecolor="#808080"/><graphicElement pen="Thin"/></line>
+        </band>
+    </detail>
+</jasperReport>
