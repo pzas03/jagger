@@ -52,9 +52,9 @@
     </modules>
 
     <scm>
-        <url>git://github.com/joesephz/jagger.git</url>
-        <connection>scm:git:git://github.com/joesephz/jagger.git</connection>
-        <developerConnection>scm:git:git@github.com:joesephz/jagger.git</developerConnection>
+        <url>git://github.com/griddynamics/jagger.git</url>
+        <connection>scm:git:git://github.com/griddynamics/jagger.git</connection>
+        <developerConnection>scm:git:git@github.com:griddynamics/jagger.git</developerConnection>
     </scm>
 
     <issueManagement>
