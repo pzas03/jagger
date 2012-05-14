@@ -44,11 +44,11 @@
     </properties>
 
     <modules>
-        <module>../monitoring/agent</module>
-        <module>../diagnostics</module>
-        <module>../chassis/parent</module>
-        <module>../distribution</module>
-        <module>../facade</module>
+        <module>monitoring/agent</module>
+        <module>diagnostics</module>
+        <module>chassis/</module>
+        <module>distribution</module>
+        <module>facade</module>
     </modules>
 
     <scm>
