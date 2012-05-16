@@ -50,7 +50,7 @@
     </modules>
 
     <scm>
-        <url>git://github.com/griddynamics/jagger.git</url>
+        <url>https://github.com/griddynamics/jagger</url>
         <connection>scm:git:git://github.com/griddynamics/jagger.git</connection>
         <developerConnection>scm:git:git@github.com:griddynamics/jagger.git</developerConnection>
     </scm>
@@ -90,6 +90,19 @@
             <url>${releaseDistributionLocation}</url>
         </repository>
     </distributionManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.github.github</groupId>
+            <artifactId>site-maven-plugin</artifactId>
+            <version>0.6</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.github</groupId>
+            <artifactId>downloads-maven-plugin</artifactId>
+            <version>0.5</version>
+        </dependency>
+    </dependencies>
 
     <dependencyManagement>
         <dependencies>
@@ -494,21 +507,11 @@
                         <artifactId>downloads-maven-plugin</artifactId>
                         <version>0.5</version>
                         <configuration>
-                            <description>Official ${project.name} build of the ${project.version} release</description>
+                            <description>${project.name} build of the ${project.version} release</description>
+                            <server>github</server>
                             <override>true</override>
                             <includeAttached>true</includeAttached>
-                            <server>github</server>
                         </configuration>
-<!--
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>upload</goal>
-                                </goals>
-                                <phase>install</phase>
-                            </execution>
-                        </executions>
--->
                     </plugin>
                     <plugin>
                         <groupId>com.github.github</groupId>
