@@ -6,46 +6,35 @@ Jagger is a free application suite for continuous performance testing.
 Jagger features:
 ----------------
 
-* Full Automation »
+* <b>Full Automation »</b>
+  Fully automated test run from CI tools, results tracking and alerting.
 
-Fully automated test run from CI tools, results tracking and alerting.
+* <b>Distributed Testing »</b>
+  Distributed workload generation and monitoring.
 
-* Distributed Testing »
+* <b>Embedded Monitoring »</b>
+  Collection of system metrics and JVM metrics via JMX or SNMP.
 
-Distributed workload generation and monitoring.
+* <b>Embedded JVM Profiler »</b>
+  Sampling profiler for Java applications and hot spots detection.
 
-* Embedded Monitoring »
+* <b>Results Warehousing and Browsing »</b>
+  Test results saving to DB and web console for results browsing.
 
-Collection of system metrics and JVM metrics via JMX or SNMP.
+* <b>Advanced Workload Management »</b>
+  Specify workload as a function of time, CPU utilization, memory usage and more.
 
-* Embedded JVM Profiler »
+* <b>Passive Performance Measurements »</b>
+  Load arbitrary metrics from external sources to Jagger and involve them into analysis.
 
-Sampling profiler for Java applications and hot spots detection.
+* <b>Functional Validation under Workload »</b>
+  Automatic capturing of expected results before performance test.
 
-* Results Warehousing and Browsing »
+* <b>Open Configuration »</b>
+  Override any component and write test scenarios in Java, Groovy, or JRuby.
 
-Test results saving to DB and web console for results browsing.
+* <b>Simulation of Network Failures and Maintenance Operations »</b>
+  Simulate packet losses, communication delays, nodes restart in cluster environment.
 
-* Advanced Workload Management »
-
-Specify workload as a function of time, CPU utilization, memory usage and more.
-
-* Passive Performance Measurements »
-
-Load arbitrary metrics from external sources to Jagger and involve them into analysis.
-
-* Functional Validation under Workload »
-
-Automatic capturing of expected results before performance test.
-
-* Open Configuration »
-
-Override any component and write test scenarios in Java, Groovy, or JRuby.
-
-* Simulation of Network Failures and Maintenance Operations »
-
-Simulate packet losses, communication delays, nodes restart in cluster environment.
-
-* Commercial Support »
-
-Enterprise class support and consulting available.
+* <b>Commercial Support »</b>
+  Enterprise class support and consulting available.
