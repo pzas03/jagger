@@ -27,8 +27,7 @@ import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MonitoringReportProvider implements ReportProvider {
-    private ReportingContext context;
+public class MonitoringReportProvider extends AbstractReportProvider {
 
     public static class MonitoringReportDTO {
         private String testName;
@@ -65,11 +64,6 @@ public class MonitoringReportProvider implements ReportProvider {
     }
 
     public JasperReport getReport() {
-        return context.getReport("reporting/test-report-monitoring.jrxml");
+        return getContext().getReport("reporting/test-report-monitoring.jrxml");
     }
-
-    public void setContext(ReportingContext context) {
-        this.context = context;
-    }
-
 }
