@@ -29,6 +29,8 @@
         <format>dir</format>
     </formats>
 
+    <includeBaseDirectory>false</includeBaseDirectory>
+
     <dependencySets>
         <dependencySet>
             <outputDirectory>lib</outputDirectory>
