@@ -81,9 +81,6 @@ public class WorkloadReporter extends HibernateDaoSupport implements ReportProvi
             reportData.setNumber(workloadData.getNumber().toString());
 			reportData.setScenarioName(workloadData.getScenario().getName());
 			reportData.setVersion(workloadData.getScenario().getVersion());
-			BigDecimal duration = new BigDecimal(workloadData.getEndTime().getTime()
-					- workloadData.getStartTime().getTime()).divide(new BigDecimal(1000));
-			reportData.setDuration(duration);
 
 			WorkloadTaskData resultData = null;
 			for (WorkloadTaskData workloadTaskData : allWorkloadTasks) {
@@ -97,6 +94,7 @@ public class WorkloadReporter extends HibernateDaoSupport implements ReportProvi
 				throw new IllegalStateException("Result data is not specified");
 			}
 
+            reportData.setDuration(resultData.getTotalDuration());
 			reportData.setSamples(resultData.getSamples());
 			reportData.setClock(resultData.getClock());
 			reportData.setTermination(resultData.getTermination());
