@@ -60,11 +60,6 @@ public class LatencyPlotReportProvider extends AbstractReportProvider {
         return new JRBeanCollectionDataSource(plots);
     }
 
-    @Override
-    public JasperReport getReport() {
-        return getContext().getReport("reporting/test-report-latency-chart.jrxml");
-    }
-
     private JFreeChart createChart(String title) {
 
         if(false) {

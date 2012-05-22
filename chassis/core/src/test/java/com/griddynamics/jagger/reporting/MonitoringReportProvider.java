@@ -21,7 +21,6 @@
 package com.griddynamics.jagger.reporting;
 
 import net.sf.jasperreports.engine.JRDataSource;
-import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 
 import java.util.ArrayList;
@@ -61,9 +60,5 @@ public class MonitoringReportProvider extends AbstractReportProvider {
         }
 
         return new JRBeanCollectionDataSource(data);
-    }
-
-    public JasperReport getReport() {
-        return getContext().getReport("reporting/test-report-monitoring.jrxml");
     }
 }
