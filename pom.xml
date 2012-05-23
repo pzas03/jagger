@@ -47,6 +47,7 @@
         <module>chassis/</module>
         <module>distribution</module>
         <module>facade</module>
+        <module>webclient</module>
     </modules>
 
     <scm>
