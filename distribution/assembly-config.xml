@@ -36,6 +36,7 @@
             <outputDirectory>lib</outputDirectory>
             <excludes>
                 <exclude>*com.griddynamics.jagger*</exclude>
+                <exclude>*:*:zip</exclude>
             </excludes>
         </dependencySet>
 
