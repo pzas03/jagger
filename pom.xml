@@ -425,6 +425,16 @@
         </dependencies>
     </dependencyManagement>
 
+    <build>
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-http</artifactId>
+                <version>1.0-beta-6</version>
+            </extension>
+        </extensions>
+    </build>
+
     <profiles>
         <profile>
             <id>default</id>
