@@ -1,0 +1,18 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+
+    <g:DockLayoutPanel unit="PX" styleName="main-panel">
+        <g:north size="25">
+            <g:HTMLPanel styleName="nav-panel">
+                <ul>
+                    <li><a id="trends" href="#trends:">Trends</a></li>
+                    <li><a id="view-results" href="#viewResults:">View Results</a></li>
+                </ul>
+            </g:HTMLPanel>
+        </g:north>
+
+        <g:center>
+            <g:SimpleLayoutPanel styleName="content-panel" ui:field="contentPanel"/>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>
