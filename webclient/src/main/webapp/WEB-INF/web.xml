@@ -5,4 +5,14 @@
 		  http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
            version="2.5">
 
+    <servlet>
+        <servlet-name>SessionDataServiceImpl</servlet-name>
+        <servlet-class>com.griddynamics.jagger.webclient.server.SessionDataServiceImpl</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>SessionDataServiceImpl</servlet-name>
+        <url-pattern>/com.griddynamics.jagger.webclient.JaggerWebClient/SessionDataService</url-pattern>
+    </servlet-mapping>
+
 </web-app>
