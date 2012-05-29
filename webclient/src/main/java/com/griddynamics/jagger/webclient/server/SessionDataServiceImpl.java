@@ -9,9 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -20,29 +19,38 @@ import java.util.List;
  */
 public class SessionDataServiceImpl extends RemoteServiceServlet implements SessionDataService {
     private static final Logger log = LoggerFactory.getLogger(SessionDataServiceImpl.class);
-    private static final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("jagger");
 
     @Override
     public PagedSessionDataDto getAll(int start, int length) {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        long totalSize = (Long) entityManager.createQuery("select count(sessionData.id) from SessionData as sessionData").getSingleResult();
-        List<SessionData> sessionDataList = (List<SessionData>)
-                entityManager.createQuery("select sd from SessionData as sd order by sd.sessionId asc").setFirstResult(start).setMaxResults(length).getResultList();
+        EntityManager entityManager = EntityManagerProvider.getEntityManagerFactory().createEntityManager();
+        long totalSize;
+        List<SessionDataDto> sessionDataDtoList;
+        try {
+            totalSize = (Long) entityManager.createQuery("select count(sessionData.id) from SessionData as sessionData").getSingleResult();
+            List<SessionData> sessionDataList = (List<SessionData>)
+                    entityManager.createQuery("select sd from SessionData as sd order by sd.startTime asc").setFirstResult(start).setMaxResults(length).getResultList();
 
-        List<SessionDataDto> sessionDataDtoList = new ArrayList<SessionDataDto>(sessionDataList.size());
-        for (SessionData sessionData : sessionDataList) {
-            sessionDataDtoList.add(new SessionDataDto(
-                    "Session " + sessionData.getSessionId(),
-                    sessionData.getStartTime(),
-                    sessionData.getEndTime(),
-                    sessionData.getActiveKernels(),
-                    sessionData.getTaskExecuted(),
-                    sessionData.getTaskFailed())
-            );
+            if (sessionDataList == null) {
+                return new PagedSessionDataDto(Collections.<SessionDataDto>emptyList(), 0);
+            }
+
+            sessionDataDtoList = new ArrayList<SessionDataDto>(sessionDataList.size());
+            for (SessionData sessionData : sessionDataList) {
+                sessionDataDtoList.add(new SessionDataDto(
+                        sessionData.getSessionId(),
+                        sessionData.getStartTime(),
+                        sessionData.getEndTime(),
+                        sessionData.getActiveKernels(),
+                        sessionData.getTaskExecuted(),
+                        sessionData.getTaskFailed())
+                );
+            }
+
+            log.info("SessionData count is {}", totalSize);
+            log.info("SessionDataDto: {}", sessionDataDtoList);
+        } finally {
+            entityManager.close();
         }
-
-        log.info("SessionData count is {}", totalSize);
-        log.info("SessionDataDto: {}", sessionDataDtoList);
 
         return new PagedSessionDataDto(sessionDataDtoList, (int) totalSize);
     }

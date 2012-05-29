@@ -7,6 +7,8 @@
         <provider>org.hibernate.ejb.HibernatePersistence</provider>
 
         <class>com.griddynamics.jagger.engine.e1.aggregator.session.model.SessionData</class>
+        <class>com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadData</class>
+        <class>com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadDetails</class>
 
         <validation-mode>NONE</validation-mode>
 

@@ -8,7 +8,7 @@ import java.util.Date;
  * @since 5/29/12
  */
 public class SessionDataDto implements Serializable {
-    private String name;
+    private String sessionId;
     private Date startDate;
     private Date endDate;
     private int activeKernelsCount;
@@ -18,8 +18,8 @@ public class SessionDataDto implements Serializable {
     public SessionDataDto() {
     }
 
-    public SessionDataDto(String name, Date startDate, Date endDate, int activeKernelsCount, int tasksExecuted, int tasksFailed) {
-        this.name = name;
+    public SessionDataDto(String sessionId, Date startDate, Date endDate, int activeKernelsCount, int tasksExecuted, int tasksFailed) {
+        this.sessionId = sessionId;
         this.startDate = startDate;
         this.endDate = endDate;
         this.activeKernelsCount = activeKernelsCount;
@@ -28,7 +28,11 @@ public class SessionDataDto implements Serializable {
     }
 
     public String getName() {
-        return name;
+        return "Session " + sessionId;
+    }
+
+    public String getSessionId() {
+        return sessionId;
     }
 
     public Date getStartDate() {
@@ -58,20 +62,20 @@ public class SessionDataDto implements Serializable {
 
         SessionDataDto that = (SessionDataDto) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (getName() != null ? !getName().equals(that.getName()) : that.getName() != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return name != null ? name.hashCode() : 0;
+        return getName() != null ? getName().hashCode() : 0;
     }
 
     @Override
     public String toString() {
         return "SessionDataDto{" +
-                "name='" + name + '\'' +
+                "name='" + getName() + '\'' +
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
                 ", activeKernelsCount=" + activeKernelsCount +

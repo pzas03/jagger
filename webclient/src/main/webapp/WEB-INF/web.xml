@@ -10,9 +10,19 @@
         <servlet-class>com.griddynamics.jagger.webclient.server.SessionDataServiceImpl</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>WorkloadServiceImpl</servlet-name>
+        <servlet-class>com.griddynamics.jagger.webclient.server.WorkloadServiceImpl</servlet-class>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>SessionDataServiceImpl</servlet-name>
         <url-pattern>/com.griddynamics.jagger.webclient.JaggerWebClient/SessionDataService</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>WorkloadServiceImpl</servlet-name>
+        <url-pattern>/com.griddynamics.jagger.webclient.JaggerWebClient/WorkloadService</url-pattern>
     </servlet-mapping>
 
 </web-app>

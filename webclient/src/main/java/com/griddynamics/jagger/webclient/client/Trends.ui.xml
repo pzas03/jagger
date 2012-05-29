@@ -38,7 +38,7 @@
                         <g:west size="600">
                             <g:DockLayoutPanel>
                                 <g:center>
-                                    <c:DataGrid ui:field="sessionsDataGrid" width="100%"/>
+                                    <c:DataGrid ui:field="sessionsDataGrid" width="100%" title="Sessions"/>
                                 </g:center>
                                 <g:south size="30">
                                     <g:HTMLPanel>

@@ -29,7 +29,10 @@ import com.google.gwt.view.client.*;
 import com.google.gwt.view.client.Range;
 import com.griddynamics.jagger.webclient.client.dto.PagedSessionDataDto;
 import com.griddynamics.jagger.webclient.client.dto.SessionDataDto;
+import com.griddynamics.jagger.webclient.client.dto.WorkloadDetailsDto;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -140,7 +143,7 @@ public class Trends extends Composite {
 
     private void setupDataGrid() {
         sessionsDataGrid = new DataGrid<SessionDataDto>();
-        sessionsDataGrid.setPageSize(4);
+        sessionsDataGrid.setPageSize(15);
         sessionsDataGrid.setEmptyTableWidget(new Label("No Sessions"));
 
         // Add a selection model so we can select cells.
@@ -153,10 +156,24 @@ public class Trends extends Composite {
             public void onSelectionChange(SelectionChangeEvent event) {
                 Set<SessionDataDto> selected = ((MultiSelectionModel<SessionDataDto>) event.getSource()).getSelectedSet();
                 String message = "No Selected";
+
                 if (!selected.isEmpty()) {
                     message = selected.toString();
+                    WorkloadService.Async.getInstance().getWorkloadDetailsForSession(Arrays.asList("1", "2"), new AsyncCallback<List<WorkloadDetailsDto>>() {
+                        @Override
+                        public void onFailure(Throwable caught) {
+                            Window.alert("Error is occurred during server request processing (Workload details fetching)");
+                        }
+
+                        @Override
+                        public void onSuccess(List<WorkloadDetailsDto> result) {
+                            list.setText(result.toString());
+                        }
+                    });
+                } else {
+                    list.setText(message);
                 }
-                list.setText(message);
+
             }
         });
 
