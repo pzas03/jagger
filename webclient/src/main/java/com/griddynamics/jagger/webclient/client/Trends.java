@@ -159,47 +159,7 @@ public class Trends extends Composite {
         final MultiSelectionModel<PlotNameDto> selectionModel = new MultiSelectionModel<PlotNameDto>();
         taskDetailsTree = new CellTree(new WorkloadTaskDetailsTreeViewModel(selectionModel), null, res);
 
-        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-            @Override
-            public void onSelectionChange(SelectionChangeEvent event) {
-                Set<PlotNameDto> selected = ((MultiSelectionModel<PlotNameDto>) event.getSource()).getSelectedSet();
-
-                if (!selected.isEmpty()) {
-                    for (final PlotNameDto plotNameDto : selected) {
-                        final String id = generateId(plotNameDto);
-                        if (plotPanel.getElementById(id) != null) {
-                            continue;
-                        }
-
-                        PlotProviderService.Async.getInstance().getPlotData(plotNameDto.getTaskId(), plotNameDto.getPlotName(), new AsyncCallback<List<PointDto>>() {
-                            @Override
-                            public void onFailure(Throwable caught) {
-                                Window.alert("Error is occurred during server request processing (Throughput data fetching)");
-                            }
-
-                            @Override
-                            public void onSuccess(List<PointDto> result) {
-                                SimplePlot plot = createPlot();
-                                PlotModel plotModel = plot.getModel();
-                                SeriesHandler handler = plotModel.addSeries(plotNameDto.getPlotName() + ", task-" + plotNameDto.getTaskId(), "#007f00");
-
-                                for (PointDto pointDto : result) {
-                                    handler.add(new DataPoint(pointDto.getX(), pointDto.getY()));
-                                }
-
-                                plot.getElement().setId(id);
-                                plotPanel.add(plot);
-                                Label xLabel = new Label("Time (sec)");
-                                xLabel.addStyleName("x-axis-label");
-                                plotPanel.add(xLabel);
-
-                                plot.redraw();
-                            }
-                        });
-                    }
-                }
-            }
-        });
+        selectionModel.addSelectionChangeHandler(new TaskPlotSelectionChangedHandler());
     }
 
     private String generateId(PlotNameDto plotNameDto) {
@@ -286,6 +246,48 @@ public class Trends extends Composite {
                 plotPanel.clear();
                 taskDataProvider.getList().clear();
                 taskDataProvider.getList().add(WorkloadTaskDetailsTreeViewModel.getNoTasksDummyNode());
+            }
+        }
+    }
+
+    private class TaskPlotSelectionChangedHandler implements SelectionChangeEvent.Handler {
+        @Override
+        public void onSelectionChange(SelectionChangeEvent event) {
+            Set<PlotNameDto> selected = ((MultiSelectionModel<PlotNameDto>) event.getSource()).getSelectedSet();
+
+            if (!selected.isEmpty()) {
+                for (final PlotNameDto plotNameDto : selected) {
+                    final String id = generateId(plotNameDto);
+                    if (plotPanel.getElementById(id) != null) {
+                        continue;
+                    }
+
+                    PlotProviderService.Async.getInstance().getPlotData(plotNameDto.getTaskId(), plotNameDto.getPlotName(), new AsyncCallback<List<PointDto>>() {
+                        @Override
+                        public void onFailure(Throwable caught) {
+                            Window.alert("Error is occurred during server request processing (Throughput data fetching)");
+                        }
+
+                        @Override
+                        public void onSuccess(List<PointDto> result) {
+                            SimplePlot plot = createPlot();
+                            PlotModel plotModel = plot.getModel();
+                            SeriesHandler handler = plotModel.addSeries(plotNameDto.getPlotName() + ", task-" + plotNameDto.getTaskId(), "#007f00");
+
+                            for (PointDto pointDto : result) {
+                                handler.add(new DataPoint(pointDto.getX(), pointDto.getY()));
+                            }
+
+                            plot.getElement().setId(id);
+                            plotPanel.add(plot);
+                            Label xLabel = new Label("Time (sec)");
+                            xLabel.addStyleName("x-axis-label");
+                            plotPanel.add(xLabel);
+
+                            plot.redraw();
+                        }
+                    });
+                }
             }
         }
     }
