@@ -20,6 +20,7 @@
 
 package com.griddynamics.jagger.user;
 
+import com.google.common.base.Preconditions;
 import com.griddynamics.jagger.reporting.ReportingService;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
@@ -80,18 +81,37 @@ public class ProcessingConfig implements Serializable {
             @ElementList(name = "users", entry = "user", inline = true, required = false)
             public final List<User> users;
 
+            @Element(name = "invocation", required = false)
+            public final Invocation invocation;
+
             public Task(@Attribute(name = "name") String name,
                         @Attribute(name = "duration", required = false) String duration,
                         @Attribute(name = "sample", required = false) String sample,
                         @Attribute(name = "delay") String delay,
                         @Attribute(name = "bean") String bean,
-                        @ElementList(name = "users", entry = "user", inline = true, required = false) List<User> users) {
+                        @ElementList(name = "users", entry = "user", inline = true, required = false) List<User> users,
+                        @Element(name = "invocation", required = false) Invocation invocation) {
                 this.name = name;
                 this.duration = duration;
                 this.sample = sample;
                 this.delay = delay;
                 this.bean = bean;
                 this.users = Collections.unmodifiableList((users != null) ? users : new ArrayList<User>(0));
+                this.invocation = invocation;
+            }
+
+            public static class Invocation implements Serializable {
+                @Attribute(name = "count")
+                public final Integer count;
+
+                @Attribute(name = "threads", required = false)
+                public final Integer threads;
+
+                public Invocation(@Attribute(name = "count") Integer count,
+                                  @Attribute(name = "threads", required = false) Integer threads) {
+                    this.count = count;
+                    this.threads = threads != null ? threads : 1;
+                }
             }
 
             public static class User implements Serializable {
