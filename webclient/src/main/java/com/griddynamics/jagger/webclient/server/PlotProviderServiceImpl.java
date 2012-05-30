@@ -18,18 +18,12 @@ import java.util.List;
  */
 public class PlotProviderServiceImpl extends RemoteServiceServlet implements PlotProviderService {
     private static final Logger log = LoggerFactory.getLogger(PlotProviderServiceImpl.class);
-    private static final List<String> plotNames = new ArrayList<String>();
-
-    static {
-        plotNames.add("Latency");
-        plotNames.add("Throughput");
-    }
 
     @Override
     public List<PlotNameDto> getPlotListForTask(long taskId) {
-        List<PlotNameDto> plotNameDtoList = new ArrayList<PlotNameDto>(plotNames.size());
-        for (String name : plotNames) {
-            plotNameDtoList.add(new PlotNameDto(taskId, name));
+        List<PlotNameDto> plotNameDtoList = new ArrayList<PlotNameDto>(Plot.values().length);
+        for (Plot name : Plot.values()) {
+            plotNameDtoList.add(new PlotNameDto(taskId, name.getText()));
         }
         return plotNameDtoList;
     }
@@ -59,5 +53,16 @@ public class PlotProviderServiceImpl extends RemoteServiceServlet implements Plo
         }
 
         return pointDtoList;
+    }
+
+    @Override
+    public List<PointDto> getPlotData(long taskId, String plotType) {
+        Plot plot = Enum.valueOf(Plot.class, plotType.toUpperCase());
+
+        if (plot == Plot.THROUGHPUT) {
+            return getThroughputData(taskId);
+        }
+
+        throw new UnsupportedOperationException("Plot type " + plot + " doesn't supported");
     }
 }

@@ -17,6 +17,7 @@ public interface PlotProviderService extends RemoteService {
 
     List<PlotNameDto> getPlotListForTask(long taskId);
     List<PointDto> getThroughputData(long taskId);
+    List<PointDto> getPlotData(long taskId, String plotType);
 
     public static class Async {
         private static final PlotProviderServiceAsync ourInstance = (PlotProviderServiceAsync) GWT.create(PlotProviderService.class);

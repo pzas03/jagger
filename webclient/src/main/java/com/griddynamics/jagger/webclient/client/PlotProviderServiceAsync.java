@@ -14,4 +14,6 @@ public interface PlotProviderServiceAsync {
     void getPlotListForTask(long taskId, AsyncCallback<List<PlotNameDto>> async);
 
     void getThroughputData(long taskId, AsyncCallback<List<PointDto>> async);
+
+    void getPlotData(long taskId, String plotType, AsyncCallback<List<PointDto>> async);
 }

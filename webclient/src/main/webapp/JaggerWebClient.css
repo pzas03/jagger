@@ -5,3 +5,7 @@ body {
     font-size: small;
     margin: 8px;
 }
+
+.x-axis-label {
+    text-align: center;
+}

@@ -161,7 +161,7 @@ public class WorkloadTaskDetailsTreeViewModel implements TreeViewModel {
         @Override
         public void render(Context context, TaskDataDto value, SafeHtmlBuilder sb) {
             if (value != null) {
-                sb.appendEscaped(value.getTaskName());
+                sb.appendEscaped(""+value.getId() + "#" +value.getTaskName());
             }
         }
     }

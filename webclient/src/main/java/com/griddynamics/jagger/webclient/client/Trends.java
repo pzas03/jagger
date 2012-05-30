@@ -1,6 +1,9 @@
 package com.griddynamics.jagger.webclient.client;
 
-import ca.nanometrics.gflot.client.*;
+import ca.nanometrics.gflot.client.DataPoint;
+import ca.nanometrics.gflot.client.PlotModel;
+import ca.nanometrics.gflot.client.SeriesHandler;
+import ca.nanometrics.gflot.client.SimplePlot;
 import ca.nanometrics.gflot.client.event.PlotHoverListener;
 import ca.nanometrics.gflot.client.event.PlotItem;
 import ca.nanometrics.gflot.client.event.PlotPosition;
@@ -64,7 +67,6 @@ public class Trends extends Composite {
 
         // Make the grid hoverable
         plotOptions.setGridOptions(new GridOptions().setHoverable(true));
-
         // create the plot
         SimplePlot plot = new SimplePlot(plotOptions);
         plot.setHeight(200);
@@ -163,29 +165,45 @@ public class Trends extends Composite {
                 Set<PlotNameDto> selected = ((MultiSelectionModel<PlotNameDto>) event.getSource()).getSelectedSet();
 
                 if (!selected.isEmpty()) {
-                    PlotNameDto plotNameDto = selected.iterator().next();
-                    PlotProviderService.Async.getInstance().getThroughputData(plotNameDto.getTaskId(), new AsyncCallback<List<PointDto>>() {
-                        @Override
-                        public void onFailure(Throwable caught) {
-                            Window.alert("Error is occurred during server request processing (Throughput data fetching)");
+                    for (final PlotNameDto plotNameDto : selected) {
+                        final String id = generateId(plotNameDto);
+                        if (plotPanel.getElementById(id) != null) {
+                            continue;
                         }
 
-                        @Override
-                        public void onSuccess(List<PointDto> result) {
-                            SimplePlot plot = createPlot();
-                            PlotModel plotModel = plot.getModel();
-                            SeriesHandler handler = plotModel.addSeries("Montana's Month Temperatures (Daily Average in &deg;C)", "#007f00");
-
-                            for (PointDto pointDto : result) {
-                                handler.add(new DataPoint(pointDto.getX(), pointDto.getY()));
+                        PlotProviderService.Async.getInstance().getPlotData(plotNameDto.getTaskId(), plotNameDto.getPlotName(), new AsyncCallback<List<PointDto>>() {
+                            @Override
+                            public void onFailure(Throwable caught) {
+                                Window.alert("Error is occurred during server request processing (Throughput data fetching)");
                             }
-                            plotPanel.add(plot);
-                            plot.redraw();
-                        }
-                    });
+
+                            @Override
+                            public void onSuccess(List<PointDto> result) {
+                                SimplePlot plot = createPlot();
+                                PlotModel plotModel = plot.getModel();
+                                SeriesHandler handler = plotModel.addSeries(plotNameDto.getPlotName() + ", task-" + plotNameDto.getTaskId(), "#007f00");
+
+                                for (PointDto pointDto : result) {
+                                    handler.add(new DataPoint(pointDto.getX(), pointDto.getY()));
+                                }
+
+                                plot.getElement().setId(id);
+                                plotPanel.add(plot);
+                                Label xLabel = new Label("Time (sec)");
+                                xLabel.addStyleName("x-axis-label");
+                                plotPanel.add(xLabel);
+
+                                plot.redraw();
+                            }
+                        });
+                    }
                 }
             }
         });
+    }
+
+    private String generateId(PlotNameDto plotNameDto) {
+        return "" + plotNameDto.getTaskId() + "_" + plotNameDto.getPlotName();
     }
 
     //==========Nested Classes
@@ -255,12 +273,8 @@ public class Trends extends Composite {
                                     plotNameDataProvider.getList().clear();
                                     plotNameDataProvider.getList().addAll(result);
 
-                                    for (PlotNameDto plotNameDto : plotNameSelectionModel.getSelectedSet()) {
-                                        plotNameSelectionModel.setSelected(plotNameDto, false);
-                                    }
-
                                     int childCount = taskDetailsTree.getRootTreeNode().getChildCount();
-                                    for (int i=0; i< childCount; i++) {
+                                    for (int i = 0; i < childCount; i++) {
                                         taskDetailsTree.getRootTreeNode().setChildOpen(i, false);
                                     }
                                 }
@@ -269,6 +283,7 @@ public class Trends extends Composite {
                     }
                 });
             } else {
+                plotPanel.clear();
                 taskDataProvider.getList().clear();
                 taskDataProvider.getList().add(WorkloadTaskDetailsTreeViewModel.getNoTasksDummyNode());
             }
