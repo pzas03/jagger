@@ -25,13 +25,9 @@
             <g:header>Trends</g:header>
             <g:SplitLayoutPanel>
                 <g:center>
-                    <g:HTMLPanel addStyleNames="{style.plotPanel}">
-                        <p:SimplePlot ui:field="plot" width="50%" height="50%" />
-
-                        <g:Label ui:field="hoverPoint" addStyleNames='{style.hoverPoint}' />
-
-                        <g:Label ui:field="cursorPosition" />
-                    </g:HTMLPanel>
+                    <g:ScrollPanel>
+                        <g:HTMLPanel addStyleNames="{style.plotPanel}" ui:field="plotPanel"/>
+                    </g:ScrollPanel>
                 </g:center>
                 <g:south size="200">
                     <g:SplitLayoutPanel>

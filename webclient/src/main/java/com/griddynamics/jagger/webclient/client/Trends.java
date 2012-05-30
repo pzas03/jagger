@@ -15,10 +15,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
 import com.google.gwt.view.client.Range;
 import com.griddynamics.jagger.webclient.client.dto.*;
@@ -38,15 +35,8 @@ public class Trends extends Composite {
 
     private static final String INSTRUCTIONS = "Point your mouse to a data point on the chart";
 
-    //Plot
-    @UiField(provided = true)
-    SimplePlot plot;
-
-    @UiField(provided = true)
-    Label hoverPoint = new Label(INSTRUCTIONS);
-
     @UiField
-    Label cursorPosition;
+    HTMLPanel plotPanel;
 
     @UiField(provided = true)
     DataGrid<SessionDataDto> sessionsDataGrid;
@@ -60,14 +50,13 @@ public class Trends extends Composite {
     private SessionDataAsyncDataProvider dataProvider = new SessionDataAsyncDataProvider();
 
     public Trends() {
-        createPlot();
         setupTaskDetailsTree();
         setupDataGrid();
         setupPager();
         initWidget(uiBinder.createAndBindUi(this));
     }
 
-    private void createPlot() {
+    private SimplePlot createPlot() {
         PlotOptions plotOptions = new PlotOptions();
         plotOptions.setGlobalSeriesOptions(new GlobalSeriesOptions()
                 .setLineSeriesOptions(new LineSeriesOptions().setLineWidth(1).setShow(true))
@@ -76,11 +65,10 @@ public class Trends extends Composite {
         // Make the grid hoverable
         plotOptions.setGridOptions(new GridOptions().setHoverable(true));
 
-        // create a series
-//        SeriesHandler handler = model.addSeries("Ottawa's Month Temperatures (Daily Average in &deg;C)", "#007f00");
-
         // create the plot
-        plot = new SimplePlot(plotOptions);
+        SimplePlot plot = new SimplePlot(plotOptions);
+        plot.setHeight(200);
+        plot.setWidth("100%");
 
         final PopupPanel popup = new PopupPanel();
         final Label label = new Label();
@@ -92,17 +80,16 @@ public class Trends extends Composite {
                 if (item != null) {
                     String text = "x: " + item.getDataPoint().getX() + ", y: " + item.getDataPoint().getY();
 
-                    hoverPoint.setText(text);
-
                     label.setText(text);
                     popup.setPopupPosition(item.getPageX() + 10, item.getPageY() - 25);
                     popup.show();
                 } else {
-                    hoverPoint.setText(INSTRUCTIONS);
                     popup.hide();
                 }
             }
         }, false);
+
+        return plot;
     }
 
     private void setupDataGrid() {
@@ -185,13 +172,14 @@ public class Trends extends Composite {
 
                         @Override
                         public void onSuccess(List<PointDto> result) {
+                            SimplePlot plot = createPlot();
                             PlotModel plotModel = plot.getModel();
                             SeriesHandler handler = plotModel.addSeries("Montana's Month Temperatures (Daily Average in &deg;C)", "#007f00");
 
                             for (PointDto pointDto : result) {
                                 handler.add(new DataPoint(pointDto.getX(), pointDto.getY()));
                             }
-
+                            plotPanel.add(plot);
                             plot.redraw();
                         }
                     });
