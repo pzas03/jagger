@@ -52,16 +52,18 @@
                             </g:DockLayoutPanel>
                         </g:west>
                         <g:center>
-                            <g:HTMLPanel>
-                                <table width="100%">
-                                    <tr>
-                                        <td align="left">Session Tasks:</td>
-                                    </tr>
-                                    <tr>
-                                        <td><c:CellTree title="Task Details" ui:field="taskDetailsTree"/></td>
-                                    </tr>
-                                </table>
-                            </g:HTMLPanel>
+                            <g:ScrollPanel>
+                                <g:HTMLPanel>
+                                    <table width="100%">
+                                        <tr>
+                                            <td>Session Tasks:</td>
+                                        </tr>
+                                        <tr>
+                                            <td><c:CellTree title="Task Details" ui:field="taskDetailsTree"/></td>
+                                        </tr>
+                                    </table>
+                                </g:HTMLPanel>
+                            </g:ScrollPanel>
                         </g:center>
                     </g:SplitLayoutPanel>
                 </g:south>
