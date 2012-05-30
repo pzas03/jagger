@@ -53,7 +53,14 @@
                         </g:west>
                         <g:center>
                             <g:HTMLPanel>
-                                <g:Label ui:field="list"/>
+                                <table width="100%">
+                                    <tr>
+                                        <td align="left">Session Tasks:</td>
+                                    </tr>
+                                    <tr>
+                                        <td><c:CellTree title="Task Details" ui:field="taskDetailsTree"/></td>
+                                    </tr>
+                                </table>
                             </g:HTMLPanel>
                         </g:center>
                     </g:SplitLayoutPanel>
@@ -63,7 +70,9 @@
 
         <g:tab>
             <g:header>View Results</g:header>
-            <c:CellTree title="Task Details" ui:field="taskDetailsTree"/>
+            <g:HTMLPanel>
+                <g:Label>View Results are coming soon</g:Label>
+            </g:HTMLPanel>
         </g:tab>
     </g:TabLayoutPanel>
 </ui:UiBinder>

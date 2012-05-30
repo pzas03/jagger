@@ -24,14 +24,9 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.*;
 import com.google.gwt.view.client.Range;
-import com.griddynamics.jagger.webclient.client.dto.PagedSessionDataDto;
-import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
-import com.griddynamics.jagger.webclient.client.dto.SessionDataDto;
-import com.griddynamics.jagger.webclient.client.dto.WorkloadDetailsDto;
+import com.griddynamics.jagger.webclient.client.dto.*;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
@@ -63,10 +58,6 @@ public class Trends extends Composite {
 
     @UiField(provided = true)
     CellTree taskDetailsTree;
-
-    //TODO: Remove it. For test purposes only.
-    @UiField(provided = true)
-    Label list;
 
     private SessionDataAsyncDataProvider dataProvider = new SessionDataAsyncDataProvider();
 
@@ -149,39 +140,42 @@ public class Trends extends Composite {
         sessionsDataGrid.setEmptyTableWidget(new Label("No Sessions"));
 
         // Add a selection model so we can select cells.
-        final SelectionModel<SessionDataDto> selectionModel =
-                new MultiSelectionModel<SessionDataDto>();
+        final SelectionModel<SessionDataDto> selectionModel = new SingleSelectionModel<SessionDataDto>(new ProvidesKey<SessionDataDto>() {
+            @Override
+            public Object getKey(SessionDataDto item) {
+                return item.getSessionId();
+            }
+        });
         sessionsDataGrid.setSelectionModel(selectionModel, DefaultSelectionEventManager.<SessionDataDto>createCheckboxManager());
-        list = new Label("No Selected");
+
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
-                Set<SessionDataDto> selected = ((MultiSelectionModel<SessionDataDto>) event.getSource()).getSelectedSet();
-                String message = "No Selected";
+                SessionDataDto selected = ((SingleSelectionModel<SessionDataDto>) event.getSource()).getSelectedObject();
 
-                if (!selected.isEmpty()) {
-                    message = selected.toString();
-                    WorkloadService.Async.getInstance().getWorkloadDetailsForSession(Arrays.asList("1", "2"), new AsyncCallback<List<WorkloadDetailsDto>>() {
+                final ListDataProvider<TaskDataDto> taskDataProvider = ((WorkloadTaskDetailsTreeViewModel) taskDetailsTree.getTreeViewModel()).getTaskDataProvider();
+                if (selected != null) {
+                    TaskDataService.Async.getInstance().getTaskDataForSession(selected.getSessionId(), new AsyncCallback<List<TaskDataDto>>() {
                         @Override
                         public void onFailure(Throwable caught) {
-                            Window.alert("Error is occurred during server request processing (Workload details fetching)");
+                            Window.alert("Error is occurred during server request processing (Task data fetching)");
                         }
 
                         @Override
-                        public void onSuccess(List<WorkloadDetailsDto> result) {
-                            list.setText(result.toString());
+                        public void onSuccess(List<TaskDataDto> result) {
+                            taskDataProvider.getList().clear();
+                            taskDataProvider.getList().addAll(result);
                         }
                     });
                 } else {
-                    list.setText(message);
+                    taskDataProvider.getList().clear();
+                    taskDataProvider.getList().add(new TaskDataDto(-1, "", 0, "No Tasks", ""));
                 }
-
             }
         });
 
         // Checkbox column. This table will uses a checkbox column for selection.
-        // Alternatively, you can call dataGrid.setSelectionEnabled(true) to enable
-        // mouse selection.
+        // Alternatively, you can call dataGrid.setSelectionEnabled(true) to enable mouse selection.
         Column<SessionDataDto, Boolean> checkColumn =
                 new Column<SessionDataDto, Boolean>(new CheckboxCell(true, false)) {
                     @Override
@@ -226,12 +220,7 @@ public class Trends extends Composite {
 
     private void setupTaskDetailsTree() {
         CellTree.Resources res = GWT.create(CellTree.BasicResources.class);
-        final MultiSelectionModel<PlotNameDto> selectionModel = new MultiSelectionModel<PlotNameDto>(/*new ProvidesKey<PlotNameDto>() {
-            @Override
-            public Object getKey(PlotNameDto item) {
-                return item.getPlotType();
-            }
-        }*/);
+        final MultiSelectionModel<PlotNameDto> selectionModel = new MultiSelectionModel<PlotNameDto>();
         taskDetailsTree = new CellTree(new WorkloadTaskDetailsTreeViewModel(selectionModel), null, res);
     }
 

@@ -20,7 +20,7 @@ import java.util.List;
  */
 public class WorkloadTaskDetailsTreeViewModel implements TreeViewModel {
 
-    private ListDataProvider<TaskDataDto> taskDataDataProvider;
+    private ListDataProvider<TaskDataDto> taskDataProvider = new ListDataProvider<TaskDataDto>();
     private final SelectionModel<PlotNameDto> selectionModel;
     private final Cell<PlotNameDto> plotNameCell;
     private final DefaultSelectionEventManager<PlotNameDto> selectionManager =
@@ -28,11 +28,6 @@ public class WorkloadTaskDetailsTreeViewModel implements TreeViewModel {
 
     public WorkloadTaskDetailsTreeViewModel(final SelectionModel<PlotNameDto> selectionModel) {
         this.selectionModel = selectionModel;
-
-        ArrayList<TaskDataDto> taskDataDtoList = new ArrayList<TaskDataDto>();
-        taskDataDtoList.add(new TaskDataDto(1, "1", 1, "task-1", "Successful"));
-        taskDataDtoList.add(new TaskDataDto(1, "1", 2, "task-2", "Successful"));
-        taskDataDataProvider = new ListDataProvider<TaskDataDto>(taskDataDtoList);
 
         // Construct a composite cell for plots that includes a checkbox.
         List<HasCell<PlotNameDto, ?>> hasCells = new ArrayList<HasCell<PlotNameDto, ?>>();
@@ -100,8 +95,11 @@ public class WorkloadTaskDetailsTreeViewModel implements TreeViewModel {
     @Override
     public <T> NodeInfo<?> getNodeInfo(T value) {
         if (value == null) {
-            return new DefaultNodeInfo<TaskDataDto>(taskDataDataProvider, new TaskDataCell());
+            return new DefaultNodeInfo<TaskDataDto>(taskDataProvider, new TaskDataCell());
         } else if (value instanceof TaskDataDto) {
+            if (((TaskDataDto) value).getId() < 0) {
+                return null;
+            }
             return new DefaultNodeInfo<PlotNameDto>(
                     new ListDataProvider<PlotNameDto>(Arrays.asList(new PlotNameDto(1L, PlotNameDto.LATENCY_PLOT), new PlotNameDto(2L, PlotNameDto.THROUGHPUT_PLOT), new PlotNameDto(1L, PlotNameDto.THROUGHPUT_PLOT))),
                     plotNameCell,
@@ -119,6 +117,9 @@ public class WorkloadTaskDetailsTreeViewModel implements TreeViewModel {
         return value instanceof PlotNameDto;
     }
 
+    public ListDataProvider<TaskDataDto> getTaskDataProvider() {
+        return taskDataProvider;
+    }
 
     private static class TaskDataCell extends AbstractCell<TaskDataDto> {
         @Override

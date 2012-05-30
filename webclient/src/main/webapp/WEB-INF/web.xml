@@ -15,6 +15,11 @@
         <servlet-class>com.griddynamics.jagger.webclient.server.WorkloadServiceImpl</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>TaskDataServiceImpl</servlet-name>
+        <servlet-class>com.griddynamics.jagger.webclient.server.TaskDataServiceImpl</servlet-class>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>SessionDataServiceImpl</servlet-name>
         <url-pattern>/com.griddynamics.jagger.webclient.JaggerWebClient/SessionDataService</url-pattern>
@@ -23,6 +28,11 @@
     <servlet-mapping>
         <servlet-name>WorkloadServiceImpl</servlet-name>
         <url-pattern>/com.griddynamics.jagger.webclient.JaggerWebClient/WorkloadService</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>TaskDataServiceImpl</servlet-name>
+        <url-pattern>/com.griddynamics.jagger.webclient.JaggerWebClient/TaskDataService</url-pattern>
     </servlet-mapping>
 
 </web-app>

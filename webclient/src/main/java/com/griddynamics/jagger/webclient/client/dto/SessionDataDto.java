@@ -62,14 +62,14 @@ public class SessionDataDto implements Serializable {
 
         SessionDataDto that = (SessionDataDto) o;
 
-        if (getName() != null ? !getName().equals(that.getName()) : that.getName() != null) return false;
+        if (sessionId != null ? !sessionId.equals(that.sessionId) : that.sessionId != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return getName() != null ? getName().hashCode() : 0;
+        return sessionId != null ? sessionId.hashCode() : 0;
     }
 
     @Override

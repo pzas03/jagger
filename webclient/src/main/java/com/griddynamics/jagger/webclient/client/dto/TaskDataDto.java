@@ -43,4 +43,15 @@ public class TaskDataDto implements Serializable {
     public String getStatus() {
         return status;
     }
+
+    @Override
+    public String toString() {
+        return "TaskDataDto{" +
+                "id=" + id +
+                ", number=" + number +
+                ", sessionId='" + sessionId + '\'' +
+                ", taskName='" + taskName + '\'' +
+                ", status='" + status + '\'' +
+                '}';
+    }
 }
