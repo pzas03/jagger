@@ -165,6 +165,24 @@ public class Trends extends Composite {
                         public void onSuccess(List<TaskDataDto> result) {
                             taskDataProvider.getList().clear();
                             taskDataProvider.getList().addAll(result);
+
+                            for (TaskDataDto taskDataDto : result) {
+                                final ListDataProvider<PlotNameDto> plotNameDataProvider = ((WorkloadTaskDetailsTreeViewModel)
+                                        taskDetailsTree.getTreeViewModel()).getPlotNameDataProvider(taskDataDto);
+
+                                PlotProviderService.Async.getInstance().getPlotListForTask(taskDataDto.getId(), new AsyncCallback<List<PlotNameDto>>() {
+                                    @Override
+                                    public void onFailure(Throwable caught) {
+                                        Window.alert("Error is occurred during server request processing (Plot names for task fetching)");
+                                    }
+
+                                    @Override
+                                    public void onSuccess(List<PlotNameDto> result) {
+                                        plotNameDataProvider.getList().clear();
+                                        plotNameDataProvider.getList().addAll(result);
+                                    }
+                                });
+                            }
                         }
                     });
                 } else {

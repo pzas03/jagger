@@ -10,9 +10,7 @@ import com.google.gwt.view.client.TreeViewModel;
 import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
@@ -23,6 +21,7 @@ public class WorkloadTaskDetailsTreeViewModel implements TreeViewModel {
     private ListDataProvider<TaskDataDto> taskDataProvider = new ListDataProvider<TaskDataDto>();
     private final SelectionModel<PlotNameDto> selectionModel;
     private final Cell<PlotNameDto> plotNameCell;
+    private final Map<TaskDataDto, ListDataProvider<PlotNameDto>> plotNameDataProviders = new HashMap<TaskDataDto, ListDataProvider<PlotNameDto>>();
     private final DefaultSelectionEventManager<PlotNameDto> selectionManager =
             DefaultSelectionEventManager.createCheckboxManager();
 
@@ -97,11 +96,13 @@ public class WorkloadTaskDetailsTreeViewModel implements TreeViewModel {
         if (value == null) {
             return new DefaultNodeInfo<TaskDataDto>(taskDataProvider, new TaskDataCell());
         } else if (value instanceof TaskDataDto) {
-            if (((TaskDataDto) value).getId() < 0) {
+            TaskDataDto taskDataDto = (TaskDataDto) value;
+            if (taskDataDto.getId() < 0) {
                 return null;
             }
+
             return new DefaultNodeInfo<PlotNameDto>(
-                    new ListDataProvider<PlotNameDto>(Arrays.asList(new PlotNameDto(1L, PlotNameDto.LATENCY_PLOT), new PlotNameDto(2L, PlotNameDto.THROUGHPUT_PLOT), new PlotNameDto(1L, PlotNameDto.THROUGHPUT_PLOT))),
+                    getPlotNameDataProvider(taskDataDto),
                     plotNameCell,
                     selectionModel,
                     selectionManager,
@@ -119,6 +120,22 @@ public class WorkloadTaskDetailsTreeViewModel implements TreeViewModel {
 
     public ListDataProvider<TaskDataDto> getTaskDataProvider() {
         return taskDataProvider;
+    }
+
+    public Map<TaskDataDto, ListDataProvider<PlotNameDto>> getPlotNameDataProviders() {
+        return plotNameDataProviders;
+    }
+
+    public ListDataProvider<PlotNameDto> getPlotNameDataProvider(TaskDataDto taskDataDto) {
+        if (taskDataDto == null) {
+            return null;
+        }
+
+        if (plotNameDataProviders.get(taskDataDto) == null) {
+            plotNameDataProviders.put(taskDataDto, new ListDataProvider<PlotNameDto>());
+        }
+
+        return plotNameDataProviders.get(taskDataDto);
     }
 
     private static class TaskDataCell extends AbstractCell<TaskDataDto> {

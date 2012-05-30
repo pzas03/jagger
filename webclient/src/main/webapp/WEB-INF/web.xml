@@ -20,6 +20,11 @@
         <servlet-class>com.griddynamics.jagger.webclient.server.TaskDataServiceImpl</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>PlotProviderServiceImpl</servlet-name>
+        <servlet-class>com.griddynamics.jagger.webclient.server.PlotProviderServiceImpl</servlet-class>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>SessionDataServiceImpl</servlet-name>
         <url-pattern>/com.griddynamics.jagger.webclient.JaggerWebClient/SessionDataService</url-pattern>
@@ -33,6 +38,11 @@
     <servlet-mapping>
         <servlet-name>TaskDataServiceImpl</servlet-name>
         <url-pattern>/com.griddynamics.jagger.webclient.JaggerWebClient/TaskDataService</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>PlotProviderServiceImpl</servlet-name>
+        <url-pattern>/com.griddynamics.jagger.webclient.JaggerWebClient/PlotProviderService</url-pattern>
     </servlet-mapping>
 
 </web-app>
