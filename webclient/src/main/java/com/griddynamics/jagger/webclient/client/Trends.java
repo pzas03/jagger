@@ -24,9 +24,12 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.*;
 import com.google.gwt.view.client.Range;
-import com.griddynamics.jagger.webclient.client.dto.*;
+import com.griddynamics.jagger.webclient.client.dto.PagedSessionDataDto;
+import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
+import com.griddynamics.jagger.webclient.client.dto.SessionDataDto;
+import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 
-import java.util.*;
+import java.util.List;
 
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
@@ -148,49 +151,7 @@ public class Trends extends Composite {
         });
         sessionsDataGrid.setSelectionModel(selectionModel, DefaultSelectionEventManager.<SessionDataDto>createCheckboxManager());
 
-        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-            @Override
-            public void onSelectionChange(SelectionChangeEvent event) {
-                SessionDataDto selected = ((SingleSelectionModel<SessionDataDto>) event.getSource()).getSelectedObject();
-
-                final ListDataProvider<TaskDataDto> taskDataProvider = ((WorkloadTaskDetailsTreeViewModel) taskDetailsTree.getTreeViewModel()).getTaskDataProvider();
-                if (selected != null) {
-                    TaskDataService.Async.getInstance().getTaskDataForSession(selected.getSessionId(), new AsyncCallback<List<TaskDataDto>>() {
-                        @Override
-                        public void onFailure(Throwable caught) {
-                            Window.alert("Error is occurred during server request processing (Task data fetching)");
-                        }
-
-                        @Override
-                        public void onSuccess(List<TaskDataDto> result) {
-                            taskDataProvider.getList().clear();
-                            taskDataProvider.getList().addAll(result);
-
-                            for (TaskDataDto taskDataDto : result) {
-                                final ListDataProvider<PlotNameDto> plotNameDataProvider = ((WorkloadTaskDetailsTreeViewModel)
-                                        taskDetailsTree.getTreeViewModel()).getPlotNameDataProvider(taskDataDto);
-
-                                PlotProviderService.Async.getInstance().getPlotListForTask(taskDataDto.getId(), new AsyncCallback<List<PlotNameDto>>() {
-                                    @Override
-                                    public void onFailure(Throwable caught) {
-                                        Window.alert("Error is occurred during server request processing (Plot names for task fetching)");
-                                    }
-
-                                    @Override
-                                    public void onSuccess(List<PlotNameDto> result) {
-                                        plotNameDataProvider.getList().clear();
-                                        plotNameDataProvider.getList().addAll(result);
-                                    }
-                                });
-                            }
-                        }
-                    });
-                } else {
-                    taskDataProvider.getList().clear();
-                    taskDataProvider.getList().add(new TaskDataDto(-1, "", 0, "No Tasks", ""));
-                }
-            }
-        });
+        selectionModel.addSelectionChangeHandler(new SessionSelectChangeHandler());
 
         // Checkbox column. This table will uses a checkbox column for selection.
         // Alternatively, you can call dataGrid.setSelectionEnabled(true) to enable mouse selection.
@@ -244,6 +205,9 @@ public class Trends extends Composite {
 
     //==========Nested Classes
 
+    /**
+     * Fetches all sessions from server
+     */
     private static class SessionDataAsyncDataProvider extends AsyncDataProvider<SessionDataDto> {
         @Override
         protected void onRangeChanged(HasData<SessionDataDto> display) {
@@ -267,4 +231,53 @@ public class Trends extends Composite {
             sessionDataService.getAll(start, range.getLength(), callback);
         }
     }
+
+    /**
+     * Handles select session event
+     */
+    private class SessionSelectChangeHandler implements SelectionChangeEvent.Handler {
+        @Override
+        public void onSelectionChange(SelectionChangeEvent event) {
+            SessionDataDto selected = ((SingleSelectionModel<SessionDataDto>) event.getSource()).getSelectedObject();
+
+            WorkloadTaskDetailsTreeViewModel workloadTaskDetailsTreeViewModel = (WorkloadTaskDetailsTreeViewModel) taskDetailsTree.getTreeViewModel();
+            final ListDataProvider<TaskDataDto> taskDataProvider = workloadTaskDetailsTreeViewModel.getTaskDataProvider();
+            if (selected != null) {
+                TaskDataService.Async.getInstance().getTaskDataForSession(selected.getSessionId(), new AsyncCallback<List<TaskDataDto>>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        Window.alert("Error is occurred during server request processing (Task data fetching)");
+                    }
+
+                    @Override
+                    public void onSuccess(List<TaskDataDto> result) {
+                        taskDataProvider.getList().clear();
+                        taskDataProvider.getList().addAll(result);
+
+                        for (TaskDataDto taskDataDto : result) {
+                            final ListDataProvider<PlotNameDto> plotNameDataProvider = ((WorkloadTaskDetailsTreeViewModel)
+                                    taskDetailsTree.getTreeViewModel()).getPlotNameDataProvider(taskDataDto);
+
+                            PlotProviderService.Async.getInstance().getPlotListForTask(taskDataDto.getId(), new AsyncCallback<List<PlotNameDto>>() {
+                                @Override
+                                public void onFailure(Throwable caught) {
+                                    Window.alert("Error is occurred during server request processing (Plot names for task fetching)");
+                                }
+
+                                @Override
+                                public void onSuccess(List<PlotNameDto> result) {
+                                    plotNameDataProvider.getList().clear();
+                                    plotNameDataProvider.getList().addAll(result);
+                                }
+                            });
+                        }
+                    }
+                });
+            } else {
+                taskDataProvider.getList().clear();
+                taskDataProvider.getList().add(WorkloadTaskDetailsTreeViewModel.getNoTasksDummyNode());
+            }
+        }
+    }
+
 }

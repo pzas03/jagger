@@ -25,8 +25,13 @@ public class WorkloadTaskDetailsTreeViewModel implements TreeViewModel {
     private final DefaultSelectionEventManager<PlotNameDto> selectionManager =
             DefaultSelectionEventManager.createCheckboxManager();
 
+    private static final TaskDataDto noTasksDummyNode = new TaskDataDto(Integer.MIN_VALUE, "", 0, "No Tasks", "");
+
+    //==========Constructors
+
     public WorkloadTaskDetailsTreeViewModel(final SelectionModel<PlotNameDto> selectionModel) {
         this.selectionModel = selectionModel;
+        taskDataProvider.getList().add(noTasksDummyNode);
 
         // Construct a composite cell for plots that includes a checkbox.
         List<HasCell<PlotNameDto, ?>> hasCells = new ArrayList<HasCell<PlotNameDto, ?>>();
@@ -91,13 +96,15 @@ public class WorkloadTaskDetailsTreeViewModel implements TreeViewModel {
         };
     }
 
+    //==========Contract Methods
+
     @Override
     public <T> NodeInfo<?> getNodeInfo(T value) {
         if (value == null) {
             return new DefaultNodeInfo<TaskDataDto>(taskDataProvider, new TaskDataCell());
         } else if (value instanceof TaskDataDto) {
             TaskDataDto taskDataDto = (TaskDataDto) value;
-            if (taskDataDto.getId() < 0) {
+            if (taskDataDto.equals(noTasksDummyNode)) {
                 return null;
             }
 
@@ -118,12 +125,10 @@ public class WorkloadTaskDetailsTreeViewModel implements TreeViewModel {
         return value instanceof PlotNameDto;
     }
 
+    //==========Getters
+
     public ListDataProvider<TaskDataDto> getTaskDataProvider() {
         return taskDataProvider;
-    }
-
-    public Map<TaskDataDto, ListDataProvider<PlotNameDto>> getPlotNameDataProviders() {
-        return plotNameDataProviders;
     }
 
     public ListDataProvider<PlotNameDto> getPlotNameDataProvider(TaskDataDto taskDataDto) {
@@ -137,6 +142,12 @@ public class WorkloadTaskDetailsTreeViewModel implements TreeViewModel {
 
         return plotNameDataProviders.get(taskDataDto);
     }
+
+    public static TaskDataDto getNoTasksDummyNode() {
+        return noTasksDummyNode;
+    }
+
+    //==========Nested Classes
 
     private static class TaskDataCell extends AbstractCell<TaskDataDto> {
         @Override

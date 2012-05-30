@@ -45,6 +45,23 @@ public class TaskDataDto implements Serializable {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TaskDataDto)) return false;
+
+        TaskDataDto that = (TaskDataDto) o;
+
+        if (id != that.id) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
+    }
+
+    @Override
     public String toString() {
         return "TaskDataDto{" +
                 "id=" + id +
