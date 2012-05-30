@@ -9,6 +9,7 @@
         <class>com.griddynamics.jagger.engine.e1.aggregator.session.model.SessionData</class>
         <class>com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadData</class>
         <class>com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadDetails</class>
+        <class>com.griddynamics.jagger.engine.e1.aggregator.workload.model.TimeInvocationStatistics</class>
 
         <validation-mode>NONE</validation-mode>
 

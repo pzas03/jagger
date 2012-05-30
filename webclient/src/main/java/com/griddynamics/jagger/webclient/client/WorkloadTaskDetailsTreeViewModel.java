@@ -143,8 +143,16 @@ public class WorkloadTaskDetailsTreeViewModel implements TreeViewModel {
         return plotNameDataProviders.get(taskDataDto);
     }
 
+    public Map<TaskDataDto, ListDataProvider<PlotNameDto>> getPlotNameDataProviders() {
+        return plotNameDataProviders;
+    }
+
     public static TaskDataDto getNoTasksDummyNode() {
         return noTasksDummyNode;
+    }
+
+    public SelectionModel<PlotNameDto> getSelectionModel() {
+        return selectionModel;
     }
 
     //==========Nested Classes

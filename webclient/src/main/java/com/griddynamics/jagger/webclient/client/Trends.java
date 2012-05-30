@@ -1,9 +1,6 @@
 package com.griddynamics.jagger.webclient.client;
 
-import ca.nanometrics.gflot.client.DataPoint;
-import ca.nanometrics.gflot.client.PlotModel;
-import ca.nanometrics.gflot.client.SeriesHandler;
-import ca.nanometrics.gflot.client.SimplePlot;
+import ca.nanometrics.gflot.client.*;
 import ca.nanometrics.gflot.client.event.PlotHoverListener;
 import ca.nanometrics.gflot.client.event.PlotItem;
 import ca.nanometrics.gflot.client.event.PlotPosition;
@@ -24,12 +21,10 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.*;
 import com.google.gwt.view.client.Range;
-import com.griddynamics.jagger.webclient.client.dto.PagedSessionDataDto;
-import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
-import com.griddynamics.jagger.webclient.client.dto.SessionDataDto;
-import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
+import com.griddynamics.jagger.webclient.client.dto.*;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
@@ -73,7 +68,6 @@ public class Trends extends Composite {
     }
 
     private void createPlot() {
-        PlotModel model = new PlotModel();
         PlotOptions plotOptions = new PlotOptions();
         plotOptions.setGlobalSeriesOptions(new GlobalSeriesOptions()
                 .setLineSeriesOptions(new LineSeriesOptions().setLineWidth(1).setShow(true))
@@ -83,36 +77,10 @@ public class Trends extends Composite {
         plotOptions.setGridOptions(new GridOptions().setHoverable(true));
 
         // create a series
-        SeriesHandler handler = model.addSeries("Ottawa's Month Temperatures (Daily Average in &deg;C)", "#007f00");
-
-        // add data
-        handler.add(new DataPoint(1, -10.5));
-        handler.add(new DataPoint(2, -8.6));
-        handler.add(new DataPoint(3, -2.4));
-        handler.add(new DataPoint(4, 6));
-        handler.add(new DataPoint(5, 13.6));
-        handler.add(new DataPoint(6, 18.4));
-        handler.add(new DataPoint(7, 21));
-        handler.add(new DataPoint(8, 19.7));
-        handler.add(new DataPoint(9, 14.7));
-        handler.add(new DataPoint(10, 8.2));
-        handler.add(new DataPoint(11, 1.5));
-        handler.add(new DataPoint(12, -6.6));
-        handler.add(new DataPoint(14, -6.6));
-        handler.add(new DataPoint(16, -6.6));
-        handler.add(new DataPoint(17, -6.6));
-        handler.add(new DataPoint(18, -6.6));
-        handler.add(new DataPoint(19, -6.6));
-        handler.add(new DataPoint(22, -6.6));
-        handler.add(new DataPoint(23, -6.6));
-        handler.add(new DataPoint(24, -6.6));
-        handler.add(new DataPoint(25, -6.6));
-        handler.add(new DataPoint(27, -6.6));
-        handler.add(new DataPoint(29, -6.6));
-        handler.add(new DataPoint(35, -6.6));
+//        SeriesHandler handler = model.addSeries("Ottawa's Month Temperatures (Daily Average in &deg;C)", "#007f00");
 
         // create the plot
-        plot = new SimplePlot(model, plotOptions);
+        plot = new SimplePlot(plotOptions);
 
         final PopupPanel popup = new PopupPanel();
         final Label label = new Label();
@@ -201,6 +169,35 @@ public class Trends extends Composite {
         CellTree.Resources res = GWT.create(CellTree.BasicResources.class);
         final MultiSelectionModel<PlotNameDto> selectionModel = new MultiSelectionModel<PlotNameDto>();
         taskDetailsTree = new CellTree(new WorkloadTaskDetailsTreeViewModel(selectionModel), null, res);
+
+        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+            @Override
+            public void onSelectionChange(SelectionChangeEvent event) {
+                Set<PlotNameDto> selected = ((MultiSelectionModel<PlotNameDto>) event.getSource()).getSelectedSet();
+
+                if (!selected.isEmpty()) {
+                    PlotNameDto plotNameDto = selected.iterator().next();
+                    PlotProviderService.Async.getInstance().getThroughputData(plotNameDto.getTaskId(), new AsyncCallback<List<PointDto>>() {
+                        @Override
+                        public void onFailure(Throwable caught) {
+                            Window.alert("Error is occurred during server request processing (Throughput data fetching)");
+                        }
+
+                        @Override
+                        public void onSuccess(List<PointDto> result) {
+                            PlotModel plotModel = plot.getModel();
+                            SeriesHandler handler = plotModel.addSeries("Montana's Month Temperatures (Daily Average in &deg;C)", "#007f00");
+
+                            for (PointDto pointDto : result) {
+                                handler.add(new DataPoint(pointDto.getX(), pointDto.getY()));
+                            }
+
+                            plot.redraw();
+                        }
+                    });
+                }
+            }
+        });
     }
 
     //==========Nested Classes
@@ -240,7 +237,7 @@ public class Trends extends Composite {
         public void onSelectionChange(SelectionChangeEvent event) {
             SessionDataDto selected = ((SingleSelectionModel<SessionDataDto>) event.getSource()).getSelectedObject();
 
-            WorkloadTaskDetailsTreeViewModel workloadTaskDetailsTreeViewModel = (WorkloadTaskDetailsTreeViewModel) taskDetailsTree.getTreeViewModel();
+            final WorkloadTaskDetailsTreeViewModel workloadTaskDetailsTreeViewModel = (WorkloadTaskDetailsTreeViewModel) taskDetailsTree.getTreeViewModel();
             final ListDataProvider<TaskDataDto> taskDataProvider = workloadTaskDetailsTreeViewModel.getTaskDataProvider();
             if (selected != null) {
                 TaskDataService.Async.getInstance().getTaskDataForSession(selected.getSessionId(), new AsyncCallback<List<TaskDataDto>>() {
@@ -254,6 +251,7 @@ public class Trends extends Composite {
                         taskDataProvider.getList().clear();
                         taskDataProvider.getList().addAll(result);
 
+                        final MultiSelectionModel<PlotNameDto> plotNameSelectionModel = (MultiSelectionModel<PlotNameDto>) workloadTaskDetailsTreeViewModel.getSelectionModel();
                         for (TaskDataDto taskDataDto : result) {
                             final ListDataProvider<PlotNameDto> plotNameDataProvider = ((WorkloadTaskDetailsTreeViewModel)
                                     taskDetailsTree.getTreeViewModel()).getPlotNameDataProvider(taskDataDto);
@@ -268,6 +266,15 @@ public class Trends extends Composite {
                                 public void onSuccess(List<PlotNameDto> result) {
                                     plotNameDataProvider.getList().clear();
                                     plotNameDataProvider.getList().addAll(result);
+
+                                    for (PlotNameDto plotNameDto : plotNameSelectionModel.getSelectedSet()) {
+                                        plotNameSelectionModel.setSelected(plotNameDto, false);
+                                    }
+
+                                    int childCount = taskDetailsTree.getRootTreeNode().getChildCount();
+                                    for (int i=0; i< childCount; i++) {
+                                        taskDetailsTree.getRootTreeNode().setChildOpen(i, false);
+                                    }
                                 }
                             });
                         }
