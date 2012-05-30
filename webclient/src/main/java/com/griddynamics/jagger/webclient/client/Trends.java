@@ -15,10 +15,7 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.DataGrid;
-import com.google.gwt.user.cellview.client.SimplePager;
-import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Composite;
@@ -28,6 +25,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.*;
 import com.google.gwt.view.client.Range;
 import com.griddynamics.jagger.webclient.client.dto.PagedSessionDataDto;
+import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
 import com.griddynamics.jagger.webclient.client.dto.SessionDataDto;
 import com.griddynamics.jagger.webclient.client.dto.WorkloadDetailsDto;
 
@@ -63,6 +61,9 @@ public class Trends extends Composite {
     @UiField(provided = true)
     SimplePager sessionsPager;
 
+    @UiField(provided = true)
+    CellTree taskDetailsTree;
+
     //TODO: Remove it. For test purposes only.
     @UiField(provided = true)
     Label list;
@@ -71,6 +72,7 @@ public class Trends extends Composite {
 
     public Trends() {
         createPlot();
+        setupTaskDetailsTree();
         setupDataGrid();
         setupPager();
         initWidget(uiBinder.createAndBindUi(this));
@@ -220,6 +222,17 @@ public class Trends extends Composite {
         SimplePager.Resources pagerResources = GWT.create(SimplePager.Resources.class);
         sessionsPager = new SimplePager(SimplePager.TextLocation.CENTER, pagerResources, false, 0, true);
         sessionsPager.setDisplay(sessionsDataGrid);
+    }
+
+    private void setupTaskDetailsTree() {
+        CellTree.Resources res = GWT.create(CellTree.BasicResources.class);
+        final MultiSelectionModel<PlotNameDto> selectionModel = new MultiSelectionModel<PlotNameDto>(/*new ProvidesKey<PlotNameDto>() {
+            @Override
+            public Object getKey(PlotNameDto item) {
+                return item.getPlotType();
+            }
+        }*/);
+        taskDetailsTree = new CellTree(new WorkloadTaskDetailsTreeViewModel(selectionModel), null, res);
     }
 
     //==========Nested Classes

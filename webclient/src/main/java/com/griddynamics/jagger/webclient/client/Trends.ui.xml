@@ -63,7 +63,7 @@
 
         <g:tab>
             <g:header>View Results</g:header>
-            <g:HTML>View Results</g:HTML>
+            <c:CellTree title="Task Details" ui:field="taskDetailsTree"/>
         </g:tab>
     </g:TabLayoutPanel>
 </ui:UiBinder>
