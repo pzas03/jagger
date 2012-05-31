@@ -50,4 +50,13 @@ public class PlotDatasetDto implements Serializable {
     public int hashCode() {
         return legend != null ? legend.hashCode() : 0;
     }
+
+    @Override
+    public String toString() {
+        return "PlotDatasetDto{" +
+                "plotData=" + plotData +
+                ", legend='" + legend + '\'' +
+                ", color='" + color + '\'' +
+                '}';
+    }
 }

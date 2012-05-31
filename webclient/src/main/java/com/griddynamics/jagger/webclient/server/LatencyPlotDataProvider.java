@@ -23,30 +23,21 @@ public class LatencyPlotDataProvider implements PlotDataProvider {
         PlotSeriesDto plotSeriesDto;
         try {
             List<Object[]> rawData = (List<Object[]>) entityManager.createQuery(
-                    "select tis.time, tis.latency from TimeInvocationStatistics as tis where tis.taskData.id=:taskId")
+                    "select tis.time, tis.latency, tis.latencyStdDev from TimeInvocationStatistics as tis where tis.taskData.id=:taskId")
                     .setParameter("taskId", taskId).getResultList();
 
             if (rawData == null) {
                 return new PlotSeriesDto();
             }
 
-            List<PointDto> pointDtoList = DataProcessingUtil.convertFromRawDataToPointDto(rawData);
+            List<PointDto> pointDtoList = DataProcessingUtil.convertFromRawDataToPointDto(rawData, 0, 1);
 
             String legend = legendProvider.getPlotLegend(taskId, Plot.LATENCY, "sec/sec");
             PlotDatasetDto plotDatasetDto = new PlotDatasetDto(pointDtoList, legend, ColorCodeGenerator.getHexColorCode());
             Set<PlotDatasetDto> plotSeries = new HashSet<PlotDatasetDto>();
             plotSeries.add(plotDatasetDto);
 
-
-            rawData = (List<Object[]>) entityManager.createQuery(
-                    "select tis.time, tis.latencyStdDev from TimeInvocationStatistics as tis where tis.taskData.id=:taskId")
-                    .setParameter("taskId", taskId).getResultList();
-
-            if (rawData == null) {
-                return new PlotSeriesDto();
-            }
-
-            pointDtoList = DataProcessingUtil.convertFromRawDataToPointDto(rawData);
+            pointDtoList = DataProcessingUtil.convertFromRawDataToPointDto(rawData, 0, 2);
 
             legend = legendProvider.getPlotLegend(taskId, Plot.LATENCY_STD_DEV, "sec/sec");
             plotDatasetDto = new PlotDatasetDto(pointDtoList, legend, ColorCodeGenerator.getHexColorCode());

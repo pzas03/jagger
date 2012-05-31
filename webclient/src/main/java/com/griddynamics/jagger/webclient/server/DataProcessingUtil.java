@@ -17,7 +17,7 @@ public class DataProcessingUtil {
     protected DataProcessingUtil() {
     }
 
-    public static List<PointDto> convertFromRawDataToPointDto(List<Object[]> rawData) {
+    public static List<PointDto> convertFromRawDataToPointDto(List<Object[]> rawData, int xIdx, int yIdx) {
         if (rawData == null) {
             throw new IllegalArgumentException("rawData is null");
         }
@@ -27,12 +27,8 @@ public class DataProcessingUtil {
 
         List<PointDto> pointDtoList = new ArrayList<PointDto>(rawData.size());
         for (Object[] raw : rawData) {
-            if (raw.length != 2) {
-                throw new IllegalArgumentException("rawData must contains two elements array with coordinates");
-            }
-
-            double x = round((Long) raw[0] / 1000.0D);
-            double y = round((Double) raw[1]);
+            double x = round((Long) raw[xIdx] / 1000.0D);
+            double y = round((Double) raw[yIdx]);
             pointDtoList.add(new PointDto(x, y));
         }
         return pointDtoList;
