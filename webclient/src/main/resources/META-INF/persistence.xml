@@ -21,6 +21,13 @@
 
             <property name="dialect" value="org.hibernate.dialect.MySQL5InnoDBDialect"/>
             <property name="hbm2ddl.auto" value="validate"/>
+            <property name="jdbc.batch_size" value="10"/>
+            <property name="c3p0.min_size" value="10"/>
+            <property name="c3p0.max_size" value="25"/>
+            <property name="c3p0.acquire_increment" value="5"/>
+            <property name="c3p0.timeout" value="3600"/>
+            <property name="c3p0.max_statements" value="50"/>
+            <property name="c3p0.idle_test_period" value="6000"/>
         </properties>
     </persistence-unit>
 </persistence>

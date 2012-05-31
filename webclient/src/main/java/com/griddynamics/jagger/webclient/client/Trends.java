@@ -16,7 +16,6 @@ import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.cellview.client.*;
-import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
@@ -24,6 +23,7 @@ import com.google.gwt.view.client.*;
 import com.google.gwt.view.client.Range;
 import com.griddynamics.jagger.webclient.client.dto.*;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -202,6 +202,7 @@ public class Trends extends Composite {
     private class SessionSelectChangeHandler implements SelectionChangeEvent.Handler {
         @Override
         public void onSelectionChange(SelectionChangeEvent event) {
+            // Currently selection model for sessions is a single selection model
             SessionDataDto selected = ((SingleSelectionModel<SessionDataDto>) event.getSource()).getSelectedObject();
 
             final WorkloadTaskDetailsTreeViewModel workloadTaskDetailsTreeViewModel = (WorkloadTaskDetailsTreeViewModel) taskDetailsTree.getTreeViewModel();
@@ -215,10 +216,11 @@ public class Trends extends Composite {
 
                     @Override
                     public void onSuccess(List<TaskDataDto> result) {
+                        // Populate task first level tree with server data
                         taskDataProvider.getList().clear();
                         taskDataProvider.getList().addAll(result);
 
-                        final MultiSelectionModel<PlotNameDto> plotNameSelectionModel = (MultiSelectionModel<PlotNameDto>) workloadTaskDetailsTreeViewModel.getSelectionModel();
+                        // Populate available plots tree level for each task for selected session
                         for (TaskDataDto taskDataDto : result) {
                             final ListDataProvider<PlotNameDto> plotNameDataProvider = ((WorkloadTaskDetailsTreeViewModel)
                                     taskDetailsTree.getTreeViewModel()).getPlotNameDataProvider(taskDataDto);
@@ -244,25 +246,55 @@ public class Trends extends Composite {
                     }
                 });
             } else {
+                // If no sessions are selected, clear plot display, clear task tree, clear plot selection model
                 plotPanel.clear();
                 taskDataProvider.getList().clear();
                 taskDataProvider.getList().add(WorkloadTaskDetailsTreeViewModel.getNoTasksDummyNode());
+
+                final MultiSelectionModel<PlotNameDto> plotNameSelectionModel = (MultiSelectionModel<PlotNameDto>) workloadTaskDetailsTreeViewModel.getSelectionModel();
+                plotNameSelectionModel.clear();
             }
         }
     }
 
+    /**
+     * Handles specific plot of task selection
+     */
     private class TaskPlotSelectionChangedHandler implements SelectionChangeEvent.Handler {
         @Override
         public void onSelectionChange(SelectionChangeEvent event) {
             Set<PlotNameDto> selected = ((MultiSelectionModel<PlotNameDto>) event.getSource()).getSelectedSet();
 
             if (!selected.isEmpty()) {
+                // Generate all id of plots which should be displayed
+                Set<String> selectedTaskIds = new HashSet<String>();
+                for (PlotNameDto plotNameDto : selected) {
+                    selectedTaskIds.add(generateId(plotNameDto));
+                }
+
+                // Remove plots from display which were unchecked
+                for (int i=0; i<plotPanel.getWidgetCount(); i++) {
+                    Widget widget = plotPanel.getWidget(i);
+                    if (!(widget instanceof SimplePlot)) {
+                        continue;
+                    }
+                    if (selectedTaskIds.contains(widget.getElement().getId())) {
+                        continue;
+                    }
+                    plotPanel.remove(i);
+                }
+
+                // Creating plots and displaying they
                 for (final PlotNameDto plotNameDto : selected) {
+                    // Generate DOM id for plot
                     final String id = generateId(plotNameDto);
+
+                    // If plot has already displayed, then pass it
                     if (plotPanel.getElementById(id) != null) {
                         continue;
                     }
 
+                    // Invoke remote service for plot data retrieving
                     PlotProviderService.Async.getInstance().getPlotData(plotNameDto.getTaskId(), plotNameDto.getPlotName(), new AsyncCallback<List<PointDto>>() {
                         @Override
                         public void onFailure(Throwable caught) {
@@ -275,6 +307,7 @@ public class Trends extends Composite {
                             PlotModel plotModel = plot.getModel();
                             SeriesHandler handler = plotModel.addSeries(plotNameDto.getPlotName() + ", task-" + plotNameDto.getTaskId(), "#007f00");
 
+                            // Populate plot with data
                             for (PointDto pointDto : result) {
                                 handler.add(new DataPoint(pointDto.getX(), pointDto.getY()));
                             }
@@ -282,14 +315,18 @@ public class Trends extends Composite {
                             plot.getElement().setId(id);
                             plotPanel.add(plot);
                             Label xLabel = new Label("Time (sec)");
+
+                            // Add X axis label
                             xLabel.addStyleName("x-axis-label");
                             plotPanel.add(xLabel);
 
+                            // Redraw plot
                             plot.redraw();
                         }
                     });
                 }
             } else {
+                // Clear display because of no checked plots
                 plotPanel.clear();
             }
         }
