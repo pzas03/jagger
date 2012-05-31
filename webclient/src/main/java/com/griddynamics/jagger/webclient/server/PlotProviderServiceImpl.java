@@ -37,7 +37,8 @@ public class PlotProviderServiceImpl extends RemoteServiceServlet implements Plo
         PlotDatasetDto plotDatasetDto;
         try {
             List<Object[]> rawData = (List<Object[]>) entityManager.createQuery(
-                    "select tis.time, tis.throughput from TimeInvocationStatistics as tis where tis.taskData.id=:taskId").setParameter("taskId", taskId).getResultList();
+                    "select tis.time, tis.throughput from TimeInvocationStatistics as tis where tis.taskData.id=:taskId")
+                    .setParameter("taskId", taskId).getResultList();
 
             if (rawData == null) {
                 return new PlotDatasetDto();
@@ -45,7 +46,8 @@ public class PlotProviderServiceImpl extends RemoteServiceServlet implements Plo
 
             List<PointDto> pointDtoList = convertFromRawData(rawData);
 
-            plotDatasetDto = new PlotDatasetDto(pointDtoList, "Throughput (tps/sec) for task-" + taskId, "Time, sec", "", ColorCodeGenerator.getHexColorCode());
+            String legend = fetchLegend(entityManager, taskId, Plot.THROUGHPUT, "tps/sec");
+            plotDatasetDto = new PlotDatasetDto(pointDtoList, legend, "Time, sec", "", ColorCodeGenerator.getHexColorCode());
 
             log.info("Throughput for taskId={} is: {}", taskId, pointDtoList);
         } finally {
@@ -62,7 +64,8 @@ public class PlotProviderServiceImpl extends RemoteServiceServlet implements Plo
         PlotDatasetDto plotDatasetDto;
         try {
             List<Object[]> rawData = (List<Object[]>) entityManager.createQuery(
-                    "select tis.time, tis.latency from TimeInvocationStatistics as tis where tis.taskData.id=:taskId").setParameter("taskId", taskId).getResultList();
+                    "select tis.time, tis.latency from TimeInvocationStatistics as tis where tis.taskData.id=:taskId")
+                    .setParameter("taskId", taskId).getResultList();
 
             if (rawData == null) {
                 return new PlotDatasetDto();
@@ -70,7 +73,8 @@ public class PlotProviderServiceImpl extends RemoteServiceServlet implements Plo
 
             List<PointDto> pointDtoList = convertFromRawData(rawData);
 
-            plotDatasetDto = new PlotDatasetDto(pointDtoList, "Latency (sec/sec) for task-" + taskId, "Time, sec", "", ColorCodeGenerator.getHexColorCode());
+            String legend = fetchLegend(entityManager, taskId, Plot.LATENCY, "sec/sec");
+            plotDatasetDto = new PlotDatasetDto(pointDtoList, legend, "Time, sec", "", ColorCodeGenerator.getHexColorCode());
 
             log.info("Latency for taskId={} is: {}", taskId, pointDtoList);
         } finally {
@@ -93,6 +97,13 @@ public class PlotProviderServiceImpl extends RemoteServiceServlet implements Plo
         throw new UnsupportedOperationException("Plot type " + plot + " doesn't supported");
     }
 
+    private String fetchLegend(EntityManager entityManager, long taskId, Plot plot, String unitOfMeasurement) {
+        Object[] legendData = (Object[]) entityManager.createQuery("select td.sessionId, td.taskName from TaskData as td where td.id=:taskId").
+                setParameter("taskId", taskId).getSingleResult();
+
+        return generatePlotLegend(legendData[0].toString(), legendData[1].toString(), plot, unitOfMeasurement);
+    }
+
     private static List<PointDto> convertFromRawData(List<Object[]> rawData) {
         List<PointDto> pointDtoList = new ArrayList<PointDto>(rawData.size());
         for (Object[] raw : rawData) {
@@ -105,5 +116,21 @@ public class PlotProviderServiceImpl extends RemoteServiceServlet implements Plo
 
     private static double round(double value) {
         return new BigDecimal(value).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
+    }
+
+    private static String generatePlotLegend(String sessionId, String taskName, Plot plot, String unitOfMeasurement) {
+        StringBuilder builder = new StringBuilder();
+        builder
+                .append("Session ")
+                .append(sessionId)
+                .append(", ")
+                .append(taskName)
+                .append(", ")
+                .append(plot.getText())
+                .append(" (")
+                .append(unitOfMeasurement)
+                .append(")");
+
+        return builder.toString();
     }
 }
