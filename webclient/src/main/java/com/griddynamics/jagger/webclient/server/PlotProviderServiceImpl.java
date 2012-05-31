@@ -56,11 +56,40 @@ public class PlotProviderServiceImpl extends RemoteServiceServlet implements Plo
     }
 
     @Override
+    public List<PointDto> getLatencyData(long taskId) {
+        EntityManager entityManager = EntityManagerProvider.getEntityManagerFactory().createEntityManager();
+
+        List<PointDto> pointDtoList;
+        try {
+            List<Object[]> rawData = (List<Object[]>) entityManager.createQuery(
+                    "select tis.time, tis.latency from TimeInvocationStatistics as tis where tis.taskData.id=:taskId").setParameter("taskId", taskId).getResultList();
+
+            if (rawData == null) {
+                return Collections.emptyList();
+            }
+
+            pointDtoList = new ArrayList<PointDto>(rawData.size());
+            for (Object[] raw : rawData) {
+                double x = (Long) raw[0];
+                double y = (Double) raw[1];
+                pointDtoList.add(new PointDto(x/1000.0, y));
+            }
+            log.info("Latency for taskId={} is: {}", taskId, pointDtoList);
+        } finally {
+            entityManager.close();
+        }
+
+        return pointDtoList;
+    }
+
+    @Override
     public List<PointDto> getPlotData(long taskId, String plotType) {
         Plot plot = Enum.valueOf(Plot.class, plotType.toUpperCase());
 
         if (plot == Plot.THROUGHPUT) {
             return getThroughputData(taskId);
+        } else if (plot == Plot.LATENCY) {
+            return getLatencyData(taskId);
         }
 
         throw new UnsupportedOperationException("Plot type " + plot + " doesn't supported");

@@ -16,4 +16,6 @@ public interface PlotProviderServiceAsync {
     void getThroughputData(long taskId, AsyncCallback<List<PointDto>> async);
 
     void getPlotData(long taskId, String plotType, AsyncCallback<List<PointDto>> async);
+
+    void getLatencyData(long taskId, AsyncCallback<List<PointDto>> async);
 }
