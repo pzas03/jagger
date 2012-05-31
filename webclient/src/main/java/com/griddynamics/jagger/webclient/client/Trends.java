@@ -38,6 +38,7 @@ public class Trends extends Composite {
     private static TrendsUiBinder uiBinder = GWT.create(TrendsUiBinder.class);
 
     private static final String INSTRUCTIONS = "Point your mouse to a data point on the chart";
+    private static final int MAX_PLOT_COUNT = 10;
 
     @UiField
     HTMLPanel plotPanel;
@@ -167,6 +168,11 @@ public class Trends extends Composite {
         return "" + plotNameDto.getTaskId() + "_" + plotNameDto.getPlotName();
     }
 
+    private boolean isMaxPlotCountReached() {
+        // *2 needs to take into account plot and their x axis label
+        return plotPanel.getWidgetCount() >= MAX_PLOT_COUNT *2;
+    }
+
     //==========Nested Classes
 
     /**
@@ -290,6 +296,11 @@ public class Trends extends Composite {
 
                 // Creating plots and displaying they
                 for (final PlotNameDto plotNameDto : selected) {
+                    if (isMaxPlotCountReached()) {
+                        Window.alert("You are reached max count of plot on display");
+                        break;
+                    }
+
                     // Generate DOM id for plot
                     final String id = generateId(plotNameDto);
 
