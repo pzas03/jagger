@@ -236,6 +236,7 @@ public class Trends extends Composite {
                                     plotNameDataProvider.getList().clear();
                                     plotNameDataProvider.getList().addAll(result);
 
+                                    // Close all tree nodes when new session is selected
                                     int childCount = taskDetailsTree.getRootTreeNode().getChildCount();
                                     for (int i = 0; i < childCount; i++) {
                                         taskDetailsTree.getRootTreeNode().setChildOpen(i, false);
@@ -281,6 +282,9 @@ public class Trends extends Composite {
                     if (selectedTaskIds.contains(widget.getElement().getId())) {
                         continue;
                     }
+                    // Remove plot
+                    plotPanel.remove(i);
+                    // Remove X axis label
                     plotPanel.remove(i);
                 }
 
