@@ -12,7 +12,6 @@ import javax.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -44,14 +43,9 @@ public class PlotProviderServiceImpl extends RemoteServiceServlet implements Plo
                 return new PlotDatasetDto();
             }
 
-            List<PointDto> pointDtoList = new ArrayList<PointDto>(rawData.size());
-            for (Object[] raw : rawData) {
-                double x = (Long) raw[0];
-                double y = (Double) raw[1];
-                pointDtoList.add(new PointDto(x/1000.0, y));
-            }
+            List<PointDto> pointDtoList = convertFromRawData(rawData);
 
-            plotDatasetDto = new PlotDatasetDto(pointDtoList, "Throughput (tps/sec) for task-"+taskId, "Time, sec", "", "#007f00");
+            plotDatasetDto = new PlotDatasetDto(pointDtoList, "Throughput (tps/sec) for task-" + taskId, "Time, sec", "", ColorCodeGenerator.getHexColorCode());
 
             log.info("Throughput for taskId={} is: {}", taskId, pointDtoList);
         } finally {
@@ -74,14 +68,9 @@ public class PlotProviderServiceImpl extends RemoteServiceServlet implements Plo
                 return new PlotDatasetDto();
             }
 
-            List<PointDto> pointDtoList = new ArrayList<PointDto>(rawData.size());
-            for (Object[] raw : rawData) {
-                double x = (Long) raw[0];
-                double y = new BigDecimal((Double) raw[1]).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
-                pointDtoList.add(new PointDto(x/1000.0, y));
-            }
+            List<PointDto> pointDtoList = convertFromRawData(rawData);
 
-            plotDatasetDto = new PlotDatasetDto(pointDtoList, "Latency (sec/sec) for task-"+taskId, "Time, sec", "", "#007f00");
+            plotDatasetDto = new PlotDatasetDto(pointDtoList, "Latency (sec/sec) for task-" + taskId, "Time, sec", "", ColorCodeGenerator.getHexColorCode());
 
             log.info("Latency for taskId={} is: {}", taskId, pointDtoList);
         } finally {
@@ -102,5 +91,19 @@ public class PlotProviderServiceImpl extends RemoteServiceServlet implements Plo
         }
 
         throw new UnsupportedOperationException("Plot type " + plot + " doesn't supported");
+    }
+
+    private static List<PointDto> convertFromRawData(List<Object[]> rawData) {
+        List<PointDto> pointDtoList = new ArrayList<PointDto>(rawData.size());
+        for (Object[] raw : rawData) {
+            double x = round((Long) raw[0] / 1000.0D);
+            double y = round((Double) raw[1]);
+            pointDtoList.add(new PointDto(x, y));
+        }
+        return pointDtoList;
+    }
+
+    private static double round(double value) {
+        return new BigDecimal(value).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
     }
 }
