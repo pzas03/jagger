@@ -299,28 +299,28 @@ public class Trends extends Composite {
                     }
 
                     // Invoke remote service for plot data retrieving
-                    PlotProviderService.Async.getInstance().getPlotData(plotNameDto.getTaskId(), plotNameDto.getPlotName(), new AsyncCallback<List<PointDto>>() {
+                    PlotProviderService.Async.getInstance().getPlotData(plotNameDto.getTaskId(), plotNameDto.getPlotName(), new AsyncCallback<PlotDatasetDto>() {
                         @Override
                         public void onFailure(Throwable caught) {
                             Window.alert("Error is occurred during server request processing (Throughput data fetching)");
                         }
 
                         @Override
-                        public void onSuccess(List<PointDto> result) {
+                        public void onSuccess(PlotDatasetDto result) {
                             SimplePlot plot = createPlot();
                             PlotModel plotModel = plot.getModel();
-                            SeriesHandler handler = plotModel.addSeries(plotNameDto.getPlotName() + ", task-" + plotNameDto.getTaskId(), "#007f00");
+                            SeriesHandler handler = plotModel.addSeries(result.getLegend(), result.getColor());
 
                             // Populate plot with data
-                            for (PointDto pointDto : result) {
+                            for (PointDto pointDto : result.getPlotData()) {
                                 handler.add(new DataPoint(pointDto.getX(), pointDto.getY()));
                             }
 
                             plot.getElement().setId(id);
                             plotPanel.add(plot);
-                            Label xLabel = new Label("Time (sec)");
 
                             // Add X axis label
+                            Label xLabel = new Label(result.getXAxisLabel());
                             xLabel.addStyleName("x-axis-label");
                             plotPanel.add(xLabel);
 

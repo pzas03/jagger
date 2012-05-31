@@ -1,6 +1,7 @@
 package com.griddynamics.jagger.webclient.client;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.griddynamics.jagger.webclient.client.dto.PlotDatasetDto;
 import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
 import com.griddynamics.jagger.webclient.client.dto.PointDto;
 
@@ -13,9 +14,9 @@ import java.util.List;
 public interface PlotProviderServiceAsync {
     void getPlotListForTask(long taskId, AsyncCallback<List<PlotNameDto>> async);
 
-    void getThroughputData(long taskId, AsyncCallback<List<PointDto>> async);
+    void getThroughputData(long taskId, AsyncCallback<PlotDatasetDto> async);
 
-    void getPlotData(long taskId, String plotType, AsyncCallback<List<PointDto>> async);
+    void getPlotData(long taskId, String plotType, AsyncCallback<PlotDatasetDto> async);
 
-    void getLatencyData(long taskId, AsyncCallback<List<PointDto>> async);
+    void getLatencyData(long taskId, AsyncCallback<PlotDatasetDto> async);
 }
