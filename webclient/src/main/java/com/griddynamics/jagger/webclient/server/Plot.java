@@ -6,6 +6,7 @@ package com.griddynamics.jagger.webclient.server;
  */
 public enum Plot {
     LATENCY("Latency"),
+    LATENCY_STD_DEV("Latency std deviation"),
     THROUGHPUT("Throughput");
 
     private final String text;

@@ -11,18 +11,14 @@ import java.util.List;
 public class PlotDatasetDto implements Serializable {
     private List<PointDto> plotData = Collections.emptyList();
     private String legend;
-    private String xAxisLabel;
-    private String yAxisLabel;
     private String color;
 
     public PlotDatasetDto() {
     }
 
-    public PlotDatasetDto(List<PointDto> plotData, String legend, String xAxisLabel, String yAxisLabel, String color) {
+    public PlotDatasetDto(List<PointDto> plotData, String legend, String color) {
         this.plotData = plotData;
         this.legend = legend;
-        this.xAxisLabel = xAxisLabel;
-        this.yAxisLabel = yAxisLabel;
         this.color = color;
     }
 
@@ -34,15 +30,24 @@ public class PlotDatasetDto implements Serializable {
         return legend;
     }
 
-    public String getXAxisLabel() {
-        return xAxisLabel;
-    }
-
-    public String getYAxisLabel() {
-        return yAxisLabel;
-    }
-
     public String getColor() {
         return color;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PlotDatasetDto)) return false;
+
+        PlotDatasetDto that = (PlotDatasetDto) o;
+
+        if (legend != null ? !legend.equals(that.legend) : that.legend != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return legend != null ? legend.hashCode() : 0;
     }
 }
