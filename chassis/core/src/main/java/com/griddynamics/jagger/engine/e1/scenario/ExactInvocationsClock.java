@@ -5,7 +5,6 @@ import com.griddynamics.jagger.coordinator.NodeId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,9 +16,16 @@ public class ExactInvocationsClock implements WorkloadClock {
 
     private int samplesCount;
 
-    public ExactInvocationsClock(int samplesCount, int threadCount) {
+    private int samplesSubmitted;
+
+    private int totalSamples;
+
+    private int delay;
+
+    public ExactInvocationsClock(int samplesCount, int threadCount, int delay) {
         this.samplesCount = samplesCount;
-        this.threadCount = threadCount;
+        this.threadCount  = threadCount;
+        this.delay        = delay;
     }
 
     @Override
@@ -36,19 +42,36 @@ public class ExactInvocationsClock implements WorkloadClock {
     public void tick(WorkloadExecutionStatus status, WorkloadAdjuster adjuster) {
         log.debug("Going to perform tick with status {}", status);
 
-        Set<NodeId> nodes = status.getNodes();
-        int samplesLeft = samplesCount - status.getTotalSamples();
-        if (samplesLeft <= 0) {
-           // shutdown.set(true);
-        } else {
+        int samplesPerTick = status.getTotalSamples() - totalSamples;
 
+        totalSamples = status.getTotalSamples();
+
+        int samplesLeft = samplesCount - samplesSubmitted;
+        if (samplesLeft <= 0) {
+            return;
         }
-        LinkedHashMap<NodeId, WorkloadConfiguration> workloadConfigurations = new LinkedHashMap<NodeId, WorkloadConfiguration>(nodes.size());
-        int maxSamples = samplesLeft/nodes.size();
+
+        if (status.getTotalSamples() < samplesSubmitted / 2) {
+            return;
+        }
+
+        Set<NodeId> nodes = status.getNodes();
+        int threads =  threadCount / nodes.size();
+        int samplesToAdd = (samplesLeft < samplesPerTick * 2) ? samplesLeft : samplesLeft / 2;
+        int samplesPerNode  = (samplesSubmitted + samplesToAdd) / nodes.size();
+        int restSamples = samplesToAdd % nodes.size();
+        int s = 0;
         for (NodeId node : nodes) {
-            WorkloadConfiguration workloadConfiguration = WorkloadConfiguration.with(status.getThreads(node) /*need active threads or something*/, status.getDelay(node), maxSamples);
+            int samples = samplesPerNode;
+            if (restSamples > 0) {
+                samples++;
+                restSamples--;
+            }
+            WorkloadConfiguration workloadConfiguration = WorkloadConfiguration.with(threads, delay, samples);
             adjuster.adjustConfiguration(node, workloadConfiguration);
+            s += samples;
         }
+        samplesSubmitted = s;
     }
 
     @Override
@@ -59,5 +82,10 @@ public class ExactInvocationsClock implements WorkloadClock {
     @Override
     public int getValue() {
         return samplesCount;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%d invocations; %d threads; %dms delay", samplesCount, threadCount, delay);
     }
 }

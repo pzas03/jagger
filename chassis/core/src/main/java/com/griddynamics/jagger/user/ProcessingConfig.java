@@ -70,10 +70,10 @@ public class ProcessingConfig implements Serializable {
             public final String duration;
 
             @Attribute(name = "sample", required = false)
-            public final String sample;
+            public final Integer sample;
 
-            @Attribute(name = "delay")
-            public final String delay;
+            @Attribute(name = "delay", required = false)
+            public final Integer delay;
 
             @Attribute(name = "bean")
             public final String bean;
@@ -86,28 +86,30 @@ public class ProcessingConfig implements Serializable {
 
             public Task(@Attribute(name = "name") String name,
                         @Attribute(name = "duration", required = false) String duration,
-                        @Attribute(name = "sample", required = false) String sample,
-                        @Attribute(name = "delay") String delay,
+                        @Attribute(name = "sample", required = false) Integer sample,
+                        @Attribute(name = "delay", required = false) Integer delay,
                         @Attribute(name = "bean") String bean,
                         @ElementList(name = "users", entry = "user", inline = true, required = false) List<User> users,
                         @Element(name = "invocation", required = false) Invocation invocation) {
+                Preconditions.checkArgument((invocation == null || users == null), "Malformed configuration! <invocation> and <user> elements are mutually exclusive.");
+                
                 this.name = name;
                 this.duration = duration;
-                this.sample = sample;
-                this.delay = delay;
+                this.sample = (sample != null) ? sample : -1;
+                this.delay = (delay != null) ? delay : 0;
                 this.bean = bean;
                 this.users = Collections.unmodifiableList((users != null) ? users : new ArrayList<User>(0));
                 this.invocation = invocation;
             }
 
             public static class Invocation implements Serializable {
-                @Attribute(name = "count")
+                @Attribute(name = "exactcount")
                 public final Integer count;
 
                 @Attribute(name = "threads", required = false)
                 public final Integer threads;
 
-                public Invocation(@Attribute(name = "count") Integer count,
+                public Invocation(@Attribute(name = "exactcount") Integer count,
                                   @Attribute(name = "threads", required = false) Integer threads) {
                     this.count = count;
                     this.threads = threads != null ? threads : 1;

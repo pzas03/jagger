@@ -38,6 +38,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A process that performs remote service invocation in specified thread number.
@@ -57,6 +58,12 @@ public class WorkloadProcess implements NodeProcess<Integer> {
 
     private volatile int delay;
 
+    private int samplesFromTerminatedThreads = 0;
+
+    private int totalSamplesRequested;
+
+    private final AtomicInteger samplesLeft = new AtomicInteger(0);
+
     public WorkloadProcess(String sessionId, StartWorkloadProcess command, NodeContext context, ExecutorService executor) {
         this.sessionId = sessionId;
         this.command = command;
@@ -70,6 +77,8 @@ public class WorkloadProcess implements NodeProcess<Integer> {
 
         log.debug("Going to execute command {}.", command);
 
+        totalSamplesRequested = command.getScenarioContext().getWorkloadConfiguration().getSamples();
+        samplesLeft.set(totalSamplesRequested);
         for (int i = 0; i < command.getThreads(); i++) {
             addThread();
         }
@@ -96,7 +105,7 @@ public class WorkloadProcess implements NodeProcess<Integer> {
     }
 
     public Integer getStatus() {
-        Integer result = 0;
+        Integer result = samplesFromTerminatedThreads;
         for (WorkloadService thread : threads) {
             result += thread.getSamples();
         }
@@ -106,18 +115,31 @@ public class WorkloadProcess implements NodeProcess<Integer> {
     public void changeConfiguration(WorkloadConfiguration configuration) {
         log.debug("Configuration change request received");
 
-        final int diff = configuration.getThreads() - threads.size();
+        for (Iterator<WorkloadService> it = threads.iterator(); it.hasNext(); ){
+            WorkloadService workloadService = it.next();
+            if (workloadService.state().equals(Service.State.TERMINATED)) {
+                samplesFromTerminatedThreads += workloadService.getSamples();
+                it.remove();
+            }
+        }
 
-        if (diff < 0) {
-            log.debug("Going to decrease thread count by {}", diff);
-            for (int i = diff; i < 0; i++) {
+        final int threadDiff = configuration.getThreads() - threads.size();
+
+        if (threadDiff < 0) {
+            log.debug("Going to decrease thread count by {}", threadDiff);
+            for (int i = threadDiff; i < 0; i++) {
                 removeThread();
             }
         }
 
-        if (diff > 0) {
-            log.debug("Going to increase thread count by {}", diff);
-            for (int i = diff; i > 0; i--) {
+        if (totalSamplesRequested != configuration.getSamples()) {
+            samplesLeft.addAndGet(configuration.getSamples() - totalSamplesRequested);
+            totalSamplesRequested = configuration.getSamples();
+        }
+
+        if (threadDiff > 0 && (!predefinedSamplesCount() || samplesLeft.get() > 0)) {
+            log.debug("Going to increase thread count by {}", threadDiff);
+            for (int i = threadDiff; i > 0; i--) {
                 addThread();
             }
         }
@@ -137,16 +159,21 @@ public class WorkloadProcess implements NodeProcess<Integer> {
         for (KernelSideObjectProvider<ScenarioCollector<Object, Object, Object>> provider : command.getCollectors()) {
             collectors.add(provider.provide(sessionId, command.getTaskId(), context));
         }
-        WorkloadService thread = WorkloadService
+
+        WorkloadService.WorkloadServiceBuilder builder = WorkloadService
                 .builder(scenario)
                 .addCollectors(collectors)
-                .useExecutor(executor)
-                .buildInfiniteService();
+                .useExecutor(executor);
+        WorkloadService thread = ( predefinedSamplesCount()) ? builder.buildServiceWithSharedSamplesCount(samplesLeft) : builder.buildInfiniteService();
         log.debug("Starting workload");
         Future<Service.State> future = thread.start();
         Service.State state = Futures.get(future, START_TIMEOUT);
         log.debug("Workload thread with is started with state {}", state);
         threads.add(thread);
+    }
+
+    private boolean predefinedSamplesCount() {
+        return totalSamplesRequested != -1;
     }
 
     private void removeThread() {

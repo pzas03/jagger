@@ -42,18 +42,14 @@ public class WorkloadConfiguration implements Serializable {
         return new WorkloadConfiguration(threads, delay, samples);
     }
 
-
-    public static WorkloadConfiguration withTreads(int threads) {
-        return new WorkloadConfiguration(threads, 0, -1);
-    }
-
     public static WorkloadConfiguration zero() {
         return with(0, 0);
     }
 
     private WorkloadConfiguration(int threads, int delay, int samples) {
         Preconditions.checkArgument(threads >= 0);
-        Preconditions.checkArgument(delay >= 0);
+        Preconditions.checkArgument(delay   >= 0);
+        Preconditions.checkArgument(samples >= 0);
 
         this.threads = threads;
         this.delay   = delay;

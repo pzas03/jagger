@@ -60,7 +60,7 @@ public class UserClockConfiguration implements WorkloadClockConfiguration {
         if (taskConfig.invocation == null) {
             return new UserClock(taskConfig, tickInterval, shutdown);
         } else {
-            return new ExactInvocationsClock(taskConfig.invocation.count, taskConfig.invocation.threads);
+            return new ExactInvocationsClock(taskConfig.invocation.count, taskConfig.invocation.threads, taskConfig.delay);
         }
     }
 
