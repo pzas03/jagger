@@ -39,6 +39,13 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <configuration>
+                    <goals>deploy ghDownloads:upload</goals>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.2.1</version>
                 <configuration>
@@ -104,6 +111,30 @@
         <dependency>
             <groupId>com.griddynamics.jagger</groupId>
             <artifactId>monitoring.agent</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.griddynamics.jagger</groupId>
+            <artifactId>monitoring.agent</artifactId>
+            <type>zip</type>
+            <classifier>native</classifier>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.griddynamics.jagger</groupId>
+            <artifactId>chassis.configuration</artifactId>
+            <type>zip</type>
+            <classifier>configuration</classifier>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.griddynamics.jagger</groupId>
+            <artifactId>chassis.configuration</artifactId>
+            <type>zip</type>
+            <classifier>profiles</classifier>
+            <version>${version}</version>
         </dependency>
 
     </dependencies>
