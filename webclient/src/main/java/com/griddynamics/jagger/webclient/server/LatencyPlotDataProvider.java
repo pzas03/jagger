@@ -29,18 +29,18 @@ public class LatencyPlotDataProvider implements PlotDataProvider {
 
             List<PointDto> pointDtoList = DataProcessingUtil.convertFromRawDataToPointDto(rawData, 0, 1);
 
-            String legend = legendProvider.getPlotLegend(taskId, Plot.LATENCY, "sec/sec");
+            String legend = legendProvider.getPlotLegend(Plot.LATENCY);
             PlotDatasetDto plotDatasetDto = new PlotDatasetDto(pointDtoList, legend, ColorCodeGenerator.getHexColorCode());
             Set<PlotDatasetDto> plotSeries = new HashSet<PlotDatasetDto>();
             plotSeries.add(plotDatasetDto);
 
             pointDtoList = DataProcessingUtil.convertFromRawDataToPointDto(rawData, 0, 2);
 
-            legend = legendProvider.getPlotLegend(taskId, Plot.LATENCY_STD_DEV, "sec/sec");
+            legend = legendProvider.getPlotLegend(Plot.LATENCY_STD_DEV);
             plotDatasetDto = new PlotDatasetDto(pointDtoList, legend, ColorCodeGenerator.getHexColorCode());
             plotSeries.add(plotDatasetDto);
 
-            plotSeriesDto = new PlotSeriesDto(plotSeries, "Time, sec", "");
+            plotSeriesDto = new PlotSeriesDto(plotSeries, "Time, sec", "", legendProvider.getPlotHeader(taskId, Plot.LATENCY));
         } finally {
             entityManager.close();
         }

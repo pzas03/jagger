@@ -170,8 +170,7 @@ public class Trends extends Composite {
     }
 
     private boolean isMaxPlotCountReached() {
-        // *2 needs to take into account plot and their x axis label
-        return plotPanel.getWidgetCount() >= MAX_PLOT_COUNT *2;
+        return plotPanel.getWidgetCount() >= MAX_PLOT_COUNT;
     }
 
     //==========Nested Classes
@@ -283,15 +282,10 @@ public class Trends extends Composite {
                 // Remove plots from display which were unchecked
                 for (int i=0; i<plotPanel.getWidgetCount(); i++) {
                     Widget widget = plotPanel.getWidget(i);
-                    if (!(widget instanceof SimplePlot)) {
-                        continue;
-                    }
                     if (selectedTaskIds.contains(widget.getElement().getId())) {
                         continue;
                     }
                     // Remove plot
-                    plotPanel.remove(i);
-                    // Remove X axis label
                     plotPanel.remove(i);
                 }
 
@@ -330,13 +324,27 @@ public class Trends extends Composite {
                                 }
                             }
 
-                            plot.getElement().setId(id);
-                            plotPanel.add(plot);
-
                             // Add X axis label
                             Label xLabel = new Label(result.getXAxisLabel());
                             xLabel.addStyleName("x-axis-label");
-                            plotPanel.add(xLabel);
+
+                            Label plotHeader = new Label(result.getPlotHeader());
+                            plotHeader.addStyleName("plot-header");
+
+                            Label plotLegend = new Label("PLOT LEGEND");
+                            plotLegend.addStyleName("plot-legend");
+
+                            VerticalPanel vp = new VerticalPanel();
+                            vp.getElement().setId(id);
+                            vp.setWidth("100%");
+
+                            // Will be added if there is need it
+//                            vp.add(plotHeader);
+//                            vp.add(plot);
+//                            vp.add(xLabel);
+//                            vp.add(plotLegend);
+
+                            plotPanel.add(vp);
 
                             // Redraw plot
                             plot.redraw();

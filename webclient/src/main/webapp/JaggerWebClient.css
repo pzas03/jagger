@@ -24,3 +24,15 @@ body {
     margin-bottom: 1px;
 }
 
+.plot-header, .plot-legend {
+    text-align: center;
+}
+
+.plot-header {
+    font-weight: bold;
+}
+
+.plot-legend {
+    border: 1px solid #575757;
+    margin-bottom: .3em;
+}

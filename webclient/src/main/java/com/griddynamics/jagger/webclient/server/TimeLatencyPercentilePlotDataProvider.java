@@ -44,10 +44,10 @@ public class TimeLatencyPercentilePlotDataProvider implements PlotDataProvider {
             }
             Set<PlotDatasetDto> plotSeries = new HashSet<PlotDatasetDto>();
             for (Map.Entry<String, List<PointDto>> entry : percentiles.entrySet()) {
-                plotSeries.add(new PlotDatasetDto(entry.getValue(), entry.getKey(), ColorCodeGenerator.getHexColorCode()));
+                plotSeries.add(new PlotDatasetDto(entry.getValue(), legendProvider.getPlotLegend(entry.getKey(), "sec"), ColorCodeGenerator.getHexColorCode()));
             }
 
-            plotSeriesDto = new PlotSeriesDto(plotSeries, "Time, sec", "");
+            plotSeriesDto = new PlotSeriesDto(plotSeries, "Time, sec", "", legendProvider.getPlotHeader(taskId, Plot.TIME_LATENCY_PERCENTILE));
         } finally {
             entityManager.close();
         }

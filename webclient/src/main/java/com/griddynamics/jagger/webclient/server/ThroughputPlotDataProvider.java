@@ -32,11 +32,11 @@ public class ThroughputPlotDataProvider implements PlotDataProvider {
 
             List<PointDto> pointDtoList = DataProcessingUtil.convertFromRawDataToPointDto(rawData, 0, 1);
 
-            String legend = legendProvider.getPlotLegend(taskId, Plot.THROUGHPUT, "tps/sec");
+            String legend = legendProvider.getPlotLegend(Plot.THROUGHPUT);
             PlotDatasetDto plotDatasetDto = new PlotDatasetDto(pointDtoList, legend, ColorCodeGenerator.getHexColorCode());
             Set<PlotDatasetDto> plotSeries = new HashSet<PlotDatasetDto>();
             plotSeries.add(plotDatasetDto);
-            plotSeriesDto = new PlotSeriesDto(plotSeries, "Time, sec", "");
+            plotSeriesDto = new PlotSeriesDto(plotSeries, "Time, sec", "", legendProvider.getPlotHeader(taskId, Plot.THROUGHPUT));
         } finally {
             entityManager.close();
         }
