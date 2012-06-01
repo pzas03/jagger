@@ -10,3 +10,17 @@ body {
     text-align: center;
     color: #545454;
 }
+
+.task-details-tree div div div div div {
+    padding: 0;
+}
+
+.task-details-tree div div div div div table td {
+    padding: 0;
+}
+
+.task-details-tree div div div div div table td input {
+    margin-top: 1px;
+    margin-bottom: 1px;
+}
+

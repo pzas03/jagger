@@ -160,6 +160,7 @@ public class Trends extends Composite {
         CellTree.Resources res = GWT.create(CellTree.BasicResources.class);
         final MultiSelectionModel<PlotNameDto> selectionModel = new MultiSelectionModel<PlotNameDto>();
         taskDetailsTree = new CellTree(new WorkloadTaskDetailsTreeViewModel(selectionModel), null, res);
+        taskDetailsTree.addStyleName("task-details-tree");
 
         selectionModel.addSelectionChangeHandler(new TaskPlotSelectionChangedHandler());
     }
@@ -308,7 +309,6 @@ public class Trends extends Composite {
                     if (plotPanel.getElementById(id) != null) {
                         continue;
                     }
-
                     // Invoke remote service for plot data retrieving
                     PlotProviderService.Async.getInstance().getPlotData(plotNameDto.getTaskId(), plotNameDto.getPlotName(), new AsyncCallback<PlotSeriesDto>() {
                         @Override
