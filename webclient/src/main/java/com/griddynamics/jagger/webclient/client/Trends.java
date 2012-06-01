@@ -39,7 +39,7 @@ public class Trends extends Composite {
     private static TrendsUiBinder uiBinder = GWT.create(TrendsUiBinder.class);
 
     private static final String INSTRUCTIONS = "Point your mouse to a data point on the chart";
-    private static final int MAX_PLOT_COUNT = 10;
+    private static final int MAX_PLOT_COUNT = 30;
 
     @UiField
     HTMLPanel plotPanel;
@@ -71,7 +71,7 @@ public class Trends extends Composite {
     private SimplePlot createPlot() {
         PlotOptions plotOptions = new PlotOptions();
         plotOptions.setGlobalSeriesOptions(new GlobalSeriesOptions()
-                .setLineSeriesOptions(new LineSeriesOptions().setLineWidth(1).setShow(true))
+                .setLineSeriesOptions(new LineSeriesOptions().setLineWidth(1).setShow(true).setFill(0.1))
                 .setPointsOptions(new PointsSeriesOptions().setRadius(2).setShow(true)).setShadowSize(0d));
 
         // Make the grid hoverable

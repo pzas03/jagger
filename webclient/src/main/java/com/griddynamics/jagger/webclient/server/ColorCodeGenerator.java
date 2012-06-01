@@ -1,6 +1,7 @@
 package com.griddynamics.jagger.webclient.server;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
@@ -8,7 +9,7 @@ import java.util.*;
  */
 public class ColorCodeGenerator {
     private static final List<String> hexCodes = new ArrayList<String>();
-    private static final Random random = new Random(47L);
+    private static AtomicInteger counter = new AtomicInteger(-1);
 
     static {
         hexCodes.addAll(Arrays.asList(
@@ -33,6 +34,7 @@ public class ColorCodeGenerator {
     }
 
     public static String getHexColorCode() {
-        return hexCodes.get(random.nextInt(hexCodes.size()));
+        counter.compareAndSet(hexCodes.size()-1, -1);
+        return hexCodes.get(counter.incrementAndGet());
     }
 }
