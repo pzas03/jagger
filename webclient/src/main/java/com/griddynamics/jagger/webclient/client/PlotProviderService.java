@@ -18,6 +18,7 @@ public interface PlotProviderService extends RemoteService {
     List<PlotNameDto> getPlotListForTask(long taskId);
     PlotSeriesDto getThroughputData(long taskId);
     PlotSeriesDto getLatencyData(long taskId);
+    PlotSeriesDto getTimeLatencyPercentileData(long taskId);
     PlotSeriesDto getPlotData(long taskId, String plotType);
 
     public static class Async {

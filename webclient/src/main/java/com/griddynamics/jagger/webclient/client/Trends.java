@@ -165,7 +165,7 @@ public class Trends extends Composite {
     }
 
     private String generateId(PlotNameDto plotNameDto) {
-        return "" + plotNameDto.getTaskId() + "_" + plotNameDto.getPlotName();
+        return "" + plotNameDto.getTaskId() + "_" + plotNameDto.getPlotName().replace(" ", "_");
     }
 
     private boolean isMaxPlotCountReached() {

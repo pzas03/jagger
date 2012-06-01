@@ -18,4 +18,6 @@ public interface PlotProviderServiceAsync {
     void getPlotData(long taskId, String plotType, AsyncCallback<PlotSeriesDto> async);
 
     void getLatencyData(long taskId, AsyncCallback<PlotSeriesDto> async);
+
+    void getTimeLatencyPercentileData(long taskId, AsyncCallback<PlotSeriesDto> async);
 }

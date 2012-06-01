@@ -3,11 +3,8 @@ package com.griddynamics.jagger.webclient.server;
 import com.griddynamics.jagger.webclient.client.dto.PlotDatasetDto;
 import com.griddynamics.jagger.webclient.client.dto.PlotSeriesDto;
 import com.griddynamics.jagger.webclient.client.dto.PointDto;
-
 import javax.persistence.EntityManager;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
@@ -42,7 +39,6 @@ public class LatencyPlotDataProvider implements PlotDataProvider {
             legend = legendProvider.getPlotLegend(taskId, Plot.LATENCY_STD_DEV, "sec/sec");
             plotDatasetDto = new PlotDatasetDto(pointDtoList, legend, ColorCodeGenerator.getHexColorCode());
             plotSeries.add(plotDatasetDto);
-
 
             plotSeriesDto = new PlotSeriesDto(plotSeries, "Time, sec", "");
         } finally {
