@@ -21,6 +21,7 @@ public class TaskDataServiceImpl extends RemoteServiceServlet implements TaskDat
 
     @Override
     public List<TaskDataDto> getTaskDataForSession(String sessionId) {
+        long timestamp = System.currentTimeMillis();
         EntityManager entityManager = EntityManagerProvider.getEntityManagerFactory().createEntityManager();
 
         List<TaskDataDto> taskDataDtoList;
@@ -36,11 +37,11 @@ public class TaskDataServiceImpl extends RemoteServiceServlet implements TaskDat
             for (TaskData taskData : taskDataList) {
                 taskDataDtoList.add(new TaskDataDto(taskData.getId(), taskData.getSessionId(), taskData.getNumber(), taskData.getTaskName(), taskData.getStatus().name()));
             }
-            log.info("Task Data for session {} are: {}", sessionId, taskDataDtoList);
         } finally {
             entityManager.close();
         }
 
+        log.info("For session {} was loaded {} tasks for {} ms", new Object[] {sessionId, taskDataDtoList.size(), System.currentTimeMillis()-timestamp});
         return taskDataDtoList;
     }
 

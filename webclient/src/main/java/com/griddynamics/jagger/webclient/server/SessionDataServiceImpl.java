@@ -22,6 +22,7 @@ public class SessionDataServiceImpl extends RemoteServiceServlet implements Sess
 
     @Override
     public PagedSessionDataDto getAll(int start, int length) {
+        long timestamp = System.currentTimeMillis();
         EntityManager entityManager = EntityManagerProvider.getEntityManagerFactory().createEntityManager();
         long totalSize;
         List<SessionDataDto> sessionDataDtoList;
@@ -46,8 +47,7 @@ public class SessionDataServiceImpl extends RemoteServiceServlet implements Sess
                 );
             }
 
-            log.info("SessionData count is {}", totalSize);
-            log.info("SessionDataDto: {}", sessionDataDtoList);
+            log.info("There was loaded {} sessions data from {} for {} ms", new Object[] {sessionDataDtoList.size(), totalSize, System.currentTimeMillis()-timestamp});
         } finally {
             entityManager.close();
         }

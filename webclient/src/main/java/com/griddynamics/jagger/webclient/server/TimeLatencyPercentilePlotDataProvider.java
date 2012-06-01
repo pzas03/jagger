@@ -3,8 +3,6 @@ package com.griddynamics.jagger.webclient.server;
 import com.griddynamics.jagger.webclient.client.dto.PlotDatasetDto;
 import com.griddynamics.jagger.webclient.client.dto.PlotSeriesDto;
 import com.griddynamics.jagger.webclient.client.dto.PointDto;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import java.util.*;
@@ -14,7 +12,6 @@ import java.util.*;
  * @since 5/31/12
  */
 public class TimeLatencyPercentilePlotDataProvider implements PlotDataProvider {
-    private static final Logger log = LoggerFactory.getLogger(TimeLatencyPercentilePlotDataProvider.class);
     private final LegendProvider legendProvider = new LegendProvider();
 
     @Override

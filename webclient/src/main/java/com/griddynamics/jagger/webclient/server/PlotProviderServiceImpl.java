@@ -2,13 +2,16 @@ package com.griddynamics.jagger.webclient.server;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.griddynamics.jagger.webclient.client.PlotProviderService;
+import com.griddynamics.jagger.webclient.client.dto.PlotDatasetDto;
 import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
 import com.griddynamics.jagger.webclient.client.dto.PlotSeriesDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
@@ -51,16 +54,27 @@ public class PlotProviderServiceImpl extends RemoteServiceServlet implements Plo
 
     @Override
     public PlotSeriesDto getPlotData(long taskId, String plotType) {
+        long timestamp = System.currentTimeMillis();
         Plot plot = Plot.fromText(plotType);
 
+        PlotSeriesDto plotSeriesDto = null;
         if (plot == Plot.THROUGHPUT) {
-            return getThroughputData(taskId);
+            plotSeriesDto = getThroughputData(taskId);
         } else if (plot == Plot.LATENCY) {
-            return getLatencyData(taskId);
+            plotSeriesDto = getLatencyData(taskId);
         } else if (plot == Plot.TIME_LATENCY_PERCENTILE) {
-            return getTimeLatencyPercentileData(taskId);
+            plotSeriesDto = getTimeLatencyPercentileData(taskId);
+        } else {
+            throw new UnsupportedOperationException("Plot type " + plot + " doesn't supported");
         }
 
-        throw new UnsupportedOperationException("Plot type " + plot + " doesn't supported");
+        Map<String, Integer> plotDatasetDtoMetrics = new HashMap<String, Integer>();
+        for (PlotDatasetDto plotDatasetDto : plotSeriesDto.getPlotSeries()) {
+            plotDatasetDtoMetrics.put(plotDatasetDto.getLegend(), plotDatasetDto.getPlotData().size());
+        }
+        log.info("For {} plot there was loaded {} PlotDatasetDto: {} for {} ms",
+                new Object[] {plot.getText(), plotSeriesDto.getPlotSeries().size(), plotDatasetDtoMetrics, System.currentTimeMillis()-timestamp});
+
+        return plotSeriesDto;
     }
 }
