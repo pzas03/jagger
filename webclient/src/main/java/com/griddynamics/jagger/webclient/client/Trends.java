@@ -12,6 +12,7 @@ import ca.nanometrics.gflot.client.options.*;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -52,12 +53,18 @@ public class Trends extends Composite {
     @UiField(provided = true)
     CellTree taskDetailsTree;
 
+    @UiField
+    ScrollPanel scrollPanel;
+
+    private FlowPanel loadIndicator;
+
     private SessionDataAsyncDataProvider dataProvider = new SessionDataAsyncDataProvider();
 
     public Trends() {
         setupTaskDetailsTree();
         setupDataGrid();
         setupPager();
+        setupLoadIndicator();
         initWidget(uiBinder.createAndBindUi(this));
     }
 
@@ -163,6 +170,14 @@ public class Trends extends Composite {
         taskDetailsTree.addStyleName("task-details-tree");
 
         selectionModel.addSelectionChangeHandler(new TaskPlotSelectionChangedHandler());
+    }
+
+    private void setupLoadIndicator() {
+        ImageResource imageResource = JaggerResources.INSTANCE.getLoadIndicator();
+        Image image = new Image(imageResource);
+        loadIndicator = new FlowPanel();
+        loadIndicator.addStyleName("centered");
+        loadIndicator.add(image);
     }
 
     private String generateId(PlotNameDto plotNameDto) {
@@ -303,15 +318,23 @@ public class Trends extends Composite {
                     if (plotPanel.getElementById(id) != null) {
                         continue;
                     }
+
+                    plotPanel.add(loadIndicator);
+                    scrollPanel.scrollToBottom();
+                    final int loadingId = plotPanel.getWidgetCount()-1;
                     // Invoke remote service for plot data retrieving
                     PlotProviderService.Async.getInstance().getPlotData(plotNameDto.getTaskId(), plotNameDto.getPlotName(), new AsyncCallback<PlotSeriesDto>() {
                         @Override
                         public void onFailure(Throwable caught) {
+                            plotPanel.remove(loadingId);
+
                             Window.alert("Error is occurred during server request processing (Throughput data fetching)");
                         }
 
                         @Override
                         public void onSuccess(PlotSeriesDto result) {
+                            plotPanel.remove(loadingId);
+
                             SimplePlot plot = createPlot();
                             PlotModel plotModel = plot.getModel();
 
@@ -338,10 +361,10 @@ public class Trends extends Composite {
                             vp.getElement().setId(id);
                             vp.setWidth("100%");
 
+                            vp.add(plotHeader);
+                            vp.add(plot);
+                            vp.add(xLabel);
                             // Will be added if there is need it
-//                            vp.add(plotHeader);
-//                            vp.add(plot);
-//                            vp.add(xLabel);
 //                            vp.add(plotLegend);
 
                             plotPanel.add(vp);

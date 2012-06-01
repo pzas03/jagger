@@ -20,7 +20,7 @@
             <g:header>Trends</g:header>
             <g:SplitLayoutPanel>
                 <g:center>
-                    <g:ScrollPanel>
+                    <g:ScrollPanel ui:field="scrollPanel">
                         <g:HTMLPanel addStyleNames="{style.plotPanel}" ui:field="plotPanel"/>
                     </g:ScrollPanel>
                 </g:center>
