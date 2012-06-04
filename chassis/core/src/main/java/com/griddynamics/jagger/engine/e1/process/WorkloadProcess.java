@@ -62,7 +62,7 @@ public class WorkloadProcess implements NodeProcess<Integer> {
 
     private int totalSamplesRequested;
 
-    private final AtomicInteger samplesLeft = new AtomicInteger(0);
+    private final AtomicInteger samplesLeft = new AtomicInteger(-1);
 
     public WorkloadProcess(String sessionId, StartWorkloadProcess command, NodeContext context, ExecutorService executor) {
         this.sessionId = sessionId;

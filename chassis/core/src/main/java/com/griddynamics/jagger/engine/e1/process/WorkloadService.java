@@ -179,14 +179,18 @@ public abstract class WorkloadService extends AbstractExecutionThreadService {
 
             @Override
             protected boolean terminationRequired() {
-                boolean result =  samplesLeft.getAndDecrement() == 0;
-                if (result) {
-                    // TODO! return the count back
-                    samplesLeft.incrementAndGet();
+                int s;
+                while (true) {
+                    s =  samplesLeft.get();
+                    if (s > 0) {
+                        if (samplesLeft.compareAndSet(s, --s) ) {
+                            return false;
+                        }
+                    } else {
+                        return true;
+                    }
                 }
-                return result;
             }
         }
     }
-
 }
