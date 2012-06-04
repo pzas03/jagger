@@ -62,7 +62,8 @@ public class ExactInvocationsClock implements WorkloadClock {
         int restSamples = samplesToAdd % nodes.size();
         int s = 0;
         for (NodeId node : nodes) {
-            int samples = samplesPerNode;
+            double factor = (status.getTotalSamples()==0) ? 1/nodes.size() : status.getSamples(node) / status.getTotalSamples();
+            int samples = (int)Math.round(samplesPerNode * factor);
             if (restSamples > 0) {
                 samples++;
                 restSamples--;

@@ -155,7 +155,7 @@ public abstract class WorkloadService extends AbstractExecutionThreadService {
 
         private class PredefinedSamplesWorkloadService extends WorkloadService {
 
-            private int samples;
+            private final int samples;
 
             private PredefinedSamplesWorkloadService(ImmutableList<ScenarioCollector<Object, Object, Object>> list, int samples) {
                 super(WorkloadServiceBuilder.this.executor, WorkloadServiceBuilder.this.scenario, list);
@@ -170,7 +170,7 @@ public abstract class WorkloadService extends AbstractExecutionThreadService {
 
         private class SharedSamplesCountWorkloadService extends WorkloadService {
             
-            private AtomicInteger samplesLeft;
+            private final AtomicInteger samplesLeft;
 
             private SharedSamplesCountWorkloadService(ImmutableList<ScenarioCollector<Object, Object, Object>> list, AtomicInteger samples) {
                 super(WorkloadServiceBuilder.this.executor, WorkloadServiceBuilder.this.scenario, list);
