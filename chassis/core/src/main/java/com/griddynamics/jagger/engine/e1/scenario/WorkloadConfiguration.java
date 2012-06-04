@@ -49,7 +49,6 @@ public class WorkloadConfiguration implements Serializable {
     private WorkloadConfiguration(int threads, int delay, int samples) {
         Preconditions.checkArgument(threads >= 0);
         Preconditions.checkArgument(delay   >= 0);
-        Preconditions.checkArgument(samples >= 0);
 
         this.threads = threads;
         this.delay   = delay;
