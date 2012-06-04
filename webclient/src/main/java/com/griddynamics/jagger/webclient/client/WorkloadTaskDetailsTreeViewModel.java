@@ -25,7 +25,7 @@ public class WorkloadTaskDetailsTreeViewModel implements TreeViewModel {
     private final DefaultSelectionEventManager<PlotNameDto> selectionManager =
             DefaultSelectionEventManager.createCheckboxManager();
 
-    private static final TaskDataDto noTasksDummyNode = new TaskDataDto(Integer.MIN_VALUE, "", 0, "No Tasks", "");
+    private static final TaskDataDto noTasksDummyNode = new TaskDataDto(Integer.MIN_VALUE, "", "No Tasks", "");
 
     //==========Constructors
 

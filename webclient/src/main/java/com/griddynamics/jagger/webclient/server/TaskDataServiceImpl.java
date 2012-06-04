@@ -35,7 +35,7 @@ public class TaskDataServiceImpl extends RemoteServiceServlet implements TaskDat
 
             taskDataDtoList = new ArrayList<TaskDataDto>(taskDataList.size());
             for (TaskData taskData : taskDataList) {
-                taskDataDtoList.add(new TaskDataDto(taskData.getId(), taskData.getSessionId(), taskData.getNumber(), taskData.getTaskName(), taskData.getStatus().name()));
+                taskDataDtoList.add(new TaskDataDto(taskData.getId(), taskData.getSessionId(), taskData.getTaskName(), taskData.getStatus().name()));
             }
         } finally {
             entityManager.close();
@@ -60,7 +60,7 @@ public class TaskDataServiceImpl extends RemoteServiceServlet implements TaskDat
 
             taskDataDtoList = new ArrayList<TaskDataDto>(taskDataList.size());
             for (TaskData taskData : taskDataList) {
-                taskDataDtoList.add(new TaskDataDto(taskData.getId(), taskData.getSessionId(), taskData.getNumber(), taskData.getTaskName(), taskData.getStatus().name()));
+                taskDataDtoList.add(new TaskDataDto(taskData.getId(), taskData.getSessionId(), taskData.getTaskName(), taskData.getStatus().name()));
             }
         } finally {
             entityManager.close();
