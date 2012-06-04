@@ -204,7 +204,8 @@ public class Trends extends Composite {
             AsyncCallback<PagedSessionDataDto> callback = new AsyncCallback<PagedSessionDataDto>() {
                 @Override
                 public void onFailure(Throwable caught) {
-                    Window.alert("Error is occurred during server request processing (Session data fetching)");
+//                    Window.alert("Error is occurred during server request processing (Session data fetching)");
+                    Window.alert("Error is occurred during server request processing (Session data fetching)" + caught.getMessage());
                 }
 
                 @Override

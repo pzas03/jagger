@@ -8,6 +8,7 @@ import java.io.Serializable;
  */
 public class TaskDataDto implements Serializable {
     private long id;
+    private String taskId;
     private String sessionId;
     private String taskName;
     private String status;
@@ -15,8 +16,9 @@ public class TaskDataDto implements Serializable {
     public TaskDataDto() {
     }
 
-    public TaskDataDto(long id, String sessionId, String taskName, String status) {
+    public TaskDataDto(long id, String taskId, String sessionId, String taskName, String status) {
         this.id = id;
+        this.taskId = taskId;
         this.sessionId = sessionId;
         this.taskName = taskName;
         this.status = status;
@@ -24,6 +26,10 @@ public class TaskDataDto implements Serializable {
 
     public long getId() {
         return id;
+    }
+
+    public String getTaskId() {
+        return taskId;
     }
 
     public String getSessionId() {
@@ -59,6 +65,7 @@ public class TaskDataDto implements Serializable {
     public String toString() {
         return "TaskDataDto{" +
                 "id=" + id +
+                ", taskId='" + taskId + '\'' +
                 ", sessionId='" + sessionId + '\'' +
                 ", taskName='" + taskName + '\'' +
                 ", status='" + status + '\'' +

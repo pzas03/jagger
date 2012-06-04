@@ -27,7 +27,8 @@ public class TaskDataServiceImpl extends RemoteServiceServlet implements TaskDat
         List<TaskDataDto> taskDataDtoList;
         try {
             List<TaskData> taskDataList = (List<TaskData>) entityManager.createQuery(
-                    "select td from TaskData as td where td.sessionId=:sessionId").setParameter("sessionId", sessionId).getResultList();
+                    "select td from TaskData as td where td.sessionId=:sessionId and td.taskId in (select wd.taskId from WorkloadData as wd where wd.sessionId=:sessionId)")
+                    .setParameter("sessionId", sessionId).getResultList();
 
             if (taskDataList == null) {
                 return Collections.emptyList();
@@ -35,7 +36,7 @@ public class TaskDataServiceImpl extends RemoteServiceServlet implements TaskDat
 
             taskDataDtoList = new ArrayList<TaskDataDto>(taskDataList.size());
             for (TaskData taskData : taskDataList) {
-                taskDataDtoList.add(new TaskDataDto(taskData.getId(), taskData.getSessionId(), taskData.getTaskName(), taskData.getStatus().name()));
+                taskDataDtoList.add(new TaskDataDto(taskData.getId(), taskData.getTaskId(), taskData.getSessionId(), taskData.getTaskName(), taskData.getStatus().name()));
             }
         } finally {
             entityManager.close();
@@ -60,7 +61,7 @@ public class TaskDataServiceImpl extends RemoteServiceServlet implements TaskDat
 
             taskDataDtoList = new ArrayList<TaskDataDto>(taskDataList.size());
             for (TaskData taskData : taskDataList) {
-                taskDataDtoList.add(new TaskDataDto(taskData.getId(), taskData.getSessionId(), taskData.getTaskName(), taskData.getStatus().name()));
+                taskDataDtoList.add(new TaskDataDto(taskData.getId(), taskData.getTaskId(), taskData.getSessionId(), taskData.getTaskName(), taskData.getStatus().name()));
             }
         } finally {
             entityManager.close();

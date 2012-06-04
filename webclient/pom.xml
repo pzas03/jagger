@@ -24,6 +24,20 @@
     </properties>
 
     <dependencies>
+        <!--GWT-->
+        <dependency>
+            <groupId>com.google.gwt</groupId>
+            <artifactId>gwt-servlet</artifactId>
+            <version>${gwt.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.gwt</groupId>
+            <artifactId>gwt-user</artifactId>
+            <version>${gwt.version}</version>
+        </dependency>
+
+        <!--Logging-->
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
@@ -45,6 +59,7 @@
             <version>${slf4j.version}</version>
         </dependency>
 
+        <!--Servlets API-->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
@@ -55,6 +70,7 @@
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
             <version>1.2</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>javax.el</groupId>
@@ -64,41 +80,64 @@
         </dependency>
 
         <dependency>
-            <groupId>com.google.gwt</groupId>
-            <artifactId>gwt-servlet</artifactId>
-            <version>${gwt.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.gwt</groupId>
-            <artifactId>gwt-user</artifactId>
-            <version>${gwt.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.googlecode.gflot</groupId>
             <artifactId>gflot</artifactId>
             <version>2.4.0</version>
             <scope>provided</scope>
         </dependency>
 
+        <!--Spring Framework-->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+
+        <!--Hibernate-->
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-entitymanager</artifactId>
         </dependency>
 
+        <!--JDBC MySQL-->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
 
+        <!--GridDynamics Jagger-->
         <dependency>
             <groupId>com.griddynamics.jagger</groupId>
             <artifactId>chassis.core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.griddynamics.jagger</groupId>
-            <artifactId>chassis.util</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.griddynamics.jagger</groupId>
+                    <artifactId>chassis.util</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.griddynamics.jagger</groupId>
+                    <artifactId>chassis.coordinator.zookeeper</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.griddynamics.jagger</groupId>
+                    <artifactId>diagnostics</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-server</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>zookeeper</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>net.sf.jasperreports</groupId>
+                    <artifactId>jasperreports</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
@@ -112,38 +151,20 @@
                     <source>1.6</source>
                 </configuration>
             </plugin>
+
             <plugin>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>2.2</version>
                 <configuration>
-                    <webappDirectory>src/main/webapp</webappDirectory>
                     <webXml>src/main/webapp/WEB-INF/web.xml</webXml>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-idea-plugin</artifactId>
-                <version>2.2</version>
-                <configuration>
-                    <downloadSources>true</downloadSources>
-                    <dependenciesAsLibraries>true</dependenciesAsLibraries>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>tomcat-maven-plugin</artifactId>
-                <version>1.0</version>
-            </plugin>
-            <plugin>
-                <groupId>org.mortbay.jetty</groupId>
-                <artifactId>jetty-maven-plugin</artifactId>
-                <version>7.1.2.v20100523</version>
-                <configuration>
-                    <webAppConfig>
-                        <contextPath>/${project.name}</contextPath>
-                    </webAppConfig>
+                    <webResources>
+                        <resource>
+                            <directory>src/main/webapp</directory>
+                            <includes>
+                                <include>**/*</include>
+                            </includes>
+                        </resource>
+                    </webResources>
                 </configuration>
             </plugin>
 
@@ -177,7 +198,6 @@
                         <module>${groupId}.${artifactId}.JaggerWebClient</module>
                     </modules>
 
-                    <copyWebapp>true</copyWebapp>
                     <runClasspathExcludes>
                         <runClasspathExclude>asm-3.3.jar</runClasspathExclude>
                     </runClasspathExcludes>
@@ -187,15 +207,14 @@
                 <executions>
                     <execution>
                         <id>gwtcompile</id>
-                        <phase>prepare-package</phase>
                         <goals>
                             <goal>compile</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
 
-        <outputDirectory>${project.build.directory}/${project.build.finalName}/WEB-INF/classes</outputDirectory>
     </build>
 </project>

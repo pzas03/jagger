@@ -11,14 +11,15 @@
         <class>com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadDetails</class>
         <class>com.griddynamics.jagger.engine.e1.aggregator.workload.model.TimeInvocationStatistics</class>
         <class>com.griddynamics.jagger.engine.e1.aggregator.workload.model.TimeLatencyPercentile</class>
+        <class>com.griddynamics.jagger.engine.e1.aggregator.session.model.TaskData</class>
 
         <validation-mode>NONE</validation-mode>
 
         <properties>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
-            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/jaggerdb"/>
-            <property name="javax.persistence.jdbc.user" value="jagger"/>
-            <property name="javax.persistence.jdbc.password" value="rocks"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/testdataNew"/>
+            <property name="javax.persistence.jdbc.user" value="breeze"/>
+            <property name="javax.persistence.jdbc.password" value="breeze"/>
 
             <property name="dialect" value="org.hibernate.dialect.MySQL5InnoDBDialect"/>
             <property name="hbm2ddl.auto" value="validate"/>
