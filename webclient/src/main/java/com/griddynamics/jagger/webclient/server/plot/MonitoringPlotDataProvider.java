@@ -33,10 +33,10 @@ public class MonitoringPlotDataProvider implements PlotDataProvider {
     }
 
     @Override
-    public PlotSeriesDto getPlotData(long taskId, String plotName) {
+    public List<PlotSeriesDto> getPlotData(long taskId, String plotName) {
         EntityManager entityManager = EntityManagerProvider.getEntityManagerFactory().createEntityManager();
 
-        PlotSeriesDto plotSeriesDto;
+        List<PlotSeriesDto> plotSeriesDtoList;
         try {
             GroupKey groupKey = new GroupKey(plotName);
             DefaultMonitoringParameters[] defaultMonitoringParametersGroup = monitoringPlotGroups.get(groupKey);
@@ -72,43 +72,50 @@ public class MonitoringPlotDataProvider implements PlotDataProvider {
 
             log.debug("monitoringStatisticsList {}", monitoringStatisticsList);
 
-            List<PlotDatasetDto> plotDatasetDtoList = new ArrayList<PlotDatasetDto>();
-            for (Map.Entry<String, Map<String, List<MonitoringStatistics>>> entry: composeByDescriptionAndBoxIdentifier(monitoringStatisticsList).entrySet()) {
-                String description = entry.getKey();
+            plotSeriesDtoList = new ArrayList<PlotSeriesDto>();
+            for (Map.Entry<String, Map<String, List<MonitoringStatistics>>> entry: composeByBoxIdentifierAndDescription(monitoringStatisticsList).entrySet()) {
+                List<PlotDatasetDto> plotDatasetDtoList = new ArrayList<PlotDatasetDto>();
+                String boxIdentifier = entry.getKey();
+
                 for (Map.Entry<String, List<MonitoringStatistics>> boxEntry : entry.getValue().entrySet()) {
-                    String boxIdentifier = boxEntry.getKey();
+                    String description = boxEntry.getKey();
 
                     List<PointDto> pointDtoList = new ArrayList<PointDto>();
                     for (MonitoringStatistics monitoringStatistics : boxEntry.getValue()) {
                         pointDtoList.add(new PointDto(DataProcessingUtil.round(monitoringStatistics.getTime()/1000.0D), DataProcessingUtil.round(monitoringStatistics.getAverageValue())));
                     }
-                    PlotDatasetDto plotDatasetDto = new PlotDatasetDto(pointDtoList, description+boxIdentifier, ColorCodeGenerator.getHexColorCode());
+
+                    if (pointDtoList.size() == 1) {
+                        pointDtoList.add(new PointDto(0.0, 0.0));
+                    }
+
+                    PlotDatasetDto plotDatasetDto = new PlotDatasetDto(pointDtoList, description, ColorCodeGenerator.getHexColorCode());
                     plotDatasetDtoList.add(plotDatasetDto);
                 }
+                plotSeriesDtoList.add(new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", legendProvider.getPlotHeader(monitoringTaskData.getId(), plotName + " on " +boxIdentifier)));
             }
-            plotSeriesDto = new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", legendProvider.getPlotHeader(monitoringTaskData.getId(), plotName));
         } finally {
             entityManager.close();
         }
 
-        return plotSeriesDto;
+        return plotSeriesDtoList;
     }
 
-    private Map<String, Map<String, List<MonitoringStatistics>>> composeByDescriptionAndBoxIdentifier(List<MonitoringStatistics> monitoringStatisticsList) {
+    private Map<String, Map<String, List<MonitoringStatistics>>> composeByBoxIdentifierAndDescription(List<MonitoringStatistics> monitoringStatisticsList) {
         Map<String, Map<String, List<MonitoringStatistics>>> map = new HashMap<String, Map<String, List<MonitoringStatistics>>>();
 
         for (MonitoringStatistics monitoringStatistics : monitoringStatisticsList) {
-            String description = monitoringStatistics.getParameterId().getDescription();
             String boxIdentifier = monitoringStatistics.getBoxIdentifier();
+            String description = monitoringStatistics.getParameterId().getDescription();
 
-            if (!map.containsKey(description)) {
-                map.put(description, new HashMap<String, List<MonitoringStatistics>>());
+            if (!map.containsKey(boxIdentifier)) {
+                map.put(boxIdentifier, new HashMap<String, List<MonitoringStatistics>>());
             }
-            Map<String, List<MonitoringStatistics>> boxIdentifiersMap = map.get(description);
-            if (!boxIdentifiersMap.containsKey(boxIdentifier)) {
-                boxIdentifiersMap.put(boxIdentifier, new ArrayList<MonitoringStatistics>());
+            Map<String, List<MonitoringStatistics>> descriptionsMap = map.get(boxIdentifier);
+            if (!descriptionsMap.containsKey(description)) {
+                descriptionsMap.put(description, new ArrayList<MonitoringStatistics>());
             }
-            boxIdentifiersMap.get(boxIdentifier).add(monitoringStatistics);
+            descriptionsMap.get(description).add(monitoringStatistics);
         }
         return map;
     }

@@ -23,7 +23,6 @@ import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
 import com.google.gwt.view.client.Range;
 import com.griddynamics.jagger.webclient.client.dto.*;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -324,7 +323,7 @@ public class Trends extends Composite {
                     scrollPanel.scrollToBottom();
                     final int loadingId = plotPanel.getWidgetCount()-1;
                     // Invoke remote service for plot data retrieving
-                    PlotProviderService.Async.getInstance().getPlotData(plotNameDto.getTaskId(), plotNameDto.getPlotName(), new AsyncCallback<PlotSeriesDto>() {
+                    PlotProviderService.Async.getInstance().getPlotData(plotNameDto.getTaskId(), plotNameDto.getPlotName(), new AsyncCallback<List<PlotSeriesDto>>() {
                         @Override
                         public void onFailure(Throwable caught) {
                             plotPanel.remove(loadingId);
@@ -333,42 +332,57 @@ public class Trends extends Composite {
                         }
 
                         @Override
-                        public void onSuccess(PlotSeriesDto result) {
+                        public void onSuccess(List<PlotSeriesDto> result) {
                             plotPanel.remove(loadingId);
 
-                            SimplePlot plot = createPlot();
-                            PlotModel plotModel = plot.getModel();
-
-                            for (PlotDatasetDto plotDatasetDto: result.getPlotSeries()) {
-                                SeriesHandler handler = plotModel.addSeries(plotDatasetDto.getLegend(), plotDatasetDto.getColor());
-
-                                // Populate plot with data
-                                for (PointDto pointDto : plotDatasetDto.getPlotData()) {
-                                    handler.add(new DataPoint(pointDto.getX(), pointDto.getY()));
-                                }
+                            if (result.isEmpty()) {
+                                Window.alert("There are no data found for "+plotNameDto.getPlotName());
                             }
 
-                            // Add X axis label
-                            Label xLabel = new Label(result.getXAxisLabel());
-                            xLabel.addStyleName("x-axis-label");
+                            SimplePlot plot = null;
 
-                            Label plotHeader = new Label(result.getPlotHeader());
-                            plotHeader.addStyleName("plot-header");
+                            VerticalPanel plotGroupPanel = new VerticalPanel();
+                            plotGroupPanel.setWidth("100%");
+                            plotGroupPanel.getElement().setId(id);
 
-                            Label plotLegend = new Label("PLOT LEGEND");
-                            plotLegend.addStyleName("plot-legend");
+                            for (PlotSeriesDto plotSeriesDto : result) {
+//                                PlotSeriesDto plotSeriesDto = result.iterator().next();
+                                plot = createPlot();
+                                PlotModel plotModel = plot.getModel();
 
-                            VerticalPanel vp = new VerticalPanel();
-                            vp.getElement().setId(id);
-                            vp.setWidth("100%");
+                                for (PlotDatasetDto plotDatasetDto: plotSeriesDto.getPlotSeries()) {
+                                    SeriesHandler handler = plotModel.addSeries(plotDatasetDto.getLegend(), plotDatasetDto.getColor());
 
-                            vp.add(plotHeader);
-                            vp.add(plot);
-                            vp.add(xLabel);
-                            // Will be added if there is need it
+                                    // Populate plot with data
+                                    for (PointDto pointDto : plotDatasetDto.getPlotData()) {
+                                        handler.add(new DataPoint(pointDto.getX(), pointDto.getY()));
+                                    }
+                                }
+
+                                // Add X axis label
+                                Label xLabel = new Label(plotSeriesDto.getXAxisLabel());
+                                xLabel.addStyleName("x-axis-label");
+
+                                Label plotHeader = new Label(plotSeriesDto.getPlotHeader());
+                                plotHeader.addStyleName("plot-header");
+
+                                Label plotLegend = new Label("PLOT LEGEND");
+                                plotLegend.addStyleName("plot-legend");
+
+                                VerticalPanel vp = new VerticalPanel();
+                                vp.setWidth("100%");
+
+                                vp.add(plotHeader);
+                                vp.add(plot);
+                                vp.add(xLabel);
+                                // Will be added if there is need it
 //                            vp.add(plotLegend);
 
-                            plotPanel.add(vp);
+                                plotGroupPanel.add(vp);
+
+                            }
+
+                            plotPanel.add(plotGroupPanel);
 
                             // Redraw plot
                             plot.redraw();

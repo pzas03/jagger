@@ -4,7 +4,6 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.griddynamics.jagger.agent.model.DefaultMonitoringParameters;
 import com.griddynamics.jagger.monitoring.reporting.GroupKey;
 import com.griddynamics.jagger.webclient.client.PlotProviderService;
-import com.griddynamics.jagger.webclient.client.dto.PlotDatasetDto;
 import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
 import com.griddynamics.jagger.webclient.client.dto.PlotSeriesDto;
 import com.griddynamics.jagger.webclient.server.plot.LatencyPlotDataProvider;
@@ -16,10 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
@@ -54,7 +50,7 @@ public class PlotProviderServiceImpl extends RemoteServiceServlet implements Plo
     }
 
     @Override
-    public PlotSeriesDto getPlotData(long taskId, String plotName) {
+    public List<PlotSeriesDto> getPlotData(long taskId, String plotName) {
         long timestamp = System.currentTimeMillis();
         log.debug("getPlotData was invoked with taskId={} and plotName={}", taskId, plotName);
 
@@ -70,16 +66,9 @@ public class PlotProviderServiceImpl extends RemoteServiceServlet implements Plo
             throw new UnsupportedOperationException("Plot type " + plotName + " doesn't supported");
         }
 
-        PlotSeriesDto plotSeriesDto = null;
+        List<PlotSeriesDto> plotSeriesDto = null;
         try {
             plotSeriesDto = plotDataProvider.getPlotData(taskId, plotName);
-
-            Map<String, Integer> plotDatasetDtoMetrics = new HashMap<String, Integer>();
-            for (PlotDatasetDto plotDatasetDto : plotSeriesDto.getPlotSeries()) {
-                plotDatasetDtoMetrics.put(plotDatasetDto.getLegend(), plotDatasetDto.getPlotData().size());
-            }
-            log.info("For {} plot there was loaded {} PlotDatasetDto: {} for {} ms",
-                    new Object[]{plotName, plotSeriesDto.getPlotSeries().size(), plotDatasetDtoMetrics, System.currentTimeMillis() - timestamp});
         } catch (Exception e) {
             log.error("Error is occurred during plot data loading for taskId="+taskId+", plotName="+plotName, e);
             throw new RuntimeException(e);

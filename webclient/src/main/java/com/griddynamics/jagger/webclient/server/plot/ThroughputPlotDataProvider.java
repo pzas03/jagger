@@ -6,9 +6,7 @@ import com.griddynamics.jagger.webclient.client.dto.PointDto;
 import com.griddynamics.jagger.webclient.server.*;
 
 import javax.persistence.EntityManager;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
@@ -18,7 +16,7 @@ public class ThroughputPlotDataProvider implements PlotDataProvider {
     private final LegendProvider legendProvider = new LegendProvider();
 
     @Override
-    public PlotSeriesDto getPlotData(long taskId, String plotName) {
+    public List<PlotSeriesDto> getPlotData(long taskId, String plotName) {
         EntityManager entityManager = EntityManagerProvider.getEntityManagerFactory().createEntityManager();
 
         PlotSeriesDto plotSeriesDto;
@@ -28,7 +26,7 @@ public class ThroughputPlotDataProvider implements PlotDataProvider {
                     .setParameter("taskId", taskId).getResultList();
 
             if (rawData == null) {
-                return new PlotSeriesDto();
+                return Collections.emptyList();
             }
 
             List<PointDto> pointDtoList = DataProcessingUtil.convertFromRawDataToPointDto(rawData, 0, 1);
@@ -42,6 +40,6 @@ public class ThroughputPlotDataProvider implements PlotDataProvider {
             entityManager.close();
         }
 
-        return plotSeriesDto;
+        return Collections.singletonList(plotSeriesDto);
     }
 }

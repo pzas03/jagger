@@ -3,7 +3,6 @@ package com.griddynamics.jagger.webclient.client;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
 import com.griddynamics.jagger.webclient.client.dto.PlotSeriesDto;
-
 import java.util.List;
 
 /**
@@ -13,5 +12,5 @@ import java.util.List;
 public interface PlotProviderServiceAsync {
     void getPlotListForTask(long taskId, AsyncCallback<List<PlotNameDto>> async);
 
-    void getPlotData(long taskId, String plotType, AsyncCallback<PlotSeriesDto> async);
+    void getPlotData(long taskId, String plotType, AsyncCallback<List<PlotSeriesDto>> async);
 }

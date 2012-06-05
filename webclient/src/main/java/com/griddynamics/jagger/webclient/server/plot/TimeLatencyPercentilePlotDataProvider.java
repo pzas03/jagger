@@ -16,7 +16,7 @@ public class TimeLatencyPercentilePlotDataProvider implements PlotDataProvider {
     private final LegendProvider legendProvider = new LegendProvider();
 
     @Override
-    public PlotSeriesDto getPlotData(long taskId, String plotName) {
+    public List<PlotSeriesDto> getPlotData(long taskId, String plotName) {
         EntityManager entityManager = EntityManagerProvider.getEntityManagerFactory().createEntityManager();
 
         PlotSeriesDto plotSeriesDto;
@@ -26,7 +26,7 @@ public class TimeLatencyPercentilePlotDataProvider implements PlotDataProvider {
                     .setParameter("taskId", taskId).getResultList();
 
             if (rawData == null) {
-                return new PlotSeriesDto();
+                return Collections.emptyList();
             }
 
             Map<String, List<PointDto>> percentiles = new HashMap<String, List<PointDto>>();
@@ -54,6 +54,6 @@ public class TimeLatencyPercentilePlotDataProvider implements PlotDataProvider {
             entityManager.close();
         }
 
-        return plotSeriesDto;
+        return Collections.singletonList(plotSeriesDto);
     }
 }
