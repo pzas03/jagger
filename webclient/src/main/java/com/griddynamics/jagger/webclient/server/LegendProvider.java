@@ -11,15 +11,7 @@ public class LegendProvider {
     public LegendProvider() {
     }
 
-    public String getPlotLegend(Plot plot) {
-        return generatePlotLegend(plot.getText(), plot.getUnitOfMeasurement());
-    }
-
-    public String getPlotLegend(String plot, String unitOfMeasurement) {
-        return generatePlotLegend(plot, unitOfMeasurement);
-    }
-
-    public String getPlotHeader(long taskId, Plot plot) {
+    public String getPlotHeader(long taskId, String plotName) {
         EntityManager entityManager = EntityManagerProvider.getEntityManagerFactory().createEntityManager();
         Object[] legendData;
         try {
@@ -29,21 +21,10 @@ public class LegendProvider {
             entityManager.close();
         }
 
-        return generatePlotHeader(legendData[0].toString(), legendData[1].toString(), plot);
+        return generatePlotHeader(legendData[0].toString(), legendData[1].toString(), plotName);
     }
 
-    private String generatePlotLegend(String plotName, String unitOfMeasurement) {
-        StringBuilder builder = new StringBuilder();
-        builder
-                .append(plotName)
-                .append(" (")
-                .append(unitOfMeasurement)
-                .append(")");
-
-        return builder.toString();
-    }
-
-    private String generatePlotHeader(String sessionId, String taskName, Plot plot) {
+    private String generatePlotHeader(String sessionId, String taskName, String plotName) {
         StringBuilder builder = new StringBuilder();
         builder
                 .append("Session #")
@@ -51,7 +32,7 @@ public class LegendProvider {
                 .append(", ")
                 .append(taskName)
                 .append(", ")
-                .append(plot.getText());
+                .append(plotName);
 
         return builder.toString();
     }

@@ -1,4 +1,4 @@
-package com.griddynamics.jagger.webclient.server;
+package com.griddynamics.jagger.webclient.server.plot;
 
 import com.griddynamics.jagger.webclient.client.dto.PlotSeriesDto;
 

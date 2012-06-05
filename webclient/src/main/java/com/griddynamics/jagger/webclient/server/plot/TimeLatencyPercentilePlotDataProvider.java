@@ -1,8 +1,9 @@
-package com.griddynamics.jagger.webclient.server;
+package com.griddynamics.jagger.webclient.server.plot;
 
 import com.griddynamics.jagger.webclient.client.dto.PlotDatasetDto;
 import com.griddynamics.jagger.webclient.client.dto.PlotSeriesDto;
 import com.griddynamics.jagger.webclient.client.dto.PointDto;
+import com.griddynamics.jagger.webclient.server.*;
 
 import javax.persistence.EntityManager;
 import java.util.*;
@@ -44,10 +45,11 @@ public class TimeLatencyPercentilePlotDataProvider implements PlotDataProvider {
             }
             Set<PlotDatasetDto> plotSeries = new HashSet<PlotDatasetDto>();
             for (Map.Entry<String, List<PointDto>> entry : percentiles.entrySet()) {
-                plotSeries.add(new PlotDatasetDto(entry.getValue(), legendProvider.getPlotLegend(entry.getKey(), "sec"), ColorCodeGenerator.getHexColorCode()));
+                String legend = DefaultWorkloadParameters.fromDescription(entry.getKey()).getDescription();
+                plotSeries.add(new PlotDatasetDto(entry.getValue(), legend, ColorCodeGenerator.getHexColorCode()));
             }
 
-            plotSeriesDto = new PlotSeriesDto(plotSeries, "Time, sec", "", legendProvider.getPlotHeader(taskId, Plot.TIME_LATENCY_PERCENTILE));
+            plotSeriesDto = new PlotSeriesDto(plotSeries, "Time, sec", "", legendProvider.getPlotHeader(taskId, "Time Latency Percentile"));
         } finally {
             entityManager.close();
         }

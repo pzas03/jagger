@@ -1,16 +1,20 @@
-package com.griddynamics.jagger.webclient.server;
+package com.griddynamics.jagger.webclient.server.plot;
 
 import com.griddynamics.jagger.webclient.client.dto.PlotDatasetDto;
 import com.griddynamics.jagger.webclient.client.dto.PlotSeriesDto;
 import com.griddynamics.jagger.webclient.client.dto.PointDto;
+import com.griddynamics.jagger.webclient.server.*;
+
 import javax.persistence.EntityManager;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
  * @since 5/31/12
  */
-public class LatencyPlotDataProvider implements PlotDataProvider {
+public class ThroughputPlotDataProvider implements PlotDataProvider {
     private final LegendProvider legendProvider = new LegendProvider();
 
     @Override
@@ -20,7 +24,7 @@ public class LatencyPlotDataProvider implements PlotDataProvider {
         PlotSeriesDto plotSeriesDto;
         try {
             List<Object[]> rawData = (List<Object[]>) entityManager.createQuery(
-                    "select tis.time, tis.latency, tis.latencyStdDev from TimeInvocationStatistics as tis where tis.taskData.id=:taskId")
+                    "select tis.time, tis.throughput from TimeInvocationStatistics as tis where tis.taskData.id=:taskId")
                     .setParameter("taskId", taskId).getResultList();
 
             if (rawData == null) {
@@ -29,18 +33,11 @@ public class LatencyPlotDataProvider implements PlotDataProvider {
 
             List<PointDto> pointDtoList = DataProcessingUtil.convertFromRawDataToPointDto(rawData, 0, 1);
 
-            String legend = legendProvider.getPlotLegend(Plot.LATENCY);
+            String legend = DefaultWorkloadParameters.THROUGHPUT.getDescription();
             PlotDatasetDto plotDatasetDto = new PlotDatasetDto(pointDtoList, legend, ColorCodeGenerator.getHexColorCode());
             Set<PlotDatasetDto> plotSeries = new HashSet<PlotDatasetDto>();
             plotSeries.add(plotDatasetDto);
-
-            pointDtoList = DataProcessingUtil.convertFromRawDataToPointDto(rawData, 0, 2);
-
-            legend = legendProvider.getPlotLegend(Plot.LATENCY_STD_DEV);
-            plotDatasetDto = new PlotDatasetDto(pointDtoList, legend, ColorCodeGenerator.getHexColorCode());
-            plotSeries.add(plotDatasetDto);
-
-            plotSeriesDto = new PlotSeriesDto(plotSeries, "Time, sec", "", legendProvider.getPlotHeader(taskId, Plot.LATENCY));
+            plotSeriesDto = new PlotSeriesDto(plotSeries, "Time, sec", "", legendProvider.getPlotHeader(taskId, "Throughput"));
         } finally {
             entityManager.close();
         }

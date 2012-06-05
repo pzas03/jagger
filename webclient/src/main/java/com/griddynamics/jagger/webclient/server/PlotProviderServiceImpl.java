@@ -1,12 +1,20 @@
 package com.griddynamics.jagger.webclient.server;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import com.griddynamics.jagger.agent.model.DefaultMonitoringParameters;
+import com.griddynamics.jagger.monitoring.reporting.GroupKey;
 import com.griddynamics.jagger.webclient.client.PlotProviderService;
 import com.griddynamics.jagger.webclient.client.dto.PlotDatasetDto;
 import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
 import com.griddynamics.jagger.webclient.client.dto.PlotSeriesDto;
+import com.griddynamics.jagger.webclient.server.plot.LatencyPlotDataProvider;
+import com.griddynamics.jagger.webclient.server.plot.PlotDataProvider;
+import com.griddynamics.jagger.webclient.server.plot.ThroughputPlotDataProvider;
+import com.griddynamics.jagger.webclient.server.plot.TimeLatencyPercentilePlotDataProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,10 +34,21 @@ public class PlotProviderServiceImpl extends RemoteServiceServlet implements Plo
 
     @Override
     public List<PlotNameDto> getPlotListForTask(long taskId) {
-        List<PlotNameDto> plotNameDtoList = new ArrayList<PlotNameDto>(Plot.values().length);
-        plotNameDtoList.add(new PlotNameDto(taskId, Plot.LATENCY.getText()));
-        plotNameDtoList.add(new PlotNameDto(taskId, Plot.THROUGHPUT.getText()));
-        plotNameDtoList.add(new PlotNameDto(taskId, Plot.TIME_LATENCY_PERCENTILE.getText()));
+        List<PlotNameDto> plotNameDtoList = new ArrayList<PlotNameDto>();
+
+        ApplicationContext context = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
+
+        Map<GroupKey, DefaultMonitoringParameters[]> workloadPlots =
+                (Map<GroupKey, DefaultMonitoringParameters[]>) context.getBean("workloadPlotGroups");
+        for (Map.Entry<GroupKey, DefaultMonitoringParameters[]> monitoringPlot : workloadPlots.entrySet()) {
+            plotNameDtoList.add(new PlotNameDto(taskId, monitoringPlot.getKey().getUpperName()));
+        }
+
+        Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlots =
+                (Map<GroupKey, DefaultMonitoringParameters[]>) context.getBean("monitoringPlotGroups");
+        for (Map.Entry<GroupKey, DefaultMonitoringParameters[]> monitoringPlot : monitoringPlots.entrySet()) {
+            plotNameDtoList.add(new PlotNameDto(taskId, monitoringPlot.getKey().getUpperName()));
+        }
 
         return plotNameDtoList;
     }
@@ -53,27 +72,26 @@ public class PlotProviderServiceImpl extends RemoteServiceServlet implements Plo
     }
 
     @Override
-    public PlotSeriesDto getPlotData(long taskId, String plotType) {
-        long timestamp = System.currentTimeMillis();
-        Plot plot = Plot.fromText(plotType);
+    public PlotSeriesDto getPlotData(long taskId, String plotName) {
+        ApplicationContext context = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
 
-        PlotSeriesDto plotSeriesDto = null;
-        if (plot == Plot.THROUGHPUT) {
-            plotSeriesDto = getThroughputData(taskId);
-        } else if (plot == Plot.LATENCY) {
-            plotSeriesDto = getLatencyData(taskId);
-        } else if (plot == Plot.TIME_LATENCY_PERCENTILE) {
-            plotSeriesDto = getTimeLatencyPercentileData(taskId);
-        } else {
-            throw new UnsupportedOperationException("Plot type " + plot + " doesn't supported");
+        Map<String, PlotDataProvider> workloadPlotDataProviders =
+                (Map<String, PlotDataProvider>) context.getBean("workloadPlotDataProviders");
+
+        long timestamp = System.currentTimeMillis();
+
+        PlotDataProvider plotDataProvider = workloadPlotDataProviders.get(plotName);
+        if (plotDataProvider == null) {
+            throw new UnsupportedOperationException("Plot type " + plotName + " doesn't supported");
         }
+        PlotSeriesDto plotSeriesDto = plotDataProvider.getPlotData(taskId);
 
         Map<String, Integer> plotDatasetDtoMetrics = new HashMap<String, Integer>();
         for (PlotDatasetDto plotDatasetDto : plotSeriesDto.getPlotSeries()) {
             plotDatasetDtoMetrics.put(plotDatasetDto.getLegend(), plotDatasetDto.getPlotData().size());
         }
         log.info("For {} plot there was loaded {} PlotDatasetDto: {} for {} ms",
-                new Object[] {plot.getText(), plotSeriesDto.getPlotSeries().size(), plotDatasetDtoMetrics, System.currentTimeMillis()-timestamp});
+                new Object[]{plotName, plotSeriesDto.getPlotSeries().size(), plotDatasetDtoMetrics, System.currentTimeMillis() - timestamp});
 
         return plotSeriesDto;
     }
