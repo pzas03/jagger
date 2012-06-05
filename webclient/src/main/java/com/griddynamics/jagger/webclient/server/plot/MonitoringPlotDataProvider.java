@@ -38,8 +38,13 @@ public class MonitoringPlotDataProvider implements PlotDataProvider {
 
         List<PlotSeriesDto> plotSeriesDtoList;
         try {
-            GroupKey groupKey = new GroupKey(plotName);
-            DefaultMonitoringParameters[] defaultMonitoringParametersGroup = monitoringPlotGroups.get(groupKey);
+            DefaultMonitoringParameters[] defaultMonitoringParametersGroup = null;
+            for (Map.Entry<GroupKey, DefaultMonitoringParameters[]> entry: monitoringPlotGroups.entrySet()) {
+                if (entry.getKey().getUpperName().equalsIgnoreCase(plotName)) {
+                    defaultMonitoringParametersGroup = entry.getValue();
+                }
+            }
+
             log.debug("For plot {} there are exist {} monitoring parameters", plotName, defaultMonitoringParametersGroup);
 
             TaskData workloadTaskData = entityManager.find(TaskData.class, taskId);
@@ -105,7 +110,7 @@ public class MonitoringPlotDataProvider implements PlotDataProvider {
         Map<String, Map<String, List<MonitoringStatistics>>> map = new HashMap<String, Map<String, List<MonitoringStatistics>>>();
 
         for (MonitoringStatistics monitoringStatistics : monitoringStatisticsList) {
-            String boxIdentifier = monitoringStatistics.getBoxIdentifier();
+            String boxIdentifier = monitoringStatistics.getBoxIdentifier() != null ? monitoringStatistics.getBoxIdentifier() : monitoringStatistics.getSystemUnderTestUrl();
             String description = monitoringStatistics.getParameterId().getDescription();
 
             if (!map.containsKey(boxIdentifier)) {

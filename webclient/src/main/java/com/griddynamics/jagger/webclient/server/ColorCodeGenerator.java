@@ -16,7 +16,7 @@ public class ColorCodeGenerator {
                 "#000000",
                 "#FF0000",
                 "#800000",
-                "#FFFF00",
+                "#FF4500",
                 "#808000",
                 "#00FF00",
                 "#008000",
