@@ -16,7 +16,7 @@ public class TimeLatencyPercentilePlotDataProvider implements PlotDataProvider {
     private final LegendProvider legendProvider = new LegendProvider();
 
     @Override
-    public PlotSeriesDto getPlotData(long taskId) {
+    public PlotSeriesDto getPlotData(long taskId, String plotName) {
         EntityManager entityManager = EntityManagerProvider.getEntityManagerFactory().createEntityManager();
 
         PlotSeriesDto plotSeriesDto;
@@ -49,7 +49,7 @@ public class TimeLatencyPercentilePlotDataProvider implements PlotDataProvider {
                 plotSeries.add(new PlotDatasetDto(entry.getValue(), legend, ColorCodeGenerator.getHexColorCode()));
             }
 
-            plotSeriesDto = new PlotSeriesDto(plotSeries, "Time, sec", "", legendProvider.getPlotHeader(taskId, "Time Latency Percentile"));
+            plotSeriesDto = new PlotSeriesDto(plotSeries, "Time, sec", "", legendProvider.getPlotHeader(taskId, plotName));
         } finally {
             entityManager.close();
         }

@@ -18,7 +18,7 @@ public class ThroughputPlotDataProvider implements PlotDataProvider {
     private final LegendProvider legendProvider = new LegendProvider();
 
     @Override
-    public PlotSeriesDto getPlotData(long taskId) {
+    public PlotSeriesDto getPlotData(long taskId, String plotName) {
         EntityManager entityManager = EntityManagerProvider.getEntityManagerFactory().createEntityManager();
 
         PlotSeriesDto plotSeriesDto;
@@ -37,7 +37,7 @@ public class ThroughputPlotDataProvider implements PlotDataProvider {
             PlotDatasetDto plotDatasetDto = new PlotDatasetDto(pointDtoList, legend, ColorCodeGenerator.getHexColorCode());
             Set<PlotDatasetDto> plotSeries = new HashSet<PlotDatasetDto>();
             plotSeries.add(plotDatasetDto);
-            plotSeriesDto = new PlotSeriesDto(plotSeries, "Time, sec", "", legendProvider.getPlotHeader(taskId, "Throughput"));
+            plotSeriesDto = new PlotSeriesDto(plotSeries, "Time, sec", "", legendProvider.getPlotHeader(taskId, plotName));
         } finally {
             entityManager.close();
         }

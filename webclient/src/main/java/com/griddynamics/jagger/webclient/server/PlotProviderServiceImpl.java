@@ -54,44 +54,36 @@ public class PlotProviderServiceImpl extends RemoteServiceServlet implements Plo
     }
 
     @Override
-    public PlotSeriesDto getThroughputData(long taskId) {
-        PlotSeriesDto plotSeriesDto = throughputPlotDataProvider.getPlotData(taskId);
-        return plotSeriesDto;
-    }
-
-    @Override
-    public PlotSeriesDto getLatencyData(long taskId) {
-        PlotSeriesDto plotSeriesDto = latencyPlotDataProvider.getPlotData(taskId);
-        return plotSeriesDto;
-    }
-
-    @Override
-    public PlotSeriesDto getTimeLatencyPercentileData(long taskId) {
-        PlotSeriesDto plotSeriesDto = timeLatencyPercentilePlotDataProvider.getPlotData(taskId);
-        return plotSeriesDto;
-    }
-
-    @Override
     public PlotSeriesDto getPlotData(long taskId, String plotName) {
+        long timestamp = System.currentTimeMillis();
+        log.debug("getPlotData was invoked with taskId={} and plotName={}", taskId, plotName);
+
         ApplicationContext context = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
 
-        Map<String, PlotDataProvider> workloadPlotDataProviders =
+        Map<String, PlotDataProvider> plotDataProviders =
                 (Map<String, PlotDataProvider>) context.getBean("workloadPlotDataProviders");
+        plotDataProviders.putAll((Map<String, PlotDataProvider>) context.getBean("monitoringPlotDataProviders"));
 
-        long timestamp = System.currentTimeMillis();
-
-        PlotDataProvider plotDataProvider = workloadPlotDataProviders.get(plotName);
+        PlotDataProvider plotDataProvider = plotDataProviders.get(plotName);
         if (plotDataProvider == null) {
+            log.warn("getPlotData was invoked with unsupported plotName={}", plotName);
             throw new UnsupportedOperationException("Plot type " + plotName + " doesn't supported");
         }
-        PlotSeriesDto plotSeriesDto = plotDataProvider.getPlotData(taskId);
 
-        Map<String, Integer> plotDatasetDtoMetrics = new HashMap<String, Integer>();
-        for (PlotDatasetDto plotDatasetDto : plotSeriesDto.getPlotSeries()) {
-            plotDatasetDtoMetrics.put(plotDatasetDto.getLegend(), plotDatasetDto.getPlotData().size());
+        PlotSeriesDto plotSeriesDto = null;
+        try {
+            plotSeriesDto = plotDataProvider.getPlotData(taskId, plotName);
+
+            Map<String, Integer> plotDatasetDtoMetrics = new HashMap<String, Integer>();
+            for (PlotDatasetDto plotDatasetDto : plotSeriesDto.getPlotSeries()) {
+                plotDatasetDtoMetrics.put(plotDatasetDto.getLegend(), plotDatasetDto.getPlotData().size());
+            }
+            log.info("For {} plot there was loaded {} PlotDatasetDto: {} for {} ms",
+                    new Object[]{plotName, plotSeriesDto.getPlotSeries().size(), plotDatasetDtoMetrics, System.currentTimeMillis() - timestamp});
+        } catch (Exception e) {
+            log.error("Error is occurred during plot data loading for taskId="+taskId+", plotName="+plotName, e);
+            throw new RuntimeException(e);
         }
-        log.info("For {} plot there was loaded {} PlotDatasetDto: {} for {} ms",
-                new Object[]{plotName, plotSeriesDto.getPlotSeries().size(), plotDatasetDtoMetrics, System.currentTimeMillis() - timestamp});
 
         return plotSeriesDto;
     }

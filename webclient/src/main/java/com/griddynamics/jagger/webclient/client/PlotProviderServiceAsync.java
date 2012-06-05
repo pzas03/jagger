@@ -13,11 +13,5 @@ import java.util.List;
 public interface PlotProviderServiceAsync {
     void getPlotListForTask(long taskId, AsyncCallback<List<PlotNameDto>> async);
 
-    void getThroughputData(long taskId, AsyncCallback<PlotSeriesDto> async);
-
     void getPlotData(long taskId, String plotType, AsyncCallback<PlotSeriesDto> async);
-
-    void getLatencyData(long taskId, AsyncCallback<PlotSeriesDto> async);
-
-    void getTimeLatencyPercentileData(long taskId, AsyncCallback<PlotSeriesDto> async);
 }

@@ -329,7 +329,7 @@ public class Trends extends Composite {
                         public void onFailure(Throwable caught) {
                             plotPanel.remove(loadingId);
 
-                            Window.alert("Error is occurred during server request processing (Throughput data fetching)");
+                            Window.alert("Error is occurred during server request processing ("+plotNameDto.getPlotName()+" data fetching)");
                         }
 
                         @Override

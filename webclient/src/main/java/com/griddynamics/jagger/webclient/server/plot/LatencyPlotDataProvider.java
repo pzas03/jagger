@@ -16,7 +16,7 @@ public class LatencyPlotDataProvider implements PlotDataProvider {
     private final LegendProvider legendProvider = new LegendProvider();
 
     @Override
-    public PlotSeriesDto getPlotData(long taskId) {
+    public PlotSeriesDto getPlotData(long taskId, String plotName) {
         EntityManager entityManager = EntityManagerProvider.getEntityManagerFactory().createEntityManager();
 
         PlotSeriesDto plotSeriesDto;
@@ -42,7 +42,7 @@ public class LatencyPlotDataProvider implements PlotDataProvider {
             plotDatasetDto = new PlotDatasetDto(pointDtoList, legend, ColorCodeGenerator.getHexColorCode());
             plotSeries.add(plotDatasetDto);
 
-            plotSeriesDto = new PlotSeriesDto(plotSeries, "Time, sec", "", legendProvider.getPlotHeader(taskId, "Latency"));
+            plotSeriesDto = new PlotSeriesDto(plotSeries, "Time, sec", "", legendProvider.getPlotHeader(taskId, plotName));
         } finally {
             entityManager.close();
         }
