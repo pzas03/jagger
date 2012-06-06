@@ -34,7 +34,7 @@ import com.griddynamics.jagger.util.TimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
 
 /**
@@ -106,10 +106,13 @@ public class CompositeTaskDistributor implements TaskDistributor<CompositeTask> 
             private int activeLeadingTasks() {
                 int result = 0;
 
-                for (Service service : leading) {
+                Iterator<Service> it = leading.iterator();
+                while (it.hasNext()) {
+                    Service service = it.next();
                     if (service.state() == State.TERMINATED || service.state() == State.FAILED) {
                         log.debug("State {}", service.state());
-                        service.stop();
+                        stopAll(Collections.singleton(service), true);
+                        it.remove();
                     } else {
                         result++;
                     }
@@ -153,10 +156,8 @@ public class CompositeTaskDistributor implements TaskDistributor<CompositeTask> 
             }
 
             private void stopAll() {
-                List<Future<State>> leadingFutures = requestTermination(leading, true);
-                List<Future<State>> attendantFutures = requestTermination(attendant, false);
-                await(leadingFutures, true);
-                await(attendantFutures, false);
+                stopAll(leading, true);
+                stopAll(attendant, false);
             }
 
             private void await(List<Future<State>> futures, boolean leading) {
