@@ -33,28 +33,31 @@ import java.util.Queue;
 
 import static com.google.common.collect.Lists.newLinkedList;
 
-public class BufferedLogReader implements LogReader {
+public abstract  class BufferedLogReader implements LogReader {
     private FileStorage fileStorage;
 
     @Override
     public <T> FileReader<T> read(String sessionId, String logOwner, String kernelId, Class<T> clazz) {
         Namespace path = Namespace.of(sessionId, logOwner, kernelId);
+        return read(path.toString(), clazz);
+    }
+
+    public  <T> FileReader<T> read(String path, Class<T> clazz) {
+        InputStream in;
         try {
             if (!fileStorage.exists(path.toString())) {
                 throw new IllegalArgumentException("Path " + path + " doesn't exist");
             }
-        } catch (IOException e) {
-            throw Throwables.propagate(e);
-        }
-
-        InputStream in;
-        try {
             in = fileStorage.open(path.toString());
         } catch (IOException e) {
             throw Throwables.propagate(e);
         }
-        Hessian2Input hessian2Input = new Hessian2Input(in);
-        final IteratorImpl<T> iterator = new IteratorImpl<T>(hessian2Input, clazz);
+        return read(in, clazz);
+    }
+
+    public <T> FileReader<T> read(InputStream in, Class<T> clazz) {
+        LogReaderInput input = getInput(in);
+        final IteratorImpl<T> iterator = new IteratorImpl<T>(input, clazz);
         return new FileReaderImpl<T>(iterator, in);
     }
 
@@ -63,16 +66,22 @@ public class BufferedLogReader implements LogReader {
         this.fileStorage = fileStorage;
     }
 
+    protected interface LogReaderInput {
+        Object readObject() throws IOException;
+    }
+
+    protected abstract LogReaderInput getInput(InputStream in);
+
     /*package*/ static class IteratorImpl<T> implements Iterator<T> {
         public static final int BUF_SIZE = 1;
 
-        private final Hessian2Input input;
+        private final LogReaderInput input;
         private final Class clazz;
 
         private Queue<T> buffer = newLinkedList();
         private boolean loaded = false;
 
-        public IteratorImpl(Hessian2Input input, Class clazz) {
+        public IteratorImpl(LogReaderInput input, Class clazz) {
             this.input = input;
             this.clazz = clazz;
         }
@@ -107,8 +116,10 @@ public class BufferedLogReader implements LogReader {
             for (int i = 0; i < BUF_SIZE; i++) {
                 try {
                     Object entry = input.readObject();
+                    // TODO some bug with JBoss reader
+                    if (entry==null) continue;
                     if (!clazz.isInstance(entry)) {
-                        throw new IllegalStateException("entry" + entry + " is not instance of class " + clazz);
+                        throw new IllegalStateException("entry " + entry + " is not instance of class " + clazz);
                     }
                     buffer.add((T) entry);
                 } catch (EOFException e) {

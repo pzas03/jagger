@@ -20,7 +20,6 @@
 
 package com.griddynamics.jagger.storage.fs.logging;
 
-import com.caucho.hessian.io.Hessian2Output;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
@@ -39,7 +38,7 @@ import java.util.Collection;
  * @author Alexey Kiselyov, Vladimir Shulga
  *         Date: 20.07.11
  */
-public class BufferedLogWriter implements LogWriter {
+public abstract class BufferedLogWriter implements LogWriter {
     private final Logger log = LoggerFactory.getLogger(BufferedLogWriter.class);
     private final Multimap<LogFile, Serializable> queue;
     private FileStorage fileStorage;
@@ -83,7 +82,6 @@ public class BufferedLogWriter implements LogWriter {
                     continue;
                 }
                 String path = logFile.getPath();
-                Hessian2Output objectStream = null;
                 OutputStream os = null;
                 try {
                     if (this.fileStorage.exists(path)) {
@@ -91,16 +89,12 @@ public class BufferedLogWriter implements LogWriter {
                     } else {
                         os = this.fileStorage.create(path);
                     }
-                    objectStream = new Hessian2Output(os);
-                    for (Serializable logEntry : fileQueue) {
-                        objectStream.writeObject(logEntry);
-                    }
+                    log(fileQueue, os);
                 } catch (IOException e) {
                     log.error(e.getMessage(), e);
                 } finally {
-                    if (objectStream != null) {
+                    if (os != null) {
                         try {
-                            objectStream.close();
                             os.close();
                         } catch (Exception e) {
                             log.error(e.getMessage(), e);
@@ -113,6 +107,8 @@ public class BufferedLogWriter implements LogWriter {
             isFlushInProgress = false;
         }
     }
+
+    protected abstract void log(Collection<Serializable> fileQueue, OutputStream os) throws IOException;
 
     @Required
     public void setFileStorage(FileStorage fileStorage) {

@@ -28,9 +28,10 @@ import com.griddynamics.jagger.storage.fs.logging.LogReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.Collection;
 
-public class ConsistencyValidator<Q, E, R> extends ResponseValidator<Q, E, R> {
+public class ConsistencyValidator<Q extends Serializable, E extends Serializable, R extends Serializable> extends ResponseValidator<Q, E, R> {
     private static final Logger log = LoggerFactory.getLogger(ConsistencyValidator.class);
 
     private final Equivalence<Q> queryEquivalence;

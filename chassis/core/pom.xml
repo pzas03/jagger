@@ -62,6 +62,21 @@
         <!-- Third-party dependencies -->
 
         <dependency>
+            <groupId>com.esotericsoftware.kryo</groupId>
+            <artifactId>kryo</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>jboss</groupId>
+            <artifactId>jboss-serialization</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>trove</groupId>
+            <artifactId>trove</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
         </dependency>
