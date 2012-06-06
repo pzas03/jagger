@@ -5,8 +5,7 @@ import com.griddynamics.jagger.coordinator.NodeId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class ExactInvocationsClock implements WorkloadClock {
 
@@ -21,6 +20,8 @@ public class ExactInvocationsClock implements WorkloadClock {
     private int totalSamples;
 
     private int delay;
+
+    private Map<NodeId, WorkloadConfiguration> submittedConfigurations = new HashMap<NodeId, WorkloadConfiguration>();
 
     public ExactInvocationsClock(int samplesCount, int threadCount, int delay) {
         this.samplesCount = samplesCount;
@@ -57,22 +58,45 @@ public class ExactInvocationsClock implements WorkloadClock {
 
         Set<NodeId> nodes = status.getNodes();
         int threads =  threadCount / nodes.size();
-        int samplesToAdd = (samplesLeft < samplesPerTick * 2) ? samplesLeft : samplesLeft / 2;
-        int samplesPerNode  = (samplesSubmitted + samplesToAdd) / nodes.size();
-        int restSamples = samplesToAdd % nodes.size();
+        int samplesToAdd = (samplesLeft < samplesPerTick * 1.5) ? samplesLeft : samplesLeft / 2;
+        Map<NodeId, Double>  factors = calculateFactors(status, submittedConfigurations);
         int s = 0;
         for (NodeId node : nodes) {
-            double factor = (status.getTotalSamples()==0) ? 1/nodes.size() : status.getSamples(node) / status.getTotalSamples();
-            int samples = (int)Math.round(samplesPerNode * factor);
-            if (restSamples > 0) {
-                samples++;
-                restSamples--;
-            }
+            int submittedSamplesCount = submittedConfigurations.get(node) != null ? submittedConfigurations.get(node).getSamples() : 0;
+            int samples = (int) Math.round(samplesToAdd * factors.get(node)) + submittedSamplesCount;
+            
             WorkloadConfiguration workloadConfiguration = WorkloadConfiguration.with(threads, delay, samples);
             adjuster.adjustConfiguration(node, workloadConfiguration);
             s += samples;
+            submittedConfigurations.put(node, workloadConfiguration);
         }
         samplesSubmitted = s;
+    }
+
+    private Map<NodeId, Double> calculateFactors(WorkloadExecutionStatus status, Map<NodeId, WorkloadConfiguration> configurations) {
+        Map<NodeId, Double> result = new HashMap<NodeId, Double>();
+
+        Map<NodeId, Double> scores = new HashMap<NodeId, Double>();
+        int nodesCount = status.getNodes().size();
+        double scoreSum = 0;
+        for (NodeId nodeId: status.getNodes()) {
+            double totalSamplesRate = (status.getTotalSamples() == 0) ?
+                    (1d / nodesCount) :
+                    (double) status.getSamples(nodeId) / status.getTotalSamples();
+            
+            double ownSamplesRate =  (configurations.get(nodeId) == null || configurations.get(nodeId).getSamples() == 0) ?
+                    1d :
+                    (double) status.getSamples(nodeId) / configurations.get(nodeId).getSamples();
+            
+            double score = totalSamplesRate + ownSamplesRate * 10;
+            scores.put(nodeId, score);
+            scoreSum += score; 
+        }
+        
+        for (NodeId nodeId: status.getNodes()) {
+            result.put(nodeId, scores.get(nodeId) / scoreSum);
+        }
+        return result;        
     }
 
     @Override
