@@ -25,9 +25,6 @@ import java.util.Map;
 public class PlotProviderServiceImpl extends RemoteServiceServlet implements PlotProviderService {
     private static final Logger log = LoggerFactory.getLogger(PlotProviderServiceImpl.class);
 
-    private final PlotDataProvider throughputPlotDataProvider = new ThroughputPlotDataProvider();
-    private final PlotDataProvider latencyPlotDataProvider = new LatencyPlotDataProvider();
-    private final PlotDataProvider timeLatencyPercentilePlotDataProvider = new TimeLatencyPercentilePlotDataProvider();
     private DataPointCompressingProcessor compressingProcessor = new DataPointCompressingProcessor();
 
     @Override
@@ -117,7 +114,7 @@ public class PlotProviderServiceImpl extends RemoteServiceServlet implements Plo
             log.info("getSessionScopePlotData(): {}", getFormattedLogMessage(plotSeriesDto, sessionId, plotName));
             for (PlotSeriesDto plotSeriesDto1 : plotSeriesDto) {
                 for (PlotDatasetDto plotDatasetDto : plotSeriesDto1.getPlotSeries()) {
-                    List<PointDto> pointDtoList = compressingProcessor.process(plotDatasetDto.getPlotData());
+                    List<PointDto> pointDtoList = compressingProcessor.process(plotDatasetDto.getPlotData(), 0.03);
                     plotDatasetDto.getPlotData().clear();
                     plotDatasetDto.getPlotData().addAll(pointDtoList);
                 }

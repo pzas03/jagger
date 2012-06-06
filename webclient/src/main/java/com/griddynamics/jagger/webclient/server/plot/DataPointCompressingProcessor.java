@@ -2,27 +2,31 @@ package com.griddynamics.jagger.webclient.server.plot;
 
 import com.griddynamics.jagger.util.Pair;
 import com.griddynamics.jagger.webclient.client.dto.PointDto;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 /**
+ * Provides facility for clearing given collection from waste data which not pass through threshold
+ *
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
  * @since 6/6/12
  */
 public class DataPointCompressingProcessor {
-    private static final Logger log = LoggerFactory.getLogger(DataPointCompressingProcessor.class);
-    private double relativeThreshold = 0.03;
 
-    public List<PointDto> process(List<PointDto> source) {
+    /**
+     * Clear collection from waste data which not pass through threshold
+     *
+     * @param source            collection for processing
+     * @param relativeThreshold threshold expressed in percents divided by 100
+     * @return compressed collection
+     */
+    public List<PointDto> process(List<PointDto> source, double relativeThreshold) {
         if (source.size() < 3) {
             List<PointDto> list = new ArrayList<PointDto>();
-            list.addAll(source);
+            Collections.copy(list, source);
+
             return list;
         }
-
-        List<PointDto> compressed = new ArrayList<PointDto>();
 
         // Sort by X axis values asc
         Collections.sort(source, new Comparator<PointDto>() {
@@ -32,11 +36,25 @@ public class DataPointCompressingProcessor {
             }
         });
 
+        // Search min/max
         Pair<Double, Double> minMaxPair = findMinMax(source);
-        double absoluteThreshold = Math.abs((minMaxPair.getSecond() - minMaxPair.getFirst()) * relativeThreshold);
-        log.debug("min={}, max={}, threshold={}", new Object[] {minMaxPair.getFirst(), minMaxPair.getSecond(), absoluteThreshold});
+
+        double absoluteThreshold = 0;
+        // If min & max greater than 0 absolute threshold determines on max basis
+        if (minMaxPair.getFirst() >= 0 && minMaxPair.getSecond() >= 0) {
+            absoluteThreshold = minMaxPair.getSecond() * relativeThreshold;
+        }
+        // If min & max lesser than 0 absolute threshold determines on min basis
+        else if (minMaxPair.getFirst() <= 0 && minMaxPair.getSecond() <= 0) {
+            absoluteThreshold = minMaxPair.getFirst() * relativeThreshold;
+        }
+        // If min & max of different signs absolute threshold determines on |min|+|max| basis
+        else {
+            absoluteThreshold = Math.abs((minMaxPair.getSecond() - minMaxPair.getFirst()) * relativeThreshold);
+        }
 
         int i = 1;
+        List<PointDto> compressed = new ArrayList<PointDto>();
         compressed.add(source.get(0));
         while (true) {
             // If ith element is the last in source list
@@ -58,6 +76,12 @@ public class DataPointCompressingProcessor {
         return compressed;
     }
 
+    /**
+     * Find min and max collection values for one pass
+     *
+     * @param pointDtoList source list
+     * @return min/max pair
+     */
     private Pair<Double, Double> findMinMax(List<PointDto> pointDtoList) {
         if (pointDtoList.isEmpty()) {
             return null;
@@ -87,6 +111,13 @@ public class DataPointCompressingProcessor {
         return Pair.of(min, max);
     }
 
+    /**
+     * Indicate whether threshold is exceeded
+     *
+     * @param pair pair for which checking being accomplished
+     * @param threshold absolute threshold which takes into account min/max values of given pair
+     * @return <code>true</code> if threshold is exceeded, <code>false</code> otherwise
+     */
     private boolean isThresholdExceeded(Pair<Double, Double> pair, double threshold) {
         return Double.compare(Math.abs(pair.getFirst() - pair.getSecond()), threshold) > 0;
     }

@@ -13,7 +13,11 @@ import java.util.*;
  * @since 5/31/12
  */
 public class TimeLatencyPercentilePlotDataProvider implements PlotDataProvider {
-    private final LegendProvider legendProvider = new LegendProvider();
+    private LegendProvider legendProvider;
+
+    public void setLegendProvider(LegendProvider legendProvider) {
+        this.legendProvider = legendProvider;
+    }
 
     @Override
     public List<PlotSeriesDto> getPlotData(long taskId, String plotName) {

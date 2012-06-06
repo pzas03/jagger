@@ -26,11 +26,21 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
     private static final Logger log = LoggerFactory.getLogger(MonitoringPlotDataProvider.class);
 
     private Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups;
-    private final LegendProvider legendProvider = new LegendProvider();
+    private LegendProvider legendProvider;
+
+    //==========Constructors
 
     public MonitoringPlotDataProvider(Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups) {
         this.monitoringPlotGroups = monitoringPlotGroups;
     }
+
+    //==========Getters & Setters
+
+    public void setLegendProvider(LegendProvider legendProvider) {
+        this.legendProvider = legendProvider;
+    }
+
+    //==========Contract Methods
 
     @Override
     public List<PlotSeriesDto> getPlotData(long taskId, String plotName) {
@@ -142,6 +152,8 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
 
         return plotSeriesDtoList;
     }
+
+    //===========Auxiliary Methods
 
     protected Map<String, Map<String, List<MonitoringStatistics>>> composeByBoxIdentifierAndDescription(List<MonitoringStatistics> monitoringStatisticsList) {
         Map<String, Map<String, List<MonitoringStatistics>>> map = new HashMap<String, Map<String, List<MonitoringStatistics>>>();
