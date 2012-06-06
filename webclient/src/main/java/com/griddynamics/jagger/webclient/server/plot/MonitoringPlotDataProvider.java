@@ -137,10 +137,6 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
                         previous = monitoringStatistics;
                     } //for
 
-                    if (pointDtoList.size() == 1) {
-                        pointDtoList.add(new PointDto(0.0, 0.0));
-                    }
-
                     PlotDatasetDto plotDatasetDto = new PlotDatasetDto(pointDtoList, description, ColorCodeGenerator.getHexColorCode());
                     plotDatasetDtoList.add(plotDatasetDto);
                 }
