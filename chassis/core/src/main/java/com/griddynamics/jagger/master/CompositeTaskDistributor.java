@@ -109,6 +109,7 @@ public class CompositeTaskDistributor implements TaskDistributor<CompositeTask> 
                 for (Service service : leading) {
                     if (service.state() == State.TERMINATED || service.state() == State.FAILED) {
                         log.debug("State {}", service.state());
+                        service.stop();
                     } else {
                         result++;
                     }
@@ -123,31 +124,50 @@ public class CompositeTaskDistributor implements TaskDistributor<CompositeTask> 
                 super.shutDown();
             }
 
-            private void stopAll() {
+            private void stopAll(Iterable<Service> services, boolean leading) {
+                List<Future<State>> leadingFutures = requestTermination(services, leading);
+                await(leadingFutures, leading);
+            }
+
+            private void awaitLeading(List<Future<State>> leadingFutures) {
+                for (Future<State> future : leadingFutures) {
+                    Futures.get(future, TERMINATION_TIMEOUT);
+                }
+            }
+
+            private List<Future<State>> requestTermination(Iterable<Service> services, boolean leading) {
                 List<Future<State>> leadingFutures = Lists.newLinkedList();
-                for (Service service : leading) {
+                for (Service service : services) {
                     if (service.state() == State.FAILED) {
-                        throw new IllegalStateException("Failed to run child distributor: " + service);
+                        if (leading) {
+                            throw new IllegalStateException("Failed to run child distributor: " + service);
+                        } else {
+                            log.warn("Attendant service {} failed", service);
+                            continue;
+                        }
                     }
 
                     leadingFutures.add(service.stop());
                 }
+                return leadingFutures;
+            }
 
-                List<Future<State>> attendantFutures = Lists.newLinkedList();
-                for (Service service : attendant) {
-                    if (service.state() == State.FAILED) {
-                        log.warn("Attendant service {} failed", service);
-                        continue;
-                    }
+            private void stopAll() {
+                List<Future<State>> leadingFutures = requestTermination(leading, true);
+                List<Future<State>> attendantFutures = requestTermination(attendant, false);
+                await(leadingFutures, true);
+                await(attendantFutures, false);
+            }
 
-                    attendantFutures.add(service.stop());
+            private void await(List<Future<State>> futures, boolean leading) {
+                if (leading) {
+                    awaitLeading(futures);
+                } else {
+                    awaitAttendant(futures);
                 }
+            }
 
-
-                for (Future<State> future : leadingFutures) {
-                    Futures.get(future, TERMINATION_TIMEOUT);
-                }
-
+            private void awaitAttendant(List<Future<State>> attendantFutures) {
                 for (Future<State> future : attendantFutures) {
                     try {
                         future.get(TERMINATION_TIMEOUT, TimeUnit.SECONDS);
