@@ -21,6 +21,7 @@ public class TimeLatencyPercentilePlotDataProvider implements PlotDataProvider {
 
         PlotSeriesDto plotSeriesDto;
         try {
+            @SuppressWarnings("unchecked")
             List<Object[]> rawData = (List<Object[]>) entityManager.createQuery(
                     "select tis.time, ps.percentileKey, ps.percentileValue from TimeLatencyPercentile as ps inner join ps.timeInvocationStatistics as tis where tis.taskData.id=:taskId")
                     .setParameter("taskId", taskId).getResultList();

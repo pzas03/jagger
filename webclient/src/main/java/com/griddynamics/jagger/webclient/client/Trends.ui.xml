@@ -1,7 +1,8 @@
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
              xmlns:g="urn:import:com.google.gwt.user.client.ui"
              xmlns:p="urn:import:ca.nanometrics.gflot.client"
-             xmlns:c="urn:import:com.google.gwt.user.cellview.client">
+             xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+             xmlns:widgets="urn:import:com.smartgwt.client.widgets">
 
     <ui:style>
         .container {
@@ -48,6 +49,9 @@
                                     <table width="100%">
                                         <tr>
                                             <th>Session Tasks</th>
+                                        </tr>
+                                        <tr>
+                                            <td><g:VerticalPanel ui:field="sessionScopePlotList"/></td>
                                         </tr>
                                         <tr>
                                             <td><c:CellTree title="Task Details" ui:field="taskDetailsTree"/></td>

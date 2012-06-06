@@ -9,8 +9,8 @@ import java.util.Date;
  */
 public class SessionDataDto implements Serializable {
     private String sessionId;
-    private Date startDate;
-    private Date endDate;
+    private String startDate;
+    private String endDate;
     private int activeKernelsCount;
     private int tasksExecuted;
     private int tasksFailed;
@@ -18,7 +18,7 @@ public class SessionDataDto implements Serializable {
     public SessionDataDto() {
     }
 
-    public SessionDataDto(String sessionId, Date startDate, Date endDate, int activeKernelsCount, int tasksExecuted, int tasksFailed) {
+    public SessionDataDto(String sessionId, String startDate, String endDate, int activeKernelsCount, int tasksExecuted, int tasksFailed) {
         this.sessionId = sessionId;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -35,11 +35,11 @@ public class SessionDataDto implements Serializable {
         return sessionId;
     }
 
-    public Date getStartDate() {
+    public String getStartDate() {
         return startDate;
     }
 
-    public Date getEndDate() {
+    public String getEndDate() {
         return endDate;
     }
 

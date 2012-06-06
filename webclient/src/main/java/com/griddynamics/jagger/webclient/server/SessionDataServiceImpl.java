@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,6 +21,7 @@ import java.util.List;
  */
 public class SessionDataServiceImpl extends RemoteServiceServlet implements SessionDataService {
     private static final Logger log = LoggerFactory.getLogger(SessionDataServiceImpl.class);
+    private static final String dateFormat = "yyyy-MM-dd HH:mm:ss";
 
     @Override
     public PagedSessionDataDto getAll(int start, int length) {
@@ -36,11 +39,12 @@ public class SessionDataServiceImpl extends RemoteServiceServlet implements Sess
             }
 
             sessionDataDtoList = new ArrayList<SessionDataDto>(sessionDataList.size());
+            DateFormat dateFormatter = new SimpleDateFormat(dateFormat);
             for (SessionData sessionData : sessionDataList) {
                 sessionDataDtoList.add(new SessionDataDto(
                         sessionData.getSessionId(),
-                        sessionData.getStartTime(),
-                        sessionData.getEndTime(),
+                        dateFormatter.format(sessionData.getStartTime()),
+                        dateFormatter.format(sessionData.getEndTime()),
                         sessionData.getActiveKernels(),
                         sessionData.getTaskExecuted(),
                         sessionData.getTaskFailed())
