@@ -7,6 +7,7 @@ import com.griddynamics.jagger.webclient.client.PlotProviderService;
 import com.griddynamics.jagger.webclient.client.dto.PlotDatasetDto;
 import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
 import com.griddynamics.jagger.webclient.client.dto.PlotSeriesDto;
+import com.griddynamics.jagger.webclient.client.dto.PointDto;
 import com.griddynamics.jagger.webclient.server.plot.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,7 @@ public class PlotProviderServiceImpl extends RemoteServiceServlet implements Plo
     private final PlotDataProvider throughputPlotDataProvider = new ThroughputPlotDataProvider();
     private final PlotDataProvider latencyPlotDataProvider = new LatencyPlotDataProvider();
     private final PlotDataProvider timeLatencyPercentilePlotDataProvider = new TimeLatencyPercentilePlotDataProvider();
+    private DataPointCompressingProcessor compressingProcessor = new DataPointCompressingProcessor();
 
     @Override
     public List<PlotNameDto> getPlotListForTask(long taskId) {
@@ -113,6 +115,14 @@ public class PlotProviderServiceImpl extends RemoteServiceServlet implements Plo
         try {
             plotSeriesDto = plotDataProvider.getPlotData(sessionId, plotName);
             log.info("getSessionScopePlotData(): {}", getFormattedLogMessage(plotSeriesDto, sessionId, plotName));
+            for (PlotSeriesDto plotSeriesDto1 : plotSeriesDto) {
+                for (PlotDatasetDto plotDatasetDto : plotSeriesDto1.getPlotSeries()) {
+                    List<PointDto> pointDtoList = compressingProcessor.process(plotDatasetDto.getPlotData());
+                    plotDatasetDto.getPlotData().clear();
+                    plotDatasetDto.getPlotData().addAll(pointDtoList);
+                }
+            }
+            log.info("getSessionScopePlotData() after compressing: {}", getFormattedLogMessage(plotSeriesDto, sessionId, plotName));
         } catch (Exception e) {
             log.error("Error is occurred during plot data loading for sessionId=" + sessionId + ", plotName=" + plotName, e);
             throw new RuntimeException(e);
