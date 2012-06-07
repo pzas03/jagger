@@ -11,6 +11,8 @@ public class ExactInvocationsClock implements WorkloadClock {
 
     private static final Logger log = LoggerFactory.getLogger(ExactInvocationsClock.class);
 
+    private static final int SAMPLES_COUNT_SPLITTING_FACTOR = 4;
+
     private int threadCount;
 
     private int samplesCount;
@@ -58,7 +60,7 @@ public class ExactInvocationsClock implements WorkloadClock {
 
         Set<NodeId> nodes = status.getNodes();
         int threads =  threadCount / nodes.size();
-        int samplesToAdd = (samplesLeft < samplesPerTick * 1.5) ? samplesLeft : samplesLeft / 2;
+        int samplesToAdd = (samplesLeft < SAMPLES_COUNT_SPLITTING_FACTOR || samplesLeft < samplesPerTick * 1.5) ? samplesLeft : samplesLeft / SAMPLES_COUNT_SPLITTING_FACTOR;
         Map<NodeId, Double>  factors = calculateFactors(status, submittedConfigurations);
         int s = 0;
         for (NodeId node : nodes) {
