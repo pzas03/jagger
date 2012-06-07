@@ -59,11 +59,10 @@
             <artifactId>diagnostics</artifactId>
         </dependency>
 
-        <!-- Third-party dependencies -->
 
         <dependency>
-            <groupId>com.esotericsoftware.kryo</groupId>
-            <artifactId>kryo</artifactId>
+            <groupId>com.griddynamics.jagger</groupId>
+            <artifactId>chassis.invokers</artifactId>
         </dependency>
 
         <dependency>

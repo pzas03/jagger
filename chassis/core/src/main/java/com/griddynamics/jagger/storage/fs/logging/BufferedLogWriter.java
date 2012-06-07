@@ -25,10 +25,12 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.griddynamics.jagger.storage.FileStorage;
+import com.griddynamics.jagger.storage.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
@@ -40,23 +42,28 @@ import java.util.Collection;
  */
 public abstract class BufferedLogWriter implements LogWriter {
     private final Logger log = LoggerFactory.getLogger(BufferedLogWriter.class);
-    private final Multimap<LogFile, Serializable> queue;
+    private final Multimap<String, Serializable> queue;
     private FileStorage fileStorage;
     private int flushSize;
     private volatile boolean isFlushInProgress;
     private final Object semaphore = new Object();
 
     {
-        Multimap<LogFile, Serializable> tmp = LinkedHashMultimap.create();
+        Multimap<String, Serializable> tmp = LinkedHashMultimap.create();
         queue = Multimaps.synchronizedMultimap(tmp);
     }
 
     @Override
-    public void log(String sessionId, String dir, String logOwner, Serializable logEntry) {
-        Preconditions.checkNotNull(logEntry, "Null is not supported");
+    public void log(String sessionId, String dir, String kernelId, Serializable logEntry) {
+        String path = Namespace.of(sessionId, dir, kernelId).toString();
+        log(path, logEntry);
+    }
 
+    public void log(String path, Serializable logEntry) {
+        Preconditions.checkNotNull(logEntry, "Null is not supported");
+        
         synchronized (semaphore) {
-            queue.put(new LogFile(sessionId, dir, logOwner), logEntry);
+            queue.put(path, logEntry);
         }
 
         if (!isFlushInProgress && (queue.size() >= flushSize)) {
@@ -69,26 +76,26 @@ public abstract class BufferedLogWriter implements LogWriter {
         long startTime = System.currentTimeMillis();
         try {
             isFlushInProgress = true;
-            Multimap<LogFile, Serializable> forFlush;
+            Multimap<String, Serializable> forFlush;
             synchronized (semaphore) {
                 forFlush = LinkedHashMultimap.create(queue);
                 queue.clear();
             }
 
             log.debug("Flush queue. flushId {}. Current queue size is {}", startTime, forFlush.size());
-            for (LogFile logFile : forFlush.keySet()) {
-                Collection<Serializable> fileQueue = forFlush.get(logFile);
+            for (String logFilePath : forFlush.keySet()) {
+                Collection<Serializable> fileQueue = forFlush.get(logFilePath);
                 if (fileQueue.isEmpty()) {
                     continue;
                 }
-                String path = logFile.getPath();
                 OutputStream os = null;
                 try {
-                    if (this.fileStorage.exists(path)) {
-                        os = this.fileStorage.append(path);
+                    if (this.fileStorage.exists(logFilePath)) {
+                        os = this.fileStorage.append(logFilePath);
                     } else {
-                        os = this.fileStorage.create(path);
+                        os = this.fileStorage.create(logFilePath);
                     }
+                    os = new BufferedOutputStream(os);
                     log(fileQueue, os);
                 } catch (IOException e) {
                     log.error(e.getMessage(), e);

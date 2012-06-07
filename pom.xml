@@ -35,9 +35,6 @@
         <targetJdkVersion>1.6</targetJdkVersion>
         <targetJdk>${JAVA_HOME}</targetJdk>
 
-        <snapshotDistributionLocation>http://black.calf.lupus.griddynamics.net:8081/nexus/content/repositories/snapshots</snapshotDistributionLocation>
-        <releaseDistributionLocation>http://black.calf.lupus.griddynamics.net:8081/nexus/content/repositories/releases</releaseDistributionLocation>
-
         <spring.version>3.0.5.RELEASE</spring.version>
     </properties>
 
@@ -68,6 +65,12 @@
             <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases</url>
         </repository>
         <repository>
+            <id>jboss-java-net</id>
+            <layout>default</layout>
+            <name>jboss java.net repo</name>
+            <url>	https://repository.jboss.org/nexus/content/repositories/java.net-m2</url>
+        </repository>
+        <repository>
             <id>snmp4j</id>
             <layout>default</layout>
             <name>snmp4j repo</name>
@@ -77,18 +80,18 @@
 
     <distributionManagement>
         <snapshotRepository>
-            <id>nexus-snapshots</id>
+            <id>gd-jagger-nexus-snapshots</id>
+            <name>gd-jagger-nexus-snapshots</name>
+            <url>https://nexus.griddynamics.net/nexus/content/repositories/jagger-snapshots/</url>
             <layout>default</layout>
             <uniqueVersion>false</uniqueVersion>
-            <name>GD Nexus Deploy Repo</name>
-            <url>${snapshotDistributionLocation}</url>
         </snapshotRepository>
 
         <repository>
-            <id>nexus-releases</id>
+            <id>gd-jagger-nexus-releases</id>
+            <name>gd-jagger-nexus-releases</name>
+            <url>https://nexus.griddynamics.net/nexus/content/repositories/jagger-releases/</url>
             <layout>default</layout>
-            <name>GD Nexus Deploy Repo</name>
-            <url>${releaseDistributionLocation}</url>
         </repository>
     </distributionManagement>
 
@@ -157,6 +160,18 @@
 
             <!-- Third-party dependencies -->
 
+            <dependency>
+                <groupId>jboss</groupId>
+                <artifactId>jboss-serialization</artifactId>
+                <version>4.2.2.GA</version>
+            </dependency>
+
+            <dependency>
+                <groupId>trove</groupId>
+                <artifactId>trove</artifactId>
+                <version>1.0.2</version>
+            </dependency>
+            
             <dependency>
                 <groupId>kawa</groupId>
                 <artifactId>kawa</artifactId>
@@ -427,6 +442,16 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-http</artifactId>
+                <version>1.0-beta-6</version>
+            </extension>
+        </extensions>
+    </build>
 
     <profiles>
         <profile>

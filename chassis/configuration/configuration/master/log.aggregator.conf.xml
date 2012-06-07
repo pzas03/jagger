@@ -26,16 +26,7 @@
     <bean id="chronologyLogAggregator" class="com.griddynamics.jagger.storage.fs.logging.ChronologyLogAggregator">
         <property name="fileStorage" ref="fileStorage"/>
         <property name="logReader" ref="bufferedLogReader" />
+        <property name="logWriter" ref="bufferedLogWriter" />
     </bean>
-
-    <!--TODO!!! reuse from kernel level-->
-     <bean id="bufferedLogWriter" class="com.griddynamics.jagger.storage.fs.logging.JBossBufferedLogWriter">
-        <property name="fileStorage" ref="fileStorage"/>
-        <property name="flushSize" value="${chassis.log.storage.buffer.flushing.size}"/>
-    </bean>
-
-    <bean id="bufferedLogReader" class="com.griddynamics.jagger.storage.fs.logging.JBossBufferedLogReader">
-        <property name="fileStorage" ref="fileStorage"/>
-    </bean>
-
+    
 </beans>

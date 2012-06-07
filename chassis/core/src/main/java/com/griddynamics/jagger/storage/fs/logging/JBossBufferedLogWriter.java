@@ -12,7 +12,7 @@ import java.util.Collection;
 public class JBossBufferedLogWriter extends BufferedLogWriter {
 
     private final Logger log = LoggerFactory.getLogger(HessianBufferedLogWriter.class);
-    
+
     @Override
     protected void log(Collection<Serializable> fileQueue, OutputStream os) throws IOException {
         JBossObjectOutputStream out = new JBossObjectOutputStream(os);

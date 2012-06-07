@@ -45,8 +45,14 @@ public class ChronologyLogAggregator implements LogAggregator {
 
     private LogReader logReader;
 
+    private LogWriter logWriter;
+
     public void setLogReader(LogReader logReader) {
         this.logReader = logReader;
+    }
+
+    public void setLogWriter(LogWriter logWriter) {
+        this.logWriter = logWriter;
     }
 
     @Override
@@ -71,15 +77,11 @@ public class ChronologyLogAggregator implements LogAggregator {
         int count = 0;
         long minTime = 0;
         long maxTime = 0;
-
-        Hessian2Output out = null;
-        OutputStream os = null;
         try {
             if (fileStorage.delete(targetFile, false)) {
                 log.warn("Target file {} did not deleted!", targetFile);
             }
-            os = fileStorage.create(targetFile);
-            out = new Hessian2Output(os);
+
             MinMaxPriorityQueue<StreamInfo> queue = MinMaxPriorityQueue.create();
             for (Iterable<LogEntry> inputStream : readers) {
                 LogEntry logEntry;
@@ -94,7 +96,7 @@ public class ChronologyLogAggregator implements LogAggregator {
 
             while (!queue.isEmpty()) {
                 StreamInfo<LogEntry> streamInfo = queue.removeFirst();
-                out.writeObject(streamInfo.lastLogEntry);
+                logWriter.log(targetFile, streamInfo.lastLogEntry);
 
                 if (count == 0) {
                     minTime = streamInfo.lastLogEntry.getTime();
@@ -114,10 +116,7 @@ public class ChronologyLogAggregator implements LogAggregator {
                 queue.add(streamInfo);
             }
         } finally {
-            if (out != null) {
-                out.close();
-                os.close();
-            }
+            logWriter.flush();
         }
 
         return new AggregationInfo(minTime, maxTime, count);

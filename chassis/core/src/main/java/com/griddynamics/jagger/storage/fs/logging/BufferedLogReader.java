@@ -20,11 +20,13 @@
 
 package com.griddynamics.jagger.storage.fs.logging;
 
-import com.caucho.hessian.io.Hessian2Input;
 import com.google.common.base.Throwables;
 import com.griddynamics.jagger.storage.FileStorage;
 import com.griddynamics.jagger.storage.Namespace;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.BufferedInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,6 +36,7 @@ import java.util.Queue;
 import static com.google.common.collect.Lists.newLinkedList;
 
 public abstract  class BufferedLogReader implements LogReader {
+    private static final Logger log = LoggerFactory.getLogger(BufferedLogReader.class);
     private FileStorage fileStorage;
 
     @Override
@@ -48,7 +51,7 @@ public abstract  class BufferedLogReader implements LogReader {
             if (!fileStorage.exists(path.toString())) {
                 throw new IllegalArgumentException("Path " + path + " doesn't exist");
             }
-            in = fileStorage.open(path.toString());
+            in = new BufferedInputStream(fileStorage.open(path.toString()));
         } catch (IOException e) {
             throw Throwables.propagate(e);
         }
@@ -116,8 +119,7 @@ public abstract  class BufferedLogReader implements LogReader {
             for (int i = 0; i < BUF_SIZE; i++) {
                 try {
                     Object entry = input.readObject();
-                    // TODO some bug with JBoss reader
-                    if (entry==null) continue;
+                    if (entry == null) continue; // TODO some bug with JBoss reader
                     if (!clazz.isInstance(entry)) {
                         throw new IllegalStateException("entry " + entry + " is not instance of class " + clazz);
                     }
