@@ -84,11 +84,7 @@ public class ExactInvocationsClock implements WorkloadClock {
                     (1d / nodesCount) :
                     (double) status.getSamples(nodeId) / status.getTotalSamples();
             
-            double ownSamplesRate =  (configurations.get(nodeId) == null || configurations.get(nodeId).getSamples() == 0) ?
-                    1d :
-                    (double) status.getSamples(nodeId) / configurations.get(nodeId).getSamples();
-            
-            double score = totalSamplesRate + ownSamplesRate * 10;
+            double score = totalSamplesRate;
             scores.put(nodeId, score);
             scoreSum += score; 
         }
