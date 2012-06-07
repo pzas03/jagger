@@ -60,7 +60,7 @@ public class ExactInvocationsClock implements WorkloadClock {
 
         Set<NodeId> nodes = status.getNodes();
         int threads =  threadCount / nodes.size();
-        int samplesToAdd = (samplesLeft < SAMPLES_COUNT_SPLITTING_FACTOR || samplesLeft < samplesPerTick * 1.5) ? samplesLeft : samplesLeft / SAMPLES_COUNT_SPLITTING_FACTOR;
+        int samplesToAdd = (samplesLeft <= SAMPLES_COUNT_SPLITTING_FACTOR || samplesLeft < samplesPerTick * 1.5) ? samplesLeft : samplesLeft / SAMPLES_COUNT_SPLITTING_FACTOR;
         Map<NodeId, Double>  factors = calculateFactors(status, submittedConfigurations);
         int s = 0;
         for (NodeId node : nodes) {
