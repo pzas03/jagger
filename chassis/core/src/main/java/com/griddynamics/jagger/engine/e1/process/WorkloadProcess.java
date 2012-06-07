@@ -58,11 +58,11 @@ public class WorkloadProcess implements NodeProcess<Integer> {
 
     private volatile int delay;
 
-    private int samplesFromTerminatedThreads = 0;
+    private int samplesCountDoneFromTerminatedThreads = 0;
 
-    private int totalSamplesRequested;
+    private int totalSamplesCountRequested;
 
-    private final AtomicInteger samplesLeft = new AtomicInteger(-1);
+    private final AtomicInteger leftSamplesCount = new AtomicInteger(-1);
 
     public WorkloadProcess(String sessionId, StartWorkloadProcess command, NodeContext context, ExecutorService executor) {
         this.sessionId = sessionId;
@@ -77,8 +77,8 @@ public class WorkloadProcess implements NodeProcess<Integer> {
 
         log.debug("Going to execute command {}.", command);
 
-        totalSamplesRequested = command.getScenarioContext().getWorkloadConfiguration().getSamples();
-        samplesLeft.set(totalSamplesRequested);
+        totalSamplesCountRequested = command.getScenarioContext().getWorkloadConfiguration().getSamples();
+        leftSamplesCount.set(totalSamplesCountRequested);
         for (int i = 0; i < command.getThreads(); i++) {
             addThread();
         }
@@ -105,7 +105,7 @@ public class WorkloadProcess implements NodeProcess<Integer> {
     }
 
     public Integer getStatus() {
-        Integer result = samplesFromTerminatedThreads;
+        Integer result = samplesCountDoneFromTerminatedThreads;
         for (WorkloadService thread : threads) {
             result += thread.getSamples();
         }
@@ -118,7 +118,7 @@ public class WorkloadProcess implements NodeProcess<Integer> {
         for (Iterator<WorkloadService> it = threads.iterator(); it.hasNext(); ){
             WorkloadService workloadService = it.next();
             if (workloadService.state().equals(Service.State.TERMINATED)) {
-                samplesFromTerminatedThreads += workloadService.getSamples();
+                samplesCountDoneFromTerminatedThreads += workloadService.getSamples();
                 it.remove();
             }
         }
@@ -132,12 +132,12 @@ public class WorkloadProcess implements NodeProcess<Integer> {
             }
         }
 
-        if (totalSamplesRequested != configuration.getSamples()) {
-            samplesLeft.addAndGet(configuration.getSamples() - totalSamplesRequested);
-            totalSamplesRequested = configuration.getSamples();
+        if (totalSamplesCountRequested != configuration.getSamples()) {
+            leftSamplesCount.addAndGet(configuration.getSamples() - totalSamplesCountRequested);
+            totalSamplesCountRequested = configuration.getSamples();
         }
 
-        if (threadDiff > 0 && (!predefinedSamplesCount() || samplesLeft.get() > 0)) {
+        if (threadDiff > 0 && (!predefinedSamplesCount() || leftSamplesCount.get() > 0)) {
             log.debug("Going to increase thread count by {}", threadDiff);
             for (int i = threadDiff; i > 0; i--) {
                 addThread();
@@ -164,7 +164,7 @@ public class WorkloadProcess implements NodeProcess<Integer> {
                 .builder(scenario)
                 .addCollectors(collectors)
                 .useExecutor(executor);
-        WorkloadService thread = ( predefinedSamplesCount()) ? builder.buildServiceWithSharedSamplesCount(samplesLeft) : builder.buildInfiniteService();
+        WorkloadService thread = ( predefinedSamplesCount()) ? builder.buildServiceWithSharedSamplesCount(leftSamplesCount) : builder.buildInfiniteService();
         log.debug("Starting workload");
         Future<Service.State> future = thread.start();
         Service.State state = Futures.get(future, START_TIMEOUT);
@@ -173,7 +173,7 @@ public class WorkloadProcess implements NodeProcess<Integer> {
     }
 
     private boolean predefinedSamplesCount() {
-        return totalSamplesRequested != -1;
+        return totalSamplesCountRequested != -1;
     }
 
     private void removeThread() {
