@@ -63,12 +63,18 @@
             <id>jboss-third-party</id>
             <layout>default</layout>
             <name>jboss thirdparty repo</name>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
             <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases</url>
         </repository>
         <repository>
             <id>snmp4j</id>
             <layout>default</layout>
             <name>snmp4j repo</name>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
             <url>https://server.oosnmp.net/dist/release/</url>
         </repository>
     </repositories>

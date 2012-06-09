@@ -6,6 +6,7 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import com.griddynamics.jagger.webclient.client.dto.PagedSessionDataDto;
 import com.griddynamics.jagger.webclient.client.dto.SessionDataDto;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -16,6 +17,7 @@ import java.util.List;
 public interface SessionDataService extends RemoteService {
 
     PagedSessionDataDto getAll(int start, int length);
+    PagedSessionDataDto getByDatePeriod(int start, int length, Date from, Date to);
     SessionDataDto getBySessionId(String sessionId);
 
     public static class Async {

@@ -1,8 +1,7 @@
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
              xmlns:g="urn:import:com.google.gwt.user.client.ui"
-             xmlns:p="urn:import:ca.nanometrics.gflot.client"
              xmlns:c="urn:import:com.google.gwt.user.cellview.client"
-             xmlns:widgets="urn:import:com.smartgwt.client.widgets">
+             xmlns:datepicker="urn:import:com.google.gwt.user.datepicker.client">
 
     <ui:style>
         .container {
@@ -32,7 +31,7 @@
                                 <g:center>
                                     <c:DataGrid ui:field="sessionsDataGrid" width="100%" title="Sessions"/>
                                 </g:center>
-                                <g:south size="80">
+                                <g:south size="100">
                                     <g:HTMLPanel>
                                         <table width="100%">
                                             <tr>
@@ -40,10 +39,18 @@
                                             </tr>
                                             <tr>
                                                 <td>
-                                                    <table>
+                                                    <table width="100%">
                                                         <tr>
-                                                            <td width="50%">Select by Session Number:</td>
-                                                            <td><g:TextBox ui:field="sessionNumberTextBox"/></td>
+                                                            <td width="45%">Select by Session Number:</td>
+                                                            <td width="25%"><g:TextBox ui:field="sessionNumberTextBox" width="100%"/></td>
+                                                            <td width="5%"/>
+                                                            <td width="25%"/>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Select by Date Range</td>
+                                                            <td><datepicker:DateBox ui:field="sessionsFrom" width="100%"/></td>
+                                                            <td style="text-align: center;">-</td>
+                                                            <td><datepicker:DateBox ui:field="sessionsTo" width="100%"/></td>
                                                         </tr>
                                                     </table>
                                                 </td>

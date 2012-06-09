@@ -16,6 +16,9 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -25,10 +28,14 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.gwt.view.client.*;
-import com.google.gwt.view.client.Range;
+import com.griddynamics.jagger.webclient.client.data.EmptyDateBoxValueChangePropagator;
+import com.griddynamics.jagger.webclient.client.data.SessionDataAsyncDataProvider;
+import com.griddynamics.jagger.webclient.client.data.SessionDataForDatePeriodAsyncProvider;
 import com.griddynamics.jagger.webclient.client.dto.*;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -67,6 +74,12 @@ public class Trends extends Composite {
     @UiField
     TextBox sessionNumberTextBox;
 
+    @UiField
+    DateBox sessionsFrom;
+
+    @UiField
+    DateBox sessionsTo;
+
     private FlowPanel loadIndicator;
 
     private SessionDataAsyncDataProvider sessionDataProvider = new SessionDataAsyncDataProvider();
@@ -78,6 +91,7 @@ public class Trends extends Composite {
         setupLoadIndicator();
         initWidget(uiBinder.createAndBindUi(this));
         setupSessionNumberTextBox();
+        setupSessionsDateRange();
     }
 
     private SimplePlot createPlot() {
@@ -246,6 +260,41 @@ public class Trends extends Composite {
         });
     }
 
+    private void setupSessionsDateRange() {
+        DateTimeFormat format = DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.YEAR_MONTH_NUM_DAY);
+
+        sessionsFrom.setFormat(new DateBox.DefaultFormat(format));
+        sessionsTo.setFormat(new DateBox.DefaultFormat(format));
+
+        sessionsFrom.getTextBox().addValueChangeHandler(new EmptyDateBoxValueChangePropagator(sessionsFrom));
+        sessionsTo.getTextBox().addValueChangeHandler(new EmptyDateBoxValueChangePropagator(sessionsTo));
+
+        final ValueChangeHandler<Date> valueChangeHandler = new ValueChangeHandler<Date>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<Date> dateValueChangeEvent) {
+                Date fromDate = sessionsFrom.getValue();
+                Date toDate = sessionsTo.getValue();
+
+                if (fromDate == null || toDate == null) {
+                    if (!sessionDataProvider.getDataDisplays().contains(sessionsDataGrid)) {
+                        sessionDataProvider.addDataDisplay(sessionsDataGrid);
+                    }
+                    return;
+                }
+
+                if (sessionDataProvider.getDataDisplays().contains(sessionsDataGrid)) {
+                    sessionDataProvider.removeDataDisplay(sessionsDataGrid);
+                }
+
+                AsyncDataProvider<SessionDataDto> asyncDataForDatePeriodProvider = new SessionDataForDatePeriodAsyncProvider(fromDate, toDate);
+                asyncDataForDatePeriodProvider.addDataDisplay(sessionsDataGrid);
+            }
+        };
+
+        sessionsTo.addValueChangeHandler(valueChangeHandler);
+        sessionsFrom.addValueChangeHandler(valueChangeHandler);
+    }
+
     private String generateTaskScopePlotId(PlotNameDto plotNameDto) {
         return "" + plotNameDto.getTaskId() + "#task-scope-plot-" + plotNameDto.getPlotName().toLowerCase().replaceAll("\\s+", "-");
     }
@@ -319,35 +368,9 @@ public class Trends extends Composite {
         plot.redraw();
     }
 
-    //==========Nested Classes
-
-    /**
-     * Fetches all sessions from server
-     */
-    private static class SessionDataAsyncDataProvider extends AsyncDataProvider<SessionDataDto> {
-        @Override
-        protected void onRangeChanged(HasData<SessionDataDto> display) {
-            Range range = display.getVisibleRange();
-            final int start = range.getStart();
-            int end = start + range.getLength();
-
-            SessionDataServiceAsync sessionDataService = SessionDataService.Async.getInstance();
-            AsyncCallback<PagedSessionDataDto> callback = new AsyncCallback<PagedSessionDataDto>() {
-                @Override
-                public void onFailure(Throwable caught) {
-//                    Window.alert("Error is occurred during server request processing (Session data fetching)");
-                    Window.alert("Error is occurred during server request processing (Session data fetching)" + caught.getMessage());
-                }
-
-                @Override
-                public void onSuccess(PagedSessionDataDto result) {
-                    updateRowData(start, result.getSessionDataDtoList());
-                    updateRowCount(result.getTotalSize(), true);
-                }
-            };
-            sessionDataService.getAll(start, range.getLength(), callback);
-        }
-    }
+    //=================================//
+    //==========Nested Classes=========//
+    //=================================//
 
     /**
      * Handles select session event
@@ -398,7 +421,7 @@ public class Trends extends Composite {
                                                     @Override
                                                     public void onFailure(Throwable caught) {
                                                         plotPanel.remove(loadingId);
-                                                        Window.alert("Error is occurred during server request processing (Session scope plot data fetching for " + plotName +")");
+                                                        Window.alert("Error is occurred during server request processing (Session scope plot data fetching for " + plotName + ")");
                                                     }
 
                                                     @Override

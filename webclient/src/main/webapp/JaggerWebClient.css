@@ -40,3 +40,8 @@ body {
 .centered {
     text-align: center;
 }
+
+.gwt-DateBox, .gwt-TextBox {
+    padding: 0;
+    margin: 0;
+}

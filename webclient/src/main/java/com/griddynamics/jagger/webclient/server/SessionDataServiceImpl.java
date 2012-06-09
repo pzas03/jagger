@@ -14,6 +14,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -82,7 +83,7 @@ public class SessionDataServiceImpl extends RemoteServiceServlet implements Sess
             );
             log.info("There was loaded session data with id {} for {} ms", sessionId, System.currentTimeMillis() - timestamp);
         } catch (NoResultException e) {
-            log.info("No session data was found for session ID="+sessionId, e);
+            log.info("No session data was found for session ID=" + sessionId, e);
             return null;
         } catch (Exception e) {
             log.error("Error was occurred during session data with id=" + sessionId + " loading", e);
@@ -92,5 +93,55 @@ public class SessionDataServiceImpl extends RemoteServiceServlet implements Sess
         }
 
         return sessionDataDto;
+    }
+
+    @Override
+    public PagedSessionDataDto getByDatePeriod(int start, int length, Date from, Date to) {
+        long timestamp = System.currentTimeMillis();
+        EntityManager entityManager = EntityManagerProvider.getEntityManagerFactory().createEntityManager();
+
+        long totalSize;
+        List<SessionDataDto> sessionDataDtoList;
+        try {
+            totalSize = (Long) entityManager.createQuery("select count(sd.id) from SessionData as sd where sd.startTime >= :from and sd.endTime <= :to")
+                    .setParameter("from", from)
+                    .setParameter("to", to)
+                    .getSingleResult();
+
+            @SuppressWarnings("unchecked")
+            List<SessionData> sessionDataList = (List<SessionData>)
+                    entityManager.createQuery("select sd from SessionData as sd where sd.startTime between :from and :to order by sd.startTime asc")
+                            .setParameter("from", from)
+                            .setParameter("to", to)
+                            .setFirstResult(start)
+                            .setMaxResults(length)
+                            .getResultList();
+
+            if (sessionDataList == null) {
+                return new PagedSessionDataDto(Collections.<SessionDataDto>emptyList(), 0);
+            }
+
+            sessionDataDtoList = new ArrayList<SessionDataDto>(sessionDataList.size());
+            DateFormat dateFormatter = new SimpleDateFormat(dateFormat);
+            for (SessionData sessionData : sessionDataList) {
+                sessionDataDtoList.add(new SessionDataDto(
+                        sessionData.getSessionId(),
+                        dateFormatter.format(sessionData.getStartTime()),
+                        dateFormatter.format(sessionData.getEndTime()),
+                        sessionData.getActiveKernels(),
+                        sessionData.getTaskExecuted(),
+                        sessionData.getTaskFailed())
+                );
+            }
+
+            log.info("There was loaded {} sessions data from {} for {} ms", new Object[]{sessionDataDtoList.size(), totalSize, System.currentTimeMillis() - timestamp});
+        } catch (Exception e) {
+            log.error("Error was occurred during session data between " + from + " to " + to + "; start " + start + ", length " + length, e);
+            throw new RuntimeException(e);
+        } finally {
+            entityManager.close();
+        }
+
+        return new PagedSessionDataDto(sessionDataDtoList, (int) totalSize);
     }
 }
