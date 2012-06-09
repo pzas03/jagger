@@ -490,6 +490,9 @@ public class Trends extends Composite {
 
                 final MultiSelectionModel<PlotNameDto> plotNameSelectionModel = (MultiSelectionModel<PlotNameDto>) workloadTaskDetailsTreeViewModel.getSelectionModel();
                 plotNameSelectionModel.clear();
+
+                // Clear session scope plot list
+                sessionScopePlotList.clear();
             }
         }
     }
