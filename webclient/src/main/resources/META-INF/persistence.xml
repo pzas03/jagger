@@ -25,6 +25,7 @@
             <property name="javax.persistence.jdbc.user" value="breeze"/>
             <property name="javax.persistence.jdbc.password" value="breeze"/>
 
+            <property name="connection.provider_class" value="org.hibernate.connection.C3P0ConnectionProvider"/>
             <property name="dialect" value="org.hibernate.dialect.MySQL5InnoDBDialect"/>
             <property name="hbm2ddl.auto" value="validate"/>
             <property name="jdbc.batch_size" value="10"/>

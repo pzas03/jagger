@@ -25,18 +25,28 @@
                         <g:HTMLPanel addStyleNames="{style.plotPanel}" ui:field="plotPanel"/>
                     </g:ScrollPanel>
                 </g:center>
-                <g:south size="200">
+                <g:south size="250">
                     <g:SplitLayoutPanel>
                         <g:west size="600">
                             <g:DockLayoutPanel>
                                 <g:center>
                                     <c:DataGrid ui:field="sessionsDataGrid" width="100%" title="Sessions"/>
                                 </g:center>
-                                <g:south size="30">
+                                <g:south size="80">
                                     <g:HTMLPanel>
                                         <table width="100%">
                                             <tr>
                                                 <td align="center"><c:SimplePager ui:field="sessionsPager"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <table>
+                                                        <tr>
+                                                            <td width="50%">Select by Session Number:</td>
+                                                            <td><g:TextBox ui:field="sessionNumberTextBox"/></td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
                                             </tr>
                                         </table>
                                     </g:HTMLPanel>

@@ -14,11 +14,14 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.cellview.client.*;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
@@ -61,9 +64,12 @@ public class Trends extends Composite {
     @UiField
     VerticalPanel sessionScopePlotList;
 
+    @UiField
+    TextBox sessionNumberTextBox;
+
     private FlowPanel loadIndicator;
 
-    private SessionDataAsyncDataProvider dataProvider = new SessionDataAsyncDataProvider();
+    private SessionDataAsyncDataProvider sessionDataProvider = new SessionDataAsyncDataProvider();
 
     public Trends() {
         setupTaskDetailsTree();
@@ -71,6 +77,7 @@ public class Trends extends Composite {
         setupPager();
         setupLoadIndicator();
         initWidget(uiBinder.createAndBindUi(this));
+        setupSessionNumberTextBox();
     }
 
     private SimplePlot createPlot() {
@@ -158,7 +165,7 @@ public class Trends extends Composite {
             }
         }, "End Date");
 
-        dataProvider.addDataDisplay(sessionsDataGrid);
+        sessionDataProvider.addDataDisplay(sessionsDataGrid);
     }
 
     private void setupPager() {
@@ -182,6 +189,61 @@ public class Trends extends Composite {
         loadIndicator = new FlowPanel();
         loadIndicator.addStyleName("centered");
         loadIndicator.add(image);
+    }
+
+    private void setupSessionNumberTextBox() {
+        final ListDataProvider<SessionDataDto> dataProvider = new ListDataProvider<SessionDataDto>();
+        final Timer stopTypingTimer = new Timer() {
+            @Override
+            public void run() {
+                try {
+                    final String currentContent = sessionNumberTextBox.getText();
+
+                    // If session ID text box is empty then load all sessions
+                    if (currentContent == null || currentContent.isEmpty()) {
+                        dataProvider.removeDataDisplay(sessionsDataGrid);
+                        sessionDataProvider.addDataDisplay(sessionsDataGrid);
+
+                        return;
+                    }
+
+                    // Session ID has String type in DB but actually it is positive integer
+                    int num = Integer.parseInt(currentContent);
+                    if (num < 0) {
+                        throw new NumberFormatException();
+                    }
+
+                    SessionDataService.Async.getInstance().getBySessionId(currentContent, new AsyncCallback<SessionDataDto>() {
+                        @Override
+                        public void onFailure(Throwable caught) {
+                            Window.alert("Error is occurred during server request processing (Session data fetching) for session ID " + currentContent + ": " + caught.getMessage());
+                        }
+
+                        @Override
+                        public void onSuccess(SessionDataDto result) {
+                            if (sessionDataProvider.getDataDisplays().contains(sessionsDataGrid)) {
+                                sessionDataProvider.removeDataDisplay(sessionsDataGrid);
+                            }
+
+                            dataProvider.getList().clear();
+                            dataProvider.getList().add(result);
+                            if (!dataProvider.getDataDisplays().contains(sessionsDataGrid)) {
+                                dataProvider.addDataDisplay(sessionsDataGrid);
+                            }
+                        }
+                    });
+                } catch (NumberFormatException e) {
+                    Window.alert("Session number must be a positive integer");
+                }
+            }
+        };
+
+        sessionNumberTextBox.addKeyUpHandler(new KeyUpHandler() {
+            @Override
+            public void onKeyUp(KeyUpEvent event) {
+                stopTypingTimer.schedule(500);
+            }
+        });
     }
 
     private String generateTaskScopePlotId(PlotNameDto plotNameDto) {

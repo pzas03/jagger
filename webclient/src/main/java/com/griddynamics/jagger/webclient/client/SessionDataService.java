@@ -16,6 +16,7 @@ import java.util.List;
 public interface SessionDataService extends RemoteService {
 
     PagedSessionDataDto getAll(int start, int length);
+    SessionDataDto getBySessionId(String sessionId);
 
     public static class Async {
         private static final SessionDataServiceAsync ourInstance = (SessionDataServiceAsync) GWT.create(SessionDataService.class);
