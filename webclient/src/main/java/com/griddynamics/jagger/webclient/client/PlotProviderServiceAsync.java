@@ -10,11 +10,11 @@ import java.util.List;
  * @since 5/30/12
  */
 public interface PlotProviderServiceAsync {
-    void getPlotListForTask(long taskId, AsyncCallback<List<PlotNameDto>> async);
+    void getPlotListForTask(String sessionId, long taskId, AsyncCallback<List<PlotNameDto>> async);
 
     void getPlotData(long taskId, String plotType, AsyncCallback<List<PlotSeriesDto>> async);
 
-    void getSessionScopePlotList(AsyncCallback<List<String>> async);
+    void getSessionScopePlotList(String sessionId, AsyncCallback<List<String>> async);
 
     void getSessionScopePlotData(String sessionId, String plotType, AsyncCallback<List<PlotSeriesDto>> async);
 }

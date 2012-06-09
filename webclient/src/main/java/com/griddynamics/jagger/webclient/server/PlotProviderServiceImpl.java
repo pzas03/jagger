@@ -8,13 +8,17 @@ import com.griddynamics.jagger.webclient.client.dto.PlotDatasetDto;
 import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
 import com.griddynamics.jagger.webclient.client.dto.PlotSeriesDto;
 import com.griddynamics.jagger.webclient.client.dto.PointDto;
-import com.griddynamics.jagger.webclient.server.plot.*;
+import com.griddynamics.jagger.webclient.server.plot.DataPointCompressingProcessor;
+import com.griddynamics.jagger.webclient.server.plot.PlotDataProvider;
+import com.griddynamics.jagger.webclient.server.plot.SessionScopePlotDataProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import javax.persistence.EntityManager;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -27,42 +31,65 @@ public class PlotProviderServiceImpl extends RemoteServiceServlet implements Plo
 
     private DataPointCompressingProcessor compressingProcessor = new DataPointCompressingProcessor();
 
+    @SuppressWarnings("unchecked")
     @Override
-    public List<PlotNameDto> getPlotListForTask(long taskId) {
-        List<PlotNameDto> plotNameDtoList = new ArrayList<PlotNameDto>();
+    public List<PlotNameDto> getPlotListForTask(String sessionId, long taskId) {
+        List<PlotNameDto> plotNameDtoList = null;
+        try {
+            plotNameDtoList = new ArrayList<PlotNameDto>();
 
-        ApplicationContext context = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
+            ApplicationContext context = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
 
-        Map<GroupKey, DefaultWorkloadParameters[]> workloadPlots =
-                (Map<GroupKey, DefaultWorkloadParameters[]>) context.getBean("workloadPlotGroups");
-        for (Map.Entry<GroupKey, DefaultWorkloadParameters[]> monitoringPlot : workloadPlots.entrySet()) {
-            plotNameDtoList.add(new PlotNameDto(taskId, monitoringPlot.getKey().getUpperName()));
-        }
+            if (isWorkloadStatisticsAvailable(taskId)) {
+                Map<GroupKey, DefaultWorkloadParameters[]> workloadPlots =
+                        (Map<GroupKey, DefaultWorkloadParameters[]>) context.getBean("workloadPlotGroups");
+                for (Map.Entry<GroupKey, DefaultWorkloadParameters[]> monitoringPlot : workloadPlots.entrySet()) {
+                    plotNameDtoList.add(new PlotNameDto(taskId, monitoringPlot.getKey().getUpperName()));
+                }
+            }
 
-        Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlots =
-                (Map<GroupKey, DefaultMonitoringParameters[]>) context.getBean("monitoringPlotGroups");
-        for (Map.Entry<GroupKey, DefaultMonitoringParameters[]> monitoringPlot : monitoringPlots.entrySet()) {
-            plotNameDtoList.add(new PlotNameDto(taskId, monitoringPlot.getKey().getUpperName()));
+            if (isMonitoringStatisticsAvailable(sessionId)) {
+                Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlots =
+                        (Map<GroupKey, DefaultMonitoringParameters[]>) context.getBean("monitoringPlotGroups");
+                for (Map.Entry<GroupKey, DefaultMonitoringParameters[]> monitoringPlot : monitoringPlots.entrySet()) {
+                    plotNameDtoList.add(new PlotNameDto(taskId, monitoringPlot.getKey().getUpperName()));
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error was occurred during task scope plots data getting for session ID " + sessionId + ", task ID " + taskId, e);
+            throw new RuntimeException(e);
         }
 
         return plotNameDtoList;
     }
 
     @Override
-    public List<String> getSessionScopePlotList() {
-        List<String> plotNameDtoList = new ArrayList<String>();
+    public List<String> getSessionScopePlotList(String sessionId) {
+        List<String> plotNameDtoList = null;
+        try {
+            if (!isMonitoringStatisticsAvailable(sessionId)) {
+                return Collections.emptyList();
+            }
 
-        ApplicationContext context = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
+            plotNameDtoList = new ArrayList<String>();
 
-        Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlots =
-                (Map<GroupKey, DefaultMonitoringParameters[]>) context.getBean("monitoringPlotGroups");
-        for (Map.Entry<GroupKey, DefaultMonitoringParameters[]> monitoringPlot : monitoringPlots.entrySet()) {
-            plotNameDtoList.add(monitoringPlot.getKey().getUpperName());
+            ApplicationContext context = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
+
+            @SuppressWarnings("unchecked")
+            Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlots =
+                    (Map<GroupKey, DefaultMonitoringParameters[]>) context.getBean("monitoringPlotGroups");
+            for (Map.Entry<GroupKey, DefaultMonitoringParameters[]> monitoringPlot : monitoringPlots.entrySet()) {
+                plotNameDtoList.add(monitoringPlot.getKey().getUpperName());
+            }
+        } catch (Exception e) {
+            log.error("Error was occurred during session scope plots data getting for session ID " + sessionId, e);
+            throw new RuntimeException(e);
         }
 
         return plotNameDtoList;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public List<PlotSeriesDto> getPlotData(long taskId, String plotName) {
         long timestamp = System.currentTimeMillis();
@@ -99,6 +126,7 @@ public class PlotProviderServiceImpl extends RemoteServiceServlet implements Plo
 
         ApplicationContext context = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
 
+        @SuppressWarnings("unchecked")
         Map<String, SessionScopePlotDataProvider> plotDataProviders =
                 (Map<String, SessionScopePlotDataProvider>) context.getBean("monitoringPlotDataProviders");
 
@@ -153,5 +181,45 @@ public class PlotProviderServiceImpl extends RemoteServiceServlet implements Plo
         }
 
         return logBuilder.toString();
+    }
+
+    private boolean isMonitoringStatisticsAvailable(String sessionId) {
+        EntityManager entityManager = EntityManagerProvider.getEntityManagerFactory().createEntityManager();
+
+        try {
+            long timestamp = System.currentTimeMillis();
+            long monitoringStatisticsCount = (Long) entityManager.createQuery("select count(ms.id) from MonitoringStatistics as ms where ms.sessionId=:sessionId")
+                    .setParameter("sessionId", sessionId)
+                    .getSingleResult();
+
+            if (monitoringStatisticsCount == 0) {
+                log.info("For session {} monitoring statistics were not found in DB for {} ms", sessionId, System.currentTimeMillis() - timestamp);
+                return false;
+            }
+        } finally {
+            entityManager.close();
+        }
+
+        return true;
+    }
+
+    private boolean isWorkloadStatisticsAvailable(long taskId) {
+        EntityManager entityManager = EntityManagerProvider.getEntityManagerFactory().createEntityManager();
+
+        try {
+            long timestamp = System.currentTimeMillis();
+            long workloadStatisticsCount = (Long) entityManager.createQuery("select count(tis.id) from TimeInvocationStatistics as tis where tis.taskData.id=:taskId")
+                    .setParameter("taskId", taskId)
+                    .getSingleResult();
+
+            if (workloadStatisticsCount == 0) {
+                log.info("For task ID {} workload statistics were not found in DB for {} ms", taskId, System.currentTimeMillis() - timestamp);
+                return false;
+            }
+        } finally {
+            entityManager.close();
+        }
+
+        return true;
     }
 }

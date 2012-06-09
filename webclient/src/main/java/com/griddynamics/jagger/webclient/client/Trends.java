@@ -392,7 +392,7 @@ public class Trends extends Composite {
 
                     @Override
                     public void onSuccess(List<TaskDataDto> result) {
-                        PlotProviderService.Async.getInstance().getSessionScopePlotList(new AsyncCallback<List<String>>() {
+                        PlotProviderService.Async.getInstance().getSessionScopePlotList(selected.getSessionId(), new AsyncCallback<List<String>>() {
                             @Override
                             public void onFailure(Throwable caught) {
                                 Window.alert("Error is occurred during server request processing (Session scope plot names for task fetching)");
@@ -461,7 +461,7 @@ public class Trends extends Composite {
                             final ListDataProvider<PlotNameDto> plotNameDataProvider = ((WorkloadTaskDetailsTreeViewModel)
                                     taskDetailsTree.getTreeViewModel()).getPlotNameDataProvider(taskDataDto);
 
-                            PlotProviderService.Async.getInstance().getPlotListForTask(taskDataDto.getId(), new AsyncCallback<List<PlotNameDto>>() {
+                            PlotProviderService.Async.getInstance().getPlotListForTask(selected.getSessionId(), taskDataDto.getId(), new AsyncCallback<List<PlotNameDto>>() {
                                 @Override
                                 public void onFailure(Throwable caught) {
                                     Window.alert("Error is occurred during server request processing (Plot names for task fetching)");
