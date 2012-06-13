@@ -143,7 +143,7 @@ public class Trends extends Composite {
         });
         sessionsDataGrid.setSelectionModel(selectionModel, DefaultSelectionEventManager.<SessionDataDto>createCheckboxManager());
 
-        selectionModel.addSelectionChangeHandler(new SessionSelectChangeHandler());
+        selectionModel.addSelectionChangeHandler(new SessionSelectChangeHandler(new SessionScopePlotCheckBoxClickHandler()));
 
         // Checkbox column. This table will uses a checkbox column for selection.
         // Alternatively, you can call dataGrid.setSelectionEnabled(true) to enable mouse selection.
@@ -376,6 +376,12 @@ public class Trends extends Composite {
      * Handles select session event
      */
     private class SessionSelectChangeHandler implements SelectionChangeEvent.Handler {
+        private final ClickHandler sessionScopePlotCheckBoxClickHandler;
+
+        private SessionSelectChangeHandler(ClickHandler sessionScopePlotCheckBoxClickHandler) {
+            this.sessionScopePlotCheckBoxClickHandler = sessionScopePlotCheckBoxClickHandler;
+        }
+
         @Override
         public void onSelectionChange(SelectionChangeEvent event) {
             // Currently selection model for sessions is a single selection model
@@ -410,48 +416,7 @@ public class Trends extends Composite {
                                         checkBox.setValue(true, false);
                                     }
                                     checkBox.getElement().setId(generateSessionScopePlotId(selected.getSessionId(), plotName)+"_checkbox");
-                                    checkBox.addClickHandler(new ClickHandler() {
-                                        @Override
-                                        public void onClick(ClickEvent event) {
-                                            final CheckBox source = (CheckBox) event.getSource();
-                                            final String sessionId = extractEntityIdFromDomId(source.getElement().getId());
-                                            final String plotName = source.getText();
-                                            final String id = generateSessionScopePlotId(sessionId, plotName);
-                                            // If checkbox is checked
-                                            if (source.getValue()) {
-                                                plotPanel.add(loadIndicator);
-                                                scrollPanel.scrollToBottom();
-                                                final int loadingId = plotPanel.getWidgetCount() - 1;
-                                                PlotProviderService.Async.getInstance().getSessionScopePlotData(sessionId, plotName, new AsyncCallback<List<PlotSeriesDto>>() {
-                                                    @Override
-                                                    public void onFailure(Throwable caught) {
-                                                        plotPanel.remove(loadingId);
-                                                        Window.alert("Error is occurred during server request processing (Session scope plot data fetching for " + plotName + ")");
-                                                    }
-
-                                                    @Override
-                                                    public void onSuccess(List<PlotSeriesDto> result) {
-                                                        plotPanel.remove(loadingId);
-                                                        if (result.isEmpty()) {
-                                                            Window.alert("There are no data found for " + plotName);
-                                                        }
-
-                                                        renderPlots(result, id);
-                                                    }
-                                                });
-                                            } else {
-                                                // Remove plots from display which were unchecked
-                                                for (int i = 0; i < plotPanel.getWidgetCount(); i++) {
-                                                    Widget widget = plotPanel.getWidget(i);
-                                                    if (id.equals(widget.getElement().getId())) {
-                                                        // Remove plot
-                                                        plotPanel.remove(i);
-                                                        break;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    });
+                                    checkBox.addClickHandler(sessionScopePlotCheckBoxClickHandler);
                                     sessionScopePlotList.add(checkBox);
                                 }
                             }
@@ -581,6 +546,52 @@ public class Trends extends Composite {
                     if (isTaskScopePlotId(widgetId)) {
                         // Remove plot
                         plotPanel.remove(i);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Handles clicks on session scope plot checkboxes
+     */
+    private class SessionScopePlotCheckBoxClickHandler implements ClickHandler {
+        @Override
+        public void onClick(ClickEvent event) {
+            final CheckBox source = (CheckBox) event.getSource();
+            final String sessionId = extractEntityIdFromDomId(source.getElement().getId());
+            final String plotName = source.getText();
+            final String id = generateSessionScopePlotId(sessionId, plotName);
+            // If checkbox is checked
+            if (source.getValue()) {
+                plotPanel.add(loadIndicator);
+                scrollPanel.scrollToBottom();
+                final int loadingId = plotPanel.getWidgetCount() - 1;
+                PlotProviderService.Async.getInstance().getSessionScopePlotData(sessionId, plotName, new AsyncCallback<List<PlotSeriesDto>>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        plotPanel.remove(loadingId);
+                        Window.alert("Error is occurred during server request processing (Session scope plot data fetching for " + plotName + ")");
+                    }
+
+                    @Override
+                    public void onSuccess(List<PlotSeriesDto> result) {
+                        plotPanel.remove(loadingId);
+                        if (result.isEmpty()) {
+                            Window.alert("There are no data found for " + plotName);
+                        }
+
+                        renderPlots(result, id);
+                    }
+                });
+            } else {
+                // Remove plots from display which were unchecked
+                for (int i = 0; i < plotPanel.getWidgetCount(); i++) {
+                    Widget widget = plotPanel.getWidget(i);
+                    if (id.equals(widget.getElement().getId())) {
+                        // Remove plot
+                        plotPanel.remove(i);
+                        break;
                     }
                 }
             }
