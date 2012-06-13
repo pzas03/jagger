@@ -404,7 +404,12 @@ public class Trends extends Composite {
                                 sessionScopePlotList.clear();
                                 for (String plotName : result) {
                                     CheckBox checkBox = new CheckBox(plotName);
-                                    checkBox.getElement().setId(generateSessionScopePlotId(selected.getSessionId(), plotName));
+
+                                    // If plot for this one is already rendered we check it
+                                    if (plotPanel.getElementById(generateSessionScopePlotId(selected.getSessionId(), plotName)) != null) {
+                                        checkBox.setValue(true, false);
+                                    }
+                                    checkBox.getElement().setId(generateSessionScopePlotId(selected.getSessionId(), plotName)+"_checkbox");
                                     checkBox.addClickHandler(new ClickHandler() {
                                         @Override
                                         public void onClick(ClickEvent event) {
