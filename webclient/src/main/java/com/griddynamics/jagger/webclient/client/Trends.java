@@ -459,7 +459,12 @@ public class Trends extends Composite {
 
                         // Populate task first level tree with server data
                         taskDataProvider.getList().clear();
-                        taskDataProvider.getList().addAll(result);
+                        if (result.isEmpty()) {
+                            taskDataProvider.getList().add(WorkloadTaskDetailsTreeViewModel.getNoTasksDummyNode());
+                            return;
+                        } else {
+                            taskDataProvider.getList().addAll(result);
+                        }
 
                         // Populate available plots tree level for each task for selected session
                         for (TaskDataDto taskDataDto : result) {
