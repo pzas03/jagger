@@ -7,13 +7,12 @@ import com.griddynamics.jagger.webclient.client.dto.PagedSessionDataDto;
 import com.griddynamics.jagger.webclient.client.dto.SessionDataDto;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
  * @since 5/29/12
  */
-@RemoteServiceRelativePath("SessionDataService")
+@RemoteServiceRelativePath("rpc/SessionDataService")
 public interface SessionDataService extends RemoteService {
 
     PagedSessionDataDto getAll(int start, int length);

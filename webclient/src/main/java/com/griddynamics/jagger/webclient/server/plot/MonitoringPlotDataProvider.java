@@ -10,13 +10,16 @@ import com.griddynamics.jagger.webclient.client.dto.PlotSeriesDto;
 import com.griddynamics.jagger.webclient.client.dto.PointDto;
 import com.griddynamics.jagger.webclient.server.ColorCodeGenerator;
 import com.griddynamics.jagger.webclient.server.DataProcessingUtil;
-import com.griddynamics.jagger.webclient.server.EntityManagerProvider;
 import com.griddynamics.jagger.webclient.server.LegendProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
-import java.util.*;
+import javax.persistence.PersistenceContext;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
@@ -27,6 +30,7 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
 
     private Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups;
     private LegendProvider legendProvider;
+    private EntityManager entityManager;
 
     //==========Constructors
 
@@ -40,110 +44,103 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
         this.legendProvider = legendProvider;
     }
 
+    @PersistenceContext
+    public void setEntityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
+
     //==========Contract Methods
 
     @Override
     public List<PlotSeriesDto> getPlotData(long taskId, String plotName) {
-        EntityManager entityManager = EntityManagerProvider.getEntityManagerFactory().createEntityManager();
-
         List<PlotSeriesDto> plotSeriesDtoList;
-        try {
-            DefaultMonitoringParameters[] defaultMonitoringParametersGroup = findDefaultMonitoringParameters(monitoringPlotGroups, plotName);
+        DefaultMonitoringParameters[] defaultMonitoringParametersGroup = findDefaultMonitoringParameters(monitoringPlotGroups, plotName);
 
-            log.debug("For plot {} there are exist {} monitoring parameters", plotName, defaultMonitoringParametersGroup);
+        log.debug("For plot {} there are exist {} monitoring parameters", plotName, defaultMonitoringParametersGroup);
 
-            TaskData workloadTaskData = entityManager.find(TaskData.class, taskId);
+        TaskData workloadTaskData = entityManager.find(TaskData.class, taskId);
 
-            WorkloadData workloadData = (WorkloadData) entityManager
-                    .createQuery("select wd from WorkloadData as wd where wd.sessionId=:sessionId and wd.taskId=:taskId")
-                    .setParameter("sessionId", workloadTaskData.getSessionId())
-                    .setParameter("taskId", workloadTaskData.getTaskId())
-                    .getSingleResult();
+        WorkloadData workloadData = (WorkloadData) entityManager
+                .createQuery("select wd from WorkloadData as wd where wd.sessionId=:sessionId and wd.taskId=:taskId")
+                .setParameter("sessionId", workloadTaskData.getSessionId())
+                .setParameter("taskId", workloadTaskData.getTaskId())
+                .getSingleResult();
 
-            TaskData monitoringTaskData = (TaskData) entityManager.createQuery(
-                    "select td from TaskData as td where td.sessionId=:sessionId and td.taskId=" +
-                    "(select pm.monitoringId from PerformedMonitoring as pm where pm.sessionId=:sessionId and pm.parentId=:parentId)")
-                    .setParameter("sessionId", workloadData.getSessionId())
-                    .setParameter("parentId", workloadData.getParentId())
-                    .getSingleResult();
+        TaskData monitoringTaskData = (TaskData) entityManager.createQuery(
+                "select td from TaskData as td where td.sessionId=:sessionId and td.taskId=" +
+                        "(select pm.monitoringId from PerformedMonitoring as pm where pm.sessionId=:sessionId and pm.parentId=:parentId)")
+                .setParameter("sessionId", workloadData.getSessionId())
+                .setParameter("parentId", workloadData.getParentId())
+                .getSingleResult();
 
 
-            List<String> monitoringParametersList = new ArrayList<String>();
-            for (DefaultMonitoringParameters defaultMonitoringParameter : defaultMonitoringParametersGroup) {
-                monitoringParametersList.add(defaultMonitoringParameter.getDescription());
-            }
-
-            @SuppressWarnings("unchecked")
-            List<MonitoringStatistics> monitoringStatisticsList = (List<MonitoringStatistics>) entityManager.createQuery(
-                    "select ms from MonitoringStatistics as ms where ms.taskData = :monitoringTaskData " +
-                            "and ms.parameterId.description in (:descrList)")
-                    .setParameter("monitoringTaskData", monitoringTaskData)
-                    .setParameter("descrList", monitoringParametersList)
-                    .getResultList();
-
-            plotSeriesDtoList = assemble(composeByBoxIdentifierAndDescription(monitoringStatisticsList), monitoringTaskData.getId(), plotName);
-        } finally {
-            entityManager.close();
+        List<String> monitoringParametersList = new ArrayList<String>();
+        for (DefaultMonitoringParameters defaultMonitoringParameter : defaultMonitoringParametersGroup) {
+            monitoringParametersList.add(defaultMonitoringParameter.getDescription());
         }
+
+        @SuppressWarnings("unchecked")
+        List<MonitoringStatistics> monitoringStatisticsList = (List<MonitoringStatistics>) entityManager.createQuery(
+                "select ms from MonitoringStatistics as ms where ms.taskData = :monitoringTaskData " +
+                        "and ms.parameterId.description in (:descrList)")
+                .setParameter("monitoringTaskData", monitoringTaskData)
+                .setParameter("descrList", monitoringParametersList)
+                .getResultList();
+
+        plotSeriesDtoList = assemble(composeByBoxIdentifierAndDescription(monitoringStatisticsList), monitoringTaskData.getId(), plotName);
 
         return plotSeriesDtoList;
     }
 
     @Override
     public List<PlotSeriesDto> getPlotData(String sessionId, String plotName) {
-        EntityManager entityManager = EntityManagerProvider.getEntityManagerFactory().createEntityManager();
-
         List<PlotSeriesDto> plotSeriesDtoList;
-        try {
-            DefaultMonitoringParameters[] defaultMonitoringParametersGroup = findDefaultMonitoringParameters(monitoringPlotGroups, plotName);
+        DefaultMonitoringParameters[] defaultMonitoringParametersGroup = findDefaultMonitoringParameters(monitoringPlotGroups, plotName);
 
-            log.debug("For plot {} there are exist {} monitoring parameters", plotName, defaultMonitoringParametersGroup);
+        log.debug("For plot {} there are exist {} monitoring parameters", plotName, defaultMonitoringParametersGroup);
 
-            List<String> monitoringParametersList = new ArrayList<String>();
-            for (DefaultMonitoringParameters defaultMonitoringParameter : defaultMonitoringParametersGroup) {
-                monitoringParametersList.add(defaultMonitoringParameter.getDescription());
+        List<String> monitoringParametersList = new ArrayList<String>();
+        for (DefaultMonitoringParameters defaultMonitoringParameter : defaultMonitoringParametersGroup) {
+            monitoringParametersList.add(defaultMonitoringParameter.getDescription());
+        }
+
+        @SuppressWarnings("unchecked")
+        List<MonitoringStatistics> monitoringStatisticsList = (List<MonitoringStatistics>) entityManager.createQuery(
+                "select ms from MonitoringStatistics as ms where sessionId=:sessionId and ms.parameterId.description in (:descrList) order by ms.taskData.number asc, ms.time asc")
+                .setParameter("sessionId", sessionId)
+                .setParameter("descrList", monitoringParametersList)
+                .getResultList();
+
+        Map<String, Map<String, List<MonitoringStatistics>>> composedMap = composeByBoxIdentifierAndDescription(monitoringStatisticsList);
+        plotSeriesDtoList = new ArrayList<PlotSeriesDto>();
+        for (Map.Entry<String, Map<String, List<MonitoringStatistics>>> entry : composedMap.entrySet()) {
+            List<PlotDatasetDto> plotDatasetDtoList = new ArrayList<PlotDatasetDto>();
+            String boxIdentifier = entry.getKey();
+
+            for (Map.Entry<String, List<MonitoringStatistics>> boxEntry : entry.getValue().entrySet()) {
+                String description = boxEntry.getKey();
+
+                int timeOffset = 0;
+                MonitoringStatistics previous = null;
+                List<PointDto> pointDtoList = new ArrayList<PointDto>();
+                for (MonitoringStatistics monitoringStatistics : boxEntry.getValue()) {
+                    // If task was not first add time offset to time value
+                    if (previous != null && previous.getTime() > monitoringStatistics.getTime()) {
+                        timeOffset += previous.getTime();
+                    }
+
+                    double time = DataProcessingUtil.round((timeOffset + monitoringStatistics.getTime()) / 1000.0D);
+                    double value = DataProcessingUtil.round(monitoringStatistics.getAverageValue());
+
+                    pointDtoList.add(new PointDto(time, value));
+
+                    previous = monitoringStatistics;
+                } //for
+
+                PlotDatasetDto plotDatasetDto = new PlotDatasetDto(pointDtoList, description, ColorCodeGenerator.getHexColorCode());
+                plotDatasetDtoList.add(plotDatasetDto);
             }
-
-            @SuppressWarnings("unchecked")
-            List<MonitoringStatistics> monitoringStatisticsList = (List<MonitoringStatistics>) entityManager.createQuery(
-                    "select ms from MonitoringStatistics as ms where sessionId=:sessionId and ms.parameterId.description in (:descrList) order by ms.taskData.number asc, ms.time asc")
-                    .setParameter("sessionId", sessionId)
-                    .setParameter("descrList", monitoringParametersList)
-                    .getResultList();
-
-            Map<String, Map<String, List<MonitoringStatistics>>> composedMap = composeByBoxIdentifierAndDescription(monitoringStatisticsList);
-            plotSeriesDtoList = new ArrayList<PlotSeriesDto>();
-            for (Map.Entry<String, Map<String, List<MonitoringStatistics>>> entry: composedMap.entrySet()) {
-                List<PlotDatasetDto> plotDatasetDtoList = new ArrayList<PlotDatasetDto>();
-                String boxIdentifier = entry.getKey();
-
-                for (Map.Entry<String, List<MonitoringStatistics>> boxEntry : entry.getValue().entrySet()) {
-                    String description = boxEntry.getKey();
-
-                    int timeOffset = 0;
-                    MonitoringStatistics previous = null;
-                    List<PointDto> pointDtoList = new ArrayList<PointDto>();
-                    for (MonitoringStatistics monitoringStatistics : boxEntry.getValue()) {
-                        // If task was not first add time offset to time value
-                        if (previous != null && previous.getTime() > monitoringStatistics.getTime()) {
-                            timeOffset += previous.getTime();
-                        }
-
-                        double time = DataProcessingUtil.round((timeOffset+monitoringStatistics.getTime())/1000.0D);
-                        double value = DataProcessingUtil.round(monitoringStatistics.getAverageValue());
-
-                        pointDtoList.add(new PointDto(time, value));
-
-                        previous = monitoringStatistics;
-                    } //for
-
-                    PlotDatasetDto plotDatasetDto = new PlotDatasetDto(pointDtoList, description, ColorCodeGenerator.getHexColorCode());
-                    plotDatasetDtoList.add(plotDatasetDto);
-                }
-                plotSeriesDtoList.add(new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", "Session #" + sessionId + " " + plotName + " on " +boxIdentifier));
-            }
-        } finally {
-            entityManager.close();
+            plotSeriesDtoList.add(new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", "Session #" + sessionId + " " + plotName + " on " + boxIdentifier));
         }
 
         return plotSeriesDtoList;
@@ -172,7 +169,7 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
 
     protected List<PlotSeriesDto> assemble(Map<String, Map<String, List<MonitoringStatistics>>> composedMap, long monitoringTaskId, String plotName) {
         List<PlotSeriesDto> plotSeriesDtoList = new ArrayList<PlotSeriesDto>();
-        for (Map.Entry<String, Map<String, List<MonitoringStatistics>>> entry: composedMap.entrySet()) {
+        for (Map.Entry<String, Map<String, List<MonitoringStatistics>>> entry : composedMap.entrySet()) {
             List<PlotDatasetDto> plotDatasetDtoList = new ArrayList<PlotDatasetDto>();
             String boxIdentifier = entry.getKey();
 
@@ -181,7 +178,7 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
 
                 List<PointDto> pointDtoList = new ArrayList<PointDto>();
                 for (MonitoringStatistics monitoringStatistics : boxEntry.getValue()) {
-                    pointDtoList.add(new PointDto(DataProcessingUtil.round(monitoringStatistics.getTime()/1000.0D), DataProcessingUtil.round(monitoringStatistics.getAverageValue())));
+                    pointDtoList.add(new PointDto(DataProcessingUtil.round(monitoringStatistics.getTime() / 1000.0D), DataProcessingUtil.round(monitoringStatistics.getAverageValue())));
                 }
 
                 if (pointDtoList.size() == 1) {
@@ -191,19 +188,19 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
                 PlotDatasetDto plotDatasetDto = new PlotDatasetDto(pointDtoList, description, ColorCodeGenerator.getHexColorCode());
                 plotDatasetDtoList.add(plotDatasetDto);
             }
-            plotSeriesDtoList.add(new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", legendProvider.getPlotHeader(monitoringTaskId, plotName + " on " +boxIdentifier)));
+            plotSeriesDtoList.add(new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", legendProvider.getPlotHeader(monitoringTaskId, plotName + " on " + boxIdentifier)));
         }
 
         return plotSeriesDtoList;
     }
 
     private DefaultMonitoringParameters[] findDefaultMonitoringParameters(Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups, String plotName) {
-        for (Map.Entry<GroupKey, DefaultMonitoringParameters[]> entry: monitoringPlotGroups.entrySet()) {
+        for (Map.Entry<GroupKey, DefaultMonitoringParameters[]> entry : monitoringPlotGroups.entrySet()) {
             if (entry.getKey().getUpperName().equalsIgnoreCase(plotName)) {
                 return entry.getValue();
             }
         }
 
-        throw new IllegalStateException("Appropriate defaultMonitoringParameters array is not found in monitoringPlotGroups for plot name: "+plotName);
+        throw new IllegalStateException("Appropriate defaultMonitoringParameters array is not found in monitoringPlotGroups for plot name: " + plotName);
     }
 }

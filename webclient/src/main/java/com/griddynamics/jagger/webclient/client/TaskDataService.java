@@ -11,7 +11,7 @@ import java.util.List;
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
  * @since 5/30/12
  */
-@RemoteServiceRelativePath("TaskDataService")
+@RemoteServiceRelativePath("rpc/TaskDataService")
 public interface TaskDataService extends RemoteService {
 
     List<TaskDataDto> getTaskDataForSession(String sessionId);

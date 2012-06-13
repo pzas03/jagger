@@ -11,7 +11,7 @@ import java.util.List;
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
  * @since 5/30/12
  */
-@RemoteServiceRelativePath("PlotProviderService")
+@RemoteServiceRelativePath("rpc/PlotProviderService")
 public interface PlotProviderService extends RemoteService {
 
     List<PlotNameDto> getPlotListForTask(String sessionId, long taskId);

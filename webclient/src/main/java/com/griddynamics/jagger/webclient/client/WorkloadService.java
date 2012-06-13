@@ -11,7 +11,7 @@ import java.util.List;
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
  * @since 5/29/12
  */
-@RemoteServiceRelativePath("WorkloadService")
+@RemoteServiceRelativePath("rpc/WorkloadService")
 public interface WorkloadService extends RemoteService {
 
     List<WorkloadDetailsDto> getWorkloadDetailsForSession(List<String> sessionIds);

@@ -6,7 +6,7 @@
 
     <context-param>
         <param-name>contextConfigLocation</param-name>
-        <param-value>classpath:spring/reporting.conf.xml</param-value>
+        <param-value>classpath:spring/persistence.conf.xml, classpath:spring/reporting.conf.xml</param-value>
     </context-param>
     <context-param>
         <param-name>log4jConfigLocation</param-name>
@@ -22,43 +22,13 @@
     </listener>
 
     <servlet>
-        <servlet-name>SessionDataServiceImpl</servlet-name>
-        <servlet-class>com.griddynamics.jagger.webclient.server.SessionDataServiceImpl</servlet-class>
-    </servlet>
-
-    <servlet>
-        <servlet-name>WorkloadServiceImpl</servlet-name>
-        <servlet-class>com.griddynamics.jagger.webclient.server.WorkloadServiceImpl</servlet-class>
-    </servlet>
-
-    <servlet>
-        <servlet-name>TaskDataServiceImpl</servlet-name>
-        <servlet-class>com.griddynamics.jagger.webclient.server.TaskDataServiceImpl</servlet-class>
-    </servlet>
-
-    <servlet>
-        <servlet-name>PlotProviderServiceImpl</servlet-name>
-        <servlet-class>com.griddynamics.jagger.webclient.server.PlotProviderServiceImpl</servlet-class>
+        <servlet-name>gwt</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>SessionDataServiceImpl</servlet-name>
-        <url-pattern>/com.griddynamics.jagger.webclient.JaggerWebClient/SessionDataService</url-pattern>
+        <servlet-name>gwt</servlet-name>
+        <url-pattern>/com.griddynamics.jagger.webclient.JaggerWebClient/rpc/*</url-pattern>
     </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>WorkloadServiceImpl</servlet-name>
-        <url-pattern>/com.griddynamics.jagger.webclient.JaggerWebClient/WorkloadService</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>TaskDataServiceImpl</servlet-name>
-        <url-pattern>/com.griddynamics.jagger.webclient.JaggerWebClient/TaskDataService</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>PlotProviderServiceImpl</servlet-name>
-        <url-pattern>/com.griddynamics.jagger.webclient.JaggerWebClient/PlotProviderService</url-pattern>
-    </servlet-mapping>
-
 </web-app>

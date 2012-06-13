@@ -1,6 +1,5 @@
 package com.griddynamics.jagger.webclient.server;
 
-import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.griddynamics.jagger.engine.e1.aggregator.session.model.SessionData;
 import com.griddynamics.jagger.webclient.client.SessionDataService;
 import com.griddynamics.jagger.webclient.client.dto.PagedSessionDataDto;
@@ -10,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -21,44 +21,46 @@ import java.util.List;
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
  * @since 5/29/12
  */
-public class SessionDataServiceImpl extends RemoteServiceServlet implements SessionDataService {
+public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements SessionDataService {
     private static final Logger log = LoggerFactory.getLogger(SessionDataServiceImpl.class);
     private static final String dateFormat = "yyyy-MM-dd HH:mm:ss";
+
+    private EntityManager entityManager;
+
+    @PersistenceContext
+    public void setEntityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
 
     @Override
     public PagedSessionDataDto getAll(int start, int length) {
         long timestamp = System.currentTimeMillis();
-        EntityManager entityManager = EntityManagerProvider.getEntityManagerFactory().createEntityManager();
         long totalSize;
         List<SessionDataDto> sessionDataDtoList;
-        try {
-            totalSize = (Long) entityManager.createQuery("select count(sessionData.id) from SessionData as sessionData").getSingleResult();
+        totalSize = (Long) entityManager.createQuery("select count(sessionData.id) from SessionData as sessionData").getSingleResult();
 
-            @SuppressWarnings("unchecked")
-            List<SessionData> sessionDataList = (List<SessionData>)
-                    entityManager.createQuery("select sd from SessionData as sd order by sd.startTime asc").setFirstResult(start).setMaxResults(length).getResultList();
+        @SuppressWarnings("unchecked")
+        List<SessionData> sessionDataList = (List<SessionData>)
+                entityManager.createQuery("select sd from SessionData as sd order by sd.startTime asc").setFirstResult(start).setMaxResults(length).getResultList();
 
-            if (sessionDataList == null) {
-                return new PagedSessionDataDto(Collections.<SessionDataDto>emptyList(), 0);
-            }
-
-            sessionDataDtoList = new ArrayList<SessionDataDto>(sessionDataList.size());
-            DateFormat dateFormatter = new SimpleDateFormat(dateFormat);
-            for (SessionData sessionData : sessionDataList) {
-                sessionDataDtoList.add(new SessionDataDto(
-                        sessionData.getSessionId(),
-                        dateFormatter.format(sessionData.getStartTime()),
-                        dateFormatter.format(sessionData.getEndTime()),
-                        sessionData.getActiveKernels(),
-                        sessionData.getTaskExecuted(),
-                        sessionData.getTaskFailed())
-                );
-            }
-
-            log.info("There was loaded {} sessions data from {} for {} ms", new Object[]{sessionDataDtoList.size(), totalSize, System.currentTimeMillis() - timestamp});
-        } finally {
-            entityManager.close();
+        if (sessionDataList == null) {
+            return new PagedSessionDataDto(Collections.<SessionDataDto>emptyList(), 0);
         }
+
+        sessionDataDtoList = new ArrayList<SessionDataDto>(sessionDataList.size());
+        DateFormat dateFormatter = new SimpleDateFormat(dateFormat);
+        for (SessionData sessionData : sessionDataList) {
+            sessionDataDtoList.add(new SessionDataDto(
+                    sessionData.getSessionId(),
+                    dateFormatter.format(sessionData.getStartTime()),
+                    dateFormatter.format(sessionData.getEndTime()),
+                    sessionData.getActiveKernels(),
+                    sessionData.getTaskExecuted(),
+                    sessionData.getTaskFailed())
+            );
+        }
+
+        log.info("There was loaded {} sessions data from {} for {} ms", new Object[]{sessionDataDtoList.size(), totalSize, System.currentTimeMillis() - timestamp});
 
         return new PagedSessionDataDto(sessionDataDtoList, (int) totalSize);
     }
@@ -66,7 +68,6 @@ public class SessionDataServiceImpl extends RemoteServiceServlet implements Sess
     @Override
     public SessionDataDto getBySessionId(String sessionId) {
         long timestamp = System.currentTimeMillis();
-        EntityManager entityManager = EntityManagerProvider.getEntityManagerFactory().createEntityManager();
 
         SessionDataDto sessionDataDto = null;
         try {
@@ -88,8 +89,6 @@ public class SessionDataServiceImpl extends RemoteServiceServlet implements Sess
         } catch (Exception e) {
             log.error("Error was occurred during session data with id=" + sessionId + " loading", e);
             throw new RuntimeException(e);
-        } finally {
-            entityManager.close();
         }
 
         return sessionDataDto;
@@ -98,7 +97,6 @@ public class SessionDataServiceImpl extends RemoteServiceServlet implements Sess
     @Override
     public PagedSessionDataDto getByDatePeriod(int start, int length, Date from, Date to) {
         long timestamp = System.currentTimeMillis();
-        EntityManager entityManager = EntityManagerProvider.getEntityManagerFactory().createEntityManager();
 
         long totalSize;
         List<SessionDataDto> sessionDataDtoList;
@@ -138,8 +136,6 @@ public class SessionDataServiceImpl extends RemoteServiceServlet implements Sess
         } catch (Exception e) {
             log.error("Error was occurred during session data between " + from + " to " + to + "; start " + start + ", length " + length, e);
             throw new RuntimeException(e);
-        } finally {
-            entityManager.close();
         }
 
         return new PagedSessionDataDto(sessionDataDtoList, (int) totalSize);
