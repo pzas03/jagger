@@ -48,6 +48,7 @@
         <property name="workloadPlotGroups" ref="workloadPlotGroups"/>
         <property name="monitoringPlotDataProviders" ref="monitoringPlotDataProviders"/>
         <property name="workloadPlotDataProviders" ref="workloadPlotDataProviders"/>
+        <property name="threshold" value="0.03"/>
     </bean>
 
     <bean id="sessionDataService" class="com.griddynamics.jagger.webclient.server.SessionDataServiceImpl"/>

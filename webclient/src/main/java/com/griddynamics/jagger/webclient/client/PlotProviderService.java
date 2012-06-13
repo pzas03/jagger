@@ -14,7 +14,7 @@ import java.util.List;
 @RemoteServiceRelativePath("rpc/PlotProviderService")
 public interface PlotProviderService extends RemoteService {
 
-    List<PlotNameDto> getPlotListForTask(String sessionId, long taskId);
+    List<PlotNameDto> getTaskScopePlotList(String sessionId, long taskId);
     List<String> getSessionScopePlotList(String sessionId);
     List<PlotSeriesDto> getPlotData(long taskId, String plotType);
     List<PlotSeriesDto> getSessionScopePlotData(String sessionId, String plotType);

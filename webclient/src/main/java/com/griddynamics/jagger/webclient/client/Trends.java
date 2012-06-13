@@ -436,7 +436,7 @@ public class Trends extends Composite {
                             final ListDataProvider<PlotNameDto> plotNameDataProvider = ((WorkloadTaskDetailsTreeViewModel)
                                     taskDetailsTree.getTreeViewModel()).getPlotNameDataProvider(taskDataDto);
 
-                            PlotProviderService.Async.getInstance().getPlotListForTask(selected.getSessionId(), taskDataDto.getId(), new AsyncCallback<List<PlotNameDto>>() {
+                            PlotProviderService.Async.getInstance().getTaskScopePlotList(selected.getSessionId(), taskDataDto.getId(), new AsyncCallback<List<PlotNameDto>>() {
                                 @Override
                                 public void onFailure(Throwable caught) {
                                     Window.alert("Error is occurred during server request processing (Plot names for task fetching)");

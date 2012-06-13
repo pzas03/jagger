@@ -35,6 +35,9 @@ public class PlotProviderServiceImpl implements PlotProviderService {
     private Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups;
     private Map<String, PlotDataProvider> workloadPlotDataProviders;
     private Map<String, PlotDataProvider> monitoringPlotDataProviders;
+    private double threshold;
+
+    //==========Setters
 
     @Required
     public void setCompressingProcessor(DataPointCompressingProcessor compressingProcessor) {
@@ -61,13 +64,20 @@ public class PlotProviderServiceImpl implements PlotProviderService {
         this.monitoringPlotDataProviders = monitoringPlotDataProviders;
     }
 
+    @Required
+    public void setThreshold(double threshold) {
+        this.threshold = threshold;
+    }
+
     @PersistenceContext
     public void setEntityManager(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
+    //===========Contract Methods
+
     @Override
-    public List<PlotNameDto> getPlotListForTask(String sessionId, long taskId) {
+    public List<PlotNameDto> getTaskScopePlotList(String sessionId, long taskId) {
         List<PlotNameDto> plotNameDtoList = null;
         try {
             plotNameDtoList = new ArrayList<PlotNameDto>();
@@ -130,7 +140,7 @@ public class PlotProviderServiceImpl implements PlotProviderService {
         List<PlotSeriesDto> plotSeriesDto = null;
         try {
             plotSeriesDto = plotDataProvider.getPlotData(taskId, plotName);
-            log.info("getPlotData(): {}", getFormattedLogMessage(plotSeriesDto, "" + taskId, plotName));
+            log.info("getPlotData(): {}", getFormattedLogMessage(plotSeriesDto, "" + taskId, plotName, System.currentTimeMillis() - timestamp));
         } catch (Exception e) {
             log.error("Error is occurred during plot data loading for taskId=" + taskId + ", plotName=" + plotName, e);
             throw new RuntimeException(e);
@@ -150,27 +160,27 @@ public class PlotProviderServiceImpl implements PlotProviderService {
             throw new UnsupportedOperationException("Plot type " + plotName + " doesn't supported");
         }
 
-        List<PlotSeriesDto> plotSeriesDto = null;
+        List<PlotSeriesDto> plotSeriesDtoList = null;
         try {
-            plotSeriesDto = plotDataProvider.getPlotData(sessionId, plotName);
-            log.info("getSessionScopePlotData(): {}", getFormattedLogMessage(plotSeriesDto, sessionId, plotName));
-            for (PlotSeriesDto plotSeriesDto1 : plotSeriesDto) {
-                for (PlotDatasetDto plotDatasetDto : plotSeriesDto1.getPlotSeries()) {
-                    List<PointDto> pointDtoList = compressingProcessor.process(plotDatasetDto.getPlotData(), 0.03);
+            plotSeriesDtoList = plotDataProvider.getPlotData(sessionId, plotName);
+            log.info("getSessionScopePlotData(): {}", getFormattedLogMessage(plotSeriesDtoList, sessionId, plotName, System.currentTimeMillis() - timestamp));
+            for (PlotSeriesDto plotSeriesDto : plotSeriesDtoList) {
+                for (PlotDatasetDto plotDatasetDto : plotSeriesDto.getPlotSeries()) {
+                    List<PointDto> pointDtoList = compressingProcessor.process(plotDatasetDto.getPlotData(), threshold);
                     plotDatasetDto.getPlotData().clear();
                     plotDatasetDto.getPlotData().addAll(pointDtoList);
                 }
             }
-            log.info("getSessionScopePlotData() after compressing: {}", getFormattedLogMessage(plotSeriesDto, sessionId, plotName));
+            log.info("getSessionScopePlotData() after compressing: {}", getFormattedLogMessage(plotSeriesDtoList, sessionId, plotName, System.currentTimeMillis() - timestamp));
         } catch (Exception e) {
             log.error("Error is occurred during plot data loading for sessionId=" + sessionId + ", plotName=" + plotName, e);
             throw new RuntimeException(e);
         }
 
-        return plotSeriesDto;
+        return plotSeriesDtoList;
     }
 
-    private String getFormattedLogMessage(List<PlotSeriesDto> plotSeriesDto, String id, String plotName) {
+    private String getFormattedLogMessage(List<PlotSeriesDto> plotSeriesDto, String id, String plotName, long millis) {
         StringBuilder logBuilder = new StringBuilder();
         logBuilder.append("For id=")
                 .append(id)
@@ -192,6 +202,7 @@ public class PlotProviderServiceImpl implements PlotProviderService {
                         .append(" fetched data points], ");
             }
             logBuilder.append("} //Summary: ").append(summaryPointsCount).append(" points;");
+            logBuilder.append("\nExecuted for ").append(millis).append(" ms");
         }
 
         return logBuilder.toString();
