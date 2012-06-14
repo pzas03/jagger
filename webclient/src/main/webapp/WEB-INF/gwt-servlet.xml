@@ -40,7 +40,10 @@
         </property>
     </bean>
 
-    <bean id="dataPointCompressingProcessor" class="com.griddynamics.jagger.webclient.server.plot.DataPointCompressingProcessor"/>
+    <bean id="dataPointCompressingProcessor" class="com.griddynamics.jagger.webclient.server.plot.DataPointCompressingProcessor">
+        <constructor-arg index="0" value="0.03"/>
+        <constructor-arg index="1" value="100"/>
+    </bean>
 
     <bean id="plotProviderService" class="com.griddynamics.jagger.webclient.server.PlotProviderServiceImpl">
         <property name="compressingProcessor" ref="dataPointCompressingProcessor"/>
@@ -48,7 +51,6 @@
         <property name="workloadPlotGroups" ref="workloadPlotGroups"/>
         <property name="monitoringPlotDataProviders" ref="monitoringPlotDataProviders"/>
         <property name="workloadPlotDataProviders" ref="workloadPlotDataProviders"/>
-        <property name="threshold" value="0.03"/>
     </bean>
 
     <bean id="sessionDataService" class="com.griddynamics.jagger.webclient.server.SessionDataServiceImpl"/>
@@ -84,6 +86,7 @@
     <bean id="monitoringPlotDataProvider" class="com.griddynamics.jagger.webclient.server.plot.MonitoringPlotDataProvider">
         <constructor-arg index="0" ref="monitoringPlotGroups"/>
         <property name="legendProvider" ref="legendProvider"/>
+        <property name="renderTaskBoundaries" value="true"/>
     </bean>
 
     <bean id="monitoringPlotDataProviders" class="java.util.LinkedHashMap">

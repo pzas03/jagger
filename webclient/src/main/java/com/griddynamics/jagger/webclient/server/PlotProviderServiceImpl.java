@@ -35,7 +35,6 @@ public class PlotProviderServiceImpl implements PlotProviderService {
     private Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups;
     private Map<String, PlotDataProvider> workloadPlotDataProviders;
     private Map<String, PlotDataProvider> monitoringPlotDataProviders;
-    private double threshold;
 
     //==========Setters
 
@@ -62,11 +61,6 @@ public class PlotProviderServiceImpl implements PlotProviderService {
     @Required
     public void setMonitoringPlotDataProviders(Map<String, PlotDataProvider> monitoringPlotDataProviders) {
         this.monitoringPlotDataProviders = monitoringPlotDataProviders;
-    }
-
-    @Required
-    public void setThreshold(double threshold) {
-        this.threshold = threshold;
     }
 
     @PersistenceContext
@@ -166,7 +160,7 @@ public class PlotProviderServiceImpl implements PlotProviderService {
             log.info("getSessionScopePlotData(): {}", getFormattedLogMessage(plotSeriesDtoList, sessionId, plotName, System.currentTimeMillis() - timestamp));
             for (PlotSeriesDto plotSeriesDto : plotSeriesDtoList) {
                 for (PlotDatasetDto plotDatasetDto : plotSeriesDto.getPlotSeries()) {
-                    List<PointDto> pointDtoList = compressingProcessor.process(plotDatasetDto.getPlotData(), threshold);
+                    List<PointDto> pointDtoList = compressingProcessor.process(plotDatasetDto.getPlotData());
                     plotDatasetDto.getPlotData().clear();
                     plotDatasetDto.getPlotData().addAll(pointDtoList);
                 }

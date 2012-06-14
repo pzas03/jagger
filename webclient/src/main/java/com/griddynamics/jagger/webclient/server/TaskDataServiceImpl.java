@@ -34,7 +34,7 @@ public class TaskDataServiceImpl /*extends RemoteServiceServlet*/ implements Tas
 
         @SuppressWarnings("unchecked")
         List<TaskData> taskDataList = (List<TaskData>) entityManager.createQuery(
-                "select td from TaskData as td where td.sessionId=:sessionId and td.taskId in (select wd.taskId from WorkloadData as wd where wd.sessionId=:sessionId)")
+                "select td from TaskData as td where td.sessionId=:sessionId and td.taskId in (select wd.taskId from WorkloadData as wd where wd.sessionId=:sessionId) order by td.number asc")
                 .setParameter("sessionId", sessionId).getResultList();
 
         if (taskDataList == null) {

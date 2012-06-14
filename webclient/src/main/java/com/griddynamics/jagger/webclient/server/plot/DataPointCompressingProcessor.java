@@ -12,20 +12,29 @@ import java.util.*;
  * @since 6/6/12
  */
 public class DataPointCompressingProcessor {
+    private final double relativeThreshold;
+    private final int minCountToProcess;
+
+    /**
+     * Constructor
+     *
+     * @param relativeThreshold threshold expressed in percents divided by 100
+     * @param minCountToProcess min list size for processing
+     */
+    public DataPointCompressingProcessor(double relativeThreshold, int minCountToProcess) {
+        this.relativeThreshold = relativeThreshold;
+        this.minCountToProcess = minCountToProcess;
+    }
 
     /**
      * Clear collection from waste data which not pass through threshold
      *
      * @param source            collection for processing
-     * @param relativeThreshold threshold expressed in percents divided by 100
      * @return compressed collection
      */
-    public List<PointDto> process(List<PointDto> source, double relativeThreshold) {
-        if (source.size() < 3) {
-            List<PointDto> list = new ArrayList<PointDto>();
-            Collections.copy(list, source);
-
-            return list;
+    public List<PointDto> process(List<PointDto> source) {
+        if (source.size() < minCountToProcess) {
+            return new ArrayList<PointDto>(source);
         }
 
         // Sort by X axis values asc
