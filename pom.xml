@@ -77,6 +77,14 @@
             </snapshots>
             <url>https://server.oosnmp.net/dist/release/</url>
         </repository>
+        <repository>
+            <id>gflot</id>
+            <name>Code Monkey</name>
+            <url>http://codemonkey.dumontierlab.com/maven/repo/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
     </repositories>
 
     <distributionManagement>

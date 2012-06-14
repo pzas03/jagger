@@ -45,3 +45,16 @@ body {
     padding: 0;
     margin: 0;
 }
+
+.zoom-label {
+    font-size: smaller;
+    color: #999;
+    background-color: #eee;
+    padding: .1em .5em;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.zoom-panel {
+    text-align: right;
+}

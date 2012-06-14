@@ -144,7 +144,7 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
                     pointDtoList.add(new PointDto(duration, 0));
                     pointDtoList.add(new PointDto(duration, maxValue));
 
-                    PlotDatasetDto plotDatasetDto = new PlotDatasetDto(pointDtoList, "", "#dddddd");
+                    PlotDatasetDto plotDatasetDto = new PlotDatasetDto(pointDtoList, "", "#a4a4a4");
                     plotDatasetDtoList.add(plotDatasetDto);
                 }
             }

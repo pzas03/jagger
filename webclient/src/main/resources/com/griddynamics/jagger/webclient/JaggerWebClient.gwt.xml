@@ -7,6 +7,9 @@
     <inherits name="ca.nanometrics.gflot.GFlot"/>
     <inherits name="com.google.gwt.resources.Resources" />
 
+    <set-property name="gflot.load.flot.text" value="ENABLED" />
+    <set-property name="gflot.load.canvas2image" value="ENABLED" />
+
     <entry-point class='com.griddynamics.jagger.webclient.client.JaggerWebClient'/>
 
 </module>

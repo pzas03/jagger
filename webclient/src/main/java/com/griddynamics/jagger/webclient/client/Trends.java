@@ -1,9 +1,6 @@
 package com.griddynamics.jagger.webclient.client;
 
-import ca.nanometrics.gflot.client.DataPoint;
-import ca.nanometrics.gflot.client.PlotModel;
-import ca.nanometrics.gflot.client.SeriesHandler;
-import ca.nanometrics.gflot.client.SimplePlot;
+import ca.nanometrics.gflot.client.*;
 import ca.nanometrics.gflot.client.event.PlotHoverListener;
 import ca.nanometrics.gflot.client.event.PlotItem;
 import ca.nanometrics.gflot.client.event.PlotPosition;
@@ -99,6 +96,11 @@ public class Trends extends Composite {
         plotOptions.setGlobalSeriesOptions(new GlobalSeriesOptions()
                 .setLineSeriesOptions(new LineSeriesOptions().setLineWidth(1).setShow(true).setFill(0.1))
                 .setPointsOptions(new PointsSeriesOptions().setRadius(1).setShow(true)).setShadowSize(0d));
+
+        plotOptions.setPanOptions(new PanOptions().setInteractive(true));
+
+        plotOptions.addXAxisOptions(new AxisOptions().setZoomRange(true));
+        plotOptions.addYAxisOptions(new AxisOptions().setZoomRange(true));
 
         // Make the grid hoverable
         plotOptions.setGridOptions(new GridOptions().setHoverable(true));
@@ -320,14 +322,15 @@ public class Trends extends Composite {
     }
 
     private void renderPlots(List<PlotSeriesDto> plotSeriesDtoList, String id) {
-        SimplePlot plot = null;
+        SimplePlot redrawingPlot = null;
 
         VerticalPanel plotGroupPanel = new VerticalPanel();
         plotGroupPanel.setWidth("100%");
         plotGroupPanel.getElement().setId(id);
 
         for (PlotSeriesDto plotSeriesDto : plotSeriesDtoList) {
-            plot = createPlot();
+            final SimplePlot plot = createPlot();
+            redrawingPlot = plot;
             PlotModel plotModel = plot.getModel();
 
             for (PlotDatasetDto plotDatasetDto : plotSeriesDto.getPlotSeries()) {
@@ -352,7 +355,31 @@ public class Trends extends Composite {
             VerticalPanel vp = new VerticalPanel();
             vp.setWidth("100%");
 
+            Label zoomInLabel = new Label("Zoom In");
+            zoomInLabel.addStyleName("zoom-label");
+            zoomInLabel.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    plot.zoom();
+                }
+            });
+
+            Label zoomOutLabel = new Label("Zoom Out");
+            zoomOutLabel.addStyleName("zoom-label");
+            zoomOutLabel.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    plot.zoomOut();
+                }
+            });
+
+            FlowPanel zoomPanel = new FlowPanel();
+            zoomPanel.addStyleName("zoom-panel");
+            zoomPanel.add(zoomInLabel);
+            zoomPanel.add(zoomOutLabel);
+
             vp.add(plotHeader);
+            vp.add(zoomPanel);
             vp.add(plot);
             vp.add(xLabel);
             // Will be added if there is need it
@@ -365,7 +392,7 @@ public class Trends extends Composite {
         plotPanel.add(plotGroupPanel);
 
         // Redraw plot
-        plot.redraw();
+        redrawingPlot.redraw();
     }
 
     //=================================//
