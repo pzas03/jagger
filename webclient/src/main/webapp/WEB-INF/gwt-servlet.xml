@@ -28,6 +28,7 @@
        http://www.springframework.org/schema/context/spring-context.xsd">
 
     <context:annotation-config/>
+    <context:property-placeholder location="classpath:webclient.properties"/>
 
     <bean class="org.gwtwidgets.server.spring.GWTHandler">
         <property name="mappings">
@@ -41,8 +42,8 @@
     </bean>
 
     <bean id="dataPointCompressingProcessor" class="com.griddynamics.jagger.webclient.server.plot.DataPointCompressingProcessor">
-        <constructor-arg index="0" value="0.03"/>
-        <constructor-arg index="1" value="100"/>
+        <constructor-arg index="0" value="${plot.data.compressing.threshold}"/>
+        <constructor-arg index="1" value="${plot.data.compressing.minCountForProcessing}"/>
     </bean>
 
     <bean id="plotProviderService" class="com.griddynamics.jagger.webclient.server.PlotProviderServiceImpl">
@@ -86,7 +87,7 @@
     <bean id="monitoringPlotDataProvider" class="com.griddynamics.jagger.webclient.server.plot.MonitoringPlotDataProvider">
         <constructor-arg index="0" ref="monitoringPlotGroups"/>
         <property name="legendProvider" ref="legendProvider"/>
-        <property name="renderTaskBoundaries" value="true"/>
+        <property name="renderTaskBoundaries" value="${plot.rendering.taskBoundariesEnabled}"/>
     </bean>
 
     <bean id="monitoringPlotDataProviders" class="java.util.LinkedHashMap">

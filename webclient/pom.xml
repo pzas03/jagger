@@ -115,23 +115,18 @@
         <!--Hibernate-->
         <dependency>
             <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-c3p0</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.hibernate</groupId>
-                    <artifactId>hibernate-core</artifactId>
-                </exclusion>
-            </exclusions>
+            <artifactId>hibernate-entitymanager</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-entitymanager</artifactId>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>dbcp</artifactId>
         </dependency>
 
         <!--JDBC MySQL-->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
+            <scope>runtime</scope>
         </dependency>
 
         <!--GridDynamics Jagger-->
@@ -194,6 +189,10 @@
                 <exclusion>
                     <groupId>org.springframework</groupId>
                     <artifactId>spring-orm</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.simpleframework</groupId>
+                    <artifactId>simple-xml</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

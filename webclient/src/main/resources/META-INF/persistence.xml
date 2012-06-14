@@ -20,21 +20,9 @@
         <validation-mode>NONE</validation-mode>
 
         <properties>
-            <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
-            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/testdataNew"/>
-            <property name="javax.persistence.jdbc.user" value="breeze"/>
-            <property name="javax.persistence.jdbc.password" value="breeze"/>
-
-            <property name="connection.provider_class" value="org.hibernate.connection.C3P0ConnectionProvider"/>
             <property name="dialect" value="org.hibernate.dialect.MySQL5InnoDBDialect"/>
             <property name="hbm2ddl.auto" value="validate"/>
             <property name="jdbc.batch_size" value="10"/>
-            <property name="c3p0.min_size" value="10"/>
-            <property name="c3p0.max_size" value="25"/>
-            <property name="c3p0.acquire_increment" value="5"/>
-            <property name="c3p0.timeout" value="3600"/>
-            <property name="c3p0.max_statements" value="50"/>
-            <property name="c3p0.idle_test_period" value="6000"/>
         </properties>
     </persistence-unit>
 </persistence>
