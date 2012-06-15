@@ -438,6 +438,33 @@ public class Trends extends Composite {
 
                 final SessionDataDto selectedSession = selected.iterator().next();
 
+                // Populate session scope plot list
+                PlotProviderService.Async.getInstance().getSessionScopePlotList(selectedSession.getSessionId(), new AsyncCallback<List<String>>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        Window.alert("Error is occurred during server request processing (Session scope plot names for task fetching)");
+                    }
+
+                    @Override
+                    public void onSuccess(List<String> result) {
+                        // Populate session scope available plots
+                        sessionScopePlotList.clear();
+                        for (String plotName : result) {
+                            CheckBox checkBox = new CheckBox(plotName);
+
+                            // If plot for this one is already rendered we check it
+                            if (plotPanel.getElementById(generateSessionScopePlotId(selectedSession.getSessionId(), plotName)) != null) {
+                                checkBox.setValue(true, false);
+                            }
+                            checkBox.getElement().setId(generateSessionScopePlotId(selectedSession.getSessionId(), plotName)+"_checkbox");
+                            checkBox.addClickHandler(sessionScopePlotCheckBoxClickHandler);
+                            sessionScopePlotList.add(checkBox);
+                        }
+                    }
+                });
+
+                // TODO Make lazy loading by task selected
+                // Populate task scope session list
                 TaskDataService.Async.getInstance().getTaskDataForSession(selectedSession.getSessionId(), new AsyncCallback<List<TaskDataDto>>() {
                     @Override
                     public void onFailure(Throwable caught) {
@@ -446,30 +473,6 @@ public class Trends extends Composite {
 
                     @Override
                     public void onSuccess(List<TaskDataDto> result) {
-                        PlotProviderService.Async.getInstance().getSessionScopePlotList(selectedSession.getSessionId(), new AsyncCallback<List<String>>() {
-                            @Override
-                            public void onFailure(Throwable caught) {
-                                Window.alert("Error is occurred during server request processing (Session scope plot names for task fetching)");
-                            }
-
-                            @Override
-                            public void onSuccess(List<String> result) {
-                                // Populate session scope available plots
-                                sessionScopePlotList.clear();
-                                for (String plotName : result) {
-                                    CheckBox checkBox = new CheckBox(plotName);
-
-                                    // If plot for this one is already rendered we check it
-                                    if (plotPanel.getElementById(generateSessionScopePlotId(selectedSession.getSessionId(), plotName)) != null) {
-                                        checkBox.setValue(true, false);
-                                    }
-                                    checkBox.getElement().setId(generateSessionScopePlotId(selectedSession.getSessionId(), plotName)+"_checkbox");
-                                    checkBox.addClickHandler(sessionScopePlotCheckBoxClickHandler);
-                                    sessionScopePlotList.add(checkBox);
-                                }
-                            }
-                        });
-
                         // Populate task first level tree with server data
                         taskDataProvider.getList().clear();
                         if (result.isEmpty()) {
