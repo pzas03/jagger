@@ -137,7 +137,7 @@ public class Trends extends Composite {
         sessionsDataGrid.setEmptyTableWidget(new Label("No Sessions"));
 
         // Add a selection model so we can select cells.
-        final SelectionModel<SessionDataDto> selectionModel = new SingleSelectionModel<SessionDataDto>(new ProvidesKey<SessionDataDto>() {
+        final SelectionModel<SessionDataDto> selectionModel = new MultiSelectionModel<SessionDataDto>(new ProvidesKey<SessionDataDto>() {
             @Override
             public Object getKey(SessionDataDto item) {
                 return item.getSessionId();
@@ -392,7 +392,9 @@ public class Trends extends Composite {
         plotPanel.add(plotGroupPanel);
 
         // Redraw plot
-        redrawingPlot.redraw();
+        if (redrawingPlot != null) {
+            redrawingPlot.redraw();
+        }
     }
 
     //=================================//
@@ -412,12 +414,31 @@ public class Trends extends Composite {
         @Override
         public void onSelectionChange(SelectionChangeEvent event) {
             // Currently selection model for sessions is a single selection model
-            final SessionDataDto selected = ((SingleSelectionModel<SessionDataDto>) event.getSource()).getSelectedObject();
+            final Set<SessionDataDto> selected = ((MultiSelectionModel<SessionDataDto>) event.getSource()).getSelectedSet();
 
             final WorkloadTaskDetailsTreeViewModel workloadTaskDetailsTreeViewModel = (WorkloadTaskDetailsTreeViewModel) taskDetailsTree.getTreeViewModel();
             final ListDataProvider<TaskDataDto> taskDataProvider = workloadTaskDetailsTreeViewModel.getTaskDataProvider();
-            if (selected != null) {
-                TaskDataService.Async.getInstance().getTaskDataForSession(selected.getSessionId(), new AsyncCallback<List<TaskDataDto>>() {
+            final MultiSelectionModel<PlotNameDto> plotNameSelectionModel = workloadTaskDetailsTreeViewModel.getSelectionModel();
+
+            if (selected.isEmpty()) {
+                // If no sessions are selected, clear plot display, clear task tree, clear plot selection model
+                plotPanel.clear();
+                taskDataProvider.getList().clear();
+                taskDataProvider.getList().add(WorkloadTaskDetailsTreeViewModel.getNoTasksDummyNode());
+
+                plotNameSelectionModel.clear();
+
+                // Clear session scope plot list
+                sessionScopePlotList.clear();
+            } else if (selected.size() == 1) {
+                // If selected single session clear plot display, clear plot selection and fetch all data for given session
+
+                plotPanel.clear();
+                plotNameSelectionModel.clear();
+
+                final SessionDataDto selectedSession = selected.iterator().next();
+
+                TaskDataService.Async.getInstance().getTaskDataForSession(selectedSession.getSessionId(), new AsyncCallback<List<TaskDataDto>>() {
                     @Override
                     public void onFailure(Throwable caught) {
                         Window.alert("Error is occurred during server request processing (Task data fetching)");
@@ -425,7 +446,7 @@ public class Trends extends Composite {
 
                     @Override
                     public void onSuccess(List<TaskDataDto> result) {
-                        PlotProviderService.Async.getInstance().getSessionScopePlotList(selected.getSessionId(), new AsyncCallback<List<String>>() {
+                        PlotProviderService.Async.getInstance().getSessionScopePlotList(selectedSession.getSessionId(), new AsyncCallback<List<String>>() {
                             @Override
                             public void onFailure(Throwable caught) {
                                 Window.alert("Error is occurred during server request processing (Session scope plot names for task fetching)");
@@ -439,10 +460,10 @@ public class Trends extends Composite {
                                     CheckBox checkBox = new CheckBox(plotName);
 
                                     // If plot for this one is already rendered we check it
-                                    if (plotPanel.getElementById(generateSessionScopePlotId(selected.getSessionId(), plotName)) != null) {
+                                    if (plotPanel.getElementById(generateSessionScopePlotId(selectedSession.getSessionId(), plotName)) != null) {
                                         checkBox.setValue(true, false);
                                     }
-                                    checkBox.getElement().setId(generateSessionScopePlotId(selected.getSessionId(), plotName)+"_checkbox");
+                                    checkBox.getElement().setId(generateSessionScopePlotId(selectedSession.getSessionId(), plotName)+"_checkbox");
                                     checkBox.addClickHandler(sessionScopePlotCheckBoxClickHandler);
                                     sessionScopePlotList.add(checkBox);
                                 }
@@ -463,7 +484,7 @@ public class Trends extends Composite {
                             final ListDataProvider<PlotNameDto> plotNameDataProvider = ((WorkloadTaskDetailsTreeViewModel)
                                     taskDetailsTree.getTreeViewModel()).getPlotNameDataProvider(taskDataDto);
 
-                            PlotProviderService.Async.getInstance().getTaskScopePlotList(selected.getSessionId(), taskDataDto.getId(), new AsyncCallback<List<PlotNameDto>>() {
+                            PlotProviderService.Async.getInstance().getTaskScopePlotList(selectedSession.getSessionId(), taskDataDto.getId(), new AsyncCallback<List<PlotNameDto>>() {
                                 @Override
                                 public void onFailure(Throwable caught) {
                                     Window.alert("Error is occurred during server request processing (Plot names for task fetching)");
@@ -485,16 +506,15 @@ public class Trends extends Composite {
                     }
                 });
             } else {
-                // If no sessions are selected, clear plot display, clear task tree, clear plot selection model
+                // If selected several sessions
+
                 plotPanel.clear();
+                plotNameSelectionModel.clear();
+                sessionScopePlotList.clear();
+
+                //TODO: remove it
                 taskDataProvider.getList().clear();
                 taskDataProvider.getList().add(WorkloadTaskDetailsTreeViewModel.getNoTasksDummyNode());
-
-                final MultiSelectionModel<PlotNameDto> plotNameSelectionModel = (MultiSelectionModel<PlotNameDto>) workloadTaskDetailsTreeViewModel.getSelectionModel();
-                plotNameSelectionModel.clear();
-
-                // Clear session scope plot list
-                sessionScopePlotList.clear();
             }
         }
     }

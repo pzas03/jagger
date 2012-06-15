@@ -3,10 +3,7 @@ package com.griddynamics.jagger.webclient.client;
 import com.google.gwt.cell.client.*;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.view.client.DefaultSelectionEventManager;
-import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.SelectionModel;
-import com.google.gwt.view.client.TreeViewModel;
+import com.google.gwt.view.client.*;
 import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 
@@ -19,7 +16,7 @@ import java.util.*;
 public class WorkloadTaskDetailsTreeViewModel implements TreeViewModel {
 
     private ListDataProvider<TaskDataDto> taskDataProvider = new ListDataProvider<TaskDataDto>();
-    private final SelectionModel<PlotNameDto> selectionModel;
+    private final MultiSelectionModel<PlotNameDto> selectionModel;
     private final Cell<PlotNameDto> plotNameCell;
     private final Map<TaskDataDto, ListDataProvider<PlotNameDto>> plotNameDataProviders = new HashMap<TaskDataDto, ListDataProvider<PlotNameDto>>();
     private final DefaultSelectionEventManager<PlotNameDto> selectionManager =
@@ -29,7 +26,7 @@ public class WorkloadTaskDetailsTreeViewModel implements TreeViewModel {
 
     //==========Constructors
 
-    public WorkloadTaskDetailsTreeViewModel(final SelectionModel<PlotNameDto> selectionModel) {
+    public WorkloadTaskDetailsTreeViewModel(final MultiSelectionModel<PlotNameDto> selectionModel) {
         this.selectionModel = selectionModel;
         taskDataProvider.getList().add(noTasksDummyNode);
 
@@ -151,7 +148,7 @@ public class WorkloadTaskDetailsTreeViewModel implements TreeViewModel {
         return noTasksDummyNode;
     }
 
-    public SelectionModel<PlotNameDto> getSelectionModel() {
+    public MultiSelectionModel<PlotNameDto> getSelectionModel() {
         return selectionModel;
     }
 
