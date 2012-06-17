@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>jagger-test</artifactId>
-    <name>jagger-test</name>
+    <name>${groupId}.${artifactId}</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
