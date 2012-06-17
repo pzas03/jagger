@@ -26,7 +26,6 @@
             <includes>
                 <include>com.griddynamics.jagger:jagger-distribution:zip:full</include>
             </includes>
-            <!-- TODO: it seems we can exclude profiles -->
             <unpack>true</unpack>
         </dependencySet>
         <dependencySet>

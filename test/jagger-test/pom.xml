@@ -22,9 +22,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>com.griddynamics.jagger</groupId>
+        <artifactId>parent</artifactId>
+        <version>1.1.1-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
     <groupId>com.griddynamics.jagger</groupId>
     <artifactId>jagger-test</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.1.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>jagger-test</name>
@@ -33,18 +40,24 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <targetJdkVersion>1.6</targetJdkVersion>
         <targetJdk>${JAVA_HOME}</targetJdk>
-
-        <snapshotDistributionLocation>http://black.calf.lupus.griddynamics.net:8081/nexus/content/repositories/snapshots
-        </snapshotDistributionLocation>
-        <releaseDistributionLocation>http://black.calf.lupus.griddynamics.net:8081/nexus/content/repositories/releases
-        </releaseDistributionLocation>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.griddynamics.jagger</groupId>
             <artifactId>chassis.core</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.griddynamics.jagger</groupId>
+            <artifactId>chassis.invokers</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.griddynamics.jagger</groupId>
+            <artifactId>jagger-distribution</artifactId>
+            <type>zip</type>
+            <classifier>full</classifier>
+            <version>${version}</version>
         </dependency>
     </dependencies>
 
@@ -52,16 +65,22 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.0.2</version>
+                <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
-                    <target>${targetJdkVersion}</target>
-                    <source>${targetJdkVersion}</source>
-                    <fork>true</fork>
-                    <executable>${targetJdk}/bin/javac</executable>
+                    <descriptors>
+                        <descriptor>assembly-config.xml</descriptor>
+                    </descriptors>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>full</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
-
 </project>

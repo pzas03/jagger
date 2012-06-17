@@ -44,6 +44,7 @@
         <module>chassis/</module>
         <module>distribution</module>
         <module>facade</module>
+        <module>test/jagger-test</module>
     </modules>
 
     <scm>
