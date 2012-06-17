@@ -25,15 +25,11 @@
     <parent>
         <groupId>com.griddynamics.jagger</groupId>
         <artifactId>parent</artifactId>
-        <version>1.1.1-SNAPSHOT</version>
+        <version>1.1.3-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <groupId>com.griddynamics.jagger</groupId>
     <artifactId>jagger-test</artifactId>
-    <version>1.1.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
-
     <name>jagger-test</name>
 
     <properties>
