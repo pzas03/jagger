@@ -6,7 +6,7 @@ package com.griddynamics.jagger.webclient.server;
  */
 public enum DefaultWorkloadParameters {
     LATENCY("Latency, sec", false),
-    LATENCY_STD_DEV("Latency std deviation, sec", false),
+    LATENCY_STD_DEV("Latency std dev, sec", false),
     THROUGHPUT("Throughput, tps", false),
     TIME_LATENCY_PERCENTILE_40("40.0", true),
     TIME_LATENCY_PERCENTILE_50("50.0", true),

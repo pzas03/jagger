@@ -3,10 +3,7 @@ package com.griddynamics.jagger.webclient.server;
 import com.griddynamics.jagger.agent.model.DefaultMonitoringParameters;
 import com.griddynamics.jagger.monitoring.reporting.GroupKey;
 import com.griddynamics.jagger.webclient.client.PlotProviderService;
-import com.griddynamics.jagger.webclient.client.dto.PlotDatasetDto;
-import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
-import com.griddynamics.jagger.webclient.client.dto.PlotSeriesDto;
-import com.griddynamics.jagger.webclient.client.dto.PointDto;
+import com.griddynamics.jagger.webclient.client.dto.*;
 import com.griddynamics.jagger.webclient.server.plot.DataPointCompressingProcessor;
 import com.griddynamics.jagger.webclient.server.plot.PlotDataProvider;
 import com.griddynamics.jagger.webclient.server.plot.SessionScopePlotDataProvider;
@@ -16,10 +13,7 @@ import org.springframework.beans.factory.annotation.Required;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
@@ -68,23 +62,25 @@ public class PlotProviderServiceImpl implements PlotProviderService {
         this.entityManager = entityManager;
     }
 
+    //===========================
     //===========Contract Methods
+    //===========================
 
     @Override
-    public List<PlotNameDto> getTaskScopePlotList(String sessionId, long taskId) {
-        List<PlotNameDto> plotNameDtoList = null;
+    public Set<PlotNameDto> getTaskScopePlotList(String sessionId, long taskId) {
+        Set<PlotNameDto> plotNameDtoSet = null;
         try {
-            plotNameDtoList = new ArrayList<PlotNameDto>();
+            plotNameDtoSet = new LinkedHashSet<PlotNameDto>();
 
             if (isWorkloadStatisticsAvailable(taskId)) {
                 for (Map.Entry<GroupKey, DefaultWorkloadParameters[]> monitoringPlot : workloadPlotGroups.entrySet()) {
-                    plotNameDtoList.add(new PlotNameDto(taskId, monitoringPlot.getKey().getUpperName()));
+                    plotNameDtoSet.add(new PlotNameDto(taskId, monitoringPlot.getKey().getUpperName()));
                 }
             }
 
             if (isMonitoringStatisticsAvailable(sessionId)) {
                 for (Map.Entry<GroupKey, DefaultMonitoringParameters[]> monitoringPlot : monitoringPlotGroups.entrySet()) {
-                    plotNameDtoList.add(new PlotNameDto(taskId, monitoringPlot.getKey().getUpperName()));
+                    plotNameDtoSet.add(new PlotNameDto(taskId, monitoringPlot.getKey().getUpperName()));
                 }
             }
         } catch (Exception e) {
@@ -92,28 +88,28 @@ public class PlotProviderServiceImpl implements PlotProviderService {
             throw new RuntimeException(e);
         }
 
-        return plotNameDtoList;
+        return plotNameDtoSet;
     }
 
     @Override
-    public List<String> getSessionScopePlotList(String sessionId) {
-        List<String> plotNameDtoList = null;
+    public Set<String> getSessionScopePlotList(String sessionId) {
+        Set<String> plotNameDtoSet = null;
         try {
             if (!isMonitoringStatisticsAvailable(sessionId)) {
-                return Collections.emptyList();
+                return Collections.emptySet();
             }
 
-            plotNameDtoList = new ArrayList<String>();
+            plotNameDtoSet = new LinkedHashSet<String>();
 
             for (Map.Entry<GroupKey, DefaultMonitoringParameters[]> monitoringPlot : monitoringPlotGroups.entrySet()) {
-                plotNameDtoList.add(monitoringPlot.getKey().getUpperName());
+                plotNameDtoSet.add(monitoringPlot.getKey().getUpperName());
             }
         } catch (Exception e) {
             log.error("Error was occurred during session scope plots data getting for session ID " + sessionId, e);
             throw new RuntimeException(e);
         }
 
-        return plotNameDtoList;
+        return plotNameDtoSet;
     }
 
     @SuppressWarnings("unchecked")
@@ -141,6 +137,34 @@ public class PlotProviderServiceImpl implements PlotProviderService {
         }
 
         return plotSeriesDto;
+    }
+
+    // TODO Refactor it
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<PlotSeriesDto> getPlotData(Set<Long> taskIds, String plotName) {
+        long timestamp = System.currentTimeMillis();
+        log.debug("getPlotData was invoked with taskIds={} and plotName={}", taskIds, plotName);
+
+        PlotDataProvider plotDataProvider = workloadPlotDataProviders.get(plotName);
+        if (plotDataProvider == null) {
+            plotDataProvider = monitoringPlotDataProviders.get(plotName);
+        }
+        if (plotDataProvider == null) {
+            log.warn("getPlotData was invoked with unsupported plotName={}", plotName);
+            throw new UnsupportedOperationException("Plot type " + plotName + " doesn't supported");
+        }
+
+        List<PlotSeriesDto> plotSeriesDtoList = null;
+        try {
+            plotSeriesDtoList = plotDataProvider.getPlotData(taskIds, plotName);
+            log.info("getPlotData(): {}", getFormattedLogMessage(plotSeriesDtoList, "" + taskIds, plotName, System.currentTimeMillis() - timestamp));
+        } catch (Exception e) {
+            log.error("Error is occurred during plot data loading for taskIds=" + taskIds + ", plotName=" + plotName, e);
+            throw new RuntimeException(e);
+        }
+
+        return plotSeriesDtoList;
     }
 
     @Override
@@ -173,6 +197,35 @@ public class PlotProviderServiceImpl implements PlotProviderService {
 
         return plotSeriesDtoList;
     }
+
+    @Override
+    public Set<PlotNameDto> getTaskScopePlotList(Set<String> sessionIds, TaskDataDto taskDataDto) {
+        Set<PlotNameDto> plotNameDtoSet = new LinkedHashSet<PlotNameDto>();
+        try {
+            if (isWorkloadStatisticsAvailable(sessionIds, taskDataDto.getTaskName())) {
+                for (Map.Entry<GroupKey, DefaultWorkloadParameters[]> monitoringPlot : workloadPlotGroups.entrySet()) {
+                    plotNameDtoSet.add(new PlotNameDto(taskDataDto.getIds(), monitoringPlot.getKey().getUpperName()));
+                }
+            }
+
+            /*for (String sessionId : sessionIds) {
+                if (isMonitoringStatisticsAvailable(sessionId)) {
+                    for (Map.Entry<GroupKey, DefaultMonitoringParameters[]> monitoringPlot : monitoringPlotGroups.entrySet()) {
+                        plotNameDtoSet.add(new PlotNameDto(taskDataDto.getIds(), monitoringPlot.getKey().getUpperName()));
+                    }
+                }
+            }*/
+        } catch (Exception e) {
+            log.error("Error was occurred during task scope plots data getting for session IDs " + sessionIds + ", task name " + taskDataDto.getTaskName(), e);
+            throw new RuntimeException(e);
+        }
+
+        return plotNameDtoSet;
+    }
+
+    //===========================
+    //==========Auxiliary Methods
+    //===========================
 
     private String getFormattedLogMessage(List<PlotSeriesDto> plotSeriesDto, String id, String plotName, long millis) {
         StringBuilder logBuilder = new StringBuilder();
@@ -224,6 +277,21 @@ public class PlotProviderServiceImpl implements PlotProviderService {
 
         if (workloadStatisticsCount == 0) {
             log.info("For task ID {} workload statistics were not found in DB for {} ms", taskId, System.currentTimeMillis() - timestamp);
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean isWorkloadStatisticsAvailable(Set<String> sessionIds, String taskName) {
+        long timestamp = System.currentTimeMillis();
+        long workloadStatisticsCount = (Long) entityManager.createQuery("select count(tis.id) from TimeInvocationStatistics as tis where tis.taskData.sessionId in (:sessionIds) and tis.taskData.taskName=:taskName")
+                .setParameter("taskName", taskName)
+                .setParameter("sessionIds", sessionIds)
+                .getSingleResult();
+
+        if (workloadStatisticsCount == 0) {
+            log.info("For task ID {} workload statistics were not found in DB for {} ms", taskName, System.currentTimeMillis() - timestamp);
             return false;
         }
 

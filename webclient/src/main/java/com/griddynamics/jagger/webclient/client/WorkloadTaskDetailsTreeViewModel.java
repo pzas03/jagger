@@ -3,11 +3,17 @@ package com.griddynamics.jagger.webclient.client;
 import com.google.gwt.cell.client.*;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.view.client.*;
+import com.google.gwt.view.client.DefaultSelectionEventManager;
+import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.MultiSelectionModel;
+import com.google.gwt.view.client.TreeViewModel;
 import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
@@ -22,7 +28,7 @@ public class WorkloadTaskDetailsTreeViewModel implements TreeViewModel {
     private final DefaultSelectionEventManager<PlotNameDto> selectionManager =
             DefaultSelectionEventManager.createCheckboxManager();
 
-    private static final TaskDataDto noTasksDummyNode = new TaskDataDto(-1, "", "", "No Tasks", "");
+    private static final TaskDataDto noTasksDummyNode = new TaskDataDto(-1, "No Tasks");
 
     //==========Constructors
 
@@ -158,11 +164,7 @@ public class WorkloadTaskDetailsTreeViewModel implements TreeViewModel {
         @Override
         public void render(Context context, TaskDataDto value, SafeHtmlBuilder sb) {
             if (value != null) {
-                if (value.getId() < 0) {
-                    sb.appendEscaped(value.getTaskName());
-                } else {
-                    sb.appendEscaped("task-"+value.getId() + "_" +value.getTaskName());
-                }
+                sb.appendEscaped(value.getTaskName());
             }
         }
     }

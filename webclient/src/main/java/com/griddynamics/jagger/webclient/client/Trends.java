@@ -32,10 +32,7 @@ import com.griddynamics.jagger.webclient.client.data.SessionDataAsyncDataProvide
 import com.griddynamics.jagger.webclient.client.data.SessionDataForDatePeriodAsyncProvider;
 import com.griddynamics.jagger.webclient.client.dto.*;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
@@ -47,7 +44,6 @@ public class Trends extends Composite {
 
     private static TrendsUiBinder uiBinder = GWT.create(TrendsUiBinder.class);
 
-    private static final String INSTRUCTIONS = "Point your mouse to a data point on the chart";
     private static final int MAX_PLOT_COUNT = 30;
 
     @UiField
@@ -101,6 +97,8 @@ public class Trends extends Composite {
 
         plotOptions.addXAxisOptions(new AxisOptions().setZoomRange(true));
         plotOptions.addYAxisOptions(new AxisOptions().setZoomRange(true));
+
+        plotOptions.setLegendOptions(new LegendOptions().setNumOfColumns(2));
 
         // Make the grid hoverable
         plotOptions.setGridOptions(new GridOptions().setHoverable(true));
@@ -298,7 +296,7 @@ public class Trends extends Composite {
     }
 
     private String generateTaskScopePlotId(PlotNameDto plotNameDto) {
-        return "" + plotNameDto.getTaskId() + "#task-scope-plot-" + plotNameDto.getPlotName().toLowerCase().replaceAll("\\s+", "-");
+        return "" + plotNameDto.getTaskIds() + "#task-scope-plot-" + plotNameDto.getPlotName().toLowerCase().replaceAll("\\s+", "-");
     }
 
     private String generateSessionScopePlotId(String sessionId, String plotName) {
@@ -439,14 +437,14 @@ public class Trends extends Composite {
                 final SessionDataDto selectedSession = selected.iterator().next();
 
                 // Populate session scope plot list
-                PlotProviderService.Async.getInstance().getSessionScopePlotList(selectedSession.getSessionId(), new AsyncCallback<List<String>>() {
+                PlotProviderService.Async.getInstance().getSessionScopePlotList(selectedSession.getSessionId(), new AsyncCallback<Set<String>>() {
                     @Override
                     public void onFailure(Throwable caught) {
                         Window.alert("Error is occurred during server request processing (Session scope plot names for task fetching)");
                     }
 
                     @Override
-                    public void onSuccess(List<String> result) {
+                    public void onSuccess(Set<String> result) {
                         // Populate session scope available plots
                         sessionScopePlotList.clear();
                         for (String plotName : result) {
@@ -487,14 +485,14 @@ public class Trends extends Composite {
                             final ListDataProvider<PlotNameDto> plotNameDataProvider = ((WorkloadTaskDetailsTreeViewModel)
                                     taskDetailsTree.getTreeViewModel()).getPlotNameDataProvider(taskDataDto);
 
-                            PlotProviderService.Async.getInstance().getTaskScopePlotList(selectedSession.getSessionId(), taskDataDto.getId(), new AsyncCallback<List<PlotNameDto>>() {
+                            PlotProviderService.Async.getInstance().getTaskScopePlotList(selectedSession.getSessionId(), taskDataDto.getId(), new AsyncCallback<Set<PlotNameDto>>() {
                                 @Override
                                 public void onFailure(Throwable caught) {
                                     Window.alert("Error is occurred during server request processing (Plot names for task fetching)");
                                 }
 
                                 @Override
-                                public void onSuccess(List<PlotNameDto> result) {
+                                public void onSuccess(Set<PlotNameDto> result) {
                                     plotNameDataProvider.getList().clear();
                                     plotNameDataProvider.getList().addAll(result);
 
@@ -515,9 +513,55 @@ public class Trends extends Composite {
                 plotNameSelectionModel.clear();
                 sessionScopePlotList.clear();
 
-                //TODO: remove it
-                taskDataProvider.getList().clear();
-                taskDataProvider.getList().add(WorkloadTaskDetailsTreeViewModel.getNoTasksDummyNode());
+                //TODO Refactor it
+                final Set<String> sessionIds = new HashSet<String>();
+                for (SessionDataDto sessionDataDto : selected) {
+                    sessionIds.add(sessionDataDto.getSessionId());
+                }
+
+                TaskDataService.Async.getInstance().getTaskDataForSessions(sessionIds, new AsyncCallback<List<TaskDataDto>>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        Window.alert("Error is occurred during server request processing (Task data fetching)");
+                    }
+
+                    @Override
+                    public void onSuccess(List<TaskDataDto> result) {
+                        // Populate task first level tree with server data
+                        taskDataProvider.getList().clear();
+                        if (result.isEmpty()) {
+                            taskDataProvider.getList().add(WorkloadTaskDetailsTreeViewModel.getNoTasksDummyNode());
+                            return;
+                        } else {
+                            taskDataProvider.getList().addAll(result);
+                        }
+
+                        // Populate available plots tree level for each task for selected session
+                        for (TaskDataDto taskDataDto : result) {
+                            final ListDataProvider<PlotNameDto> plotNameDataProvider = ((WorkloadTaskDetailsTreeViewModel)
+                                    taskDetailsTree.getTreeViewModel()).getPlotNameDataProvider(taskDataDto);
+
+                            PlotProviderService.Async.getInstance().getTaskScopePlotList(sessionIds, taskDataDto, new AsyncCallback<Set<PlotNameDto>>() {
+                                @Override
+                                public void onFailure(Throwable caught) {
+                                    Window.alert("Error is occurred during server request processing (Plot names for task fetching)");
+                                }
+
+                                @Override
+                                public void onSuccess(Set<PlotNameDto> result) {
+                                    plotNameDataProvider.getList().clear();
+                                    plotNameDataProvider.getList().addAll(result);
+
+                                    // Close all tree nodes when new session is selected
+                                    int childCount = taskDetailsTree.getRootTreeNode().getChildCount();
+                                    for (int i = 0; i < childCount; i++) {
+                                        taskDetailsTree.getRootTreeNode().setChildOpen(i, false);
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
             }
         }
     }
@@ -529,8 +573,20 @@ public class Trends extends Composite {
         @Override
         public void onSelectionChange(SelectionChangeEvent event) {
             Set<PlotNameDto> selected = ((MultiSelectionModel<PlotNameDto>) event.getSource()).getSelectedSet();
+            final Set<SessionDataDto> selectedSessions = ((MultiSelectionModel<SessionDataDto>)sessionsDataGrid.getSelectionModel()).getSelectedSet();
 
-            if (!selected.isEmpty()) {
+            if (selected.isEmpty()) {
+                // Clear display because of no checked plots
+                // Remove plots from display which were unchecked
+                for (int i = 0; i < plotPanel.getWidgetCount(); i++) {
+                    Widget widget = plotPanel.getWidget(i);
+                    String widgetId = widget.getElement().getId();
+                    if (isTaskScopePlotId(widgetId)) {
+                        // Remove plot
+                        plotPanel.remove(i);
+                    }
+                }
+            } else if (selectedSessions.size() == 1) {
                 // Generate all id of plots which should be displayed
                 Set<String> selectedTaskIds = new HashSet<String>();
                 for (PlotNameDto plotNameDto : selected) {
@@ -588,15 +644,63 @@ public class Trends extends Composite {
                     });
                 }
             } else {
-                // Clear display because of no checked plots
+                //TODO Refactor it
+                // Generate all id of plots which should be displayed
+                Set<String> selectedTaskIds = new HashSet<String>();
+                for (PlotNameDto plotNameDto : selected) {
+                    selectedTaskIds.add(generateTaskScopePlotId(plotNameDto));
+                }
+
                 // Remove plots from display which were unchecked
                 for (int i = 0; i < plotPanel.getWidgetCount(); i++) {
                     Widget widget = plotPanel.getWidget(i);
                     String widgetId = widget.getElement().getId();
-                    if (isTaskScopePlotId(widgetId)) {
-                        // Remove plot
-                        plotPanel.remove(i);
+                    if (!isTaskScopePlotId(widgetId) || selectedTaskIds.contains(widgetId)) {
+                        continue;
                     }
+                    // Remove plot
+                    plotPanel.remove(i);
+                }
+
+                // Creating plots and displaying theirs
+                for (final PlotNameDto plotNameDto : selected) {
+                    if (isMaxPlotCountReached()) {
+                        Window.alert("You are reached max count of plot on display");
+                        break;
+                    }
+
+                    // Generate DOM id for plot
+                    final String id = generateTaskScopePlotId(plotNameDto);
+
+                    // If plot has already displayed, then pass it
+                    if (plotPanel.getElementById(id) != null) {
+                        continue;
+                    }
+
+                    plotPanel.add(loadIndicator);
+                    scrollPanel.scrollToBottom();
+                    final int loadingId = plotPanel.getWidgetCount() - 1;
+                    // Invoke remote service for plot data retrieving
+                    //TODO Implement plot rendering
+                    PlotProviderService.Async.getInstance().getPlotData(plotNameDto.getTaskIds(), plotNameDto.getPlotName(), new AsyncCallback<List<PlotSeriesDto>>() {
+                        @Override
+                        public void onFailure(Throwable caught) {
+                            plotPanel.remove(loadingId);
+
+                            Window.alert("Error is occurred during server request processing (" + plotNameDto.getPlotName() + " data fetching)");
+                        }
+
+                        @Override
+                        public void onSuccess(List<PlotSeriesDto> result) {
+                            plotPanel.remove(loadingId);
+
+                            if (result.isEmpty()) {
+                                Window.alert("There are no data found for " + plotNameDto.getPlotName());
+                            }
+
+                            renderPlots(result, id);
+                        }
+                    });
                 }
             }
         }

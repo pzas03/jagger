@@ -1,7 +1,11 @@
 package com.griddynamics.jagger.webclient.server;
 
+import com.griddynamics.jagger.engine.e1.aggregator.session.model.TaskData;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
@@ -26,6 +30,14 @@ public class LegendProvider {
         return generatePlotHeader(legendData[0].toString(), legendData[1].toString(), plotName);
     }
 
+    public String getPlotHeader(Set<Long> taskIds, String plotName) {
+        @SuppressWarnings("unchecked")
+        List<TaskData> taskDataList = (List<TaskData>) entityManager.createQuery("select td from TaskData as td where td.id in (:taskIds)").
+                setParameter("taskIds", taskIds).getResultList();
+
+        return generatePlotHeader(taskDataList, plotName);
+    }
+
     private String generatePlotHeader(String sessionId, String taskName, String plotName) {
         StringBuilder builder = new StringBuilder();
         builder
@@ -33,6 +45,25 @@ public class LegendProvider {
                 .append(sessionId)
                 .append(", ")
                 .append(taskName)
+                .append(", ")
+                .append(plotName);
+
+        return builder.toString();
+    }
+
+    private String generatePlotHeader(List<TaskData> taskDataList, String plotName) {
+        if (taskDataList == null || taskDataList.isEmpty()) {
+            return plotName;
+        }
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("Session ");
+        for (TaskData taskData : taskDataList) {
+            builder.append("#").append(taskData.getSessionId()).append(", ");
+        }
+
+        builder
+                .append(taskDataList.iterator().next().getTaskName())
                 .append(", ")
                 .append(plotName);
 
