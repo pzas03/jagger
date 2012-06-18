@@ -35,28 +35,24 @@ public class ThroughputPlotDataProvider implements PlotDataProvider {
 
     @Override
     public List<PlotSeriesDto> getPlotData(long taskId, String plotName) {
-        PlotSeriesDto plotSeriesDto;
-        @SuppressWarnings("unchecked")
-        List<Object[]> rawData = (List<Object[]>) entityManager.createQuery(
-                "select tis.time, tis.throughput from TimeInvocationStatistics as tis where tis.taskData.id=:taskId")
-                .setParameter("taskId", taskId).getResultList();
+        checkArgument(taskId > 0, "taskId is not valid; it's lesser or equal 0");
+        checkNotNull(plotName, "plotName is null");
+
+        List<Object[]> rawData = findAllTimeInvocationStatisticsByTaskData(taskId);
 
         if (rawData == null) {
             return Collections.emptyList();
         }
 
-        List<PointDto> pointDtoList = DataProcessingUtil.convertFromRawDataToPointDto(rawData, 0, 1);
-
-        String legend = DefaultWorkloadParameters.THROUGHPUT.getDescription();
-        PlotDatasetDto plotDatasetDto = new PlotDatasetDto(pointDtoList, legend, ColorCodeGenerator.getHexColorCode());
+        TaskData taskData = entityManager.find(TaskData.class, taskId);
         Set<PlotDatasetDto> plotSeries = new HashSet<PlotDatasetDto>();
-        plotSeries.add(plotDatasetDto);
-        plotSeriesDto = new PlotSeriesDto(plotSeries, "Time, sec", "", legendProvider.getPlotHeader(taskId, plotName));
+        plotSeries.add(assemble(rawData, taskData.getSessionId(), false));
+
+        PlotSeriesDto plotSeriesDto = new PlotSeriesDto(plotSeries, "Time, sec", "", legendProvider.generatePlotHeader(taskData, plotName));
 
         return Collections.singletonList(plotSeriesDto);
     }
 
-    // TODO Refactor it
     @Override
     public List<PlotSeriesDto> getPlotData(Set<Long> taskIds, String plotName) {
         checkNotNull(taskIds, "taskIds is null");
@@ -65,24 +61,31 @@ public class ThroughputPlotDataProvider implements PlotDataProvider {
 
         List<PlotDatasetDto> plotDatasetDtoList = new ArrayList<PlotDatasetDto>(taskIds.size());
         for (long taskId : taskIds) {
-            TaskData taskData = entityManager.find(TaskData.class, taskId);
-
-            @SuppressWarnings("unchecked")
-            List<Object[]> rawData = (List<Object[]>) entityManager.createQuery(
-                    "select tis.time, tis.throughput from TimeInvocationStatistics as tis where tis.taskData.id=:taskId")
-                    .setParameter("taskId", taskId).getResultList();
+            List<Object[]> rawData = findAllTimeInvocationStatisticsByTaskData(taskId);
 
             if (rawData == null) {
                 continue;
             }
 
-            List<PointDto> pointDtoList = DataProcessingUtil.convertFromRawDataToPointDto(rawData, 0, 1);
-
-            String legend = "#" + taskData.getSessionId() + ": " + DefaultWorkloadParameters.THROUGHPUT.getDescription();
-            PlotDatasetDto plotDatasetDto = new PlotDatasetDto(pointDtoList, legend, ColorCodeGenerator.getHexColorCode());
-            plotDatasetDtoList.add(plotDatasetDto);
+            TaskData taskData = entityManager.find(TaskData.class, taskId);
+            plotDatasetDtoList.add(assemble(rawData, taskData.getSessionId(), true));
         }
 
-        return Collections.singletonList(new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", legendProvider.getPlotHeader(taskIds, plotName)));
+        TaskData taskData = entityManager.find(TaskData.class, taskIds.iterator().next());
+        return Collections.singletonList(new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", legendProvider.generatePlotHeader(taskData, plotName)));
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Object[]> findAllTimeInvocationStatisticsByTaskData(long taskId) {
+        return entityManager.createQuery(
+                "select tis.time, tis.throughput from TimeInvocationStatistics as tis where tis.taskData.id=:taskId")
+                .setParameter("taskId", taskId).getResultList();
+    }
+
+    private PlotDatasetDto assemble(List<Object[]> rawData, String sessionId, boolean addSessionPrefix) {
+        List<PointDto> pointDtoList = DataProcessingUtil.convertFromRawDataToPointDto(rawData, 0, 1);
+
+        String legend = legendProvider.generatePlotLegend(sessionId, DefaultWorkloadParameters.THROUGHPUT.getDescription(), addSessionPrefix);
+        return new PlotDatasetDto(pointDtoList, legend, ColorCodeGenerator.getHexColorCode());
     }
 }
