@@ -52,7 +52,7 @@ public class TaskDataServiceImpl /*extends RemoteServiceServlet*/ implements Tas
         return taskDataDtoList;
     }
 
-    //TODO Fix situation when two tasks with same name are exists
+    @SuppressWarnings("unchecked")
     @Override
     public List<TaskDataDto> getTaskDataForSessions(Set<String> sessionIds) {
         long timestamp = System.currentTimeMillis();
@@ -60,48 +60,54 @@ public class TaskDataServiceImpl /*extends RemoteServiceServlet*/ implements Tas
         List<TaskDataDto> taskDataDtoList = null;
 
         try {
-            @SuppressWarnings("unchecked")
-            List<Object[]> taskFrequency = (List<Object[]>) entityManager.createQuery
-                    ("select td.taskName, count(td.id), td.number from TaskData as td where  td.sessionId in (:sessionIds)" +
-                            "and td.taskId in (select wd.taskId from WorkloadData as wd where wd.sessionId in (:sessionIds)) group by td.taskName order by td.number")
+            List<String> workloadTaskIdList = (List<String>) entityManager.createQuery
+                    ("select wd.taskId from WorkloadData as wd where wd.sessionId in (:sessionIds)")
                     .setParameter("sessionIds", sessionIds)
                     .getResultList();
-            Set<String> taskFrequencyIndex = new HashSet<String>();
-            for (Object[] obj : taskFrequency) {
-                String taskName = (String) obj[0];
-                Long frequency = (Long) obj[1];
-                if (frequency >= sessionIds.size()) {
-                    taskFrequencyIndex.add(taskName);
-                }
-            }
-            log.debug("Task frequency: {}", taskFrequencyIndex);
 
-            @SuppressWarnings("unchecked")
-            List<TaskData> taskDataList = (List<TaskData>) entityManager.createQuery(
-                    "select td from TaskData as td where td.sessionId in (:sessionIds) and td.taskId in (select wd.taskId from WorkloadData as wd where wd.sessionId in (:sessionIds))")
+            List<Object[]> commonsTasks = (List<Object[]>) entityManager.createQuery
+                    ("select td.taskName, td.taskId from TaskData as td where  td.sessionId in (:sessionIds)" +
+                            "and td.taskId in (:workloadTaskIdList) group by td.taskId, td.taskName having count(td.id) >= :count")
                     .setParameter("sessionIds", sessionIds)
+                    .setParameter("workloadTaskIdList", workloadTaskIdList)
+                    .setParameter("count", (long) sessionIds.size())
+                    .getResultList();
+
+            Map<String, String> commonsTaskMap = new HashMap<String, String>();
+            for (Object[] obj : commonsTasks) {
+                String taskName = (String) obj[0];
+                String taskId = (String) obj[1];
+                commonsTaskMap.put(taskId, taskName);
+            }
+            log.debug("Task frequency: {}", commonsTaskMap);
+
+            List<TaskData> taskDataList = (List<TaskData>) entityManager.createQuery(
+                    "select td from TaskData as td where td.sessionId in (:sessionIds) and td.taskId in (:workloadTaskIdList)")
+                    .setParameter("sessionIds", sessionIds)
+                    .setParameter("workloadTaskIdList", workloadTaskIdList)
                     .getResultList();
 
             if (taskDataList == null) {
                 return Collections.emptyList();
             }
 
-            taskDataDtoList = new ArrayList<TaskDataDto>(taskDataList.size());
-
-            Map<String, Set<Long>> added = new HashMap<String, Set<Long>>();
+            Map<String, TaskDataDto> added = new HashMap<String, TaskDataDto>();
             for (TaskData taskData : taskDataList) {
                 String taskName = taskData.getTaskName();
-                if (taskFrequencyIndex.contains(taskName)) {
-                    if (added.get(taskName) == null) {
-                        added.put(taskName, new HashSet<Long>());
-                    }
-                    added.get(taskName).add(taskData.getId());
-                }
-            }
+                String taskId = taskData.getTaskId();
+                Long id = taskData.getId();
 
-            for (Map.Entry<String, Set<Long>> entry : added.entrySet()) {
-                taskDataDtoList.add(new TaskDataDto(entry.getValue(), entry.getKey()));
+                if (!commonsTaskMap.containsKey(taskId) || !commonsTaskMap.get(taskId).equals(taskName)) {
+                    continue;
+                }
+
+                if (!added.containsKey(taskId)) {
+                    added.put(taskId, new TaskDataDto(id, taskName));
+                }
+                added.get(taskId).getIds().add(id);
             }
+            taskDataDtoList = new ArrayList<TaskDataDto>(added.values());
+
             log.info("For sessions {} were loaded {} tasks for {} ms", new Object[]{sessionIds, taskDataDtoList.size(), System.currentTimeMillis() - timestamp});
         } catch (Exception e) {
             log.error("Error was occurred during common tasks fetching for sessions " + sessionIds, e);
@@ -110,4 +116,5 @@ public class TaskDataServiceImpl /*extends RemoteServiceServlet*/ implements Tas
 
         return taskDataDtoList;
     }
+
 }
