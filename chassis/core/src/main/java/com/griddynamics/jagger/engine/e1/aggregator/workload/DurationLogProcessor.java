@@ -163,32 +163,38 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
             StatisticsCalculator windowStatisticsCalculator = new StatisticsCalculator();
             StatisticsCalculator globalStatisticsCalculator = new StatisticsCalculator();
 
-            LogReader.FileReader<DurationLogEntry> fileReader = logReader.read(path, DurationLogEntry.class);
-            Iterator<DurationLogEntry> it = fileReader.iterator();
-            while (it.hasNext()) {
-                DurationLogEntry logEntry = it.next();
+            LogReader.FileReader<DurationLogEntry> fileReader = null;
+            try {
+                fileReader = logReader.read(path, DurationLogEntry.class);
+                Iterator<DurationLogEntry> it = fileReader.iterator();
+                while (it.hasNext()) {
+                    DurationLogEntry logEntry = it.next();
 
-                log.debug("Log entry {} time", logEntry.getTime());
+                    log.debug("Log entry {} time", logEntry.getTime());
 
-                while (logEntry.getTime() > currentInterval) {
-                    log.debug("processing count {} interval {}", currentCount, intervalSize);
+                    while (logEntry.getTime() > currentInterval) {
+                        log.debug("processing count {} interval {}", currentCount, intervalSize);
 
-                    if (currentCount > 0) {
-                        double throughput = (double) currentCount * 1000 / intervalSize;
-                        statistics.add(assembleInvocationStatistics(time, windowStatisticsCalculator, throughput, taskData));
-                        currentCount = 0;
-                        windowStatisticsCalculator.reset();
-                    } else {
-                        statistics.add(new TimeInvocationStatistics(time, 0d, 0d, 0d, taskData));
+                        if (currentCount > 0) {
+                            double throughput = (double) currentCount * 1000 / intervalSize;
+                            statistics.add(assembleInvocationStatistics(time, windowStatisticsCalculator, throughput, taskData));
+                            currentCount = 0;
+                            windowStatisticsCalculator.reset();
+                        } else {
+                            statistics.add(new TimeInvocationStatistics(time, 0d, 0d, 0d, taskData));
+                        }
+                        time += intervalSize;
+                        currentInterval += intervalSize;
                     }
-                    time += intervalSize;
-                    currentInterval += intervalSize;
+                    currentCount++;
+                    windowStatisticsCalculator.addValue(logEntry.getDuration());
+                    globalStatisticsCalculator.addValue(logEntry.getDuration());
                 }
-                currentCount++;
-                windowStatisticsCalculator.addValue(logEntry.getDuration());
-                globalStatisticsCalculator.addValue(logEntry.getDuration());
+            } finally {
+                if (fileReader != null) {
+                    fileReader.close();
+                }
             }
-            fileReader.close();
 
             if (currentCount > 0) {
                 double throughput = (double) currentCount * 1000 / intervalSize;

@@ -59,12 +59,6 @@
             <artifactId>diagnostics</artifactId>
         </dependency>
 
-
-        <dependency>
-            <groupId>com.griddynamics.jagger</groupId>
-            <artifactId>chassis.invokers</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>jboss</groupId>
             <artifactId>jboss-serialization</artifactId>
