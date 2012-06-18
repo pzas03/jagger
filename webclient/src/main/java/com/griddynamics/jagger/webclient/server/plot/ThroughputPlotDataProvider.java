@@ -71,8 +71,7 @@ public class ThroughputPlotDataProvider implements PlotDataProvider {
             plotDatasetDtoList.add(assemble(rawData, taskData.getSessionId(), true));
         }
 
-        TaskData taskData = entityManager.find(TaskData.class, taskIds.iterator().next());
-        return Collections.singletonList(new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", legendProvider.generatePlotHeader(taskData, plotName)));
+        return Collections.singletonList(new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", legendProvider.getPlotHeader(taskIds, plotName)));
     }
 
     @SuppressWarnings("unchecked")

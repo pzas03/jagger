@@ -37,16 +37,54 @@ public class TimeLatencyPercentilePlotDataProvider implements PlotDataProvider {
 
     @Override
     public List<PlotSeriesDto> getPlotData(long taskId, String plotName) {
-        PlotSeriesDto plotSeriesDto;
-        @SuppressWarnings("unchecked")
-        List<Object[]> rawData = (List<Object[]>) entityManager.createQuery(
-                "select tis.time, ps.percentileKey, ps.percentileValue from TimeLatencyPercentile as ps inner join ps.timeInvocationStatistics as tis where tis.taskData.id=:taskId")
-                .setParameter("taskId", taskId).getResultList();
+        checkArgument(taskId > 0, "taskId is not valid; it's lesser or equal 0");
+        checkNotNull(plotName, "plotName is null");
+
+        List<Object[]> rawData = findAllTimeInvocationStatisticsByTaskData(taskId);
 
         if (rawData == null) {
             return Collections.emptyList();
         }
 
+        TaskData taskData = entityManager.find(TaskData.class, taskId);
+
+        List<PlotDatasetDto> plotDatasetDtoList = assemble(rawData, taskData.getSessionId(), false);
+        PlotSeriesDto plotSeriesDto = new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", legendProvider.generatePlotHeader(taskData, plotName));
+
+        return Collections.singletonList(plotSeriesDto);
+    }
+
+    @Override
+    public List<PlotSeriesDto> getPlotData(Set<Long> taskIds, String plotName) {
+        checkNotNull(taskIds, "taskIds is null");
+        checkArgument(!taskIds.isEmpty(), "taskIds is empty");
+        checkNotNull(plotName, "plotName is null");
+
+        List<PlotDatasetDto> plotDatasetDtoList = new ArrayList<PlotDatasetDto>(taskIds.size());
+        for (long taskId : taskIds) {
+            List<Object[]> rawData = findAllTimeInvocationStatisticsByTaskData(taskId);
+
+            if (rawData == null) {
+                continue;
+            }
+
+            TaskData taskData = entityManager.find(TaskData.class, taskId);
+
+            plotDatasetDtoList.addAll(assemble(rawData, taskData.getSessionId(), true));
+        }
+
+        return Collections.singletonList(new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", legendProvider.getPlotHeader(taskIds, plotName)));
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Object[]> findAllTimeInvocationStatisticsByTaskData(long taskId) {
+        return entityManager.createQuery(
+                "select tis.time, ps.percentileKey, ps.percentileValue from TimeLatencyPercentile as ps inner join ps.timeInvocationStatistics as tis where tis.taskData.id=:taskId")
+                .setParameter("taskId", taskId).getResultList();
+    }
+
+    private List<PlotDatasetDto> assemble(List<Object[]> rawData, String sessionId, boolean addSessionPrefix) {
+        List<PlotDatasetDto> plotDatasetDtoList = new ArrayList<PlotDatasetDto>();
         Map<String, List<PointDto>> percentiles = new HashMap<String, List<PointDto>>();
         double previousPercentileValue = 0.0;
         for (Object[] raw : rawData) {
@@ -61,58 +99,12 @@ public class TimeLatencyPercentilePlotDataProvider implements PlotDataProvider {
 
             previousPercentileValue = y;
         }
-        Set<PlotDatasetDto> plotSeries = new HashSet<PlotDatasetDto>();
+
         for (Map.Entry<String, List<PointDto>> entry : percentiles.entrySet()) {
-            String legend = DefaultWorkloadParameters.fromDescription(entry.getKey()).getDescription();
-            plotSeries.add(new PlotDatasetDto(entry.getValue(), legend, ColorCodeGenerator.getHexColorCode()));
+            String legend = legendProvider.generatePlotLegend(sessionId, DefaultWorkloadParameters.fromDescription(entry.getKey()).getDescription(), addSessionPrefix);
+            plotDatasetDtoList.add(new PlotDatasetDto(entry.getValue(), legend, ColorCodeGenerator.getHexColorCode()));
         }
 
-        plotSeriesDto = new PlotSeriesDto(plotSeries, "Time, sec", "", legendProvider.getPlotHeader(taskId, plotName));
-
-        return Collections.singletonList(plotSeriesDto);
-    }
-
-    //TODO Refactor it
-    @Override
-    public List<PlotSeriesDto> getPlotData(Set<Long> taskIds, String plotName) {
-        checkNotNull(taskIds, "taskIds is null");
-        checkArgument(!taskIds.isEmpty(), "taskIds is empty");
-        checkNotNull(plotName, "plotName is null");
-
-        List<PlotDatasetDto> plotDatasetDtoList = new ArrayList<PlotDatasetDto>(taskIds.size());
-        for (long taskId : taskIds) {
-            TaskData taskData = entityManager.find(TaskData.class, taskId);
-
-            @SuppressWarnings("unchecked")
-            List<Object[]> rawData = (List<Object[]>) entityManager.createQuery(
-                    "select tis.time, ps.percentileKey, ps.percentileValue from TimeLatencyPercentile as ps inner join ps.timeInvocationStatistics as tis where tis.taskData.id=:taskId")
-                    .setParameter("taskId", taskId).getResultList();
-
-            if (rawData == null) {
-                continue;
-            }
-
-            Map<String, List<PointDto>> percentiles = new HashMap<String, List<PointDto>>();
-            double previousPercentileValue = 0.0;
-            for (Object[] raw : rawData) {
-                if (percentiles.get(raw[1].toString()) == null) {
-                    percentiles.put(raw[1].toString(), new ArrayList<PointDto>(rawData.size()));
-                }
-                List<PointDto> list = percentiles.get(raw[1].toString());
-
-                double x = DataProcessingUtil.round((Long) raw[0] / 1000.0D);
-                double y = DataProcessingUtil.round(((Double) raw[2] - previousPercentileValue) / 1000);
-                list.add(new PointDto(x, y));
-
-                previousPercentileValue = y;
-            }
-
-            for (Map.Entry<String, List<PointDto>> entry : percentiles.entrySet()) {
-                String legend = "#" + taskData.getSessionId() + ": " + DefaultWorkloadParameters.fromDescription(entry.getKey()).getDescription();
-                plotDatasetDtoList.add(new PlotDatasetDto(entry.getValue(), legend, ColorCodeGenerator.getHexColorCode()));
-            }
-        }
-
-        return Collections.singletonList(new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", legendProvider.getPlotHeader(taskIds, plotName)));
+        return plotDatasetDtoList;
     }
 }
