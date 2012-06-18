@@ -45,6 +45,8 @@
         <module>distribution</module>
         <module>facade</module>
         <module>webclient</module>
+        <module>test/jagger-test</module>
+        <module>test/test-target</module>
     </modules>
 
     <scm>
@@ -67,6 +69,12 @@
                 <enabled>false</enabled>
             </snapshots>
             <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases</url>
+        </repository>
+        <repository>
+            <id>jboss-java-net</id>
+            <layout>default</layout>
+            <name>jboss java.net repo</name>
+            <url>	https://repository.jboss.org/nexus/content/repositories/java.net-m2</url>
         </repository>
         <repository>
             <id>snmp4j</id>
@@ -169,6 +177,18 @@
 
             <!-- Third-party dependencies -->
 
+            <dependency>
+                <groupId>jboss</groupId>
+                <artifactId>jboss-serialization</artifactId>
+                <version>4.2.2.GA</version>
+            </dependency>
+
+            <dependency>
+                <groupId>trove</groupId>
+                <artifactId>trove</artifactId>
+                <version>1.0.2</version>
+            </dependency>
+            
             <dependency>
                 <groupId>kawa</groupId>
                 <artifactId>kawa</artifactId>

@@ -505,12 +505,9 @@
                                                     </list>
                                                 </constructor-arg>
                                                 <constructor-arg>
-                                                    <list>
-                                                        <value>http://macys-jagger4.vm.griddynamics.net:8080/sleep/pulse/30000/500</value>
-                                                        <value>http://macys-jagger4.vm.griddynamics.net:8090/sleep/pulse/30000/500</value>
-                                                        <value>http://macys-jagger5.vm.griddynamics.net:8080/sleep/pulse/30000/500</value>
-                                                        <value>http://macys-jagger5.vm.griddynamics.net:8090/sleep/pulse/30000/500</value>
-                                                    </list>
+                                                    <bean class="org.springframework.beans.factory.config.ListFactoryBean">
+                                                        <property name="sourceList" value="#{endpointConfigurator.getEndpoints('/sleep/pulse/30000/500')}"/>
+                                                    </bean>
                                                 </constructor-arg>
                                             </bean>
                                         </property>
@@ -550,12 +547,9 @@
                                                     </list>
                                                 </constructor-arg>
                                                 <constructor-arg>
-                                                    <list>
-                                                        <value>http://macys-jagger4.vm.griddynamics.net:8080/load/10000000</value>
-                                                        <value>http://macys-jagger4.vm.griddynamics.net:8090/load/10000000</value>
-                                                        <value>http://macys-jagger5.vm.griddynamics.net:8080/load/10000000</value>
-                                                        <value>http://macys-jagger5.vm.griddynamics.net:8090/load/10000000</value>
-                                                    </list>
+                                                    <bean class="org.springframework.beans.factory.config.ListFactoryBean">
+                                                        <property name="sourceList" value="#{endpointConfigurator.getEndpoints('/load/10000000')}"/>
+                                                    </bean>
                                                 </constructor-arg>
                                             </bean>
                                         </property>
@@ -595,12 +589,9 @@
                                                     </list>
                                                 </constructor-arg>
                                                 <constructor-arg>
-                                                    <list>
-                                                        <value>http://macys-jagger4.vm.griddynamics.net:8080/load/10000000</value>
-                                                        <value>http://macys-jagger4.vm.griddynamics.net:8090/load/10000000</value>
-                                                        <value>http://macys-jagger5.vm.griddynamics.net:8080/load/10000000</value>
-                                                        <value>http://macys-jagger5.vm.griddynamics.net:8090/load/10000000</value>
-                                                    </list>
+                                                    <bean class="org.springframework.beans.factory.config.ListFactoryBean">
+                                                        <property name="sourceList" value="#{endpointConfigurator.getEndpoints('/load/10000000')}"/>
+                                                    </bean>
                                                 </constructor-arg>
                                             </bean>
                                         </property>
@@ -642,12 +633,9 @@
                                                     </list>
                                                 </constructor-arg>
                                                 <constructor-arg>
-                                                    <list>
-                                                        <value>http://macys-jagger4.vm.griddynamics.net:8080/allocate/1000000x200</value>
-                                                        <value>http://macys-jagger4.vm.griddynamics.net:8090/allocate/1000000x200</value>
-                                                        <value>http://macys-jagger5.vm.griddynamics.net:8080/allocate/1000000x200</value>
-                                                        <value>http://macys-jagger5.vm.griddynamics.net:8090/allocate/1000000x200</value>
-                                                    </list>
+                                                    <bean class="org.springframework.beans.factory.config.ListFactoryBean">
+                                                        <property name="sourceList" value="#{endpointConfigurator.getEndpoints('/allocate/1000000x200')}"/>
+                                                    </bean>
                                                 </constructor-arg>
                                             </bean>
                                         </property>
@@ -690,12 +678,9 @@
                                                     </list>
                                                 </constructor-arg>
                                                 <constructor-arg>
-                                                    <list>
-                                                        <value>http://macys-jagger4.vm.griddynamics.net:8080/net/text/10000</value>
-                                                        <value>http://macys-jagger4.vm.griddynamics.net:8090/net/text/10000</value>
-                                                        <value>http://macys-jagger5.vm.griddynamics.net:8080/net/text/10000</value>
-                                                        <value>http://macys-jagger5.vm.griddynamics.net:8090/net/text/10000</value>
-                                                    </list>
+                                                    <bean class="org.springframework.beans.factory.config.ListFactoryBean">
+                                                        <property name="sourceList" value="#{endpointConfigurator.getEndpoints('/net/text/10000')}"/>
+                                                    </bean>
                                                 </constructor-arg>
                                             </bean>
                                         </property>

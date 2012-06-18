@@ -23,6 +23,19 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+    <bean class="com.griddynamics.jagger.util.PropertiesResolver">
+        <property name="registry" ref="propertiesResolverRegistry"/>
+        <property name="resources">
+            <list>
+                <value>configuration/master/session/tests.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="endpointConfigurator" class="com.griddynamics.jagger.invoker.EndpointConfigurator">
+        <property name="urls" value="${test.service.endpoints}"/>
+    </bean>
+
     <bean id="emptyTestQuery" class="com.griddynamics.jagger.invoker.http.HttpQuery">
         <property name="method" value="GET" />
         <property name="clientParams">
@@ -72,12 +85,9 @@
                             </list>
                         </constructor-arg>
                         <constructor-arg>
-                            <list>
-                                <value>http://macys-jagger4.vm.griddynamics.net:8080/sleep/5</value>
-                                <value>http://macys-jagger4.vm.griddynamics.net:8090/sleep/5</value>
-                                <value>http://macys-jagger5.vm.griddynamics.net:8080/sleep/5</value>
-                                <value>http://macys-jagger5.vm.griddynamics.net:8090/sleep/5</value>
-                            </list>
+                            <bean class="org.springframework.beans.factory.config.ListFactoryBean">
+                                <property name="sourceList" value="#{endpointConfigurator.getEndpoints('/sleep/5')}"/>
+                            </bean>
                         </constructor-arg>
                     </bean>
                 </property>
@@ -99,12 +109,9 @@
                             </list>
                         </constructor-arg>
                         <constructor-arg>
-                            <list>
-                                <value>http://macys-jagger4.vm.griddynamics.net:8080/sleep/50</value>
-                                <value>http://macys-jagger4.vm.griddynamics.net:8090/sleep/50</value>
-                                <value>http://macys-jagger5.vm.griddynamics.net:8080/sleep/50</value>
-                                <value>http://macys-jagger5.vm.griddynamics.net:8090/sleep/50</value>
-                            </list>
+                            <bean class="org.springframework.beans.factory.config.ListFactoryBean">
+                                <property name="sourceList" value="#{endpointConfigurator.getEndpoints('/sleep/50')}"/>
+                            </bean>
                         </constructor-arg>
                     </bean>
                 </property>
@@ -127,12 +134,9 @@
                             </list>
                         </constructor-arg>
                         <constructor-arg>
-                            <list>
-                                <value>http://macys-jagger4.vm.griddynamics.net:8080/sleep/50-150</value>
-                                <value>http://macys-jagger4.vm.griddynamics.net:8090/sleep/50-150</value>
-                                <value>http://macys-jagger5.vm.griddynamics.net:8080/sleep/50-150</value>
-                                <value>http://macys-jagger5.vm.griddynamics.net:8090/sleep/50-150</value>
-                            </list>
+                            <bean class="org.springframework.beans.factory.config.ListFactoryBean">
+                                <property name="sourceList" value="#{endpointConfigurator.getEndpoints('/sleep/50-150')}"/>
+                            </bean>
                         </constructor-arg>
                     </bean>
                 </property>
