@@ -118,14 +118,7 @@ public class PlotProviderServiceImpl implements PlotProviderService {
         long timestamp = System.currentTimeMillis();
         log.debug("getPlotData was invoked with taskId={} and plotName={}", taskId, plotName);
 
-        PlotDataProvider plotDataProvider = workloadPlotDataProviders.get(plotName);
-        if (plotDataProvider == null) {
-            plotDataProvider = monitoringPlotDataProviders.get(plotName);
-        }
-        if (plotDataProvider == null) {
-            log.warn("getPlotData was invoked with unsupported plotName={}", plotName);
-            throw new UnsupportedOperationException("Plot type " + plotName + " doesn't supported");
-        }
+        PlotDataProvider plotDataProvider = findPlotDataProvider(plotName);
 
         List<PlotSeriesDto> plotSeriesDto = null;
         try {
@@ -139,21 +132,13 @@ public class PlotProviderServiceImpl implements PlotProviderService {
         return plotSeriesDto;
     }
 
-    // TODO Refactor it
     @SuppressWarnings("unchecked")
     @Override
     public List<PlotSeriesDto> getPlotData(Set<Long> taskIds, String plotName) {
         long timestamp = System.currentTimeMillis();
         log.debug("getPlotData was invoked with taskIds={} and plotName={}", taskIds, plotName);
 
-        PlotDataProvider plotDataProvider = workloadPlotDataProviders.get(plotName);
-        if (plotDataProvider == null) {
-            plotDataProvider = monitoringPlotDataProviders.get(plotName);
-        }
-        if (plotDataProvider == null) {
-            log.warn("getPlotData was invoked with unsupported plotName={}", plotName);
-            throw new UnsupportedOperationException("Plot type " + plotName + " doesn't supported");
-        }
+        PlotDataProvider plotDataProvider = findPlotDataProvider(plotName);
 
         List<PlotSeriesDto> plotSeriesDtoList = null;
         try {
@@ -296,5 +281,18 @@ public class PlotProviderServiceImpl implements PlotProviderService {
         }
 
         return true;
+    }
+
+    private PlotDataProvider findPlotDataProvider(String plotName) {
+        PlotDataProvider plotDataProvider = workloadPlotDataProviders.get(plotName);
+        if (plotDataProvider == null) {
+            plotDataProvider = monitoringPlotDataProviders.get(plotName);
+        }
+        if (plotDataProvider == null) {
+            log.warn("getPlotData was invoked with unsupported plotName={}", plotName);
+            throw new UnsupportedOperationException("Plot type " + plotName + " doesn't supported");
+        }
+
+        return plotDataProvider;
     }
 }
