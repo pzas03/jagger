@@ -38,6 +38,21 @@ public class LegendProvider {
         return generatePlotHeader(taskDataList, plotName);
     }
 
+    public String generatePlotLegend(String sessionId, String description, boolean addSessionPrefix) {
+        if (!addSessionPrefix) {
+            return description;
+        }
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("#").append(sessionId).append(": ").append(description);
+
+        return builder.toString();
+    }
+
+    public String generatePlotHeader(TaskData taskData, String plotName) {
+        return generatePlotHeader(taskData.getSessionId(), taskData.getTaskName(), plotName);
+    }
+
     private String generatePlotHeader(String sessionId, String taskName, String plotName) {
         StringBuilder builder = new StringBuilder();
         builder

@@ -34,29 +34,17 @@ public class LatencyPlotDataProvider implements PlotDataProvider {
 
     @Override
     public List<PlotSeriesDto> getPlotData(long taskId, String plotName) {
-        @SuppressWarnings("unchecked")
-        List<Object[]> rawData = (List<Object[]>) entityManager.createQuery(
-                "select tis.time, tis.latency, tis.latencyStdDev from TimeInvocationStatistics as tis where tis.taskData.id=:taskId")
-                .setParameter("taskId", taskId).getResultList();
+        checkArgument(taskId > 0, "taskId is not valid; it's lesser or equal 0");
+        checkNotNull(plotName, "plotName is null");
+
+        TaskData taskData = entityManager.find(TaskData.class, taskId);
+        List<Object[]> rawData = findAllTimeInvocationStatisticsByTaskData(taskId);
 
         if (rawData == null) {
             return Collections.emptyList();
         }
 
-        List<PointDto> pointDtoList = DataProcessingUtil.convertFromRawDataToPointDto(rawData, 0, 1);
-
-        String legend = DefaultWorkloadParameters.LATENCY.getDescription();
-        PlotDatasetDto plotDatasetDto = new PlotDatasetDto(pointDtoList, legend, ColorCodeGenerator.getHexColorCode());
-        Set<PlotDatasetDto> plotSeries = new HashSet<PlotDatasetDto>();
-        plotSeries.add(plotDatasetDto);
-
-        pointDtoList = DataProcessingUtil.convertFromRawDataToPointDto(rawData, 0, 2);
-
-        legend = DefaultWorkloadParameters.LATENCY_STD_DEV.getDescription();
-        plotDatasetDto = new PlotDatasetDto(pointDtoList, legend, ColorCodeGenerator.getHexColorCode());
-        plotSeries.add(plotDatasetDto);
-
-        PlotSeriesDto plotSeriesDto = new PlotSeriesDto(plotSeries, "Time, sec", "", legendProvider.getPlotHeader(taskId, plotName));
+        PlotSeriesDto plotSeriesDto = new PlotSeriesDto(assemble(rawData, taskData.getSessionId(), false), "Time, sec", "", legendProvider.generatePlotHeader(taskData, plotName));
 
         return Collections.singletonList(plotSeriesDto);
     }
@@ -71,26 +59,39 @@ public class LatencyPlotDataProvider implements PlotDataProvider {
         for (long taskId : taskIds) {
             TaskData taskData = entityManager.find(TaskData.class, taskId);
 
-            @SuppressWarnings("unchecked")
-            List<Object[]> rawData = (List<Object[]>) entityManager.createQuery(
-                    "select tis.time, tis.latency, tis.latencyStdDev from TimeInvocationStatistics as tis where tis.taskData=:taskData")
-                    .setParameter("taskData", taskData).getResultList();
+            List<Object[]> rawData = findAllTimeInvocationStatisticsByTaskData(taskId);
 
             if (rawData == null) {
                 continue;
             }
 
-            List<PointDto> pointDtoList = DataProcessingUtil.convertFromRawDataToPointDto(rawData, 0, 1);
-            String legend = "#" + taskData.getSessionId() + ": " + DefaultWorkloadParameters.LATENCY.getDescription();
-            PlotDatasetDto plotDatasetDto = new PlotDatasetDto(pointDtoList, legend, ColorCodeGenerator.getHexColorCode());
-            plotDatasetDtoList.add(plotDatasetDto);
-
-            pointDtoList = DataProcessingUtil.convertFromRawDataToPointDto(rawData, 0, 2);
-            legend = "#" + taskData.getSessionId() + ": " + DefaultWorkloadParameters.LATENCY_STD_DEV.getDescription();
-            plotDatasetDto = new PlotDatasetDto(pointDtoList, legend, ColorCodeGenerator.getHexColorCode());
-            plotDatasetDtoList.add(plotDatasetDto);
+            plotDatasetDtoList.addAll(assemble(rawData, taskData.getSessionId(), true));
         }
 
-        return Collections.singletonList(new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", legendProvider.getPlotHeader(taskIds, plotName)));
+        TaskData taskData = entityManager.find(TaskData.class, taskIds.iterator().next());
+        return Collections.singletonList(new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", legendProvider.generatePlotHeader(taskData, plotName)));
+    }
+
+    private List<PlotDatasetDto> assemble(List<Object[]> rawData, String sessionId, boolean addSessionPrefix) {
+        List<PlotDatasetDto> plotDatasetDtoList = new ArrayList<PlotDatasetDto>(2);
+
+        List<PointDto> pointDtoList = DataProcessingUtil.convertFromRawDataToPointDto(rawData, 0, 1);
+        String legend = legendProvider.generatePlotLegend(sessionId, DefaultWorkloadParameters.LATENCY.getDescription(), true);
+        PlotDatasetDto plotDatasetDto = new PlotDatasetDto(pointDtoList, legend, ColorCodeGenerator.getHexColorCode());
+        plotDatasetDtoList.add(plotDatasetDto);
+
+        pointDtoList = DataProcessingUtil.convertFromRawDataToPointDto(rawData, 0, 2);
+        legend = legendProvider.generatePlotLegend(sessionId, DefaultWorkloadParameters.LATENCY_STD_DEV.getDescription(), true);
+        plotDatasetDto = new PlotDatasetDto(pointDtoList, legend, ColorCodeGenerator.getHexColorCode());
+        plotDatasetDtoList.add(plotDatasetDto);
+
+        return plotDatasetDtoList;
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Object[]> findAllTimeInvocationStatisticsByTaskData(long taskId) {
+        return entityManager.createQuery(
+                "select tis.time, tis.latency, tis.latencyStdDev from TimeInvocationStatistics as tis where tis.taskData.id=:taskId")
+                .setParameter("taskId", taskId).getResultList();
     }
 }
