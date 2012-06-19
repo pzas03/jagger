@@ -1,11 +1,13 @@
 package com.griddynamics.jagger.webclient.client;
 
 import ca.nanometrics.gflot.client.*;
+import ca.nanometrics.gflot.client.event.PlotClickListener;
 import ca.nanometrics.gflot.client.event.PlotHoverListener;
 import ca.nanometrics.gflot.client.event.PlotItem;
 import ca.nanometrics.gflot.client.event.PlotPosition;
 import ca.nanometrics.gflot.client.jsni.Plot;
 import ca.nanometrics.gflot.client.options.*;
+import ca.nanometrics.gflot.client.options.Range;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
@@ -33,6 +35,8 @@ import com.griddynamics.jagger.webclient.client.data.SessionDataForDatePeriodAsy
 import com.griddynamics.jagger.webclient.client.data.TaskPlotNamesAsyncDataProvider;
 import com.griddynamics.jagger.webclient.client.dto.*;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 /**
@@ -74,6 +78,8 @@ public class Trends extends Composite {
     @UiField
     DateBox sessionsTo;
 
+    private final Map<String, Set<MarkingDto>> markingsMap = new HashMap<String, Set<MarkingDto>>();
+
     private FlowPanel loadIndicator;
 
     private SessionDataAsyncDataProvider sessionDataProvider = new SessionDataAsyncDataProvider();
@@ -88,7 +94,7 @@ public class Trends extends Composite {
         setupSessionsDateRange();
     }
 
-    private SimplePlot createPlot() {
+    private SimplePlot createPlot(final String id, Markings markings) {
         PlotOptions plotOptions = new PlotOptions();
         plotOptions.setGlobalSeriesOptions(new GlobalSeriesOptions()
                 .setLineSeriesOptions(new LineSeriesOptions().setLineWidth(1).setShow(true).setFill(0.1))
@@ -101,31 +107,88 @@ public class Trends extends Composite {
 
         plotOptions.setLegendOptions(new LegendOptions().setNumOfColumns(2));
 
-        // Make the grid hoverable
-        plotOptions.setGridOptions(new GridOptions().setHoverable(true));
+        if (markings == null) {
+            // Make the grid hoverable
+            plotOptions.setGridOptions(new GridOptions().setHoverable(true));
+        } else {
+            plotOptions.setGridOptions(new GridOptions().setHoverable(true).setMarkings(markings).setClickable(true));
+        }
+
         // create the plot
         SimplePlot plot = new SimplePlot(plotOptions);
         plot.setHeight(200);
         plot.setWidth("100%");
 
         final PopupPanel popup = new PopupPanel();
-        final Label label = new Label();
-        popup.add(label);
+        popup.setWidth("50px");
+        popup.addStyleName("info-panel");
+        final HTML popupPanelContent = new HTML();
+        popup.add(popupPanelContent);
 
         // add hover listener
         plot.addHoverListener(new PlotHoverListener() {
             public void onPlotHover(Plot plot, PlotPosition position, PlotItem item) {
                 if (item != null) {
-                    String text = "x: " + item.getDataPoint().getX() + ", y: " + item.getDataPoint().getY();
+                    popupPanelContent.setHTML("<table width=\"100%\"><tr><td>Time</td><td>" + item.getDataPoint().getX() +
+                    "</td></tr><tr><td>Value</td><td>" + item.getDataPoint().getY() + "</td></tr></table>");
 
-                    label.setText(text);
-                    popup.setPopupPosition(item.getPageX() + 10, item.getPageY() - 25);
+                    int clientWidth = Window.getClientWidth();
+                    if (item.getPageX() + 50 <= clientWidth) {
+                        popup.setPopupPosition(item.getPageX() + 10, item.getPageY() - 25);
+                    } else {
+                        popup.setPopupPosition(item.getPageX() - 50, item.getPageY() - 25);
+                    }
+
                     popup.show();
                 } else {
                     popup.hide();
                 }
             }
         }, false);
+
+        if (markings != null) {
+            final PopupPanel taskInfoPanel = new PopupPanel();
+            taskInfoPanel.setWidth("200px");
+            taskInfoPanel.addStyleName("info-panel");
+            final HTML taskInfoPanelContent = new HTML();
+            taskInfoPanel.add(taskInfoPanelContent);
+            taskInfoPanel.setAutoHideEnabled(true);
+            plot.addClickListener(new PlotClickListener() {
+                private final String plotId = id;
+
+                @Override
+                public void onPlotClick(Plot plot, PlotPosition position, PlotItem item) {
+                    if (position != null) {
+                        String taskName = "Not Determined";
+
+                        double prev = 0;
+                        Set<MarkingDto> markingDtoSet = markingsMap.get(plotId);
+                        if (markingDtoSet == null) {
+                            return;
+                        }
+
+                        for (MarkingDto dto : markingDtoSet) {
+                            if (position.getX() >= prev && position.getX() <= dto.getValue()) {
+                                taskName = dto.getTaskName();
+                                break;
+                            }
+                        }
+
+                        taskInfoPanelContent.setHTML("<table width=\"100%\"><tr><td>Clicked at</td><td>" +
+                                new BigDecimal(position.getX()).setScale(2, RoundingMode.HALF_EVEN) + " sec</td></tr>" +
+                                "<tr><td>Task name</td><td>" + taskName + "</td></tr></table>");
+
+                        int clientWidth = Window.getClientWidth();
+                        if (position.getPageX() + 200 < clientWidth) {
+                            taskInfoPanel.setPopupPosition(position.getPageX() + 10, position.getPageY() - 25);
+                        } else {
+                            taskInfoPanel.setPopupPosition(position.getPageX() - 200, position.getPageY() - 25);
+                        }
+                        taskInfoPanel.show();
+                    }
+                }
+            }, false);
+        }
 
         return plot;
     }
@@ -308,7 +371,18 @@ public class Trends extends Composite {
         plotGroupPanel.getElement().setId(id);
 
         for (PlotSeriesDto plotSeriesDto : plotSeriesDtoList) {
-            final SimplePlot plot = createPlot();
+            Markings markings = null;
+            if (plotSeriesDto.getMarkingSeries() != null) {
+                markings = new Markings();
+                for (MarkingDto plotDatasetDto : plotSeriesDto.getMarkingSeries()) {
+                    double x = plotDatasetDto.getValue();
+                    markings.addMarking(new Marking().setX(new Range(x, x)).setLineWidth(1).setColor(plotDatasetDto.getColor()));
+                }
+
+                markingsMap.put(id, new TreeSet<MarkingDto>(plotSeriesDto.getMarkingSeries()));
+            }
+
+            final SimplePlot plot = createPlot(id, markings);
             redrawingPlot = plot;
             PlotModel plotModel = plot.getModel();
 

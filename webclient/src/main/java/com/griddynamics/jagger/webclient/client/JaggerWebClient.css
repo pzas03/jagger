@@ -58,3 +58,34 @@ body {
 .zoom-panel {
     text-align: right;
 }
+
+.gwt-PopupPanel {
+    border: none;
+    padding: 0;
+    color: #999;
+    background-color: #eee;
+}
+
+.info-panel table {
+    border: 1px solid #999;
+    color: #999;
+    background-color: #eee;
+    border-collapse: collapse;
+    overflow: auto;
+}
+
+.info-panel table tr {
+    border: 1px solid #999;
+}
+
+.info-panel table tr td {
+    border: 1px solid #999;
+    padding: .3em;
+    text-align: justify;
+    word-wrap: break-word;
+    vertical-align: top;
+}
+
+.info-panel table tr td:first-child {
+    white-space: nowrap;
+}

@@ -6,6 +6,7 @@ import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadData;
 import com.griddynamics.jagger.monitoring.model.MonitoringStatistics;
 import com.griddynamics.jagger.monitoring.model.PerformedMonitoring;
 import com.griddynamics.jagger.monitoring.reporting.GroupKey;
+import com.griddynamics.jagger.webclient.client.dto.MarkingDto;
 import com.griddynamics.jagger.webclient.client.dto.PlotDatasetDto;
 import com.griddynamics.jagger.webclient.client.dto.PlotSeriesDto;
 import com.griddynamics.jagger.webclient.client.dto.PointDto;
@@ -136,7 +137,10 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
                 plotDatasetDtoList.add(plotDatasetDto);
             }
 
+            List<MarkingDto> markings = null;
             if (renderTaskBoundaries && workloadDataList.size() > 1) {
+                markings = new ArrayList<MarkingDto>();
+
                 double start = workloadDataList.get(0).getStartTime().getTime();
                 for (WorkloadData wd : workloadDataList) {
 
@@ -147,12 +151,17 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
                     pointDtoList.add(new PointDto(duration, 0));
                     pointDtoList.add(new PointDto(duration, maxValue));
 
-                    PlotDatasetDto plotDatasetDto = new PlotDatasetDto(pointDtoList, "", "#a4a4a4");
-                    plotDatasetDtoList.add(plotDatasetDto);
+                    String taskName = (String) entityManager.createQuery("select td.taskName from TaskData as td where td.sessionId=:sessionId and td.taskId=:taskId")
+                            .setParameter("sessionId", wd.getSessionId())
+                            .setParameter("taskId", wd.getTaskId())
+                            .getSingleResult();
+
+                    MarkingDto plotDatasetDto = new MarkingDto(duration, "#a4a4a4", taskName);
+                    markings.add(plotDatasetDto);
                 }
             }
 
-            plotSeriesDtoList.add(new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", "Session #" + sessionId + " " + plotName + " on " + boxIdentifier));
+            plotSeriesDtoList.add(new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", "Session #" + sessionId + " " + plotName + " on " + boxIdentifier, markings));
         }
 
         return plotSeriesDtoList;
