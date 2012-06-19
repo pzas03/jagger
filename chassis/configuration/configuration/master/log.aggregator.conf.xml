@@ -25,6 +25,8 @@
 
     <bean id="chronologyLogAggregator" class="com.griddynamics.jagger.storage.fs.logging.ChronologyLogAggregator">
         <property name="fileStorage" ref="fileStorage"/>
+        <property name="logReader" ref="bufferedLogReader" />
+        <property name="logWriter" ref="bufferedLogWriter" />
     </bean>
-
+    
 </beans>
