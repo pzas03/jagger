@@ -295,26 +295,6 @@ public class Trends extends Composite {
         sessionsFrom.addValueChangeHandler(valueChangeHandler);
     }
 
-    private String generateTaskScopePlotId(PlotNameDto plotNameDto) {
-        return "" + plotNameDto.getTaskIds() + "#task-scope-plot-" + plotNameDto.getPlotName().toLowerCase().replaceAll("\\s+", "-");
-    }
-
-    private String generateSessionScopePlotId(String sessionId, String plotName) {
-        return sessionId + "#session-scope-plot-" + plotName.toLowerCase().replaceAll("\\s+", "-");
-    }
-
-    private boolean isTaskScopePlotId(String domId) {
-        return domId.contains("#task-scope-plot-");
-    }
-
-    private boolean isSessionScopePlotId(String domId) {
-        return domId.contains("#session-scope-plot-");
-    }
-
-    private String extractEntityIdFromDomId(String plotId) {
-        return plotId.substring(0, plotId.indexOf("#"));
-    }
-
     private boolean isMaxPlotCountReached() {
         return plotPanel.getWidgetCount() >= MAX_PLOT_COUNT;
     }
@@ -402,7 +382,7 @@ public class Trends extends Composite {
     /**
      * Handles select session event
      */
-    private class SessionSelectChangeHandler implements SelectionChangeEvent.Handler {
+    private class SessionSelectChangeHandler extends PlotsServingBase implements SelectionChangeEvent.Handler {
         private final ClickHandler sessionScopePlotCheckBoxClickHandler;
 
         private SessionSelectChangeHandler(ClickHandler sessionScopePlotCheckBoxClickHandler) {
@@ -569,7 +549,7 @@ public class Trends extends Composite {
     /**
      * Handles specific plot of task selection
      */
-    private class TaskPlotSelectionChangedHandler implements SelectionChangeEvent.Handler {
+    private class TaskPlotSelectionChangedHandler extends PlotsServingBase implements SelectionChangeEvent.Handler {
         @Override
         public void onSelectionChange(SelectionChangeEvent event) {
             Set<PlotNameDto> selected = ((MultiSelectionModel<PlotNameDto>) event.getSource()).getSelectedSet();
@@ -578,14 +558,7 @@ public class Trends extends Composite {
             if (selected.isEmpty()) {
                 // Clear display because of no checked plots
                 // Remove plots from display which were unchecked
-                for (int i = 0; i < plotPanel.getWidgetCount(); i++) {
-                    Widget widget = plotPanel.getWidget(i);
-                    String widgetId = widget.getElement().getId();
-                    if (isTaskScopePlotId(widgetId)) {
-                        // Remove plot
-                        plotPanel.remove(i);
-                    }
-                }
+                plotPanel.clear();
             } else if (selectedSessions.size() == 1) {
                 // Generate all id of plots which should be displayed
                 Set<String> selectedTaskIds = new HashSet<String>();
@@ -648,14 +621,14 @@ public class Trends extends Composite {
                 // Generate all id of plots which should be displayed
                 Set<String> selectedTaskIds = new HashSet<String>();
                 for (PlotNameDto plotNameDto : selected) {
-                    selectedTaskIds.add(generateTaskScopePlotId(plotNameDto));
+                    selectedTaskIds.add(generateCrossSessionsTaskScopePlotId(plotNameDto));
                 }
 
                 // Remove plots from display which were unchecked
                 for (int i = 0; i < plotPanel.getWidgetCount(); i++) {
                     Widget widget = plotPanel.getWidget(i);
                     String widgetId = widget.getElement().getId();
-                    if (!isTaskScopePlotId(widgetId) || selectedTaskIds.contains(widgetId)) {
+                    if (!isCrossSessionsTaskScopePlotId(widgetId) || selectedTaskIds.contains(widgetId)) {
                         continue;
                     }
                     // Remove plot
@@ -670,7 +643,7 @@ public class Trends extends Composite {
                     }
 
                     // Generate DOM id for plot
-                    final String id = generateTaskScopePlotId(plotNameDto);
+                    final String id = generateCrossSessionsTaskScopePlotId(plotNameDto);
 
                     // If plot has already displayed, then pass it
                     if (plotPanel.getElementById(id) != null) {
@@ -680,8 +653,8 @@ public class Trends extends Composite {
                     plotPanel.add(loadIndicator);
                     scrollPanel.scrollToBottom();
                     final int loadingId = plotPanel.getWidgetCount() - 1;
+
                     // Invoke remote service for plot data retrieving
-                    //TODO Implement plot rendering
                     PlotProviderService.Async.getInstance().getPlotData(plotNameDto.getTaskIds(), plotNameDto.getPlotName(), new AsyncCallback<List<PlotSeriesDto>>() {
                         @Override
                         public void onFailure(Throwable caught) {
@@ -709,7 +682,7 @@ public class Trends extends Composite {
     /**
      * Handles clicks on session scope plot checkboxes
      */
-    private class SessionScopePlotCheckBoxClickHandler implements ClickHandler {
+    private class SessionScopePlotCheckBoxClickHandler extends PlotsServingBase implements ClickHandler {
         @Override
         public void onClick(ClickEvent event) {
             final CheckBox source = (CheckBox) event.getSource();
