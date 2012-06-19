@@ -1,6 +1,5 @@
 package com.griddynamics.jagger.webclient.client;
 
-import com.google.gwt.user.client.ui.HTMLPanel;
 import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
 
 /**

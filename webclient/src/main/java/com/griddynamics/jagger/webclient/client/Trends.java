@@ -96,7 +96,7 @@ public class Trends extends Composite {
         plotOptions.setPanOptions(new PanOptions().setInteractive(true));
 
         plotOptions.addXAxisOptions(new AxisOptions().setZoomRange(true));
-        plotOptions.addYAxisOptions(new AxisOptions().setZoomRange(true));
+        plotOptions.addYAxisOptions(new AxisOptions().setZoomRange(false));
 
         plotOptions.setLegendOptions(new LegendOptions().setNumOfColumns(2));
 
@@ -493,7 +493,6 @@ public class Trends extends Composite {
                 plotNameSelectionModel.clear();
                 sessionScopePlotList.clear();
 
-                //TODO Refactor it
                 final Set<String> sessionIds = new HashSet<String>();
                 for (SessionDataDto sessionDataDto : selected) {
                     sessionIds.add(sessionDataDto.getSessionId());
@@ -617,7 +616,6 @@ public class Trends extends Composite {
                     });
                 }
             } else {
-                //TODO Refactor it
                 // Generate all id of plots which should be displayed
                 Set<String> selectedTaskIds = new HashSet<String>();
                 for (PlotNameDto plotNameDto : selected) {
