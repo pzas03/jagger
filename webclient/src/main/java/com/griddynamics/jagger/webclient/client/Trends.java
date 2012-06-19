@@ -30,6 +30,7 @@ import com.google.gwt.view.client.*;
 import com.griddynamics.jagger.webclient.client.data.EmptyDateBoxValueChangePropagator;
 import com.griddynamics.jagger.webclient.client.data.SessionDataAsyncDataProvider;
 import com.griddynamics.jagger.webclient.client.data.SessionDataForDatePeriodAsyncProvider;
+import com.griddynamics.jagger.webclient.client.data.TaskPlotNamesAsyncDataProvider;
 import com.griddynamics.jagger.webclient.client.dto.*;
 
 import java.util.*;
@@ -414,10 +415,10 @@ public class Trends extends Composite {
                 plotPanel.clear();
                 plotNameSelectionModel.clear();
 
-                final SessionDataDto selectedSession = selected.iterator().next();
+                final String sessionId = selected.iterator().next().getSessionId();
 
                 // Populate session scope plot list
-                PlotProviderService.Async.getInstance().getSessionScopePlotList(selectedSession.getSessionId(), new AsyncCallback<Set<String>>() {
+                PlotProviderService.Async.getInstance().getSessionScopePlotList(sessionId, new AsyncCallback<Set<String>>() {
                     @Override
                     public void onFailure(Throwable caught) {
                         Window.alert("Error is occurred during server request processing (Session scope plot names for task fetching)");
@@ -431,19 +432,18 @@ public class Trends extends Composite {
                             CheckBox checkBox = new CheckBox(plotName);
 
                             // If plot for this one is already rendered we check it
-                            if (plotPanel.getElementById(generateSessionScopePlotId(selectedSession.getSessionId(), plotName)) != null) {
+                            if (plotPanel.getElementById(generateSessionScopePlotId(sessionId, plotName)) != null) {
                                 checkBox.setValue(true, false);
                             }
-                            checkBox.getElement().setId(generateSessionScopePlotId(selectedSession.getSessionId(), plotName)+"_checkbox");
+                            checkBox.getElement().setId(generateSessionScopePlotId(sessionId, plotName)+"_checkbox");
                             checkBox.addClickHandler(sessionScopePlotCheckBoxClickHandler);
                             sessionScopePlotList.add(checkBox);
                         }
                     }
                 });
 
-                // TODO Make lazy loading by task selected
                 // Populate task scope session list
-                TaskDataService.Async.getInstance().getTaskDataForSession(selectedSession.getSessionId(), new AsyncCallback<List<TaskDataDto>>() {
+                TaskDataService.Async.getInstance().getTaskDataForSession(sessionId, new AsyncCallback<List<TaskDataDto>>() {
                     @Override
                     public void onFailure(Throwable caught) {
                         Window.alert("Error is occurred during server request processing (Task data fetching)");
@@ -459,30 +459,14 @@ public class Trends extends Composite {
                         } else {
                             taskDataProvider.getList().addAll(result);
                         }
-
                         // Populate available plots tree level for each task for selected session
+                        Set<String> sessionIds = new HashSet<String>();
+                        sessionIds.add(sessionId);
+
                         for (TaskDataDto taskDataDto : result) {
-                            final ListDataProvider<PlotNameDto> plotNameDataProvider = ((WorkloadTaskDetailsTreeViewModel)
-                                    taskDetailsTree.getTreeViewModel()).getPlotNameDataProvider(taskDataDto);
-
-                            PlotProviderService.Async.getInstance().getTaskScopePlotList(selectedSession.getSessionId(), taskDataDto.getId(), new AsyncCallback<Set<PlotNameDto>>() {
-                                @Override
-                                public void onFailure(Throwable caught) {
-                                    Window.alert("Error is occurred during server request processing (Plot names for task fetching)");
-                                }
-
-                                @Override
-                                public void onSuccess(Set<PlotNameDto> result) {
-                                    plotNameDataProvider.getList().clear();
-                                    plotNameDataProvider.getList().addAll(result);
-
-                                    // Close all tree nodes when new session is selected
-                                    int childCount = taskDetailsTree.getRootTreeNode().getChildCount();
-                                    for (int i = 0; i < childCount; i++) {
-                                        taskDetailsTree.getRootTreeNode().setChildOpen(i, false);
-                                    }
-                                }
-                            });
+                            ((WorkloadTaskDetailsTreeViewModel)
+                                    taskDetailsTree.getTreeViewModel()).getPlotNameDataProviders().put
+                                    (taskDataDto, new TaskPlotNamesAsyncDataProvider(taskDataDto, sessionIds));
                         }
                     }
                 });
@@ -517,27 +501,9 @@ public class Trends extends Composite {
 
                         // Populate available plots tree level for each task for selected session
                         for (TaskDataDto taskDataDto : result) {
-                            final ListDataProvider<PlotNameDto> plotNameDataProvider = ((WorkloadTaskDetailsTreeViewModel)
-                                    taskDetailsTree.getTreeViewModel()).getPlotNameDataProvider(taskDataDto);
-
-                            PlotProviderService.Async.getInstance().getTaskScopePlotList(sessionIds, taskDataDto, new AsyncCallback<Set<PlotNameDto>>() {
-                                @Override
-                                public void onFailure(Throwable caught) {
-                                    Window.alert("Error is occurred during server request processing (Plot names for task fetching)");
-                                }
-
-                                @Override
-                                public void onSuccess(Set<PlotNameDto> result) {
-                                    plotNameDataProvider.getList().clear();
-                                    plotNameDataProvider.getList().addAll(result);
-
-                                    // Close all tree nodes when new session is selected
-                                    int childCount = taskDetailsTree.getRootTreeNode().getChildCount();
-                                    for (int i = 0; i < childCount; i++) {
-                                        taskDetailsTree.getRootTreeNode().setChildOpen(i, false);
-                                    }
-                                }
-                            });
+                            ((WorkloadTaskDetailsTreeViewModel)
+                                    taskDetailsTree.getTreeViewModel()).getPlotNameDataProviders().put
+                                    (taskDataDto, new TaskPlotNamesAsyncDataProvider(taskDataDto, sessionIds));
                         }
                     }
                 });
