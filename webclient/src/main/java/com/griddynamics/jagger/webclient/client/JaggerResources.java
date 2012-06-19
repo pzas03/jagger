@@ -2,6 +2,7 @@ package com.griddynamics.jagger.webclient.client;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.ImageResource;
 
 /**
@@ -13,4 +14,8 @@ public interface JaggerResources extends ClientBundle {
 
     @Source("ajax-loader.gif")
     ImageResource getLoadIndicator();
+
+    @Source("JaggerWebClient.css")
+    @CssResource.NotStrict
+    CssResource css();
 }
