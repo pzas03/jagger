@@ -193,13 +193,13 @@ public class PlotProviderServiceImpl implements PlotProviderService {
                 }
             }
 
-            /*for (String sessionId : sessionIds) {
+            for (String sessionId : sessionIds) {
                 if (isMonitoringStatisticsAvailable(sessionId)) {
                     for (Map.Entry<GroupKey, DefaultMonitoringParameters[]> monitoringPlot : monitoringPlotGroups.entrySet()) {
                         plotNameDtoSet.add(new PlotNameDto(taskDataDto.getIds(), monitoringPlot.getKey().getUpperName()));
                     }
                 }
-            }*/
+            }
         } catch (Exception e) {
             log.error("Error was occurred during task scope plots data getting for session IDs " + sessionIds + ", task name " + taskDataDto.getTaskName(), e);
             throw new RuntimeException(e);
