@@ -1,4 +1,4 @@
-package com.griddynamics.jagger.webclient.client;
+package com.griddynamics.jagger.webclient.client.trends;
 
 import ca.nanometrics.gflot.client.DataPoint;
 import ca.nanometrics.gflot.client.PlotModel;
@@ -6,6 +6,7 @@ import ca.nanometrics.gflot.client.SeriesHandler;
 import ca.nanometrics.gflot.client.SimplePlot;
 import ca.nanometrics.gflot.client.options.*;
 import ca.nanometrics.gflot.client.options.Range;
+import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
@@ -15,6 +16,7 @@ import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
@@ -27,6 +29,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.gwt.view.client.*;
+import com.griddynamics.jagger.webclient.client.*;
 import com.griddynamics.jagger.webclient.client.data.*;
 import com.griddynamics.jagger.webclient.client.dto.*;
 import com.griddynamics.jagger.webclient.client.handler.ShowCurrentValueHoverListener;
@@ -39,7 +42,7 @@ import java.util.*;
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
  * @since 5/28/12
  */
-public class Trends extends Composite {
+public class Trends extends DefaultActivity {
     interface TrendsUiBinder extends UiBinder<Widget, Trends> {
     }
 
@@ -68,11 +71,11 @@ public class Trends extends Composite {
     @UiField
     TextBox sessionNumberTextBox;
 
-    @UiField
-    DateBox sessionsFrom;
+//    @UiField
+//    DateBox sessionsFrom;
 
-    @UiField
-    DateBox sessionsTo;
+//    @UiField
+//    DateBox sessionsTo;
 
     private final Map<String, Set<MarkingDto>> markingsMap = new HashMap<String, Set<MarkingDto>>();
 
@@ -80,14 +83,29 @@ public class Trends extends Composite {
 
     private SessionDataAsyncDataProvider sessionDataProvider = new SessionDataAsyncDataProvider();
 
+    @UiField
+    Widget widget;
+
     public Trends() {
+    }
+
+    @Override
+    protected Widget initializeWidget() {
+        createWidget();
+
+        return widget;
+    }
+
+    private void createWidget() {
         setupTaskDetailsTree();
         setupDataGrid();
         setupPager();
         setupLoadIndicator();
-        initWidget(uiBinder.createAndBindUi(this));
+
+        uiBinder.createAndBindUi(this);
+
         setupSessionNumberTextBox();
-        setupSessionsDateRange();
+//        setupSessionsDateRange();
     }
 
     private SimplePlot createPlot(final String id, Markings markings) {
@@ -215,16 +233,24 @@ public class Trends extends Composite {
     }
 
     private void setupSessionNumberTextBox() {
+
         final Timer stopTypingTimer = new Timer() {
+            private AsyncDataProvider<SessionDataDto> sessionIdsAsyncProvider;
+
             @Override
             public void run() {
                 final String currentContent = sessionNumberTextBox.getText().trim();
+
+                if (sessionIdsAsyncProvider != null && sessionIdsAsyncProvider.getDataDisplays().contains(sessionsDataGrid)) {
+                    sessionIdsAsyncProvider.removeDataDisplay(sessionsDataGrid);
+                }
 
                 // If session ID text box is empty then load all sessions
                 if (currentContent == null || currentContent.isEmpty()) {
                     if (!sessionDataProvider.getDataDisplays().contains(sessionsDataGrid)) {
                         sessionDataProvider.addDataDisplay(sessionsDataGrid);
                     }
+
                     return;
                 }
 
@@ -239,8 +265,8 @@ public class Trends extends Composite {
                     sessionDataProvider.removeDataDisplay(sessionsDataGrid);
                 }
 
-                AsyncDataProvider<SessionDataDto> asyncDataForDatePeriodProvider = new SessionDataForSessionIdsAsyncProvider(sessionIds);
-                asyncDataForDatePeriodProvider.addDataDisplay(sessionsDataGrid);
+                sessionIdsAsyncProvider = new SessionDataForSessionIdsAsyncProvider(sessionIds);
+                sessionIdsAsyncProvider.addDataDisplay(sessionsDataGrid);
             }
         };
 
@@ -252,7 +278,7 @@ public class Trends extends Composite {
         });
     }
 
-    private void setupSessionsDateRange() {
+    /*private void setupSessionsDateRange() {
         DateTimeFormat format = DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.YEAR_MONTH_NUM_DAY);
 
         sessionsFrom.setFormat(new DateBox.DefaultFormat(format));
@@ -262,14 +288,20 @@ public class Trends extends Composite {
         sessionsTo.getTextBox().addValueChangeHandler(new EmptyDateBoxValueChangePropagator(sessionsTo));
 
         final ValueChangeHandler<Date> valueChangeHandler = new ValueChangeHandler<Date>() {
+            private AsyncDataProvider<SessionDataDto> asyncDataForDatePeriodProvider;
+
             @Override
             public void onValueChange(ValueChangeEvent<Date> dateValueChangeEvent) {
+//                sessionNumberTextBox.setValue(null);
                 Date fromDate = sessionsFrom.getValue();
                 Date toDate = sessionsTo.getValue();
 
                 if (fromDate == null || toDate == null) {
                     if (!sessionDataProvider.getDataDisplays().contains(sessionsDataGrid)) {
                         sessionDataProvider.addDataDisplay(sessionsDataGrid);
+                    }
+                    if (asyncDataForDatePeriodProvider != null && asyncDataForDatePeriodProvider.getDataDisplays().contains(sessionsDataGrid)) {
+                        asyncDataForDatePeriodProvider.getDataDisplays().clear();
                     }
                     return;
                 }
@@ -278,14 +310,14 @@ public class Trends extends Composite {
                     sessionDataProvider.removeDataDisplay(sessionsDataGrid);
                 }
 
-                AsyncDataProvider<SessionDataDto> asyncDataForDatePeriodProvider = new SessionDataForDatePeriodAsyncProvider(fromDate, toDate);
+                asyncDataForDatePeriodProvider = new SessionDataForDatePeriodAsyncProvider(fromDate, toDate);
                 asyncDataForDatePeriodProvider.addDataDisplay(sessionsDataGrid);
             }
         };
 
         sessionsTo.addValueChangeHandler(valueChangeHandler);
         sessionsFrom.addValueChangeHandler(valueChangeHandler);
-    }
+    }*/
 
     private boolean isMaxPlotCountReached() {
         return plotPanel.getWidgetCount() >= MAX_PLOT_COUNT;

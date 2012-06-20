@@ -6,6 +6,70 @@ body {
     margin: 8px;
 }
 
+.main-panel {
+    margin: 60px 10px 10px 10px;
+}
+
+.nav-panel {
+    text-decoration: none;
+    font-weight: bold;
+    color: #336699;
+    width: 100%;
+}
+
+.nav-panel ul {
+    margin: 0;
+    padding: 0;
+}
+
+.nav-panel ul li {
+    display: inline;
+    float: left;
+    list-style: none;
+    margin: 0 0 0 2px;
+    padding: .5em;
+}
+
+.nav-panel a {
+    text-decoration: none;
+    font-weight: bold;
+    color: #336699;
+    display: block;
+    padding: 5px 10px;
+
+    border: 1px solid #336699;
+    -moz-border-radius: 3px 3px 0 0;
+    -webkit-border-radius: 3px 3px 0 0;
+    -o-border-radius: 3px 3px 0 0;
+    border-radius: 3px 3px 0 0;
+}
+
+.nav-panel a:visited {
+    color: #336699;
+}
+
+.nav-panel a:hover {
+    text-decoration: underline;
+}
+
+.nav-panel ul li a.current-item {
+    color: #ffffff;
+    background-color: #336699;
+    -moz-border-radius: 3px 3px 0 0;
+    -webkit-border-radius: 3px 3px 0 0;
+    -o-border-radius: 3px 3px 0 0;
+    border-radius: 3px 3px 0 0;
+}
+
+.content-panel {
+    border: 2px solid #336699;
+    margin: 0;
+}
+
+.plotPanel {
+    margin: 5px;
+}
+
 .x-axis-label {
     text-align: center;
     color: #545454;
