@@ -227,7 +227,7 @@ public class Trends extends Composite {
             @Override
             public void run() {
                 try {
-                    final String currentContent = sessionNumberTextBox.getText();
+                    final String currentContent = sessionNumberTextBox.getText().trim();
 
                     // If session ID text box is empty then load all sessions
                     if (currentContent == null || currentContent.isEmpty()) {
@@ -237,26 +237,27 @@ public class Trends extends Composite {
                         return;
                     }
 
-                    // Session ID has String type in DB but actually it is positive integer
-                    int num = Integer.parseInt(currentContent);
-                    if (num < 0) {
-                        throw new NumberFormatException();
+                    Set<String> sessionIds = new HashSet<String>();
+                    if (currentContent.contains(",") || currentContent.contains(";")) {
+                        sessionIds.addAll(Arrays.asList(currentContent.split("\\s*(,|;|/)\\s*")));
+                    } else {
+                        sessionIds.add(currentContent);
                     }
 
-                    SessionDataService.Async.getInstance().getBySessionId(currentContent, new AsyncCallback<SessionDataDto>() {
+                    SessionDataService.Async.getInstance().getBySessionIds(0, sessionIds.size(), sessionIds, new AsyncCallback<PagedSessionDataDto>() {
                         @Override
                         public void onFailure(Throwable caught) {
                             Window.alert("Error is occurred during server request processing (Session data fetching) for session ID " + currentContent + ": " + caught.getMessage());
                         }
 
                         @Override
-                        public void onSuccess(SessionDataDto result) {
+                        public void onSuccess(PagedSessionDataDto result) {
                             if (sessionDataProvider.getDataDisplays().contains(sessionsDataGrid)) {
                                 sessionDataProvider.removeDataDisplay(sessionsDataGrid);
                             }
 
                             dataProvider.getList().clear();
-                            dataProvider.getList().add(result);
+                            dataProvider.getList().addAll(result.getSessionDataDtoList());
                             if (!dataProvider.getDataDisplays().contains(sessionsDataGrid)) {
                                 dataProvider.addDataDisplay(sessionsDataGrid);
                             }
