@@ -34,6 +34,8 @@ import com.griddynamics.jagger.webclient.client.data.SessionDataAsyncDataProvide
 import com.griddynamics.jagger.webclient.client.data.SessionDataForDatePeriodAsyncProvider;
 import com.griddynamics.jagger.webclient.client.data.TaskPlotNamesAsyncDataProvider;
 import com.griddynamics.jagger.webclient.client.dto.*;
+import com.griddynamics.jagger.webclient.client.handler.ShowCurrentValueHoverListener;
+import com.griddynamics.jagger.webclient.client.handler.ShowTaskDetailsListener;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
 
 import java.math.BigDecimal;
@@ -127,25 +129,7 @@ public class Trends extends Composite {
         popup.add(popupPanelContent);
 
         // add hover listener
-        plot.addHoverListener(new PlotHoverListener() {
-            public void onPlotHover(Plot plot, PlotPosition position, PlotItem item) {
-                if (item != null) {
-                    popupPanelContent.setHTML("<table width=\"100%\"><tr><td>Time</td><td>" + item.getDataPoint().getX() +
-                    "</td></tr><tr><td>Value</td><td>" + item.getDataPoint().getY() + "</td></tr></table>");
-
-                    int clientWidth = Window.getClientWidth();
-                    if (item.getPageX() + 50 <= clientWidth) {
-                        popup.setPopupPosition(item.getPageX() + 10, item.getPageY() - 25);
-                    } else {
-                        popup.setPopupPosition(item.getPageX() - 50, item.getPageY() - 25);
-                    }
-
-                    popup.show();
-                } else {
-                    popup.hide();
-                }
-            }
-        }, false);
+        plot.addHoverListener(new ShowCurrentValueHoverListener(popup, 50, popupPanelContent), false);
 
         if (markings != null) {
             final PopupPanel taskInfoPanel = new PopupPanel();
@@ -154,41 +138,8 @@ public class Trends extends Composite {
             final HTML taskInfoPanelContent = new HTML();
             taskInfoPanel.add(taskInfoPanelContent);
             taskInfoPanel.setAutoHideEnabled(true);
-            plot.addClickListener(new PlotClickListener() {
-                private final String plotId = id;
 
-                @Override
-                public void onPlotClick(Plot plot, PlotPosition position, PlotItem item) {
-                    if (position != null) {
-                        String taskName = "Not Determined";
-
-                        double prev = 0;
-                        Set<MarkingDto> markingDtoSet = markingsMap.get(plotId);
-                        if (markingDtoSet == null) {
-                            return;
-                        }
-
-                        for (MarkingDto dto : markingDtoSet) {
-                            if (position.getX() >= prev && position.getX() <= dto.getValue()) {
-                                taskName = dto.getTaskName();
-                                break;
-                            }
-                        }
-
-                        taskInfoPanelContent.setHTML("<table width=\"100%\"><tr><td>Clicked at</td><td>" +
-                                new BigDecimal(position.getX()).setScale(2, RoundingMode.HALF_EVEN) + " sec</td></tr>" +
-                                "<tr><td>Task name</td><td>" + taskName + "</td></tr></table>");
-
-                        int clientWidth = Window.getClientWidth();
-                        if (position.getPageX() + 200 < clientWidth) {
-                            taskInfoPanel.setPopupPosition(position.getPageX() + 10, position.getPageY() - 25);
-                        } else {
-                            taskInfoPanel.setPopupPosition(position.getPageX() - 200, position.getPageY() - 25);
-                        }
-                        taskInfoPanel.show();
-                    }
-                }
-            }, false);
+            plot.addClickListener(new ShowTaskDetailsListener(id, markingsMap, taskInfoPanel, 200, taskInfoPanelContent), false);
         }
 
         return plot;
