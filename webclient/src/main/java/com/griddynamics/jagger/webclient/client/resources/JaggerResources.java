@@ -1,4 +1,4 @@
-package com.griddynamics.jagger.webclient.client;
+package com.griddynamics.jagger.webclient.client.resources;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ClientBundle;

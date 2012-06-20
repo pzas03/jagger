@@ -1,8 +1,8 @@
 package com.griddynamics.jagger.webclient.client;
 
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.dom.client.StyleInjector;
 import com.google.gwt.user.client.ui.*;
+import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
 
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)

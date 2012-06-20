@@ -34,6 +34,7 @@ import com.griddynamics.jagger.webclient.client.data.SessionDataAsyncDataProvide
 import com.griddynamics.jagger.webclient.client.data.SessionDataForDatePeriodAsyncProvider;
 import com.griddynamics.jagger.webclient.client.data.TaskPlotNamesAsyncDataProvider;
 import com.griddynamics.jagger.webclient.client.dto.*;
+import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
