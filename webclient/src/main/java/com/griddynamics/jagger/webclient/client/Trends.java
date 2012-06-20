@@ -1,11 +1,9 @@
 package com.griddynamics.jagger.webclient.client;
 
-import ca.nanometrics.gflot.client.*;
-import ca.nanometrics.gflot.client.event.PlotClickListener;
-import ca.nanometrics.gflot.client.event.PlotHoverListener;
-import ca.nanometrics.gflot.client.event.PlotItem;
-import ca.nanometrics.gflot.client.event.PlotPosition;
-import ca.nanometrics.gflot.client.jsni.Plot;
+import ca.nanometrics.gflot.client.DataPoint;
+import ca.nanometrics.gflot.client.PlotModel;
+import ca.nanometrics.gflot.client.SeriesHandler;
+import ca.nanometrics.gflot.client.SimplePlot;
 import ca.nanometrics.gflot.client.options.*;
 import ca.nanometrics.gflot.client.options.Range;
 import com.google.gwt.cell.client.CheckboxCell;
@@ -29,17 +27,12 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.gwt.view.client.*;
-import com.griddynamics.jagger.webclient.client.data.EmptyDateBoxValueChangePropagator;
-import com.griddynamics.jagger.webclient.client.data.SessionDataAsyncDataProvider;
-import com.griddynamics.jagger.webclient.client.data.SessionDataForDatePeriodAsyncProvider;
-import com.griddynamics.jagger.webclient.client.data.TaskPlotNamesAsyncDataProvider;
+import com.griddynamics.jagger.webclient.client.data.*;
 import com.griddynamics.jagger.webclient.client.dto.*;
 import com.griddynamics.jagger.webclient.client.handler.ShowCurrentValueHoverListener;
 import com.griddynamics.jagger.webclient.client.handler.ShowTaskDetailsListener;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.*;
 
 /**
@@ -222,50 +215,32 @@ public class Trends extends Composite {
     }
 
     private void setupSessionNumberTextBox() {
-        final ListDataProvider<SessionDataDto> dataProvider = new ListDataProvider<SessionDataDto>();
         final Timer stopTypingTimer = new Timer() {
             @Override
             public void run() {
-                try {
-                    final String currentContent = sessionNumberTextBox.getText().trim();
+                final String currentContent = sessionNumberTextBox.getText().trim();
 
-                    // If session ID text box is empty then load all sessions
-                    if (currentContent == null || currentContent.isEmpty()) {
-                        dataProvider.removeDataDisplay(sessionsDataGrid);
+                // If session ID text box is empty then load all sessions
+                if (currentContent == null || currentContent.isEmpty()) {
+                    if (!sessionDataProvider.getDataDisplays().contains(sessionsDataGrid)) {
                         sessionDataProvider.addDataDisplay(sessionsDataGrid);
-
-                        return;
                     }
-
-                    Set<String> sessionIds = new HashSet<String>();
-                    if (currentContent.contains(",") || currentContent.contains(";")) {
-                        sessionIds.addAll(Arrays.asList(currentContent.split("\\s*(,|;|/)\\s*")));
-                    } else {
-                        sessionIds.add(currentContent);
-                    }
-
-                    SessionDataService.Async.getInstance().getBySessionIds(0, sessionIds.size(), sessionIds, new AsyncCallback<PagedSessionDataDto>() {
-                        @Override
-                        public void onFailure(Throwable caught) {
-                            Window.alert("Error is occurred during server request processing (Session data fetching) for session ID " + currentContent + ": " + caught.getMessage());
-                        }
-
-                        @Override
-                        public void onSuccess(PagedSessionDataDto result) {
-                            if (sessionDataProvider.getDataDisplays().contains(sessionsDataGrid)) {
-                                sessionDataProvider.removeDataDisplay(sessionsDataGrid);
-                            }
-
-                            dataProvider.getList().clear();
-                            dataProvider.getList().addAll(result.getSessionDataDtoList());
-                            if (!dataProvider.getDataDisplays().contains(sessionsDataGrid)) {
-                                dataProvider.addDataDisplay(sessionsDataGrid);
-                            }
-                        }
-                    });
-                } catch (NumberFormatException e) {
-                    Window.alert("Session number must be a positive integer");
+                    return;
                 }
+
+                Set<String> sessionIds = new HashSet<String>();
+                if (currentContent.contains(",") || currentContent.contains(";") || currentContent.contains("/")) {
+                    sessionIds.addAll(Arrays.asList(currentContent.split("\\s*[,;/]\\s*")));
+                } else {
+                    sessionIds.add(currentContent);
+                }
+
+                if (sessionDataProvider.getDataDisplays().contains(sessionsDataGrid)) {
+                    sessionDataProvider.removeDataDisplay(sessionsDataGrid);
+                }
+
+                AsyncDataProvider<SessionDataDto> asyncDataForDatePeriodProvider = new SessionDataForSessionIdsAsyncProvider(sessionIds);
+                asyncDataForDatePeriodProvider.addDataDisplay(sessionsDataGrid);
             }
         };
 
@@ -462,7 +437,7 @@ public class Trends extends Composite {
                             if (plotPanel.getElementById(generateSessionScopePlotId(sessionId, plotName)) != null) {
                                 checkBox.setValue(true, false);
                             }
-                            checkBox.getElement().setId(generateSessionScopePlotId(sessionId, plotName)+"_checkbox");
+                            checkBox.getElement().setId(generateSessionScopePlotId(sessionId, plotName) + "_checkbox");
                             checkBox.addClickHandler(sessionScopePlotCheckBoxClickHandler);
                             sessionScopePlotList.add(checkBox);
                         }
@@ -545,7 +520,7 @@ public class Trends extends Composite {
         @Override
         public void onSelectionChange(SelectionChangeEvent event) {
             Set<PlotNameDto> selected = ((MultiSelectionModel<PlotNameDto>) event.getSource()).getSelectedSet();
-            final Set<SessionDataDto> selectedSessions = ((MultiSelectionModel<SessionDataDto>)sessionsDataGrid.getSelectionModel()).getSelectedSet();
+            final Set<SessionDataDto> selectedSessions = ((MultiSelectionModel<SessionDataDto>) sessionsDataGrid.getSelectionModel()).getSelectedSet();
 
             if (selected.isEmpty()) {
                 // Clear display because of no checked plots
