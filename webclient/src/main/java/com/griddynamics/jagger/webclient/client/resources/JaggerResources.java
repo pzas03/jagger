@@ -10,12 +10,40 @@ import com.google.gwt.resources.client.ImageResource;
  * @since 6/1/12
  */
 public interface JaggerResources extends ClientBundle {
-    public static final JaggerResources INSTANCE =  GWT.create(JaggerResources.class);
+    public static final JaggerResources INSTANCE = GWT.create(JaggerResources.class);
 
     @Source("ajax-loader.gif")
     ImageResource getLoadIndicator();
 
     @Source("JaggerWebClient.css")
     @CssResource.NotStrict
-    CssResource css();
+    JaggerStyle css();
+
+    public interface JaggerStyle extends CssResource {
+        String currentItem();
+
+        String infoPanel();
+
+        String centered();
+
+        String taskDetailsTree();
+
+        String xAxisLabel();
+
+        String plotHeader();
+
+        String plotLegend();
+
+        String plotPanel();
+
+        String zoomLabel();
+
+        String zoomPanel();
+
+        String mainPanel();
+
+        String navPanel();
+
+        String contentPanel();
+    }
 }

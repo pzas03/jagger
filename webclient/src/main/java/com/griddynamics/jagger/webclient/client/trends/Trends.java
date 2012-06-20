@@ -6,7 +6,6 @@ import ca.nanometrics.gflot.client.SeriesHandler;
 import ca.nanometrics.gflot.client.SimplePlot;
 import ca.nanometrics.gflot.client.options.*;
 import ca.nanometrics.gflot.client.options.Range;
-import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
@@ -14,10 +13,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -27,10 +22,11 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
-import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.gwt.view.client.*;
 import com.griddynamics.jagger.webclient.client.*;
-import com.griddynamics.jagger.webclient.client.data.*;
+import com.griddynamics.jagger.webclient.client.data.SessionDataAsyncDataProvider;
+import com.griddynamics.jagger.webclient.client.data.SessionDataForSessionIdsAsyncProvider;
+import com.griddynamics.jagger.webclient.client.data.TaskPlotNamesAsyncDataProvider;
 import com.griddynamics.jagger.webclient.client.dto.*;
 import com.griddynamics.jagger.webclient.client.handler.ShowCurrentValueHoverListener;
 import com.griddynamics.jagger.webclient.client.handler.ShowTaskDetailsListener;
@@ -86,7 +82,8 @@ public class Trends extends DefaultActivity {
     @UiField
     Widget widget;
 
-    public Trends() {
+    public Trends(JaggerResources resources) {
+        super(resources);
     }
 
     @Override
@@ -135,7 +132,7 @@ public class Trends extends DefaultActivity {
 
         final PopupPanel popup = new PopupPanel();
         popup.setWidth("50px");
-        popup.addStyleName("info-panel");
+        popup.addStyleName(getResources().css().infoPanel());
         final HTML popupPanelContent = new HTML();
         popup.add(popupPanelContent);
 
@@ -145,7 +142,7 @@ public class Trends extends DefaultActivity {
         if (markings != null) {
             final PopupPanel taskInfoPanel = new PopupPanel();
             taskInfoPanel.setWidth("200px");
-            taskInfoPanel.addStyleName("info-panel");
+            taskInfoPanel.addStyleName(getResources().css().infoPanel());
             final HTML taskInfoPanelContent = new HTML();
             taskInfoPanel.add(taskInfoPanelContent);
             taskInfoPanel.setAutoHideEnabled(true);
@@ -219,16 +216,16 @@ public class Trends extends DefaultActivity {
         CellTree.Resources res = GWT.create(CellTree.BasicResources.class);
         final MultiSelectionModel<PlotNameDto> selectionModel = new MultiSelectionModel<PlotNameDto>();
         taskDetailsTree = new CellTree(new WorkloadTaskDetailsTreeViewModel(selectionModel), null, res);
-        taskDetailsTree.addStyleName("task-details-tree");
+        taskDetailsTree.addStyleName(getResources().css().taskDetailsTree());
 
         selectionModel.addSelectionChangeHandler(new TaskPlotSelectionChangedHandler());
     }
 
     private void setupLoadIndicator() {
-        ImageResource imageResource = JaggerResources.INSTANCE.getLoadIndicator();
+        ImageResource imageResource = getResources().getLoadIndicator();
         Image image = new Image(imageResource);
         loadIndicator = new FlowPanel();
-        loadIndicator.addStyleName("centered");
+        loadIndicator.addStyleName(getResources().css().centered());
         loadIndicator.add(image);
     }
 
@@ -357,19 +354,19 @@ public class Trends extends DefaultActivity {
 
             // Add X axis label
             Label xLabel = new Label(plotSeriesDto.getXAxisLabel());
-            xLabel.addStyleName("x-axis-label");
+            xLabel.addStyleName(getResources().css().xAxisLabel());
 
             Label plotHeader = new Label(plotSeriesDto.getPlotHeader());
-            plotHeader.addStyleName("plot-header");
+            plotHeader.addStyleName(getResources().css().plotHeader());
 
             Label plotLegend = new Label("PLOT LEGEND");
-            plotLegend.addStyleName("plot-legend");
+            plotLegend.addStyleName(getResources().css().plotLegend());
 
             VerticalPanel vp = new VerticalPanel();
             vp.setWidth("100%");
 
             Label zoomInLabel = new Label("Zoom In");
-            zoomInLabel.addStyleName("zoom-label");
+            zoomInLabel.addStyleName(getResources().css().zoomLabel());
             zoomInLabel.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
@@ -378,7 +375,7 @@ public class Trends extends DefaultActivity {
             });
 
             Label zoomOutLabel = new Label("Zoom Out");
-            zoomOutLabel.addStyleName("zoom-label");
+            zoomOutLabel.addStyleName(getResources().css().zoomLabel());
             zoomOutLabel.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
@@ -387,7 +384,7 @@ public class Trends extends DefaultActivity {
             });
 
             FlowPanel zoomPanel = new FlowPanel();
-            zoomPanel.addStyleName("zoom-panel");
+            zoomPanel.addStyleName(getResources().css().zoomPanel());
             zoomPanel.add(zoomInLabel);
             zoomPanel.add(zoomOutLabel);
 

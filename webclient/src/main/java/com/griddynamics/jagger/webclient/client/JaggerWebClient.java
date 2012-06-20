@@ -12,7 +12,6 @@ import com.google.web.bindery.event.shared.SimpleEventBus;
 import com.griddynamics.jagger.webclient.client.mvp.JaggerActivityMapper;
 import com.griddynamics.jagger.webclient.client.mvp.JaggerPlaceHistoryMapper;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
-import com.griddynamics.jagger.webclient.client.trends.Trends;
 import com.griddynamics.jagger.webclient.client.trends.TrendsPlace;
 
 /**
@@ -27,14 +26,14 @@ public class JaggerWebClient implements EntryPoint {
         // Initialize the history handler and activity manager
         EventBus eventBus = new SimpleEventBus();
 
-        ActivityMapper activityMapper = new JaggerActivityMapper();
+        ActivityMapper activityMapper = new JaggerActivityMapper(JaggerResources.INSTANCE);
         PlaceHistoryMapper placeHistoryMapper = new JaggerPlaceHistoryMapper();
 
         PlaceController placeController = new PlaceController(eventBus);
         PlaceHistoryHandler placeHistoryHandler = new PlaceHistoryHandler(placeHistoryMapper);
         placeHistoryHandler.register(placeController, eventBus, new TrendsPlace());
 
-        MainView mainView = new MainView();
+        MainView mainView = new MainView(eventBus, JaggerResources.INSTANCE);
         RootLayoutPanel.get().add(mainView);
 
         ActivityManager activityManager = new ActivityManager(activityMapper, eventBus);
