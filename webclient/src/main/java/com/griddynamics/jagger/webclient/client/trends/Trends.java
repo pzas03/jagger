@@ -1,9 +1,6 @@
 package com.griddynamics.jagger.webclient.client.trends;
 
-import ca.nanometrics.gflot.client.DataPoint;
-import ca.nanometrics.gflot.client.PlotModel;
-import ca.nanometrics.gflot.client.SeriesHandler;
-import ca.nanometrics.gflot.client.SimplePlot;
+import ca.nanometrics.gflot.client.*;
 import ca.nanometrics.gflot.client.options.*;
 import ca.nanometrics.gflot.client.options.Range;
 import com.google.gwt.cell.client.CheckboxCell;
@@ -365,6 +362,26 @@ public class Trends extends DefaultActivity {
             VerticalPanel vp = new VerticalPanel();
             vp.setWidth("100%");
 
+            Label panLeftLabel = new Label();
+            panLeftLabel.addStyleName(getResources().css().panLabel());
+            panLeftLabel.getElement().appendChild(new Image(getResources().getArrowLeft()).getElement());
+            panLeftLabel.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    plot.pan(new Pan().setLeft(-100));
+                }
+            });
+
+            Label panRightLabel = new Label();
+            panRightLabel.addStyleName(getResources().css().panLabel());
+            panRightLabel.getElement().appendChild(new Image(getResources().getArrowRight()).getElement());
+            panRightLabel.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    plot.pan(new Pan().setLeft(100));
+                }
+            });
+
             Label zoomInLabel = new Label("Zoom In");
             zoomInLabel.addStyleName(getResources().css().zoomLabel());
             zoomInLabel.addClickHandler(new ClickHandler() {
@@ -385,6 +402,8 @@ public class Trends extends DefaultActivity {
 
             FlowPanel zoomPanel = new FlowPanel();
             zoomPanel.addStyleName(getResources().css().zoomPanel());
+            zoomPanel.add(panLeftLabel);
+            zoomPanel.add(panRightLabel);
             zoomPanel.add(zoomInLabel);
             zoomPanel.add(zoomOutLabel);
 

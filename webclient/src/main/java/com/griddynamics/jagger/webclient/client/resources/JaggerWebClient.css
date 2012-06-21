@@ -121,9 +121,21 @@ input[type="text"] {
     font-size: smaller;
     color: #999;
     background-color: #eee;
-    padding: .1em .5em;
+    padding: .2em .5em .4em .5em;
     cursor: pointer;
     display: inline-block;
+}
+
+.panLabel {
+    color: #999;
+    background-color: #eee;
+    padding: 0 .5em .2em .5em;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.panLabel img {
+    vertical-align: middle;
 }
 
 .zoomPanel {

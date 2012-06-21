@@ -15,6 +15,12 @@ public interface JaggerResources extends ClientBundle {
     @Source("ajax-loader.gif")
     ImageResource getLoadIndicator();
 
+    @Source("arrow-left.gif")
+    ImageResource getArrowLeft();
+
+    @Source("arrow-right.gif")
+    ImageResource getArrowRight();
+
     @Source("JaggerWebClient.css")
     @CssResource.NotStrict
     JaggerStyle css();
@@ -45,5 +51,7 @@ public interface JaggerResources extends ClientBundle {
         String navPanel();
 
         String contentPanel();
+
+        String panLabel();
     }
 }
