@@ -31,7 +31,7 @@
                                                 <tr>
                                                     <td width="45%">Select by Session Number:</td>
                                                     <td width="25%">
-                                                        <g:TextBox ui:field="sessionNumberTextBox" width="100%"/>
+                                                        <g:TextBox ui:field="sessionIdsTextBox" width="100%"/>
                                                     </td>
                                                     <td width="5%"/>
                                                     <td width="25%"/>

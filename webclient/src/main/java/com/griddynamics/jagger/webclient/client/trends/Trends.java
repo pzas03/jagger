@@ -6,10 +6,7 @@ import ca.nanometrics.gflot.client.options.Range;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyUpEvent;
-import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -62,7 +59,9 @@ public class Trends extends DefaultActivity {
     VerticalPanel sessionScopePlotList;
 
     @UiField
-    TextBox sessionNumberTextBox;
+    TextBox sessionIdsTextBox;
+
+    private Timer stopTypingSessionIdsTimer;
 
 //    @UiField
 //    DateBox sessionsFrom;
@@ -81,6 +80,22 @@ public class Trends extends DefaultActivity {
 
     public Trends(JaggerResources resources) {
         super(resources);
+    }
+
+    public void setSessionIds(Set<String> sessionIds) {
+        if (sessionIds == null) {
+            return;
+        }
+        MultiSelectionModel<SessionDataDto> selectionModel = (MultiSelectionModel<SessionDataDto>) sessionsDataGrid.getSelectionModel();
+        selectionModel.clear();
+
+        StringBuilder builder = new StringBuilder();
+        for (String sessionId : sessionIds) {
+            selectionModel.setSelected(new SessionDataDto(sessionId), true);
+            builder.append(sessionId).append("/");
+        }
+        sessionIdsTextBox.setText(builder.toString());
+        stopTypingSessionIdsTimer.schedule(10);
     }
 
     @Override
@@ -228,12 +243,12 @@ public class Trends extends DefaultActivity {
 
     private void setupSessionNumberTextBox() {
 
-        final Timer stopTypingTimer = new Timer() {
+        stopTypingSessionIdsTimer = new Timer() {
             private AsyncDataProvider<SessionDataDto> sessionIdsAsyncProvider;
 
             @Override
             public void run() {
-                final String currentContent = sessionNumberTextBox.getText().trim();
+                final String currentContent = sessionIdsTextBox.getText().trim();
 
                 if (sessionIdsAsyncProvider != null && sessionIdsAsyncProvider.getDataDisplays().contains(sessionsDataGrid)) {
                     sessionIdsAsyncProvider.removeDataDisplay(sessionsDataGrid);
@@ -264,10 +279,10 @@ public class Trends extends DefaultActivity {
             }
         };
 
-        sessionNumberTextBox.addKeyUpHandler(new KeyUpHandler() {
+        sessionIdsTextBox.addKeyUpHandler(new KeyUpHandler() {
             @Override
             public void onKeyUp(KeyUpEvent event) {
-                stopTypingTimer.schedule(500);
+                stopTypingSessionIdsTimer.schedule(500);
             }
         });
     }
@@ -286,7 +301,7 @@ public class Trends extends DefaultActivity {
 
             @Override
             public void onValueChange(ValueChangeEvent<Date> dateValueChangeEvent) {
-//                sessionNumberTextBox.setValue(null);
+//                sessionIdsTextBox.setValue(null);
                 Date fromDate = sessionsFrom.getValue();
                 Date toDate = sessionsTo.getValue();
 
