@@ -80,19 +80,26 @@ public class Trends extends DefaultActivity {
 
     public Trends(JaggerResources resources) {
         super(resources);
+
+        createWidget();
     }
 
     public void setSessionIds(Set<String> sessionIds) {
-        if (sessionIds == null) {
+        if (sessionIds == null || sessionsDataGrid == null) {
             return;
         }
         MultiSelectionModel<SessionDataDto> selectionModel = (MultiSelectionModel<SessionDataDto>) sessionsDataGrid.getSelectionModel();
         selectionModel.clear();
 
         StringBuilder builder = new StringBuilder();
+        boolean first = true;
         for (String sessionId : sessionIds) {
+            if (!first) {
+                builder.append("/");
+            }
+            builder.append(sessionId);
             selectionModel.setSelected(new SessionDataDto(sessionId), true);
-            builder.append(sessionId).append("/");
+            first = false;
         }
         sessionIdsTextBox.setText(builder.toString());
         stopTypingSessionIdsTimer.schedule(10);
@@ -100,8 +107,6 @@ public class Trends extends DefaultActivity {
 
     @Override
     protected Widget initializeWidget() {
-        createWidget();
-
         return widget;
     }
 
@@ -134,6 +139,7 @@ public class Trends extends DefaultActivity {
             // Make the grid hoverable
             plotOptions.setGridOptions(new GridOptions().setHoverable(true));
         } else {
+            // Make the grid hoverable and add  markings
             plotOptions.setGridOptions(new GridOptions().setHoverable(true).setMarkings(markings).setClickable(true));
         }
 
@@ -151,7 +157,7 @@ public class Trends extends DefaultActivity {
         // add hover listener
         plot.addHoverListener(new ShowCurrentValueHoverListener(popup, 50, popupPanelContent), false);
 
-        if (markings != null) {
+        if (markings != null && markingsMap != null && !markingsMap.isEmpty()) {
             final PopupPanel taskInfoPanel = new PopupPanel();
             taskInfoPanel.setWidth("200px");
             taskInfoPanel.addStyleName(getResources().css().infoPanel());
@@ -464,21 +470,24 @@ public class Trends extends DefaultActivity {
             final ListDataProvider<TaskDataDto> taskDataProvider = workloadTaskDetailsTreeViewModel.getTaskDataProvider();
             final MultiSelectionModel<PlotNameDto> plotNameSelectionModel = workloadTaskDetailsTreeViewModel.getSelectionModel();
 
-            if (selected.isEmpty()) {
-                // If no sessions are selected, clear plot display, clear task tree, clear plot selection model
-                plotPanel.clear();
-                taskDataProvider.getList().clear();
-                taskDataProvider.getList().add(WorkloadTaskDetailsTreeViewModel.getNoTasksDummyNode());
+            // Close all tree nodes when new session is selected
+            for (int i = 0; i < taskDetailsTree.getRootTreeNode().getChildCount(); i++) {
+                taskDetailsTree.getRootTreeNode().setChildOpen(i, false);
+            }
 
-                plotNameSelectionModel.clear();
+            // Clear plots display
+            plotPanel.clear();
+            // Clear task scope plot selection model
+            plotNameSelectionModel.clear();
+            // Clear session scope plot list
+            sessionScopePlotList.clear();
+            // Clear markings dto map
+            markingsMap.clear();
+            taskDataProvider.getList().clear();
+            taskDataProvider.getList().add(WorkloadTaskDetailsTreeViewModel.getNoTasksDummyNode());
 
-                // Clear session scope plot list
-                sessionScopePlotList.clear();
-            } else if (selected.size() == 1) {
+            if (selected.size() == 1) {
                 // If selected single session clear plot display, clear plot selection and fetch all data for given session
-
-                plotPanel.clear();
-                plotNameSelectionModel.clear();
 
                 final String sessionId = selected.iterator().next().getSessionId();
 
@@ -517,11 +526,8 @@ public class Trends extends DefaultActivity {
                     @Override
                     public void onSuccess(List<TaskDataDto> result) {
                         // Populate task first level tree with server data
-                        taskDataProvider.getList().clear();
-                        if (result.isEmpty()) {
-                            taskDataProvider.getList().add(WorkloadTaskDetailsTreeViewModel.getNoTasksDummyNode());
-                            return;
-                        } else {
+                        if (!result.isEmpty()) {
+                            taskDataProvider.getList().clear();
                             taskDataProvider.getList().addAll(result);
                         }
                         // Populate available plots tree level for each task for selected session
@@ -535,12 +541,8 @@ public class Trends extends DefaultActivity {
                         }
                     }
                 });
-            } else {
+            } else if (selected.size() > 1) {
                 // If selected several sessions
-
-                plotPanel.clear();
-                plotNameSelectionModel.clear();
-                sessionScopePlotList.clear();
 
                 final Set<String> sessionIds = new HashSet<String>();
                 for (SessionDataDto sessionDataDto : selected) {
@@ -556,11 +558,8 @@ public class Trends extends DefaultActivity {
                     @Override
                     public void onSuccess(List<TaskDataDto> result) {
                         // Populate task first level tree with server data
-                        taskDataProvider.getList().clear();
-                        if (result.isEmpty()) {
-                            taskDataProvider.getList().add(WorkloadTaskDetailsTreeViewModel.getNoTasksDummyNode());
-                            return;
-                        } else {
+                        if (!result.isEmpty()) {
+                            taskDataProvider.getList().clear();
                             taskDataProvider.getList().addAll(result);
                         }
 
@@ -586,9 +585,15 @@ public class Trends extends DefaultActivity {
             final Set<SessionDataDto> selectedSessions = ((MultiSelectionModel<SessionDataDto>) sessionsDataGrid.getSelectionModel()).getSelectedSet();
 
             if (selected.isEmpty()) {
-                // Clear display because of no checked plots
                 // Remove plots from display which were unchecked
-                plotPanel.clear();
+                for (int i = 0; i < plotPanel.getWidgetCount(); i++) {
+                    Widget widget = plotPanel.getWidget(i);
+                    String widgetId = widget.getElement().getId();
+                    if (isTaskScopePlotId(widgetId) || isCrossSessionsTaskScopePlotId(widgetId)) {
+                        plotPanel.remove(i);
+                        break;
+                    }
+                }
             } else if (selectedSessions.size() == 1) {
                 // Generate all id of plots which should be displayed
                 Set<String> selectedTaskIds = new HashSet<String>();
