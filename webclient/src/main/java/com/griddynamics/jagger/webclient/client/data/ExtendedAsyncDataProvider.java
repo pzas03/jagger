@@ -22,4 +22,16 @@ public abstract class ExtendedAsyncDataProvider<T> extends AsyncDataProvider<T> 
             onRangeChanged(display);
         }
     }
+
+    public void addDataDisplayIfNotExists(final HasData<T> display) {
+        if (!getDataDisplays().contains(display)) {
+            addDataDisplay(display);
+        }
+    }
+
+    public void removeDataDisplayIfNotExists(final HasData<T> display) {
+        if (getDataDisplays().contains(display)) {
+            removeDataDisplay(display);
+        }
+    }
 }

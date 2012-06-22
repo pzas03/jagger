@@ -22,6 +22,8 @@ import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.gwt.view.client.*;
 import com.griddynamics.jagger.webclient.client.*;
+import com.griddynamics.jagger.webclient.client.callback.SessionScopePlotListQueryCallback;
+import com.griddynamics.jagger.webclient.client.callback.TaskDataDtoListQueryAsyncCallback;
 import com.griddynamics.jagger.webclient.client.data.*;
 import com.griddynamics.jagger.webclient.client.dto.*;
 import com.griddynamics.jagger.webclient.client.handler.ShowCurrentValueHoverListener;
@@ -260,12 +262,8 @@ public class Trends extends DefaultActivity {
 
                 // If session ID text box is empty then load all sessions
                 if (currentContent == null || currentContent.isEmpty()) {
-                    if (!sessionDataProvider.getDataDisplays().contains(sessionsDataGrid)) {
-                        sessionDataProvider.addDataDisplay(sessionsDataGrid);
-                    }
-                    if (sessionDataForSessionIdsAsyncProvider.getDataDisplays().contains(sessionsDataGrid)) {
-                        sessionDataForSessionIdsAsyncProvider.removeDataDisplay(sessionsDataGrid);
-                    }
+                    sessionDataProvider.addDataDisplayIfNotExists(sessionsDataGrid);
+                    sessionDataForSessionIdsAsyncProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
 
                     return;
                 }
@@ -279,15 +277,9 @@ public class Trends extends DefaultActivity {
 
                 sessionDataForSessionIdsAsyncProvider.setSessionIds(sessionIds);
 
-                if (sessionDataProvider.getDataDisplays().contains(sessionsDataGrid)) {
-                    sessionDataProvider.removeDataDisplay(sessionsDataGrid);
-                }
-                if (sessionDataForDatePeriodAsyncProvider.getDataDisplays().contains(sessionsDataGrid)) {
-                    sessionDataForDatePeriodAsyncProvider.removeDataDisplay(sessionsDataGrid);
-                }
-                if (!sessionDataForSessionIdsAsyncProvider.getDataDisplays().contains(sessionsDataGrid)) {
-                    sessionDataForSessionIdsAsyncProvider.addDataDisplay(sessionsDataGrid);
-                }
+                sessionDataProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
+                sessionDataForDatePeriodAsyncProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
+                sessionDataForSessionIdsAsyncProvider.addDataDisplayIfNotExists(sessionsDataGrid);
             }
         };
 
@@ -319,26 +311,17 @@ public class Trends extends DefaultActivity {
                 Date toDate = sessionsTo.getValue();
 
                 if (fromDate == null || toDate == null) {
-                    if (!sessionDataProvider.getDataDisplays().contains(sessionsDataGrid)) {
-                        sessionDataProvider.addDataDisplay(sessionsDataGrid);
-                    }
-                    if (sessionDataForDatePeriodAsyncProvider.getDataDisplays().contains(sessionsDataGrid)) {
-                        sessionDataForDatePeriodAsyncProvider.removeDataDisplay(sessionsDataGrid);
-                    }
+                    sessionDataProvider.addDataDisplayIfNotExists(sessionsDataGrid);
+                    sessionDataForDatePeriodAsyncProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
+
                     return;
                 }
 
                 sessionDataForDatePeriodAsyncProvider.setDateRange(fromDate, toDate);
 
-                if (sessionDataProvider.getDataDisplays().contains(sessionsDataGrid)) {
-                    sessionDataProvider.removeDataDisplay(sessionsDataGrid);
-                }
-                if (sessionDataForSessionIdsAsyncProvider.getDataDisplays().contains(sessionsDataGrid)) {
-                    sessionDataForSessionIdsAsyncProvider.removeDataDisplay(sessionsDataGrid);
-                }
-                if (!sessionDataForDatePeriodAsyncProvider.getDataDisplays().contains(sessionsDataGrid)) {
-                    sessionDataForDatePeriodAsyncProvider.addDataDisplay(sessionsDataGrid);
-                }
+                sessionDataProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
+                sessionDataForSessionIdsAsyncProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
+                sessionDataForDatePeriodAsyncProvider.addDataDisplayIfNotExists(sessionsDataGrid);
             }
         };
 
@@ -466,7 +449,7 @@ public class Trends extends DefaultActivity {
     /**
      * Handles select session event
      */
-    private class SessionSelectChangeHandler extends PlotsServingBase implements SelectionChangeEvent.Handler {
+    private class SessionSelectChangeHandler implements SelectionChangeEvent.Handler {
         private final ClickHandler sessionScopePlotCheckBoxClickHandler;
 
         private SessionSelectChangeHandler(ClickHandler sessionScopePlotCheckBoxClickHandler) {
@@ -481,11 +464,6 @@ public class Trends extends DefaultActivity {
             final WorkloadTaskDetailsTreeViewModel workloadTaskDetailsTreeViewModel = (WorkloadTaskDetailsTreeViewModel) taskDetailsTree.getTreeViewModel();
             final ListDataProvider<TaskDataDto> taskDataProvider = workloadTaskDetailsTreeViewModel.getTaskDataProvider();
             final MultiSelectionModel<PlotNameDto> plotNameSelectionModel = workloadTaskDetailsTreeViewModel.getSelectionModel();
-
-            // Close all tree nodes when new session is selected
-            for (int i = 0; i < taskDetailsTree.getRootTreeNode().getChildCount(); i++) {
-                taskDetailsTree.getRootTreeNode().setChildOpen(i, false);
-            }
 
             // Clear plots display
             plotPanel.clear();
@@ -504,55 +482,14 @@ public class Trends extends DefaultActivity {
                 final String sessionId = selected.iterator().next().getSessionId();
 
                 // Populate session scope plot list
-                PlotProviderService.Async.getInstance().getSessionScopePlotList(sessionId, new AsyncCallback<Set<String>>() {
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        Window.alert("Error is occurred during server request processing (Session scope plot names for task fetching)");
-                    }
+                PlotProviderService.Async.getInstance().getSessionScopePlotList(sessionId,
+                        new SessionScopePlotListQueryCallback(sessionId, sessionScopePlotList, plotPanel, sessionScopePlotCheckBoxClickHandler));
 
-                    @Override
-                    public void onSuccess(Set<String> result) {
-                        // Populate session scope available plots
-                        sessionScopePlotList.clear();
-                        for (String plotName : result) {
-                            CheckBox checkBox = new CheckBox(plotName);
-
-                            // If plot for this one is already rendered we check it
-                            if (plotPanel.getElementById(generateSessionScopePlotId(sessionId, plotName)) != null) {
-                                checkBox.setValue(true, false);
-                            }
-                            checkBox.getElement().setId(generateSessionScopePlotId(sessionId, plotName) + "_checkbox");
-                            checkBox.addClickHandler(sessionScopePlotCheckBoxClickHandler);
-                            sessionScopePlotList.add(checkBox);
-                        }
-                    }
-                });
+                final Set<String> sessionIds = new HashSet<String>(Arrays.asList(sessionId));
 
                 // Populate task scope session list
-                TaskDataService.Async.getInstance().getTaskDataForSession(sessionId, new AsyncCallback<List<TaskDataDto>>() {
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        Window.alert("Error is occurred during server request processing (Task data fetching)");
-                    }
-
-                    @Override
-                    public void onSuccess(List<TaskDataDto> result) {
-                        // Populate task first level tree with server data
-                        if (!result.isEmpty()) {
-                            taskDataProvider.getList().clear();
-                            taskDataProvider.getList().addAll(result);
-                        }
-                        // Populate available plots tree level for each task for selected session
-                        Set<String> sessionIds = new HashSet<String>();
-                        sessionIds.add(sessionId);
-
-                        for (TaskDataDto taskDataDto : result) {
-                            ((WorkloadTaskDetailsTreeViewModel)
-                                    taskDetailsTree.getTreeViewModel()).getPlotNameDataProviders().put
-                                    (taskDataDto, new TaskPlotNamesAsyncDataProvider(taskDataDto, sessionIds));
-                        }
-                    }
-                });
+                TaskDataService.Async.getInstance().getTaskDataForSession(sessionId,
+                        new TaskDataDtoListQueryAsyncCallback(sessionIds, taskDataProvider, workloadTaskDetailsTreeViewModel));
             } else if (selected.size() > 1) {
                 // If selected several sessions
 
@@ -561,28 +498,8 @@ public class Trends extends DefaultActivity {
                     sessionIds.add(sessionDataDto.getSessionId());
                 }
 
-                TaskDataService.Async.getInstance().getTaskDataForSessions(sessionIds, new AsyncCallback<List<TaskDataDto>>() {
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        Window.alert("Error is occurred during server request processing (Task data fetching)");
-                    }
-
-                    @Override
-                    public void onSuccess(List<TaskDataDto> result) {
-                        // Populate task first level tree with server data
-                        if (!result.isEmpty()) {
-                            taskDataProvider.getList().clear();
-                            taskDataProvider.getList().addAll(result);
-                        }
-
-                        // Populate available plots tree level for each task for selected session
-                        for (TaskDataDto taskDataDto : result) {
-                            ((WorkloadTaskDetailsTreeViewModel)
-                                    taskDetailsTree.getTreeViewModel()).getPlotNameDataProviders().put
-                                    (taskDataDto, new TaskPlotNamesAsyncDataProvider(taskDataDto, sessionIds));
-                        }
-                    }
-                });
+                TaskDataService.Async.getInstance().getTaskDataForSessions(sessionIds,
+                        new TaskDataDtoListQueryAsyncCallback(sessionIds, taskDataProvider, workloadTaskDetailsTreeViewModel));
             }
         }
     }
