@@ -18,7 +18,7 @@
                         <g:center>
                             <c:DataGrid ui:field="sessionsDataGrid" width="100%" title="Sessions"/>
                         </g:center>
-                        <g:south size="100">
+                        <g:south size="90">
                             <g:HTMLPanel>
                                 <table width="100%">
                                     <tr>
@@ -28,21 +28,21 @@
                                     </tr>
                                     <tr>
                                         <td>
-                                            <table width="99%">
+                                            <table width="100%">
                                                 <tr>
-                                                    <td width="45%">Select by Session Number:</td>
+                                                    <td style="white-space: nowrap;">Select by Session Number:</td>
                                                     <td colspan="3">
-                                                        <g:TextBox ui:field="sessionIdsTextBox" width="100%"/>
+                                                        <g:TextBox ui:field="sessionIdsTextBox" width="99%"/>
                                                     </td>
                                                 </tr>
                                                 <tr>
-                                                    <td width="45%">Select by Date Range</td>
-                                                    <td width="25%">
-                                                        <datepicker:DateBox ui:field="sessionsFrom" width="100%"/>
+                                                    <td style="white-space: nowrap;">Select by Date Range</td>
+                                                    <td>
+                                                        <datepicker:DateBox ui:field="sessionsFrom" width="98%"/>
                                                     </td>
-                                                    <td width="5%" style="text-align: center;">-</td>
-                                                    <td width="25%">
-                                                        <datepicker:DateBox ui:field="sessionsTo" width="100%"/>
+                                                    <td class="{res.css.centered}">-</td>
+                                                    <td style="text-align: right;">
+                                                        <datepicker:DateBox ui:field="sessionsTo" width="98%"/>
                                                     </td>
                                                 </tr>
                                             </table>
