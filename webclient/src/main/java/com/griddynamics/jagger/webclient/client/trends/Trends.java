@@ -7,6 +7,9 @@ import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -16,11 +19,10 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.gwt.view.client.*;
 import com.griddynamics.jagger.webclient.client.*;
-import com.griddynamics.jagger.webclient.client.data.SessionDataAsyncDataProvider;
-import com.griddynamics.jagger.webclient.client.data.SessionDataForSessionIdsAsyncProvider;
-import com.griddynamics.jagger.webclient.client.data.TaskPlotNamesAsyncDataProvider;
+import com.griddynamics.jagger.webclient.client.data.*;
 import com.griddynamics.jagger.webclient.client.dto.*;
 import com.griddynamics.jagger.webclient.client.handler.ShowCurrentValueHoverListener;
 import com.griddynamics.jagger.webclient.client.handler.ShowTaskDetailsListener;
@@ -63,17 +65,19 @@ public class Trends extends DefaultActivity {
 
     private Timer stopTypingSessionIdsTimer;
 
-//    @UiField
-//    DateBox sessionsFrom;
+    @UiField
+    DateBox sessionsFrom;
 
-//    @UiField
-//    DateBox sessionsTo;
+    @UiField
+    DateBox sessionsTo;
 
     private final Map<String, Set<MarkingDto>> markingsMap = new HashMap<String, Set<MarkingDto>>();
 
     private FlowPanel loadIndicator;
 
-    private SessionDataAsyncDataProvider sessionDataProvider = new SessionDataAsyncDataProvider();
+    private final SessionDataAsyncDataProvider sessionDataProvider = new SessionDataAsyncDataProvider();
+    private final SessionDataForSessionIdsAsyncProvider sessionDataForSessionIdsAsyncProvider = new SessionDataForSessionIdsAsyncProvider();
+    private final SessionDataForDatePeriodAsyncProvider sessionDataForDatePeriodAsyncProvider = new SessionDataForDatePeriodAsyncProvider();
 
     @UiField
     Widget widget;
@@ -119,7 +123,7 @@ public class Trends extends DefaultActivity {
         uiBinder.createAndBindUi(this);
 
         setupSessionNumberTextBox();
-//        setupSessionsDateRange();
+        setupSessionsDateRange();
     }
 
     private SimplePlot createPlot(final String id, Markings markings) {
@@ -248,22 +252,19 @@ public class Trends extends DefaultActivity {
     }
 
     private void setupSessionNumberTextBox() {
-
         stopTypingSessionIdsTimer = new Timer() {
-            private AsyncDataProvider<SessionDataDto> sessionIdsAsyncProvider;
 
             @Override
             public void run() {
                 final String currentContent = sessionIdsTextBox.getText().trim();
 
-                if (sessionIdsAsyncProvider != null && sessionIdsAsyncProvider.getDataDisplays().contains(sessionsDataGrid)) {
-                    sessionIdsAsyncProvider.removeDataDisplay(sessionsDataGrid);
-                }
-
                 // If session ID text box is empty then load all sessions
                 if (currentContent == null || currentContent.isEmpty()) {
                     if (!sessionDataProvider.getDataDisplays().contains(sessionsDataGrid)) {
                         sessionDataProvider.addDataDisplay(sessionsDataGrid);
+                    }
+                    if (sessionDataForSessionIdsAsyncProvider.getDataDisplays().contains(sessionsDataGrid)) {
+                        sessionDataForSessionIdsAsyncProvider.removeDataDisplay(sessionsDataGrid);
                     }
 
                     return;
@@ -276,24 +277,31 @@ public class Trends extends DefaultActivity {
                     sessionIds.add(currentContent);
                 }
 
+                sessionDataForSessionIdsAsyncProvider.setSessionIds(sessionIds);
+
                 if (sessionDataProvider.getDataDisplays().contains(sessionsDataGrid)) {
                     sessionDataProvider.removeDataDisplay(sessionsDataGrid);
                 }
-
-                sessionIdsAsyncProvider = new SessionDataForSessionIdsAsyncProvider(sessionIds);
-                sessionIdsAsyncProvider.addDataDisplay(sessionsDataGrid);
+                if (sessionDataForDatePeriodAsyncProvider.getDataDisplays().contains(sessionsDataGrid)) {
+                    sessionDataForDatePeriodAsyncProvider.removeDataDisplay(sessionsDataGrid);
+                }
+                if (!sessionDataForSessionIdsAsyncProvider.getDataDisplays().contains(sessionsDataGrid)) {
+                    sessionDataForSessionIdsAsyncProvider.addDataDisplay(sessionsDataGrid);
+                }
             }
         };
 
         sessionIdsTextBox.addKeyUpHandler(new KeyUpHandler() {
             @Override
             public void onKeyUp(KeyUpEvent event) {
+                sessionsFrom.setValue(null);
+                sessionsTo.setValue(null);
                 stopTypingSessionIdsTimer.schedule(500);
             }
         });
     }
 
-    /*private void setupSessionsDateRange() {
+    private void setupSessionsDateRange() {
         DateTimeFormat format = DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.YEAR_MONTH_NUM_DAY);
 
         sessionsFrom.setFormat(new DateBox.DefaultFormat(format));
@@ -303,11 +311,10 @@ public class Trends extends DefaultActivity {
         sessionsTo.getTextBox().addValueChangeHandler(new EmptyDateBoxValueChangePropagator(sessionsTo));
 
         final ValueChangeHandler<Date> valueChangeHandler = new ValueChangeHandler<Date>() {
-            private AsyncDataProvider<SessionDataDto> asyncDataForDatePeriodProvider;
 
             @Override
             public void onValueChange(ValueChangeEvent<Date> dateValueChangeEvent) {
-//                sessionIdsTextBox.setValue(null);
+                sessionIdsTextBox.setValue(null);
                 Date fromDate = sessionsFrom.getValue();
                 Date toDate = sessionsTo.getValue();
 
@@ -315,24 +322,29 @@ public class Trends extends DefaultActivity {
                     if (!sessionDataProvider.getDataDisplays().contains(sessionsDataGrid)) {
                         sessionDataProvider.addDataDisplay(sessionsDataGrid);
                     }
-                    if (asyncDataForDatePeriodProvider != null && asyncDataForDatePeriodProvider.getDataDisplays().contains(sessionsDataGrid)) {
-                        asyncDataForDatePeriodProvider.getDataDisplays().clear();
+                    if (sessionDataForDatePeriodAsyncProvider.getDataDisplays().contains(sessionsDataGrid)) {
+                        sessionDataForDatePeriodAsyncProvider.removeDataDisplay(sessionsDataGrid);
                     }
                     return;
                 }
 
+                sessionDataForDatePeriodAsyncProvider.setDateRange(fromDate, toDate);
+
                 if (sessionDataProvider.getDataDisplays().contains(sessionsDataGrid)) {
                     sessionDataProvider.removeDataDisplay(sessionsDataGrid);
                 }
-
-                asyncDataForDatePeriodProvider = new SessionDataForDatePeriodAsyncProvider(fromDate, toDate);
-                asyncDataForDatePeriodProvider.addDataDisplay(sessionsDataGrid);
+                if (sessionDataForSessionIdsAsyncProvider.getDataDisplays().contains(sessionsDataGrid)) {
+                    sessionDataForSessionIdsAsyncProvider.removeDataDisplay(sessionsDataGrid);
+                }
+                if (!sessionDataForDatePeriodAsyncProvider.getDataDisplays().contains(sessionsDataGrid)) {
+                    sessionDataForDatePeriodAsyncProvider.addDataDisplay(sessionsDataGrid);
+                }
             }
         };
 
         sessionsTo.addValueChangeHandler(valueChangeHandler);
         sessionsFrom.addValueChangeHandler(valueChangeHandler);
-    }*/
+    }
 
     private boolean isMaxPlotCountReached() {
         return plotPanel.getWidgetCount() >= MAX_PLOT_COUNT;

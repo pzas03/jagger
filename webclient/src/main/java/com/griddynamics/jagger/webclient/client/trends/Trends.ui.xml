@@ -1,6 +1,7 @@
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
              xmlns:g="urn:import:com.google.gwt.user.client.ui"
-             xmlns:c="urn:import:com.google.gwt.user.cellview.client">
+             xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+             xmlns:datepicker="urn:import:com.google.gwt.user.datepicker.client">
 
     <ui:with type="com.griddynamics.jagger.webclient.client.resources.JaggerResources" field="res"/>
 
@@ -17,7 +18,7 @@
                         <g:center>
                             <c:DataGrid ui:field="sessionsDataGrid" width="100%" title="Sessions"/>
                         </g:center>
-                        <g:south size="70">
+                        <g:south size="100">
                             <g:HTMLPanel>
                                 <table width="100%">
                                     <tr>
@@ -27,26 +28,23 @@
                                     </tr>
                                     <tr>
                                         <td>
-                                            <table width="100%">
+                                            <table width="99%">
                                                 <tr>
                                                     <td width="45%">Select by Session Number:</td>
-                                                    <td width="25%">
+                                                    <td colspan="3">
                                                         <g:TextBox ui:field="sessionIdsTextBox" width="100%"/>
                                                     </td>
-                                                    <td width="5%"/>
-                                                    <td width="25%"/>
                                                 </tr>
-                                                <!--TODO fix it. When you reset time settings dysplay doesn't reset-->
-                                                <!--<tr>-->
-                                                    <!--<td>Select by Date Range</td>-->
-                                                    <!--<td>-->
-                                                        <!--<datepicker:DateBox ui:field="sessionsFrom" width="100%"/>-->
-                                                    <!--</td>-->
-                                                    <!--<td style="text-align: center;">-</td>-->
-                                                    <!--<td>-->
-                                                        <!--<datepicker:DateBox ui:field="sessionsTo" width="100%"/>-->
-                                                    <!--</td>-->
-                                                <!--</tr>-->
+                                                <tr>
+                                                    <td width="45%">Select by Date Range</td>
+                                                    <td width="25%">
+                                                        <datepicker:DateBox ui:field="sessionsFrom" width="100%"/>
+                                                    </td>
+                                                    <td width="5%" style="text-align: center;">-</td>
+                                                    <td width="25%">
+                                                        <datepicker:DateBox ui:field="sessionsTo" width="100%"/>
+                                                    </td>
+                                                </tr>
                                             </table>
                                         </td>
                                     </tr>
