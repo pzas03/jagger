@@ -114,7 +114,6 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
             List<PlotDatasetDto> plotDatasetDtoList = new ArrayList<PlotDatasetDto>();
             String boxIdentifier = entry.getKey();
 
-            double maxValue = 0;
             for (Map.Entry<String, List<MonitoringStatistics>> boxEntry : entry.getValue().entrySet()) {
                 String description = boxEntry.getKey();
 
@@ -127,9 +126,6 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
 
                     double time = DataProcessingUtil.round((timeOffsetInMillis + monitoringStatistics.getTime()) / 1000.0D);
                     double value = DataProcessingUtil.round(monitoringStatistics.getAverageValue());
-
-                    // Determine max value of data set
-                    maxValue = maxValue < value ? value : maxValue;
 
                     pointDtoList.add(new PointDto(time, value));
                 } //for
@@ -147,11 +143,6 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
 
                     double endTime = wd.getEndTime().getTime();
                     double duration = DataProcessingUtil.round((endTime - start) / 1000.0D);
-
-                    //TODO remove unused code
-                    List<PointDto> pointDtoList = new ArrayList<PointDto>();
-                    pointDtoList.add(new PointDto(duration, 0));
-                    pointDtoList.add(new PointDto(duration, maxValue));
 
                     String taskName = (String) entityManager.createQuery("select td.taskName from TaskData as td where td.sessionId=:sessionId and td.taskId=:taskId")
                             .setParameter("sessionId", wd.getSessionId())
