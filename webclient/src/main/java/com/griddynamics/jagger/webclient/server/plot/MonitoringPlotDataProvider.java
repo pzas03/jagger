@@ -29,6 +29,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScopePlotDataProvider {
     private static final Logger log = LoggerFactory.getLogger(MonitoringPlotDataProvider.class);
+    private static final String IP_ADDRESS_REG_EXP = ".*[\\[\\(](?:\\d{1,3}\\.){3}\\d{1,3}[\\]\\)]";
 
     private Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups;
     private LegendProvider legendProvider;
@@ -147,6 +148,7 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
                     double endTime = wd.getEndTime().getTime();
                     double duration = DataProcessingUtil.round((endTime - start) / 1000.0D);
 
+                    //TODO remove unused code
                     List<PointDto> pointDtoList = new ArrayList<PointDto>();
                     pointDtoList.add(new PointDto(duration, 0));
                     pointDtoList.add(new PointDto(duration, maxValue));
@@ -223,10 +225,7 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
 
         for (MonitoringStatistics monitoringStatistics : monitoringStatisticsList) {
             String boxIdentifier = monitoringStatistics.getBoxIdentifier() != null ? monitoringStatistics.getBoxIdentifier() : monitoringStatistics.getSystemUnderTestUrl();
-            String extracted = extractUniqueBoxIdentifier(boxIdentifier);
-            if (extracted != null) {
-                boxIdentifier = extracted;
-            }
+            boxIdentifier = cutBoxUuid(boxIdentifier);
 
             String description = legendProvider.generatePlotLegend(monitoringStatistics.getTaskData().getSessionId(), monitoringStatistics.getParameterId().getDescription(), addSessionPrefix);
 
@@ -265,30 +264,22 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
         return plotSeriesDtoList;
     }
 
-    private String extractUniqueBoxIdentifier(String boxIdentifier) {
-        if (!boxIdentifier.toLowerCase().contains("agent")) {
-            throw new UnsupportedOperationException("Unknown box identifier " + boxIdentifier);
-        }
-
-        if (boxIdentifier.contains("[") && boxIdentifier.contains("]")) {
-            return extract(boxIdentifier, "[", "]");
-        } else if (boxIdentifier.contains("(") && boxIdentifier.contains(")")) {
-            return extract(boxIdentifier, "(", ")");
-        }
-
-        return null;
-    }
-
     /**
-     * Extract substring between two given symbols with symbols itself
+     * Uses to cut box UUID for cross session plot comparing
      *
-     * @param str processing string
-     * @param leftSymbol left enclosing symbol
-     * @param rightSymbol right enclosing symbol
-     * @return extracted substring
+     * @param boxIdentifier
+     * @return
      */
-    private String extract(String str, String leftSymbol, String rightSymbol) {
-        return new String("Agent " + str.substring(str.indexOf(leftSymbol), str.indexOf(rightSymbol) + 1));
+    private String cutBoxUuid(String boxIdentifier) {
+        if (!boxIdentifier.matches(IP_ADDRESS_REG_EXP)) {
+            return boxIdentifier;
+        }
+        if (boxIdentifier.contains("jmx port")) {
+            return boxIdentifier;
+        }
+
+        String toCut = boxIdentifier.substring(boxIdentifier.indexOf("-"), boxIdentifier.indexOf("[") - 1);
+        return boxIdentifier.replace(toCut, "");
     }
 
     private DefaultMonitoringParameters[] findDefaultMonitoringParameters(Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups, String plotName) {
