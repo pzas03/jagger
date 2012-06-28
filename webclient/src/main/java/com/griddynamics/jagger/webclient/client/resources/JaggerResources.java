@@ -21,6 +21,24 @@ public interface JaggerResources extends ClientBundle {
     @Source("arrow-right.gif")
     ImageResource getArrowRight();
 
+    @Source("show-checked.png")
+    ImageResource getShowChecked();
+
+    @Source("uncheck-all.png")
+    ImageResource getUncheckAll();
+
+    @Source("render-plots.png")
+    ImageResource getRenderPlots();
+
+    @Source("clear.png")
+    ImageResource getClearImage();
+
+    @Source("task.png")
+    ImageResource getTaskImage();
+
+    @Source("plot.png")
+    ImageResource getPlotImage();
+
     @Source("JaggerWebClient.css")
     @CssResource.NotStrict
     JaggerStyle css();
@@ -53,5 +71,7 @@ public interface JaggerResources extends ClientBundle {
         String contentPanel();
 
         String panLabel();
+
+        String toolBar();
     }
 }

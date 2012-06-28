@@ -2,10 +2,13 @@ package com.griddynamics.jagger.webclient.client;
 
 import com.google.gwt.cell.client.*;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.view.client.*;
 import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
+import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,10 +30,13 @@ public class WorkloadTaskDetailsTreeViewModel implements TreeViewModel {
 
     private static final TaskDataDto noTasksDummyNode = new TaskDataDto(-1, "No Tasks");
 
+    private final JaggerResources resources;
+
     //==========Constructors
 
-    public WorkloadTaskDetailsTreeViewModel(final MultiSelectionModel<PlotNameDto> selectionModel) {
+    public WorkloadTaskDetailsTreeViewModel(final MultiSelectionModel<PlotNameDto> selectionModel, final JaggerResources resources) {
         this.selectionModel = selectionModel;
+        this.resources = resources;
         taskDataProvider.getList().add(noTasksDummyNode);
 
         // Construct a composite cell for plots that includes a checkbox.
@@ -54,7 +60,7 @@ public class WorkloadTaskDetailsTreeViewModel implements TreeViewModel {
             }
         });
         hasCells.add(new HasCell<PlotNameDto, PlotNameDto>() {
-            private PlotNameCell cell = new PlotNameCell();
+            private PlotNameCell cell = new PlotNameCell(resources.getPlotImage());
 
             @Override
             public Cell<PlotNameDto> getCell() {
@@ -101,7 +107,7 @@ public class WorkloadTaskDetailsTreeViewModel implements TreeViewModel {
     @Override
     public <T> NodeInfo<?> getNodeInfo(T value) {
         if (value == null) {
-            return new DefaultNodeInfo<TaskDataDto>(taskDataProvider, new TaskDataCell());
+            return new DefaultNodeInfo<TaskDataDto>(taskDataProvider, new TaskDataCell(resources.getTaskImage()));
         } else if (value instanceof TaskDataDto) {
             TaskDataDto taskDataDto = (TaskDataDto) value;
             if (taskDataDto.equals(noTasksDummyNode)) {
@@ -154,20 +160,45 @@ public class WorkloadTaskDetailsTreeViewModel implements TreeViewModel {
     //==========Nested Classes
 
     private static class TaskDataCell extends AbstractCell<TaskDataDto> {
+
+        private final String imageHtml;
+
+        public TaskDataCell(ImageResource imageResource) {
+            imageHtml = AbstractImagePrototype.create(imageResource).getHTML();
+        }
+
         @Override
         public void render(Context context, TaskDataDto value, SafeHtmlBuilder sb) {
-            if (value != null) {
-                sb.appendEscaped(value.getTaskName());
+            if (value == null) {
+                return;
             }
+            sb.appendHtmlConstant("<table><tr><td>");
+            sb.appendHtmlConstant(imageHtml);
+            sb.appendHtmlConstant("</td><td>");
+            sb.appendEscaped(value.getTaskName());
+            sb.appendHtmlConstant("</td></tr></table>");
         }
     }
 
     private static class PlotNameCell extends AbstractCell<PlotNameDto> {
+
+        private final String imageHtml;
+
+        public PlotNameCell(ImageResource imageResource) {
+            imageHtml = AbstractImagePrototype.create(imageResource).getHTML();
+        }
+
         @Override
         public void render(Context context, PlotNameDto value, SafeHtmlBuilder sb) {
-            if (value != null) {
-                sb.appendEscaped(value.getPlotName());
+            if (value == null) {
+                return;
             }
+
+            sb.appendHtmlConstant("<table><tr><td>");
+            sb.appendHtmlConstant(imageHtml);
+            sb.appendHtmlConstant("</td><td>");
+            sb.appendEscaped(value.getPlotName());
+            sb.appendHtmlConstant("</td></tr></table>");
         }
     }
 

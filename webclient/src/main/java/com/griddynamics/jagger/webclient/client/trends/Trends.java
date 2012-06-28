@@ -14,6 +14,7 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
@@ -73,6 +74,43 @@ public class Trends extends DefaultActivity {
     @UiField
     DateBox sessionsTo;
 
+    @UiHandler("uncheckSessionsButton")
+    void handleUncheckSessionsButtonClick(ClickEvent e) {
+        ((MultiSelectionModel<?>) sessionsDataGrid.getSelectionModel()).clear();
+    }
+
+    @UiHandler("showCheckedSessionsButton")
+    void handleShowCheckedSessionsButtonClick(ClickEvent e) {
+        Set<SessionDataDto> sessionDataDtoSet = ((MultiSelectionModel<SessionDataDto>) sessionsDataGrid.getSelectionModel()).getSelectedSet();
+
+        if (sessionDataDtoSet.isEmpty()) {
+            sessionIdsTextBox.setText(null);
+            stopTypingSessionIdsTimer.schedule(10);
+
+            return;
+        }
+
+        StringBuilder builder = new StringBuilder();
+        boolean first = true;
+        for (SessionDataDto sessionDataDto : sessionDataDtoSet) {
+            if (!first) {
+                builder.append("/");
+            }
+            builder.append(sessionDataDto.getSessionId());
+            first = false;
+        }
+        sessionIdsTextBox.setText(builder.toString());
+        stopTypingSessionIdsTimer.schedule(10);
+    }
+
+    @UiHandler("clearSessionFiltersButton")
+    void handleClearSessionFiltersButtonClick(ClickEvent e) {
+        sessionsTo.setValue(null, true);
+        sessionsFrom.setValue(null, true);
+        sessionIdsTextBox.setText(null);
+        stopTypingSessionIdsTimer.schedule(10);
+    }
+
     private final Map<String, Set<MarkingDto>> markingsMap = new HashMap<String, Set<MarkingDto>>();
 
     private FlowPanel loadIndicator;
@@ -91,11 +129,12 @@ public class Trends extends DefaultActivity {
     }
 
     public void setSessionIds(Set<String> sessionIds) {
+        MultiSelectionModel<SessionDataDto> selectionModel = (MultiSelectionModel<SessionDataDto>) sessionsDataGrid.getSelectionModel();
+        selectionModel.clear();
+
         if (sessionIds == null || sessionsDataGrid == null) {
             return;
         }
-        MultiSelectionModel<SessionDataDto> selectionModel = (MultiSelectionModel<SessionDataDto>) sessionsDataGrid.getSelectionModel();
-        selectionModel.clear();
 
         StringBuilder builder = new StringBuilder();
         boolean first = true;
@@ -239,7 +278,7 @@ public class Trends extends DefaultActivity {
     private void setupTaskDetailsTree() {
         CellTree.Resources res = GWT.create(CellTree.BasicResources.class);
         final MultiSelectionModel<PlotNameDto> selectionModel = new MultiSelectionModel<PlotNameDto>();
-        taskDetailsTree = new CellTree(new WorkloadTaskDetailsTreeViewModel(selectionModel), null, res);
+        taskDetailsTree = new CellTree(new WorkloadTaskDetailsTreeViewModel(selectionModel, getResources()), null, res);
         taskDetailsTree.addStyleName(getResources().css().taskDetailsTree());
 
         selectionModel.addSelectionChangeHandler(new TaskPlotSelectionChangedHandler());
@@ -483,7 +522,7 @@ public class Trends extends DefaultActivity {
 
                 // Populate session scope plot list
                 PlotProviderService.Async.getInstance().getSessionScopePlotList(sessionId,
-                        new SessionScopePlotListQueryCallback(sessionId, sessionScopePlotList, plotPanel, sessionScopePlotCheckBoxClickHandler));
+                        new SessionScopePlotListQueryCallback(sessionId, sessionScopePlotList, plotPanel, sessionScopePlotCheckBoxClickHandler, getResources()));
 
                 final Set<String> sessionIds = new HashSet<String>(Arrays.asList(sessionId));
 

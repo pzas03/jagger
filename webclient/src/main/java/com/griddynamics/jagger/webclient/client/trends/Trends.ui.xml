@@ -15,6 +15,13 @@
             <g:SplitLayoutPanel>
                 <g:west size="600">
                     <g:DockLayoutPanel>
+                        <g:north size="34">
+                            <g:FlowPanel addStyleNames="{res.css.toolBar}">
+                                <g:Image resource="{res.getShowChecked}" title="Show Checked Sessions" ui:field="showCheckedSessionsButton"/>
+                                <g:Image resource="{res.getUncheckAll}" title="Uncheck sessions" ui:field="uncheckSessionsButton"/>
+                                <g:Image resource="{res.getClearImage}" title="Clear session filters" ui:field="clearSessionFiltersButton"/>
+                            </g:FlowPanel>
+                        </g:north>
                         <g:center>
                             <c:DataGrid ui:field="sessionsDataGrid" width="100%" title="Sessions"/>
                         </g:center>
@@ -54,25 +61,21 @@
                     </g:DockLayoutPanel>
                 </g:west>
                 <g:center>
-                    <g:ScrollPanel>
-                        <g:HTMLPanel>
-                            <table width="100%">
-                                <tr>
-                                    <th>Session Tasks</th>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <g:VerticalPanel ui:field="sessionScopePlotList"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <c:CellTree title="Task Details" ui:field="taskDetailsTree"/>
-                                    </td>
-                                </tr>
-                            </table>
-                        </g:HTMLPanel>
-                    </g:ScrollPanel>
+                    <g:DockLayoutPanel>
+                        <g:north size="34">
+                            <g:FlowPanel addStyleNames="{res.css.toolBar}">
+                                <g:Image resource="{res.getRenderPlots}" title="Render Plots"/>
+                            </g:FlowPanel>
+                        </g:north>
+                        <g:center>
+                            <g:ScrollPanel>
+                                <g:VerticalPanel width="100%">
+                                    <g:VerticalPanel ui:field="sessionScopePlotList"/>
+                                    <c:CellTree title="Task Details" ui:field="taskDetailsTree"/>
+                                </g:VerticalPanel>
+                            </g:ScrollPanel>
+                        </g:center>
+                    </g:DockLayoutPanel>
                 </g:center>
             </g:SplitLayoutPanel>
         </g:south>
