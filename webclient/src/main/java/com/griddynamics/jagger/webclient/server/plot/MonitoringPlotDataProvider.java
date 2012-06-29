@@ -196,9 +196,7 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
             }
         }
 
-        List<PlotSeriesDto> plotSeriesDtoList = assemble(finalComposedMap, plotName, taskIds);
-
-        return plotSeriesDtoList;
+        return assemble(finalComposedMap, plotName, taskIds);
     }
 
     //============================

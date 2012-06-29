@@ -19,25 +19,24 @@ import java.util.Map;
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
  * @since 5/29/12
  */
-public class WorkloadTaskDetailsTreeViewModel implements TreeViewModel {
+public class TaskDataTreeViewModel implements TreeViewModel {
+    private static final TaskDataDto NO_TASKS_DUMMY_NODE = new TaskDataDto(-1, "No Tasks");
 
-    private ListDataProvider<TaskDataDto> taskDataProvider = new ListDataProvider<TaskDataDto>();
+    private final ListDataProvider<TaskDataDto> taskDataProvider = new ListDataProvider<TaskDataDto>();
     private final MultiSelectionModel<PlotNameDto> selectionModel;
     private final Cell<PlotNameDto> plotNameCell;
     private final Map<TaskDataDto, AbstractDataProvider<PlotNameDto>> plotNameDataProviders = new HashMap<TaskDataDto, AbstractDataProvider<PlotNameDto>>();
     private final DefaultSelectionEventManager<PlotNameDto> selectionManager =
             DefaultSelectionEventManager.createCheckboxManager();
 
-    private static final TaskDataDto noTasksDummyNode = new TaskDataDto(-1, "No Tasks");
-
     private final JaggerResources resources;
 
     //==========Constructors
 
-    public WorkloadTaskDetailsTreeViewModel(final MultiSelectionModel<PlotNameDto> selectionModel, final JaggerResources resources) {
+    public TaskDataTreeViewModel(final MultiSelectionModel<PlotNameDto> selectionModel, final JaggerResources resources) {
         this.selectionModel = selectionModel;
         this.resources = resources;
-        taskDataProvider.getList().add(noTasksDummyNode);
+        clear();
 
         // Construct a composite cell for plots that includes a checkbox.
         List<HasCell<PlotNameDto, ?>> hasCells = new ArrayList<HasCell<PlotNameDto, ?>>();
@@ -110,7 +109,7 @@ public class WorkloadTaskDetailsTreeViewModel implements TreeViewModel {
             return new DefaultNodeInfo<TaskDataDto>(taskDataProvider, new TaskDataCell(resources.getTaskImage()));
         } else if (value instanceof TaskDataDto) {
             TaskDataDto taskDataDto = (TaskDataDto) value;
-            if (taskDataDto.equals(noTasksDummyNode)) {
+            if (taskDataDto == NO_TASKS_DUMMY_NODE) {
                 return null;
             }
 
@@ -132,9 +131,22 @@ public class WorkloadTaskDetailsTreeViewModel implements TreeViewModel {
     }
 
     //==========Getters
+    public void clear() {
+        taskDataProvider.getList().clear();
+        taskDataProvider.getList().add(NO_TASKS_DUMMY_NODE);
+    }
 
-    public ListDataProvider<TaskDataDto> getTaskDataProvider() {
-        return taskDataProvider;
+    public void populateTaskList(List<TaskDataDto> taskDataDtoList) {
+        if (taskDataDtoList == null || taskDataDtoList.isEmpty()) {
+            // If list is already empty
+            if (taskDataProvider.getList().size() == 1 && taskDataProvider.getList().get(0) == NO_TASKS_DUMMY_NODE) {
+                return;
+            }
+            clear();
+        } else {
+            taskDataProvider.getList().clear();
+            taskDataProvider.getList().addAll(taskDataDtoList);
+        }
     }
 
     public AbstractDataProvider<PlotNameDto> getPlotNameDataProvider(TaskDataDto taskDataDto) {
@@ -147,10 +159,6 @@ public class WorkloadTaskDetailsTreeViewModel implements TreeViewModel {
 
     public Map<TaskDataDto, AbstractDataProvider<PlotNameDto>> getPlotNameDataProviders() {
         return plotNameDataProviders;
-    }
-
-    public static TaskDataDto getNoTasksDummyNode() {
-        return noTasksDummyNode;
     }
 
     public MultiSelectionModel<PlotNameDto> getSelectionModel() {

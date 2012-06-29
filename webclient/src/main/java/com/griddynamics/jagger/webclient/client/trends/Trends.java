@@ -82,25 +82,7 @@ public class Trends extends DefaultActivity {
     @UiHandler("showCheckedSessionsButton")
     void handleShowCheckedSessionsButtonClick(ClickEvent e) {
         Set<SessionDataDto> sessionDataDtoSet = ((MultiSelectionModel<SessionDataDto>) sessionsDataGrid.getSelectionModel()).getSelectedSet();
-
-        if (sessionDataDtoSet.isEmpty()) {
-            sessionIdsTextBox.setText(null);
-            stopTypingSessionIdsTimer.schedule(10);
-
-            return;
-        }
-
-        StringBuilder builder = new StringBuilder();
-        boolean first = true;
-        for (SessionDataDto sessionDataDto : sessionDataDtoSet) {
-            if (!first) {
-                builder.append("/");
-            }
-            builder.append(sessionDataDto.getSessionId());
-            first = false;
-        }
-        sessionIdsTextBox.setText(builder.toString());
-        stopTypingSessionIdsTimer.schedule(10);
+        filterSessions(sessionDataDtoSet);
     }
 
     @UiHandler("clearSessionFiltersButton")
@@ -136,14 +118,30 @@ public class Trends extends DefaultActivity {
             return;
         }
 
-        StringBuilder builder = new StringBuilder();
-        boolean first = true;
+        Set<SessionDataDto> sessionDataDtoSet = new HashSet<SessionDataDto>();
         for (String sessionId : sessionIds) {
+            SessionDataDto sessionDataDto = new SessionDataDto(sessionId);
+            sessionDataDtoSet.add(sessionDataDto);
+            selectionModel.setSelected(sessionDataDto, true);
+        }
+        filterSessions(sessionDataDtoSet);
+    }
+
+    private void filterSessions(Set<SessionDataDto> sessionDataDtoSet) {
+        if (sessionDataDtoSet == null || sessionDataDtoSet.isEmpty()) {
+            sessionIdsTextBox.setText(null);
+            stopTypingSessionIdsTimer.schedule(10);
+
+            return;
+        }
+
+        final StringBuilder builder = new StringBuilder();
+        boolean first = true;
+        for (SessionDataDto sessionDataDto : sessionDataDtoSet) {
             if (!first) {
                 builder.append("/");
             }
-            builder.append(sessionId);
-            selectionModel.setSelected(new SessionDataDto(sessionId), true);
+            builder.append(sessionDataDto.getSessionId());
             first = false;
         }
         sessionIdsTextBox.setText(builder.toString());
@@ -278,7 +276,7 @@ public class Trends extends DefaultActivity {
     private void setupTaskDetailsTree() {
         CellTree.Resources res = GWT.create(CellTree.BasicResources.class);
         final MultiSelectionModel<PlotNameDto> selectionModel = new MultiSelectionModel<PlotNameDto>();
-        taskDetailsTree = new CellTree(new WorkloadTaskDetailsTreeViewModel(selectionModel, getResources()), null, res);
+        taskDetailsTree = new CellTree(new TaskDataTreeViewModel(selectionModel, getResources()), null, res);
         taskDetailsTree.addStyleName(getResources().css().taskDetailsTree());
 
         selectionModel.addSelectionChangeHandler(new TaskPlotSelectionChangedHandler());
@@ -500,9 +498,8 @@ public class Trends extends DefaultActivity {
             // Currently selection model for sessions is a single selection model
             final Set<SessionDataDto> selected = ((MultiSelectionModel<SessionDataDto>) event.getSource()).getSelectedSet();
 
-            final WorkloadTaskDetailsTreeViewModel workloadTaskDetailsTreeViewModel = (WorkloadTaskDetailsTreeViewModel) taskDetailsTree.getTreeViewModel();
-            final ListDataProvider<TaskDataDto> taskDataProvider = workloadTaskDetailsTreeViewModel.getTaskDataProvider();
-            final MultiSelectionModel<PlotNameDto> plotNameSelectionModel = workloadTaskDetailsTreeViewModel.getSelectionModel();
+            final TaskDataTreeViewModel taskDataTreeViewModel = (TaskDataTreeViewModel) taskDetailsTree.getTreeViewModel();
+            final MultiSelectionModel<PlotNameDto> plotNameSelectionModel = taskDataTreeViewModel.getSelectionModel();
 
             // Clear plots display
             plotPanel.clear();
@@ -512,8 +509,7 @@ public class Trends extends DefaultActivity {
             sessionScopePlotList.clear();
             // Clear markings dto map
             markingsMap.clear();
-            taskDataProvider.getList().clear();
-            taskDataProvider.getList().add(WorkloadTaskDetailsTreeViewModel.getNoTasksDummyNode());
+            taskDataTreeViewModel.clear();
 
             if (selected.size() == 1) {
                 // If selected single session clear plot display, clear plot selection and fetch all data for given session
@@ -528,7 +524,7 @@ public class Trends extends DefaultActivity {
 
                 // Populate task scope session list
                 TaskDataService.Async.getInstance().getTaskDataForSession(sessionId,
-                        new TaskDataDtoListQueryAsyncCallback(sessionIds, taskDataProvider, workloadTaskDetailsTreeViewModel));
+                        new TaskDataDtoListQueryAsyncCallback(sessionIds, taskDataTreeViewModel));
             } else if (selected.size() > 1) {
                 // If selected several sessions
 
@@ -538,7 +534,7 @@ public class Trends extends DefaultActivity {
                 }
 
                 TaskDataService.Async.getInstance().getTaskDataForSessions(sessionIds,
-                        new TaskDataDtoListQueryAsyncCallback(sessionIds, taskDataProvider, workloadTaskDetailsTreeViewModel));
+                        new TaskDataDtoListQueryAsyncCallback(sessionIds, taskDataTreeViewModel));
             }
         }
     }

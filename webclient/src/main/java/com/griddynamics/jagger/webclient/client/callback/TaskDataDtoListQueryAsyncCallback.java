@@ -2,8 +2,7 @@ package com.griddynamics.jagger.webclient.client.callback;
 
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.view.client.ListDataProvider;
-import com.griddynamics.jagger.webclient.client.WorkloadTaskDetailsTreeViewModel;
+import com.griddynamics.jagger.webclient.client.TaskDataTreeViewModel;
 import com.griddynamics.jagger.webclient.client.data.TaskPlotNamesAsyncDataProvider;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 
@@ -17,13 +16,11 @@ import java.util.Set;
 public class TaskDataDtoListQueryAsyncCallback implements AsyncCallback<List<TaskDataDto>> {
 
     private Set<String> sessionIds;
-    private final ListDataProvider<TaskDataDto> taskDataProvider;
-    private final WorkloadTaskDetailsTreeViewModel workloadTaskDetailsTreeViewModel;
+    private final TaskDataTreeViewModel taskDataTreeViewModel;
 
-    public TaskDataDtoListQueryAsyncCallback(Set<String> sessionIds, ListDataProvider<TaskDataDto> taskDataProvider, WorkloadTaskDetailsTreeViewModel workloadTaskDetailsTreeViewModel) {
+    public TaskDataDtoListQueryAsyncCallback(Set<String> sessionIds, TaskDataTreeViewModel taskDataTreeViewModel) {
         this.sessionIds = sessionIds;
-        this.taskDataProvider = taskDataProvider;
-        this.workloadTaskDetailsTreeViewModel = workloadTaskDetailsTreeViewModel;
+        this.taskDataTreeViewModel = taskDataTreeViewModel;
     }
 
     public void setSessionIds(Set<String> sessionIds) {
@@ -42,12 +39,11 @@ public class TaskDataDtoListQueryAsyncCallback implements AsyncCallback<List<Tas
         }
 
         // Populate task first level tree with server data
-        taskDataProvider.getList().clear();
-        taskDataProvider.getList().addAll(result);
+        taskDataTreeViewModel.populateTaskList(result);
 
         // Populate available plots tree level for each task for selected session
         for (TaskDataDto taskDataDto : result) {
-            workloadTaskDetailsTreeViewModel.getPlotNameDataProviders().put
+            taskDataTreeViewModel.getPlotNameDataProviders().put
                     (taskDataDto, new TaskPlotNamesAsyncDataProvider(taskDataDto, sessionIds));
         }
     }
