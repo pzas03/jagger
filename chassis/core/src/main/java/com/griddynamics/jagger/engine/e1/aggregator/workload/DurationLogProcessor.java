@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
-import java.io.EOFException;
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -92,10 +92,9 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
     }
 
     private void processLog(String sessionId, String taskId) {
-        String file = null;
         try {
-            String dir = sessionId + "/" + taskId + "/" + DurationCollector.DURATION_MARKER;
-            file = dir + "/aggregated.dat";
+            String dir = sessionId + File.separatorChar + taskId + File.separatorChar + DurationCollector.DURATION_MARKER;
+            String file = dir + File.separatorChar + "aggregated.dat";
             AggregationInfo aggregationInfo = logAggregator.chronology(dir, file);
 
             int intervalSize = (int) ((aggregationInfo.getMaxTime() - aggregationInfo.getMinTime()) / pointCount);

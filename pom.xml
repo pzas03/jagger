@@ -19,7 +19,8 @@
   ~ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.griddynamics.jagger</groupId>
@@ -74,7 +75,7 @@
             <id>jboss-java-net</id>
             <layout>default</layout>
             <name>jboss java.net repo</name>
-            <url>	https://repository.jboss.org/nexus/content/repositories/java.net-m2</url>
+            <url>https://repository.jboss.org/nexus/content/repositories/java.net-m2</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
@@ -95,6 +96,11 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
+        </repository>
+        <repository>
+            <id>smartclient</id>
+            <name>smartclient.com</name>
+            <url>http://www.smartclient.com/maven2</url>
         </repository>
     </repositories>
 
@@ -191,7 +197,7 @@
                 <artifactId>trove</artifactId>
                 <version>1.0.2</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>kawa</groupId>
                 <artifactId>kawa</artifactId>
