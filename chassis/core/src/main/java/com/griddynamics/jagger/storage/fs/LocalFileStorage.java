@@ -31,7 +31,6 @@ import java.util.*;
 
 /**
  * @author Alexey Kiselyov
- *         Date: 19.07.11
  */
 public class LocalFileStorage implements FileStorage {
 
@@ -39,11 +38,6 @@ public class LocalFileStorage implements FileStorage {
     private String workspace;
 
     public LocalFileStorage() {
-    }
-
-    @Override
-    public Collection<AttendantServer> getAttendantServers() {
-        return Collections.<AttendantServer>emptySet();
     }
 
     @Override
@@ -56,7 +50,7 @@ public class LocalFileStorage implements FileStorage {
         final String root = new File(this.workspace).getPath();
         File[] files = (new File(this.workspace, path)).listFiles();
         if (files == null)
-            return Collections.<String>emptySet();
+            return Collections.emptySet();
         return new HashSet<String>(Collections2.<File, String>transform(
                 Arrays.<File>asList(files),
                 new Function<File, String>() {
@@ -86,23 +80,23 @@ public class LocalFileStorage implements FileStorage {
     @Override
     public boolean delete(String path, boolean recursive) throws IOException {
         File file = new File(this.workspace, path);
-        if (recursive) return deleteRecursive(file);
-        else {
+        if (recursive) {
+            return deleteRecursive(file);
+        } else {
             File corpse = new File(file, CONTEXT);
             if (corpse.list() == null || corpse.list().length > 1) return false;
-            new File(file, CONTEXT).delete();
-            return file.delete();
+            return new File(file, CONTEXT).delete() && file.delete();
         }
     }
 
     static public boolean deleteRecursive(File path) {
         if (path.exists()) {
             File[] files = path.listFiles();
-            for (int i = 0; i < files.length; i++) {
-                if (files[i].isDirectory()) {
-                    deleteRecursive(files[i]);
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    deleteRecursive(file);
                 } else {
-                    files[i].delete();
+                    file.delete();
                 }
             }
         }
@@ -117,8 +111,10 @@ public class LocalFileStorage implements FileStorage {
 
     @Required
     public void setWorkspace(String workspace) throws IOException {
-        new File(workspace).mkdirs();
-        if (!new File(workspace).exists()) throw new SecurityException("Can't create workspace directory");
+        final File workspaceFile = new File(workspace);
+        if (!workspaceFile.mkdirs()){
+            throw new IOException("Can't create workspace directory " + workspaceFile.getAbsolutePath());
+        }
         this.workspace = workspace;
     }
 }
