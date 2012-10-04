@@ -22,12 +22,14 @@ package com.griddynamics.jagger.storage.fs;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
-import com.griddynamics.jagger.AttendantServer;
 import com.griddynamics.jagger.storage.FileStorage;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.io.*;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Alexey Kiselyov
@@ -112,7 +114,7 @@ public class LocalFileStorage implements FileStorage {
     @Required
     public void setWorkspace(String workspace) throws IOException {
         final File workspaceFile = new File(workspace);
-        if (!workspaceFile.mkdirs()){
+        if (!workspaceFile.mkdirs() && !workspaceFile.exists()) {
             throw new IOException("Can't create workspace directory " + workspaceFile.getAbsolutePath());
         }
         this.workspace = workspace;
