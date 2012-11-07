@@ -21,7 +21,6 @@
 package com.griddynamics.jagger.engine.e1.scenario;
 
 import com.griddynamics.jagger.coordinator.NodeId;
-import com.griddynamics.jagger.util.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +43,7 @@ public class User {
         this.id = group.users.size();
         this.group = group;
         this.startTime = time;
-        this.finishTime = startTime + Parser.parseTime(group.getConfig().life, group.getWorkload().getClock().getRandom());
+        this.finishTime = startTime + group.getLife();
         this.nodeId = nodeId;
 
         group.users.add(this);
