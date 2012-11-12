@@ -46,8 +46,7 @@ import java.util.*;
 public class ReportingService {
 
     private final static Logger log = LoggerFactory.getLogger(ReportingService.class);
-    public static final String OUT_FILE_EXT_REGEX = "[^\\.]+$";
-    public static final String OUT_FILE_EXT_XML = "xml";
+    public static final String COMPARISON_REPORT_FILE_NAME = "result.xml";
     public static final String REPORT_TAG_NAME = "report";
     public static final String DECISION_TAG_NAME = "decision";
     public static final String BASELINE_TAG_NAME = "baseline";
@@ -91,9 +90,9 @@ public class ReportingService {
                 case PDF : JasperExportManager.exportReportToPdfStream(jasperPrint, context.getOutputResource(outputReportLocation)); break;
                 default : throw new ConfigurationException("ReportType is not specified");
             }
-            if(context.getParameters().containsKey(OverallSessionComparisonReporter.JAGGER_VERDICT)){
-                generateXMLReport();
-            }
+
+            generateComparisonReport();
+
             log.info("END: Export report");
         } catch (JRException e) {
             log.error("Error during report rendering", e);
@@ -101,39 +100,41 @@ public class ReportingService {
         }
     }
 
-private void generateXMLReport(){
-        try{
-            log.info("BEGIN: Export XML report");
-            String xlmOutFileName=outputReportLocation.replaceFirst(OUT_FILE_EXT_REGEX, OUT_FILE_EXT_XML);
-            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-            Document doc = docBuilder.newDocument();
-            Element rootElement = doc.createElement(REPORT_TAG_NAME);
-            doc.appendChild(rootElement);
+    protected void generateComparisonReport(){
+        if(context.getParameters().containsKey(OverallSessionComparisonReporter.JAGGER_VERDICT)){
+            //OverallSessionComparisonReporter included in reporter configuration
+            try{
+                log.info("BEGIN: Export comparison report");
+                DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+                Document doc = docBuilder.newDocument();
+                Element rootElement = doc.createElement(REPORT_TAG_NAME);
+                doc.appendChild(rootElement);
 
-            Element decisionElement = doc.createElement(DECISION_TAG_NAME);
-            SessionVerdict sessionVerdict=(SessionVerdict)context.getParameters().get(OverallSessionComparisonReporter.JAGGER_VERDICT);
-            decisionElement.setTextContent(sessionVerdict.getDecision().toString());
-            rootElement.appendChild(decisionElement);
+                Element decisionElement = doc.createElement(DECISION_TAG_NAME);
+                SessionVerdict sessionVerdict=(SessionVerdict)context.getParameters().get(OverallSessionComparisonReporter.JAGGER_VERDICT);
+                decisionElement.setTextContent(sessionVerdict.getDecision().toString());
+                rootElement.appendChild(decisionElement);
 
-            Element baselineElement = doc.createElement(BASELINE_TAG_NAME);
-            String baseline=(String)context.getParameters().get(OverallSessionComparisonReporter.JAGGER_SESSION_BASELINE);
-            baselineElement.setTextContent(baseline);
-            rootElement.appendChild(baselineElement);
+                Element baselineElement = doc.createElement(BASELINE_TAG_NAME);
+                String baseline=(String)context.getParameters().get(OverallSessionComparisonReporter.JAGGER_SESSION_BASELINE);
+                baselineElement.setTextContent(baseline);
+                rootElement.appendChild(baselineElement);
 
-            Element currentElement = doc.createElement(CURRENT_TAG_NAME);
-            String current=(String)context.getParameters().get(OverallSessionComparisonReporter.JAGGER_SESSION_CURRENT);
-            currentElement.setTextContent(current);
-            rootElement.appendChild(currentElement);
+                Element currentElement = doc.createElement(CURRENT_TAG_NAME);
+                String current=(String)context.getParameters().get(OverallSessionComparisonReporter.JAGGER_SESSION_CURRENT);
+                currentElement.setTextContent(current);
+                rootElement.appendChild(currentElement);
 
-            Source source = new DOMSource(doc);
-            Result result = new StreamResult(new File(xlmOutFileName));
-            Transformer xformer = TransformerFactory.newInstance().newTransformer();
-            xformer.transform(source, result);
-            log.info("END: Export XML report");
-        } catch (Exception  e){
-            log.error("Error during XML report generation", e);
-            throw new TechnicalException(e);
+                Source source = new DOMSource(doc);
+                Result result = new StreamResult(new File(COMPARISON_REPORT_FILE_NAME));
+                Transformer transformer = TransformerFactory.newInstance().newTransformer();
+                transformer.transform(source, result);
+                log.info("END: Export comparison report");
+            } catch (Exception  e){
+                log.error("Error during comparison report generation", e);
+                throw new TechnicalException(e);
+            }
         }
 
     }
