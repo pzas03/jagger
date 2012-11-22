@@ -6,8 +6,6 @@ import org.springframework.context.config.ContextNamespaceHandler;
 
 public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
     public void init() {
-        registerBeanDefinitionParser("session", new SessionDefinitionParser());
-        registerBeanDefinitionParser("performance_profile", new SessionDefinitionParser());
         registerBeanDefinitionParser("invocation", new InvocationDefinitionParser());
         registerBeanDefinitionParser("task", new TaskDefinitionParser(this));
         registerBeanDefinitionParser("test", new TestDefinitionParser(this));
