@@ -7,10 +7,10 @@ import org.springframework.context.config.ContextNamespaceHandler;
 public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
     public void init() {
         registerBeanDefinitionParser("invocation", new InvocationDefinitionParser());
-        registerBeanDefinitionParser("task", new TaskDefinitionParser(this));
-        registerBeanDefinitionParser("test", new TestDefinitionParser(this));
+        registerBeanDefinitionParser("task", new TaskDefinitionParser());
+        registerBeanDefinitionParser("test", new TestDefinitionParser());
         registerBeanDefinitionParser("user", new UserDefinitionParser());
-        //registerBeanDefinitionParser("ref", new RefsDefinitionParser());
-
+        registerBeanDefinitionParser("test-plan", new TestPlanDefinitionParser());
+        registerBeanDefinitionParser("processing", new TestPlanDefinitionParser());
     }
 }

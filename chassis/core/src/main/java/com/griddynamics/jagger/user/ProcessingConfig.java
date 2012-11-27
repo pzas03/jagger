@@ -38,10 +38,21 @@ import java.util.List;
 @Root(name = "processing")
 public class ProcessingConfig implements Serializable {
     @ElementList(name = "tests", entry = "test", inline = true)
-    public final List<Test> tests;
+    public List<Test> tests;
 
     public ProcessingConfig(@ElementList(name = "tests", entry = "test", inline = true) List<Test> tests) {
         this.tests = Collections.unmodifiableList(tests);
+    }
+
+    public ProcessingConfig() {
+    }
+
+    public List<Test> getTests() {
+        return tests;
+    }
+
+    public void setTests(List<Test> tests) {
+        this.tests = tests;
     }
 
     public static class Test implements Serializable {
