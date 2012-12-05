@@ -42,17 +42,13 @@ public class SessionComparatorsDefinitionParser  extends AbstractSimpleBeanDefin
         if(StringUtils.hasText(decisionMaker)){
             builder.addPropertyReference(XMLConstants.DECISION_MAKER, getDecisionMaker(decisionMaker));
         }
-
         String baselineSessionId=element.getAttribute(XMLConstants.BASELINE_ID);
         if(StringUtils.hasText(baselineSessionId)){
             registerBaselineSessionProvider(baselineSessionId, parserContext, builder);
         }
-
         element.setAttribute(XMLConstants.ID, XMLConstants.CUSTOM_SESSION_COMPARATOR);
-        try{
+        if(parserContext.getRegistry().getAliases(XMLConstants.SESSION_COMPARATOR).length>0){
             parserContext.getRegistry().removeAlias(XMLConstants.SESSION_COMPARATOR);
-        }   catch (Exception e){
-            //nothing interesting
         }
         parserContext.getRegistry().registerAlias(XMLConstants.CUSTOM_SESSION_COMPARATOR, XMLConstants.SESSION_COMPARATOR);
 
@@ -70,10 +66,8 @@ public class SessionComparatorsDefinitionParser  extends AbstractSimpleBeanDefin
         provider.addPropertyValue(XMLConstants.SESSION_ID,baselineSessionId);
         provider.addPropertyReference(XMLConstants.SESSION_ID_PROVIDER, XMLConstants.SESSION_ID_PROVIDER);
         parserContext.getRegistry().registerBeanDefinition(XMLConstants.CUSTOM_BASELINE_SESSION_PROVIDER,provider.getBeanDefinition());
-        try{
+        if(parserContext.getRegistry().getAliases(XMLConstants.BASELINE_SESSION_PROVIDER).length>0){
             parserContext.getRegistry().removeAlias(XMLConstants.BASELINE_SESSION_PROVIDER);
-        } catch (Exception e){
-            //nothing interesting
         }
         parserContext.getRegistry().registerAlias(XMLConstants.CUSTOM_BASELINE_SESSION_PROVIDER, XMLConstants.BASELINE_SESSION_PROVIDER);
     }
