@@ -32,10 +32,6 @@ public class SessionComparatorsDefinitionParser  extends AbstractSimpleBeanDefin
 
         ManagedList<BeanDefinition> chain=new ManagedList<BeanDefinition>();
 
-        for(Element el: DomUtils.getChildElementsByTagName(element, XMLConstants.COMPARATOR)){
-            chain.add(parserContext.getDelegate().parseCustomElement(el));
-        }
-
         builder.addPropertyValue(XMLConstants.COMPARATOR_CHAIN, chain);
 
         String decisionMaker=element.getAttribute(XMLConstants.STRATEGY);
@@ -51,6 +47,10 @@ public class SessionComparatorsDefinitionParser  extends AbstractSimpleBeanDefin
             parserContext.getRegistry().removeAlias(XMLConstants.SESSION_COMPARATOR);
         }
         parserContext.getRegistry().registerAlias(XMLConstants.CUSTOM_SESSION_COMPARATOR, XMLConstants.SESSION_COMPARATOR);
+
+        for(Element el: DomUtils.getChildElementsByTagName(element, XMLConstants.COMPARATOR)){
+            chain.add(parserContext.getDelegate().parseCustomElement(el,builder.getBeanDefinition()));
+        }
 
     }
 
