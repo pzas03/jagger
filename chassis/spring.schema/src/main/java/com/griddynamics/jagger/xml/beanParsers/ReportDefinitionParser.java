@@ -17,6 +17,7 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public class ReportDefinitionParser extends AbstractSimpleBeanDefinitionParser {
+
     @Override
     protected Class getBeanClass(Element element) {
         return ReportingService.class;
@@ -24,13 +25,13 @@ public class ReportDefinitionParser extends AbstractSimpleBeanDefinitionParser {
 
     @Override
     public void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
-        element.setAttribute("id","customReportingService");
-        builder.setParentName("defaultReportingService");
-        builder.addPropertyValue("reportType",element.getAttribute("reportType"));
-        builder.addPropertyValue("rootTemplateLocation",element.getAttribute("rootTemplateLocation"));
-        builder.addPropertyValue("outputReportLocation",element.getAttribute("outputReportLocation"));
+        element.setAttribute(XMLConstants.ID,XMLConstants.CUSTOM_REPORTING_SERVICE);
+        builder.setParentName(XMLConstants.DEFAULT_REPORTING_SERVICE);
+        builder.addPropertyValue(XMLConstants.REPORT_TYPE,element.getAttribute(XMLConstants.REPORT_TYPE));
+        builder.addPropertyValue(XMLConstants.ROOT_TEMPLATE_LOCATION,element.getAttribute(XMLConstants.ROOT_TEMPLATE_LOCATION));
+        builder.addPropertyValue(XMLConstants.OUTPUT_REPORT_LOCATION,element.getAttribute(XMLConstants.OUTPUT_REPORT_LOCATION));
         try{
-            parserContext.getRegistry().removeAlias("reportingService");
+            parserContext.getRegistry().removeAlias(XMLConstants.REPORTING_SERVICE);
         } catch (Exception e){
             //nothing interesting
         }
@@ -40,6 +41,6 @@ public class ReportDefinitionParser extends AbstractSimpleBeanDefinitionParser {
             parserContext.getDelegate().parseCustomElement(el);
         }
 
-        parserContext.getRegistry().registerAlias("customReportingService", "reportingService");
+        parserContext.getRegistry().registerAlias(XMLConstants.CUSTOM_REPORTING_SERVICE, XMLConstants.REPORTING_SERVICE);
     }
 }

@@ -19,7 +19,7 @@ public class ExtensionsDefinitionParser implements BeanDefinitionParser{
 
     @Override
     public BeanDefinition parse(Element element, ParserContext parserContext) {
-        List <Element> extensionElements = DomUtils.getChildElementsByTagName(element, "extension");
+        List <Element> extensionElements = DomUtils.getChildElementsByTagName(element, XMLConstants.EXTENSION);
         for(Element el: extensionElements){
             parserContext.getDelegate().parseCustomElement(el);
         }

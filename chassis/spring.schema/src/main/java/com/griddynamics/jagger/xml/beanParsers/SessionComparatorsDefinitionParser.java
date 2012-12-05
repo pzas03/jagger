@@ -2,6 +2,7 @@ package com.griddynamics.jagger.xml.beanParsers;
 
 import com.griddynamics.jagger.engine.e1.sessioncomparation.BaselineSessionProvider;
 import com.griddynamics.jagger.engine.e1.sessioncomparation.ConfigurableSessionComparator;
+import gnu.kawa.slib.XML;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
@@ -20,6 +21,7 @@ import org.w3c.dom.Element;
  */
 public class SessionComparatorsDefinitionParser  extends AbstractSimpleBeanDefinitionParser {
 
+
     @Override
     protected Class getBeanClass(Element element) {
         return ConfigurableSessionComparator.class;
@@ -30,49 +32,49 @@ public class SessionComparatorsDefinitionParser  extends AbstractSimpleBeanDefin
 
         ManagedList<BeanDefinition> chain=new ManagedList<BeanDefinition>();
 
-        for(Element el: DomUtils.getChildElementsByTagName(element, "comparator")){
+        for(Element el: DomUtils.getChildElementsByTagName(element, XMLConstants.COMPARATOR)){
             chain.add(parserContext.getDelegate().parseCustomElement(el));
         }
 
-        builder.addPropertyValue("comparatorChain", chain);
+        builder.addPropertyValue(XMLConstants.COMPARATOR_CHAIN, chain);
 
-        String decisionMaker=element.getAttribute("strategy");
+        String decisionMaker=element.getAttribute(XMLConstants.STRATEGY);
         if(StringUtils.hasText(decisionMaker)){
-            builder.addPropertyReference("decisionMaker", getDecisionMaker(decisionMaker));
+            builder.addPropertyReference(XMLConstants.DECISION_MAKER, getDecisionMaker(decisionMaker));
         }
 
-        String baselineSessionId=element.getAttribute("baselineId");
+        String baselineSessionId=element.getAttribute(XMLConstants.BASELINE_ID);
         if(StringUtils.hasText(baselineSessionId)){
             registerBaselineSessionProvider(baselineSessionId, parserContext, builder);
         }
 
-        element.setAttribute("id", "customSessionComparator");
+        element.setAttribute(XMLConstants.ID, XMLConstants.CUSTOM_SESSION_COMPARATOR);
         try{
-            parserContext.getRegistry().removeAlias("sessionComparator");
+            parserContext.getRegistry().removeAlias(XMLConstants.SESSION_COMPARATOR);
         }   catch (Exception e){
             //nothing interesting
         }
-        parserContext.getRegistry().registerAlias("customSessionComparator","sessionComparator");
+        parserContext.getRegistry().registerAlias(XMLConstants.CUSTOM_SESSION_COMPARATOR, XMLConstants.SESSION_COMPARATOR);
 
     }
 
     private String getDecisionMaker(String decisionMaker) {
-        if(decisionMaker.equals("worstCase")){
-            return "worstCaseDecisionMaker";
+        if(decisionMaker.equals(XMLConstants.WORST_CASE)){
+            return XMLConstants.WORST_CASE_DECISION_MAKER;
         }
         return null;
     }
 
     private void registerBaselineSessionProvider(String baselineSessionId, ParserContext parserContext, BeanDefinitionBuilder builder) {
         BeanDefinitionBuilder provider=BeanDefinitionBuilder.rootBeanDefinition(BaselineSessionProvider.class);
-        provider.addPropertyValue("sessionId",baselineSessionId);
-        provider.addPropertyReference("sessionIdProvider","sessionIdProvider");
-        parserContext.getRegistry().registerBeanDefinition("customBaselineSessionProvider",provider.getBeanDefinition());
+        provider.addPropertyValue(XMLConstants.SESSION_ID,baselineSessionId);
+        provider.addPropertyReference(XMLConstants.SESSION_ID_PROVIDER, XMLConstants.SESSION_ID_PROVIDER);
+        parserContext.getRegistry().registerBeanDefinition(XMLConstants.CUSTOM_BASELINE_SESSION_PROVIDER,provider.getBeanDefinition());
         try{
-            parserContext.getRegistry().removeAlias("baselineSessionProvider");
+            parserContext.getRegistry().removeAlias(XMLConstants.BASELINE_SESSION_PROVIDER);
         } catch (Exception e){
             //nothing interesting
         }
-        parserContext.getRegistry().registerAlias("customBaselineSessionProvider","baselineSessionProvider");
+        parserContext.getRegistry().registerAlias(XMLConstants.CUSTOM_BASELINE_SESSION_PROVIDER, XMLConstants.BASELINE_SESSION_PROVIDER);
     }
 }

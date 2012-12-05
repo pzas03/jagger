@@ -24,11 +24,11 @@ public class ExtensionDefinitionParser extends AbstractSimpleBeanDefinitionParse
 
     @Override
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
-        String ref=element.getAttribute("ref");
+        String ref=element.getAttribute(XMLConstants.ATTRIBUTE_REF);
         if (!StringUtils.hasText(ref)){
-            ref= DomUtils.getChildElementByTagName(element, "ref").getAttribute("bean");
+            ref= DomUtils.getChildElementByTagName(element, XMLConstants.ATTRIBUTE_REF).getAttribute(XMLConstants.BEAN);
         }
-        builder.addPropertyReference("extension",ref);
-        element.setAttribute("id","ext_"+ref);
+        builder.addPropertyReference(XMLConstants.EXTENSION,ref);
+        element.setAttribute(XMLConstants.ID,XMLConstants.EXTENSION_PREFIX+ref);
     }
 }

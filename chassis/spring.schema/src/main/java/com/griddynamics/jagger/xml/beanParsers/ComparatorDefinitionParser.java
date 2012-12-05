@@ -18,43 +18,26 @@ import org.w3c.dom.Element;
  */
 public class ComparatorDefinitionParser implements BeanDefinitionParser{
 
-    private static final String FATAL_DEVIATION_THRESHOLD="fatalDeviationThreshold";
-    private static final String WARNING_DEVIATION_THRESHOLD="warningDeviationThreshold";
-
-    private static final String WORKLOAD_DECISION_MAKER="workloadDecisionMaker";
-    private static final String MONITORING_PARAMETER_DECISION_MAKER="monitoringParameterDecisionMaker";
-
-    private static final String WORKLOAD_FEATURE_COMPARATOR="workloadFeatureComparator";
-    private static final String MONITORING_FEATURE_COMPARATOR="monitoringFeatureComparator";
-
-    private static final String DECISION_MAKER_TYPE="decisionMakerType";
-    private static final String DECISION_MAKER_REF="decisionMakerRef";
-
-    private static final String WORKLOAD="workload";
-    private static final String MONITORING="monitoring";
-
-    private static final String COMPARATOR_TYPE="comparatorType";
-
     @Override
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         BeanDefinitionBuilder builder=null;
-        String type=element.getAttribute(DECISION_MAKER_TYPE);
+        String type=element.getAttribute(XMLConstants.DECISION_MAKER_TYPE);
 
-        if(element.getAttribute(COMPARATOR_TYPE).equals(WORKLOAD)){
-            builder=BeanDefinitionBuilder.childBeanDefinition(WORKLOAD_FEATURE_COMPARATOR);
+        if(element.getAttribute(XMLConstants.COMPARATOR_TYPE).equals(XMLConstants.WORKLOAD)){
+            builder=BeanDefinitionBuilder.childBeanDefinition(XMLConstants.WORKLOAD_FEATURE_COMPARATOR);
             if(StringUtils.hasText(type)){
-                BeanDefinition decisionMaker=getThroughputWorkloadDecisionMaker(element, parserContext);
-                builder.addPropertyValue(WORKLOAD_DECISION_MAKER,decisionMaker);
+                BeanDefinition decisionMaker=getThroughputWorkloadDecisionMaker(element);
+                builder.addPropertyValue(XMLConstants.WORKLOAD_DECISION_MAKER,decisionMaker);
             } else{
-                builder.addPropertyReference(WORKLOAD_DECISION_MAKER,element.getAttribute(DECISION_MAKER_REF));
+                builder.addPropertyReference(XMLConstants.WORKLOAD_DECISION_MAKER,element.getAttribute(XMLConstants.DECISION_MAKER_REF));
             }
-        } else if(element.getAttribute(COMPARATOR_TYPE).equals(MONITORING)){
-            builder=BeanDefinitionBuilder.childBeanDefinition(MONITORING_FEATURE_COMPARATOR);
+        } else if(element.getAttribute(XMLConstants.COMPARATOR_TYPE).equals(XMLConstants.MONITORING)){
+            builder=BeanDefinitionBuilder.childBeanDefinition(XMLConstants.MONITORING_FEATURE_COMPARATOR);
             if(StringUtils.hasText(type)){
-                BeanDefinition decisionMaker=getStdDevMonitoringParameterDecisionMaker(element, parserContext);
-                builder.addPropertyValue(MONITORING_PARAMETER_DECISION_MAKER,decisionMaker);
+                BeanDefinition decisionMaker=getStdDevMonitoringParameterDecisionMaker(element);
+                builder.addPropertyValue(XMLConstants.MONITORING_PARAMETER_DECISION_MAKER,decisionMaker);
             } else{
-                builder.addPropertyReference(MONITORING_PARAMETER_DECISION_MAKER,element.getAttribute(DECISION_MAKER_REF));
+                builder.addPropertyReference(XMLConstants.MONITORING_PARAMETER_DECISION_MAKER,element.getAttribute(XMLConstants.DECISION_MAKER_REF));
             }
         }
 
@@ -62,21 +45,21 @@ public class ComparatorDefinitionParser implements BeanDefinitionParser{
     }
 
 
-    private BeanDefinition getStdDevMonitoringParameterDecisionMaker(Element element, ParserContext parserContext){
+    private BeanDefinition getStdDevMonitoringParameterDecisionMaker(Element element){
         BeanDefinitionBuilder builder=BeanDefinitionBuilder.genericBeanDefinition(StdDevMonitoringParameterDecisionMaker.class);
-        String fatal=element.getAttribute(FATAL_DEVIATION_THRESHOLD);
-        String warning=element.getAttribute(WARNING_DEVIATION_THRESHOLD);
-        builder.addPropertyValue(FATAL_DEVIATION_THRESHOLD,fatal);
-        builder.addPropertyValue(WARNING_DEVIATION_THRESHOLD, warning);
+        String fatal=element.getAttribute(XMLConstants.FATAL_DEVIATION_THRESHOLD);
+        String warning=element.getAttribute(XMLConstants.WARNING_DEVIATION_THRESHOLD);
+        builder.addPropertyValue(XMLConstants.FATAL_DEVIATION_THRESHOLD,fatal);
+        builder.addPropertyValue(XMLConstants.WARNING_DEVIATION_THRESHOLD, warning);
         return builder.getBeanDefinition();
     }
 
-    private BeanDefinition getThroughputWorkloadDecisionMaker(Element element, ParserContext parserContext){
+    private BeanDefinition getThroughputWorkloadDecisionMaker(Element element){
         BeanDefinitionBuilder builder=BeanDefinitionBuilder.genericBeanDefinition(ThroughputWorkloadDecisionMaker.class);
-        String fatal=element.getAttribute(FATAL_DEVIATION_THRESHOLD);
-        String warning=element.getAttribute(WARNING_DEVIATION_THRESHOLD);
-        builder.addPropertyValue(FATAL_DEVIATION_THRESHOLD,fatal);
-        builder.addPropertyValue(WARNING_DEVIATION_THRESHOLD,warning);
+        String fatal=element.getAttribute(XMLConstants.FATAL_DEVIATION_THRESHOLD);
+        String warning=element.getAttribute(XMLConstants.WARNING_DEVIATION_THRESHOLD);
+        builder.addPropertyValue(XMLConstants.FATAL_DEVIATION_THRESHOLD,fatal);
+        builder.addPropertyValue(XMLConstants.WARNING_DEVIATION_THRESHOLD,warning);
         return builder.getBeanDefinition();
     }
 
