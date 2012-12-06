@@ -20,13 +20,52 @@
 
 package com.griddynamics.jagger.engine.e1.scenario;
 
+import com.griddynamics.jagger.user.ProcessingConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
- * Abstract factory pattern implementation for {@link WorkloadClock}.
- *
- * @author Mairbek Khadikov
+ * UserGroup: dkotlyarov
  */
-public interface WorkloadClockConfiguration {
+public class WorkloadClockConfiguration implements ClockConfiguration {
+    private static final Logger log = LoggerFactory.getLogger(WorkloadClockConfiguration.class);
 
-    WorkloadClock getClock();
+    private final int tickInterval;
+    private final InvocationDelayConfiguration delay = FixedDelay.noDelay();
+    private final ProcessingConfig.Test.Task taskConfig;
+    private final AtomicBoolean shutdown;
 
+    public WorkloadClockConfiguration(int tickInterval, ProcessingConfig.Test.Task taskConfig, AtomicBoolean shutdown) {
+        this.tickInterval = tickInterval;
+        this.taskConfig = taskConfig;
+        this.shutdown = shutdown;
+    }
+
+    public int getTickInterval() {
+        return tickInterval;
+    }
+
+    public InvocationDelayConfiguration getDelay() {
+        return delay;
+    }
+
+    public ProcessingConfig.Test.Task getTaskConfig() {
+        return taskConfig;
+    }
+
+    @Override
+    public WorkloadClock getClock() {
+        if (taskConfig.invocation == null) {
+            return new UserClock(taskConfig, tickInterval, shutdown);
+        } else {
+            return new ExactInvocationsClock(taskConfig.invocation.count, taskConfig.invocation.threads, taskConfig.delay);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "virtual userGroups with " + delay + " delay";
+    }
 }
