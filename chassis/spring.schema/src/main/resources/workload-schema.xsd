@@ -14,7 +14,9 @@
 
     <xsd:element name="workload" type="workloadType"/>
 
-    <xsd:element name="metrics" type="metricsListType"/>
+    <xsd:element name="listeners" type="metricsListType"/>
+
+    <xsd:element name="listener" type="listenerType"/>
 
     <xsd:element name="scenario" type="scenarioType"/>
 
@@ -32,6 +34,10 @@
 
     <xsd:element name="loadBalancer" type="loadBalancerType"/>
 
+    <xsd:element name="roundRobinloadBalancer" type="roundRobinloadBalancerType" substitutionGroup="loadBalancer"/>
+
+    <xsd:element name="endpointsProvider" type="endpointsProviderType"/>
+
     <xsd:complexType name="workloadType">
         <xsd:complexContent>
             <xsd:extension base="beans:identifiedType">
@@ -39,6 +45,8 @@
                     <xsd:element name="metrics" type="metricsListType" minOccurs="0" maxOccurs="1"/>
                     <xsd:element ref="scenario"/>
                 </xsd:all>
+                <xsd:attribute name="name" type="xsd:string"/>
+                <xsd:attribute name="version" type="xsd:integer"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -156,8 +164,25 @@
                     <xsd:element ref="invoker" minOccurs="1" maxOccurs="1"/>
                     <xsd:element ref="queryProvider" minOccurs="1" maxOccurs="1"/>
                     <xsd:element ref="loadBalancer" minOccurs="1" maxOccurs="1"/>
+                    <xsd:element ref="endpointsProvider" minOccurs="1" maxOccurs="1"/>
                 </xsd:all>
             </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="roundRobinloadBalancerType">
+        <xsd:complexContent>
+            <xsd:extension base="loadBalancerType">
+                <xsd:all>
+                </xsd:all>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="endpointsProviderType">
+        <xsd:complexContent>
+            <xsd:restriction base="beans:identifiedType">
+            </xsd:restriction>
         </xsd:complexContent>
     </xsd:complexType>
 </xsd:schema>

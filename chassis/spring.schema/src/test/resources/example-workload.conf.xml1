@@ -33,12 +33,13 @@
          <jgr:queryPoolScenario>
              <jgr:customInvoker class="com.griddynamics.jagger.invoker.hessian.HessianInvoker"/>
              <jgr:queryProvider/>
-             <jgr:loadBalancer/>
+             <jgr:roundRobinloadBalancer/>
+             <jgr:endpointsProvider/>
          </jgr:queryPoolScenario>
 
         <jgr:metrics>
             <jgr:metric type="duration"/>
-            <jgr:metric type="custom" calculator=""/>
+            <jgr:metric type="custom" calculatorRef=""/>
             <jgr:validator type="NotNull"/>
         </jgr:metrics>
     </jgr:workload>
