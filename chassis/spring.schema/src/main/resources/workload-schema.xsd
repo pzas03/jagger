@@ -14,9 +14,13 @@
 
     <xsd:element name="workload" type="workloadType"/>
 
-    <xsd:element name="listeners" type="metricsListType"/>
+    <xsd:element name="listeners" type="listenersType"/>
 
     <xsd:element name="listener" type="listenerType"/>
+
+    <xsd:element name="metric" type="metricType"  substitutionGroup="listener"/>
+
+    <xsd:element name="validator" type="validatorType" substitutionGroup="listener"/>
 
     <xsd:element name="scenario" type="scenarioType"/>
 
@@ -42,7 +46,7 @@
         <xsd:complexContent>
             <xsd:extension base="beans:identifiedType">
                 <xsd:all>
-                    <xsd:element name="metrics" type="metricsListType" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="listeners" type="listenersType" minOccurs="0" maxOccurs="1"/>
                     <xsd:element ref="scenario"/>
                 </xsd:all>
                 <xsd:attribute name="name" type="xsd:string"/>
@@ -51,11 +55,13 @@
         </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:complexType name="metricsListType">
+    <xsd:complexType name="listenersType">
         <xsd:complexContent>
-            <xsd:restriction base="beans:listOrSetType">
-                <xsd:attribute name="id" type="xsd:ID"/>
-            </xsd:restriction>
+            <xsd:extension base="beans:identifiedType">
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element ref="listener"/>
+                </xsd:choice>
+            </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
 
@@ -183,6 +189,34 @@
         <xsd:complexContent>
             <xsd:restriction base="beans:identifiedType">
             </xsd:restriction>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="listenerType">
+        <xsd:complexContent>
+            <xsd:restriction base="beans:identifiedType">
+            </xsd:restriction>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="metricType">
+        <xsd:complexContent>
+            <xsd:extension base="listenerType">
+                <!--TODO-->
+                <xsd:attribute name="ref"/>
+                <xsd:attribute name="type"/>
+                <xsd:attribute name="calculatorRef"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="validatorType">
+        <xsd:complexContent>
+            <xsd:extension base="listenerType">
+                <!--TODO-->
+                <xsd:attribute name="ref"/>
+                <xsd:attribute name="type"/>
+            </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
 </xsd:schema>
