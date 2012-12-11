@@ -57,10 +57,24 @@ public class WorkloadClockConfiguration implements ClockConfiguration {
 
     @Override
     public WorkloadClock getClock() {
-        if (taskConfig.invocation == null) {
+        if (taskConfig.users != null) {
             return new UserClock(taskConfig, tickInterval, shutdown);
-        } else {
-            return new ExactInvocationsClock(taskConfig.invocation.count, taskConfig.invocation.threads, taskConfig.delay);
+        } else{
+            if (taskConfig.tps != null){
+                TpsClockConfiguration tpsClockConfiguration = new TpsClockConfiguration();
+                tpsClockConfiguration.setTickInterval(tickInterval);
+                tpsClockConfiguration.setTps(taskConfig.tps.value);
+                return tpsClockConfiguration.getClock();
+            }else {
+                if (taskConfig.virtualUser != null){
+                    VirtualUsersClockConfiguration conf = new VirtualUsersClockConfiguration();
+                    conf.setTickInterval(taskConfig.virtualUser.tickInterval);
+                    conf.setUsers(taskConfig.virtualUser.count);
+                    return conf.getClock();
+                }else{
+                    return new ExactInvocationsClock(taskConfig.invocation.exactcount, taskConfig.invocation.threads, taskConfig.delay);
+                }
+            }
         }
     }
 

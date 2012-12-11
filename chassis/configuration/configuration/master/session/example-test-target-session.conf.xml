@@ -19,9 +19,54 @@
   ~ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+<beans
+        xmlns:jgr="http://www.griddynamics.com/schema/jagger-user"
+        xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+        http://www.griddynamics.com/schema/jagger-user
+        http://www.griddynamics.com/schema/jagger-user.xsd
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd"
+        >
+
+
+    <jgr:test-plan id="test-plan-1">
+        <ref local="test1"/>
+        <ref local="test2"/>
+        <!--<ref local="test3"/>-->
+    </jgr:test-plan>
+
+    <jgr:test id="test1" name="user-test" duration="200">
+        <jgr:task id="t3" name="3-groups-50-50-50" sample="1000" delay="0" bean="sleep5msServiceScenario" >
+            <jgr:user id="u2" count="50" startCount="50" startIn="0" startBy="0" life="2h"/>
+            <jgr:user id="u3" count="50" startCount="50" startIn="0" startBy="0" life="2h"/>
+            <jgr:user id="u4" count="50" startCount="50" startIn="0" startBy="0" life="2h"/>
+        </jgr:task>
+        <jgr:task id="t4" name="virtual-user-100" sample="1000" delay="0" bean="sleep5msServiceScenario">
+            <jgr:virtual-user id="vu1" count="100" tickInterval="10"/>
+        </jgr:task>
+    </jgr:test>
+
+    <jgr:test id="test2" name="tps-test" duration="200">
+        <jgr:task id="t5" name="tps-test" sample="1000" bean="sleep50msServiceScenario">
+            <jgr:tps id="tps1" value="10"/>
+        </jgr:task>
+    </jgr:test>
+
+    <jgr:test id="test3" name="invocation-test" duration="200" >
+        <jgr:task id="t6" name="invocation-task" sample="1000" delay="0" bean="sleep50msServiceScenario">
+            <jgr:invocation id="invocation1" exactcount ="1" threads="10"/>
+        </jgr:task>
+    </jgr:test>
+
+    <bean id="processGenerator" class="com.griddynamics.jagger.master.configuration.TaskGenerator">
+        <property name="config" ref="test-plan-1"/>
+    </bean>
+
+    <bean id="testTargetConfiguration" parent="abstractTestTargetConfiguration">
+        <property name="tasks" value="#{processGenerator.generate()}"/>
+    </bean>
 
     <bean id="abstractTestTargetConfiguration"
           class="com.griddynamics.jagger.master.configuration.Configuration" abstract="true">
@@ -41,10 +86,6 @@
                 <ref bean="durationLogProcessor"/>
             </list>
         </property>
-    </bean>
-
-    <bean id="testTargetConfiguration" parent="abstractTestTargetConfiguration">
-        <property name="tasks" value="#{taskUtilInternal.generate()}"/>
     </bean>
 
     <bean id="testHttpTargetConfiguration" parent="abstractTestTargetConfiguration">
@@ -260,7 +301,4 @@
         </property>
     </bean>
 
-    <bean id="userTaskGenerator" class="com.griddynamics.jagger.master.configuration.UserTaskGenerator">
-        <property name="monitoringEnable" value="${chassis.conditions.monitoring.enable}"/>
-    </bean>
 </beans>

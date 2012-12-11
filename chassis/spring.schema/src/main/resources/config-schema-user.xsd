@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<xsd:schema xmlns="http://www.griddynamics.com/schema/jagger"
+<xsd:schema xmlns="http://www.griddynamics.com/schema/jagger-user"
             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
             xmlns:beans="http://www.springframework.org/schema/beans"
-            targetNamespace="http://www.griddynamics.com/schema/jagger"
+            targetNamespace="http://www.griddynamics.com/schema/jagger-user"
             elementFormDefault="qualified">
 
     <xsd:import namespace="http://www.springframework.org/schema/beans"
                 schemaLocation="http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"/>
 
 
-    <xsd:element name="processing" type="processingType">
+    <xsd:element name="configuration" type="configurationType">
     </xsd:element>
 
-    <xsd:element name="test-plan" type="processingType">
+    <xsd:element name="test-plan" type="testPlanType">
     </xsd:element>
 
     <xsd:element name="test" type="testType">
@@ -24,14 +24,38 @@
     <xsd:element name="user" type="userType">
     </xsd:element>
 
+    <xsd:element name="virtual-user" type="virtualUserType">
+    </xsd:element>
+
     <xsd:element name="invocation" type="invocationType">
     </xsd:element>
 
-    <xsd:complexType name="processingType">
+    <xsd:element name="sessionExecutionListeners" type="sessionExecutionListenersType">
+    </xsd:element>
+
+    <xsd:element name="distributionListeners" type="taskExecutionListenersType">
+    </xsd:element>
+
+
+    <xsd:complexType name="configurationType">
         <xsd:complexContent>
             <xsd:extension base="beans:identifiedType">
-                <xsd:choice minOccurs="0" maxOccurs="unbounded">
-                    <xsd:element ref="test"/>
+                <xsd:choice minOccurs="1" maxOccurs="unbounded">
+                    <xsd:element name="test-plan" type="testPlanType"/>
+                    <xsd:element ref="beans:ref"/>
+                    <xsd:element ref="beans:bean"/>
+                </xsd:choice>
+                <xsd:attribute name="sessionExecutionListeners"/>
+                <xsd:attribute name="distributionListeners"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="testPlanType">
+        <xsd:complexContent>
+            <xsd:extension base="beans:identifiedType">
+                <xsd:choice minOccurs="1" maxOccurs="unbounded">
+                    <xsd:element name="test" type="testType" maxOccurs="unbounded"/>
                     <xsd:element ref="beans:bean"/>
                     <xsd:element ref="beans:ref"/>
                 </xsd:choice>
@@ -56,8 +80,10 @@
     <xsd:complexType name="taskType">
         <xsd:complexContent>
             <xsd:extension base="beans:identifiedType">
-                <xsd:choice minOccurs="0">
+                <xsd:choice minOccurs="1">
                     <xsd:element name="user" type="userType" maxOccurs="unbounded"/>
+                    <xsd:element name="virtual-user" type="virtualUserType" maxOccurs="1"/>
+                    <xsd:element name="tps" type="tpsType" maxOccurs="1"/>
                     <xsd:element name="invocation" type="invocationType" maxOccurs="1"/>
                 </xsd:choice>
                 <xsd:attribute name="name" type="xsd:string" ></xsd:attribute>
@@ -77,6 +103,14 @@
         </xsd:complexContent>
     </xsd:complexType>
 
+    <xsd:complexType name="virtualUserType">
+        <xsd:complexContent>
+            <xsd:extension base="beans:identifiedType">
+                <xsd:attributeGroup ref="virtualUserAttributes"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
     <xsd:complexType name="invocationType">
         <xsd:complexContent>
             <xsd:extension base="beans:identifiedType">
@@ -84,6 +118,38 @@
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
+
+    <xsd:complexType name="tpsType">
+        <xsd:complexContent>
+            <xsd:extension base="beans:identifiedType">
+                <xsd:attributeGroup ref="tpsAttributes"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="sessionExecutionListenersType">
+        <xsd:complexContent>
+            <xsd:extension base="beans:identifiedType">
+                <xsd:attributeGroup ref="sessionExecutionListenersAttributes"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="taskExecutionListenersType">
+        <xsd:complexContent>
+            <xsd:extension base="beans:identifiedType">
+                <xsd:attributeGroup ref="taskExecutionListenersAttributes"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:attributeGroup name="sessionExecutionListenersAttributes">
+
+    </xsd:attributeGroup>
+
+    <xsd:attributeGroup name="taskExecutionListenersAttributes">
+
+    </xsd:attributeGroup>
 
     <xsd:attributeGroup name="userAttributes">
         <xsd:attribute name="count" type="xsd:string" ></xsd:attribute>
@@ -93,9 +159,18 @@
         <xsd:attribute name="life" type="xsd:string"></xsd:attribute>
     </xsd:attributeGroup>
 
+    <xsd:attributeGroup name="virtualUserAttributes">
+        <xsd:attribute name="count" type="xsd:integer" ></xsd:attribute>
+        <xsd:attribute name="tickInterval" type="xsd:integer" ></xsd:attribute>
+    </xsd:attributeGroup>
+
     <xsd:attributeGroup name="invocationAttributes">
         <xsd:attribute name="exactcount" type="xsd:integer" ></xsd:attribute>
         <xsd:attribute name="threads" type="xsd:integer"></xsd:attribute>
+    </xsd:attributeGroup>
+
+    <xsd:attributeGroup name="tpsAttributes">
+        <xsd:attribute name="value" type="xsd:integer" ></xsd:attribute>
     </xsd:attributeGroup>
 
 </xsd:schema>

@@ -23,8 +23,8 @@ package com.griddynamics.jagger.master.configuration;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.griddynamics.jagger.engine.e1.scenario.ClockConfiguration;
 import com.griddynamics.jagger.engine.e1.scenario.TerminateStrategyConfiguration;
-import com.griddynamics.jagger.engine.e1.scenario.WorkloadClockConfiguration;
 import com.griddynamics.jagger.engine.e1.scenario.WorkloadTask;
 import com.griddynamics.jagger.exception.ConfigurationException;
 import com.griddynamics.jagger.master.CompositableTask;
@@ -36,7 +36,7 @@ import java.util.Set;
 
 public class WorkloadTasksGenerator {
     private List<WorkloadTask> prototypes;
-    private List<WorkloadClockConfiguration> clocks;
+    private List<ClockConfiguration> clocks;
     private List<TerminateStrategyConfiguration> terminations;
     private MonitoringTask attendantMonitoring;
 
@@ -45,7 +45,7 @@ public class WorkloadTasksGenerator {
 
         List<Task> result = Lists.newLinkedList();
         int number = 0;
-        for (WorkloadClockConfiguration clock : clocks) {
+        for (ClockConfiguration clock : clocks) {
             for (WorkloadTask prototype : prototypes) {
                 for (TerminateStrategyConfiguration termination : terminations) {
                     WorkloadTask workloadTask = prototype.copy();
@@ -78,8 +78,8 @@ public class WorkloadTasksGenerator {
     }
 
     private void validate() {
-        Set<Class<? extends WorkloadClockConfiguration>> classes = Sets.newHashSet();
-        for (WorkloadClockConfiguration clock : clocks) {
+        Set<Class<? extends ClockConfiguration>> classes = Sets.newHashSet();
+        for (ClockConfiguration clock : clocks) {
             classes.add(clock.getClass());
             if (classes.size() > 1) {
                 throw new ConfigurationException("Different clock types specified");
@@ -91,7 +91,7 @@ public class WorkloadTasksGenerator {
         this.prototypes = prototypes;
     }
 
-    public void setClocks(List<WorkloadClockConfiguration> clocks) {
+    public void setClocks(List<ClockConfiguration> clocks) {
         this.clocks = clocks;
     }
 

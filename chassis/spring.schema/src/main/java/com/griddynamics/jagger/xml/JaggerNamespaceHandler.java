@@ -16,5 +16,8 @@ public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
         registerBeanDefinitionParser("comparator", new ComparatorDefinitionParser());
         registerBeanDefinitionParser("sessionComparators", new SessionComparatorsDefinitionParser());
         registerBeanDefinitionParser("report", new ReportDefinitionParser());
+        //registerBeanDefinitionParser("configuration", new ConfigDefinitionParser());
+        registerBeanDefinitionParser("tps", new TpsDefinitionParser());
+        registerBeanDefinitionParser("virtual-user", new VirtualUserDefinitionParser());
     }
 }

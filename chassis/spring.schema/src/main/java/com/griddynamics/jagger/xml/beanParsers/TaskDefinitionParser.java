@@ -30,9 +30,20 @@ public class TaskDefinitionParser extends AbstractSimpleBeanDefinitionParser {
             List users = parserContext.getDelegate().parseListElement(element, builder.getBeanDefinition());
             builder.addPropertyValue("users",users);
         } else {
-            List<Element> invocationElements = DomUtils.getChildElementsByTagName(element, "invocation");
-            if (!invocationElements.isEmpty()) {
-                builder.addPropertyValue("invocation", parserContext.getDelegate().parseCustomElement(invocationElements.get(0), builder.getBeanDefinition()));
+            if(!DomUtils.getChildElementsByTagName(element, "tps").isEmpty()){
+                element.setAttribute(BeanDefinitionParserDelegate.VALUE_TYPE_ATTRIBUTE, ProcessingConfig.Test.Task.Tps.class.getCanonicalName());
+                List<Element> tpsElements = DomUtils.getChildElementsByTagName(element, "tps");
+                builder.addPropertyValue("tps",parserContext.getDelegate().parseCustomElement(tpsElements.get(0), builder.getBeanDefinition()));
+            }else{
+                if(!DomUtils.getChildElementsByTagName(element, "virtual-user").isEmpty()){
+                    element.setAttribute(BeanDefinitionParserDelegate.VALUE_TYPE_ATTRIBUTE, ProcessingConfig.Test.Task.VirtualUser.class.getCanonicalName());
+                    List<Element> tpsElements = DomUtils.getChildElementsByTagName(element, "virtual-user");
+                    builder.addPropertyValue("virtualUser",parserContext.getDelegate().parseCustomElement(tpsElements.get(0), builder.getBeanDefinition()));
+                }else{
+                    element.setAttribute(BeanDefinitionParserDelegate.VALUE_TYPE_ATTRIBUTE, ProcessingConfig.Test.Task.Invocation.class.getCanonicalName());
+                    List<Element> tpsElements = DomUtils.getChildElementsByTagName(element, "invocation");
+                    builder.addPropertyValue("invocation",parserContext.getDelegate().parseCustomElement(tpsElements.get(0), builder.getBeanDefinition()));
+                }
             }
         }
     }

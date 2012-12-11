@@ -4,7 +4,7 @@ import com.griddynamics.jagger.engine.e1.sessioncomparation.monitoring.Monitorin
 import com.griddynamics.jagger.engine.e1.sessioncomparation.monitoring.StdDevMonitoringParameterDecisionMaker;
 import com.griddynamics.jagger.engine.e1.sessioncomparation.workload.ThroughputWorkloadDecisionMaker;
 import com.griddynamics.jagger.engine.e1.sessioncomparation.workload.WorkloadFeatureComparator;
-import com.sun.xml.internal.ws.api.FeatureConstructor;
+//import com.sun.xml.internal.ws.api.FeatureConstructor;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;

@@ -4,5 +4,5 @@
             targetNamespace="http://www.griddynamics.com/schema/jagger"
             elementFormDefault="qualified">
 
-    <import id=""
-</xsd:schema> 
+    <!--<import id=""-->
+</xsd:schema>
