@@ -19,11 +19,11 @@
   ~ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 <beans
-        xmlns:jgr="http://www.griddynamics.com/schema/jagger"
+        xmlns:jgr="http://www.griddynamics.com/schema/jagger-user"
         xmlns="http://www.springframework.org/schema/beans"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.griddynamics.com/schema/jagger
-        http://www.griddynamics.com/schema/jagger.xsd
+        xsi:schemaLocation="http://www.griddynamics.com/schema/jagger-user
+        http://www.griddynamics.com/schema/jagger-user.xsd
         http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd"
         >
@@ -41,7 +41,7 @@
         <ref local="tst1"/>
     </jgr:test-plan>
 
-    <jgr:processing id="tp2">
+    <jgr:test-plan id="tp2">
         <jgr:test>
             <jgr:task sample="34250" delay="0" bean="getTopLevelCategoryTreeCatalogService">
                 <jgr:user count="50" startCount="50" startIn="0" startBy="0" life="2h"/>
@@ -51,7 +51,7 @@
             </jgr:task>
         </jgr:test>
         <ref local="tst1"/>
-    </jgr:processing>
+    </jgr:test-plan>
 
     <jgr:task id="t1" name="task1" sample="34250" delay="0" bean="bean1" duration="200">
         <jgr:user id="u2" count="50" startCount="50" startIn="0" startBy="0" life="2h"/>
@@ -74,5 +74,5 @@
 
     <jgr:invocation id="i1" exactcount="5" threads="2"/>
 
-    <bean name="bean1" class="com.griddynamics.jagger.user.ProcessingConfig$Test" lazy-init="false"></bean>
+    <bean name="bean1" class="com.griddynamics.jagger.user.ProcessingConfig$Test" lazy-init="false"/>
 </beans>
