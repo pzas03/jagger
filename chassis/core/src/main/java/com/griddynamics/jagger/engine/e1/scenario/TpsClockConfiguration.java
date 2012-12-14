@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 
-public class TpsClockConfiguration implements ClockConfiguration {
+public class TpsClockConfiguration implements WorkloadClockConfiguration {
     private static final Logger log = LoggerFactory.getLogger(TpsClockConfiguration.class);
 
     private int tickInterval;

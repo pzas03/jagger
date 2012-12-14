@@ -37,7 +37,7 @@ public class WorkloadTask implements CompositableTask {
     private String version;
     private ScenarioFactory<Object, Object, Object> scenarioFactory;
     private List<KernelSideObjectProvider<ScenarioCollector<Object, Object, Object>>> collectors = Lists.newLinkedList();
-    private ClockConfiguration clockConfiguration;
+    private WorkloadClockConfiguration clockConfiguration;
     private TerminateStrategyConfiguration terminateStrategyConfiguration;
     private String parentTaskId;
     private Calibrator calibrator = new OneNodeCalibrator();
@@ -88,11 +88,11 @@ public class WorkloadTask implements CompositableTask {
         this.collectors = collectors;
     }
 
-    public ClockConfiguration getClockConfiguration() {
+    public WorkloadClockConfiguration getClockConfiguration() {
         return clockConfiguration;
     }
 
-    public void setClockConfiguration(ClockConfiguration clockConfiguration) {
+    public void setClockConfiguration(WorkloadClockConfiguration clockConfiguration) {
         this.clockConfiguration = clockConfiguration;
     }
 

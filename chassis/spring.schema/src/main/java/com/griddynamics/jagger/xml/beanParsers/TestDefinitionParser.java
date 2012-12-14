@@ -24,9 +24,8 @@ public class TestDefinitionParser extends AbstractSimpleBeanDefinitionParser {
     @Override
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
         super.doParse(element, parserContext, builder);
-
         element.setAttribute(BeanDefinitionParserDelegate.VALUE_TYPE_ATTRIBUTE, ProcessingConfig.Test.Task.class.getCanonicalName());
         List tasks = parserContext.getDelegate().parseListElement(element, builder.getBeanDefinition());
-        builder.addPropertyValue("tasks",tasks);
+        builder.addPropertyValue(XMLConstants.TASKS,tasks);
     }
 }

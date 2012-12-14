@@ -14,8 +14,6 @@ import java.util.List;
 
 public class TaskDefinitionParser extends AbstractSimpleBeanDefinitionParser {
 
-    private static final Logger log = LoggerFactory.getLogger(TaskDefinitionParser.class);
-
     @Override
     protected Class getBeanClass(Element element) {
         return ProcessingConfig.Test.Task.class;
@@ -25,24 +23,21 @@ public class TaskDefinitionParser extends AbstractSimpleBeanDefinitionParser {
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
         super.doParse(element, parserContext, builder);
 
-        if (!DomUtils.getChildElementsByTagName(element, "user").isEmpty()) {
+        if (!DomUtils.getChildElementsByTagName(element, XMLConstants.USER).isEmpty()) {
             element.setAttribute(BeanDefinitionParserDelegate.VALUE_TYPE_ATTRIBUTE, ProcessingConfig.Test.Task.User.class.getCanonicalName());
             List users = parserContext.getDelegate().parseListElement(element, builder.getBeanDefinition());
-            builder.addPropertyValue("users",users);
+            builder.addPropertyValue(XMLConstants.USERS,users);
         } else {
-            if(!DomUtils.getChildElementsByTagName(element, "tps").isEmpty()){
-                element.setAttribute(BeanDefinitionParserDelegate.VALUE_TYPE_ATTRIBUTE, ProcessingConfig.Test.Task.Tps.class.getCanonicalName());
-                List<Element> tpsElements = DomUtils.getChildElementsByTagName(element, "tps");
-                builder.addPropertyValue("tps",parserContext.getDelegate().parseCustomElement(tpsElements.get(0), builder.getBeanDefinition()));
+            if(!DomUtils.getChildElementsByTagName(element, XMLConstants.TPS).isEmpty()){
+                Element tps = DomUtils.getChildElementByTagName(element, XMLConstants.TPS);
+                builder.addPropertyValue(XMLConstants.TPS,parserContext.getDelegate().parseCustomElement(tps, builder.getBeanDefinition()));
             }else{
-                if(!DomUtils.getChildElementsByTagName(element, "virtual-user").isEmpty()){
-                    element.setAttribute(BeanDefinitionParserDelegate.VALUE_TYPE_ATTRIBUTE, ProcessingConfig.Test.Task.VirtualUser.class.getCanonicalName());
-                    List<Element> tpsElements = DomUtils.getChildElementsByTagName(element, "virtual-user");
-                    builder.addPropertyValue("virtualUser",parserContext.getDelegate().parseCustomElement(tpsElements.get(0), builder.getBeanDefinition()));
+                if(!DomUtils.getChildElementsByTagName(element, XMLConstants.VIRTUAL_USER).isEmpty()){
+                    Element vu = DomUtils.getChildElementByTagName(element, XMLConstants.VIRTUAL_USER);
+                    builder.addPropertyValue(XMLConstants.VIRTUAL_USER_CLASS_FIELD, parserContext.getDelegate().parseCustomElement(vu, builder.getBeanDefinition()));
                 }else{
-                    element.setAttribute(BeanDefinitionParserDelegate.VALUE_TYPE_ATTRIBUTE, ProcessingConfig.Test.Task.Invocation.class.getCanonicalName());
-                    List<Element> tpsElements = DomUtils.getChildElementsByTagName(element, "invocation");
-                    builder.addPropertyValue("invocation",parserContext.getDelegate().parseCustomElement(tpsElements.get(0), builder.getBeanDefinition()));
+                    Element inv = DomUtils.getChildElementByTagName(element, XMLConstants.INVOCATION);
+                    builder.addPropertyValue(XMLConstants.INVOCATION,parserContext.getDelegate().parseCustomElement(inv, builder.getBeanDefinition()));
                 }
             }
         }

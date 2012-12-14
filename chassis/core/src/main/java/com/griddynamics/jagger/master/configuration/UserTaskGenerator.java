@@ -21,7 +21,7 @@
 package com.griddynamics.jagger.master.configuration;
 
 import com.google.common.collect.ImmutableList;
-import com.griddynamics.jagger.engine.e1.scenario.WorkloadClockConfiguration;
+import com.griddynamics.jagger.engine.e1.scenario.UserClockConfiguration;
 import com.griddynamics.jagger.engine.e1.scenario.UserTerminateStrategyConfiguration;
 import com.griddynamics.jagger.engine.e1.scenario.WorkloadTask;
 import com.griddynamics.jagger.master.CompositableTask;
@@ -45,12 +45,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * User: dkotlyarov
  */
-public class TaskGenerator implements ApplicationContextAware {
+public class UserTaskGenerator implements ApplicationContextAware {
     private ProcessingConfig config;
     private ApplicationContext applicationContext;
     private boolean monitoringEnable = false;
 
-    public TaskGenerator() {
+    public UserTaskGenerator() {
     }
 
     public ProcessingConfig getConfig() {
@@ -66,6 +66,7 @@ public class TaskGenerator implements ApplicationContextAware {
         List<Task> result = new LinkedList<Task>();
         int number = 0;
         HashSet<String> names = new HashSet<String>();
+        if (config == null) initConfig();
         for (ProcessingConfig.Test testConfig : config.tests) {
             ++number;
 
@@ -83,7 +84,7 @@ public class TaskGenerator implements ApplicationContextAware {
                     workloadTask.setNumber(number);
                     workloadTask.setName(name);
                     workloadTask.setTerminateStrategyConfiguration(new UserTerminateStrategyConfiguration(testConfig, taskConfig, shutdown));
-                    workloadTask.setClockConfiguration(new WorkloadClockConfiguration(1000, taskConfig, shutdown));
+                    workloadTask.setClockConfiguration(new UserClockConfiguration(1000, taskConfig, shutdown));
                     compositeTask.getLeading().add(workloadTask);
                 } else {
                     throw new IllegalArgumentException(String.format("Task with name '%s' already exists", name));
@@ -125,7 +126,7 @@ public class TaskGenerator implements ApplicationContextAware {
         if (processingConfigFileName != null) {
             return getConfigFromFile(processingConfigFileName);
         } else {
-            return applicationContext.getBean("processing",ProcessingConfig.class);
+            return null;
         }
     }
 }

@@ -29,7 +29,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class VirtualUsersClockConfiguration implements ClockConfiguration {
+public class VirtualUsersClockConfiguration implements WorkloadClockConfiguration {
     private Logger log = LoggerFactory.getLogger(VirtualUsersClockConfiguration.class);
 
     private int users;

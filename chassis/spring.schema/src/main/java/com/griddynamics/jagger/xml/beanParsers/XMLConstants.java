@@ -44,4 +44,14 @@ public class XMLConstants {
     public static final String SESSION_ID_PROVIDER = "sessionIdProvider";
     public static final String CUSTOM_BASELINE_SESSION_PROVIDER = "customBaselineSessionProvider";
     public static final String BASELINE_SESSION_PROVIDER = "baselineSessionProvider";
+    public static final String TASKS = "tasks";
+    public static final String TASK = "task";
+    public static final String TESTS = "tests";
+    public static final String TEST = "test";
+    public static final String USERS = "users";
+    public static final String USER = "user";
+    public static final String TPS = "tps";
+    public static final String INVOCATION = "invocation";
+    public static final String VIRTUAL_USER = "virtual-user";
+    public static final String VIRTUAL_USER_CLASS_FIELD = "virtualUser";
 }

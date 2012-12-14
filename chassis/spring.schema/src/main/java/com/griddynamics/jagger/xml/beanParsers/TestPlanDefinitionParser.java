@@ -14,8 +14,6 @@ import java.util.List;
 
 public class TestPlanDefinitionParser extends AbstractSimpleBeanDefinitionParser {
 
-    private static final Logger log = LoggerFactory.getLogger(TestPlanDefinitionParser.class);
-
     @Override
     protected Class getBeanClass(Element element) {
         return ProcessingConfig.class;
@@ -24,9 +22,8 @@ public class TestPlanDefinitionParser extends AbstractSimpleBeanDefinitionParser
     @Override
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
         super.doParse(element, parserContext, builder);
-
         element.setAttribute(BeanDefinitionParserDelegate.VALUE_TYPE_ATTRIBUTE, ProcessingConfig.Test.class.getCanonicalName());
         List tests = parserContext.getDelegate().parseListElement(element, builder.getBeanDefinition());
-        builder.addPropertyValue("tests",tests);
+        builder.addPropertyValue(XMLConstants.TESTS,tests);
     }
 }
