@@ -62,4 +62,5 @@ public class XMLConstants {
     public static final String TASK_EXECUTION_LISTENERS_CLASS_FIELD = "taskExecutionListeners";
     public static final String GENERATOR = "generator";
     public static final String GENERATOR_GENERATE = "#{generator.generate()}";
+    public static final String LOCAL = "local";
 }

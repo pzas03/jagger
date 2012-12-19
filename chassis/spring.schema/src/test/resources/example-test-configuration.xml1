@@ -23,14 +23,13 @@
         xmlns:jgr1="http://www.griddynamics.com/schema/jagger-configuration"
         xmlns:jgr="http://www.griddynamics.com/schema/jagger-user"
         xmlns="http://www.springframework.org/schema/beans"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="
-        http://www.griddynamics.com/schema/jagger-configuration
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:beans="http://www.springframework.org/schema/util"
+        xsi:schemaLocation="http://www.griddynamics.com/schema/jagger-configuration
         http://www.griddynamics.com/schema/jagger-configuration.xsd
         http://www.griddynamics.com/schema/jagger-user
         http://www.griddynamics.com/schema/jagger-user.xsd
         http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans.xsd"
+        http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd"
         >
 
     <jgr1:configuration id="config1">
@@ -67,7 +66,7 @@
     </jgr1:configuration>
 
     <jgr:test-plan id="test-plan-1">
-        <ref local="test1"/>
+        <jgr:test ref="test1"/>
         <ref local="test2"/>
     </jgr:test-plan>
 
@@ -78,7 +77,7 @@
             <jgr:user id="u4" count="50" startCount="50" startIn="0" startBy="0" life="2h"/>
         </jgr:task>
         <jgr:task id="t4" name="virtual-user-10" sample="1000" delay="0" bean="sleep5msServiceScenario">
-            <jgr:virtual-user id="vu1" count="10" tickInterval="10"/>
+            <jgr:virtual-user ref="vu1"/>
         </jgr:task>
     </jgr:test>
 
@@ -89,10 +88,14 @@
     </jgr:test>
 
     <jgr:test id="test3" name="invocation-test" duration="200" >
-        <jgr:task id="t6" name="invocation-task" sample="1000" delay="0" bean="sleep50msServiceScenario">
-            <jgr:invocation id="invocation1" exactcount ="1" threads="10"/>
-        </jgr:task>
+        <jgr:task ref="t6"/>
     </jgr:test>
+
+    <jgr:task id="t6" name="invocation-task" sample="1000" delay="0" bean="sleep50msServiceScenario">
+        <jgr:invocation id="invocation1" exactcount ="1" threads="10"/>
+    </jgr:task>
+
+    <jgr:virtual-user id="vu1" count="10" tickInterval="10"/>
 
     <!--This beans will be in different files-->
 

@@ -36,7 +36,7 @@
         <xsd:complexContent>
             <xsd:extension base="beans:identifiedType">
                 <xsd:choice minOccurs="0" maxOccurs="unbounded">
-                    <xsd:element name="test" type="testType" maxOccurs="unbounded"/>
+                    <xsd:element name="test" type="testTypeIn" maxOccurs="unbounded"/>
                     <xsd:element ref="beans:bean"/>
                     <xsd:element ref="beans:ref"/>
                 </xsd:choice>
@@ -55,8 +55,8 @@
     <xsd:complexType name="testType">
         <xsd:complexContent>
             <xsd:extension base="beans:identifiedType">
-                <xsd:choice minOccurs="1" maxOccurs="unbounded">
-                    <xsd:element ref="task"/>
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element name="task" type="taskTypeIn"/>
                     <xsd:element ref="beans:bean"/>
                     <xsd:element ref="beans:ref"/>
                 </xsd:choice>
@@ -66,14 +66,22 @@
         </xsd:complexContent>
     </xsd:complexType>
 
+    <xsd:complexType name="testTypeIn">
+        <xsd:complexContent>
+            <xsd:extension base="testType">
+                <xsd:attribute name="ref" type="xsd:IDREF"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
     <xsd:complexType name="taskType">
         <xsd:complexContent>
             <xsd:extension base="beans:identifiedType">
-                <xsd:choice minOccurs="1">
-                    <xsd:element name="user" type="userType" maxOccurs="unbounded"/>
-                    <xsd:element name="virtual-user" type="virtualUserType" maxOccurs="1"/>
-                    <xsd:element name="tps" type="tpsType" maxOccurs="1"/>
-                    <xsd:element name="invocation" type="invocationType" maxOccurs="1"/>
+                <xsd:choice minOccurs="0">
+                    <xsd:element name="user" type="userTypeIn" maxOccurs="unbounded"/>
+                    <xsd:element name="virtual-user" type="virtualUserTypeIn" maxOccurs="1"/>
+                    <xsd:element name="tps" type="tpsTypeIn" maxOccurs="1"/>
+                    <xsd:element name="invocation" type="invocationTypeIn" maxOccurs="1"/>
                 </xsd:choice>
                 <xsd:attribute name="name" type="xsd:string" ></xsd:attribute>
                 <xsd:attribute name="duration" type="xsd:string"></xsd:attribute>
@@ -84,10 +92,26 @@
         </xsd:complexContent>
     </xsd:complexType>
 
+    <xsd:complexType name="taskTypeIn">
+        <xsd:complexContent>
+            <xsd:extension base="taskType">
+                <xsd:attribute name="ref" type="xsd:IDREF"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
     <xsd:complexType name="userType">
         <xsd:complexContent>
             <xsd:extension base="beans:identifiedType">
-                <xsd:attributeGroup ref="userAttributesIn"/>
+                <xsd:attributeGroup ref="userAttributes"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="userTypeIn">
+        <xsd:complexContent>
+            <xsd:extension base="userType">
+                <xsd:attribute name="ref" type="xsd:IDREF"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -95,7 +119,15 @@
     <xsd:complexType name="virtualUserType">
         <xsd:complexContent>
             <xsd:extension base="beans:identifiedType">
-                <xsd:attributeGroup ref="virtualUserAttributesIn"/>
+                <xsd:attributeGroup ref="virtualUserAttributes"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="virtualUserTypeIn">
+        <xsd:complexContent>
+            <xsd:extension base="virtualUserType">
+                <xsd:attribute name="ref" type="xsd:IDREF"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -103,7 +135,15 @@
     <xsd:complexType name="invocationType">
         <xsd:complexContent>
             <xsd:extension base="beans:identifiedType">
-                <xsd:attributeGroup ref="invocationAttributesIn"/>
+                <xsd:attributeGroup ref="invocationAttributes"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="invocationTypeIn">
+        <xsd:complexContent>
+            <xsd:extension base="invocationType">
+                <xsd:attribute name="ref" type="xsd:IDREF"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -111,7 +151,15 @@
     <xsd:complexType name="tpsType">
         <xsd:complexContent>
             <xsd:extension base="beans:identifiedType">
-                <xsd:attributeGroup ref="tpsAttributesIn"/>
+                <xsd:attributeGroup ref="tpsAttributes"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="tpsTypeIn">
+        <xsd:complexContent>
+            <xsd:extension base="tpsType">
+                <xsd:attribute name="ref" type="xsd:IDREF"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -124,19 +172,9 @@
         <xsd:attribute name="life" type="xsd:string"></xsd:attribute>
     </xsd:attributeGroup>
 
-    <xsd:attributeGroup name="userAttributesIn">
-        <xsd:attributeGroup ref="userAttributes"/>
-        <xsd:attribute name="ref" type="xsd:IDREF" use="optional"></xsd:attribute>
-    </xsd:attributeGroup>
-
     <xsd:attributeGroup name="virtualUserAttributes">
         <xsd:attribute name="count" type="xsd:integer" ></xsd:attribute>
         <xsd:attribute name="tickInterval" type="xsd:integer" ></xsd:attribute>
-    </xsd:attributeGroup>
-
-    <xsd:attributeGroup name="virtualUserAttributesIn">
-        <xsd:attributeGroup ref="virtualUserAttributes"></xsd:attributeGroup>
-        <xsd:attribute name="ref" type="xsd:IDREF" use="optional"></xsd:attribute>
     </xsd:attributeGroup>
 
     <xsd:attributeGroup name="invocationAttributes">
@@ -144,18 +182,8 @@
         <xsd:attribute name="threads" type="xsd:integer"></xsd:attribute>
     </xsd:attributeGroup>
 
-    <xsd:attributeGroup name="invocationAttributesIn">
-        <xsd:attributeGroup ref="invocationAttributes"></xsd:attributeGroup>
-        <xsd:attribute name="ref" type="xsd:IDREF" use="optional"></xsd:attribute>
-    </xsd:attributeGroup>
-
     <xsd:attributeGroup name="tpsAttributes">
         <xsd:attribute name="value" type="xsd:integer" ></xsd:attribute>
-    </xsd:attributeGroup>
-
-    <xsd:attributeGroup name="tpsAttributesIn">
-        <xsd:attributeGroup ref="tpsAttributes"></xsd:attributeGroup>
-        <xsd:attribute name="ref" type="xsd:IDREF" use="optional"></xsd:attribute>
     </xsd:attributeGroup>
 
 </xsd:schema>
