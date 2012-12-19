@@ -44,6 +44,8 @@ public class XMLConstants {
     public static final String SESSION_ID_PROVIDER = "sessionIdProvider";
     public static final String CUSTOM_BASELINE_SESSION_PROVIDER = "customBaselineSessionProvider";
     public static final String BASELINE_SESSION_PROVIDER = "baselineSessionProvider";
+    public static final String TEST_PLAN = "test-plan";
+    public static final String CONFIG = "config";
     public static final String TASKS = "tasks";
     public static final String TASK = "task";
     public static final String TESTS = "tests";
@@ -54,4 +56,10 @@ public class XMLConstants {
     public static final String INVOCATION = "invocation";
     public static final String VIRTUAL_USER = "virtual-user";
     public static final String VIRTUAL_USER_CLASS_FIELD = "virtualUser";
+    public static final String SESSION_EXECUTION_LISTENERS = "session-executionListeners";
+    public static final String SESSION_EXECUTION_LISTENERS_CLASS_FIELD = "sessionExecutionListeners";
+    public static final String TASK_EXECUTION_LISTENERS = "task-executionListeners";
+    public static final String TASK_EXECUTION_LISTENERS_CLASS_FIELD = "taskExecutionListeners";
+    public static final String GENERATOR = "generator";
+    public static final String GENERATOR_GENERATE = "#{generator.generate()}";
 }

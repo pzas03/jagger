@@ -1,3 +1,4 @@
 http\://www.griddynamics.com/schema/jagger=com.griddynamics.jagger.xml.JaggerNamespaceHandler
 http\://www.griddynamics.com/schema/jagger-report=com.griddynamics.jagger.xml.JaggerNamespaceHandler
 http\://www.griddynamics.com/schema/jagger-user=com.griddynamics.jagger.xml.JaggerNamespaceHandler
+http\://www.griddynamics.com/schema/jagger-configuration=com.griddynamics.jagger.xml.JaggerNamespaceHandler

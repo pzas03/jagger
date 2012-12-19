@@ -22,7 +22,7 @@ public class JaggerConfigurationTest {
 
     @BeforeTest
     public void configTest() {
-        ctx = new ClassPathXmlApplicationContext("/example-test-configuration.xml");
+        ctx = new ClassPathXmlApplicationContext("/example-test-configuration.xml1");
     }
 
     @Test
