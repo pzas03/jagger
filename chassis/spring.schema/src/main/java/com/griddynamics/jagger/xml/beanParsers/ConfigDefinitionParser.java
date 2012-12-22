@@ -45,8 +45,7 @@ public class ConfigDefinitionParser extends AbstractSimpleBeanDefinitionParser {
                 if (!el.getAttribute(XMLConstants.ATTRIBUTE_REF).isEmpty()){
                     slList.add(new RuntimeBeanReference(el.getAttribute(XMLConstants.ATTRIBUTE_REF)));
                 }else{
-                    //not supported yet
-                    //slList.add(parserContext.getDelegate().parseCustomElement(el, builder.getBeanDefinition()));
+                    slList.add(parserContext.getDelegate().parsePropertySubElement(el, builder.getBeanDefinition()));
                 }
             }
             builder.addPropertyValue(XMLConstants.SESSION_EXECUTION_LISTENERS_CLASS_FIELD, slList);
@@ -64,8 +63,7 @@ public class ConfigDefinitionParser extends AbstractSimpleBeanDefinitionParser {
                 if (!el.getAttribute(XMLConstants.ATTRIBUTE_REF).isEmpty()){
                     tlList.add(new RuntimeBeanReference(el.getAttribute(XMLConstants.ATTRIBUTE_REF)));
                 }else{
-                    //not supported yet
-                    //tlList.add(parserContext.getDelegate().parseCustomElement(el, builder.getBeanDefinition()));
+                    tlList.add(parserContext.getDelegate().parsePropertySubElement(el, builder.getBeanDefinition()));
                 }
             }
             builder.addPropertyValue(XMLConstants.TASK_EXECUTION_LISTENERS_CLASS_FIELD, tlList);

@@ -33,7 +33,8 @@
     <jgr:configuration id="config1">
 
         <jgr:session-executionListeners id="sel2">
-            <!---->
+            <ref local="basicSessionCollector"/>
+            <ref bean="basicSessionCollector"/>
         </jgr:session-executionListeners>
 
         <jgr:test-plan ref="test-plan-1"/>
@@ -58,7 +59,7 @@
         </jgr:session-executionListeners>
 
         <jgr:task-executionListeners>
-            <!---->
+            <ref bean="basicSessionCollector"/>
         </jgr:task-executionListeners>
 
     </jgr:configuration>

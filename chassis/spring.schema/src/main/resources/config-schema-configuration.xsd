@@ -37,6 +37,8 @@
             <xsd:extension base="beans:identifiedType">
                 <xsd:choice minOccurs="0" maxOccurs="unbounded">
                     <xsd:element name="session-listener" type="listenerIn"/>
+                    <xsd:element ref="beans:bean"/>
+                    <xsd:element ref="beans:ref"/>
                 </xsd:choice>
             </xsd:extension>
         </xsd:complexContent>
@@ -55,6 +57,8 @@
             <xsd:extension base="beans:identifiedType">
                 <xsd:choice minOccurs="0" maxOccurs="unbounded">
                     <xsd:element name="task-listener" type="listenerIn"/>
+                    <xsd:element ref="beans:bean"/>
+                    <xsd:element ref="beans:ref"/>
                 </xsd:choice>
             </xsd:extension>
         </xsd:complexContent>
