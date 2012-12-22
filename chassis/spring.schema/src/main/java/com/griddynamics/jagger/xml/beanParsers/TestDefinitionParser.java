@@ -1,6 +1,7 @@
 package com.griddynamics.jagger.xml.beanParsers;
 
 import com.griddynamics.jagger.user.ProcessingConfig;
+import org.springframework.beans.factory.config.RuntimeBeanNameReference;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
@@ -32,20 +33,7 @@ public class TestDefinitionParser extends AbstractSimpleBeanDefinitionParser {
             if (!el.getAttribute(XMLConstants.ATTRIBUTE_REF).isEmpty()){
                 tasks.add(new RuntimeBeanReference(el.getAttribute(XMLConstants.ATTRIBUTE_REF)));
             }else{
-                if (el.getTagName().equals(XMLConstants.TASK)){
-                    tasks.add(parserContext.getDelegate().parseCustomElement(el, builder.getBeanDefinition()));
-                }else{
-                    if (el.getTagName().equals(XMLConstants.ATTRIBUTE_REF)){
-                        //parse ref
-                        if (!el.getAttribute(XMLConstants.LOCAL).isEmpty()){
-                            //local ref
-                            tasks.add(new RuntimeBeanReference(el.getAttribute(XMLConstants.LOCAL)));
-                        }else{
-                            //bean
-                            tasks.add(new RuntimeBeanReference(el.getAttribute(XMLConstants.BEAN)));
-                        }
-                    }
-                }
+                tasks.add(parserContext.getDelegate().parsePropertySubElement(el, builder.getBeanDefinition()));
             }
         }
 

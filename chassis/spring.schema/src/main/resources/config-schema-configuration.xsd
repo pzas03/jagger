@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<xsd:schema xmlns="http://www.griddynamics.com/schema/jagger-configuration"
-            xmlns:user="http://www.griddynamics.com/schema/jagger-user"
+<xsd:schema xmlns="http://www.griddynamics.com/schema/jagger"
             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
             xmlns:beans="http://www.springframework.org/schema/beans"
-            targetNamespace="http://www.griddynamics.com/schema/jagger-configuration"
+            targetNamespace="http://www.griddynamics.com/schema/jagger"
             elementFormDefault="qualified">
 
     <xsd:import namespace="http://www.springframework.org/schema/beans"
                 schemaLocation="http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"/>
 
-    <xsd:import namespace="http://www.griddynamics.com/schema/jagger-user"
-                schemaLocation="http://www.griddynamics.com/schema/jagger-user.xsd"/>
+    <xsd:redefine schemaLocation="http://www.griddynamics.com/schema/jagger-user.xsd"/>
 
     <xsd:element name="configuration" type="configurationType"/>
 
@@ -25,19 +23,11 @@
     <xsd:complexType name="configurationType">
         <xsd:complexContent>
             <xsd:extension base="beans:identifiedType">
-                <xsd:sequence>
-                    <xsd:choice minOccurs="1" maxOccurs="1">
-                        <xsd:element name="test-plan" type="user:processingTypeIn"/>
-                    </xsd:choice>
-
-                    <xsd:choice minOccurs="0" maxOccurs="1">
-                        <xsd:element name="session-executionListeners" type="slistenersTypeIn"/>
-                    </xsd:choice>
-
-                    <xsd:choice minOccurs="0" maxOccurs="1">
-                        <xsd:element name="task-executionListeners" type="tlistenersTypeIn"/>
-                    </xsd:choice>
-                </xsd:sequence>
+                <xsd:all>
+                    <xsd:element name="test-plan" type="processingTypeIn" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="session-executionListeners" type="slistenersTypeIn" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="task-executionListeners" type="tlistenersTypeIn" minOccurs="0" maxOccurs="1"/>
+                </xsd:all>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>

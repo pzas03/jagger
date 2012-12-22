@@ -20,50 +20,48 @@
   -->
 
 <beans
-        xmlns:jgr1="http://www.griddynamics.com/schema/jagger-configuration"
-        xmlns:jgr="http://www.griddynamics.com/schema/jagger-user"
+        xmlns:jgr="http://www.griddynamics.com/schema/jagger"
         xmlns="http://www.springframework.org/schema/beans"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:beans="http://www.springframework.org/schema/util"
-        xsi:schemaLocation="http://www.griddynamics.com/schema/jagger-configuration
-        http://www.griddynamics.com/schema/jagger-configuration.xsd
-        http://www.griddynamics.com/schema/jagger-user
-        http://www.griddynamics.com/schema/jagger-user.xsd
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation=
+       "http://www.griddynamics.com/schema/jagger
+        http://www.griddynamics.com/schema/jagger.xsd
         http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd"
+        http://www.springframework.org/schema/beans/spring-beans.xsd"
         >
 
-    <jgr1:configuration id="config1">
+    <jgr:configuration id="config1">
 
-        <jgr1:test-plan ref="test-plan-1"/>
-
-        <jgr1:session-executionListeners id="sel2">
+        <jgr:session-executionListeners id="sel2">
             <!---->
-        </jgr1:session-executionListeners>
+        </jgr:session-executionListeners>
 
-        <jgr1:task-executionListeners id="tel2">
-            <jgr1:task-listener ref="basicAggregator"/>
-            <jgr1:task-listener ref="basicSessionCollector"/>
-        </jgr1:task-executionListeners>
+        <jgr:test-plan ref="test-plan-1"/>
 
-    </jgr1:configuration>
+        <jgr:task-executionListeners id="tel2">
+            <jgr:task-listener ref="basicAggregator"/>
+            <jgr:task-listener ref="basicSessionCollector"/>
+        </jgr:task-executionListeners>
 
-    <jgr1:configuration id="config2">
+    </jgr:configuration>
 
-        <jgr1:test-plan id="test-plan-2">
-            <ref local="test1"/>
+    <jgr:configuration id="config2">
+
+        <jgr:test-plan id="test-plan-2">
+            <ref bean="test1"/>
             <ref local="test2"/>
-        </jgr1:test-plan>
+        </jgr:test-plan>
 
-        <jgr1:session-executionListeners>
-            <jgr1:session-listener ref="basicSessionCollector"/>
-            <jgr1:session-listener ref="basicAggregator"/>
-        </jgr1:session-executionListeners>
+        <jgr:session-executionListeners>
+            <jgr:session-listener ref="basicSessionCollector"/>
+            <jgr:session-listener ref="basicAggregator"/>
+        </jgr:session-executionListeners>
 
-        <jgr1:task-executionListeners>
+        <jgr:task-executionListeners>
             <!---->
-        </jgr1:task-executionListeners>
+        </jgr:task-executionListeners>
 
-    </jgr1:configuration>
+    </jgr:configuration>
 
     <jgr:test-plan id="test-plan-1">
         <jgr:test ref="test1"/>
