@@ -98,22 +98,22 @@
 
     <!--This beans will be in different files-->
 
-            <bean id="basicSessionCollector" class="ExampleTestListener">
+            <bean id="basicSessionCollector" class="com.griddynamics.jagger.xml.ExampleTestListener">
             </bean>
 
-            <bean id="basicAggregator" class="ExampleTestListener">
+            <bean id="basicAggregator" class="com.griddynamics.jagger.xml.ExampleTestListener">
             </bean>
 
-            <bean id="e1MasterCollector" class="ExampleTestListener">
+            <bean id="e1MasterCollector" class="com.griddynamics.jagger.xml.ExampleTestListener">
             </bean>
 
-            <bean id="e1ScenarioAggregator" class="ExampleTestListener">
+            <bean id="e1ScenarioAggregator" class="com.griddynamics.jagger.xml.ExampleTestListener">
             </bean>
 
-            <bean id="monitoringAggregator" class="ExampleTestListener">
+            <bean id="monitoringAggregator" class="com.griddynamics.jagger.xml.ExampleTestListener">
             </bean>
 
-            <bean id="durationLogProcessor" class="ExampleTestListener">
+            <bean id="durationLogProcessor" class="com.griddynamics.jagger.xml.ExampleTestListener">
             </bean>
 
             <bean id="sleep5msServiceScenario" class="com.griddynamics.jagger.engine.e1.scenario.WorkloadTask">

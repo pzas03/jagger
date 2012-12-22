@@ -1,3 +1,5 @@
+package com.griddynamics.jagger.xml;
+
 import com.google.common.collect.Multimap;
 import com.griddynamics.jagger.coordinator.NodeId;
 import com.griddynamics.jagger.coordinator.NodeType;

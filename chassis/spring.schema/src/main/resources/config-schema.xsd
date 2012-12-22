@@ -7,5 +7,4 @@
     <xsd:include schemaLocation="http://www.griddynamics.com/schema/jagger-configuration.xsd"/>
     <xsd:include schemaLocation="http://www.griddynamics.com/schema/jagger-workload.xsd"/>
     <xsd:include schemaLocation="http://www.griddynamics.com/schema/jagger-report.xsd"/>
-    
 </xsd:schema>
