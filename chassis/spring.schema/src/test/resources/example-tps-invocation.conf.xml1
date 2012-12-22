@@ -19,11 +19,11 @@
   ~ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 <beans
-        xmlns:jgr="http://www.griddynamics.com/schema/jagger-user"
+        xmlns:jgr="http://www.griddynamics.com/schema/jagger"
         xmlns="http://www.springframework.org/schema/beans"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.griddynamics.com/schema/jagger-user
-        http://www.griddynamics.com/schema/jagger-user.xsd
+        xsi:schemaLocation="http://www.griddynamics.com/schema/jagger
+        http://www.griddynamics.com/schema/jagger.xsd
         http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd"
         >
