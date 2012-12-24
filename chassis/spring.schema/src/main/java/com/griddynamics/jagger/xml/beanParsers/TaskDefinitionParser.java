@@ -59,8 +59,6 @@ public class TaskDefinitionParser extends AbstractSimpleBeanDefinitionParser {
                         }else{
                             builder.addPropertyValue(XMLConstants.INVOCATION,parserContext.getDelegate().parseCustomElement(inv, builder.getBeanDefinition()));
                         }
-                    }else{
-
                     }
                 }
             }
