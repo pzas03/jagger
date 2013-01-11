@@ -28,6 +28,7 @@
                     <xsd:element name="session-executionListeners" type="slistenersTypeIn" minOccurs="0" maxOccurs="1"/>
                     <xsd:element name="task-executionListeners" type="tlistenersTypeIn" minOccurs="0" maxOccurs="1"/>
                 </xsd:all>
+                <xsd:attribute name="monitoringEnable" type="xsd:boolean"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>

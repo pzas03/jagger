@@ -39,6 +39,8 @@ public class ProcessingConfig implements Serializable {
     @ElementList(name = "tests", entry = "test", inline = true)
     public List<Test> tests;
 
+    public boolean monitoringEnable = false;
+
     public ProcessingConfig(@ElementList(name = "tests", entry = "test", inline = true) List<Test> tests) {
         this.tests = Collections.unmodifiableList(tests);
     }
@@ -48,6 +50,14 @@ public class ProcessingConfig implements Serializable {
 
     public List<Test> getTests() {
         return tests;
+    }
+
+    public boolean getMonitoringEnable(){
+        return monitoringEnable;
+    }
+
+    public void setMonitoringEnable(boolean monitoringEnable){
+        this.monitoringEnable = monitoringEnable;
     }
 
     public void setTests(List<Test> tests) {

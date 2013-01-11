@@ -63,4 +63,5 @@ public class XMLConstants {
     public static final String GENERATOR = "generator";
     public static final String GENERATOR_GENERATE = "#{generator.generate()}";
     public static final String LOCAL = "local";
+    public static final String MONITORING_ENABLE = "monitoringEnable";
 }

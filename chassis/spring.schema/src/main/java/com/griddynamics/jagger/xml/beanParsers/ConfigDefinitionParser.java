@@ -31,7 +31,6 @@ public class ConfigDefinitionParser extends AbstractSimpleBeanDefinitionParser {
 
     @Override
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
-        super.doParse(element, parserContext, builder);
 
         //parse session-listeners
         Element sListenerGroup = DomUtils.getChildElementByTagName(element, XMLConstants.SESSION_EXECUTION_LISTENERS);
@@ -75,6 +74,10 @@ public class ConfigDefinitionParser extends AbstractSimpleBeanDefinitionParser {
 
         BeanDefinitionBuilder generator = BeanDefinitionBuilder.genericBeanDefinition(UserTaskGenerator.class);
         parserContext.getRegistry().registerBeanDefinition(XMLConstants.GENERATOR, generator.getBeanDefinition());
+
+        if (!element.getAttribute(XMLConstants.MONITORING_ENABLE).isEmpty()){
+            generator.addPropertyValue(XMLConstants.MONITORING_ENABLE, element.getAttribute(XMLConstants.MONITORING_ENABLE));
+        }
 
         if (!testPlan.getAttribute(XMLConstants.ATTRIBUTE_REF).isEmpty()){
             generator.addPropertyReference(XMLConstants.CONFIG, testPlan.getAttribute(XMLConstants.ATTRIBUTE_REF));
