@@ -70,15 +70,15 @@ public class JaggerConfigurationTest {
     @Test
     public void taskListTest1(){
         Configuration config1 = (Configuration) ctx.getBean("config1");
-        Assert.assertEquals(config1.getDistributionListeners().size(), 2);
+        Assert.assertEquals(config1.getDistributionListeners().size(), 6);
         checkListOnNull(config1.getDistributionListeners());
     }
 
     @Test
     public void taskListTest2(){
-        Configuration config1 = (Configuration) ctx.getBean("config2");
-        Assert.assertEquals(config1.getDistributionListeners().size(), 1);
-        checkListOnNull(config1.getDistributionListeners());
+        Configuration config2 = (Configuration) ctx.getBean("config2");
+        Assert.assertEquals(config2.getDistributionListeners().size(), 6);
+        checkListOnNull(config2.getDistributionListeners());
     }
 
     private void checkListOnNull(List list){

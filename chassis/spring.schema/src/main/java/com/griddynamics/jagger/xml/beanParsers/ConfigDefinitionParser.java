@@ -1,9 +1,7 @@
 package com.griddynamics.jagger.xml.beanParsers;
 
-import com.griddynamics.jagger.master.DistributionListener;
 import com.griddynamics.jagger.master.configuration.Configuration;
 import com.griddynamics.jagger.master.configuration.UserTaskGenerator;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
@@ -12,7 +10,7 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -34,39 +32,94 @@ public class ConfigDefinitionParser extends AbstractSimpleBeanDefinitionParser {
 
         //parse session-listeners
         Element sListenerGroup = DomUtils.getChildElementByTagName(element, XMLConstants.SESSION_EXECUTION_LISTENERS);
-        if (!sListenerGroup.getAttribute(XMLConstants.ATTRIBUTE_REF).isEmpty()){
-            builder.addPropertyReference(XMLConstants.SESSION_EXECUTION_LISTENERS_CLASS_FIELD, sListenerGroup.getAttribute(XMLConstants.ATTRIBUTE_REF));
-        }else{
-            List<Element> sl = DomUtils.getChildElements(sListenerGroup);
-            ManagedList slList = new ManagedList(sl.size());
+        ManagedList slList = new ManagedList();
+        Set<String> sessionExecListeners = new HashSet<String>();
+        if (sListenerGroup != null){
+            if (!sListenerGroup.getAttribute(XMLConstants.ATTRIBUTE_REF).isEmpty()){
+                builder.addPropertyReference(XMLConstants.SESSION_EXECUTION_LISTENERS_CLASS_FIELD, sListenerGroup.getAttribute(XMLConstants.ATTRIBUTE_REF));
+            }else{
+                List<Element> sl = DomUtils.getChildElements(sListenerGroup);
 
-            for (Element el : sl){
-                if (!el.getAttribute(XMLConstants.ATTRIBUTE_REF).isEmpty()){
-                    slList.add(new RuntimeBeanReference(el.getAttribute(XMLConstants.ATTRIBUTE_REF)));
-                }else{
-                    slList.add(parserContext.getDelegate().parsePropertySubElement(el, builder.getBeanDefinition()));
+                for (Element el : sl){
+                    if (!el.getAttribute(XMLConstants.ATTRIBUTE_REF).isEmpty()){
+                        String beanName = el.getAttribute(XMLConstants.ATTRIBUTE_REF);
+                        if (!sessionExecListeners.contains(beanName)){
+                            sessionExecListeners.add(beanName);
+                            slList.add(new RuntimeBeanReference(beanName));
+                        }
+                    }else{
+                        if (!el.getAttribute(XMLConstants.BEAN).isEmpty()){
+
+                            if (!sessionExecListeners.contains(el.getAttribute(XMLConstants.BEAN))){
+                                sessionExecListeners.add(el.getAttribute(XMLConstants.BEAN));
+                                slList.add(parserContext.getDelegate().parsePropertySubElement(el, builder.getBeanDefinition()));
+                            }
+                        }else
+                        if (!el.getAttribute(XMLConstants.LOCAL).isEmpty()){
+
+                            if (!sessionExecListeners.contains(el.getAttribute(XMLConstants.LOCAL))){
+                                sessionExecListeners.add(el.getAttribute(XMLConstants.LOCAL));
+                                slList.add(parserContext.getDelegate().parsePropertySubElement(el, builder.getBeanDefinition()));
+                            }
+                        }
+                    }
                 }
             }
-            builder.addPropertyValue(XMLConstants.SESSION_EXECUTION_LISTENERS_CLASS_FIELD, slList);
         }
+
+        //add standard listeners
+        for (String sessionListener : XMLConstants.STANDARD_SESSION_EXEC_LISTENERS){
+            if (!sessionExecListeners.contains(sessionListener)){
+                slList.add(new RuntimeBeanReference(sessionListener));
+            }
+        }
+
+        builder.addPropertyValue(XMLConstants.SESSION_EXECUTION_LISTENERS_CLASS_FIELD, slList);
 
         //parse task-listeners
         Element tListenerGroup = DomUtils.getChildElementByTagName(element, XMLConstants.TASK_EXECUTION_LISTENERS);
-        if (!sListenerGroup.getAttribute(XMLConstants.ATTRIBUTE_REF).isEmpty()){
-            builder.addPropertyReference(XMLConstants.TASK_EXECUTION_LISTENERS_CLASS_FIELD, sListenerGroup.getAttribute(XMLConstants.ATTRIBUTE_REF));
-        }else{
-            List<Element> tl = DomUtils.getChildElements(tListenerGroup);
-            ManagedList tlList = new ManagedList(tl.size());
+        ManagedList tlList = new ManagedList();
+        Set<String> taskExecListeners = new HashSet<String>();
+        if (tListenerGroup != null){
+            if (!sListenerGroup.getAttribute(XMLConstants.ATTRIBUTE_REF).isEmpty()){
+                builder.addPropertyReference(XMLConstants.TASK_EXECUTION_LISTENERS_CLASS_FIELD, sListenerGroup.getAttribute(XMLConstants.ATTRIBUTE_REF));
+            }else{
+                List<Element> tl = DomUtils.getChildElements(tListenerGroup);
 
-            for (Element el : tl){
-                if (!el.getAttribute(XMLConstants.ATTRIBUTE_REF).isEmpty()){
-                    tlList.add(new RuntimeBeanReference(el.getAttribute(XMLConstants.ATTRIBUTE_REF)));
-                }else{
-                    tlList.add(parserContext.getDelegate().parsePropertySubElement(el, builder.getBeanDefinition()));
+                for (Element el : tl){
+                    if (!el.getAttribute(XMLConstants.ATTRIBUTE_REF).isEmpty()){
+                        String beanName = el.getAttribute(XMLConstants.ATTRIBUTE_REF);
+                        if (!taskExecListeners.contains(beanName)){
+                            taskExecListeners.add(beanName);
+                            tlList.add(new RuntimeBeanReference(beanName));
+                        }
+                    }else{
+                        if (!el.getAttribute(XMLConstants.BEAN).isEmpty()){
+
+                            if (!taskExecListeners.contains(el.getAttribute(XMLConstants.BEAN))){
+                                taskExecListeners.add(el.getAttribute(XMLConstants.BEAN));
+                                tlList.add(parserContext.getDelegate().parsePropertySubElement(el, builder.getBeanDefinition()));
+                            }
+                        }else
+                        if (!el.getAttribute(XMLConstants.LOCAL).isEmpty()){
+
+                            if (!taskExecListeners.contains(el.getAttribute(XMLConstants.LOCAL))){
+                                taskExecListeners.add(el.getAttribute(XMLConstants.LOCAL));
+                                tlList.add(parserContext.getDelegate().parsePropertySubElement(el, builder.getBeanDefinition()));
+                            }
+                        }
+                    }
                 }
             }
-            builder.addPropertyValue(XMLConstants.TASK_EXECUTION_LISTENERS_CLASS_FIELD, tlList);
         }
+        //add standard listeners
+        for (String sessionListener : XMLConstants.STANDARD_TASK_EXEC_LISTENERS){
+            if (!taskExecListeners.contains(sessionListener)){
+                tlList.add(new RuntimeBeanReference(sessionListener));
+            }
+        }
+
+        builder.addPropertyValue(XMLConstants.TASK_EXECUTION_LISTENERS_CLASS_FIELD, tlList);
 
 
         //parse test-plan
