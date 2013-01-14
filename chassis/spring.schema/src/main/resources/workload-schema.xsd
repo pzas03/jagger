@@ -13,30 +13,209 @@
 
     <xsd:element name="workload" type="workloadType"/>
 
-    <xsd:element name="metrics" type="metricsListType"/>
+    <xsd:element name="listeners" type="listenersType"/>
+
+    <xsd:element name="listener" type="listenerType"/>
+
+    <xsd:element name="metric" type="metricType"  substitutionGroup="listener"/>
+
+    <xsd:element name="validator" type="validatorType" substitutionGroup="listener"/>
+
+    <xsd:element name="scenario" type="scenarioType"/>
+
+    <xsd:element name="queryPoolScenario" type="queryPoolScenarioType" substitutionGroup="scenario"/>
+
+    <xsd:element name="invoker" type="invokerType"/>
+
+    <xsd:element name="httpScenario" type="httpScenarioType" substitutionGroup="scenario"/>
+
+    <xsd:element name="customInvoker" type="customInvokerType" substitutionGroup="invoker"/>
+
+    <xsd:element name="httpInvoker" type="httpInvokerType" substitutionGroup="invoker"/>
+
+    <xsd:element name="queryProvider" type="queryProviderType"/>
+
+    <xsd:element name="loadBalancer" type="loadBalancerType"/>
+
+    <xsd:element name="roundRobinloadBalancer" type="roundRobinloadBalancerType" substitutionGroup="loadBalancer"/>
+
+    <xsd:element name="endpointsProvider" type="endpointsProviderType"/>
 
     <xsd:complexType name="workloadType">
         <xsd:complexContent>
             <xsd:extension base="beans:identifiedType">
-                <xsd:sequence minOccurs="1" maxOccurs="1">
-                    <xsd:element name="metrics" type="metricsListType" minOccurs="0" maxOccurs="1"/>
-                    <xsd:choice minOccurs="1" maxOccurs="1">
-                        <!--<xsd:element ref="scenario"/>-->
-                        <xsd:element ref="beans:bean"/>
-                        <xsd:element ref="beans:ref"/>
-                    </xsd:choice>
-                </xsd:sequence>
+                <xsd:all>
+                    <xsd:element name="listeners" type="listenersType" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element ref="scenario"/>
+                </xsd:all>
+                <xsd:attribute name="name" type="xsd:string"/>
+                <xsd:attribute name="version" type="xsd:integer"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:complexType name="metricsListType">
+    <xsd:complexType name="listenersType">
         <xsd:complexContent>
-            <xsd:extension base="beans:listOrSetType">
-                <xsd:attribute name="id" type="xsd:ID"/>
+            <xsd:extension base="beans:identifiedType">
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element ref="listener"/>
+                </xsd:choice>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
 
+    <xsd:complexType name="scenarioType">
+        <xsd:complexContent>
+            <xsd:extension base="beans:identifiedType">
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
 
+    <xsd:complexType name="invokerType">
+        <xsd:complexContent>
+            <xsd:restriction base="beans:identifiedType">
+            </xsd:restriction>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="httpScenarioType">
+        <xsd:complexContent>
+            <xsd:extension base="scenarioType">
+                <xsd:all>
+                    <xsd:element name="endpoint" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+                    <xsd:element name="httpQuery" type="httpQueryType" minOccurs="1" maxOccurs="1"/>
+                </xsd:all>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="queryProviderType">
+        <xsd:complexContent>
+            <xsd:restriction base="beans:identifiedType">
+                <xsd:attribute name="ref"/>
+                <xsd:attribute name="type"/>
+            </xsd:restriction>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="loadBalancerType">
+        <xsd:complexContent>
+            <xsd:restriction base="beans:identifiedType">
+                <xsd:attribute name="ref"/>
+                <xsd:attribute name="type"/>
+            </xsd:restriction>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:simpleType name="invokerKnownType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="httpInvoker"/>
+            <xsd:enumeration value="soapInvoker"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:complexType name="httpQueryType">
+        <xsd:complexContent>
+            <xsd:restriction base="beans:identifiedType">
+                <xsd:all>
+                    <xsd:element name="methodParams" type="mapType" minOccurs="0"/>
+                    <xsd:element name="clientParams" type="mapType" minOccurs="0"/>
+                </xsd:all>
+                <xsd:attribute name="method" type="httpMethodsEnum" default="GET"/>
+            </xsd:restriction>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:simpleType name="httpMethodsEnum">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="GET"/>
+            <xsd:enumeration value="POST"/>
+            <xsd:enumeration value="PUT"/>
+            <xsd:enumeration value="DELETE"/>
+            <xsd:enumeration value="TRACE"/>
+            <xsd:enumeration value="HEAD"/>
+            <xsd:enumeration value="OPTIONS"/>
+            <xsd:enumeration value="CONNECT"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:complexType name="mapType">
+        <xsd:complexContent>
+            <xsd:restriction base="beans:mapType">
+            </xsd:restriction>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="customInvokerType">
+        <xsd:complexContent>
+            <xsd:extension base="invokerType">
+                <xsd:attribute name="class" type="xsd:string"/>
+                <xsd:attribute name="ref" type="xsd:IDREF"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="httpInvokerType">
+        <xsd:complexContent>
+            <xsd:extension base="invokerType">
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="queryPoolScenarioType">
+        <xsd:complexContent>
+            <xsd:extension base="scenarioType">
+                <xsd:all>
+                    <xsd:element ref="invoker" minOccurs="1" maxOccurs="1"/>
+                    <xsd:element ref="queryProvider" minOccurs="1" maxOccurs="1"/>
+                    <xsd:element ref="loadBalancer" minOccurs="1" maxOccurs="1"/>
+                    <xsd:element ref="endpointsProvider" minOccurs="1" maxOccurs="1"/>
+                </xsd:all>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="roundRobinloadBalancerType">
+        <xsd:complexContent>
+            <xsd:extension base="loadBalancerType">
+                <xsd:all>
+                </xsd:all>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="endpointsProviderType">
+        <xsd:complexContent>
+            <xsd:restriction base="beans:identifiedType">
+            </xsd:restriction>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="listenerType">
+        <xsd:complexContent>
+            <xsd:restriction base="beans:identifiedType">
+            </xsd:restriction>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="metricType">
+        <xsd:complexContent>
+            <xsd:extension base="listenerType">
+                <!--TODO-->
+                <xsd:attribute name="ref"/>
+                <xsd:attribute name="type"/>
+                <xsd:attribute name="calculatorRef"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="validatorType">
+        <xsd:complexContent>
+            <xsd:extension base="listenerType">
+                <!--TODO-->
+                <xsd:attribute name="ref"/>
+                <xsd:attribute name="type"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
 </xsd:schema>

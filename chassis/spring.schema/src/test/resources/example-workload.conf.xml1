@@ -28,17 +28,30 @@
         http://www.springframework.org/schema/beans/spring-beans.xsd"
         >
 
-   <jgr:workload id="workload">
-       <jgr:queryProvider/>
-       <jgr:invoker/>
-       <jgr:loadBalancer type="roundRobin">
-           <endpoints></endpoints>
-       </jgr:loadBalancer>
-       <jgr:listeners>
-           <jgr:metric type="duration"/>
-           <jgr:metric type="custom" calculator=""/>
-           <jgr:validator type="NotNull"/>
-       </jgr:listeners>
-   </jgr:workload>
+    <jgr:workload id="workload">
+
+         <jgr:queryPoolScenario>
+             <jgr:customInvoker class="com.griddynamics.jagger.invoker.hessian.HessianInvoker"/>
+             <jgr:queryProvider />
+             <jgr:roundRobinloadBalancer/>
+             <jgr:endpointsProvider/>
+         </jgr:queryPoolScenario>
+
+        <jgr:listeners>
+            <jgr:metric type="duration"/>
+            <jgr:metric type="custom" calculatorRef=""/>
+            <jgr:validator type="NotNull"/>
+        </jgr:listeners>
+    </jgr:workload>
+
+    <jgr:httpScenario id="httpScenario">
+        <jgr:endpoint>http://google.com</jgr:endpoint>
+
+        <jgr:httpQuery method="GET">
+            <jgr:methodParams>
+                <entry key="asdf" value="sdf"/>
+            </jgr:methodParams>
+        </jgr:httpQuery>
+    </jgr:httpScenario>
 
 </beans>
