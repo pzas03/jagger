@@ -77,4 +77,16 @@ public class XMLConstants {
     //don't change the order!!! will not works
     public static final List<String> STANDARD_SESSION_EXEC_LISTENERS = Arrays.asList(BASIC_COLLECTOR, BASIC_AGGREGATOR);
     public static final List<String> STANDARD_TASK_EXEC_LISTENERS = Arrays.asList(BASIC_COLLECTOR, WORKLOAD_COLLECTOR, BASIC_AGGREGATOR, WORKLOAD_AGGREGATOR, MONITORING_AGGREGATOR, DURATION_LOG_PROCESSOR);
+
+    public static final String WORKLOAD_LISTENERS_ELEMENT = "listeners";
+    public static final String DURATION_COLLECTOR = "durationCollector";
+    public static final String INFORMATION_COLLECTOR = "informationCollector";
+    public static final List<String> STANDARD_WORKLOAD_LISTENERS = Arrays.asList(DURATION_COLLECTOR, INFORMATION_COLLECTOR);
+
+    public static final String WORKLOAD_LISTENERS_CLASS   = "collectors";
+    public static final String VALIDATOR = "validator";
+    public static final String CALCULATOR_ELEMENT = "calculator";
+    public static final String CALCULATOR_CLASS = "metricCalculator";
+
+    public static final String DEFAULT_NAMESPACE = "http://www.griddynamics.com/schema/jagger";
 }

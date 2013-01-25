@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <!--
   ~ Copyright (c) 2010-2012 Grid Dynamics Consulting Services, Inc, All Rights Reserved
   ~ http://www.griddynamics.com
@@ -19,107 +20,105 @@
   ~ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<beans
-        xmlns:jgr="http://www.griddynamics.com/schema/jagger"
-        xmlns="http://www.springframework.org/schema/beans"
+<beans:beans
+        xmlns="http://www.griddynamics.com/schema/jagger"
+        xmlns:beans="http://www.springframework.org/schema/beans"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation=
-       "http://www.griddynamics.com/schema/jagger
+       "
+        http://www.griddynamics.com/schema/jagger
         http://www.griddynamics.com/schema/jagger.xsd
         http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd"
         >
 
-    <jgr:configuration id="config1">
+    <configuration id="config1" monitoringEnable="true">
+        <test-plan ref="test-plan-1"/>
+    </configuration>
 
-        <jgr:session-executionListeners id="sel2">
-            <ref local="basicSessionCollector"/>
-            <ref bean="basicSessionCollector"/>
-        </jgr:session-executionListeners>
+    <test-plan id="test-plan-1">
+        <test ref="test1"/>
+    </test-plan>
 
-        <jgr:test-plan ref="test-plan-1"/>
+    <test id="test1" name="user-test" duration="200">
+        <task id="t3" name="3-groups-50-50-50" sample="1000" delay="0" workload="w1">
+            <user id="u2" count="50" startCount="50" startIn="0" startBy="0" life="2h"/>
+            <user id="u3" count="50" startCount="50" startIn="0" startBy="0" life="2h"/>
+            <user id="u4" count="50" startCount="50" startIn="0" startBy="0" life="2h"/>
+        </task>
+        <task id="t4" name="virtual-user-10" sample="1000" delay="0" workload="w1">
+            <virtual-user ref="vu1"/>
+        </task>
+    </test>
 
-        <jgr:task-executionListeners id="tel2">
-            <jgr:task-listener ref="basicAggregator"/>
-            <jgr:task-listener ref="basicSessionCollector"/>
-        </jgr:task-executionListeners>
+    <test id="test2" name="tps-test" duration="200">
+        <task id="t5" name="tps-test" sample="1000" delay="0" workload="w1">
+            <tps id="tps1" value="10"/>
+        </task>
+    </test>
 
-    </jgr:configuration>
+    <virtual-user id="vu1" count="10" tickInterval="10"/>
 
-    <jgr:configuration id="config2">
 
-        <jgr:test-plan id="test-plan-2">
-            <ref bean="test1"/>
-            <ref local="test2"/>
-        </jgr:test-plan>
+    <workload id="w1">
 
-        <jgr:session-executionListeners>
-            <jgr:session-listener ref="basicSessionCollector"/>
-            <jgr:session-listener ref="basicAggregator"/>
-        </jgr:session-executionListeners>
+        <listeners>
+            <validator xsi:type="notNullResponse"/>
+            <metric xsi:type="simpleMetric"/>
+        </listeners>
 
-        <jgr:task-executionListeners>
-            <ref bean="basicSessionCollector"/>
-        </jgr:task-executionListeners>
+        <scenario xsi:type="customScenario" ref="sc1"/>
 
-    </jgr:configuration>
+    </workload>
 
-    <jgr:test-plan id="test-plan-1">
-        <jgr:test ref="test1"/>
-        <ref local="test2"/>
-    </jgr:test-plan>
+    <scenario id="sc1" xsi:type="queryPoolScenario">
 
-    <jgr:test id="test1" name="user-test" duration="200">
-        <jgr:task id="t3" name="3-groups-50-50-50" sample="1000" delay="0" bean="sleep5msServiceScenario" >
-            <jgr:user id="u2" count="50" startCount="50" startIn="0" startBy="0" life="2h"/>
-            <jgr:user id="u3" count="50" startCount="50" startIn="0" startBy="0" life="2h"/>
-            <jgr:user id="u4" count="50" startCount="50" startIn="0" startBy="0" life="2h"/>
-        </jgr:task>
-        <jgr:task id="t4" name="virtual-user-10" sample="1000" delay="0" bean="sleep5msServiceScenario">
-            <jgr:virtual-user ref="vu1"/>
-        </jgr:task>
-    </jgr:test>
+        <loadBalancer xsi:type="roundRobinLoadBalancer"/>
 
-    <jgr:test id="test2" name="tps-test" duration="200">
-        <jgr:task id="t5" name="tps-test" sample="1000" delay="0" bean="sleep50msServiceScenario">
-            <jgr:tps id="tps1" value="10"/>
-        </jgr:task>
-    </jgr:test>
+        <invoker xsi:type="httpInvoker"/>
 
-    <jgr:test id="test3" name="invocation-test" duration="200" >
-        <jgr:task ref="t6"/>
-    </jgr:test>
+        <queryProvider xsi:type="simpleQueryProvider">
 
-    <jgr:task id="t6" name="invocation-task" sample="1000" delay="0" bean="sleep50msServiceScenario">
-        <jgr:invocation id="invocation1" exactcount ="1" threads="10"/>
-    </jgr:task>
+            <query xsi:type="httpQuery" method="GET">
+                <clientParams>
+                    <beans:entry key="http.protocol.allow-circular-redirects">
+                        <beans:bean class="java.lang.Boolean">
+                            <beans:constructor-arg value="false"/>
+                        </beans:bean>
+                    </beans:entry>
+                    <beans:entry key="http.protocol.max-redirects">
+                        <beans:bean class="java.lang.Integer">
+                            <beans:constructor-arg value="2"/>
+                        </beans:bean>
+                    </beans:entry>
+                    <beans:entry key="http.connection-manager.timeout">
+                        <beans:bean class="java.lang.Long"><beans:constructor-arg value="5000" /></beans:bean>
+                    </beans:entry>
+                    <beans:entry key="http.protocol.max-redirects">
+                        <beans:bean class="java.lang.Integer"><beans:constructor-arg value="0" /></beans:bean>
+                    </beans:entry>
+                </clientParams>
+            </query>
 
-    <jgr:virtual-user id="vu1" count="10" tickInterval="10"/>
+        </queryProvider>
 
-    <!--This beans will be in different files-->
+        <endpointProvider xsi:type="simpleEndpointProvider">
+            <endpoint>http://localhost:8090/sleep/5</endpoint>
+            <endpoint>http://localhost:8090/sleep/25</endpoint>
+            <endpoint>http://localhost:8090/sleep/50</endpoint>
+        </endpointProvider>
 
-            <bean id="basicSessionCollector" class="com.griddynamics.jagger.xml.ExampleTestListener">
-            </bean>
+    </scenario>
 
-            <bean id="basicAggregator" class="com.griddynamics.jagger.xml.ExampleTestListener">
-            </bean>
+    <beans:bean id="durationCollector" class="com.griddynamics.jagger.engine.e1.scenario.ReflectionProvider"/>
+    <beans:bean id="informationCollector" class="com.griddynamics.jagger.engine.e1.scenario.ReflectionProvider"/>
 
-            <bean id="e1MasterCollector" class="com.griddynamics.jagger.xml.ExampleTestListener">
-            </bean>
+    <beans:bean id="basicSessionCollector" class="com.griddynamics.jagger.engine.e1.collector.BasicSessionCollector"/>
+    <beans:bean id="e1MasterCollector" class="com.griddynamics.jagger.engine.e1.collector.BasicSessionCollector"/>
+    <beans:bean id="basicAggregator" class="com.griddynamics.jagger.engine.e1.collector.BasicSessionCollector"/>
+    <beans:bean id="e1ScenarioAggregator" class="com.griddynamics.jagger.engine.e1.collector.BasicSessionCollector"/>
+    <beans:bean id="monitoringAggregator" class="com.griddynamics.jagger.engine.e1.collector.BasicSessionCollector"/>
+    <beans:bean id="durationLogProcessor" class="com.griddynamics.jagger.engine.e1.collector.BasicSessionCollector"/>
 
-            <bean id="e1ScenarioAggregator" class="com.griddynamics.jagger.xml.ExampleTestListener">
-            </bean>
 
-            <bean id="monitoringAggregator" class="com.griddynamics.jagger.xml.ExampleTestListener">
-            </bean>
-
-            <bean id="durationLogProcessor" class="com.griddynamics.jagger.xml.ExampleTestListener">
-            </bean>
-
-            <bean id="sleep5msServiceScenario" class="com.griddynamics.jagger.engine.e1.scenario.WorkloadTask">
-            </bean>
-
-            <bean id="sleep50msServiceScenario" class="com.griddynamics.jagger.engine.e1.scenario.WorkloadTask">
-            </bean>
-
-</beans>
+</beans:beans>
