@@ -97,6 +97,8 @@ public class XMLConstants {
     public static final String ENDPOINT_PROVIDER = "endpointProvider";
     public static final String QUERY_PROVIDER = "queryProvider";
     public static final String LOAD_BALANCER = "loadBalancer";
+    public static final String SCENARIO = "scenario";
+    public static final String SCENARIO_FACTORY = "scenarioFactory";
 
     public static final String DEFAULT_NAMESPACE = "http://www.griddynamics.com/schema/jagger";
 }

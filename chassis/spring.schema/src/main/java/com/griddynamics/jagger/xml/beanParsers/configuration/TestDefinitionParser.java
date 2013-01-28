@@ -27,6 +27,6 @@ public class TestDefinitionParser extends CustomBeanDefinitionParser {
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
         super.doParse(element, parserContext, builder);
         element.setAttribute(BeanDefinitionParserDelegate.VALUE_TYPE_ATTRIBUTE, ProcessingConfig.Test.Task.class.getCanonicalName());
-        setBeanListProperty(XMLConstants.TASKS, false, element, parserContext, builder);
+        setBeanListProperty(XMLConstants.TASKS, false, element, parserContext, builder.getBeanDefinition());
     }
 }

@@ -3,15 +3,10 @@ package com.griddynamics.jagger.xml.beanParsers.configuration;
 import com.griddynamics.jagger.user.ProcessingConfig;
 import com.griddynamics.jagger.xml.beanParsers.CustomBeanDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.XMLConstants;
-import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.support.ManagedList;
-import org.springframework.beans.factory.xml.AbstractSimpleBeanDefinitionParser;
-import org.springframework.beans.factory.xml.BeanDefinitionParserDelegate;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
-import java.util.List;
 
 
 public class TaskDefinitionParser extends CustomBeanDefinitionParser {
@@ -26,15 +21,15 @@ public class TaskDefinitionParser extends CustomBeanDefinitionParser {
         super.doParse(element, parserContext, builder);
 
         if (!DomUtils.getChildElementsByTagName(element, XMLConstants.USER).isEmpty()) {
-            setBeanListProperty(XMLConstants.USERS, false, element, parserContext, builder);
+            setBeanListProperty(XMLConstants.USERS, false, element, parserContext, builder.getBeanDefinition());
         } else {
             if(DomUtils.getChildElementByTagName(element, XMLConstants.TPS) != null){
-                setBeanProperty(XMLConstants.TPS, DomUtils.getChildElementByTagName(element, XMLConstants.TPS), parserContext, builder);
+                setBeanProperty(XMLConstants.TPS, DomUtils.getChildElementByTagName(element, XMLConstants.TPS), parserContext, builder.getBeanDefinition());
             }else{
                 if(DomUtils.getChildElementByTagName(element, XMLConstants.VIRTUAL_USER) != null){
-                    setBeanProperty(XMLConstants.VIRTUAL_USER_CLASS_FIELD, DomUtils.getChildElementByTagName(element, XMLConstants.VIRTUAL_USER), parserContext, builder);
+                    setBeanProperty(XMLConstants.VIRTUAL_USER_CLASS_FIELD, DomUtils.getChildElementByTagName(element, XMLConstants.VIRTUAL_USER), parserContext, builder.getBeanDefinition());
                 }else{
-                    setBeanProperty(XMLConstants.INVOCATION, DomUtils.getChildElementByTagName(element, XMLConstants.INVOCATION), parserContext, builder);
+                    setBeanProperty(XMLConstants.INVOCATION, DomUtils.getChildElementByTagName(element, XMLConstants.INVOCATION), parserContext, builder.getBeanDefinition());
                 }
             }
         }

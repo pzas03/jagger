@@ -7,12 +7,9 @@ import com.griddynamics.jagger.xml.beanParsers.XMLConstants;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
-import org.springframework.beans.factory.xml.AbstractSimpleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
-
-import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -42,7 +39,7 @@ public class ConfigDefinitionParser extends CustomBeanDefinitionParser {
         builder.addPropertyValue(XMLConstants.SESSION_EXECUTION_LISTENERS_CLASS_FIELD, slList);
 
         //add user's listeners
-        setBeanListProperty(XMLConstants.SESSION_EXECUTION_LISTENERS_CLASS_FIELD, true, sListenerGroup, parserContext, builder);
+        setBeanListProperty(XMLConstants.SESSION_EXECUTION_LISTENERS_CLASS_FIELD, true, sListenerGroup, parserContext, builder.getBeanDefinition());
 
 
         //Parse task-listeners
@@ -56,7 +53,7 @@ public class ConfigDefinitionParser extends CustomBeanDefinitionParser {
         builder.addPropertyValue(XMLConstants.TASK_EXECUTION_LISTENERS_CLASS_FIELD, tlList);
 
         //add user's listeners
-        setBeanListProperty(XMLConstants.TASK_EXECUTION_LISTENERS_CLASS_FIELD, true, tListenerGroup, parserContext, builder);
+        setBeanListProperty(XMLConstants.TASK_EXECUTION_LISTENERS_CLASS_FIELD, true, tListenerGroup, parserContext, builder.getBeanDefinition());
 
         //parse test-plan
         Element testPlan = DomUtils.getChildElementByTagName(element, XMLConstants.TEST_PLAN);
@@ -67,7 +64,7 @@ public class ConfigDefinitionParser extends CustomBeanDefinitionParser {
         if (!element.getAttribute(XMLConstants.MONITORING_ENABLE).isEmpty()){
             generator.addPropertyValue(XMLConstants.MONITORING_ENABLE, element.getAttribute(XMLConstants.MONITORING_ENABLE));
         }
-        setBeanProperty(XMLConstants.CONFIG, testPlan, parserContext, generator);
+        setBeanProperty(XMLConstants.CONFIG, testPlan, parserContext, generator.getBeanDefinition());
         builder.addPropertyValue(XMLConstants.TASKS, XMLConstants.GENERATOR_GENERATE);
     }
 }
