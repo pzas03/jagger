@@ -93,13 +93,13 @@ public class JaggerReportTest {
     }
 
     @Test
-    private void checkExtensions(){
+    public void checkExtensions(){
         Map<String,ExtensionExporter> extensions=context.getBeansOfType(ExtensionExporter.class);
         assertEquals(extensions.get("ext_integerBean").getExtension(),Integer.valueOf(1101));
         assertEquals(extensions.get("ext_stringBean").getExtension(),"stringValue");
     }
 
-    @Test
+
     private void checkWorkloadComparator(WorkloadFeatureComparator comparator, double warning, double fatal){
         assertEquals(comparator.getSessionFactory(), context.getBean("sessionFactory"));
         ThroughputWorkloadDecisionMaker decisionMaker=(ThroughputWorkloadDecisionMaker)comparator.getWorkloadDecisionMaker();
@@ -107,7 +107,7 @@ public class JaggerReportTest {
         assertEquals(decisionMaker.getWarningDeviationThreshold(),warning);
     }
 
-    @Test
+
     private void checkMonitoringComparator(MonitoringFeatureComparator comparator, double warning, double fatal){
         assertEquals(comparator.getSessionFactory(), context.getBean("sessionFactory"));
         assertEquals(comparator.getMonitoringSummaryRetriever(), context.getBean("monitoringSummaryRetriever"));
