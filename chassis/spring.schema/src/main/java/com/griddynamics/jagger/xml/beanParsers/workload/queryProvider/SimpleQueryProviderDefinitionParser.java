@@ -28,6 +28,6 @@ public class SimpleQueryProviderDefinitionParser extends CustomBeanDefinitionPar
 
     @Override
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
-        setBeanListProperty(XMLConstants.LIST, false, element, parserContext, builder);
+        setBeanListProperty(XMLConstants.LIST, false, element, parserContext, builder.getBeanDefinition());
     }
 }

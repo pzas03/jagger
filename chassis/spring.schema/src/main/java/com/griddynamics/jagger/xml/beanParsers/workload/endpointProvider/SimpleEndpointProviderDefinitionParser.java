@@ -27,6 +27,6 @@ public class SimpleEndpointProviderDefinitionParser extends CustomBeanDefinition
 
     @Override
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
-        setBeanListProperty(XMLConstants.LIST, false, element, parserContext, builder);
+        setBeanListProperty(XMLConstants.LIST, false, element, parserContext, builder.getBeanDefinition());
     }
 }
