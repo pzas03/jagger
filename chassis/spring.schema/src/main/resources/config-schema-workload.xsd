@@ -16,7 +16,6 @@
     <!--listeners-->
     <xsd:element name="workload" type="workloadType"/>
 
-
     <xsd:complexType name="workloadType">
         <xsd:complexContent>
             <xsd:extension base="beans:identifiedType">
@@ -32,17 +31,11 @@
 
     <!--listeners -->
 
-    <xsd:element name="workloadListeners" type="workloadListenersType"/>
-
     <xsd:element name="workloadListener" type="workloadListenerType"/>
 
     <xsd:element name="metric" type="metricType"  substitutionGroup="workloadListener"/>
 
-    <xsd:element name="metricCustom" type="metricCustomType" substitutionGroup="workloadListener"/>
-
     <xsd:element name="validator" type="validatorType" substitutionGroup="workloadListener"/>
-
-    <xsd:element name="validatorCustom" type="validatorCustomType" substitutionGroup="workloadListener"/>
 
     <xsd:complexType name="workloadListenersType">
         <xsd:complexContent>
@@ -77,10 +70,10 @@
         </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:complexType name="metricCustomType">
+    <xsd:complexType name="metricRef">
         <xsd:complexContent>
-            <xsd:extension base="workloadListenerType">
-                <xsd:attribute name="ref" type="xsd:IDREF"/>
+            <xsd:extension base="metricType">
+                <xsd:attribute name="ref" type="xsd:IDREF" use="required"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -120,10 +113,10 @@
         </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:complexType name="validatorCustomType">
+    <xsd:complexType name="validatorRef">
         <xsd:complexContent>
             <xsd:extension base="validatorType">
-                <xsd:attribute name="ref" type="xsd:IDREF"/>
+                <xsd:attribute name="ref" type="xsd:IDREF" use="required"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -132,10 +125,6 @@
 
     <xsd:element name="scenario" type="scenarioType"/>
 
-    <!--<xsd:element name="httpScenario" type="httpScenarioType" substitutionGroup="scenario"/>-->
-
-    <!--<xsd:element name="queryPoolScenario" type="queryPoolScenarioType" substitutionGroup="scenario"/>-->
-
     <xsd:complexType name="scenarioType" abstract="true">
         <xsd:complexContent>
             <xsd:extension base="beans:identifiedType">
@@ -143,7 +132,7 @@
         </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:complexType name="customScenario">
+    <xsd:complexType name="scenarioRef">
         <xsd:complexContent>
             <xsd:extension base="scenarioType">
                 <xsd:attribute name="ref" type="xsd:IDREF" use="required"/>
@@ -179,8 +168,6 @@
 
     <xsd:element name="invoker" type="invokerType"/>
 
-    <xsd:element name="invokerCustom" type="invokerCustomType" substitutionGroup="invoker"/>
-
     <xsd:complexType name="invokerType" abstract="true">
         <xsd:complexContent>
             <xsd:extension base="beans:identifiedType">
@@ -202,8 +189,7 @@
         </xsd:complexContent>
     </xsd:complexType>
 
-
-    <xsd:complexType name="invokerCustomType">
+    <xsd:complexType name="invokerRef">
         <xsd:complexContent>
             <xsd:extension base="invokerType">
                 <xsd:attribute name="ref" type="xsd:IDREF" use="required"/>
@@ -220,20 +206,17 @@
     <xsd:complexType name="queryProviderType" abstract="true">
         <xsd:complexContent>
             <xsd:extension base="beans:identifiedType">
-                <xsd:attribute name="ref" type="xsd:IDREF"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
 
-    <!--<xsd:element name="queryProviderCustom" type="queryProviderCustomType" substitutionGroup="queryProvider"/>-->
-
-    <!--<xsd:complexType name="queryProviderCustomType">-->
-        <!--<xsd:complexContent>-->
-            <!--<xsd:extension base="queryProviderType">-->
-                <!--<xsd:attribute name="ref" type="xsd:IDREF" use="required"/>-->
-            <!--</xsd:extension>-->
-        <!--</xsd:complexContent>-->
-    <!--</xsd:complexType>-->
+    <xsd:complexType name="queryProviderRef">
+        <xsd:complexContent>
+            <xsd:extension base="queryProviderType">
+                <xsd:attribute name="ref" type="xsd:IDREF" use="required"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
 
     <xsd:complexType name="simpleQueryProvider">
         <xsd:complexContent>
@@ -248,6 +231,14 @@
     <xsd:complexType name="queryType" abstract="true">
         <xsd:complexContent>
             <xsd:extension base="beans:identifiedType">
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="queryRef">
+        <xsd:complexContent>
+            <xsd:extension base="queryType">
+                <xsd:attribute name="ref" type="xsd:IDREF" use="required"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -297,13 +288,13 @@
         </xsd:complexContent>
     </xsd:complexType>
 
-    <!--<xsd:complexType name="endpointProviderCustomType">-->
-        <!--<xsd:complexContent>-->
-            <!--<xsd:extension base="endpointProviderType">-->
-                <!--<xsd:attribute name="ref" type="xsd:IDREF" use="required"/>-->
-            <!--</xsd:extension>-->
-        <!--</xsd:complexContent>-->
-    <!--</xsd:complexType>-->
+    <xsd:complexType name="endpointProviderRef">
+        <xsd:complexContent>
+            <xsd:extension base="endpointProviderType">
+                <xsd:attribute name="ref" type="xsd:IDREF" use="required"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
 
     <xsd:complexType name="simpleEndpointProvider">
         <xsd:complexContent>

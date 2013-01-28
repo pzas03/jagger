@@ -1,13 +1,21 @@
 package com.griddynamics.jagger.xml;
 
 import com.griddynamics.jagger.xml.beanParsers.*;
+import com.griddynamics.jagger.xml.beanParsers.configuration.ConfigDefinitionParser;
+import com.griddynamics.jagger.xml.beanParsers.configuration.TaskDefinitionParser;
+import com.griddynamics.jagger.xml.beanParsers.configuration.TestDefinitionParser;
+import com.griddynamics.jagger.xml.beanParsers.configuration.TestPlanDefinitionParser;
+import com.griddynamics.jagger.xml.beanParsers.report.*;
+import com.griddynamics.jagger.xml.beanParsers.task.InvocationDefinitionParser;
+import com.griddynamics.jagger.xml.beanParsers.task.TpsDefinitionParser;
+import com.griddynamics.jagger.xml.beanParsers.task.UserDefinitionParser;
+import com.griddynamics.jagger.xml.beanParsers.task.VirtualUserDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.workload.WorkloadDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.workload.balancer.OneByOneBalancerDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.workload.balancer.RoundRobinBalancerDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.workload.endpointProvider.EndpointDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.workload.endpointProvider.SimpleEndpointProviderDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.workload.invoker.HttpInvokerClassDefinitionParser;
-import com.griddynamics.jagger.xml.beanParsers.workload.invoker.InvokerCustomDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.workload.invoker.SoapInvokerClassDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.workload.listener.NotNullResponseDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.workload.listener.SimpleMetricDefinitionParser;
@@ -69,7 +77,6 @@ public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
 
         //invoker
         registerBeanDefinitionParser("invoker", findTypeParser);
-        registerBeanDefinitionParser("invokerCustom", new InvokerCustomDefinitionParser());
 
         //invokers
         registerBeanDefinitionParser("httpInvoker", new HttpInvokerClassDefinitionParser());

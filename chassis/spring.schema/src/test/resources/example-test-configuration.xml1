@@ -59,15 +59,49 @@
 
     <virtual-user id="vu1" count="10" tickInterval="10"/>
 
+    <!--workload-->
+
+    <metric id="metric1" xsi:type="simpleMetric"/>
+
+    <endpointProvider id="endpointProvider1" xsi:type="simpleEndpointProvider">
+        <endpoint>http://localhost:8090/sleep/5</endpoint>
+        <endpoint>http://localhost:8090/sleep/25</endpoint>
+        <endpoint>http://localhost:8090/sleep/50</endpoint>
+    </endpointProvider>
+
+    <query id="httpQ1" xsi:type="httpQuery" method="GET">
+        <clientParams>
+            <beans:entry key="http.protocol.allow-circular-redirects">
+                <beans:bean class="java.lang.Boolean">
+                    <beans:constructor-arg value="false"/>
+                </beans:bean>
+            </beans:entry>
+            <beans:entry key="http.protocol.max-redirects">
+                <beans:bean class="java.lang.Integer">
+                    <beans:constructor-arg value="2"/>
+                </beans:bean>
+            </beans:entry>
+            <beans:entry key="http.connection-manager.timeout">
+                <beans:bean class="java.lang.Long"><beans:constructor-arg value="5000" /></beans:bean>
+            </beans:entry>
+            <beans:entry key="http.protocol.max-redirects">
+                <beans:bean class="java.lang.Integer"><beans:constructor-arg value="0" /></beans:bean>
+            </beans:entry>
+        </clientParams>
+    </query>
+
+    <queryProvider id="qProvider1" xsi:type="simpleQueryProvider">
+        <query xsi:type="queryRef" ref="httpQ1"/>
+    </queryProvider>
 
     <workload id="w1">
 
         <listeners>
             <validator xsi:type="notNullResponse"/>
-            <metric xsi:type="simpleMetric"/>
+            <metric xsi:type="metricRef" ref="metric1"/>
         </listeners>
 
-        <scenario xsi:type="customScenario" ref="sc1"/>
+        <scenario xsi:type="scenarioRef" ref="sc1"/>
 
     </workload>
 
@@ -77,38 +111,12 @@
 
         <invoker xsi:type="httpInvoker"/>
 
-        <queryProvider xsi:type="simpleQueryProvider">
+        <endpointProvider xsi:type="endpointProviderRef" ref="endpointProvider1"/>
 
-            <query xsi:type="httpQuery" method="GET">
-                <clientParams>
-                    <beans:entry key="http.protocol.allow-circular-redirects">
-                        <beans:bean class="java.lang.Boolean">
-                            <beans:constructor-arg value="false"/>
-                        </beans:bean>
-                    </beans:entry>
-                    <beans:entry key="http.protocol.max-redirects">
-                        <beans:bean class="java.lang.Integer">
-                            <beans:constructor-arg value="2"/>
-                        </beans:bean>
-                    </beans:entry>
-                    <beans:entry key="http.connection-manager.timeout">
-                        <beans:bean class="java.lang.Long"><beans:constructor-arg value="5000" /></beans:bean>
-                    </beans:entry>
-                    <beans:entry key="http.protocol.max-redirects">
-                        <beans:bean class="java.lang.Integer"><beans:constructor-arg value="0" /></beans:bean>
-                    </beans:entry>
-                </clientParams>
-            </query>
-
-        </queryProvider>
-
-        <endpointProvider xsi:type="simpleEndpointProvider">
-            <endpoint>http://localhost:8090/sleep/5</endpoint>
-            <endpoint>http://localhost:8090/sleep/25</endpoint>
-            <endpoint>http://localhost:8090/sleep/50</endpoint>
-        </endpointProvider>
-
+        <queryProvider xsi:type="queryProviderRef" ref="qProvider1" />
     </scenario>
+
+
 
     <beans:bean id="durationCollector" class="com.griddynamics.jagger.engine.e1.scenario.ReflectionProvider"/>
     <beans:bean id="informationCollector" class="com.griddynamics.jagger.engine.e1.scenario.ReflectionProvider"/>

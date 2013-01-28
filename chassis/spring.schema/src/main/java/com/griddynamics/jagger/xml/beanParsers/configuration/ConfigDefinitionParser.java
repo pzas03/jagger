@@ -1,7 +1,9 @@
-package com.griddynamics.jagger.xml.beanParsers;
+package com.griddynamics.jagger.xml.beanParsers.configuration;
 
 import com.griddynamics.jagger.master.configuration.Configuration;
 import com.griddynamics.jagger.master.configuration.UserTaskGenerator;
+import com.griddynamics.jagger.xml.beanParsers.CustomBeanDefinitionParser;
+import com.griddynamics.jagger.xml.beanParsers.XMLConstants;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
@@ -19,8 +21,7 @@ import java.util.*;
  * Time: 11:21 AM
  * To change this template use File | Settings | File Templates.
  */
-public class ConfigDefinitionParser extends AbstractSimpleBeanDefinitionParser {
-
+public class ConfigDefinitionParser extends CustomBeanDefinitionParser {
 
     @Override
     protected Class getBeanClass(Element element) {
@@ -38,25 +39,11 @@ public class ConfigDefinitionParser extends AbstractSimpleBeanDefinitionParser {
         for (String sessionListener : XMLConstants.STANDARD_SESSION_EXEC_LISTENERS){
             slList.add(new RuntimeBeanReference(sessionListener));
         }
+        builder.addPropertyValue(XMLConstants.SESSION_EXECUTION_LISTENERS_CLASS_FIELD, slList);
 
         //add user's listeners
-        if (sListenerGroup != null){
-            if (!sListenerGroup.getAttribute(XMLConstants.ATTRIBUTE_REF).isEmpty()){
-                builder.addPropertyReference(XMLConstants.SESSION_EXECUTION_LISTENERS_CLASS_FIELD, sListenerGroup.getAttribute(XMLConstants.ATTRIBUTE_REF));
-            }else{
-                List<Element> sl = DomUtils.getChildElements(sListenerGroup);
+        setBeanListProperty(XMLConstants.SESSION_EXECUTION_LISTENERS_CLASS_FIELD, true, sListenerGroup, parserContext, builder);
 
-                for (Element el : sl){
-                    if (!el.getAttribute(XMLConstants.ATTRIBUTE_REF).isEmpty()){
-                        slList.add(new RuntimeBeanReference(el.getAttribute(XMLConstants.ATTRIBUTE_REF)));
-                    }else{
-                        slList.add(parserContext.getDelegate().parsePropertySubElement(el, builder.getBeanDefinition()));
-                    }
-                }
-            }
-        }
-
-        builder.addPropertyValue(XMLConstants.SESSION_EXECUTION_LISTENERS_CLASS_FIELD, slList);
 
         //Parse task-listeners
         Element tListenerGroup = DomUtils.getChildElementByTagName(element, XMLConstants.TASK_EXECUTION_LISTENERS);
@@ -66,26 +53,10 @@ public class ConfigDefinitionParser extends AbstractSimpleBeanDefinitionParser {
         for (String sessionListener : XMLConstants.STANDARD_TASK_EXEC_LISTENERS){
             tlList.add(new RuntimeBeanReference(sessionListener));
         }
-
-        //add user's listeners
-        if (tListenerGroup != null){
-            if (!sListenerGroup.getAttribute(XMLConstants.ATTRIBUTE_REF).isEmpty()){
-                builder.addPropertyReference(XMLConstants.TASK_EXECUTION_LISTENERS_CLASS_FIELD, sListenerGroup.getAttribute(XMLConstants.ATTRIBUTE_REF));
-            }else{
-                List<Element> tl = DomUtils.getChildElements(tListenerGroup);
-
-                for (Element el : tl){
-                    if (!el.getAttribute(XMLConstants.ATTRIBUTE_REF).isEmpty()){
-                        tlList.add(new RuntimeBeanReference(el.getAttribute(XMLConstants.ATTRIBUTE_REF)));
-                    }else{
-                        tlList.add(parserContext.getDelegate().parsePropertySubElement(el, builder.getBeanDefinition()));
-                    }
-                }
-            }
-        }
-
         builder.addPropertyValue(XMLConstants.TASK_EXECUTION_LISTENERS_CLASS_FIELD, tlList);
 
+        //add user's listeners
+        setBeanListProperty(XMLConstants.TASK_EXECUTION_LISTENERS_CLASS_FIELD, true, tListenerGroup, parserContext, builder);
 
         //parse test-plan
         Element testPlan = DomUtils.getChildElementByTagName(element, XMLConstants.TEST_PLAN);
@@ -96,12 +67,7 @@ public class ConfigDefinitionParser extends AbstractSimpleBeanDefinitionParser {
         if (!element.getAttribute(XMLConstants.MONITORING_ENABLE).isEmpty()){
             generator.addPropertyValue(XMLConstants.MONITORING_ENABLE, element.getAttribute(XMLConstants.MONITORING_ENABLE));
         }
-
-        if (!testPlan.getAttribute(XMLConstants.ATTRIBUTE_REF).isEmpty()){
-            generator.addPropertyReference(XMLConstants.CONFIG, testPlan.getAttribute(XMLConstants.ATTRIBUTE_REF));
-        }else{
-            generator.addPropertyValue(XMLConstants.CONFIG, parserContext.getDelegate().parseCustomElement(testPlan, builder.getBeanDefinition()));
-        }
+        setBeanProperty(XMLConstants.CONFIG, testPlan, parserContext, generator);
         builder.addPropertyValue(XMLConstants.TASKS, XMLConstants.GENERATOR_GENERATE);
     }
 }

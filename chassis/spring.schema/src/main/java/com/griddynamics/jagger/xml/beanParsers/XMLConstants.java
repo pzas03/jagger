@@ -81,12 +81,22 @@ public class XMLConstants {
     public static final String WORKLOAD_LISTENERS_ELEMENT = "listeners";
     public static final String DURATION_COLLECTOR = "durationCollector";
     public static final String INFORMATION_COLLECTOR = "informationCollector";
+
+    //don't change the order!!! will not works
     public static final List<String> STANDARD_WORKLOAD_LISTENERS = Arrays.asList(DURATION_COLLECTOR, INFORMATION_COLLECTOR);
 
     public static final String WORKLOAD_LISTENERS_CLASS   = "collectors";
     public static final String VALIDATOR = "validator";
-    public static final String CALCULATOR_ELEMENT = "calculator";
-    public static final String CALCULATOR_CLASS = "metricCalculator";
+    public static final String METRIC_CALCULATOR = "metricCalculator";
+    public static final String LIST = "list";
+    public static final String CLIENT_PARAMS = "clientParams";
+    public static final String METHOD_PARAMS = "methodParams";
+    public static final String METHOD = "method";
+    public static final String INVOKER = "invoker";
+    public static final String INVOKER_CLAZZ = "invokerClazz";
+    public static final String ENDPOINT_PROVIDER = "endpointProvider";
+    public static final String QUERY_PROVIDER = "queryProvider";
+    public static final String LOAD_BALANCER = "loadBalancer";
 
     public static final String DEFAULT_NAMESPACE = "http://www.griddynamics.com/schema/jagger";
 }
