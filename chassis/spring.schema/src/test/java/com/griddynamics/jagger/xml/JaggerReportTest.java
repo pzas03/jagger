@@ -15,6 +15,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.net.URL;
+import java.util.Map;
 import java.util.Properties;
 
 import static org.testng.Assert.assertEquals;
@@ -89,6 +90,13 @@ public class JaggerReportTest {
         assertEquals(service.getOutputReportLocation(),"custom-report.pdf");
         ReportingContext defaultContext=(ReportingContext) context.getBean("reportingContext");
         assertEquals(service.getContext(),defaultContext);
+    }
+
+    @Test
+    private void checkExtensions(){
+        Map<String,ExtensionExporter> extensions=context.getBeansOfType(ExtensionExporter.class);
+        assertEquals(extensions.get("ext_integerBean").getExtension(),Integer.valueOf(1101));
+        assertEquals(extensions.get("ext_stringBean").getExtension(),"stringValue");
     }
 
     @Test
