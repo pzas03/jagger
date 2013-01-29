@@ -1,14 +1,11 @@
 package com.griddynamics.jagger.xml.beanParsers.workload.endpointProvider;
 
-import com.griddynamics.jagger.invoker.SimpleProvider;
 import com.griddynamics.jagger.xml.beanParsers.CustomBeanDefinitionParser;
-import com.griddynamics.jagger.xml.beanParsers.XMLConstants;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,11 +19,11 @@ public class SimpleEndpointProviderDefinitionParser extends CustomBeanDefinition
 
     @Override
     protected Class getBeanClass(Element element) {
-        return SimpleProvider.class;
+        return ArrayList.class;
     }
 
     @Override
-    protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
-        setBeanListProperty(XMLConstants.LIST, false, element, parserContext, builder.getBeanDefinition());
+    protected void parse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
+        builder.addConstructorArgValue(parserContext.getDelegate().parseListElement(element, builder.getBeanDefinition()));
     }
 }

@@ -17,8 +17,7 @@ public class TaskDefinitionParser extends CustomBeanDefinitionParser {
     }
 
     @Override
-    protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
-        super.doParse(element, parserContext, builder);
+    protected void parse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
 
         if (!DomUtils.getChildElementsByTagName(element, XMLConstants.USER).isEmpty()) {
             setBeanListProperty(XMLConstants.USERS, false, element, parserContext, builder.getBeanDefinition());

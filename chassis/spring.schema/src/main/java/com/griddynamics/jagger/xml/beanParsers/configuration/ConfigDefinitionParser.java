@@ -26,7 +26,7 @@ public class ConfigDefinitionParser extends CustomBeanDefinitionParser {
     }
 
     @Override
-    protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
+    protected void parse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
 
         //parse session-listeners
         Element sListenerGroup = DomUtils.getChildElementByTagName(element, XMLConstants.SESSION_EXECUTION_LISTENERS);
@@ -66,5 +66,10 @@ public class ConfigDefinitionParser extends CustomBeanDefinitionParser {
         }
         setBeanProperty(XMLConstants.CONFIG, testPlan, parserContext, generator.getBeanDefinition());
         builder.addPropertyValue(XMLConstants.TASKS, XMLConstants.GENERATOR_GENERATE);
+    }
+
+    @Override
+    protected void parseAttributes(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
+        //do nothing
     }
 }

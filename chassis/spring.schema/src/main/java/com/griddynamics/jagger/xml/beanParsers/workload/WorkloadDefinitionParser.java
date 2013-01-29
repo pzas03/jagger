@@ -25,9 +25,7 @@ public class WorkloadDefinitionParser extends CustomBeanDefinitionParser{
     }
 
     @Override
-    protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
-        super.doParse(element, parserContext, builder);
-
+    protected void parse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
         //parse listeners
         ManagedList listeners = new ManagedList();
 

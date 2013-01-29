@@ -24,7 +24,7 @@ public class QueryPoolScenarioDefinitionParser extends CustomBeanDefinitionParse
     }
 
     @Override
-    protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
+    protected void parse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
 
         //parse invoker
         Element invokerElement = DomUtils.getChildElementByTagName(element, XMLConstants.INVOKER);
