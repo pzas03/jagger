@@ -28,6 +28,7 @@ import com.griddynamics.jagger.launch.LaunchManager;
 import com.griddynamics.jagger.launch.LaunchTask;
 import com.griddynamics.jagger.launch.Launches;
 import com.griddynamics.jagger.master.Master;
+import com.griddynamics.jagger.reporting.ReportingProvider;
 import com.griddynamics.jagger.reporting.ReportingService;
 import com.griddynamics.jagger.storage.rdb.H2DatabaseServer;
 import com.griddynamics.jagger.user.ProcessingConfig;
@@ -162,7 +163,7 @@ public final class JaggerLauncher {
             @Override
             public void run() {
                 ApplicationContext context = loadContext(directory, REPORTER_CONFIGURATION, environmentProperties);
-                final ReportingService reportingService = (ReportingService) context.getBean("reportingService");
+                final ReportingService reportingService = ReportingProvider.getService(context);
 
                 reportingService.renderReport(true);
             }

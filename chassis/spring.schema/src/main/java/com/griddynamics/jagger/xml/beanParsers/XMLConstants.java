@@ -105,6 +105,7 @@ public class XMLConstants {
     public static final String PERCENTILES_GLOBAL = "percentiles-global";
     public static final String TIME_WINDOW_PERCENTILES_KEYS = "timeWindowPercentilesKeys";
     public static final String GLOBAL_PERCENTILES_KEYS = "globalPercentilesKeys";
+    public static final String REPORT = "report";
 
     public static final String DEFAULT_NAMESPACE = "http://www.griddynamics.com/schema/jagger";
 }

@@ -1,14 +1,18 @@
 package com.griddynamics.jagger.xml;
 
+import com.griddynamics.jagger.JaggerLauncher;
 import com.griddynamics.jagger.engine.e1.scenario.WorkloadTask;
 import com.griddynamics.jagger.master.configuration.Configuration;
 import junit.framework.Assert;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import java.net.URL;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Created with IntelliJ IDEA.
@@ -21,9 +25,13 @@ public class JaggerConfigurationTest {
 
     private ApplicationContext ctx;
 
-    @BeforeTest
-    public void configTest() {
-        ctx = new ClassPathXmlApplicationContext("/example-test-configuration.xml1");
+    @BeforeClass
+    public void testInit() throws Exception{
+        URL directory = new URL("file:" + "../configuration/");
+        Properties environmentProperties = new Properties();
+        JaggerLauncher.loadBootProperties(directory, "profiles/local/environment.properties", environmentProperties);
+        environmentProperties.put("chassis.reporter.configuration.include",environmentProperties.get("chassis.reporter.configuration.include")+", ../spring.schema/src/test/resources/example-test-configuration.xml1");
+        ctx = JaggerLauncher.loadContext(directory,"chassis.reporter.configuration",environmentProperties);
     }
 
     @Test

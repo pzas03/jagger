@@ -5,6 +5,7 @@ import com.griddynamics.jagger.master.configuration.Configuration;
 import com.griddynamics.jagger.master.configuration.UserTaskGenerator;
 import com.griddynamics.jagger.xml.beanParsers.CustomBeanDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.XMLConstants;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
@@ -28,6 +29,12 @@ public class ConfigDefinitionParser extends CustomBeanDefinitionParser {
 
     @Override
     protected void parse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
+
+        Element report = DomUtils.getChildElementByTagName(element, XMLConstants.REPORT);
+        if (report!=null) {
+            BeanDefinition bean = parserContext.getDelegate().parseCustomElement(report, builder.getBeanDefinition());
+            parserContext.getRegistry().registerBeanDefinition(XMLConstants.CUSTOM_REPORTING_SERVICE,bean);
+        }
 
         //parse session-listeners
         Element sListenerGroup = DomUtils.getChildElementByTagName(element, XMLConstants.SESSION_EXECUTION_LISTENERS);
