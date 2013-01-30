@@ -34,6 +34,12 @@
 
     <configuration id="config1" monitoringEnable="true">
         <test-plan ref="test-plan-1"/>
+
+        <!--don't use in tests, only runtime-->
+        <!--<percentiles-time>-->
+            <!--<percentile>50</percentile>-->
+        <!--</percentiles-time>-->
+
     </configuration>
 
     <test-plan id="test-plan-1">
@@ -127,6 +133,53 @@
     <beans:bean id="e1ScenarioAggregator" class="com.griddynamics.jagger.engine.e1.collector.BasicSessionCollector"/>
     <beans:bean id="monitoringAggregator" class="com.griddynamics.jagger.engine.e1.collector.BasicSessionCollector"/>
     <beans:bean id="durationLogProcessor" class="com.griddynamics.jagger.engine.e1.collector.BasicSessionCollector"/>
+    <!--<beans:bean id="durationLogProcessor" class="com.griddynamics.jagger.engine.e1.aggregator.workload.DurationLogProcessor">-->
+        <!--<beans:property name="globalPercentilesKeys" ref="standardPercentilesTimeSeries"/>-->
+        <!--<beans:property name="timeWindowPercentilesKeys" ref="standardPercentilesTimeSeries"/>-->
+        <!--<beans:property name="hibernateTemplate" ref="template"/>-->
+        <!--<beans:property name="sessionFactory" ref="factory"/>-->
+        <!--<beans:property name="logAggregator" ref="aggregator"/>-->
+        <!--<beans:property name="logReader" ref="reader"/>-->
+        <!--<beans:property name="sessionIdProvider" value="beans:null"/>-->
+        <!--<beans:property name="pointCount" value="1"/>-->
+    <!--</beans:bean>-->
+
+    <!--<beans:bean id="template" class="org.springframework.orm.hibernate3.HibernateTemplate">-->
+        <!--<beans:property name="sessionFactory" ref="factory"/>-->
+    <!--</beans:bean>-->
+    <!--<beans:bean id="factory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">-->
+        <!--<beans:property name="hibernateProperties">-->
+            <!--<beans:props>-->
+                <!--<beans:prop key="hibernate.hbm2ddl.auto">update</beans:prop>-->
+                <!--<beans:prop key="hibernate.dialect">${chassis.storage.hibernate.dialect}</beans:prop>-->
+                <!--<beans:prop key="hibernate.show_sql">false</beans:prop>-->
+                <!--<beans:prop key="hibernate.jdbc.batch_size">1</beans:prop>-->
+            <!--</beans:props>-->
+        <!--</beans:property>-->
+    <!--</beans:bean>-->
+    <!--<beans:bean id="aggregator" class="com.griddynamics.jagger.storage.fs.logging.ChronologyLogAggregator">-->
+        <!--<beans:property name="fileStorage" ref="storage"/>-->
+    <!--</beans:bean>-->
+    <!--<beans:bean id="reader" class="com.griddynamics.jagger.storage.fs.logging.HessianBufferedLogReader"/>-->
+    <!--<beans:bean id="provider" class="com.griddynamics.jagger.master.HibernateSessionIdProvider"/>-->
+    <!--<beans:bean id="storage" class="com.griddynamics.jagger.storage.fs.LocalFileStorage">-->
+        <!--<beans:property name="workspace" value="w"/>-->
+    <!--</beans:bean>-->
+
+    <beans:bean id="standardPercentilesTimeSeries" class="java.util.ArrayList">
+        <beans:constructor-arg>
+            <beans:list>
+                <beans:value>40</beans:value>
+                <beans:value>50</beans:value>
+                <beans:value>60</beans:value>
+                <beans:value>70</beans:value>
+                <beans:value>80</beans:value>
+                <beans:value>90</beans:value>
+                <beans:value>95</beans:value>
+                <beans:value>99</beans:value>
+            </beans:list>
+        </beans:constructor-arg>
+    </beans:bean>
 
 
 </beans:beans>

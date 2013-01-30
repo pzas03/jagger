@@ -1,5 +1,6 @@
 package com.griddynamics.jagger.xml.beanParsers.configuration;
 
+import com.griddynamics.jagger.engine.e1.aggregator.workload.DurationLogProcessor;
 import com.griddynamics.jagger.master.configuration.Configuration;
 import com.griddynamics.jagger.master.configuration.UserTaskGenerator;
 import com.griddynamics.jagger.xml.beanParsers.CustomBeanDefinitionParser;
@@ -49,6 +50,24 @@ public class ConfigDefinitionParser extends CustomBeanDefinitionParser {
         //add standard listeners
         for (String sessionListener : XMLConstants.STANDARD_TASK_EXEC_LISTENERS){
             tlList.add(new RuntimeBeanReference(sessionListener));
+        }
+
+        //override durationLogProcessor if needed
+        Element percentilesTimeElement = DomUtils.getChildElementByTagName(element, XMLConstants.PERCENTILES_TIME);
+        Element percentilesGlobalElement = DomUtils.getChildElementByTagName(element, XMLConstants.PERCENTILES_GLOBAL);
+        if (percentilesTimeElement != null || percentilesGlobalElement != null){
+            BeanDefinitionBuilder durationLogProcessorBean = BeanDefinitionBuilder.genericBeanDefinition(DurationLogProcessor.class);
+            durationLogProcessorBean.setParentName(XMLConstants.DURATION_LOG_PROCESSOR);
+
+            if (percentilesTimeElement!=null)
+                setBeanProperty(XMLConstants.TIME_WINDOW_PERCENTILES_KEYS, percentilesTimeElement, parserContext, durationLogProcessorBean.getBeanDefinition());
+
+            if (percentilesGlobalElement!=null)
+                setBeanProperty(XMLConstants.GLOBAL_PERCENTILES_KEYS, percentilesGlobalElement, parserContext, durationLogProcessorBean.getBeanDefinition());
+
+            tlList.add(durationLogProcessorBean.getBeanDefinition());
+        }else{
+           tlList.add(new RuntimeBeanReference(XMLConstants.DURATION_LOG_PROCESSOR));
         }
         builder.addPropertyValue(XMLConstants.TASK_EXECUTION_LISTENERS_CLASS_FIELD, tlList);
 

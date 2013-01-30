@@ -11,14 +11,21 @@
                 schemaLocation="http://www.springframework.org/schema/util/spring-util-2.0.xsd"/>
 
 
-    <!--WORKLOAD DATA-->
+    <!--WORKLOAD-->
 
-    <!--listeners-->
+    <xsd:complexType name="basicType">
+        <xsd:complexContent>
+            <xsd:extension base="beans:identifiedType">
+                <xsd:attribute name="parent" type="xsd:IDREF"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
     <xsd:element name="workload" type="workloadType"/>
 
     <xsd:complexType name="workloadType">
         <xsd:complexContent>
-            <xsd:extension base="beans:identifiedType">
+            <xsd:extension base="basicType">
                 <xsd:all>
                     <xsd:element name="listeners" type="workloadListenersType" minOccurs="0" maxOccurs="1"/>
                     <xsd:element ref="scenario"/>
@@ -39,7 +46,7 @@
 
     <xsd:complexType name="workloadListenersType">
         <xsd:complexContent>
-            <xsd:extension base="beans:identifiedType">
+            <xsd:extension base="basicType">
                 <xsd:choice minOccurs="0" maxOccurs="unbounded">
                     <xsd:element ref="workloadListener"/>
                 </xsd:choice>
@@ -49,7 +56,7 @@
 
     <xsd:complexType name="workloadListenerType" abstract="true">
         <xsd:complexContent>
-            <xsd:extension base="beans:identifiedType">
+            <xsd:extension base="basicType">
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -125,9 +132,11 @@
 
     <xsd:element name="scenario" type="scenarioType"/>
 
+    <xsd:element name="httpScenario" type="httpScenario" substitutionGroup="scenario"/>
+
     <xsd:complexType name="scenarioType" abstract="true">
         <xsd:complexContent>
-            <xsd:extension base="beans:identifiedType">
+            <xsd:extension base="basicType">
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -170,7 +179,7 @@
 
     <xsd:complexType name="invokerType" abstract="true">
         <xsd:complexContent>
-            <xsd:extension base="beans:identifiedType">
+            <xsd:extension base="basicType">
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -205,7 +214,7 @@
 
     <xsd:complexType name="queryProviderType" abstract="true">
         <xsd:complexContent>
-            <xsd:extension base="beans:identifiedType">
+            <xsd:extension base="basicType">
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -228,9 +237,10 @@
         </xsd:complexContent>
     </xsd:complexType>
 
+
     <xsd:complexType name="queryType" abstract="true">
         <xsd:complexContent>
-            <xsd:extension base="beans:identifiedType">
+            <xsd:extension base="basicType">
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -283,7 +293,7 @@
 
     <xsd:complexType name="endpointProviderType" abstract="true">
         <xsd:complexContent>
-            <xsd:extension base="beans:identifiedType">
+            <xsd:extension base="basicType">
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -314,7 +324,7 @@
 
     <xsd:complexType name="loadBalancerType" abstract="true">
         <xsd:complexContent>
-            <xsd:extension base="beans:identifiedType">
+            <xsd:extension base="basicType">
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -340,5 +350,6 @@
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
+
 
 </xsd:schema>

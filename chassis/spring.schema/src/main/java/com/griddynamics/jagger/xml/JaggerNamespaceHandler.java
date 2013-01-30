@@ -1,10 +1,7 @@
 package com.griddynamics.jagger.xml;
 
 import com.griddynamics.jagger.xml.beanParsers.*;
-import com.griddynamics.jagger.xml.beanParsers.configuration.ConfigDefinitionParser;
-import com.griddynamics.jagger.xml.beanParsers.configuration.TaskDefinitionParser;
-import com.griddynamics.jagger.xml.beanParsers.configuration.TestDefinitionParser;
-import com.griddynamics.jagger.xml.beanParsers.configuration.TestPlanDefinitionParser;
+import com.griddynamics.jagger.xml.beanParsers.configuration.*;
 import com.griddynamics.jagger.xml.beanParsers.report.*;
 import com.griddynamics.jagger.xml.beanParsers.task.InvocationDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.task.TpsDefinitionParser;
@@ -13,7 +10,6 @@ import com.griddynamics.jagger.xml.beanParsers.task.VirtualUserDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.workload.WorkloadDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.workload.balancer.OneByOneBalancerDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.workload.balancer.RoundRobinBalancerDefinitionParser;
-import com.griddynamics.jagger.xml.beanParsers.workload.endpointProvider.EndpointDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.workload.endpointProvider.SimpleEndpointProviderDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.workload.invoker.HttpInvokerClassDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.workload.invoker.SoapInvokerClassDefinitionParser;
@@ -27,23 +23,36 @@ import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
 
     private FindParserByTypeDefinitionParser findTypeParser = new FindParserByTypeDefinitionParser();
+    private DoubleDefinitionParser doubleParser = new DoubleDefinitionParser();
+    private StringDefinitionParser stringParser = new StringDefinitionParser();
 
     public void init() {
 
-        registerBeanDefinitionParser("invocation", new InvocationDefinitionParser());
-        registerBeanDefinitionParser("task", new TaskDefinitionParser());
-        registerBeanDefinitionParser("test", new TestDefinitionParser());
-        registerBeanDefinitionParser("user", new UserDefinitionParser());
+        //CONFIGURATION
+        registerBeanDefinitionParser("configuration", new ConfigDefinitionParser());
         registerBeanDefinitionParser("test-plan", new TestPlanDefinitionParser());
+        registerBeanDefinitionParser("test", new TestDefinitionParser());
+        registerBeanDefinitionParser("percentiles-time", new PercentilesDefinitionParser());
+        registerBeanDefinitionParser("percentiles-global", new PercentilesDefinitionParser());
+
+        registerBeanDefinitionParser("percentile", doubleParser);
+
+        //REPORT
+        registerBeanDefinitionParser("report", new ReportDefinitionParser());
         registerBeanDefinitionParser("processing", new TestPlanDefinitionParser());
         registerBeanDefinitionParser("extension", new ExtensionDefinitionParser());
         registerBeanDefinitionParser("extensions", new ExtensionsDefinitionParser());
         registerBeanDefinitionParser("comparator", new ComparatorDefinitionParser());
         registerBeanDefinitionParser("sessionComparators", new SessionComparatorsDefinitionParser());
-        registerBeanDefinitionParser("report", new ReportDefinitionParser());
+
+        //TASKS
+        registerBeanDefinitionParser("task", new TaskDefinitionParser());
+
+        //type of tasks
+        registerBeanDefinitionParser("invocation", new InvocationDefinitionParser());
+        registerBeanDefinitionParser("user", new UserDefinitionParser());
         registerBeanDefinitionParser("tps", new TpsDefinitionParser());
         registerBeanDefinitionParser("virtual-user", new VirtualUserDefinitionParser());
-        registerBeanDefinitionParser("configuration", new ConfigDefinitionParser());
 
         //WORKLOAD
         registerBeanDefinitionParser("workload" , new WorkloadDefinitionParser());
@@ -84,10 +93,10 @@ public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
 
         //endpointProvider
         registerBeanDefinitionParser("endpointProvider", findTypeParser);
+        registerBeanDefinitionParser("endpoint", stringParser);
 
         //endpointProviders
         registerBeanDefinitionParser("simpleEndpointProvider", new SimpleEndpointProviderDefinitionParser());
-        registerBeanDefinitionParser("endpoint", new EndpointDefinitionParser());
 
         //queryProvider
         registerBeanDefinitionParser("queryProvider", findTypeParser);
