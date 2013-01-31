@@ -36,52 +36,7 @@ public class ConfigDefinitionParser extends CustomBeanDefinitionParser {
             parserContext.getRegistry().registerBeanDefinition(XMLConstants.CUSTOM_REPORTING_SERVICE,bean);
         }
 
-        //parse session-listeners
-        Element sListenerGroup = DomUtils.getChildElementByTagName(element, XMLConstants.SESSION_EXECUTION_LISTENERS);
-        ManagedList slList = new ManagedList();
-
-        //add standard listeners
-        for (String sessionListener : XMLConstants.STANDARD_SESSION_EXEC_LISTENERS){
-            slList.add(new RuntimeBeanReference(sessionListener));
-        }
-        builder.addPropertyValue(XMLConstants.SESSION_EXECUTION_LISTENERS_CLASS_FIELD, slList);
-
-        //add user's listeners
-        setBeanListProperty(XMLConstants.SESSION_EXECUTION_LISTENERS_CLASS_FIELD, true, sListenerGroup, parserContext, builder.getBeanDefinition());
-
-
-        //Parse task-listeners
-        Element tListenerGroup = DomUtils.getChildElementByTagName(element, XMLConstants.TASK_EXECUTION_LISTENERS);
-        ManagedList tlList = new ManagedList();
-
-        //add standard listeners
-        for (String sessionListener : XMLConstants.STANDARD_TASK_EXEC_LISTENERS){
-            tlList.add(new RuntimeBeanReference(sessionListener));
-        }
-
-        //override durationLogProcessor if needed
-        Element percentilesElement = DomUtils.getChildElementByTagName(element, XMLConstants.PERCENTILES);
-        if (percentilesElement!=null){
-            Element percentilesTimeElement = DomUtils.getChildElementByTagName(percentilesElement, XMLConstants.PERCENTILES_TIME);
-            Element percentilesGlobalElement = DomUtils.getChildElementByTagName(percentilesElement, XMLConstants.PERCENTILES_GLOBAL);
-
-            BeanDefinitionBuilder durationLogProcessorBean = BeanDefinitionBuilder.genericBeanDefinition(DurationLogProcessor.class);
-            durationLogProcessorBean.setParentName(XMLConstants.DURATION_LOG_PROCESSOR);
-
-            if (percentilesTimeElement!=null)
-                setBeanProperty(XMLConstants.TIME_WINDOW_PERCENTILES_KEYS, percentilesTimeElement, parserContext, durationLogProcessorBean.getBeanDefinition());
-
-            if (percentilesGlobalElement!=null)
-                setBeanProperty(XMLConstants.GLOBAL_PERCENTILES_KEYS, percentilesGlobalElement, parserContext, durationLogProcessorBean.getBeanDefinition());
-
-            tlList.add(durationLogProcessorBean.getBeanDefinition());
-        }else{
-            tlList.add(new RuntimeBeanReference(XMLConstants.DURATION_LOG_PROCESSOR));
-        }
-        builder.addPropertyValue(XMLConstants.TASK_EXECUTION_LISTENERS_CLASS_FIELD, tlList);
-
-        //add user's listeners
-        setBeanListProperty(XMLConstants.TASK_EXECUTION_LISTENERS_CLASS_FIELD, true, tListenerGroup, parserContext, builder.getBeanDefinition());
+        initListeners(element,parserContext, builder);
 
         //parse test-plan
         Element testPlan = DomUtils.getChildElementByTagName(element, XMLConstants.TEST_PLAN);
@@ -99,5 +54,63 @@ public class ConfigDefinitionParser extends CustomBeanDefinitionParser {
     @Override
     protected void parseAttributes(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
         //do nothing
+    }
+
+    protected void initListeners(Element element, ParserContext parserContext, BeanDefinitionBuilder builder){
+
+        //listeners lists
+        ManagedList slList = new ManagedList();
+        ManagedList tlList = new ManagedList();
+
+        //override durationLogProcessor if needed
+        Element percentilesElement = DomUtils.getChildElementByTagName(element, XMLConstants.PERCENTILES);
+        if (percentilesElement != null){
+            Element percentilesTimeElement = DomUtils.getChildElementByTagName(percentilesElement, XMLConstants.PERCENTILES_TIME);
+            Element percentilesGlobalElement = DomUtils.getChildElementByTagName(percentilesElement, XMLConstants.PERCENTILES_GLOBAL);
+
+            BeanDefinitionBuilder durationLogProcessorBean = BeanDefinitionBuilder.genericBeanDefinition(DurationLogProcessor.class);
+            durationLogProcessorBean.setParentName(XMLConstants.DURATION_LOG_PROCESSOR);
+
+            setBeanProperty(XMLConstants.TIME_WINDOW_PERCENTILES_KEYS, percentilesTimeElement, parserContext, durationLogProcessorBean.getBeanDefinition());
+
+            setBeanProperty(XMLConstants.GLOBAL_PERCENTILES_KEYS, percentilesGlobalElement, parserContext, durationLogProcessorBean.getBeanDefinition());
+
+            initStandardListeners(tlList, slList);
+
+            //add custom durationLogProcessor
+            tlList.add(durationLogProcessorBean.getBeanDefinition());
+
+            builder.addPropertyValue(XMLConstants.TASK_EXECUTION_LISTENERS_CLASS_FIELD, tlList);
+            builder.addPropertyValue(XMLConstants.SESSION_EXECUTION_LISTENERS_CLASS_FIELD, slList);
+        }else{
+            if (builder.getBeanDefinition().getParentName() == null){
+                initStandardListeners(tlList, slList);
+
+                //add standard durationLogProcessor
+                tlList.add(new RuntimeBeanReference(XMLConstants.DURATION_LOG_PROCESSOR));
+
+                builder.addPropertyValue(XMLConstants.TASK_EXECUTION_LISTENERS_CLASS_FIELD, tlList);
+                builder.addPropertyValue(XMLConstants.SESSION_EXECUTION_LISTENERS_CLASS_FIELD, slList);
+            }
+        }
+
+        //add user's listeners
+        Element sListenerGroup = DomUtils.getChildElementByTagName(element, XMLConstants.SESSION_EXECUTION_LISTENERS);
+        setBeanListProperty(XMLConstants.SESSION_EXECUTION_LISTENERS_CLASS_FIELD, true, sListenerGroup, parserContext, builder.getBeanDefinition());
+
+        //add user's listeners
+        Element tListenerGroup = DomUtils.getChildElementByTagName(element, XMLConstants.TASK_EXECUTION_LISTENERS);
+        setBeanListProperty(XMLConstants.TASK_EXECUTION_LISTENERS_CLASS_FIELD, true, tListenerGroup, parserContext, builder.getBeanDefinition());
+    }
+
+    protected void initStandardListeners(ManagedList tlList, ManagedList slList){
+        //add standard listeners
+        for (String sessionListener : XMLConstants.STANDARD_SESSION_EXEC_LISTENERS){
+            slList.add(new RuntimeBeanReference(sessionListener));
+        }
+
+        for (String sessionListener : XMLConstants.STANDARD_TASK_EXEC_LISTENERS){
+            tlList.add(new RuntimeBeanReference(sessionListener));
+        }
     }
 }

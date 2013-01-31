@@ -70,6 +70,9 @@ public abstract class CustomBeanDefinitionParser extends AbstractSimpleBeanDefin
     }
 
     public static void setBeanProperty(String propertyName, Element element, ParserContext parserContext, BeanDefinition bean){
+        if (element==null){
+            return;
+        }
         if (element.hasAttribute(XMLConstants.ATTRIBUTE_REF)){
             String ref = element.getAttribute(XMLConstants.ATTRIBUTE_REF);
             if (!ref.isEmpty()){
