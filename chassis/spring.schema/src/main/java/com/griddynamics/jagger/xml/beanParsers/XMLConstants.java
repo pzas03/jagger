@@ -101,6 +101,7 @@ public class XMLConstants {
     public static final String SCENARIO_FACTORY = "scenarioFactory";
     public static final String PARENT = "parent";
     public static final String XSI_TYPE = "xsi:type";
+    public static final String PERCENTILES = "percentiles";
     public static final String PERCENTILES_TIME = "percentiles-time";
     public static final String PERCENTILES_GLOBAL = "percentiles-global";
     public static final String TIME_WINDOW_PERCENTILES_KEYS = "timeWindowPercentilesKeys";

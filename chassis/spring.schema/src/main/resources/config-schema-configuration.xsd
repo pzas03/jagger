@@ -10,6 +10,7 @@
                 schemaLocation="http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"/>
 
     <xsd:redefine schemaLocation="http://www.griddynamics.com/schema/jagger-user.xsd"/>
+    <xsd:redefine schemaLocation="http://www.griddynamics.com/schema/jagger-report.xsd"/>
 
     <!--CONFIGURATION-->
 
@@ -23,8 +24,8 @@
                     <xsd:element name="test-plan" type="processingTypeIn" minOccurs="0" maxOccurs="1"/>
                     <xsd:element name="session-executionListeners" type="slistenersTypeIn" minOccurs="0" maxOccurs="1"/>
                     <xsd:element name="task-executionListeners" type="tlistenersTypeIn" minOccurs="0" maxOccurs="1"/>
-                    <xsd:element name="percentiles-time" type="percentilesTimeTypeIn" minOccurs="0" maxOccurs="1"/>
-                    <xsd:element name="percentiles-global" type="percentilesTimeTypeIn" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="percentiles" type="percentilesTypeIn" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="report" type="reportType" minOccurs="0" maxOccurs="1"/>
                 </xsd:all>
                 <xsd:attribute name="monitoringEnable" type="xsd:boolean"/>
             </xsd:extension>
@@ -36,6 +37,12 @@
     <xsd:element name="session-executionListeners" type="slistenersType"/>
 
     <xsd:element name="task-executionListeners" type="tlistenersType"/>
+
+    <xsd:element name="percentiles" type="percentilesType"/>
+
+    <xsd:element name="percentiles-time" type="percentilesListType"/>
+
+    <xsd:element name="percentiles-global" type="percentilesListType"/>
 
     <xsd:complexType name="slistenersType">
         <xsd:complexContent>
@@ -77,7 +84,26 @@
         </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:complexType name="percentilesTimeType">
+    <xsd:complexType name="percentilesType">
+        <xsd:complexContent>
+            <xsd:extension base="basicType">
+                <xsd:all>
+                    <xsd:element name="percentiles-time" type="percentilesListTypeIn" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="percentiles-global" type="percentilesListTypeIn" minOccurs="0" maxOccurs="1"/>
+                </xsd:all>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="percentilesTypeIn">
+        <xsd:complexContent>
+            <xsd:extension base="percentilesType">
+                <xsd:attribute name="ref" type="xsd:IDREF"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="percentilesListType">
         <xsd:complexContent>
             <xsd:extension base="basicType">
                 <xsd:choice minOccurs="1" maxOccurs="unbounded">
@@ -87,9 +113,9 @@
         </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:complexType name="percentilesTimeTypeIn">
+    <xsd:complexType name="percentilesListTypeIn">
         <xsd:complexContent>
-            <xsd:extension base="percentilesTimeType">
+            <xsd:extension base="percentilesListType">
                 <xsd:attribute name="ref" type="xsd:IDREF"/>
             </xsd:extension>
         </xsd:complexContent>

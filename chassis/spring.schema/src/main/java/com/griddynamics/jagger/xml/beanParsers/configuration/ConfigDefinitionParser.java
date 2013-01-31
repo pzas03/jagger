@@ -60,9 +60,11 @@ public class ConfigDefinitionParser extends CustomBeanDefinitionParser {
         }
 
         //override durationLogProcessor if needed
-        Element percentilesTimeElement = DomUtils.getChildElementByTagName(element, XMLConstants.PERCENTILES_TIME);
-        Element percentilesGlobalElement = DomUtils.getChildElementByTagName(element, XMLConstants.PERCENTILES_GLOBAL);
-        if (percentilesTimeElement != null || percentilesGlobalElement != null){
+        Element percentilesElement = DomUtils.getChildElementByTagName(element, XMLConstants.PERCENTILES);
+        if (percentilesElement!=null){
+            Element percentilesTimeElement = DomUtils.getChildElementByTagName(percentilesElement, XMLConstants.PERCENTILES_TIME);
+            Element percentilesGlobalElement = DomUtils.getChildElementByTagName(percentilesElement, XMLConstants.PERCENTILES_GLOBAL);
+
             BeanDefinitionBuilder durationLogProcessorBean = BeanDefinitionBuilder.genericBeanDefinition(DurationLogProcessor.class);
             durationLogProcessorBean.setParentName(XMLConstants.DURATION_LOG_PROCESSOR);
 
@@ -74,7 +76,7 @@ public class ConfigDefinitionParser extends CustomBeanDefinitionParser {
 
             tlList.add(durationLogProcessorBean.getBeanDefinition());
         }else{
-           tlList.add(new RuntimeBeanReference(XMLConstants.DURATION_LOG_PROCESSOR));
+            tlList.add(new RuntimeBeanReference(XMLConstants.DURATION_LOG_PROCESSOR));
         }
         builder.addPropertyValue(XMLConstants.TASK_EXECUTION_LISTENERS_CLASS_FIELD, tlList);
 

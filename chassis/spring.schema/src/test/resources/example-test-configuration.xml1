@@ -38,11 +38,12 @@
         <report rootTemplateLocation="custom-root-template.jrxml"
                     outputReportLocation="custom-report.pdf" reportType="HTML">
         </report>
-
         <!--don't use in tests, only runtime-->
-        <!--<percentiles-time>-->
-            <!--<percentile>50</percentile>-->
-        <!--</percentiles-time>-->
+        <!--<percentiles>-->
+            <!--<percentiles-global>-->
+                <!--<percentile>70</percentile>-->
+            <!--</percentiles-global>-->
+        <!--</percentiles>-->
 
     </configuration>
 
