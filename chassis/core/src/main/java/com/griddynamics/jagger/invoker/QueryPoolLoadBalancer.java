@@ -23,6 +23,7 @@ package com.griddynamics.jagger.invoker;
 import com.google.common.collect.ImmutableList;
 import com.griddynamics.jagger.util.Pair;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -40,13 +41,11 @@ public abstract class QueryPoolLoadBalancer<Q, E> implements LoadBalancer<Q, E> 
     }
 
     public void setQueryProvider(Iterable<Q> queryProvider){
-        //fix!!!
-        this.queryProvider = ImmutableList.copyOf(queryProvider);
+        this.queryProvider = queryProvider;
     }
 
     public void setEndpointProvider(Iterable<E> endpointProvider){
-        //fix!!!
-        this.endpointProvider = ImmutableList.copyOf(endpointProvider);
+        this.endpointProvider = endpointProvider;
     }
 
     @Override
@@ -56,18 +55,16 @@ public abstract class QueryPoolLoadBalancer<Q, E> implements LoadBalancer<Q, E> 
 
     @Override
     public int endpointSize() {
-        Iterator<E> iterator = endpointProvider.iterator();
-        int size = 0;
-        while (iterator.hasNext()){
-            iterator.next();
-            size++;
-        }
-        return size;
+        return getIterableSize(endpointProvider);
     }
 
     @Override
     public int querySize() {
-        Iterator<Q> iterator = queryProvider.iterator();
+        return getIterableSize(queryProvider);
+    }
+
+    public int getIterableSize(Iterable iterable){
+        Iterator<Q> iterator = iterable.iterator();
         int size = 0;
         while (iterator.hasNext()){
             iterator.next();

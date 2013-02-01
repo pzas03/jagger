@@ -81,8 +81,6 @@ public class OneByOneLoadBalancer<Q, E> extends QueryPoolLoadBalancer<Q, E> {
 
     @Override
     public String toString() {
-        return "OneByOneLoadBalancer" +
-                "\n {" +
-                "\n }";
+        return "OneByOneLoadBalancer";
     }
 }

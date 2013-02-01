@@ -75,9 +75,7 @@ public class RoundRobinLoadBalancer<Q, E> extends QueryPoolLoadBalancer<Q, E> {
 
     @Override
     public String toString() {
-        return "RoundRobinLoadBalancer" +
-                "\n {" +
-                "\n }";
+        return "RoundRobinLoadBalancer";
     }
 
 
