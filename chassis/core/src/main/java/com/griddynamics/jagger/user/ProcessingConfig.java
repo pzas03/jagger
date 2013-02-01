@@ -145,7 +145,7 @@ public class ProcessingConfig implements Serializable {
                 this.duration = duration;
                 this.sample = (sample != null) ? sample : -1;
                 this.delay = (delay != null) ? delay : 0;
-                this.workload = workload;
+                this.workload = bean;
                 this.users = Collections.unmodifiableList((users != null) ? users : new ArrayList<User>(0));
                 this.tps = tps;
                 this.invocation = invocation;
@@ -161,6 +161,14 @@ public class ProcessingConfig implements Serializable {
 
             public void setWorkload(String workload) {
                 this.workload = workload;
+            }
+
+            public void setBean(String bean){
+                this.workload = bean;
+            }
+
+            public String getBean(){
+                return this.workload;
             }
 
             public Integer getDelay() {

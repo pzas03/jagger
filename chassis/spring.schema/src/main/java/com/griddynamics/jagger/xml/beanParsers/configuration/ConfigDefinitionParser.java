@@ -47,7 +47,7 @@ public class ConfigDefinitionParser extends CustomBeanDefinitionParser {
         if (!element.getAttribute(XMLConstants.MONITORING_ENABLE).isEmpty()){
             generator.addPropertyValue(XMLConstants.MONITORING_ENABLE, element.getAttribute(XMLConstants.MONITORING_ENABLE));
         }
-        setBeanProperty(XMLConstants.CONFIG, testPlan, parserContext, generator.getBeanDefinition());
+        generator.addPropertyValue(XMLConstants.CONFIG, parseCustomElement(testPlan, parserContext, generator.getBeanDefinition()));
         builder.addPropertyValue(XMLConstants.TASKS, XMLConstants.GENERATOR_GENERATE);
     }
 

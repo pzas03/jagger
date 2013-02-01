@@ -9,15 +9,19 @@ import org.w3c.dom.Element;
 /**
  * Created with IntelliJ IDEA.
  * User: kgribov
- * Date: 1/29/13
- * Time: 6:32 PM
+ * Date: 2/1/13
+ * Time: 3:29 PM
  * To change this template use File | Settings | File Templates.
  */
-public class DoubleDefinitionParser implements BeanDefinitionParser {
+public class DoubleDefinitionParser extends CustomBeanDefinitionParser {
+
     @Override
-    public BeanDefinition parse(Element element, ParserContext parserContext) {
-        BeanDefinition bean = BeanDefinitionBuilder.genericBeanDefinition(Double.class).getBeanDefinition();
-        bean.getConstructorArgumentValues().addGenericArgumentValue(Double.parseDouble(element.getTextContent()));
-        return bean;
+    protected Class getBeanClass(Element element) {
+        return Double.class;
+    }
+
+    @Override
+    protected void parse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
+        builder.addConstructorArgValue(element.getTextContent());
     }
 }

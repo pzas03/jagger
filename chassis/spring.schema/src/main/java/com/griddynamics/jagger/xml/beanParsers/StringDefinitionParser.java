@@ -13,11 +13,15 @@ import org.w3c.dom.Element;
  * Time: 6:38 PM
  * To change this template use File | Settings | File Templates.
  */
-public class StringDefinitionParser implements BeanDefinitionParser {
+public class StringDefinitionParser extends CustomBeanDefinitionParser {
+
     @Override
-    public BeanDefinition parse(Element element, ParserContext parserContext) {
-        BeanDefinitionBuilder bean = BeanDefinitionBuilder.genericBeanDefinition(String.class);
-        bean.addConstructorArgValue(element.getTextContent());
-        return bean.getBeanDefinition();
+    protected Class getBeanClass(Element element) {
+        return String.class;
+    }
+
+    @Override
+    protected void parse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
+        builder.addConstructorArgValue(element.getTextContent());
     }
 }

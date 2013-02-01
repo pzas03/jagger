@@ -10,21 +10,20 @@ import com.griddynamics.jagger.xml.beanParsers.task.VirtualUserDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.workload.WorkloadDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.workload.balancer.OneByOneBalancerDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.workload.balancer.RoundRobinBalancerDefinitionParser;
-import com.griddynamics.jagger.xml.beanParsers.workload.endpointProvider.SimpleEndpointProviderDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.workload.invoker.HttpInvokerClassDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.workload.invoker.SoapInvokerClassDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.workload.listener.NotNullResponseDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.workload.listener.SimpleMetricDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.workload.queryProvider.HttpQueryDefinitionParser;
-import com.griddynamics.jagger.xml.beanParsers.workload.queryProvider.SimpleQueryProviderDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.workload.scenario.QueryPoolScenarioDefinitionParser;
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 
 public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
 
     private FindParserByTypeDefinitionParser findTypeParser = new FindParserByTypeDefinitionParser();
-    private DoubleDefinitionParser doubleParser = new DoubleDefinitionParser();
+    private ListCustomDefinitionParser listCustomDefinitionParser = new ListCustomDefinitionParser();
     private StringDefinitionParser stringParser = new StringDefinitionParser();
+    private DoubleDefinitionParser doubleParser = new DoubleDefinitionParser();
 
     public void init() {
 
@@ -32,9 +31,8 @@ public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
         registerBeanDefinitionParser("configuration", new ConfigDefinitionParser());
         registerBeanDefinitionParser("test-plan", new TestPlanDefinitionParser());
         registerBeanDefinitionParser("test", new TestDefinitionParser());
-        registerBeanDefinitionParser("percentiles-time", new PercentilesDefinitionParser());
-        registerBeanDefinitionParser("percentiles-global", new PercentilesDefinitionParser());
-
+        registerBeanDefinitionParser("percentiles-time", listCustomDefinitionParser);
+        registerBeanDefinitionParser("percentiles-global", listCustomDefinitionParser);
         registerBeanDefinitionParser("percentile", doubleParser);
 
         //REPORT
@@ -96,13 +94,13 @@ public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
         registerBeanDefinitionParser("endpoint", stringParser);
 
         //endpointProviders
-        registerBeanDefinitionParser("simpleEndpointProvider", new SimpleEndpointProviderDefinitionParser());
+        registerBeanDefinitionParser("simpleEndpointProvider", listCustomDefinitionParser);
 
         //queryProvider
         registerBeanDefinitionParser("queryProvider", findTypeParser);
 
         //queryProviders
-        registerBeanDefinitionParser("simpleQueryProvider", new SimpleQueryProviderDefinitionParser());
+        registerBeanDefinitionParser("simpleQueryProvider", listCustomDefinitionParser);
 
         //queries
         registerBeanDefinitionParser("query", findTypeParser);

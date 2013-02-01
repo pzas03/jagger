@@ -39,55 +39,52 @@ public abstract class CustomBeanDefinitionParser extends AbstractSimpleBeanDefin
 
     protected abstract void parse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder);
 
-    public static void setBeanListProperty(String propertyName, boolean merge, Element listParentElement, ParserContext parserContext, BeanDefinition bean){
-        if (listParentElement == null){
-            return;
-        }
-        List<Element> list = DomUtils.getChildElements(listParentElement);
-        ManagedList result = new ManagedList();
-        if (list != null){
-            for (Element el : list){
-                if (el.hasAttribute(XMLConstants.ATTRIBUTE_REF)){
-                    String ref = el.getAttribute(XMLConstants.ATTRIBUTE_REF);
-                    if (!ref.isEmpty()){
-                        result.add(new RuntimeBeanReference(ref));
-                    }else{
-                        result.add(parserContext.getDelegate().parsePropertySubElement(el, bean));
-                    }
-                }else{
-                    result.add(parserContext.getDelegate().parsePropertySubElement(el, bean));
+    public static void setBeanListProperty(String propertyName, boolean mergeOriginal, Element listParentElement, ParserContext parserContext, BeanDefinition bean){
+        ManagedList result = parseCustomListElement(listParentElement, parserContext, bean);
+        if (result != null){
+            if (mergeOriginal){
+                PropertyValue prop = bean.getPropertyValues().getPropertyValue(propertyName);
+                if (prop != null){
+                    ManagedList origin = (ManagedList)prop.getValue();
+                    result.addAll(origin);
                 }
             }
+            bean.getPropertyValues().addPropertyValue(propertyName, result);
         }
-        if (merge){
-            PropertyValue prop = bean.getPropertyValues().getPropertyValue(propertyName);
-            if (prop != null){
-                ManagedList origin = (ManagedList)prop.getValue();
-                result.addAll(origin);
-            }
-        }
-        bean.getPropertyValues().addPropertyValue(propertyName, result);
     }
 
     public static void setBeanProperty(String propertyName, Element element, ParserContext parserContext, BeanDefinition bean){
+        bean.getPropertyValues().add(propertyName, parseCustomElement(element, parserContext, bean));
+    }
+
+    public static void addConstructorListArg(Element listParentElement, ParserContext parserContext, BeanDefinition bean){
+        ManagedList result = parseCustomListElement(listParentElement, parserContext, bean);
+        bean.getConstructorArgumentValues().addGenericArgumentValue(result);
+    }
+
+    public static void addConstructorArg(Element element, ParserContext parserContext, BeanDefinition bean){
+        bean.getConstructorArgumentValues().addGenericArgumentValue(parseCustomElement(element, parserContext, bean));
+    }
+
+    public static Object parseCustomElement(Element element, ParserContext parserContext, BeanDefinition bean){
         if (element==null){
-            return;
+            return null;
         }
         if (element.hasAttribute(XMLConstants.ATTRIBUTE_REF)){
             String ref = element.getAttribute(XMLConstants.ATTRIBUTE_REF);
             if (!ref.isEmpty()){
-                bean.getPropertyValues().add(propertyName, new RuntimeBeanReference(ref));
+                return new RuntimeBeanReference(ref);
             }else{
-                bean.getPropertyValues().add(propertyName, parserContext.getDelegate().parseCustomElement(element, bean));
+                return parserContext.getDelegate().parseCustomElement(element, bean);
             }
         }else{
-            bean.getPropertyValues().add(propertyName, parserContext.getDelegate().parseCustomElement(element, bean));
+            return parserContext.getDelegate().parseCustomElement(element, bean);
         }
     }
 
-    public static void addConstructorListArg(Element listParentElement, ParserContext parserContext, BeanDefinition bean){
+    public static ManagedList parseCustomListElement(Element listParentElement, ParserContext parserContext, BeanDefinition bean){
         if (listParentElement == null){
-            return;
+            return null;
         }
         List<Element> list = DomUtils.getChildElements(listParentElement);
         ManagedList result = new ManagedList();
@@ -105,6 +102,6 @@ public abstract class CustomBeanDefinitionParser extends AbstractSimpleBeanDefin
                 }
             }
         }
-        bean.getConstructorArgumentValues().addGenericArgumentValue(result);
+        return result;
     }
 }
