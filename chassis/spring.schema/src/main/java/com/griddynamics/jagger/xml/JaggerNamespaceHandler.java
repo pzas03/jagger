@@ -22,8 +22,7 @@ public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
 
     private FindParserByTypeDefinitionParser findTypeParser = new FindParserByTypeDefinitionParser();
     private ListCustomDefinitionParser listCustomDefinitionParser = new ListCustomDefinitionParser();
-    private StringDefinitionParser stringParser = new StringDefinitionParser();
-    private DoubleDefinitionParser doubleParser = new DoubleDefinitionParser();
+    private PrimitiveDefinitionParser primitiveParser = new PrimitiveDefinitionParser();
 
     public void init() {
 
@@ -33,7 +32,7 @@ public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
         registerBeanDefinitionParser("test", new TestDefinitionParser());
         registerBeanDefinitionParser("percentiles-time", listCustomDefinitionParser);
         registerBeanDefinitionParser("percentiles-global", listCustomDefinitionParser);
-        registerBeanDefinitionParser("percentile", doubleParser);
+        registerBeanDefinitionParser("percentile", primitiveParser);
 
         //REPORT
         registerBeanDefinitionParser("report", new ReportDefinitionParser());
@@ -91,7 +90,7 @@ public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
 
         //endpointProvider
         registerBeanDefinitionParser("endpointProvider", findTypeParser);
-        registerBeanDefinitionParser("endpoint", stringParser);
+        registerBeanDefinitionParser("endpoint", primitiveParser);
 
         //endpointProviders
         registerBeanDefinitionParser("simpleEndpointProvider", listCustomDefinitionParser);

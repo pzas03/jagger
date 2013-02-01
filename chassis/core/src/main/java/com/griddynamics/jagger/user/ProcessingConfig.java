@@ -112,8 +112,8 @@ public class ProcessingConfig implements Serializable {
             @Attribute(name = "delay", required = false)
             public Integer delay;
 
-            @Attribute(name = "workload")
-            public String   workload;
+            @Attribute(name = "bean")
+            public String   bean;
 
             @ElementList(name = "users", entry = "user", inline = true, required = false)
             public List<User> users;
@@ -145,7 +145,7 @@ public class ProcessingConfig implements Serializable {
                 this.duration = duration;
                 this.sample = (sample != null) ? sample : -1;
                 this.delay = (delay != null) ? delay : 0;
-                this.workload = bean;
+                this.bean = bean;
                 this.users = Collections.unmodifiableList((users != null) ? users : new ArrayList<User>(0));
                 this.tps = tps;
                 this.invocation = invocation;
@@ -156,19 +156,19 @@ public class ProcessingConfig implements Serializable {
             }
 
             public String getWorkload() {
-                return workload;
+                return bean;
             }
 
             public void setWorkload(String workload) {
-                this.workload = workload;
+                this.bean = workload;
             }
 
             public void setBean(String bean){
-                this.workload = bean;
+                this.bean = bean;
             }
 
             public String getBean(){
-                return this.workload;
+                return this.bean;
             }
 
             public Integer getDelay() {

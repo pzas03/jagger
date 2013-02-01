@@ -78,7 +78,7 @@ public class UserTaskGenerator implements ApplicationContextAware {
                     names.add(name);
 
                     AtomicBoolean shutdown = new AtomicBoolean(false);
-                    WorkloadTask prototype = applicationContext.getBean(taskConfig.workload, WorkloadTask.class);
+                    WorkloadTask prototype = applicationContext.getBean(taskConfig.bean, WorkloadTask.class);
                     WorkloadTask workloadTask = prototype.copy();
                     workloadTask.setNumber(number);
                     workloadTask.setName(name);
