@@ -18,7 +18,8 @@ public class PrimitiveDefinitionParser implements BeanDefinitionParser {
 
     @Override
     public BeanDefinition parse(Element element, ParserContext parserContext) {
-        Class type = getClassByType(element.getSchemaTypeInfo().getTypeName());
+        String typeOfElement = element.getSchemaTypeInfo().getTypeName();
+        Class type = getClassByType(typeOfElement);
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(type);
         builder.addConstructorArgValue(parserContext.getDelegate().parseValueElement(element, null));
         return builder.getBeanDefinition();

@@ -22,6 +22,7 @@ public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
 
     private FindParserByTypeDefinitionParser findTypeParser = new FindParserByTypeDefinitionParser();
     private ListCustomDefinitionParser listCustomDefinitionParser = new ListCustomDefinitionParser();
+    private MapCustomDefinitionParser mapCustomDefinitionParser = new MapCustomDefinitionParser();
     private PrimitiveDefinitionParser primitiveParser = new PrimitiveDefinitionParser();
 
     public void init() {
@@ -104,6 +105,7 @@ public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
         //queries
         registerBeanDefinitionParser("query", findTypeParser);
         registerBeanDefinitionParser("httpQuery", new HttpQueryDefinitionParser());
-
+        registerBeanDefinitionParser("clientParams", mapCustomDefinitionParser);
+        registerBeanDefinitionParser("methodParams", mapCustomDefinitionParser);
     }
 }

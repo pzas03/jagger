@@ -18,6 +18,79 @@
         </xsd:complexContent>
     </xsd:complexType>
 
+    <xsd:complexType name="customValueType">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="boolean">
+        <xsd:simpleContent xml:base="xsd:boolean">
+            <xsd:extension base="customValueType">
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="integer">
+        <xsd:simpleContent xml:base="xsd:integer">
+            <xsd:extension base="customValueType">
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="long">
+        <xsd:simpleContent xml:base="xsd:long">
+            <xsd:extension base="customValueType">
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="float">
+        <xsd:simpleContent xml:base="xsd:float">
+            <xsd:extension base="customValueType">
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="double">
+        <xsd:simpleContent xml:base="xsd:double">
+            <xsd:extension base="customValueType">
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="string">
+        <xsd:simpleContent xml:base="xsd:string">
+            <xsd:extension base="customValueType">
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="customEntryType">
+        <xsd:complexContent>
+            <xsd:extension base="beans:identifiedType">
+                <xsd:all>
+                    <xsd:element name="value" type="customValueType"/>
+                </xsd:all>
+                <xsd:attribute name="key" type="xsd:string" use="required"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="customMapType">
+        <xsd:complexContent>
+            <xsd:extension base="basicType">
+                <xsd:choice minOccurs="1" maxOccurs="unbounded">
+                    <xsd:element name="param" type="customEntryType"/>
+                </xsd:choice>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="clientParams" type="customMapType"/>
+    <xsd:element name="methodParams" type="customMapType"/>
+
     <!--CONFIGURATION-->
 
     <!--configuration-->
@@ -544,8 +617,8 @@
         <xsd:complexContent>
             <xsd:extension base="queryType">
                 <xsd:all>
-                    <xsd:element name="methodParams" type="mapType" minOccurs="0" maxOccurs="1"/>
-                    <xsd:element name="clientParams" type="mapType" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="methodParams" type="customMapType" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="clientParams" type="customMapType" minOccurs="0" maxOccurs="1"/>
                 </xsd:all>
                 <xsd:attribute name="method" type="httpMethodsEnum" default="GET"/>
             </xsd:extension>

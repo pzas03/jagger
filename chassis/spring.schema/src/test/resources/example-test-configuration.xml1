@@ -35,9 +35,9 @@
     <configuration id="config1" monitoringEnable="true">
         <test-plan ref="test-plan-1"/>
 
-        <report rootTemplateLocation="custom-root-template.jrxml"
-                    outputReportLocation="custom-report.pdf" reportType="HTML">
-        </report>
+        <!--<report rootTemplateLocation="custom-root-template.jrxml"-->
+                    <!--outputReportLocation="custom-report.pdf" reportType="HTML">-->
+        <!--</report>-->
         <!--don't use in tests, only runtime-->
         <!--<percentiles>-->
             <!--<percentiles-global>-->
@@ -82,22 +82,18 @@
 
     <query id="httpQ1" xsi:type="httpQuery" method="GET">
         <clientParams>
-            <beans:entry key="http.protocol.allow-circular-redirects">
-                <beans:bean class="java.lang.Boolean">
-                    <beans:constructor-arg value="false"/>
-                </beans:bean>
-            </beans:entry>
-            <beans:entry key="http.protocol.max-redirects">
-                <beans:bean class="java.lang.Integer">
-                    <beans:constructor-arg value="2"/>
-                </beans:bean>
-            </beans:entry>
-            <beans:entry key="http.connection-manager.timeout">
-                <beans:bean class="java.lang.Long"><beans:constructor-arg value="5000" /></beans:bean>
-            </beans:entry>
-            <beans:entry key="http.protocol.max-redirects">
-                <beans:bean class="java.lang.Integer"><beans:constructor-arg value="0" /></beans:bean>
-            </beans:entry>
+            <param key="http.protocol.allow-circular-redirects">
+                <value xsi:type="boolean" >true</value>
+            </param>
+            <param key="http.protocol.max-redirects">
+                <value xsi:type="integer">2</value>
+            </param>
+            <param key="http.connection-manager.timeout">
+                <value xsi:type="long">5000</value>
+            </param>
+            <param key="http.protocol.max-redirects">
+                <value xsi:type="integer">0</value>
+            </param>
         </clientParams>
     </query>
 

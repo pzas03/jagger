@@ -54,15 +54,18 @@ public abstract class CustomBeanDefinitionParser extends AbstractSimpleBeanDefin
     }
 
     public static void setBeanProperty(String propertyName, Element element, ParserContext parserContext, BeanDefinition bean){
+        if (element==null) return;
         bean.getPropertyValues().add(propertyName, parseCustomElement(element, parserContext, bean));
     }
 
     public static void addConstructorListArg(Element listParentElement, ParserContext parserContext, BeanDefinition bean){
         ManagedList result = parseCustomListElement(listParentElement, parserContext, bean);
+        if (result==null) return;
         bean.getConstructorArgumentValues().addGenericArgumentValue(result);
     }
 
     public static void addConstructorArg(Element element, ParserContext parserContext, BeanDefinition bean){
+        if (element==null) return;
         bean.getConstructorArgumentValues().addGenericArgumentValue(parseCustomElement(element, parserContext, bean));
     }
 

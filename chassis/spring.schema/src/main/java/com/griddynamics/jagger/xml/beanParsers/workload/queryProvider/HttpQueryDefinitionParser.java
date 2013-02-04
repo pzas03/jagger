@@ -1,6 +1,7 @@
 package com.griddynamics.jagger.xml.beanParsers.workload.queryProvider;
 
 import com.griddynamics.jagger.invoker.http.HttpQuery;
+import com.griddynamics.jagger.xml.beanParsers.CustomBeanDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.XMLConstants;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSimpleBeanDefinitionParser;
@@ -15,26 +16,22 @@ import org.w3c.dom.Element;
  * Time: 3:11 PM
  * To change this template use File | Settings | File Templates.
  */
-public class HttpQueryDefinitionParser extends AbstractSimpleBeanDefinitionParser {
+public class HttpQueryDefinitionParser extends CustomBeanDefinitionParser {
     @Override
     protected Class getBeanClass(Element element) {
         return HttpQuery.class;
     }
 
     @Override
-    protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
+    protected void parse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
         Element clientParamsElement = DomUtils.getChildElementByTagName(element, XMLConstants.CLIENT_PARAMS);
         Element methodParamsElement = DomUtils.getChildElementByTagName(element, XMLConstants.METHOD_PARAMS);
         String method = element.getAttribute(XMLConstants.METHOD);
 
         builder.addPropertyValue(XMLConstants.METHOD, method);
 
-        if (clientParamsElement != null){
-            builder.addPropertyValue(XMLConstants.CLIENT_PARAMS, parserContext.getDelegate().parseMapElement(clientParamsElement, builder.getBeanDefinition()));
-        }
+        setBeanProperty(XMLConstants.CLIENT_PARAMS, clientParamsElement, parserContext, builder.getBeanDefinition());
 
-        if (methodParamsElement != null){
-            builder.addPropertyValue(XMLConstants.METHOD_PARAMS, parserContext.getDelegate().parseMapElement(methodParamsElement, builder.getBeanDefinition()));
-        }
+        setBeanProperty(XMLConstants.METHOD_PARAMS, methodParamsElement, parserContext, builder.getBeanDefinition());
     }
 }
