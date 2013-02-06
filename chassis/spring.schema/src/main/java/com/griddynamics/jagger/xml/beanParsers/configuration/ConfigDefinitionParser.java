@@ -11,6 +11,7 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.util.xml.DomUtils;
+import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 
 /**
@@ -31,9 +32,12 @@ public class ConfigDefinitionParser extends CustomBeanDefinitionParser {
     protected void parse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
 
         Element report = DomUtils.getChildElementByTagName(element, XMLConstants.REPORT);
+        String reportName = element.getAttribute(XMLConstants.ID)+"-report";
         if (report!=null) {
             BeanDefinition bean = parserContext.getDelegate().parseCustomElement(report, builder.getBeanDefinition());
-            parserContext.getRegistry().registerBeanDefinition(XMLConstants.CUSTOM_REPORTING_SERVICE,bean);
+            parserContext.getRegistry().registerBeanDefinition(reportName,bean);
+        }else{
+            parserContext.getRegistry().registerAlias(reportName, XMLConstants.DEFAULT_REPORTING_SERVICE);
         }
 
         initListeners(element,parserContext, builder);
