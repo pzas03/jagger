@@ -72,9 +72,9 @@ public class XMLReporter {
             Document doc = docBuilder.newDocument();
             doc.appendChild(doc.createElement(JAGGER_TAG_NAME));
 
-            getSessionStatus(doc);
-            getSessionSummary(doc);
-            getComparisonResult(doc);
+            fillSessionStatus(doc);
+            fillSessionSummary(doc);
+            fillComparisonResult(doc);
 
             Source source = new DOMSource(doc);
             Result result = new StreamResult(new File(COMPARISON_REPORT_FILE_NAME));
@@ -92,7 +92,7 @@ public class XMLReporter {
      * @param doc - document
      * @throws ParserConfigurationException
      */
-    private void getComparisonResult(Document doc) throws ParserConfigurationException {
+    private void fillComparisonResult(Document doc) throws ParserConfigurationException {
         if (context.getParameters().containsKey(OverallSessionComparisonReporter.JAGGER_VERDICT)) {
             Element rootElement=doc.getDocumentElement();
             Element report= doc.createElement(COMPARISON_TAG_NAME);
@@ -122,7 +122,7 @@ public class XMLReporter {
      * @param doc - document
      * @throws ParserConfigurationException
      */
-    private void getSessionSummary(Document doc) throws ParserConfigurationException {
+    private void fillSessionSummary(Document doc) throws ParserConfigurationException {
         Element rootElement=doc.getDocumentElement();
         if(context.getProvider(SESSION_SUMMARY)!=null){
             Element summary;
@@ -156,7 +156,7 @@ public class XMLReporter {
      * @param doc - document
      * @throws ParserConfigurationException
      */
-    private void getSessionStatus(Document doc) throws ParserConfigurationException {
+    private void fillSessionStatus(Document doc) throws ParserConfigurationException {
         Element rootElement=doc.getDocumentElement();
         if(context.getProvider(SESSION_STATUS)!=null){
             JRBeanCollectionDataSource source=(JRBeanCollectionDataSource) context.getProvider(SESSION_STATUS).getDataSource();

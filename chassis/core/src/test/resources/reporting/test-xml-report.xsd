@@ -4,35 +4,24 @@
     <xs:element name="jagger" type="jaggerType"/>
 
     <xs:complexType name="jaggerType">
-        <xs:complexContent>
-            <xs:restriction base="xs:anyType">
-                <xs:all>
-                    <xs:element name="comparison" type="reportType" minOccurs="0" maxOccurs="1"/>
-                    <xs:element name="summary" type="summaryType" minOccurs="0" maxOccurs="1"/>
-                </xs:all>
-            </xs:restriction>
-        </xs:complexContent>
+        <xs:all>
+            <xs:element name="comparison" type="comparisonType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="summary" type="summaryType" minOccurs="0" maxOccurs="1"/>
+        </xs:all>
     </xs:complexType>
 
-    <xs:complexType name="reportType">
-        <xs:complexContent>
-            <xs:restriction base="xs:anyType">
-                <xs:all>
-                    <xs:element name="decision" type="xs:string"/>
-                    <xs:element name="current" type="xs:string"/>
-                    <xs:element name="baseline" type="xs:string"/>
-                </xs:all>
-            </xs:restriction>
-        </xs:complexContent>
+    <xs:complexType name="comparisonType">
+        <xs:all>
+            <xs:element name="decision" type="xs:string"/>
+            <xs:element name="current" type="xs:string"/>
+            <xs:element name="baseline" type="xs:string"/>
+        </xs:all>
     </xs:complexType>
     <xs:complexType name="summaryType">
-        <xs:complexContent>
-            <xs:restriction base="xs:anyType">
-                <xs:all>
-                    <xs:element name="executedTasks" type="xs:string"/>
-                    <xs:element name="failedTasks" type="xs:string"/>
-                </xs:all>
-            </xs:restriction>
-        </xs:complexContent>
+        <xs:all>
+            <xs:element name="sessionStatus" type="xs:string"/>
+            <xs:element name="executedTasks" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="failedTasks" type="xs:string" minOccurs="0" maxOccurs="1"/>
+        </xs:all>
     </xs:complexType>
 </xs:schema>
