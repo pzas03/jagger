@@ -110,7 +110,10 @@
 
         <scenario xsi:type="scenarioRef" ref="sc1"/>
 
+        <calibrator xsi:type="calibratorRef" ref="dc"/>
     </workload>
+
+    <calibrator id="dc" xsi:type="defaultCalibrator"/>
 
     <scenario id="sc1" xsi:type="queryPoolScenario">
 

@@ -10,7 +10,8 @@
     <!---->
     <!--<xsd:redefine schemaLocation="http://www.griddynamics.com/schema/jagger-configuration.xsd"/>-->
 
-    <xsd:complexType name="basicType">
+    <!--BASIC TYPES-->
+    <xsd:complexType name="basicType" abstract="true">
         <xsd:complexContent>
             <xsd:extension base="beans:identifiedType">
                 <xsd:attribute name="parent" type="xsd:IDREF"/>
@@ -87,9 +88,6 @@
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
-
-    <xsd:element name="clientParams" type="customMapType"/>
-    <xsd:element name="methodParams" type="customMapType"/>
 
     <!--CONFIGURATION-->
 
@@ -388,7 +386,8 @@
             <xsd:extension base="basicType">
                 <xsd:all>
                     <xsd:element name="listeners" type="workloadListenersType" minOccurs="0" maxOccurs="1"/>
-                    <xsd:element ref="scenario"/>
+                    <xsd:element ref="scenario" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element ref="calibrator" minOccurs="0" maxOccurs="1"/>
                 </xsd:all>
                 <xsd:attribute name="name" type="xsd:string"/>
                 <xsd:attribute name="version" type="xsd:integer"/>
@@ -707,6 +706,29 @@
     <xsd:complexType name="oneByOneLoadBalancer">
         <xsd:complexContent>
             <xsd:extension base="loadBalancerType">
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="calibrator" type="calibratorType"/>
+
+    <xsd:complexType name="calibratorType" abstract="true">
+        <xsd:complexContent>
+            <xsd:extension base="basicType"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="calibratorRef">
+        <xsd:complexContent >
+            <xsd:extension base="calibratorType">
+                <xsd:attribute name="ref" type="xsd:IDREF" use="required"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="defaultCalibrator">
+        <xsd:complexContent>
+            <xsd:extension base="calibratorType">
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>

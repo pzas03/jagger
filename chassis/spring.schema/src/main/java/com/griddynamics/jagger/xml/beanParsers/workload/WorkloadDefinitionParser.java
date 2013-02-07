@@ -42,5 +42,9 @@ public class WorkloadDefinitionParser extends CustomBeanDefinitionParser{
         //add scenario
         Element scenarioElement = DomUtils.getChildElementByTagName(element, XMLConstants.SCENARIO);
         setBeanProperty(XMLConstants.SCENARIO_FACTORY, scenarioElement, parserContext, builder.getBeanDefinition());
+
+        //add calibration
+        Element calibrationElement = DomUtils.getChildElementByTagName(element, XMLConstants.CALIBRATOR);
+        setBeanProperty(XMLConstants.CALIBRATOR, calibrationElement, parserContext, builder.getBeanDefinition());
     }
 }
