@@ -465,9 +465,9 @@
     <xsd:complexType name="consistency">
         <xsd:complexContent>
             <xsd:extension base="validatorType">
-                <xsd:attribute name="queryEquivalence" type="xsd:IDREF"/>
-                <xsd:attribute name="endpointEquivalence" type="xsd:IDREF"/>
-                <xsd:attribute name="resultEquivalence" type="xsd:IDREF"/>
+                <xsd:attribute name="queryEq" type="xsd:IDREF"/>
+                <xsd:attribute name="endpointEq" type="xsd:IDREF"/>
+                <xsd:attribute name="resultEq" type="xsd:IDREF"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>

@@ -81,12 +81,16 @@ public class XMLConstants {
     public static final String WORKLOAD_LISTENERS_ELEMENT = "listeners";
     public static final String DURATION_COLLECTOR = "durationCollector";
     public static final String INFORMATION_COLLECTOR = "informationCollector";
+    public static final String DIAGNOSTIC_COLLECTOR = "diagnosticCollector";
 
     //don't change the order!!! will not works
-    public static final List<String> STANDARD_WORKLOAD_LISTENERS = Arrays.asList(DURATION_COLLECTOR, INFORMATION_COLLECTOR);
+    public static final List<String> STANDARD_WORKLOAD_LISTENERS = Arrays.asList(DURATION_COLLECTOR, INFORMATION_COLLECTOR, DIAGNOSTIC_COLLECTOR);
 
     public static final String WORKLOAD_LISTENERS_CLASS   = "collectors";
     public static final String VALIDATOR = "validator";
+    public static final String QUERY_EQ = "queryEq";
+    public static final String ENDPOINT_EQ = "endpointEq";
+    public static final String RESULT_EQ = "resultEq";
     public static final String METRIC_CALCULATOR = "metricCalculator";
     public static final String LIST = "list";
     public static final String CLIENT_PARAMS = "clientParams";

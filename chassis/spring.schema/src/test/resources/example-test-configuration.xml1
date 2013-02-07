@@ -104,7 +104,7 @@
 
         <listeners>
             <validator xsi:type="notNullResponse"/>
-            <metric xsi:type="metricRef" ref="metric1"/>
+            <validator xsi:type="consistency"/>
         </listeners>
 
         <scenario xsi:type="scenarioRef" ref="sc1"/>
