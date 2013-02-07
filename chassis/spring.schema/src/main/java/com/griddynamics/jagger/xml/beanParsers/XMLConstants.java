@@ -84,7 +84,7 @@ public class XMLConstants {
     public static final String DIAGNOSTIC_COLLECTOR = "diagnosticCollector";
 
     //don't change the order!!! will not works
-    public static final List<String> STANDARD_WORKLOAD_LISTENERS = Arrays.asList(DURATION_COLLECTOR, INFORMATION_COLLECTOR, DIAGNOSTIC_COLLECTOR);
+    public static final List<String> STANDARD_WORKLOAD_LISTENERS = Arrays.asList(DURATION_COLLECTOR, INFORMATION_COLLECTOR);
 
     public static final String WORKLOAD_LISTENERS_CLASS   = "collectors";
     public static final String VALIDATOR = "validator";
@@ -112,6 +112,7 @@ public class XMLConstants {
     public static final String GLOBAL_PERCENTILES_KEYS = "globalPercentilesKeys";
     public static final String REPORT = "report";
     public static final String CALIBRATOR = "calibrator";
+    public static final String CALIBRATION = "calibration";
 
     public static final String DEFAULT_NAMESPACE = "http://www.griddynamics.com/schema/jagger";
 }
