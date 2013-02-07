@@ -181,11 +181,16 @@ public class Master implements Runnable {
         try {
             log.info("Execution started");
             for (Task task : configuration.getTasks()) {
-                executeTask(task, allNodes);
                 synchronized (terminateConfigurationLock) {
                     if (terminateConfiguration) {
                         throw new TerminateException("Execution terminated");
                     }
+                }
+
+                try{
+                    executeTask(task, allNodes);
+                } catch (Exception e){
+                    log.error("Exception during execute task: {}", e);
                 }
             }
             log.info("Execution done");
@@ -224,24 +229,19 @@ public class Master implements Runnable {
         String taskId = taskIdProvider.getTaskId();
 
         Service distribute = taskDistributor.distribute(executor, sessionIdProvider.getSessionId(), taskId, allNodes, coordinator, task, distributionListener());
-
-        Future<Service.State> start;
-        synchronized (terminateConfigurationLock) {
-            if (!terminateConfiguration) {
+        try{
+            Future<Service.State> start;
+            synchronized (terminateConfigurationLock) {
                 distributes.put(distribute, null);
                 start = distribute.start();
-            } else {
-                throw new TerminateException("Execution terminated");
             }
+            Futures.get(start, timeoutConfiguration.getDistributionStartTime());
+            Services.awaitTermination(distribute, timeoutConfiguration.getTaskExecutionTime());
+        } finally {
+            Future<Service.State> stop = distribute.stop();
+            Futures.get(stop, timeoutConfiguration.getDistributionStopTime());
         }
 
-        Futures.get(start, timeoutConfiguration.getDistributionStartTime());
-
-        Services.awaitTermination(distribute, timeoutConfiguration.getTaskExecutionTime());
-
-        Future<Service.State> stop = distribute.stop();
-
-        Futures.get(stop, timeoutConfiguration.getDistributionStopTime());
     }
 
     private DistributionListener distributionListener() {
