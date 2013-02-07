@@ -38,12 +38,12 @@
         <report rootTemplateLocation="custom-root-template.jrxml"
                     outputReportLocation="custom-report.pdf" reportType="HTML">
         </report>
-        <!--don't use in tests, only runtime-->
-        <!--<percentiles>-->
-            <!--<percentiles-global>-->
-                <!--<percentile>70</percentile>-->
-            <!--</percentiles-global>-->
-        <!--</percentiles>-->
+
+        <percentiles>
+            <percentiles-global>
+                <percentile>70</percentile>
+            </percentiles-global>
+        </percentiles>
 
     </configuration>
 
@@ -125,33 +125,5 @@
 
         <queryProvider xsi:type="queryProviderRef" ref="qProvider1" />
     </scenario>
-
-
-
-    <beans:bean id="durationCollector" class="com.griddynamics.jagger.engine.e1.scenario.ReflectionProvider"/>
-    <beans:bean id="informationCollector" class="com.griddynamics.jagger.engine.e1.scenario.ReflectionProvider"/>
-
-    <beans:bean id="basicSessionCollector" class="com.griddynamics.jagger.engine.e1.collector.BasicSessionCollector"/>
-    <beans:bean id="e1MasterCollector" class="com.griddynamics.jagger.engine.e1.collector.BasicSessionCollector"/>
-    <beans:bean id="basicAggregator" class="com.griddynamics.jagger.engine.e1.collector.BasicSessionCollector"/>
-    <beans:bean id="e1ScenarioAggregator" class="com.griddynamics.jagger.engine.e1.collector.BasicSessionCollector"/>
-    <beans:bean id="monitoringAggregator" class="com.griddynamics.jagger.engine.e1.collector.BasicSessionCollector"/>
-    <beans:bean id="durationLogProcessor" class="com.griddynamics.jagger.engine.e1.collector.BasicSessionCollector"/>
-
-    <beans:bean id="standardPercentilesTimeSeries" class="java.util.ArrayList">
-        <beans:constructor-arg>
-            <beans:list>
-                <beans:value>40</beans:value>
-                <beans:value>50</beans:value>
-                <beans:value>60</beans:value>
-                <beans:value>70</beans:value>
-                <beans:value>80</beans:value>
-                <beans:value>90</beans:value>
-                <beans:value>95</beans:value>
-                <beans:value>99</beans:value>
-            </beans:list>
-        </beans:constructor-arg>
-    </beans:bean>
-
 
 </beans:beans>
