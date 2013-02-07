@@ -36,7 +36,7 @@
         <test-plan ref="test-plan-1"/>
 
         <report rootTemplateLocation="custom-root-template.jrxml"
-                    outputReportLocation="custom-report.pdf" reportType="HTML">
+                    outputReportLocation="new-report.pdf" reportType="HTML">
         </report>
 
         <percentiles>

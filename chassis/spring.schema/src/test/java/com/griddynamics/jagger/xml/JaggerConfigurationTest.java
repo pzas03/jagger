@@ -34,7 +34,7 @@ public class JaggerConfigurationTest {
         URL directory = new URL("file:" + "../configuration/");
         Properties environmentProperties = new Properties();
         JaggerLauncher.loadBootProperties(directory, "profiles/local/environment.properties", environmentProperties);
-        environmentProperties.put("chassis.master.configuration.include",environmentProperties.get("chassis.master.configuration.include")+", ../spring.schema/src/test/resources/example-test-configuration.xml1");
+        environmentProperties.put("chassis.master.configuration.include",environmentProperties.get("chassis.master.configuration.include")+", ../spring.schema/src/test/resources/example-test-configuration.xml");
         ctx = JaggerLauncher.loadContext(directory,"chassis.master.configuration",environmentProperties);
     }
 
