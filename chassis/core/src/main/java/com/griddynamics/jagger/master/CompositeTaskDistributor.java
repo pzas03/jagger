@@ -171,7 +171,7 @@ public class CompositeTaskDistributor implements TaskDistributor<CompositeTask> 
             private void awaitAttendant(List<Future<State>> attendantFutures) {
                 for (Future<State> future : attendantFutures) {
                     try {
-                        future.get(TERMINATION_TIMEOUT, TimeUnit.SECONDS);
+                        future.get(TERMINATION_TIMEOUT, TimeUnit.MILLISECONDS);
                     } catch (TimeoutException e) {
                         log.warn("Attendant task timeout", e);
                     } catch (InterruptedException e) {
