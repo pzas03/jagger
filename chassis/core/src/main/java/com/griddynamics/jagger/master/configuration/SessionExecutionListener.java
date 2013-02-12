@@ -47,5 +47,5 @@ public interface SessionExecutionListener {
 	 * @param sessionId
 	 *            session identifier
 	 */
-	void onSessionExecuted(String sessionId, String sessionComment);
+	void onSessionExecuted(String sessionId, String sessionComment, ConfigurationErrorStatus configurationErrorStatus);
 }
