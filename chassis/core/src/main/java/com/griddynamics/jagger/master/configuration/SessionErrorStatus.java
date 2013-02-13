@@ -7,13 +7,13 @@ package com.griddynamics.jagger.master.configuration;
  * Time: 11:27
  * To change this template use File | Settings | File Templates.
  */
-public enum ConfigurationErrorStatus {
+public enum SessionErrorStatus {
 
-    EMPTY(null), TERMINATED("terminated"), WARNING("some tasks was failed");
+    EMPTY(null), TERMINATED("terminated"), TASK_FAILED("some tasks was failed");
 
-    String message;
+    private String message;
 
-    private ConfigurationErrorStatus(String message){
+    private SessionErrorStatus(String message){
         this.message=message;
     }
 

@@ -25,8 +25,8 @@ import com.google.common.collect.Multimap;
 import com.griddynamics.jagger.coordinator.NodeId;
 import com.griddynamics.jagger.coordinator.NodeType;
 import com.griddynamics.jagger.master.DistributionListener;
-import com.griddynamics.jagger.master.configuration.ConfigurationErrorStatus;
-import com.griddynamics.jagger.master.configuration.SessionExecutionListener;
+import com.griddynamics.jagger.master.configuration.OverallSessionExecutionListener;
+import com.griddynamics.jagger.master.configuration.SessionExecutionStatus;
 import com.griddynamics.jagger.master.configuration.Task;
 import com.griddynamics.jagger.storage.KeyValueStorage;
 import com.griddynamics.jagger.storage.Namespace;
@@ -41,7 +41,7 @@ import static com.griddynamics.jagger.engine.e1.collector.CollectorConstants.*;
  *
  * @author Mairbek Khadikov
  */
-public class BasicSessionCollector implements SessionExecutionListener, DistributionListener {
+public class BasicSessionCollector implements OverallSessionExecutionListener, DistributionListener {
     private KeyValueStorage keyValueStorage;
     private Integer taskCounter;
 
@@ -66,12 +66,21 @@ public class BasicSessionCollector implements SessionExecutionListener, Distribu
     }
 
     @Override
-    public void onSessionExecuted(String sessionId, String sessionComment, ConfigurationErrorStatus status) {
+    public void onSessionExecuted(String sessionId, String sessionComment) {
         Namespace namespace = Namespace.of(SESSION, sessionId);
         Multimap<String, Object> objectsMap = HashMultimap.create();
         objectsMap.put(END_TIME, System.currentTimeMillis());
         objectsMap.put(TASK_EXECUTED, taskCounter);
-        objectsMap.put(ERROR_MESSAGE, status.getMessage());
+        keyValueStorage.putAll(namespace, objectsMap);
+    }
+
+    @Override
+    public void onSessionExecuted(String sessionId, String sessionComment, SessionExecutionStatus status) {
+        Namespace namespace = Namespace.of(SESSION, sessionId);
+        Multimap<String, Object> objectsMap = HashMultimap.create();
+        objectsMap.put(END_TIME, System.currentTimeMillis());
+        objectsMap.put(TASK_EXECUTED, taskCounter);
+        objectsMap.put(ERROR_MESSAGE, status.getStatus().getMessage());
         keyValueStorage.putAll(namespace, objectsMap);
     }
 

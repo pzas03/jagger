@@ -20,32 +20,21 @@
 
 package com.griddynamics.jagger.master.configuration;
 
-import com.google.common.collect.Multimap;
-import com.griddynamics.jagger.coordinator.NodeId;
-import com.griddynamics.jagger.coordinator.NodeType;
-
 /**
  * Listens to session execution on master side.
  * 
  * @author Mairbek Khadikov
  * 
  */
-public interface SessionExecutionListener {
-	/**
-	 * Invoked before session is started.
-	 * 
-	 * @param sessionId
-	 *            session identifier
-	 * @param nodes
-	 *            available nodes
-	 */
-	void onSessionStarted(String sessionId, Multimap<NodeType, NodeId> nodes);
+public interface OverallSessionExecutionListener extends SessionExecutionListener {
 
 	/**
 	 * Invoked when session execution is completed.
 	 * 
 	 * @param sessionId
 	 *            session identifier
+     * @param errorStatus
+     *            session error status
 	 */
-	void onSessionExecuted(String sessionId, String sessionComment);
+	void onSessionExecuted(String sessionId, String sessionComment, SessionExecutionStatus errorStatus);
 }

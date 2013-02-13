@@ -27,10 +27,7 @@ import com.google.common.util.concurrent.Service;
 import com.griddynamics.jagger.agent.model.ManageAgent;
 import com.griddynamics.jagger.coordinator.*;
 import com.griddynamics.jagger.engine.e1.process.Services;
-import com.griddynamics.jagger.master.configuration.Configuration;
-import com.griddynamics.jagger.master.configuration.ConfigurationErrorStatus;
-import com.griddynamics.jagger.master.configuration.SessionExecutionListener;
-import com.griddynamics.jagger.master.configuration.Task;
+import com.griddynamics.jagger.master.configuration.*;
 import com.griddynamics.jagger.reporting.ReportingService;
 import com.griddynamics.jagger.storage.KeyValueStorage;
 import com.griddynamics.jagger.util.Futures;
@@ -142,12 +139,16 @@ public class Master implements Runnable {
         try {
             log.info("Configuration launched!!");
 
-            ConfigurationErrorStatus status=runConfiguration(allNodes);
+            SessionExecutionStatus status=runConfiguration(allNodes);
 
             log.info("Configuration work finished!!");
 
             for (SessionExecutionListener listener : configuration.getSessionExecutionListeners()) {
-                listener.onSessionExecuted(sessionId, sessionComment, status);
+                if(listener instanceof OverallSessionExecutionListener){
+                    ((OverallSessionExecutionListener)listener).onSessionExecuted(sessionId, sessionComment, status);
+                } else {
+                    listener.onSessionExecuted(sessionId, sessionComment);
+                }
             }
 
             log.info("Going to generate report");
@@ -178,8 +179,9 @@ public class Master implements Runnable {
         // TODO Auto-generated method stub
     }
 
-    private ConfigurationErrorStatus runConfiguration(Multimap<NodeType, NodeId> allNodes) {
-        ConfigurationErrorStatus status=ConfigurationErrorStatus.EMPTY;
+    private SessionExecutionStatus runConfiguration(Multimap<NodeType, NodeId> allNodes) {
+        SessionExecutionStatus status= new SessionExecutionStatus();
+        status.setStatus(SessionErrorStatus.EMPTY);
         try {
             log.info("Execution started");
             for (Task task : configuration.getTasks()) {
@@ -192,13 +194,13 @@ public class Master implements Runnable {
                 try{
                     executeTask(task, allNodes);
                 } catch (Exception e){
-                    status=ConfigurationErrorStatus.WARNING;
+                    status.setStatus(SessionErrorStatus.TASK_FAILED);
                     log.error("Exception during execute task: {}", e);
                 }
             }
             log.info("Execution done");
         } catch (Exception e) {
-            status=ConfigurationErrorStatus.TERMINATED;
+            status.setStatus(SessionErrorStatus.TERMINATED);
             log.error(" Exception while running configuration: {}",e);
         }
         return status;
