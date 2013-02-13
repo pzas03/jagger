@@ -144,8 +144,8 @@ public class Master implements Runnable {
             log.info("Configuration work finished!!");
 
             for (SessionExecutionListener listener : configuration.getSessionExecutionListeners()) {
-                if(listener instanceof OverallSessionExecutionListener){
-                    ((OverallSessionExecutionListener)listener).onSessionExecuted(sessionId, sessionComment, status);
+                if(listener instanceof SessionListener){
+                    ((SessionListener)listener).onSessionExecuted(sessionId, sessionComment, status);
                 } else {
                     listener.onSessionExecuted(sessionId, sessionComment);
                 }

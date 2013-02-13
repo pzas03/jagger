@@ -26,7 +26,7 @@ package com.griddynamics.jagger.master.configuration;
  * @author Mairbek Khadikov
  * 
  */
-public interface OverallSessionExecutionListener extends SessionExecutionListener {
+public interface SessionListener extends SessionExecutionListener {
 
 	/**
 	 * Invoked when session execution is completed.
