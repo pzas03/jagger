@@ -9,7 +9,7 @@ package com.griddynamics.jagger.master.configuration;
  */
 public enum SessionErrorStatus {
 
-    EMPTY(null), TERMINATED("terminated"), TASK_FAILED("some tasks was failed");
+    EMPTY(null), TERMINATED("terminated"), TASK_FAILED("some tasks failed");
 
     private String message;
 
