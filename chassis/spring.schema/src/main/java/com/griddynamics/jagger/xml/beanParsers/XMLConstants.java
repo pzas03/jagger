@@ -47,7 +47,7 @@ public class XMLConstants {
     public static final String SESSION_ID_PROVIDER = "sessionIdProvider";
     public static final String CUSTOM_BASELINE_SESSION_PROVIDER = "customBaselineSessionProvider";
     public static final String BASELINE_SESSION_PROVIDER = "baselineSessionProvider";
-    public static final String TEST_PLAN = "test-plan";
+    public static final String TEST_SUITE = "test-suite";
     public static final String CONFIG = "config";
     public static final String TASKS = "tasks";
     public static final String TASK = "task";
@@ -105,7 +105,7 @@ public class XMLConstants {
     public static final String SCENARIO_FACTORY = "scenarioFactory";
     public static final String PARENT = "parent";
     public static final String XSI_TYPE = "xsi:type";
-    public static final String PERCENTILES = "percentiles";
+    public static final String LATENCY = "latency";
     public static final String PERCENTILES_TIME = "percentiles-time";
     public static final String PERCENTILES_GLOBAL = "percentiles-global";
     public static final String TIME_WINDOW_PERCENTILES_KEYS = "timeWindowPercentilesKeys";
@@ -115,6 +115,8 @@ public class XMLConstants {
     public static final String CALIBRATION = "calibration";
     public static final String NAME = "name";
     public static final String CLASS = "class";
+    public static final String TEST_DESCRIPTION = "test-description";
+    public static final String TEST_DESCRIPTION_CLASS_FIELD = "testDescription";
 
     public static final String DEFAULT_NAMESPACE = "http://www.griddynamics.com/schema/jagger";
 }

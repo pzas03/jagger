@@ -34,16 +34,16 @@
 
     <configuration id="config2">
 
-        <test-plan ref="test-plan-1"/>
+        <test-suite ref="test-plan-1"/>
 
         <report outputReportLocation="new-report.pdf">
         </report>
 
-        <percentiles>
+        <latency>
             <percentiles-global>
                 <percentile>70</percentile>
             </percentiles-global>
-        </percentiles>
+        </latency>
 
     </configuration>
 

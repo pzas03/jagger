@@ -32,40 +32,40 @@
         http://www.springframework.org/schema/beans/spring-beans.xsd"
         >
 
-    <configuration id="config1" monitoringEnable="true">
-        <test-plan ref="test-plan-1"/>
+    <configuration id="config1">
+        <test-suite ref="test-plan-1"/>
 
         <report outputReportLocation="new-report.pdf">
         </report>
 
-        <percentiles>
+        <latency>
             <percentiles-global>
                 <percentile>70</percentile>
             </percentiles-global>
-        </percentiles>
+        </latency>
 
     </configuration>
 
-    <test-plan id="test-plan-1">
-        <test ref="test1"/>
-    </test-plan>
+    <test-suite id="test-plan-1">
+        <test-group ref="test1"/>
+    </test-suite>
 
-    <test id="test1" duration="200">
-        <task id="t3" sample="1000" delay="0" workload="w1">
+    <test-group id="test1" duration="200">
+        <test id="t3" iterations="1000" delay="0" test-description="w1">
             <user id="u2" count="50" startCount="50" startIn="0" startBy="0" life="2h"/>
             <user id="u3" count="50" startCount="50" startIn="0" startBy="0" life="2h"/>
             <user id="u4" count="50" startCount="50" startIn="0" startBy="0" life="2h"/>
-        </task>
-        <task id="t4" sample="1000" delay="0" workload="w1">
+        </test>
+        <test id="t4" iterations="1000" delay="0" test-description="w1">
             <virtual-user ref="vu1"/>
-        </task>
-    </test>
+        </test>
+    </test-group>
 
-    <test id="test2" duration="200">
-        <task id="t5" sample="1000" delay="0" workload="w1">
+    <test-group id="test2" duration="200">
+        <test id="t5" iterations="1000" delay="0" test-description="w1">
             <tps id="tps1" value="10"/>
-        </task>
-    </test>
+        </test>
+    </test-group>
 
     <virtual-user id="vu1" count="10" tickInterval="10"/>
 
@@ -100,7 +100,7 @@
         <query xsi:type="queryRef" ref="httpQ1"/>
     </queryProvider>
 
-    <workload id="w1" calibration="true">
+    <test-description id="w1" calibration="true">
 
         <listeners>
             <validator xsi:type="notNullResponse"/>
@@ -108,7 +108,7 @@
         </listeners>
 
         <scenario xsi:type="scenarioRef" ref="sc1"/>
-    </workload>
+    </test-description>
 
     <scenario id="sc1" xsi:type="queryPoolScenario">
 

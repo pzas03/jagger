@@ -2,7 +2,6 @@ package com.griddynamics.jagger.xml.beanParsers.configuration;
 
 import com.griddynamics.jagger.engine.e1.aggregator.workload.DurationLogProcessor;
 import com.griddynamics.jagger.master.configuration.Configuration;
-import com.griddynamics.jagger.master.configuration.UserTaskGenerator;
 import com.griddynamics.jagger.xml.TaskGeneratorBean;
 import com.griddynamics.jagger.xml.beanParsers.CustomBeanDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.XMLConstants;
@@ -45,7 +44,7 @@ public class ConfigDefinitionParser extends CustomBeanDefinitionParser {
         initListeners(element,parserContext, builder);
 
         //parse test-plan
-        Element testPlan = DomUtils.getChildElementByTagName(element, XMLConstants.TEST_PLAN);
+        Element testPlan = DomUtils.getChildElementByTagName(element, XMLConstants.TEST_SUITE);
 
         TaskGeneratorBean generator = new TaskGeneratorBean();
         parserContext.getRegistry().registerBeanDefinition(generator.getName(), generator.getBean());
@@ -56,13 +55,6 @@ public class ConfigDefinitionParser extends CustomBeanDefinitionParser {
         builder.addPropertyValue(XMLConstants.TASKS, generator.generateTasks());
     }
 
-    @Override
-    protected void preParseAttributes(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
-        if (!element.getAttribute(XMLConstants.MONITORING_ENABLE).isEmpty())
-            monitoringEnable = Boolean.parseBoolean(element.getAttribute(XMLConstants.MONITORING_ENABLE));
-        element.removeAttribute(XMLConstants.MONITORING_ENABLE);
-    }
-
     protected void initListeners(Element element, ParserContext parserContext, BeanDefinitionBuilder builder){
 
         //listeners lists
@@ -70,7 +62,7 @@ public class ConfigDefinitionParser extends CustomBeanDefinitionParser {
         ManagedList tlList = new ManagedList();
 
         //override durationLogProcessor if needed
-        Element percentilesElement = DomUtils.getChildElementByTagName(element, XMLConstants.PERCENTILES);
+        Element percentilesElement = DomUtils.getChildElementByTagName(element, XMLConstants.LATENCY);
         if (percentilesElement != null){
             Element percentilesTimeElement = DomUtils.getChildElementByTagName(percentilesElement, XMLConstants.PERCENTILES_TIME);
             Element percentilesGlobalElement = DomUtils.getChildElementByTagName(percentilesElement, XMLConstants.PERCENTILES_GLOBAL);

@@ -32,8 +32,8 @@ public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
 
         //CONFIGURATION
         registerBeanDefinitionParser("configuration", new ConfigDefinitionParser());
-        registerBeanDefinitionParser("test-plan", new TestPlanDefinitionParser());
-        registerBeanDefinitionParser("test", new TestDefinitionParser());
+        registerBeanDefinitionParser("test-suite", new TestPlanDefinitionParser());
+        registerBeanDefinitionParser("test-group", new TestDefinitionParser());
         registerBeanDefinitionParser("percentiles-time", listCustomDefinitionParser);
         registerBeanDefinitionParser("percentiles-global", listCustomDefinitionParser);
         registerBeanDefinitionParser("percentile", primitiveParser);
@@ -47,7 +47,7 @@ public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
         registerBeanDefinitionParser("sessionComparators", new SessionComparatorsDefinitionParser());
 
         //TASKS
-        registerBeanDefinitionParser("task", new TaskDefinitionParser());
+        registerBeanDefinitionParser("test", new TaskDefinitionParser());
 
         //type of tasks
         registerBeanDefinitionParser("invocation", new InvocationDefinitionParser());
@@ -56,7 +56,7 @@ public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
         registerBeanDefinitionParser("virtual-user", new VirtualUserDefinitionParser());
 
         //WORKLOAD
-        registerBeanDefinitionParser("workload" , new WorkloadDefinitionParser());
+        registerBeanDefinitionParser("test-description" , new WorkloadDefinitionParser());
 
         //listeners
 

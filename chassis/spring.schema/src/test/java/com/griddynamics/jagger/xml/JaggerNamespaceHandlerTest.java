@@ -74,7 +74,7 @@ public class JaggerNamespaceHandlerTest {
         Assert.assertEquals("t2",    task.getName());
         Assert.assertEquals(24250, (int)task.getSample());
         Assert.assertEquals(10,    (int)task.getDelay());
-        Assert.assertEquals("bean2",    task.getWorkload());
+        Assert.assertEquals("bean2",    task.getTestDescription());
         Assert.assertEquals("300",      task.getDuration());
         Assert.assertNotNull(task.getInvocation());
         checkInvocationI1(task.getInvocation());
@@ -108,7 +108,7 @@ public class JaggerNamespaceHandlerTest {
         Assert.assertEquals(name,         task.getName());
         Assert.assertEquals(sample, (int) task.getSample());
         Assert.assertEquals(delay,  (int) task.getDelay());
-        Assert.assertEquals(bean,         task.getWorkload());
+        Assert.assertEquals(bean,         task.getTestDescription());
         Assert.assertEquals(duration,     task.getDuration());
     }
 
