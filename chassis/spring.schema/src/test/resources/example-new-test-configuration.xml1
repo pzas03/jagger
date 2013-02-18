@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) 2010-2012 Grid Dynamics Consulting Services, Inc, All Rights Reserved
+  ~ http://www.griddynamics.com
+  ~
+  ~ This library is free software; you can redistribute it and/or modify it under the terms of
+  ~ the GNU Lesser General Public License as published by the Free Software Foundation; either
+  ~ version 2.1 of the License, or any later version.
+  ~
+  ~ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  ~ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  ~ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  ~ DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+  ~ FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  ~ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  ~ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  ~ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  ~ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  ~ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  -->
+
+<beans:beans
+        xmlns="http://www.griddynamics.com/schema/jagger"
+        xmlns:beans="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation=
+                "
+        http://www.griddynamics.com/schema/jagger
+        http://www.griddynamics.com/schema/jagger.xsd
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd"
+        >
+
+    <configuration id="config1">
+        <test-suite ref="test-plan-1"/>
+
+        <report outputReportLocation="new-report.pdf">
+        </report>
+
+        <latency>
+            <percentiles-global>
+                <percentile>70</percentile>
+            </percentiles-global>
+        </latency>
+
+    </configuration>
+
+    <test-suite id="test-plan-1">
+        <test-group id="group1">
+            <test id="tst1" testDescription="w1">
+                <load xsi:type="tps" value="100"/>
+                <termination xsi:type="iterationsOrDuration" iterations="100"/>
+            </test>
+
+            <test id="tst2" testDescription="w1">
+                <load xsi:type="userGroup" count="100"/>
+                <termination xsi:type="background" />
+            </test>
+        </test-group>
+
+        <test-group id="group2">
+            <test id="tst3" testDescription="w1">
+                <load xsi:type="userGroups">
+                    <user count="23" life="2h"/>
+                </load>
+                <termination xsi:type="iterationsOrDuration" iterations="100"/>
+            </test>
+        </test-group>
+    </test-suite>
+
+    <!--  <test-group id="test1" duration="200">
+        <test id="t3" iterations="1000" delay="0" test-description="w1">
+            <user id="u2" count="50" startCount="50" startIn="0" startBy="0" life="2h"/>
+            <user id="u3" count="50" startCount="50" startIn="0" startBy="0" life="2h"/>
+            <user id="u4" count="50" startCount="50" startIn="0" startBy="0" life="2h"/>
+        </test>
+        <test id="t4" iterations="1000" delay="0" test-description="w1">
+            <virtual-user ref="vu1"/>
+        </test>
+    </test-group>
+
+    <test-group id="test2" duration="200">
+        <test id="t5" iterations="1000" delay="0" test-description="w1">
+            <tps id="tps1" value="10"/>
+        </test>
+    </test-group>
+    -->
+
+    <virtual-user id="vu1" count="10" tickInterval="10"/>
+
+    <metric id="metric1" xsi:type="simpleMetric"/>
+
+    <endpointProvider id="endpointProvider1" xsi:type="simpleEndpointProvider">
+        <endpoint>http://localhost:8090/sleep/5</endpoint>
+        <endpoint>http://localhost:8090/sleep/25</endpoint>
+        <endpoint>http://localhost:8090/sleep/50</endpoint>
+    </endpointProvider>
+
+    <query id="httpQ1" xsi:type="httpQuery" method="GET">
+        <clientParams>
+            <param key="http.protocol.allow-circular-redirects">
+                <value xsi:type="boolean" >true</value>
+            </param>
+            <param key="http.protocol.max-redirects">
+                <value xsi:type="integer">2</value>
+            </param>
+            <param key="http.connection-manager.timeout">
+                <value xsi:type="long">5000</value>
+            </param>
+            <param key="http.protocol.max-redirects">
+                <value xsi:type="integer">0</value>
+            </param>
+        </clientParams>
+    </query>
+
+    <queryProvider id="qProvider1" xsi:type="simpleQueryProvider">
+        <query xsi:type="queryRef" ref="httpQ1"/>
+    </queryProvider>
+
+    <test-description id="w1" calibration="true">
+
+        <listeners>
+            <validator xsi:type="notNullResponse"/>
+            <validator xsi:type="consistency"/>
+        </listeners>
+
+        <scenario xsi:type="scenarioRef" ref="sc1"/>
+    </test-description>
+
+    <scenario id="sc1" xsi:type="queryPoolScenario">
+
+        <loadBalancer xsi:type="roundRobinLoadBalancer"/>
+
+        <invoker xsi:type="invokerClass" class="com.griddynamics.jagger.invoker.http.HttpInvoker"/>
+
+        <endpointProvider xsi:type="endpointProviderRef" ref="endpointProvider1"/>
+
+        <queryProvider xsi:type="queryProviderRef" ref="qProvider1" />
+    </scenario>
+
+</beans:beans>

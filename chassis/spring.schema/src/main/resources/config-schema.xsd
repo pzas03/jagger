@@ -204,29 +204,118 @@
     <xsd:element name="test-suite" type="processingType">
     </xsd:element>
 
-    <xsd:element name="test-group" type="testType">
+    <xsd:element name="test-group" type="newTestGroupType">
     </xsd:element>
-
+<!--
     <xsd:element name="test" type="taskType">
+    </xsd:element>-->
+
+    <xsd:element name="load" type="loadType"/>
+
+    <xsd:element name="termination" type="terminationType"/>
+<!--
+
+    <xsd:element name="task" type="taskType">
+    </xsd:element>
+-->
+
+    <xsd:element name="test" type="newTestType">
     </xsd:element>
 
-    <xsd:element name="user" type="userType">
+    <xsd:element name="testGroup" type="newTestGroupType">
     </xsd:element>
 
-    <xsd:element name="virtual-user" type="virtualUserType">
+    <xsd:element name="iterationsOrDuration" type="iterationsOrDuration" substitutionGroup="termination">
     </xsd:element>
 
-    <xsd:element name="invocation" type="invocationType">
+    <xsd:element name="background" type="background" substitutionGroup="termination">
     </xsd:element>
 
-    <xsd:element name="tps" type="tpsType">
+    <xsd:element name="user" type="userGroup" substitutionGroup="load">
     </xsd:element>
+
+    <xsd:element name="userGroup" type="userGroup" substitutionGroup="load">
+    </xsd:element>
+
+    <xsd:element name="virtual-user" type="virtualUserType" substitutionGroup="load">
+    </xsd:element>
+
+    <xsd:element name="invocation" type="invocationType" substitutionGroup="load">
+    </xsd:element>
+
+    <xsd:element name="tps" type="tps" substitutionGroup="load">
+    </xsd:element>
+
+
+    <xsd:complexType name="newTestType">
+        <xsd:complexContent>
+            <xsd:extension base="basicType">
+                <xsd:all>
+                    <xsd:element name="load" type="loadType" maxOccurs="1"/>
+                    <xsd:element name="termination" type="terminationType" maxOccurs="1"/>
+                </xsd:all>
+                <xsd:attribute name="id" type="xsd:string" ></xsd:attribute>
+                <xsd:attribute name="testDescription" type="xsd:string"></xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="loadType" abstract="true">
+        <xsd:complexContent>
+            <xsd:extension base="basicType">
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="terminationType" abstract="true">
+        <xsd:complexContent>
+            <xsd:extension base="basicType">
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="iterationsOrDuration">
+        <xsd:complexContent>
+            <xsd:extension base="terminationType">
+                <xsd:attributeGroup ref="iterationsOrDurationAttributes"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="background">
+        <xsd:complexContent>
+            <xsd:extension base="terminationType">
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="newTestGroupType">
+        <xsd:complexContent>
+            <xsd:extension base="basicType">
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element name="test" type="newTestTypeIn" maxOccurs="unbounded"/>
+                    <xsd:element ref="beans:bean"/>
+                    <xsd:element ref="beans:ref"/>
+                </xsd:choice>
+                <!--<xsd:attribute name="duration" type="xsd:string"/>-->
+                <xsd:attribute name="monitoringEnabled" type="xsd:string" default="${chassis.conditions.monitoring.enable}" use="prohibited"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="newTestTypeIn">
+        <xsd:complexContent>
+            <xsd:extension base="newTestType">
+                <xsd:attribute name="ref" type="xsd:string"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
 
     <xsd:complexType name="processingType">
         <xsd:complexContent>
             <xsd:extension base="basicType">
                 <xsd:choice minOccurs="0" maxOccurs="unbounded">
-                    <xsd:element name="test-group" type="testTypeIn" maxOccurs="unbounded"/>
+                    <xsd:element name="test-group" type="newTestGroupType" maxOccurs="unbounded"/>
                     <xsd:element ref="beans:bean"/>
                     <xsd:element ref="beans:ref"/>
                 </xsd:choice>
@@ -242,7 +331,7 @@
         </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:complexType name="testType">
+<!--    <xsd:complexType name="testType">
         <xsd:complexContent>
             <xsd:extension base="basicType">
                 <xsd:choice minOccurs="0" maxOccurs="unbounded">
@@ -287,11 +376,22 @@
                 <xsd:attribute name="ref" type="xsd:string"/>
             </xsd:extension>
         </xsd:complexContent>
+    </xsd:complexType>-->
+
+    <xsd:complexType name="userGroups">
+        <xsd:complexContent>
+            <xsd:extension base="loadType">
+                <xsd:choice>
+                    <xsd:element name="user" type="userGroup" minOccurs="1" maxOccurs="unbounded"/>
+                </xsd:choice>
+                <xsd:attributeGroup ref="userGroupsAttributes"/>
+            </xsd:extension>
+        </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:complexType name="userType">
+    <xsd:complexType name="userGroup">
         <xsd:complexContent>
-            <xsd:extension base="basicType">
+            <xsd:extension base="loadType">
                 <xsd:attributeGroup ref="userAttributes"/>
             </xsd:extension>
         </xsd:complexContent>
@@ -299,7 +399,7 @@
 
     <xsd:complexType name="userTypeIn">
         <xsd:complexContent>
-            <xsd:extension base="userType">
+            <xsd:extension base="userGroup">
                 <xsd:attribute name="ref" type="xsd:string"/>
             </xsd:extension>
         </xsd:complexContent>
@@ -307,7 +407,7 @@
 
     <xsd:complexType name="virtualUserType">
         <xsd:complexContent>
-            <xsd:extension base="basicType">
+            <xsd:extension base="loadType">
                 <xsd:attributeGroup ref="virtualUserAttributes"/>
             </xsd:extension>
         </xsd:complexContent>
@@ -323,7 +423,7 @@
 
     <xsd:complexType name="invocationType">
         <xsd:complexContent>
-            <xsd:extension base="basicType">
+            <xsd:extension base="loadType">
                 <xsd:attributeGroup ref="invocationAttributes"/>
             </xsd:extension>
         </xsd:complexContent>
@@ -337,9 +437,9 @@
         </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:complexType name="tpsType">
+    <xsd:complexType name="tps">
         <xsd:complexContent>
-            <xsd:extension base="basicType">
+            <xsd:extension base="loadType">
                 <xsd:attributeGroup ref="tpsAttributes"/>
             </xsd:extension>
         </xsd:complexContent>
@@ -347,7 +447,7 @@
 
     <xsd:complexType name="tpsTypeIn">
         <xsd:complexContent>
-            <xsd:extension base="tpsType">
+            <xsd:extension base="tps">
                 <xsd:attribute name="ref" type="xsd:string"/>
             </xsd:extension>
         </xsd:complexContent>
@@ -363,16 +463,28 @@
 
     <xsd:attributeGroup name="virtualUserAttributes">
         <xsd:attribute name="count" type="xsd:integer" ></xsd:attribute>
-        <xsd:attribute name="tickInterval" type="xsd:integer" ></xsd:attribute>
+        <xsd:attribute name="tickInterval" type="xsd:integer" default="1000"></xsd:attribute>
     </xsd:attributeGroup>
 
     <xsd:attributeGroup name="invocationAttributes">
         <xsd:attribute name="exactcount" type="xsd:integer" ></xsd:attribute>
         <xsd:attribute name="threads" type="xsd:integer"></xsd:attribute>
+        <xsd:attribute name="tickInterval" type="xsd:integer" default="1000"></xsd:attribute>
+        <xsd:attribute name="delay" type="xsd:integer" default="0"></xsd:attribute>
     </xsd:attributeGroup>
 
     <xsd:attributeGroup name="tpsAttributes">
         <xsd:attribute name="value" type="xsd:integer" ></xsd:attribute>
+        <xsd:attribute name="tickInterval" type="xsd:integer" default="1000"></xsd:attribute>
+    </xsd:attributeGroup>
+
+    <xsd:attributeGroup name="userGroupsAttributes">
+        <xsd:attribute name="tickInterval" type="xsd:integer" default="1000"></xsd:attribute>
+    </xsd:attributeGroup>
+
+    <xsd:attributeGroup name="iterationsOrDurationAttributes">
+        <xsd:attribute name="duration" type="xsd:string"></xsd:attribute>
+        <xsd:attribute name="iterations" type="xsd:string" default="-1"></xsd:attribute>
     </xsd:attributeGroup>
 
     <!--WORKLOAD-->

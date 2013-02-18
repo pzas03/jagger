@@ -1,7 +1,11 @@
 package com.griddynamics.jagger.xml.beanParsers.task;
 
+import com.griddynamics.jagger.engine.e1.scenario.VirtualUsersClockConfiguration;
 import com.griddynamics.jagger.user.ProcessingConfig;
+import com.griddynamics.jagger.xml.beanParsers.CustomBeanDefinitionParser;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSimpleBeanDefinitionParser;
+import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
 /**
@@ -11,10 +15,15 @@ import org.w3c.dom.Element;
  * Time: 4:26 PM
  * To change this template use File | Settings | File Templates.
  */
-public class VirtualUserDefinitionParser extends AbstractSimpleBeanDefinitionParser {
+public class VirtualUserDefinitionParser extends CustomBeanDefinitionParser {
 
     @Override
     protected Class getBeanClass(Element element) {
-        return ProcessingConfig.Test.Task.VirtualUser.class;
+        return VirtualUsersClockConfiguration.class;
+    }
+
+    @Override
+    protected void parse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 }

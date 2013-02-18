@@ -54,6 +54,13 @@ public class TpsClockConfiguration implements WorkloadClockConfiguration {
         return new TpsClock(tickInterval, tpsRouter, workloadSuggestionMaker, systemClock, maxThreadNumber);
     }
 
+    public int getTickInterval() {
+        return tickInterval;
+    }
+
+    public void setValue(double tps) {
+        this.tps = tps;
+    }
 
     public double getTps() {
         return tps;

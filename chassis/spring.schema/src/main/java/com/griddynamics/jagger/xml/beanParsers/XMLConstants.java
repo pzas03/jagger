@@ -52,6 +52,7 @@ public class XMLConstants {
     public static final String TASKS = "tasks";
     public static final String TASK = "task";
     public static final String TESTS = "tests";
+    public static final String TEST_GROUPS = "testGroups";
     public static final String TEST = "test";
     public static final String USERS = "users";
     public static final String USER = "user";
@@ -115,7 +116,7 @@ public class XMLConstants {
     public static final String CALIBRATION = "calibration";
     public static final String NAME = "name";
     public static final String CLASS = "class";
-    public static final String TEST_DESCRIPTION = "test-description";
+    public static final String TEST_DESCRIPTION = "testDescription";
     public static final String TEST_DESCRIPTION_CLASS_FIELD = "testDescription";
 
     public static final String DEFAULT_NAMESPACE = "http://www.griddynamics.com/schema/jagger";

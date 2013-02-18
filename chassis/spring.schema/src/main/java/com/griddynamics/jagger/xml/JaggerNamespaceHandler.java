@@ -3,10 +3,7 @@ package com.griddynamics.jagger.xml;
 import com.griddynamics.jagger.xml.beanParsers.*;
 import com.griddynamics.jagger.xml.beanParsers.configuration.*;
 import com.griddynamics.jagger.xml.beanParsers.report.*;
-import com.griddynamics.jagger.xml.beanParsers.task.InvocationDefinitionParser;
-import com.griddynamics.jagger.xml.beanParsers.task.TpsDefinitionParser;
-import com.griddynamics.jagger.xml.beanParsers.task.UserDefinitionParser;
-import com.griddynamics.jagger.xml.beanParsers.task.VirtualUserDefinitionParser;
+import com.griddynamics.jagger.xml.beanParsers.task.*;
 import com.griddynamics.jagger.xml.beanParsers.workload.WorkloadDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.workload.balancer.OneByOneBalancerDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.workload.balancer.RoundRobinBalancerDefinitionParser;
@@ -32,8 +29,9 @@ public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
 
         //CONFIGURATION
         registerBeanDefinitionParser("configuration", new ConfigDefinitionParser());
-        registerBeanDefinitionParser("test-suite", new TestPlanDefinitionParser());
+        registerBeanDefinitionParser("test-suite", listCustomDefinitionParser);
         registerBeanDefinitionParser("test-group", new TestDefinitionParser());
+        registerBeanDefinitionParser("newTestGroup" , new TestDefinitionParser());
         registerBeanDefinitionParser("percentiles-time", listCustomDefinitionParser);
         registerBeanDefinitionParser("percentiles-global", listCustomDefinitionParser);
         registerBeanDefinitionParser("percentile", primitiveParser);
@@ -116,5 +114,16 @@ public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
         //calibrators
         registerBeanDefinitionParser("calibrator", findTypeParser);
         registerBeanDefinitionParser("defaultCalibrator", new DefaultCalibratorDefinitionParser());
+
+        //load
+        registerBeanDefinitionParser("load",  findTypeParser);
+        registerBeanDefinitionParser("newTest",  new TaskDefinitionParser());
+        registerBeanDefinitionParser("userGroups", new UserGroupsDefinitionParser());
+        registerBeanDefinitionParser("userGroup", new UserGroupDefinitionParser());
+
+        //termination strategy
+        registerBeanDefinitionParser("termination",  findTypeParser);
+        registerBeanDefinitionParser("iterationsOrDuration", new IterationsOrDurationTerminationStrategyDefinitionParser());
+        registerBeanDefinitionParser("background", new BackgroundTerminationStrategyDefinitionParser());
     }
 }
