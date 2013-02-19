@@ -110,7 +110,7 @@ public class RemoteMultiThreadInfoProvider implements ThreadInfoProvider {
             }
             this.jmxServices = jmxServices;
 
-            Set<String> jmxServicesSet = Sets.newHashSet(this.jmxServices.split(","));
+            Set<String> jmxServicesSet = getIdentifiersSuT();
             for (String service : jmxServicesSet) {
 
                 JMXConnector connect = JMXConnectorFactory.connect(
