@@ -36,7 +36,7 @@ public class JaggerReportTest {
         URL directory = new URL("file:" + "../configuration/");
         Properties environmentProperties = new Properties();
         JaggerLauncher.loadBootProperties(directory, "profiles/local/environment.properties", environmentProperties);
-        environmentProperties.put("chassis.reporter.configuration.include",environmentProperties.get("chassis.reporter.configuration.include")+", ../spring.schema/src/test/resources/example-report.xml");
+        environmentProperties.put("chassis.reporter.configuration.include",environmentProperties.get("chassis.reporter.configuration.include")+", ../spring.schema/src/test/resources/example-report.conf.xml");
         context = JaggerLauncher.loadContext(directory,"chassis.reporter.configuration",environmentProperties);
     }
 

@@ -25,6 +25,7 @@ import com.griddynamics.jagger.util.SystemClock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.math.BigDecimal;
 
 public class TpsClockConfiguration implements WorkloadClockConfiguration {

@@ -53,6 +53,10 @@ public class UserGroupsClockConfiguration implements WorkloadClockConfiguration 
         this.users = users;
     }
 
+    public List<ProcessingConfig.Test.Task.User> getUsers(){
+        return users;
+    }
+
     public UserGroupsClockConfiguration(int tickInterval, List<ProcessingConfig.Test.Task.User> users, AtomicBoolean shutdown) {
         this.tickInterval = tickInterval;
         this.users = users;

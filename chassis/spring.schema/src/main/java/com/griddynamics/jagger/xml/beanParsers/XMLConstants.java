@@ -118,6 +118,7 @@ public class XMLConstants {
     public static final String CLASS = "class";
     public static final String TEST_DESCRIPTION = "testDescription";
     public static final String TEST_DESCRIPTION_CLASS_FIELD = "testDescription";
+    public static final String DEFAULT_TICK_INTERVAL = "${workload.tickinterval.default}";
 
     public static final String DEFAULT_NAMESPACE = "http://www.griddynamics.com/schema/jagger";
 }

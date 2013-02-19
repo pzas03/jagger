@@ -3,6 +3,7 @@ package com.griddynamics.jagger.xml.beanParsers.task;
 import com.griddynamics.jagger.engine.e1.scenario.TpsClockConfiguration;
 import com.griddynamics.jagger.user.ProcessingConfig;
 import com.griddynamics.jagger.xml.beanParsers.CustomBeanDefinitionParser;
+import com.griddynamics.jagger.xml.beanParsers.XMLConstants;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSimpleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -22,6 +23,13 @@ public class TpsDefinitionParser extends CustomBeanDefinitionParser {
     @Override
     protected Class getBeanClass(Element element) {
         return TpsClockConfiguration.class;
+    }
+
+    @Override
+    protected void preParseAttributes(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
+        if (element.getAttribute("tickInterval").isEmpty()){
+            builder.addPropertyValue("tickInterval", XMLConstants.DEFAULT_TICK_INTERVAL);
+        }
     }
 
     @Override

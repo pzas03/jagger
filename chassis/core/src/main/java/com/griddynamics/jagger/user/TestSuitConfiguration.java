@@ -18,6 +18,9 @@ public class TestSuitConfiguration {
     }
 
     public List<Task> generate() {
+        if (testGroups == null)
+            return null;
+
         int number = 0;
         List<Task> result = new ArrayList<Task>(testGroups.size());
         for (TestGroupConfiguration testGroupConfiguration: testGroups) {

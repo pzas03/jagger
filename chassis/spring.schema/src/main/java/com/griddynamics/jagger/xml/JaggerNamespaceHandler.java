@@ -53,7 +53,7 @@ public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
         registerBeanDefinitionParser("tps", new TpsDefinitionParser());
         registerBeanDefinitionParser("virtual-user", new VirtualUserDefinitionParser());
 
-        //WORKLOAD
+        //Test-description
         registerBeanDefinitionParser("test-description" , new WorkloadDefinitionParser());
 
         //listeners

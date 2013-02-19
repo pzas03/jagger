@@ -254,7 +254,6 @@
                     <xsd:element name="load" type="loadType" maxOccurs="1"/>
                     <xsd:element name="termination" type="terminationType" maxOccurs="1"/>
                 </xsd:all>
-                <xsd:attribute name="id" type="xsd:string" ></xsd:attribute>
                 <xsd:attribute name="testDescription" type="xsd:string"></xsd:attribute>
             </xsd:extension>
         </xsd:complexContent>
@@ -263,6 +262,7 @@
     <xsd:complexType name="loadType" abstract="true">
         <xsd:complexContent>
             <xsd:extension base="basicType">
+                <xsd:attribute name="tickInterval" type="xsd:string"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -297,8 +297,7 @@
                     <xsd:element ref="beans:bean"/>
                     <xsd:element ref="beans:ref"/>
                 </xsd:choice>
-                <!--<xsd:attribute name="duration" type="xsd:string"/>-->
-                <xsd:attribute name="monitoringEnabled" type="xsd:string" default="${chassis.conditions.monitoring.enable}" use="prohibited"/>
+                <xsd:attribute name="monitoringEnabled" type="xsd:string" default="${chassis.conditions.monitoring.enable}" use="optional"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -331,60 +330,21 @@
         </xsd:complexContent>
     </xsd:complexType>
 
-<!--    <xsd:complexType name="testType">
-        <xsd:complexContent>
-            <xsd:extension base="basicType">
-                <xsd:choice minOccurs="0" maxOccurs="unbounded">
-                    <xsd:element name="test" type="taskType" maxOccurs="unbounded"/>
-                    <xsd:element ref="beans:bean"/>
-                    <xsd:element ref="beans:ref"/>
-                </xsd:choice>
-                <xsd:attribute name="duration" type="xsd:string"/>
-            </xsd:extension>
-        </xsd:complexContent>
-    </xsd:complexType>
-
-    <xsd:complexType name="testTypeIn">
-        <xsd:complexContent>
-            <xsd:extension base="testType">
-                <xsd:attribute name="ref" type="xsd:string"/>
-            </xsd:extension>
-        </xsd:complexContent>
-    </xsd:complexType>
-
-    <xsd:complexType name="taskType">
-        <xsd:complexContent>
-            <xsd:extension base="basicType">
-                <xsd:choice minOccurs="0">
-                    <xsd:element name="user" type="userTypeIn" maxOccurs="unbounded"/>
-                    <xsd:element name="invocation" type="invocationTypeIn" maxOccurs="1"/>
-                    <xsd:element name="tps" type="tpsTypeIn" maxOccurs="1"/>
-                    <xsd:element name="virtual-user" type="virtualUserTypeIn" maxOccurs="1"/>
-                </xsd:choice>
-                <xsd:attribute name="attendant" type="xsd:boolean" default="false"/>
-                <xsd:attribute name="duration" type="xsd:string"></xsd:attribute>
-                <xsd:attribute name="iterations" type="xsd:string"></xsd:attribute>
-                <xsd:attribute name="delay" type="xsd:string"></xsd:attribute>
-                <xsd:attribute name="test-description" type="xsd:string" use="required"></xsd:attribute>
-            </xsd:extension>
-        </xsd:complexContent>
-    </xsd:complexType>
-
-    <xsd:complexType name="taskTypeIn">
-        <xsd:complexContent>
-            <xsd:extension base="taskType">
-                <xsd:attribute name="ref" type="xsd:string"/>
-            </xsd:extension>
-        </xsd:complexContent>
-    </xsd:complexType>-->
-
     <xsd:complexType name="userGroups">
         <xsd:complexContent>
             <xsd:extension base="loadType">
                 <xsd:choice>
-                    <xsd:element name="user" type="userGroup" minOccurs="1" maxOccurs="unbounded"/>
+                    <xsd:element name="user" type="userGroupIn" minOccurs="1" maxOccurs="unbounded"/>
                 </xsd:choice>
                 <xsd:attributeGroup ref="userGroupsAttributes"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="userGroupIn">
+        <xsd:complexContent>
+            <xsd:extension base="loadType">
+                <xsd:attributeGroup ref="userAttributes"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -393,6 +353,7 @@
         <xsd:complexContent>
             <xsd:extension base="loadType">
                 <xsd:attributeGroup ref="userAttributes"/>
+                <xsd:attributeGroup ref="userGroupsAttributes"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -454,7 +415,7 @@
     </xsd:complexType>
 
     <xsd:attributeGroup name="userAttributes">
-        <xsd:attribute name="count" type="xsd:string" ></xsd:attribute>
+        <xsd:attribute name="count" type="xsd:string" use="required"></xsd:attribute>
         <xsd:attribute name="startCount" type="xsd:string"></xsd:attribute>
         <xsd:attribute name="startIn" type="xsd:string"></xsd:attribute>
         <xsd:attribute name="startBy" type="xsd:string"></xsd:attribute>
@@ -463,23 +424,19 @@
 
     <xsd:attributeGroup name="virtualUserAttributes">
         <xsd:attribute name="count" type="xsd:integer" ></xsd:attribute>
-        <xsd:attribute name="tickInterval" type="xsd:integer" default="1000"></xsd:attribute>
     </xsd:attributeGroup>
 
     <xsd:attributeGroup name="invocationAttributes">
         <xsd:attribute name="exactcount" type="xsd:integer" ></xsd:attribute>
         <xsd:attribute name="threads" type="xsd:integer"></xsd:attribute>
-        <xsd:attribute name="tickInterval" type="xsd:integer" default="1000"></xsd:attribute>
         <xsd:attribute name="delay" type="xsd:integer" default="0"></xsd:attribute>
     </xsd:attributeGroup>
 
     <xsd:attributeGroup name="tpsAttributes">
         <xsd:attribute name="value" type="xsd:integer" ></xsd:attribute>
-        <xsd:attribute name="tickInterval" type="xsd:integer" default="1000"></xsd:attribute>
     </xsd:attributeGroup>
 
     <xsd:attributeGroup name="userGroupsAttributes">
-        <xsd:attribute name="tickInterval" type="xsd:integer" default="1000"></xsd:attribute>
     </xsd:attributeGroup>
 
     <xsd:attributeGroup name="iterationsOrDurationAttributes">
