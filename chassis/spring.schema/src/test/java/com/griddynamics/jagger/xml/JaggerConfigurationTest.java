@@ -40,7 +40,7 @@ public class JaggerConfigurationTest {
         Properties environmentProperties = new Properties();
         JaggerLauncher.loadBootProperties(directory, "profiles/local/environment.properties", environmentProperties);
         environmentProperties.put("chassis.master.configuration.include",environmentProperties.get("chassis.master.configuration.include")+", ../spring.schema/src/test/resources/example-configuration.conf.xml1");
-        environmentProperties.put("chassis.master.configuration.include",environmentProperties.get("chassis.master.configuration.include")+", ../spring.schema/src/test/resources/example-configuration-import.conf.xml1");
+        //environmentProperties.put("chassis.master.configuration.include",environmentProperties.get("chassis.master.configuration.include")+", ../spring.schema/src/test/resources/example-configuration-import.conf.xml1");
         ctx = JaggerLauncher.loadContext(directory,"chassis.master.configuration",environmentProperties);
     }
 
@@ -97,9 +97,12 @@ public class JaggerConfigurationTest {
 
     @Test
     public void conf1ReportTest(){
+        Configuration config1 = (Configuration) ctx.getBean("config1");
+
         CurrentConfigurationReportProvider provider = new CurrentConfigurationReportProvider();
         provider.setConfigurationName("config1");
-        ReportingService reportingService = provider.getReportingService(ctx);
+
+        ReportingService reportingService = provider.getReportingService(config1, ctx);
         Assert.assertNotNull(reportingService);
     }
 

@@ -32,32 +32,44 @@
         http://www.springframework.org/schema/beans/spring-beans.xsd"
         >
 
-    <configuration id="config2">
+    <endpointProvider id="endpointProvider" xsi:type="simpleEndpointProvider">
+        <endpoint>http://localhost:8090/sleep/5</endpoint>
+        <endpoint>http://localhost:8090/sleep/25</endpoint>
+        <endpoint>http://localhost:8090/sleep/50</endpoint>
+    </endpointProvider>
 
-        <report outputReportLocation="new-report.pdf">
-        </report>
+    <queryProvider id="queryProvider" xsi:type="simpleQueryProvider">
 
-        <latency>
-            <percentiles-global>
-                <percentile>50</percentile>
-                <percentile>70</percentile>
-            </percentiles-global>
-        </latency>
+        <query xsi:type="httpQuery" method="GET">
+            <clientParams>
+                <param key="http.protocol.allow-circular-redirects">
+                    <value xsi:type="boolean" >false</value>
+                </param>
+                <param key="http.protocol.max-redirects">
+                    <value xsi:type="integer">2</value>
+                </param>
+            </clientParams>
+        </query>
 
-    </configuration>
+        <query xsi:type="queryRef" ref="httpQ1"/>
 
-    <test-suite id="test-plan-1">
-        <test-group id="group1">
-            <test id="tst1" testDescription="w1">
-                <load xsi:type="tps" value="100"/>
-                <termination xsi:type="iterationsOrDuration" iterations="100"/>
-            </test>
+    </queryProvider>
 
-            <test id="tst2" testDescription="w1">
-                <load xsi:type="userGroup" count="100" life="2h"/>
-                <termination xsi:type="background" />
-            </test>
-        </test-group>
-    </test-suite>
+    <query id="httpQ1" xsi:type="httpQuery" method="GET">
+        <clientParams>
+            <param key="http.protocol.allow-circular-redirects">
+                <value xsi:type="boolean" >true</value>
+            </param>
+            <param key="http.protocol.max-redirects">
+                <value xsi:type="integer">2</value>
+            </param>
+            <param key="http.connection-manager.timeout">
+                <value xsi:type="long">5000</value>
+            </param>
+            <param key="http.protocol.max-redirects">
+                <value xsi:type="integer">0</value>
+            </param>
+        </clientParams>
+    </query>
 
 </beans:beans>
