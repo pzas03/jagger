@@ -428,10 +428,10 @@
 
     <xsd:attributeGroup name="userAttributes">
         <xsd:attribute name="count" type="xsd:string" use="required"></xsd:attribute>
-        <xsd:attribute name="startCount" type="xsd:string"></xsd:attribute>
-        <xsd:attribute name="startIn" type="xsd:string"></xsd:attribute>
-        <xsd:attribute name="startBy" type="xsd:string"></xsd:attribute>
-        <xsd:attribute name="life" type="xsd:string"></xsd:attribute>
+        <xsd:attribute name="startCount" type="xsd:string" use="required"></xsd:attribute>
+        <xsd:attribute name="startIn" type="xsd:string" use="required"></xsd:attribute>
+        <xsd:attribute name="startBy" type="xsd:string" use="required"></xsd:attribute>
+        <xsd:attribute name="life" type="xsd:string" use="required"></xsd:attribute>
     </xsd:attributeGroup>
 
     <xsd:attributeGroup name="virtualUserAttributes">
