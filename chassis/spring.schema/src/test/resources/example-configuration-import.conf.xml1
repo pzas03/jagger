@@ -38,10 +38,8 @@
         </report>
 
         <latency>
-            <percentiles-global>
-                <percentile>50</percentile>
-                <percentile>70</percentile>
-            </percentiles-global>
+            <percentile>50</percentile>
+            <percentile>70</percentile>
         </latency>
 
     </configuration>
@@ -49,13 +47,13 @@
     <test-suite id="test-plan-1">
         <test-group id="group1">
             <test id="tst1" testDescription="w1">
-                <load xsi:type="tps" value="100"/>
-                <termination xsi:type="iterationsOrDuration" iterations="100"/>
+                <load xsi:type="load-tps" value="100"/>
+                <termination xsi:type="termination-iterations" iterations="100"/>
             </test>
 
             <test id="tst2" testDescription="w1">
-                <load xsi:type="userGroup" count="100" life="2h"/>
-                <termination xsi:type="background" />
+                <load xsi:type="load-user-group" count="100" life="2h"/>
+                <termination xsi:type="termination-background" />
             </test>
         </test-group>
     </test-suite>

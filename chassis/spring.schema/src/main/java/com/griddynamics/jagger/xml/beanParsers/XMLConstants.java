@@ -79,7 +79,7 @@ public class XMLConstants {
     public static final List<String> STANDARD_SESSION_EXEC_LISTENERS = Arrays.asList(BASIC_COLLECTOR, BASIC_AGGREGATOR);
     public static final List<String> STANDARD_TASK_EXEC_LISTENERS = Arrays.asList(BASIC_COLLECTOR, WORKLOAD_COLLECTOR, BASIC_AGGREGATOR, WORKLOAD_AGGREGATOR, MONITORING_AGGREGATOR);
 
-    public static final String WORKLOAD_LISTENERS_ELEMENT = "listeners";
+    public static final String WORKLOAD_LISTENERS_ELEMENT = "info-collectors";
     public static final String DURATION_COLLECTOR = "durationCollector";
     public static final String INFORMATION_COLLECTOR = "informationCollector";
     public static final String DIAGNOSTIC_COLLECTOR = "diagnosticCollector";
@@ -96,12 +96,17 @@ public class XMLConstants {
     public static final String LIST = "list";
     public static final String CLIENT_PARAMS = "clientParams";
     public static final String METHOD_PARAMS = "methodParams";
+    public static final String CLIENT_PARAMS_ELEMENT = "client-params";
+    public static final String METHOD_PARAMS_ELEMENT = "method-params";
     public static final String METHOD = "method";
     public static final String INVOKER = "invoker";
     public static final String INVOKER_CLAZZ = "invokerClazz";
     public static final String ENDPOINT_PROVIDER = "endpointProvider";
+    public static final String ENDPOINT_PROVIDER_ELEMENT = "endpoint-provider";
     public static final String QUERY_PROVIDER = "queryProvider";
+    public static final String QUERY_PROVIDER_ELEMENT = "query-provider";
     public static final String LOAD_BALANCER = "loadBalancer";
+    public static final String QUERY_DISTRIBUTOR = "query-distributor";
     public static final String SCENARIO = "scenario";
     public static final String SCENARIO_FACTORY = "scenarioFactory";
     public static final String PARENT = "parent";
@@ -118,7 +123,16 @@ public class XMLConstants {
     public static final String CLASS = "class";
     public static final String TEST_DESCRIPTION = "testDescription";
     public static final String TEST_DESCRIPTION_CLASS_FIELD = "testDescription";
+    public static final String LOAD = "load";
+    public static final String TERMINATION = "termination";
+    public static final String TERMINATION_STRATEGY = "terminateStrategy";
+    public static final String TICK_INTERVAL = "tickInterval";
+    public static final String DURATION = "duration";
+    public static final String MAX_DURATION = "maxDuration";
+    public static final String ITERATIONS = "iterations";
+
     public static final String DEFAULT_TICK_INTERVAL = "${workload.tickinterval.default}";
+    public static final String DEFAULT_MAX_DURATION = "${termination.iterations.maxduration}";
 
     public static final String DEFAULT_NAMESPACE = "http://www.griddynamics.com/schema/jagger";
 }

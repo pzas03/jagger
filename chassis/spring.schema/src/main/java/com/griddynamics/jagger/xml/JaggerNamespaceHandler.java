@@ -31,9 +31,7 @@ public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
         registerBeanDefinitionParser("configuration", new ConfigDefinitionParser());
         registerBeanDefinitionParser("test-suite", listCustomDefinitionParser);
         registerBeanDefinitionParser("test-group", new TestDefinitionParser());
-        registerBeanDefinitionParser("newTestGroup" , new TestDefinitionParser());
-        registerBeanDefinitionParser("percentiles-time", listCustomDefinitionParser);
-        registerBeanDefinitionParser("percentiles-global", listCustomDefinitionParser);
+        registerBeanDefinitionParser("latency", listCustomDefinitionParser);
         registerBeanDefinitionParser("percentile", primitiveParser);
 
         //REPORT
@@ -48,10 +46,14 @@ public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
         registerBeanDefinitionParser("test", new TaskDefinitionParser());
 
         //type of tasks
-        registerBeanDefinitionParser("invocation", new InvocationDefinitionParser());
+        registerBeanDefinitionParser("load",  findTypeParser);
+
+        registerBeanDefinitionParser("load-user-group", new UserGroupDefinitionParser());
+        registerBeanDefinitionParser("load-user-groups", new UserGroupsDefinitionParser());
+        registerBeanDefinitionParser("load-invocation", new InvocationDefinitionParser());
         registerBeanDefinitionParser("user", new UserDefinitionParser());
-        registerBeanDefinitionParser("tps", new TpsDefinitionParser());
-        registerBeanDefinitionParser("virtual-user", new VirtualUserDefinitionParser());
+        registerBeanDefinitionParser("load-tps", new TpsDefinitionParser());
+        registerBeanDefinitionParser("load-threads", new VirtualUserDefinitionParser());
 
         //Test-description
         registerBeanDefinitionParser("test-description" , new WorkloadDefinitionParser());
@@ -62,68 +64,65 @@ public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
         registerBeanDefinitionParser("validator", findTypeParser);
 
         //validators listeners
-        registerBeanDefinitionParser("notNullResponse", new NotNullResponseDefinitionParser());
-        registerBeanDefinitionParser("consistency", new ConsistencyDefinitionParser());
+        registerBeanDefinitionParser("validator-not-null-response", new NotNullResponseDefinitionParser());
+        registerBeanDefinitionParser("validator-consistency", new ConsistencyDefinitionParser());
 
         //metric
         registerBeanDefinitionParser("metric", findTypeParser);
 
         //metric calculators
-        registerBeanDefinitionParser("simpleMetric", new SimpleMetricDefinitionParser());
+        registerBeanDefinitionParser("simple-metric", new SimpleMetricDefinitionParser());
 
         //scenario
         registerBeanDefinitionParser("scenario",  findTypeParser);
 
         //scenarios
-        registerBeanDefinitionParser("queryPoolScenario", new QueryPoolScenarioDefinitionParser());
+        registerBeanDefinitionParser("scenario-query-pool", new QueryPoolScenarioDefinitionParser());
 
         //balancer
-        registerBeanDefinitionParser("loadBalancer", findTypeParser);
+        registerBeanDefinitionParser("query-distributor", findTypeParser);
 
         //balancers
-        registerBeanDefinitionParser("roundRobinLoadBalancer", new RoundRobinBalancerDefinitionParser());
-        registerBeanDefinitionParser("oneByOneLoadBalancer", new OneByOneBalancerDefinitionParser());
+        registerBeanDefinitionParser("query-distributor-round-robin", new RoundRobinBalancerDefinitionParser());
+        registerBeanDefinitionParser("query-distributor-one-by-one", new OneByOneBalancerDefinitionParser());
 
         //invoker
         registerBeanDefinitionParser("invoker", findTypeParser);
 
         //invokers
-        registerBeanDefinitionParser("httpInvoker", new HttpInvokerClassDefinitionParser());
-        registerBeanDefinitionParser("soapInvoker", new SoapInvokerClassDefinitionParser());
-        registerBeanDefinitionParser("invokerClass", new ClassInvokerDefinitionParser());
+        registerBeanDefinitionParser("invoker-http", new HttpInvokerClassDefinitionParser());
+        registerBeanDefinitionParser("invoker-soap", new SoapInvokerClassDefinitionParser());
+        registerBeanDefinitionParser("invoker-class", new ClassInvokerDefinitionParser());
 
         //endpointProvider
-        registerBeanDefinitionParser("endpointProvider", findTypeParser);
-        registerBeanDefinitionParser("endpoint", primitiveParser);
+        registerBeanDefinitionParser("endpoint-provider", findTypeParser);
+        registerBeanDefinitionParser("endpoint", findTypeParser);
 
         //endpointProviders
-        registerBeanDefinitionParser("simpleEndpointProvider", listCustomDefinitionParser);
+        registerBeanDefinitionParser("endpoint-provider-list", listCustomDefinitionParser);
 
         //queryProvider
-        registerBeanDefinitionParser("queryProvider", findTypeParser);
+        registerBeanDefinitionParser("query-provider", findTypeParser);
 
         //queryProviders
-        registerBeanDefinitionParser("simpleQueryProvider", listCustomDefinitionParser);
+        registerBeanDefinitionParser("query-provider-list", listCustomDefinitionParser);
 
         //queries
         registerBeanDefinitionParser("query", findTypeParser);
-        registerBeanDefinitionParser("httpQuery", new HttpQueryDefinitionParser());
-        registerBeanDefinitionParser("clientParams", mapCustomDefinitionParser);
-        registerBeanDefinitionParser("methodParams", mapCustomDefinitionParser);
+        registerBeanDefinitionParser("query-http", new HttpQueryDefinitionParser());
+        registerBeanDefinitionParser("client-params", mapCustomDefinitionParser);
+        registerBeanDefinitionParser("method-params", mapCustomDefinitionParser);
 
         //calibrators
         registerBeanDefinitionParser("calibrator", findTypeParser);
         registerBeanDefinitionParser("defaultCalibrator", new DefaultCalibratorDefinitionParser());
 
-        //load
-        registerBeanDefinitionParser("load",  findTypeParser);
-        registerBeanDefinitionParser("newTest",  new TaskDefinitionParser());
-        registerBeanDefinitionParser("userGroups", new UserGroupsDefinitionParser());
-        registerBeanDefinitionParser("userGroup", new UserGroupDefinitionParser());
+
 
         //termination strategy
         registerBeanDefinitionParser("termination",  findTypeParser);
-        registerBeanDefinitionParser("iterationsOrDuration", new IterationsOrDurationTerminationStrategyDefinitionParser());
-        registerBeanDefinitionParser("background", new BackgroundTerminationStrategyDefinitionParser());
+        registerBeanDefinitionParser("termination-iterations", new IterationsOrDurationTerminationStrategyDefinitionParser());
+        registerBeanDefinitionParser("termination-duration"  , new IterationsOrDurationTerminationStrategyDefinitionParser());
+        registerBeanDefinitionParser("termination-background", new BackgroundTerminationStrategyDefinitionParser());
     }
 }

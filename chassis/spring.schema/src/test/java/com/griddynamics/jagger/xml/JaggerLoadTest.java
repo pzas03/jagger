@@ -73,7 +73,7 @@ public class JaggerLoadTest {
 
         conf = (IterationsOrDurationStrategyConfiguration) context.getBean("ts2");
         Assert.assertEquals(conf.getIterations(), 5);
-        Assert.assertEquals(conf.getDuration(), "3h");
+        Assert.assertEquals(conf.getDuration(), "1000");
 
         InfiniteTerminationStrategyConfiguration  conf1 = (InfiniteTerminationStrategyConfiguration) context.getBean("ts3");
 

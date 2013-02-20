@@ -43,9 +43,11 @@ public class JaggerProvidersTest {
     @Test
     public void testQueryProvider(){
         Iterable queries = (Iterable)ctx.getBean("queryProvider");
-        Assert.assertEquals(getSize(queries), 2);
+        Assert.assertNotNull(queries);
+        Assert.assertEquals(getSize(queries), 3);
 
         HttpQuery query =  (HttpQuery)queries.iterator().next();
+        Assert.assertNotNull(query);
         int timeOut = (Integer)query.getClientParams().get("http.protocol.max-redirects");
         Assert.assertEquals(timeOut, 2);
     }

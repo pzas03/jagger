@@ -32,31 +32,33 @@
         http://www.springframework.org/schema/beans/spring-beans.xsd"
         >
 
-    <endpointProvider id="endpointProvider" xsi:type="simpleEndpointProvider">
+    <endpoint-provider id="endpointProvider" xsi:type="endpoint-provider-list">
         <endpoint>http://localhost:8090/sleep/5</endpoint>
-        <endpoint>http://localhost:8090/sleep/25</endpoint>
-        <endpoint>http://localhost:8090/sleep/50</endpoint>
-    </endpointProvider>
+        <endpoint>http://localhost:8090/sleep/5</endpoint>
+        <endpoint>http://localhost:8090/sleep/5</endpoint>
+    </endpoint-provider>
 
-    <queryProvider id="queryProvider" xsi:type="simpleQueryProvider">
+    <query-provider id="queryProvider" xsi:type="query-provider-list">
 
-        <query xsi:type="httpQuery" method="GET">
-            <clientParams>
+        <query xsi:type="query-http" method="GET">
+            <client-params>
                 <param key="http.protocol.allow-circular-redirects">
                     <value xsi:type="boolean" >false</value>
                 </param>
                 <param key="http.protocol.max-redirects">
                     <value xsi:type="integer">2</value>
                 </param>
-            </clientParams>
+            </client-params>
         </query>
 
-        <query xsi:type="queryRef" ref="httpQ1"/>
+        <query xsi:type="query-ref" ref="httpQ1"/>
 
-    </queryProvider>
+        <query>simple string query</query>
 
-    <query id="httpQ1" xsi:type="httpQuery" method="GET">
-        <clientParams>
+    </query-provider>
+
+    <query id="httpQ1" xsi:type="query-http" method="GET">
+        <client-params>
             <param key="http.protocol.allow-circular-redirects">
                 <value xsi:type="boolean" >true</value>
             </param>
@@ -69,7 +71,7 @@
             <param key="http.protocol.max-redirects">
                 <value xsi:type="integer">0</value>
             </param>
-        </clientParams>
+        </client-params>
     </query>
 
 </beans:beans>

@@ -46,7 +46,7 @@ public class ConfigDefinitionParser extends CustomBeanDefinitionParser {
         Element testPlan = DomUtils.getChildElementByTagName(element, XMLConstants.TEST_SUITE);
 
         TaskGeneratorBean generator = new TaskGeneratorBean();
-        generator.getBean().getPropertyValues().addPropertyValue("testGroups", parseCustomElement(testPlan, parserContext, builder.getBeanDefinition()));
+        generator.getBean().getPropertyValues().addPropertyValue(XMLConstants.TEST_GROUPS, parseCustomElement(testPlan, parserContext, builder.getBeanDefinition()));
         parserContext.getRegistry().registerBeanDefinition(generator.getName(), generator.getBean());
 
         builder.addPropertyValue(XMLConstants.TASKS, generator.generateTasks());
@@ -61,15 +61,11 @@ public class ConfigDefinitionParser extends CustomBeanDefinitionParser {
         //override durationLogProcessor if needed
         Element percentilesElement = DomUtils.getChildElementByTagName(element, XMLConstants.LATENCY);
         if (percentilesElement != null){
-            Element percentilesTimeElement = DomUtils.getChildElementByTagName(percentilesElement, XMLConstants.PERCENTILES_TIME);
-            Element percentilesGlobalElement = DomUtils.getChildElementByTagName(percentilesElement, XMLConstants.PERCENTILES_GLOBAL);
 
             BeanDefinitionBuilder durationLogProcessorBean = BeanDefinitionBuilder.genericBeanDefinition(DurationLogProcessor.class);
             durationLogProcessorBean.setParentName(XMLConstants.DURATION_LOG_PROCESSOR);
 
-            setBeanProperty(XMLConstants.TIME_WINDOW_PERCENTILES_KEYS, percentilesTimeElement, parserContext, durationLogProcessorBean.getBeanDefinition());
-
-            setBeanProperty(XMLConstants.GLOBAL_PERCENTILES_KEYS, percentilesGlobalElement, parserContext, durationLogProcessorBean.getBeanDefinition());
+            setBeanProperty(XMLConstants.GLOBAL_PERCENTILES_KEYS, percentilesElement, parserContext, durationLogProcessorBean.getBeanDefinition());
 
             initStandardListeners(tlList, slList);
 

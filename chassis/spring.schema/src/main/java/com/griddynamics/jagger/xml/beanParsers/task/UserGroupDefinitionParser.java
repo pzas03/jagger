@@ -22,17 +22,17 @@ public class UserGroupDefinitionParser extends CustomBeanDefinitionParser {
 
     @Override
     protected void preParseAttributes(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
-        if(element.getAttribute("tickInterval").isEmpty()){
-            builder.addPropertyValue("tickInterval", XMLConstants.DEFAULT_TICK_INTERVAL);
+        if(element.getAttribute(XMLConstants.TICK_INTERVAL).isEmpty()){
+            builder.addPropertyValue(XMLConstants.TICK_INTERVAL, XMLConstants.DEFAULT_TICK_INTERVAL);
         }else{
-            builder.addPropertyValue("tickInterval", element.getAttribute("tickInterval"));
+            builder.addPropertyValue(XMLConstants.TICK_INTERVAL, element.getAttribute("tickInterval"));
         }
-        element.removeAttribute("tickInterval");
+        element.removeAttribute(XMLConstants.TICK_INTERVAL);
 
         BeanDefinition bd = new UserDefinitionParser().parse(element, parserContext);
         ManagedList users = new ManagedList();
         users.add(bd);
-        builder.addPropertyValue("users", users);
+        builder.addPropertyValue(XMLConstants.USERS, users);
 
 
         //TODO refactor CustomBeanDefinitionParser

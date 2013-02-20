@@ -21,8 +21,8 @@ public class TaskDefinitionParser extends CustomBeanDefinitionParser {
     @Override
     protected void parse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
 
-        setBeanProperty("load", DomUtils.getChildElementByTagName(element, "load"), parserContext, builder.getBeanDefinition());
-        setBeanProperty("terminateStrategy", DomUtils.getChildElementByTagName(element, "termination"), parserContext, builder.getBeanDefinition());
+        setBeanProperty(XMLConstants.LOAD, DomUtils.getChildElementByTagName(element, XMLConstants.LOAD), parserContext, builder.getBeanDefinition());
+        setBeanProperty(XMLConstants.TERMINATION_STRATEGY, DomUtils.getChildElementByTagName(element, XMLConstants.TERMINATION), parserContext, builder.getBeanDefinition());
     }
 
     @Override

@@ -27,8 +27,8 @@ public class TpsDefinitionParser extends CustomBeanDefinitionParser {
 
     @Override
     protected void preParseAttributes(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
-        if (element.getAttribute("tickInterval").isEmpty()){
-            builder.addPropertyValue("tickInterval", XMLConstants.DEFAULT_TICK_INTERVAL);
+        if (element.getAttribute(XMLConstants.TICK_INTERVAL).isEmpty()){
+            builder.addPropertyValue(XMLConstants.TICK_INTERVAL, XMLConstants.DEFAULT_TICK_INTERVAL);
         }
     }
 

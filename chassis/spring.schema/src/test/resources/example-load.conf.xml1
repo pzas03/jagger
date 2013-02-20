@@ -29,32 +29,32 @@
         >
 
 
-    <jgr:tps id="tps1" value="200"/>
+    <jgr:load-tps id="tps1" value="200"/>
 
-    <jgr:tps id="tps2" value="100" tickInterval="500"/>
+    <jgr:load-tps id="tps2" value="100" tickInterval="500"/>
 
-    <jgr:invocation id="inv1" exactcount="100" threads="1" delay="100"/>
+    <jgr:load-invocation id="inv1" exactcount="100" threads="1" delay="100"/>
 
-    <jgr:invocation id="inv2" exactcount="50" threads="2" tickInterval="500"/>
+    <jgr:load-invocation id="inv2" exactcount="50" threads="2" tickInterval="500"/>
 
-    <jgr:iterationsOrDuration id="ts1" duration="2h"/>
+    <jgr:termination-duration id="ts1" duration="2h"/>
 
-    <jgr:iterationsOrDuration id="ts2" duration="3h" iterations="5"/>
+    <jgr:termination-iterations id="ts2" iterations="5"/>
 
-    <jgr:background id="ts3"/>
+    <jgr:termination-background id="ts3"/>
 
 
     <jgr:test id="test1" testDescription="descr">
-        <jgr:load xsi:type="jgr:tps" value="100"/>
-        <jgr:termination xsi:type="jgr:iterationsOrDuration" iterations="255" duration="2h"/>
+        <jgr:load xsi:type="jgr:load-tps" value="100"/>
+        <jgr:termination xsi:type="jgr:termination-iterations" iterations="255" maxDuration="2h"/>
     </jgr:test>
 
     <jgr:test-description id="descr" calibration="false" />
 
     <jgr:test-group id="gr1">
          <jgr:test id="innerTest1" testDescription="descr">
-             <jgr:load xsi:type="jgr:userGroup" count="5"/>
-             <jgr:termination xsi:type="jgr:background"/>
+             <jgr:load xsi:type="jgr:load-user-group" count="5"/>
+             <jgr:termination xsi:type="jgr:termination-background"/>
          </jgr:test>
     </jgr:test-group>
 

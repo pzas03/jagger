@@ -21,14 +21,14 @@ public class UserGroupsDefinitionParser extends CustomBeanDefinitionParser {
 
     @Override
     protected void preParseAttributes(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
-        if (element.getAttribute("tickInterval").isEmpty()){
-            builder.addPropertyValue("tickInterval", XMLConstants.DEFAULT_TICK_INTERVAL);
+        if (element.getAttribute(XMLConstants.TICK_INTERVAL).isEmpty()){
+            builder.addPropertyValue(XMLConstants.TICK_INTERVAL, XMLConstants.DEFAULT_TICK_INTERVAL);
         }
     }
 
     @Override
     protected void parse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
         element.setAttribute(BeanDefinitionParserDelegate.VALUE_TYPE_ATTRIBUTE, ProcessingConfig.Test.Task.User.class.getCanonicalName());
-        setBeanListProperty("users", false, element, parserContext, builder.getBeanDefinition());
+        setBeanListProperty(XMLConstants.USERS, false, element, parserContext, builder.getBeanDefinition());
     }
 }
