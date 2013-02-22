@@ -39,10 +39,9 @@ public class WorkloadDefinitionParser extends CustomBeanDefinitionParser{
             for (String listenerBeanName : XMLConstants.STANDARD_WORKLOAD_LISTENERS){
                 listeners.add(new RuntimeBeanReference(listenerBeanName));
             }
+            builder.addPropertyValue(XMLConstants.WORKLOAD_LISTENERS_CLASS, listeners);
 
             if (listenersGroup != null){
-
-                builder.addPropertyValue(XMLConstants.WORKLOAD_LISTENERS_CLASS, listeners);
 
                 setBeanListProperty(XMLConstants.WORKLOAD_LISTENERS_CLASS, true, listenersGroup, parserContext, builder.getBeanDefinition());
             }
