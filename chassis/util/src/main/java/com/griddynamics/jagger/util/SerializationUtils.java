@@ -35,6 +35,7 @@ public class SerializationUtils {
     private static final Logger log = LoggerFactory.getLogger(SerializationUtils.class);
     private static final AtomicLong fromStringCount = new AtomicLong(0);
     private static final AtomicLong toStringCount = new AtomicLong(0);
+    private static boolean useJBoss=true;//if false - using default java serialization
 
     private SerializationUtils() {
     }
@@ -45,7 +46,15 @@ public class SerializationUtils {
         }
         try {
             byte[] data = Base64Coder.decode(s);
-            ObjectInputStream ois = new JBossObjectInputStream(new ByteArrayInputStream(data));
+            ObjectInputStream ois;
+            try{
+                //TODO fixes for support old reports
+                ois=new JBossObjectInputStream(new ByteArrayInputStream(data));
+            } catch (IOException e) {
+            // /data stored not with JBoss
+                ois=new ObjectInputStream(new ByteArrayInputStream(data));
+            }
+
             T obj = (T) ois.readObject();
             ois.close();
             return obj;
@@ -62,7 +71,12 @@ public class SerializationUtils {
     public static String toString(Serializable o) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
-            ObjectOutputStream oos = new JBossObjectOutputStream(baos);
+            ObjectOutputStream oos;
+            if(useJBoss){
+                oos=new JBossObjectOutputStream(baos);
+            } else{
+                oos=new ObjectOutputStream(baos);
+            }
             oos.writeObject(o);
             oos.close();
         } catch (IOException e) {
@@ -80,7 +94,12 @@ public class SerializationUtils {
     public static byte[] serialize(Object obj) {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream ous = new JBossObjectOutputStream(baos);
+            ObjectOutputStream ous;
+            if(useJBoss){
+                ous=new JBossObjectOutputStream(baos);
+            } else {
+                ous=new ObjectOutputStream(baos);
+            }
             ous.writeObject(obj);
             ous.close();
 
@@ -93,13 +112,35 @@ public class SerializationUtils {
     public static Object deserialize(byte[] data) {
         try {
             ByteArrayInputStream bais = new ByteArrayInputStream(data);
-            ObjectInputStream ois = new JBossObjectInputStream(bais);
+            ObjectInputStream ois;
+            try{
+                //TODO fixes for support old reports
+               ois= new JBossObjectInputStream(bais);
+            } catch (IOException e){
+                //data stored not with JBoss
+                ois=new ObjectInputStream(bais);
+            }
             Object payload = ois.readObject();
             ois.close();
 
             return payload;
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static Configurator getConfigurator() {
+        return Configurator.configuratorInstance;
+    }
+
+    public static class Configurator {
+        private static final Configurator configuratorInstance = new Configurator();
+
+        private Configurator() {}
+
+        public void setUseJBoss(boolean useJBoss) {
+            log.info("setting useJBoss= {}",useJBoss);
+            SerializationUtils.useJBoss = useJBoss;
         }
     }
 }
