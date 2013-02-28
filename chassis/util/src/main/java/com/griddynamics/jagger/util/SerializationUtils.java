@@ -29,6 +29,7 @@ import org.jboss.serial.io.JBossObjectInputStream;
 import org.jboss.serial.io.JBossObjectOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.common.io.Closeables;
 
 // TODO Avoid static code. Extract interface and make this one default implementation.
 public class SerializationUtils {
@@ -67,21 +68,8 @@ public class SerializationUtils {
             log.error("Deserialization exception ", e);
             throw new TechnicalException(e);
         } finally {
-            if (ois!=null){
-                try {
-                    ois.close();
-                } catch (IOException e) {
-                    log.warn("Exception during closing InputStream: ",e);
-                }
-            } else {
-                if (in!=null){
-                    try {
-                        in.close();
-                    } catch (IOException e) {
-                        log.warn("Exception during closing InputStream: ",e);
-                    }
-                }
-            }
+            Closeables.closeQuietly(ois);
+            Closeables.closeQuietly(in);
         }
     }
 
@@ -98,26 +86,14 @@ public class SerializationUtils {
         } catch (IOException e) {
             log.error("Serialization exception ", e);
             throw new TechnicalException(e);
-        }  finally {
-            if (oos!=null){
-                try {
-                    oos.close();
-                } catch (IOException e) {
-                    log.warn("Exception during closing OutputStream: ",e);
-                }
+        } finally {
+            String s = new String(Base64Coder.encode(baos.toByteArray()));
+            if (s.isEmpty()) {
+                log.info("toString({}, '{}', '{}')", new Object[] {toStringCount.getAndIncrement(), s, o});
             }
+            Closeables.closeQuietly(oos);
+            return s;
         }
-
-        String s = new String(Base64Coder.encode(baos.toByteArray()));
-        if (s.isEmpty()) {
-            log.info("toString({}, '{}', '{}')", new Object[] {toStringCount.getAndIncrement(), s, o});
-        }
-        try {
-            baos.close();
-        } catch (IOException e) {
-            log.warn("Exception during closing OutputStream: ",e);
-        }
-        return s;
     }
 
     public static byte[] serialize(Object obj) {
@@ -135,22 +111,9 @@ public class SerializationUtils {
             return baos.toByteArray();
         } catch (Exception e) {
             throw new RuntimeException("Error during " + obj + " serialization", e);
-        }   finally {
-            if (ous!=null){
-                try {
-                    ous.close();
-                } catch (IOException e) {
-                    log.warn("Exception during closing OutputStream: ",e);
-                }
-            } else {
-                if(baos!=null){
-                    try {
-                        baos.close();
-                    } catch (IOException e) {
-                        log.warn("Exception during closing OutputStream: ",e);
-                    }
-                }
-            }
+        }  finally {
+            Closeables.closeQuietly(ous);
+            Closeables.closeQuietly(baos);
         }
     }
 
@@ -172,21 +135,8 @@ public class SerializationUtils {
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
-            if (ois!=null){
-                try {
-                    ois.close();
-                } catch (IOException e) {
-                    log.warn("Exception during closing InputStream: ",e);
-                }
-            } else {
-                if(bais!=null){
-                    try {
-                        bais.close();
-                    } catch (IOException e) {
-                        log.warn("Exception during closing InputStream: ",e);
-                    }
-                }
-            }
+            Closeables.closeQuietly(ois);
+            Closeables.closeQuietly(bais);
         }
     }
 
