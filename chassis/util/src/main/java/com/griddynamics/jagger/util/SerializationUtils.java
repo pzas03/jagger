@@ -44,19 +44,20 @@ public class SerializationUtils {
         if (s.isEmpty()) {
             log.info("fromString({}, '{}')", fromStringCount.getAndIncrement(), s);
         }
+        ObjectInputStream ois = null;
+        InputStream in=null;
         try {
             byte[] data = Base64Coder.decode(s);
-            ObjectInputStream ois;
+
+            in=new ByteArrayInputStream(data);
             try{
                 //TODO fixes for support old reports
-                ois=new JBossObjectInputStream(new ByteArrayInputStream(data));
+                ois=new JBossObjectInputStream(in);
             } catch (IOException e) {
-            // /data stored not with JBoss
-                ois=new ObjectInputStream(new ByteArrayInputStream(data));
+                // /data stored not with JBoss
+                ois=new ObjectInputStream(in);
             }
-
             T obj = (T) ois.readObject();
-            ois.close();
             return obj;
         } catch (IOException e) {
             log.error("Deserialization exception ", e);
@@ -65,67 +66,127 @@ public class SerializationUtils {
         } catch (ClassNotFoundException e) {
             log.error("Deserialization exception ", e);
             throw new TechnicalException(e);
+        } finally {
+            if (ois!=null){
+                try {
+                    ois.close();
+                } catch (IOException e) {
+                    log.warn("Exception during closing InputStream: ",e);
+                }
+            } else {
+                if (in!=null){
+                    try {
+                        in.close();
+                    } catch (IOException e) {
+                        log.warn("Exception during closing InputStream: ",e);
+                    }
+                }
+            }
         }
     }
 
     public static String toString(Serializable o) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = null;
         try {
-            ObjectOutputStream oos;
             if(useJBoss){
                 oos=new JBossObjectOutputStream(baos);
             } else{
                 oos=new ObjectOutputStream(baos);
             }
             oos.writeObject(o);
-            oos.close();
         } catch (IOException e) {
             log.error("Serialization exception ", e);
             throw new TechnicalException(e);
+        }  finally {
+            if (oos!=null){
+                try {
+                    oos.close();
+                } catch (IOException e) {
+                    log.warn("Exception during closing OutputStream: ",e);
+                }
+            }
         }
 
         String s = new String(Base64Coder.encode(baos.toByteArray()));
         if (s.isEmpty()) {
             log.info("toString({}, '{}', '{}')", new Object[] {toStringCount.getAndIncrement(), s, o});
         }
+        try {
+            baos.close();
+        } catch (IOException e) {
+            log.warn("Exception during closing OutputStream: ",e);
+        }
         return s;
     }
 
     public static byte[] serialize(Object obj) {
+        ObjectOutputStream ous = null;
+        ByteArrayOutputStream baos=null;
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream ous;
+            baos = new ByteArrayOutputStream();
             if(useJBoss){
                 ous=new JBossObjectOutputStream(baos);
             } else {
                 ous=new ObjectOutputStream(baos);
             }
             ous.writeObject(obj);
-            ous.close();
 
             return baos.toByteArray();
         } catch (Exception e) {
             throw new RuntimeException("Error during " + obj + " serialization", e);
+        }   finally {
+            if (ous!=null){
+                try {
+                    ous.close();
+                } catch (IOException e) {
+                    log.warn("Exception during closing OutputStream: ",e);
+                }
+            } else {
+                if(baos!=null){
+                    try {
+                        baos.close();
+                    } catch (IOException e) {
+                        log.warn("Exception during closing OutputStream: ",e);
+                    }
+                }
+            }
         }
     }
 
     public static Object deserialize(byte[] data) {
+        ObjectInputStream ois = null;
+        ByteArrayInputStream bais = null;
         try {
-            ByteArrayInputStream bais = new ByteArrayInputStream(data);
-            ObjectInputStream ois;
+            bais = new ByteArrayInputStream(data);
             try{
                 //TODO fixes for support old reports
-               ois= new JBossObjectInputStream(bais);
+                ois= new JBossObjectInputStream(bais);
             } catch (IOException e){
                 //data stored not with JBoss
                 ois=new ObjectInputStream(bais);
             }
             Object payload = ois.readObject();
-            ois.close();
 
             return payload;
         } catch (Exception e) {
             throw new RuntimeException(e);
+        } finally {
+            if (ois!=null){
+                try {
+                    ois.close();
+                } catch (IOException e) {
+                    log.warn("Exception during closing InputStream: ",e);
+                }
+            } else {
+                if(bais!=null){
+                    try {
+                        bais.close();
+                    } catch (IOException e) {
+                        log.warn("Exception during closing InputStream: ",e);
+                    }
+                }
+            }
         }
     }
 
