@@ -221,8 +221,8 @@
         <xsd:complexContent>
             <xsd:extension base="basicType">
                 <xsd:all>
-                    <xsd:element ref="load" maxOccurs="1"/>
-                    <xsd:element ref="termination" maxOccurs="1"/>
+                    <xsd:element name="load" type="loadAbstract" maxOccurs="1"/>
+                    <xsd:element name="termination" type="terminationAbstract" maxOccurs="1"/>
                 </xsd:all>
                 <xsd:attribute name="testDescription" type="xsd:string" use="required"/>
             </xsd:extension>
@@ -418,75 +418,73 @@
 
     <!--listeners -->
 
-    <xsd:element name="workload-listener" type="workloadListenerType" abstract="true"/>
+    <xsd:element name="collector" type="workloadCollectorAbstract"/>
 
     <!--metrics-->
 
-    <xsd:element name="metric" type="metricType"  substitutionGroup="workload-listener"/>
-    
+    <xsd:element name="metric" type="metricAbstract" substitutionGroup="collector"/>
+
     <xsd:element name="metric-not-null-response" type="metric-not-null-response" substitutionGroup="metric"/>
 
     <xsd:element name="metric-custom" type="metric-custom" substitutionGroup="metric"/>
 
     <!--validators-->
 
-    <xsd:element name="validator" type="validatorType" substitutionGroup="workload-listener"/>
+    <xsd:element name="validator" type="validatorAbstract" substitutionGroup="collector"/>
 
     <xsd:element name="validator-not-null-response" type="validator-not-null-response" substitutionGroup="validator"/>
 
     <xsd:element name="validator-consistency" type="validator-consistency" substitutionGroup="validator"/>
 
-    <xsd:element name="validator-ref" type="validator-ref" substitutionGroup="validator"/>
-
     <xsd:complexType name="workloadListenersType">
         <xsd:complexContent>
             <xsd:extension base="basicType">
                 <xsd:choice minOccurs="0" maxOccurs="unbounded">
-                    <xsd:element ref="workload-listener"/>
+                    <xsd:element ref="collector"/>
                 </xsd:choice>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:complexType name="workloadListenerType" abstract="true">
+    <xsd:complexType name="workloadCollectorAbstract" abstract="true">
         <xsd:complexContent>
             <xsd:extension base="basicType">
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:complexType name="metricType" abstract="true">
+    <xsd:complexType name="metricAbstract" abstract="true">
         <xsd:complexContent>
-            <xsd:extension base="workloadListenerType">
+            <xsd:extension base="workloadCollectorAbstract">
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
 
     <xsd:complexType name="metric-not-null-response" >
         <xsd:complexContent>
-            <xsd:extension base="metricType">
+            <xsd:extension base="metricAbstract">
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
 
     <xsd:complexType name="metric-custom">
         <xsd:complexContent>
-            <xsd:extension base="metricType">
+            <xsd:extension base="metricAbstract">
                 <xsd:attribute name="calculator" type="xsd:string" use="required"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:complexType name="validatorType">
+    <xsd:complexType name="validatorAbstract">
         <xsd:complexContent>
-            <xsd:extension base="workloadListenerType">
+            <xsd:extension base="workloadCollectorAbstract">
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
 
     <xsd:complexType name="validator-consistency">
         <xsd:complexContent>
-            <xsd:extension base="validatorType">
+            <xsd:extension base="validatorAbstract">
                 <xsd:attribute name="queryEq" type="xsd:string"/>
                 <xsd:attribute name="endpointEq" type="xsd:string"/>
                 <xsd:attribute name="resultEq" type="xsd:string"/>
@@ -496,14 +494,14 @@
 
     <xsd:complexType name="validator-not-null-response">
         <xsd:complexContent>
-            <xsd:extension base="validatorType">
+            <xsd:extension base="validatorAbstract">
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
 
     <xsd:complexType name="validator-ref">
         <xsd:complexContent>
-            <xsd:extension base="validatorType">
+            <xsd:extension base="validatorAbstract">
                 <xsd:attribute name="ref" type="xsd:string" use="required"/>
             </xsd:extension>
         </xsd:complexContent>
@@ -549,10 +547,10 @@
         <xsd:complexContent>
             <xsd:extension base="scenarioType">
                 <xsd:all>
-                    <xsd:element ref="invoker" minOccurs="0" maxOccurs="1"/>
-                    <xsd:element ref="query-provider" minOccurs="0" maxOccurs="1"/>
-                    <xsd:element ref="endpoint-provider" minOccurs="0" maxOccurs="1"/>
-                    <xsd:element ref="query-distributor" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="invoker" type="invokerAbstract" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="query-provider" type="queryProviderAbstract" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="endpoint-provider" type="endpointProviderAbstract" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="query-distributor" type="queryDistributorAbstract" minOccurs="0" maxOccurs="1"/>
                 </xsd:all>
             </xsd:extension>
         </xsd:complexContent>
@@ -560,7 +558,7 @@
 
     <!--possible invokers-->
 
-    <xsd:element name="invoker" type="invokerType"/>
+    <xsd:element name="invoker" type="invokerAbstract"/>
 
     <xsd:element name="invoker-http" type="invoker-http" substitutionGroup="invoker"/>
 
@@ -568,7 +566,7 @@
 
     <xsd:element name="invoker-class" type="invoker-class" substitutionGroup="invoker"/>
 
-    <xsd:complexType name="invokerType" abstract="true">
+    <xsd:complexType name="invokerAbstract" abstract="true">
         <xsd:complexContent>
             <xsd:extension base="basicType">
             </xsd:extension>
@@ -577,21 +575,21 @@
 
     <xsd:complexType name="invoker-http">
         <xsd:complexContent>
-            <xsd:extension base="invokerType">
+            <xsd:extension base="invokerAbstract">
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
 
     <xsd:complexType name="invoker-soap">
         <xsd:complexContent>
-            <xsd:extension base="invokerType">
+            <xsd:extension base="invokerAbstract">
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
 
     <xsd:complexType name="invoker-class">
         <xsd:complexContent>
-            <xsd:extension base="invokerType">
+            <xsd:extension base="invokerAbstract">
                 <xsd:attribute name="class" type="xsd:string" use="required"/>
             </xsd:extension>
         </xsd:complexContent>
@@ -761,6 +759,14 @@
         </xsd:complexContent>
     </xsd:complexType>
 
+    <xsd:complexType name="query-distributor-ref">
+        <xsd:complexContent>
+            <xsd:extension base="queryDistributorAbstract">
+                <xsd:attribute name="ref" type="xsd:string" use="required"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
     <!--REPORTING-->
 
     <xsd:element name="report" type="reportType"/>
@@ -811,7 +817,8 @@
         <xsd:complexContent>
             <xsd:extension base="beans:identifiedType">
                 <xsd:choice minOccurs="0" maxOccurs="unbounded">
-                    <xsd:element ref="comparator"/>
+                    <xsd:element name="comparator-monitoring" type="comparator-monitoring"/>
+                    <xsd:element name="comparator-workload" type="comparator-workload"/>
                 </xsd:choice>
                 <xsd:attributeGroup ref="sessionComparatorsAttribute"/>
             </xsd:extension>
@@ -828,18 +835,16 @@
 
     <xsd:element name="decision-maker" type="decisionMakerAbstract"/>
 
-    <xsd:element name="decision-maker-throughput" type="decision-maker-throughput" substitutionGroup="decision-maker"/>
+    <!--unsupported yet-->
+    <!--<xsd:element name="decision-maker-throughput" type="decision-maker-throughput" substitutionGroup="decision-maker"/>-->
 
-    <xsd:element name="decision-maker-stddev" type="decision-maker-stddev" substitutionGroup="decision-maker"/>
+    <!--<xsd:element name="decision-maker-stddev" type="decision-maker-stddev" substitutionGroup="decision-maker"/>-->
 
-    <xsd:element name="decision-maker-ref" type="decision-maker-ref" substitutionGroup="decision-maker"/>
+    <!--<xsd:element name="decision-maker-ref" type="decision-maker-ref" substitutionGroup="decision-maker"/>-->
 
     <xsd:complexType name="comparatorAbstract" abstract="true">
         <xsd:complexContent>
             <xsd:extension base="basicType">
-                <xsd:choice minOccurs="1" maxOccurs="1">
-                    <xsd:element ref="decision-maker"/>
-                </xsd:choice>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -850,9 +855,24 @@
         </xsd:complexContent>
     </xsd:complexType>
 
+    <xsd:complexType name="decisionMakerMonitoringAbstract" abstract="true">
+        <xsd:complexContent>
+            <xsd:extension base="decisionMakerAbstract"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="decisionMakerWorkloadAbstract" abstract="true">
+        <xsd:complexContent>
+            <xsd:extension base="decisionMakerAbstract"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+
     <xsd:complexType name="comparator-monitoring">
         <xsd:complexContent>
             <xsd:extension base="comparatorAbstract">
+                <xsd:choice minOccurs="1" maxOccurs="1">
+                    <xsd:element name="decision-maker" type="decisionMakerMonitoringAbstract"/>
+                </xsd:choice>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -860,6 +880,9 @@
     <xsd:complexType name="comparator-workload">
         <xsd:complexContent>
             <xsd:extension base="comparatorAbstract">
+                <xsd:choice minOccurs="1" maxOccurs="1">
+                    <xsd:element name="decision-maker" type="decisionMakerWorkloadAbstract"/>
+                </xsd:choice>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -872,27 +895,35 @@
         </xsd:complexContent>
     </xsd:complexType>
     
-    <xsd:complexType name="decision-maker-throughput">
+    <xsd:complexType name="decision-maker-workload-throughput">
         <xsd:complexContent>
-            <xsd:extension base="decisionMakerAbstract">
+            <xsd:extension base="decisionMakerWorkloadAbstract">
                 <xsd:attribute name="fatalDeviationThreshold" type="xsd:float" use="required"/>
                 <xsd:attribute name="warningDeviationThreshold" type="xsd:float" use="required"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:complexType name="decision-maker-stddev">
+    <xsd:complexType name="decision-maker-monitoring-stddev">
         <xsd:complexContent>
-            <xsd:extension base="decisionMakerAbstract">
+            <xsd:extension base="decisionMakerMonitoringAbstract">
                 <xsd:attribute name="fatalDeviationThreshold" type="xsd:float" use="required"/>
                 <xsd:attribute name="warningDeviationThreshold" type="xsd:float" use="required"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:complexType name="decision-maker-ref">
+    <xsd:complexType name="decision-maker-monitoring-ref">
         <xsd:complexContent>
-            <xsd:extension base="decisionMakerAbstract">
+            <xsd:extension base="decisionMakerMonitoringAbstract">
+                <xsd:attribute name="ref" type="xsd:string" use="required"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="decision-maker-workload-ref">
+        <xsd:complexContent>
+            <xsd:extension base="decisionMakerWorkloadAbstract">
                 <xsd:attribute name="ref" type="xsd:string" use="required"/>
             </xsd:extension>
         </xsd:complexContent>

@@ -46,8 +46,8 @@ public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
         registerBeanDefinitionParser("comparator-monitoring", new MonitoringComparatorDefinitionParser());
 
         registerBeanDefinitionParser("decision-maker", findTypeParser);
-        registerBeanDefinitionParser("decision-maker-throughput", new ThroughputDMDefinitionParser());
-        registerBeanDefinitionParser("decision-maker-stddev", new StdDevDefinitionParser());
+        registerBeanDefinitionParser("decision-maker-workload-throughput", new ThroughputDMDefinitionParser());
+        registerBeanDefinitionParser("decision-maker-monitoring-stddev", new StdDevDefinitionParser());
 
         //TASKS
         registerBeanDefinitionParser("test", new TaskDefinitionParser());
