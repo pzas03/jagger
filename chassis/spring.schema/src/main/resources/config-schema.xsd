@@ -219,7 +219,7 @@
 
     <xsd:complexType name="testType">
         <xsd:complexContent>
-            <xsd:extension base="basicType">
+            <xsd:extension base="beans:identifiedType">
                 <xsd:all>
                     <xsd:element name="load" type="loadAbstract" maxOccurs="1"/>
                     <xsd:element name="termination" type="terminationAbstract" maxOccurs="1"/>
@@ -231,7 +231,7 @@
 
     <xsd:complexType name="loadAbstract" abstract="true">
         <xsd:complexContent>
-            <xsd:extension base="basicType">
+            <xsd:extension base="beans:identifiedType">
                 <xsd:attribute name="tickInterval" type="xsd:string"/>
             </xsd:extension>
         </xsd:complexContent>
@@ -239,7 +239,7 @@
 
     <xsd:complexType name="terminationAbstract" abstract="true">
         <xsd:complexContent>
-            <xsd:extension base="basicType">
+            <xsd:extension base="beans:identifiedType">
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -269,7 +269,7 @@
 
     <xsd:complexType name="testGroupType">
         <xsd:complexContent>
-            <xsd:extension base="basicType">
+            <xsd:extension base="beans:identifiedType">
                 <xsd:choice minOccurs="0" maxOccurs="unbounded">
                     <xsd:element name="test" type="testTypeIn" maxOccurs="unbounded"/>
                     <xsd:element ref="beans:bean"/>
@@ -283,14 +283,14 @@
     <xsd:complexType name="testTypeIn">
         <xsd:complexContent>
             <xsd:extension base="testType">
-                <xsd:attribute name="ref" type="xsd:string"/>
+                <!--<xsd:attribute name="ref" type="xsd:string"/>-->
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
 
     <xsd:complexType name="testSuiteType">
         <xsd:complexContent>
-            <xsd:extension base="basicType">
+            <xsd:extension base="beans:identifiedType">
                 <xsd:choice minOccurs="0" maxOccurs="unbounded">
                     <xsd:element name="test-group" type="testGroupType" maxOccurs="unbounded"/>
                     <xsd:element ref="beans:bean"/>
@@ -407,7 +407,7 @@
             <xsd:extension base="basicType">
                 <xsd:all>
                     <xsd:element name="info-collectors" type="workloadListenersType" minOccurs="0" maxOccurs="1"/>
-                    <xsd:element ref="scenario" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="scenario" type="scenarioAbstract" minOccurs="0" maxOccurs="1"/>
                 </xsd:all>
                 <xsd:attribute name="name" type="xsd:string"/>
                 <xsd:attribute name="version" type="xsd:integer"/>
@@ -509,7 +509,7 @@
 
     <!--possible scenarios-->
 
-    <xsd:element name="scenario" type="scenarioType"/>
+    <xsd:element name="scenario" type="scenarioAbstract"/>
 
     <xsd:element name="scenario-http" type="scenario-http" substitutionGroup="scenario"/>
 
@@ -517,7 +517,7 @@
 
     <xsd:element name="scenario-ref" type="scenario-ref" substitutionGroup="scenario"/>
 
-    <xsd:complexType name="scenarioType" abstract="true">
+    <xsd:complexType name="scenarioAbstract" abstract="true">
         <xsd:complexContent>
             <xsd:extension base="basicType">
             </xsd:extension>
@@ -526,7 +526,7 @@
 
     <xsd:complexType name="scenario-ref">
         <xsd:complexContent>
-            <xsd:extension base="scenarioType">
+            <xsd:extension base="scenarioAbstract">
                 <xsd:attribute name="ref" type="xsd:string" use="required"/>
             </xsd:extension>
         </xsd:complexContent>
@@ -534,7 +534,7 @@
 
     <xsd:complexType name="scenario-http">
         <xsd:complexContent>
-            <xsd:extension base="scenarioType">
+            <xsd:extension base="scenarioAbstract">
                 <xsd:all>
                     <xsd:element name="endpoint" type="xsd:string" minOccurs="1" maxOccurs="1"/>
                     <xsd:element name="http-query" type="query-http" minOccurs="1" maxOccurs="1"/>
@@ -545,7 +545,7 @@
 
     <xsd:complexType name="scenario-query-pool">
         <xsd:complexContent>
-            <xsd:extension base="scenarioType">
+            <xsd:extension base="scenarioAbstract">
                 <xsd:all>
                     <xsd:element name="invoker" type="invokerAbstract" minOccurs="0" maxOccurs="1"/>
                     <xsd:element name="query-provider" type="queryProviderAbstract" minOccurs="0" maxOccurs="1"/>
