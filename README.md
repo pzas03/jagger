@@ -35,6 +35,3 @@ Jagger features:
 
 * <b>Simulation of Network Failures and Maintenance Operations</b>
   Simulate packet losses, communication delays, nodes restart in cluster environment.
-
-* <b>Commercial Support</b>
-  Enterprise class support and consulting available.
