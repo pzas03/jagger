@@ -104,6 +104,7 @@
         <info-collectors>
             <validator xsi:type="validator-not-null-response"/>
             <validator xsi:type="validator-consistency"/>
+            <validator xsi:type="validator-custom" validator="com.griddynamics.jagger.xml.FalseValidator"/>
             <metric xsi:type="metric-not-null-response"/>
         </info-collectors>
 
