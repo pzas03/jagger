@@ -1,4 +1,4 @@
-#set( $symbol_pound = '#' )
+ #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
 <?xml version="1.0" encoding="UTF-8"?>
@@ -30,13 +30,5 @@
        default-lazy-init="true">
 
     <bean id="responseSize" class="${package}.calculator.ResponseSize"/>
-
-    <bean id="fileValidator" class="com.griddynamics.jagger.engine.e1.collector.ValidationCollectorProvider">
-        <property name="validator">
-            <bean class="com.griddynamics.jagger.engine.e1.scenario.ReflectionProvider">
-                <property name="clazz" value="${package}.validator.ResponseFromFileValidator"/>
-            </bean>
-        </property>
-    </bean>
 
 </beans>

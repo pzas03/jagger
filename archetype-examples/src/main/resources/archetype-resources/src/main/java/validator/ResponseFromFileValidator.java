@@ -7,12 +7,9 @@ import com.griddynamics.jagger.coordinator.NodeContext;
 import com.griddynamics.jagger.engine.e1.collector.ResponseValidator;
 import com.griddynamics.jagger.exception.TechnicalException;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
 
 public class ResponseFromFileValidator<Q, E, R> extends ResponseValidator<Q, E, R> {
 

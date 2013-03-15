@@ -114,7 +114,7 @@
         </scenario>
 
         <info-collectors parent="defaultCollectors">
-            <validator xsi:type="validator-ref" ref="fileValidator"/>
+            <validator xsi:type="validator-custom" validator="${package}.validator.ResponseFromFileValidator"/>
         </info-collectors>
     </test-description>
 
