@@ -14,7 +14,7 @@ import java.util.Scanner;
 public class ResponseFromFileValidator<Q, E, R> extends ResponseValidator<Q, E, R> {
 
 
-    private String filePath= "suite/validatorResources/response.txt";
+    private String filePath= "suite/validator/resources/response.txt";
     private String expectedResponse;
 
     public ResponseFromFileValidator(String taskId, String sessionId, NodeContext kernelContext) {
