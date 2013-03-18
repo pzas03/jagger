@@ -25,9 +25,12 @@ class GroovyPageVisitorInvoker implements Invoker{
             return endpoint + "/" + path;
         }
 
-        private String doHttpGet(String urlStr) throws IOException {
+    private String doHttpGet(String urlStr) throws IOException {
+        HttpURLConnection connection;
+        StringBuilder response = new StringBuilder();
+        try{
             URL url = new URL(urlStr);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection = (HttpURLConnection) url.openConnection()
 
             connection.setInstanceFollowRedirects(false);
             connection.setUseCaches(false);
@@ -38,14 +41,18 @@ class GroovyPageVisitorInvoker implements Invoker{
             BufferedReader br = new BufferedReader(isr);
             String theLine;
 
-            StringBuilder response = new StringBuilder();
             while ((theLine = br.readLine()) != null) {
                 response.append(theLine);
             }
-            connection.disconnect();
-
-            return response.toString();
         }
+        finally {
+            if (connection!=null){
+                connection.disconnect();
+            }
+        }
+
+        return response.toString();
+    }
 
         @Override
         public String toString() {

@@ -50,23 +50,29 @@ public class PageVisitorInvoker implements Invoker<String, String, String> {
     }
 
     private String doHttpGet(String urlStr) throws IOException {
-        URL url = new URL(urlStr);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-        connection.setInstanceFollowRedirects(false);
-        connection.setUseCaches(false);
-
-        InputStream is = connection.getInputStream();
-
-        InputStreamReader isr = new InputStreamReader(is);
-        BufferedReader br = new BufferedReader(isr);
-        String theLine;
-
+        HttpURLConnection connection;
         StringBuilder response = new StringBuilder();
-        while ((theLine = br.readLine()) != null) {
-            response.append(theLine);
+        try{
+            URL url = new URL(urlStr);
+            connection = (HttpURLConnection) url.openConnection();
+
+            connection.setInstanceFollowRedirects(false);
+            connection.setUseCaches(false);
+
+            InputStream is = connection.getInputStream();
+
+            InputStreamReader isr = new InputStreamReader(is);
+            BufferedReader br = new BufferedReader(isr);
+            String theLine;
+
+            while ((theLine = br.readLine()) != null) {
+                response.append(theLine);
+            }
+        } finally {
+            if(connection!=null){
+                connection.disconnect();
+            }
         }
-        connection.disconnect();
 
         return response.toString();
     }
