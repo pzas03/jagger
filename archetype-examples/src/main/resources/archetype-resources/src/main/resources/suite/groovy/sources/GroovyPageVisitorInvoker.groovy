@@ -26,16 +26,16 @@ class GroovyPageVisitorInvoker implements Invoker{
         }
 
     private String doHttpGet(String urlStr) throws IOException {
-        HttpURLConnection connection;
+        InputStream is=null;
         StringBuilder response = new StringBuilder();
         try{
             URL url = new URL(urlStr);
-            connection = (HttpURLConnection) url.openConnection()
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
             connection.setInstanceFollowRedirects(false);
             connection.setUseCaches(false);
 
-            InputStream is = connection.getInputStream();
+            is  = connection.getInputStream();
 
             InputStreamReader isr = new InputStreamReader(is);
             BufferedReader br = new BufferedReader(isr);
@@ -44,10 +44,9 @@ class GroovyPageVisitorInvoker implements Invoker{
             while ((theLine = br.readLine()) != null) {
                 response.append(theLine);
             }
-        }
-        finally {
-            if (connection!=null){
-                connection.disconnect();
+        } finally {
+            if(is!=null){
+                is.close();
             }
         }
 
