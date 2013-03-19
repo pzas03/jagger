@@ -1,5 +1,7 @@
 package com.griddynamics.jagger.webclient.server;
 
+import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadProcessDescriptiveStatistics;
+import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadProcessLatencyPercentile;
 import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadTaskData;
 import com.griddynamics.jagger.webclient.client.WorkloadTaskDataService;
 import com.griddynamics.jagger.webclient.client.dto.WorkloadTaskDataDto;
@@ -42,6 +44,21 @@ public class WorkloadTaskDataServiceImpl implements WorkloadTaskDataService {
             dto.setVersion(data.getScenario().getVersion());
             dto.setTaskId(data.getTaskId());
 
+            //TODO - rebuild to join query
+            List<WorkloadProcessDescriptiveStatistics> latency = entityManager.createQuery(
+                    "select s from WorkloadProcessDescriptiveStatistics s where s.taskData.taskId=:taskId and s.taskData.sessionId=:sessionId")
+                                                            .setParameter("taskId", data.getTaskId()).setParameter("sessionId", sessionId).getResultList();
+
+            List<String> latencyValues = new ArrayList<String>(latency.size());
+            if (!latency.isEmpty()){
+                for(WorkloadProcessLatencyPercentile percentile : latency.get(0).getPercentiles()) {
+                    latencyValues.add(String.format("%.0f", percentile.getPercentileKey()) + "% -"+
+                            String.format("%.3fs", percentile.getPercentileValue() / 1000));
+
+                }
+            }
+
+            dto.setLatency(latencyValues);
             dto.setNumber(data.getNumber());
             dto.setSamples(data.getSamples());
             dto.setClock(data.getClock());

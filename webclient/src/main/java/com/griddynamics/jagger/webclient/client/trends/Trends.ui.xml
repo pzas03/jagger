@@ -10,8 +10,8 @@
             <g:TabLayoutPanel barHeight="20">
                 <g:tab>
                     <g:header> <b>Summary</b> </g:header>
-                    <g:ScrollPanel ui:field="scrollPanelSummary">
-                        <g:VerticalPanel addStyleNames="{res.css.plotPanel}" ui:field="summaryPanel"/>
+                    <g:ScrollPanel ui:field="scrollPanelSummary" >
+                        <g:VerticalPanel addStyleNames="{res.css.summaryPanel}" ui:field="summaryPanel"/>
                     </g:ScrollPanel>
                 </g:tab>
                 <g:tab>

@@ -29,7 +29,6 @@ public class SessionPanel extends VerticalPanel{
     }
 
     private void initStyle(){
-        getElement().getStyle().setProperty("margin", "10px");
     }
 
     private void initData(SessionDataDto sessionData){

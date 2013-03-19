@@ -4,6 +4,8 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.*;
 import com.griddynamics.jagger.webclient.client.dto.WorkloadTaskDataDto;
 
+import java.util.List;
+
 /**
  * Created with IntelliJ IDEA.
  * User: kirilkadurilka
@@ -73,11 +75,22 @@ public class TestPanel extends HorizontalPanel {
 
         testGrid.setWidget(1, 2, new Label(taskData.getThroughput().toString()));
 
-        testGrid.setWidget(1, 3, new Label("Need to add"));
+        testGrid.setWidget(1, 3, getLatency(taskData));
 
         testGrid.setWidget(1, 4, getDetailts(taskData));
 
         add(testGrid);
+    }
+
+    private Widget getLatency(WorkloadTaskDataDto taskData){
+        VerticalPanel pane = new VerticalPanel();
+        List<String> latency = taskData.getLatency();
+        if (!latency.isEmpty()){
+            for (String latencyValue : latency){
+                pane.add(new Label(latencyValue));
+            }
+        }
+        return pane;
     }
 
     private Widget getDetailts(WorkloadTaskDataDto taskData){
