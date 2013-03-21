@@ -27,6 +27,7 @@ import com.griddynamics.jagger.webclient.client.*;
 import com.griddynamics.jagger.webclient.client.callback.SessionScopePlotListQueryCallback;
 import com.griddynamics.jagger.webclient.client.callback.TaskDataDtoListQueryAsyncCallback;
 import com.griddynamics.jagger.webclient.client.components.SessionPanel;
+import com.griddynamics.jagger.webclient.client.components.SummaryPanel;
 import com.griddynamics.jagger.webclient.client.data.*;
 import com.griddynamics.jagger.webclient.client.dto.*;
 import com.griddynamics.jagger.webclient.client.handler.ShowCurrentValueHoverListener;
@@ -66,7 +67,7 @@ public class Trends extends DefaultActivity {
     ScrollPanel scrollPanelSummary;
 
     @UiField
-    VerticalPanel summaryPanel;
+    SummaryPanel summaryPanel;
 
     @UiField
     VerticalPanel sessionScopePlotList;
@@ -509,10 +510,7 @@ public class Trends extends DefaultActivity {
             final MultiSelectionModel<PlotNameDto> plotNameSelectionModel = taskDataTreeViewModel.getSelectionModel();
 
             //Refresh summary
-            summaryPanel.clear();
-            for (SessionDataDto sessionData : selected){
-                summaryPanel.add(new SessionPanel(sessionData));
-            }
+            summaryPanel.update(selected);
 
             // Clear plots display
             plotPanel.clear();
