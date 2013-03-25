@@ -10,7 +10,9 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.griddynamics.jagger.webclient.client.dto.SessionDataDto;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -31,12 +33,14 @@ public class SummaryPanel extends Composite {
     VerticalPanel pane;
 
     private HashMap<SessionDataDto, SessionPanel> loaded = new HashMap<SessionDataDto, SessionPanel>();
+    private Set<SessionDataDto> active = Collections.EMPTY_SET;
 
     public SummaryPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
     }
 
     public void update(Set<SessionDataDto> chosenSessions){
+        active = chosenSessions;
         removeOld(chosenSessions);
         addNew(chosenSessions);
     }
@@ -62,4 +66,15 @@ public class SummaryPanel extends Composite {
         }
     }
 
+    public Set<SessionDataDto> getSessions(){
+        return active;
+    }
+
+    public Set<String> getSessionIds(){
+        HashSet<String> ids = new HashSet<String>(active.size());
+        for (SessionDataDto session : active){
+            ids.add(session.getSessionId());
+        }
+        return ids;
+    }
 }
