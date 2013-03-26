@@ -15,4 +15,5 @@ import java.util.List;
  */
 public interface WorkloadTaskDataServiceAsync {
     void getWorkloadTaskData(String sessionId, AsyncCallback<List<WorkloadTaskDataDto>> async);
+    void getWorkloadTaskData(String sessionId, String taskName, AsyncCallback<WorkloadTaskDataDto> async);
 }

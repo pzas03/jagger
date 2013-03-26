@@ -1,6 +1,7 @@
 package com.griddynamics.jagger.webclient.server;
 
 import com.griddynamics.jagger.engine.e1.aggregator.session.model.TaskData;
+import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadTaskData;
 import com.griddynamics.jagger.webclient.client.TaskDataService;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 import org.slf4j.Logger;
@@ -31,8 +32,8 @@ public class TaskDataServiceImpl /*extends RemoteServiceServlet*/ implements Tas
         List<TaskDataDto> taskDataDtoList = null;
         try {
             @SuppressWarnings("unchecked")
-            List<TaskData> taskDataList = (List<TaskData>) entityManager.createQuery(
-                    "select td from TaskData as td where td.sessionId=:sessionId and td.taskId in (select wd.taskId from WorkloadData as wd where wd.sessionId=:sessionId) order by td.number asc")
+            List<WorkloadTaskData> taskDataList = (List<WorkloadTaskData>) entityManager.createQuery(
+                    "select td from WorkloadTaskData as td where td.sessionId=:sessionId and td.taskId in (select wd.taskId from WorkloadData as wd where wd.sessionId=:sessionId) order by td.number asc")
                     .setParameter("sessionId", sessionId).getResultList();
 
             if (taskDataList == null) {
@@ -40,8 +41,8 @@ public class TaskDataServiceImpl /*extends RemoteServiceServlet*/ implements Tas
             }
 
             taskDataDtoList = new ArrayList<TaskDataDto>(taskDataList.size());
-            for (TaskData taskData : taskDataList) {
-                taskDataDtoList.add(new TaskDataDto(taskData.getId(), taskData.getTaskName()));
+            for (WorkloadTaskData taskData : taskDataList) {
+                taskDataDtoList.add(new TaskDataDto(taskData.getId(), taskData.getScenario().getName()));
             }
 
             log.info("For session {} was loaded {} tasks for {} ms", new Object[]{sessionId, taskDataDtoList.size(), System.currentTimeMillis() - timestamp});
@@ -81,8 +82,8 @@ public class TaskDataServiceImpl /*extends RemoteServiceServlet*/ implements Tas
             }
             log.debug("For sessions {} commons tasks are: {}", sessionIds, commonsTaskMap);
 
-            List<TaskData> taskDataList = (List<TaskData>) entityManager.createQuery(
-                    "select td from TaskData as td where td.sessionId in (:sessionIds) and td.taskId in (:workloadTaskIdList) order by td.number asc")
+            List<WorkloadTaskData> taskDataList = (List<WorkloadTaskData>) entityManager.createQuery(
+                    "select td from WorkloadTaskData as td where td.sessionId in (:sessionIds) and td.taskId in (:workloadTaskIdList) order by td.number asc")
                     .setParameter("sessionIds", sessionIds)
                     .setParameter("workloadTaskIdList", workloadTaskIdList)
                     .getResultList();
@@ -92,8 +93,8 @@ public class TaskDataServiceImpl /*extends RemoteServiceServlet*/ implements Tas
             }
 
             Map<String, TaskDataDto> added = new LinkedHashMap<String, TaskDataDto>();
-            for (TaskData taskData : taskDataList) {
-                String taskName = taskData.getTaskName();
+            for (WorkloadTaskData taskData : taskDataList) {
+                String taskName = taskData.getScenario().getName();
                 String taskId = taskData.getTaskId();
                 Long id = taskData.getId();
 

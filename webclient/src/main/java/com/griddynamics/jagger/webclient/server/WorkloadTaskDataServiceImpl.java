@@ -76,4 +76,48 @@ public class WorkloadTaskDataServiceImpl implements WorkloadTaskDataService {
         }
         return dataDtos;
     }
+
+    @Override
+    public WorkloadTaskDataDto getWorkloadTaskData(String sessionId, String taskName) {
+        List<WorkloadTaskData> datas = entityManager.createQuery("select workloadTaskData from WorkloadTaskData as workloadTaskData where workloadTaskData.sessionId=:sessionId " +
+                "and workloadTaskData.scenario.name=:taskName").
+                setParameter("sessionId", sessionId).setParameter("taskName", taskName).getResultList();
+            WorkloadTaskData data = datas.iterator().next();
+            WorkloadTaskDataDto dto = new WorkloadTaskDataDto();
+
+            dto.setSessionId(data.getSessionId());
+            dto.setName(data.getScenario().getName());
+            dto.setComment(data.getScenario().getComment());
+            dto.setVersion(data.getScenario().getVersion());
+            dto.setTaskId(data.getTaskId());
+
+            //TODO - rebuild to join query
+            List<WorkloadProcessDescriptiveStatistics> latency = entityManager.createQuery(
+                    "select s from WorkloadProcessDescriptiveStatistics as s where s.taskData.taskId=:taskId and s.taskData.sessionId=:sessionId")
+                    .setParameter("taskId", data.getTaskId()).setParameter("sessionId", sessionId).getResultList();
+
+            List<String> latencyValues = new ArrayList<String>(latency.size());
+            if (!latency.isEmpty()){
+                for(WorkloadProcessLatencyPercentile percentile : latency.get(0).getPercentiles()) {
+                    latencyValues.add(String.format("%.0f", percentile.getPercentileKey()) + "% -"+
+                            String.format("%.3fs", percentile.getPercentileValue() / 1000));
+
+                }
+            }
+
+            dto.setLatency(latencyValues);
+            dto.setNumber(data.getNumber());
+            dto.setSamples(data.getSamples());
+            dto.setClock(data.getClock());
+            dto.setClockValue(data.getClockValue());
+            dto.setTermination(data.getTermination());
+            dto.setKernels(data.getKernels());
+            dto.setTotalDuration(data.getTotalDuration());
+            dto.setThroughput(data.getThroughput());
+            dto.setFailuresCount(data.getFailuresCount());
+            dto.setSuccessRate(data.getSuccessRate());
+            dto.setAvgLatency(data.getAvgLatency());
+            dto.setStdDevLatency(data.getStdDevLatency());
+        return dto;
+    }
 }

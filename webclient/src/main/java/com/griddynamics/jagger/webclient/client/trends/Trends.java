@@ -599,6 +599,8 @@ public class Trends extends DefaultActivity {
                 taskDataTreeViewModel.getPlotNameDataProviders().put
                         (taskDataDto, new TaskPlotNamesAsyncDataProvider(taskDataDto, summaryPanel.getSessionIds()));
             }
+
+            summaryPanel.updateTests(selected);
         }
     }
 
@@ -628,6 +630,7 @@ public class Trends extends DefaultActivity {
             // Clear markings dto map
             markingsMap.clear();
             taskDataTreeViewModel.clear();
+            testDataGrid.setRowData(Collections.EMPTY_LIST);
 
             if (selected.size() == 1) {
                 // If selected single session clear plot display, clear plot selection and fetch all data for given session
