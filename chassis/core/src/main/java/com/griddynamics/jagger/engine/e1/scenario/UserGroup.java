@@ -51,11 +51,11 @@ public class UserGroup {
     public UserGroup(UserClock clock, int id, ProcessingConfig.Test.Task.User config, long time) {
         this(   clock,
                 id,
-                Parser.parseInt(config.count, clock.getRandom()),
-                Parser.parseInt(config.startCount, clock.getRandom()),
-                time + Parser.parseTime(config.startIn, clock.getRandom()),
-                Parser.parseTime(config.startBy, clock.getRandom()),
-                Parser.parseTime(config.life, clock.getRandom())
+                Parser.parseInt(config.getCount(), clock.getRandom()),
+                Parser.parseInt(config.getStartCount(), clock.getRandom()),
+                time + Parser.parseTime(config.getStartIn(), clock.getRandom()),
+                Parser.parseTime(config.getStartBy(), clock.getRandom()),
+                Parser.parseTime(config.getLife(), clock.getRandom())
         );
     }
 
