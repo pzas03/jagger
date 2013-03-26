@@ -1,11 +1,9 @@
 package com.griddynamics.jagger.webclient.client.callback;
 
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.griddynamics.jagger.webclient.client.TaskDataTreeViewModel;
-import com.griddynamics.jagger.webclient.client.data.TaskPlotNamesAsyncDataProvider;
+import com.google.gwt.view.client.MultiSelectionModel;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 
 import java.util.List;
@@ -39,14 +37,10 @@ public class TaskDataDtoListQueryAsyncCallback implements AsyncCallback<List<Tas
         if (result.isEmpty()) {
             return;
         }
+        MultiSelectionModel model = (MultiSelectionModel)testGrid.getSelectionModel();
+        model.clear();
 
         testGrid.redraw();
         testGrid.setRowData(result);
-
-//        // Populate available plots tree level for each task for selected session
-//        for (TaskDataDto taskDataDto : result) {
-//            taskDataTreeViewModel.getPlotNameDataProviders().put
-//                    (taskDataDto, new TaskPlotNamesAsyncDataProvider(taskDataDto, sessionIds));
-//        }
     }
 }

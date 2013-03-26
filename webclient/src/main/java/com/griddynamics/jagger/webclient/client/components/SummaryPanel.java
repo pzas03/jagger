@@ -1,9 +1,7 @@
 package com.griddynamics.jagger.webclient.client.components;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.DivElement;
 import com.google.gwt.uibinder.client.UiBinder;
-import com.google.gwt.uibinder.client.UiConstructor;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -45,7 +43,7 @@ public class SummaryPanel extends Composite {
         addNew(chosenSessions);
     }
 
-    public void removeOld(Set<SessionDataDto> chosenSessions){
+    protected void removeOld(Set<SessionDataDto> chosenSessions){
         for (SessionDataDto session : loaded.keySet()){
             //hide remove session
             if (!chosenSessions.contains(session)){
@@ -54,7 +52,7 @@ public class SummaryPanel extends Composite {
         }
     }
 
-    public void addNew(Set<SessionDataDto> chosenSessions){
+    protected void addNew(Set<SessionDataDto> chosenSessions){
         for (SessionDataDto session : chosenSessions){
             if (loaded.containsKey(session)){
                 loaded.get(session).setVisible(true);
