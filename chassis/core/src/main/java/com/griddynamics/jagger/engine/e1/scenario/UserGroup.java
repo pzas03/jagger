@@ -47,6 +47,7 @@ public class UserGroup {
     private final int startCount;
     private final long startInTime;
     private long startByTime = -1;
+    int startedUserCount = 0;
 
     public UserGroup(UserClock clock, int id, ProcessingConfig.Test.Task.User config, long time) {
         this(   clock,
@@ -139,5 +140,9 @@ public class UserGroup {
             }
         }
         return minNode.getKey();
+    }
+
+    public int getStartedUserCount() {
+        return startedUserCount;
     }
 }
