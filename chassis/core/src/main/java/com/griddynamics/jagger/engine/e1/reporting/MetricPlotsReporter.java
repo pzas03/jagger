@@ -93,15 +93,10 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
 
                 XYSeries plotEntry = new XYSeries(metricName);
 
-                String taskName = null;
                 for (MetricDetails stat : taskStats) {
-                    if (taskName == null) {
-                        taskName = stat.getTaskData().getTaskName();
-                    }
-
                     plotEntry.add(stat.getTime(), stat.getValue());
-
                 }
+
                 XYSeriesCollection plotCollection = new XYSeriesCollection();
                 plotCollection.addSeries(plotEntry);
 
