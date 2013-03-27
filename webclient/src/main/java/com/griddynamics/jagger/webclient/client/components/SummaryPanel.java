@@ -38,19 +38,23 @@ public class SummaryPanel extends Composite {
         initWidget(ourUiBinder.createAndBindUi(this));
     }
 
-    public void update(Set<SessionDataDto> chosenSessions){
-        active = chosenSessions;
+    public void updateSessions(Set<SessionDataDto> chosenSessions){
         if (chosenSessions.size() == 1){
             //show session summary
             pane.clear();
             sessionPanel = new SessionSummaryPanel(chosenSessions.iterator().next());
             pane.add((SessionSummaryPanel)sessionPanel);
         }else{
-            //show sessions somparison
-            pane.clear();
-            sessionPanel = new SessionComparisonPanel();
-            pane.add((SessionComparisonPanel)sessionPanel);
+            if (chosenSessions.size() > 1){
+                //show sessions somparison
+                pane.clear();
+                sessionPanel = new SessionComparisonPanel(chosenSessions);
+                pane.add((SessionComparisonPanel)sessionPanel);
+            }else{
+                pane.clear();
+            }
         }
+        active = chosenSessions;
     }
 
     public void updateTests(Set<TaskDataDto> tests){

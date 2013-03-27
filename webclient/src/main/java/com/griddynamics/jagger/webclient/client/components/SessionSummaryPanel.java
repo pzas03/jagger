@@ -1,7 +1,6 @@
 package com.griddynamics.jagger.webclient.client.components;
 
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.griddynamics.jagger.webclient.client.WorkloadTaskDataService;
@@ -22,7 +21,7 @@ import java.util.Set;
  */
 public class SessionSummaryPanel extends VerticalPanel implements SessionPanel{
 
-    private HashMap<String, TestPanel> tests = new HashMap<String, TestPanel>();
+    private HashMap<String, TestPanel> testPanels = new HashMap<String, TestPanel>();
     private final Panel testPanel = new VerticalPanel();
     private SessionDataDto session;
 
@@ -33,6 +32,7 @@ public class SessionSummaryPanel extends VerticalPanel implements SessionPanel{
     }
 
     private void initStyle(){
+        setWidth("1350px");
     }
 
     private void initData(SessionDataDto sessionData){
@@ -95,7 +95,7 @@ public class SessionSummaryPanel extends VerticalPanel implements SessionPanel{
             public void onSuccess(List<WorkloadTaskDataDto> result) {
                 for (WorkloadTaskDataDto data : result){
                     TestPanel testPanel = new TestPanel(data);
-                    tests.put(data.getTaskId(), testPanel);
+                    testPanels.put(data.getTaskId(), testPanel);
                     testPanel.add(testPanel);
                 }
             }
@@ -111,15 +111,16 @@ public class SessionSummaryPanel extends VerticalPanel implements SessionPanel{
     }
 
     private void removeOld(Set<TaskDataDto> tests){
-        for (String testName : this.tests.keySet()){
-            this.tests.get(testName).setVisible(false);
+        //remove all
+        for (String testName : testPanels.keySet()){
+            testPanels.get(testName).setVisible(false);
         }
     }
 
     private void addNew(Set<TaskDataDto> tests){
         for (TaskDataDto test : tests){
-            if (this.tests.containsKey(test.getTaskName())){
-                this.tests.get(test.getTaskName()).setVisible(true);
+            if (testPanels.containsKey(test.getTaskName())){
+                testPanels.get(test.getTaskName()).setVisible(true);
             }else{
                 addTest(test);
             }
@@ -138,15 +139,15 @@ public class SessionSummaryPanel extends VerticalPanel implements SessionPanel{
             public void onSuccess(WorkloadTaskDataDto result) {
                 TestPanel test = new TestPanel(result);
                 testPanel.add(test);
-                tests.put(result.getName(), test);
+                testPanels.put(result.getName(), test);
             }
         });
     }
 
     @Override
     public void removeTest(TaskDataDto test) {
-        if (tests.containsKey(test.getTaskName())){
-            TestPanel testPanel = tests.get(test.getTaskName());
+        if (testPanels.containsKey(test.getTaskName())){
+            TestPanel testPanel = testPanels.get(test.getTaskName());
             if (testPanel.isVisible()){
                 testPanel.setVisible(false);
             }

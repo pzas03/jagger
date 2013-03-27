@@ -620,7 +620,7 @@ public class Trends extends DefaultActivity {
             MultiSelectionModel<PlotNameDto> plotNameSelectionModel = taskDataTreeViewModel.getSelectionModel();
 
             //Refresh summary
-            summaryPanel.update(selected);
+            summaryPanel.updateSessions(selected);
             // Clear plots display
             plotPanel.clear();
             // Clear task scope plot selection model

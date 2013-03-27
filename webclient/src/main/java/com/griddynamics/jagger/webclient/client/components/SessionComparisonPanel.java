@@ -1,9 +1,10 @@
 package com.griddynamics.jagger.webclient.client.components;
 
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.griddynamics.jagger.webclient.client.dto.SessionDataDto;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -15,10 +16,30 @@ import java.util.Set;
  */
 public class SessionComparisonPanel extends VerticalPanel implements SessionPanel{
 
+    private Label title = new Label();
+
+    public SessionComparisonPanel(Set<SessionDataDto> chosenSessions){
+        init(chosenSessions);
+    }
+
+    private void init(Set<SessionDataDto> chosenSessions){
+        add(title);
+        title.setStyleName("sessionNameHeader");
+        title.setWidth("1350px");
+        StringBuilder titleText = new StringBuilder("Comparison of sessions : ");
+        for (SessionDataDto session : chosenSessions){
+            titleText.append(session.getSessionId()+",");
+        }
+        title.setText(titleText.toString());
+    }
 
     @Override
     public void update(Set<TaskDataDto> tests) {
         //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public void updateSessions(Set<SessionDataDto> sessions){
+        //improve
     }
 
     @Override

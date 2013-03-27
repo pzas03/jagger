@@ -82,8 +82,8 @@ public class TaskDataServiceImpl /*extends RemoteServiceServlet*/ implements Tas
             }
             log.debug("For sessions {} commons tasks are: {}", sessionIds, commonsTaskMap);
 
-            List<WorkloadTaskData> taskDataList = (List<WorkloadTaskData>) entityManager.createQuery(
-                    "select td from WorkloadTaskData as td where td.sessionId in (:sessionIds) and td.taskId in (:workloadTaskIdList) order by td.number asc")
+            List<TaskData> taskDataList = (List<TaskData>) entityManager.createQuery(
+                    "select td from TaskData as td where td.sessionId in (:sessionIds) and td.taskId in (:workloadTaskIdList) order by td.number asc")
                     .setParameter("sessionIds", sessionIds)
                     .setParameter("workloadTaskIdList", workloadTaskIdList)
                     .getResultList();
@@ -93,8 +93,8 @@ public class TaskDataServiceImpl /*extends RemoteServiceServlet*/ implements Tas
             }
 
             Map<String, TaskDataDto> added = new LinkedHashMap<String, TaskDataDto>();
-            for (WorkloadTaskData taskData : taskDataList) {
-                String taskName = taskData.getScenario().getName();
+            for (TaskData taskData : taskDataList) {
+                String taskName = taskData.getTaskName();
                 String taskId = taskData.getTaskId();
                 Long id = taskData.getId();
 
