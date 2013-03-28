@@ -74,7 +74,6 @@ public class WorkloadDetails {
 
         WorkloadDetails that = (WorkloadDetails) o;
 
-        //??? if (comment != null ? !comment.equals(that.comment) : that.comment != null) return false;
         if (!id.equals(that.id)) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (version != null ? !version.equals(that.version) : that.version != null) return false;
