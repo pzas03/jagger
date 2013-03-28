@@ -77,7 +77,7 @@ public class WorkloadDetails {
         if (!id.equals(that.id)) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (version != null ? !version.equals(that.version) : that.version != null) return false;
-        if (description != null ? !description.equals(description) : that.description != null) return false;
+        if (description != null ? !description.equals(that.description) : that.description != null) return false;
         return true;
     }
 
