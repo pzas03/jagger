@@ -12,16 +12,16 @@ import com.griddynamics.jagger.invoker.InvocationException;
  * To change this template use File | Settings | File Templates.
  */
 
-public class CompositeCollector <Q, R, E> extends ScenarioCollector<Q, R, E> {
+public class CompositeMetricCollector<Q, R, E> extends ScenarioCollector<Q, R, E> {
 
     private final ScenarioCollector<Q, R, E> simpleCollector;
     private final ScenarioCollector<Q, R, E> metricCollector;
     
 
-    public CompositeCollector(String sessionId, String taskId, NodeContext kernelContext, ScenarioCollector<Q, R, E> simpleCollector, MetricCalculator metricCalculator, String name) {
+    public CompositeMetricCollector(String sessionId, String taskId, NodeContext kernelContext, ScenarioCollector<Q, R, E> simpleCollector, ScenarioCollector metricCollector) {
         super(sessionId, taskId, kernelContext);
         this.simpleCollector = simpleCollector;
-        this.metricCollector = new MetricCollector<Q, R, E>(sessionId, taskId, kernelContext, metricCalculator, name);
+        this.metricCollector = metricCollector;
     }
 
 

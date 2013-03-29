@@ -12,7 +12,7 @@ import com.griddynamics.jagger.engine.e1.scenario.ScenarioCollector;
  * Time: 14:27
  * To change this template use File | Settings | File Templates.
  */
-public class CompositeCollectorProvider<Q, R, E>  implements KernelSideObjectProvider<ScenarioCollector<Q, R, E>> {
+public class CompositeMetricCollectorProvider<Q, R, E>  implements KernelSideObjectProvider<ScenarioCollector<Q, R, E>> {
 
     private KernelSideObjectProvider<ScenarioCollector<Q, R, E>> simpleCollectorProvider;
     private MetricCalculator<R> metricCalculator;
@@ -44,12 +44,11 @@ public class CompositeCollectorProvider<Q, R, E>  implements KernelSideObjectPro
 
     @Override
     public ScenarioCollector<Q, R, E> provide(String sessionId, String taskId, NodeContext kernelContext) {
-        return new CompositeCollector<Q, R, E>(
+        return new CompositeMetricCollector<Q, R, E>(
                 sessionId,
                 taskId,
                 kernelContext,
                 simpleCollectorProvider.provide(sessionId,taskId,kernelContext),
-                metricCalculator,
-                name);
+                new MetricCollector<Q, R, E>(sessionId, taskId, kernelContext, metricCalculator, name));
     }
 }

@@ -37,7 +37,7 @@ public abstract class AbstractCollectorDefinitionParser extends AbstractSimpleBe
     @Override
     protected Class getBeanClass(Element element) {
         if(isComposite(element)){
-            return CompositeCollectorProvider.class;
+            return CompositeMetricCollectorProvider.class;
         } else {
             return DiagnosticCollectorProvider.class;
         }
