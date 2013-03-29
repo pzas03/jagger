@@ -20,11 +20,20 @@
 package com.griddynamics.jagger.xml.beanParsers.workload.listener;
 
 import com.griddynamics.jagger.engine.e1.collector.*;
+import com.griddynamics.jagger.engine.e1.scenario.KernelSideObjectProvider;
 import com.griddynamics.jagger.xml.beanParsers.XMLConstants;
+import groovy.util.Eval;
+import org.dom4j.DocumentHelper;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSimpleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.core.CollectionFactory;
 import org.w3c.dom.Element;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author Nikolay Musienko
@@ -53,15 +62,17 @@ public abstract class AbstractCollectorDefinitionParser extends AbstractSimpleBe
     }
 
     private void parseCompositeBean(Element element, ParserContext parserContext, BeanDefinitionBuilder builder){
-        BeanDefinitionBuilder simpleCollectorBuilder = BeanDefinitionBuilder.genericBeanDefinition(DiagnosticCollectorProvider.class);
-        parse(element, parserContext, simpleCollectorBuilder);
+        BeanDefinitionBuilder diagnosticCollectorBuilder = BeanDefinitionBuilder.genericBeanDefinition(DiagnosticCollectorProvider.class);
+        parse(element, parserContext, diagnosticCollectorBuilder);
 
-        builder.addPropertyValue(XMLConstants.NAME, getID(element,XMLConstants.DEFAULT_METRIC_NAME));
+        BeanDefinitionBuilder metricCollectorBuilder = BeanDefinitionBuilder.genericBeanDefinition(DiagnosticCollectorProvider.class);
+        parse(element, parserContext, metricCollectorBuilder);
 
-        builder.addPropertyValue(XMLConstants.METRIC_CALCULATOR,simpleCollectorBuilder.getBeanDefinition()
-                .getPropertyValues().getPropertyValue(XMLConstants.METRIC_CALCULATOR).getValue());
-        builder.addPropertyValue(XMLConstants.SIMPLE_COLLECTOR,simpleCollectorBuilder.getBeanDefinition());
+        List providers = new ArrayList(2);
+        providers.add(diagnosticCollectorBuilder.getBeanDefinition().getSource());
+        providers.add(metricCollectorBuilder.getBeanDefinition().getSource());
 
+        builder.addPropertyValue("collectorProviders",providers);
     }
 
     private boolean isComposite(Element element){

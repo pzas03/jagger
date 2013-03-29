@@ -4,6 +4,9 @@ import com.griddynamics.jagger.coordinator.NodeContext;
 import com.griddynamics.jagger.engine.e1.scenario.KernelSideObjectProvider;
 import com.griddynamics.jagger.engine.e1.scenario.ScenarioCollector;
 
+import java.util.LinkedList;
+import java.util.List;
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,41 +17,27 @@ import com.griddynamics.jagger.engine.e1.scenario.ScenarioCollector;
  */
 public class CompositeMetricCollectorProvider<Q, R, E>  implements KernelSideObjectProvider<ScenarioCollector<Q, R, E>> {
 
-    private KernelSideObjectProvider<ScenarioCollector<Q, R, E>> simpleCollectorProvider;
-    private MetricCalculator<R> metricCalculator;
-    private String name;
+    private List<KernelSideObjectProvider<ScenarioCollector<Q, R, E>>> collectorProviders;
 
-    public MetricCalculator<R> getMetricCalculator() {
-        return metricCalculator;
+
+    public List<KernelSideObjectProvider<ScenarioCollector<Q, R, E>>> getCollectorProviders() {
+        return collectorProviders;
     }
 
-    public void setMetricCalculator(MetricCalculator<R> metricCalculator) {
-        this.metricCalculator = metricCalculator;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public KernelSideObjectProvider<ScenarioCollector<Q, R, E>> getSimpleCollector() {
-        return simpleCollectorProvider;
-    }
-
-    public void setSimpleCollector(KernelSideObjectProvider<ScenarioCollector<Q, R, E>> simpleCollector) {
-        this.simpleCollectorProvider = simpleCollector;
+    public void setCollectorProviders(List<KernelSideObjectProvider<ScenarioCollector<Q, R, E>>> collectorProviders)  {
+        this.collectorProviders = collectorProviders;
     }
 
     @Override
     public ScenarioCollector<Q, R, E> provide(String sessionId, String taskId, NodeContext kernelContext) {
+        List<ScenarioCollector<Q, R, E>> collectors=new LinkedList<ScenarioCollector<Q, R, E>>();
+        for(KernelSideObjectProvider<ScenarioCollector<Q, R, E>> provider : collectorProviders){
+            collectors.add(provider.provide(sessionId, taskId, kernelContext));
+        }
         return new CompositeMetricCollector<Q, R, E>(
                 sessionId,
                 taskId,
                 kernelContext,
-                simpleCollectorProvider.provide(sessionId,taskId,kernelContext),
-                new MetricCollector<Q, R, E>(sessionId, taskId, kernelContext, metricCalculator, name));
+                collectors);
     }
 }

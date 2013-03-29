@@ -1,8 +1,12 @@
 package com.griddynamics.jagger.engine.e1.collector;
 
+import com.google.common.collect.ImmutableList;
 import com.griddynamics.jagger.coordinator.NodeContext;
 import com.griddynamics.jagger.engine.e1.scenario.ScenarioCollector;
 import com.griddynamics.jagger.invoker.InvocationException;
+import com.griddynamics.jagger.invoker.Scenario;
+
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,44 +18,47 @@ import com.griddynamics.jagger.invoker.InvocationException;
 
 public class CompositeMetricCollector<Q, R, E> extends ScenarioCollector<Q, R, E> {
 
-    private final ScenarioCollector<Q, R, E> simpleCollector;
-    private final ScenarioCollector<Q, R, E> metricCollector;
+    private final List<ScenarioCollector<Q, R, E>> collectors;
     
 
-    public CompositeMetricCollector(String sessionId, String taskId, NodeContext kernelContext, ScenarioCollector<Q, R, E> simpleCollector, ScenarioCollector metricCollector) {
+    public CompositeMetricCollector(String sessionId, String taskId, NodeContext kernelContext, List<ScenarioCollector<Q, R, E>> collectors) {
         super(sessionId, taskId, kernelContext);
-        this.simpleCollector = simpleCollector;
-        this.metricCollector = metricCollector;
+        this.collectors = ImmutableList.copyOf(collectors);
     }
 
 
     @Override
     public void flush() {
-        simpleCollector.flush();
-        metricCollector.flush();
+        for(ScenarioCollector collector: collectors){
+            collector.flush();
+        }
     }
 
     @Override
     public void onStart(Q query, E endpoint) {
-        simpleCollector.onStart(query, endpoint);
-        metricCollector.onStart(query, endpoint);
+        for(ScenarioCollector collector: collectors){
+            collector.onStart(query, endpoint);
+        }
     }
 
     @Override
     public void onSuccess(Q query, E endpoint, R result, long duration) {
-        simpleCollector.onSuccess(query, endpoint, result, duration);
-        metricCollector.onSuccess(query, endpoint, result, duration);
+        for(ScenarioCollector collector: collectors){
+            collector.onSuccess(query, endpoint, result, duration);
+        }
     }
 
     @Override
     public void onFail(Q query, E endpoint, InvocationException e) {
-        simpleCollector.onFail(query, endpoint, e);
-        metricCollector.onFail(query, endpoint, e);
+        for(ScenarioCollector collector: collectors){
+            collector.onFail(query, endpoint, e);
+        }
     }
 
     @Override
     public void onError(Q query, E endpoint, Throwable error) {
-        simpleCollector.onError(query, endpoint, error);
-        metricCollector.onError(query, endpoint, error);
+        for(ScenarioCollector collector: collectors){
+            collector.onError(query, endpoint, error);
+        }
     }
 }
