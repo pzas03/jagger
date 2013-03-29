@@ -35,7 +35,7 @@ public class WorkloadTask implements CompositableTask {
     private int number;
     private String name;
     private String version;
-    private String description = "empty";
+    private String description = "";
     private ScenarioFactory<Object, Object, Object> scenarioFactory;
     private List<KernelSideObjectProvider<ScenarioCollector<Object, Object, Object>>> collectors = Lists.newLinkedList();
     private WorkloadClockConfiguration clockConfiguration;

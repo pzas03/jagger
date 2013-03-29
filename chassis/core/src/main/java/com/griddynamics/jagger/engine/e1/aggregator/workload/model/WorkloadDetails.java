@@ -91,7 +91,7 @@ public class WorkloadDetails {
     }
 
 
-    @Column(name="description", columnDefinition="Varchar(300) default 'empty'")
+    @Column(name="description", columnDefinition="Varchar(300) default ''")
     public String getDescription() {
         return description;
     }
