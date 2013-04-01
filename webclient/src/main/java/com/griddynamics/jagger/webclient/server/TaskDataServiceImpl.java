@@ -59,61 +59,70 @@ public class TaskDataServiceImpl /*extends RemoteServiceServlet*/ implements Tas
         long timestamp = System.currentTimeMillis();
 
         List<TaskDataDto> taskDataDtoList = null;
+        taskDataDtoList = new ArrayList<TaskDataDto>();
+        List<Object[]> list = entityManager.createQuery("select test.id, test.scenario.name, test.scenario.version, test.scenario.comment from WorkloadTaskData as test" +
+                " where test.sessionId in (:sessions) group by test.clock, test.clockValue, test.termination, test.scenario.name, test.scenario.version, test.scenario.comment").setParameter("sessions", sessionIds).getResultList();
+        for (Object[] mas : list){
+            Long id = (Long)mas[0];
+            String name = (String)mas[1];
+            String version = (String)mas[2];
+            String comment = (String)mas[3];
 
-        try {
-            List<String> workloadTaskIdList = (List<String>) entityManager.createQuery
-                    ("select wd.taskId from WorkloadData as wd where wd.sessionId in (:sessionIds)")
-                    .setParameter("sessionIds", sessionIds)
-                    .getResultList();
-
-            List<Object[]> commonsTasks = (List<Object[]>) entityManager.createQuery
-                    ("select td.taskName, td.taskId from TaskData as td where  td.sessionId in (:sessionIds)" +
-                            "and td.taskId in (:workloadTaskIdList) group by td.taskId, td.taskName having count(td.id) >= :count")
-                    .setParameter("sessionIds", sessionIds)
-                    .setParameter("workloadTaskIdList", workloadTaskIdList)
-                    .setParameter("count", (long) sessionIds.size())
-                    .getResultList();
-
-            Map<String, String> commonsTaskMap = new HashMap<String, String>();
-            for (Object[] obj : commonsTasks) {
-                String taskName = (String) obj[0];
-                String taskId = (String) obj[1];
-                commonsTaskMap.put(taskId, taskName);
-            }
-            log.debug("For sessions {} commons tasks are: {}", sessionIds, commonsTaskMap);
-
-            List<TaskData> taskDataList = (List<TaskData>) entityManager.createQuery(
-                    "select td from TaskData as td where td.sessionId in (:sessionIds) and td.taskId in (:workloadTaskIdList) order by td.number asc")
-                    .setParameter("sessionIds", sessionIds)
-                    .setParameter("workloadTaskIdList", workloadTaskIdList)
-                    .getResultList();
-
-            if (taskDataList == null) {
-                return Collections.emptyList();
-            }
-
-            Map<String, TaskDataDto> added = new LinkedHashMap<String, TaskDataDto>();
-            for (TaskData taskData : taskDataList) {
-                String taskName = taskData.getTaskName();
-                String taskId = taskData.getTaskId();
-                Long id = taskData.getId();
-
-                if (!commonsTaskMap.containsKey(taskId) || !commonsTaskMap.get(taskId).equals(taskName)) {
-                    continue;
-                }
-
-                if (!added.containsKey(taskId)) {
-                    added.put(taskId, new TaskDataDto(id, taskName));
-                }
-                added.get(taskId).getIds().add(id);
-            }
-            taskDataDtoList = new ArrayList<TaskDataDto>(added.values());
-
-            log.info("For sessions {} were loaded {} tasks for {} ms", new Object[]{sessionIds, taskDataDtoList.size(), System.currentTimeMillis() - timestamp});
-        } catch (Exception e) {
-            log.error("Error was occurred during common tasks fetching for sessions " + sessionIds, e);
-            throw new RuntimeException(e);
         }
+//        try {
+//            List<String> workloadTaskIdList = (List<String>) entityManager.createQuery
+//                    ("select wd.taskId from WorkloadData as wd where wd.sessionId in (:sessionIds)")
+//                    .setParameter("sessionIds", sessionIds)
+//                    .getResultList();
+//
+//            List<Object[]> commonsTasks = (List<Object[]>) entityManager.createQuery
+//                    ("select td.taskName, td.taskId from TaskData as td where  td.sessionId in (:sessionIds)" +
+//                            "and td.taskId in (:workloadTaskIdList) group by td.taskId, td.taskName having count(td.id) >= :count")
+//                    .setParameter("sessionIds", sessionIds)
+//                    .setParameter("workloadTaskIdList", workloadTaskIdList)
+//                    .setParameter("count", (long) sessionIds.size())
+//                    .getResultList();
+//
+//            Map<String, String> commonsTaskMap = new HashMap<String, String>();
+//            for (Object[] obj : commonsTasks) {
+//                String taskName = (String) obj[0];
+//                String taskId = (String) obj[1];
+//                commonsTaskMap.put(taskId, taskName);
+//            }
+//            log.debug("For sessions {} commons tasks are: {}", sessionIds, commonsTaskMap);
+//
+//            List<TaskData> taskDataList = (List<TaskData>) entityManager.createQuery(
+//                    "select td from TaskData as td where td.sessionId in (:sessionIds) and td.taskId in (:workloadTaskIdList) order by td.number asc")
+//                    .setParameter("sessionIds", sessionIds)
+//                    .setParameter("workloadTaskIdList", workloadTaskIdList)
+//                    .getResultList();
+//
+//            if (taskDataList == null) {
+//                return Collections.emptyList();
+//            }
+//
+//            Map<String, TaskDataDto> added = new LinkedHashMap<String, TaskDataDto>();
+//            for (TaskData taskData : taskDataList) {
+//                String taskName = taskData.getTaskName();
+//                String taskId = taskData.getTaskId();
+//                Long id = taskData.getId();
+//
+//                if (!commonsTaskMap.containsKey(taskId) || !commonsTaskMap.get(taskId).equals(taskName)) {
+//                    continue;
+//                }
+//
+//                if (!added.containsKey(taskId)) {
+//                    added.put(taskId, new TaskDataDto(id, taskName));
+//                }
+//                added.get(taskId).getIds().add(id);
+//            }
+//            taskDataDtoList = new ArrayList<TaskDataDto>(added.values());
+//
+//            log.info("For sessions {} were loaded {} tasks for {} ms", new Object[]{sessionIds, taskDataDtoList.size(), System.currentTimeMillis() - timestamp});
+//        } catch (Exception e) {
+//            log.error("Error was occurred during common tasks fetching for sessions " + sessionIds, e);
+//            throw new RuntimeException(e);
+//        }
 
         return taskDataDtoList;
     }

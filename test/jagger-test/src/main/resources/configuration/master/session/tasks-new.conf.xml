@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2010-2012 Grid Dynamics Consulting Services, Inc, All Rights Reserved
+  ~ http://www.griddynamics.com
+  ~
+  ~ This library is free software; you can redistribute it and/or modify it under the terms of
+  ~ the GNU Lesser General Public License as published by the Free Software Foundation; either
+  ~ version 2.1 of the License, or any later version.
+  ~
+  ~ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  ~ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  ~ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  ~ DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+  ~ FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  ~ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  ~ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  ~ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  ~ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  ~ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  -->
+
+<beans:beans
+        xmlns="http://www.griddynamics.com/schema/jagger"
+        xmlns:beans="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation=
+                "
+        http://www.griddynamics.com/schema/jagger
+        http://www.griddynamics.com/schema/jagger.xsd
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd"
+        >
+
+
+    <beans:bean id="endpointsIterable" class="java.util.LinkedList">
+        <beans:constructor-arg value="#{endpointConfigurator.getEndpoints()}"/>
+    </beans:bean>
+
+
+     <test-description id="sleep-service-5ms" name="sleep-service-5ms" version="1">
+
+         <scenario  xsi:type="scenario-query-pool">
+             <query-distributor xsi:type="query-distributor-round-robin"/>
+             <invoker xsi:type="invoker-http"/>
+
+             <endpoint-provider xsi:type="endpoint-provider-ref" ref="endpointsIterable"/>
+
+             <query-provider xsi:type="query-provider-list">
+                 <query-http>sleep/5</query-http>
+             </query-provider>
+
+         </scenario>
+
+    </test-description>
+
+    <test-description id="sleep-service-50ms" name="sleep-service-50ms" version="1">
+
+         <scenario  xsi:type="scenario-query-pool">
+             <query-distributor xsi:type="query-distributor-round-robin"/>
+             <invoker xsi:type="invoker-http"/>
+
+             <endpoint-provider xsi:type="endpoint-provider-ref" ref="endpointsIterable"/>
+
+             <query-provider xsi:type="query-provider-list">
+                 <query-http>sleep/50</query-http>
+             </query-provider>
+
+         </scenario>
+
+    </test-description>
+
+    <test-description id="sleep-service-50-150ms" name="sleep-service-50-150ms" version="1">
+
+         <scenario  xsi:type="scenario-query-pool">
+             <query-distributor xsi:type="query-distributor-round-robin"/>
+             <invoker xsi:type="invoker-http"/>
+
+             <endpoint-provider xsi:type="endpoint-provider-ref" ref="endpointsIterable"/>
+
+             <query-provider xsi:type="query-provider-list">
+                 <query-http>sleep/50-150</query-http>
+             </query-provider>
+
+         </scenario>
+
+    </test-description>
+
+
+    <test-description id="pulse-service-30000-500-abstract" name="pulse-service-30000-500" version="1" >
+
+        <scenario  xsi:type="scenario-query-pool">
+             <query-distributor xsi:type="query-distributor-round-robin"/>
+             <invoker xsi:type="invoker-http"/>
+
+             <endpoint-provider xsi:type="endpoint-provider-ref" ref="endpointsIterable"/>
+
+             <query-provider xsi:type="query-provider-list">
+                 <query-http>sleep/pulse/30000/500</query-http>
+             </query-provider>
+
+         </scenario>
+
+    </test-description>
+
+    <test-description id="load-cpu-service-10000000" name="load-cpu-service-10000000" version="1" >
+
+        <scenario  xsi:type="scenario-query-pool">
+             <query-distributor xsi:type="query-distributor-round-robin"/>
+             <invoker xsi:type="invoker-http"/>
+
+             <endpoint-provider xsi:type="endpoint-provider-ref" ref="endpointsIterable"/>
+
+             <query-provider xsi:type="query-provider-list">
+                 <query-http>load/10000000</query-http>
+             </query-provider>
+
+         </scenario>
+
+    </test-description>
+
+
+    <test-description id="allocate-memory-service-1000000x200" name="allocate-memory-service-1000000x200" version="1" >
+
+        <scenario  xsi:type="scenario-query-pool">
+             <query-distributor xsi:type="query-distributor-round-robin"/>
+             <invoker xsi:type="invoker-http"/>
+
+             <endpoint-provider xsi:type="endpoint-provider-ref" ref="endpointsIterable"/>
+
+             <query-provider xsi:type="query-provider-list">
+                 <query-http>allocate/1000000x200</query-http>
+             </query-provider>
+
+         </scenario>
+
+    </test-description>
+
+
+    <test-description id="tcp-service-10000" name="tcp-service-10000" version="1" >
+
+        <scenario  xsi:type="scenario-query-pool">
+             <query-distributor xsi:type="query-distributor-round-robin"/>
+             <invoker xsi:type="invoker-http"/>
+
+             <endpoint-provider xsi:type="endpoint-provider-ref" ref="endpointsIterable"/>
+
+             <query-provider xsi:type="query-provider-list">
+                 <query-http>net/text/10000</query-http>
+             </query-provider>
+
+         </scenario>
+
+    </test-description>
+
+</beans:beans>
