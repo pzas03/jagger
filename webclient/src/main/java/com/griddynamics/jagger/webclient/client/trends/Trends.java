@@ -614,8 +614,9 @@ public class Trends extends DefaultActivity {
         @Override
         public void onSelectionChange(SelectionChangeEvent event) {
             // Currently selection model for sessions is a single selection model
+            mainTabPanel.selectTab(0);
             Set<SessionDataDto> selected = ((MultiSelectionModel<SessionDataDto>) event.getSource()).getSelectedSet();
-//
+
             TaskDataTreeViewModel taskDataTreeViewModel = (TaskDataTreeViewModel) taskDetailsTree.getTreeViewModel();
             MultiSelectionModel<PlotNameDto> plotNameSelectionModel = taskDataTreeViewModel.getSelectionModel();
 
