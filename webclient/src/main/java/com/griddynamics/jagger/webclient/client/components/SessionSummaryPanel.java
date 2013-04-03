@@ -129,7 +129,7 @@ public class SessionSummaryPanel extends VerticalPanel implements SessionPanel{
 
     @Override
     public void addTest(TaskDataDto test) {
-        WorkloadTaskDataService.Async.getInstance().getWorkloadTaskData(session.getSessionId(), test.getTaskName(), new AsyncCallback<WorkloadTaskDataDto>() {
+        WorkloadTaskDataService.Async.getInstance().getWorkloadTaskData(session.getSessionId(), test.getId(), new AsyncCallback<WorkloadTaskDataDto>() {
             @Override
             public void onFailure(Throwable caught) {
                 caught.printStackTrace();

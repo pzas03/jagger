@@ -315,7 +315,7 @@ public class Trends extends DefaultActivity {
         final SelectionModel<TaskDataDto> selectionModel = new MultiSelectionModel<TaskDataDto>(new ProvidesKey<TaskDataDto>() {
             @Override
             public Object getKey(TaskDataDto item) {
-                return item.getTaskName();
+                return item.getTaskName()+item.getVersion();
             }
         });
         testDataGrid.setSelectionModel(selectionModel, DefaultSelectionEventManager.<TaskDataDto>createCheckboxManager());

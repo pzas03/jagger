@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +31,7 @@ public class WorkloadTaskDataServiceImpl implements WorkloadTaskDataService {
         this.entityManager = entityManager;
     }
 
+    @Deprecated
     @Override
     public List<WorkloadTaskDataDto> getWorkloadTaskData(String sessionId) {
         List<WorkloadTaskData> datas = entityManager.createQuery("select workloadTaskData from WorkloadTaskData as workloadTaskData where workloadTaskData.sessionId=:sessionId").
@@ -78,10 +80,23 @@ public class WorkloadTaskDataServiceImpl implements WorkloadTaskDataService {
     }
 
     @Override
-    public WorkloadTaskDataDto getWorkloadTaskData(String sessionId, String taskName) {
-        List<WorkloadTaskData> datas = entityManager.createQuery("select workloadTaskData from WorkloadTaskData as workloadTaskData where workloadTaskData.sessionId=:sessionId " +
-                "and workloadTaskData.scenario.name=:taskName").
-                setParameter("sessionId", sessionId).setParameter("taskName", taskName).getResultList();
+    public WorkloadTaskDataDto getWorkloadTaskData(String sessionId, long taskId) {
+        BigInteger workloadId = (BigInteger)entityManager.createNativeQuery("select " +
+                                                                                "workloadTaskData.id from WorkloadTaskData as workloadTaskData " +
+                                                                            "left outer join  " +
+                                                                                "TaskData as taskData " +
+                                                                            "on " +
+                                                                                "workloadTaskData.taskId=taskData.taskId and " +
+                                                                                "workloadTaskData.sessionId=taskData.sessionId "+
+                                                                            "where " +
+                                                                                "workloadTaskData.sessionId=:sessionId and " +
+                                                                                "taskData.id=:taskId")
+                                                                            .setParameter("sessionId", sessionId)
+                                                                            .setParameter("taskId", taskId)
+                                                                            .getSingleResult();
+
+        List<WorkloadTaskData> datas = entityManager.createQuery("select workloadTaskData from WorkloadTaskData as workloadTaskData where workloadTaskData.id=:id").
+                setParameter("id", workloadId.longValue()).getResultList();
             WorkloadTaskData data = datas.iterator().next();
             WorkloadTaskDataDto dto = new WorkloadTaskDataDto();
 

@@ -1,7 +1,6 @@
 package com.griddynamics.jagger.webclient.client;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import com.griddynamics.jagger.webclient.client.dto.WorkloadTaskDataDto;
@@ -20,7 +19,7 @@ public interface WorkloadTaskDataService extends RemoteService {
 
     public List<WorkloadTaskDataDto> getWorkloadTaskData(String sessionId);
 
-    public WorkloadTaskDataDto getWorkloadTaskData(String sessionId, String taskName);
+    public WorkloadTaskDataDto getWorkloadTaskData(String sessionId, long taskId);
 
     public static class Async {
         private static final WorkloadTaskDataServiceAsync ourInstance = (WorkloadTaskDataServiceAsync) GWT.create(WorkloadTaskDataService.class);

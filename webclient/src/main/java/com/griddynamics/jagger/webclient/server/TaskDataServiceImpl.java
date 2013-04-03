@@ -1,6 +1,5 @@
 package com.griddynamics.jagger.webclient.server;
 
-import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadTaskData;
 import com.griddynamics.jagger.webclient.client.TaskDataService;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 import org.slf4j.Logger;
@@ -32,16 +31,33 @@ public class TaskDataServiceImpl /*extends RemoteServiceServlet*/ implements Tas
         List<TaskDataDto> taskDataDtoList = null;
         try {
             @SuppressWarnings("unchecked")
-            List<WorkloadTaskData> taskDataList = (List<WorkloadTaskData>) entityManager.createQuery(
-                    "select td from WorkloadTaskData as td where td.sessionId=:sessionId and td.taskId in (select wd.taskId from WorkloadData as wd where wd.sessionId=:sessionId) order by td.number asc")
+            List<Object[]> taskDataList = entityManager.createNativeQuery(
+                            "select taskData.id, workloadTaskData.name, workloadTaskData.version, workloadTaskData.clock, workloadTaskData.clockValue, workloadTaskData.termination from " +
+                                            "( "+
+                                                "select " +
+                                                    "l.*, s.name, s.description, s.version " +
+                                                "from "+
+                                                    "WorkloadTaskData as l "+
+                                                "left outer join "+
+                                                    "WorkloadDetails as s "+
+                                                "on l.scenario_id=s.id "+
+                                            ") as workloadTaskData " +
+                            "inner join " +
+                                "TaskData as taskData "+
+                            "on " +
+                                    "taskData.taskId=workloadTaskData.taskId and " +
+                                    "taskData.sessionId=workloadTaskData.sessionId " +
+                            "where " +
+                                    "workloadTaskData.sessionId in (:sessionId)")
                     .setParameter("sessionId", sessionId).getResultList();
             if (taskDataList == null) {
                 return Collections.emptyList();
             }
 
             taskDataDtoList = new ArrayList<TaskDataDto>(taskDataList.size());
-            for (WorkloadTaskData taskData : taskDataList) {
-                taskDataDtoList.add(new TaskDataDto(taskData.getId(), taskData.getScenario().getName(), taskData.getScenario().getVersion()));
+            for (Object[] taskData : taskDataList) {
+                TaskDataDto dto = new TaskDataDto(((BigInteger)taskData[0]).longValue(), (String)taskData[1], (String)taskData[2]);
+                taskDataDtoList.add(dto);
             }
 
             log.info("For session {} was loaded {} tasks for {} ms", new Object[]{sessionId, taskDataDtoList.size(), System.currentTimeMillis() - timestamp});
@@ -59,43 +75,52 @@ public class TaskDataServiceImpl /*extends RemoteServiceServlet*/ implements Tas
         List<TaskDataDto> taskDataDtoList = new ArrayList<TaskDataDto>();
 
         List<Object[]> list = entityManager.createNativeQuery
-               ("select test.id, test.name, test.description, test.version from " +
-                                                        "( "+
-                                                              "select " +
-                                                                    "l.*, s.name, s.description, s.version " +
-                                                              "from "+
-                                                                     "WorkloadTaskData as l "+
-                                                              "left outer join "+
-                                                                     "(select * from WorkloadDetails) as s "+
-                                                              "on l.scenario_id=s.id "+
-                                                         ") as test " +
-               "inner join " +
-                       "( " +
-                            "select t.* from "+
-                                        "( "+
-                                           "select " +
-                                                "l.*, s.name, s.description, s.version " +
-                                           "from "+
-                                                "WorkloadTaskData as l "+
-                                           "left outer join "+
-                                                "(select * from WorkloadDetails) as s "+
-                                           "on l.scenario_id=s.id "+
-                                        ") as t "+
-                            "where "+
-                                "sessionId in (:sessions) "+
-                            "group by "+
-                                "t.termination, t.clock, t.clockValue, t.name, t.version "+
-                            "having count(t.id)>=:sessionCount" +
+                (
+                "select taskData.id, commonTests.name, commonTests.description, commonTests.version from "+
+                           "( "+
+                           "select test.name, test.description, test.version, test.sessionId, test.taskId from " +
+                                                                    "( "+
+                                                                          "select " +
+                                                                                "l.*, s.name, s.description, s.version " +
+                                                                          "from "+
+                                                                                 "WorkloadTaskData as l "+
+                                                                          "left outer join "+
+                                                                                 "(select * from WorkloadDetails) as s "+
+                                                                          "on l.scenario_id=s.id "+
+                                                                     ") as test " +
+                           "inner join " +
+                                   "( " +
+                                        "select t.* from "+
+                                                    "( "+
+                                                       "select " +
+                                                            "l.*, s.name, s.description, s.version " +
+                                                       "from "+
+                                                            "WorkloadTaskData as l "+
+                                                       "left outer join "+
+                                                            "(select * from WorkloadDetails) as s "+
+                                                       "on l.scenario_id=s.id "+
+                                                    ") as t "+
+                                        "where "+
+                                            "sessionId in (:sessions) "+
+                                        "group by "+
+                                            "t.termination, t.clock, t.clockValue, t.name, t.version "+
+                                        "having count(t.id)>=:sessionCount" +
 
-                       ") as testArch " +
-               "on "+
-                       "test.clock=testArch.clock and "+
-                       "test.clockValue=testArch.clockValue and "+
-                       "test.termination=testArch.termination and "+
-                       "test.name=testArch.name and "+
-                       "test.version=testArch.version "+
-               "where test.sessionId in(:sessions)"+
-               "order by test.description"
+                                   ") as testArch " +
+                           "on "+
+                                   "test.clock=testArch.clock and "+
+                                   "test.clockValue=testArch.clockValue and "+
+                                   "test.termination=testArch.termination and "+
+                                   "test.name=testArch.name and "+
+                                   "test.version=testArch.version "+
+                           "where test.sessionId in(:sessions)"+
+                           "order by test.description "+
+                           ") as commonTests "+
+                "left outer join "+
+                        "TaskData as taskData "+
+                "on "+
+                        "commonTests.sessionId=taskData.sessionId and "+
+                        "commonTests.taskId=taskData.taskId "
                ).setParameter("sessions", sessionIds)
                 .setParameter("sessionCount", (long) sessionIds.size()).getResultList();
 
