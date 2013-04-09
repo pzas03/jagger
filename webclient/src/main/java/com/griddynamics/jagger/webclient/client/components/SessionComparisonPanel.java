@@ -4,6 +4,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.griddynamics.jagger.webclient.client.dto.SessionDataDto;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
+import com.smartgwt.client.widgets.grid.ListGrid;
 
 import java.util.Set;
 
@@ -17,6 +18,7 @@ import java.util.Set;
 public class SessionComparisonPanel extends VerticalPanel implements SessionPanel{
 
     private Label title = new Label();
+    private ListGrid grid = new ListGrid();
 
     public SessionComparisonPanel(Set<SessionDataDto> chosenSessions){
         init(chosenSessions);
@@ -30,7 +32,10 @@ public class SessionComparisonPanel extends VerticalPanel implements SessionPane
         for (SessionDataDto session : chosenSessions){
             titleText.append(session.getSessionId()+",");
         }
-        title.setText(titleText.toString());
+        String titleString = titleText.toString();
+        title.setText(titleString.substring(0, titleString.length()-1));
+
+        add(grid);
     }
 
     @Override

@@ -27,6 +27,7 @@ import com.google.gwt.view.client.*;
 import com.griddynamics.jagger.webclient.client.*;
 import com.griddynamics.jagger.webclient.client.callback.SessionScopePlotListQueryCallback;
 import com.griddynamics.jagger.webclient.client.callback.TaskDataDtoListQueryAsyncCallback;
+import com.griddynamics.jagger.webclient.client.components.MetricPanel;
 import com.griddynamics.jagger.webclient.client.components.SummaryPanel;
 import com.griddynamics.jagger.webclient.client.data.*;
 import com.griddynamics.jagger.webclient.client.dto.*;
@@ -67,6 +68,9 @@ public class Trends extends DefaultActivity {
     CellTree taskDetailsTree;
 
     @UiField
+    MetricPanel metricPanel;
+
+    @UiField
     ScrollPanel scrollPanelTrends;
 
     @UiField
@@ -93,7 +97,7 @@ public class Trends extends DefaultActivity {
     VerticalPanel trendsDetails;
 
     @UiField
-    VerticalPanel summaryDetails;
+    HorizontalPanel summaryDetails;
 
     @UiHandler("uncheckSessionsButton")
     void handleUncheckSessionsButtonClick(ClickEvent e) {
@@ -601,6 +605,7 @@ public class Trends extends DefaultActivity {
             }
 
             summaryPanel.updateTests(selected);
+            metricPanel.updateTests(selected);
         }
     }
 
