@@ -16,7 +16,7 @@ import java.util.Set;
  * Time: 17:53
  * To change this template use File | Settings | File Templates.
  */
-@RemoteServiceRelativePath("MetricDataService")
+@RemoteServiceRelativePath("rpc/MetricDataService")
 public interface MetricDataService extends RemoteService {
     /**
      * Utility/Convenience class.
