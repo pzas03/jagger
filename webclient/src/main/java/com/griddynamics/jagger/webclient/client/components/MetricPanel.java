@@ -14,6 +14,7 @@ import com.smartgwt.client.types.SelectionAppearance;
 import com.smartgwt.client.types.TreeModelType;
 import com.smartgwt.client.widgets.events.DrawEvent;
 import com.smartgwt.client.widgets.events.DrawHandler;
+import com.smartgwt.client.widgets.grid.ListGridRecord;
 import com.smartgwt.client.widgets.grid.events.SelectionChangedHandler;
 import com.smartgwt.client.widgets.tree.Tree;
 import com.smartgwt.client.widgets.tree.TreeGrid;
@@ -91,11 +92,35 @@ public class MetricPanel extends Composite {
         });
     }
 
+    public Set<MetricNameDto> getSelected(){
+        ListGridRecord[] selected = metricTreeGrid.getSelectedRecords();
+        HashSet<MetricNameDto> set = new HashSet<MetricNameDto>(selected.length);
+        for (ListGridRecord record : selected){
+            MetricNameDto metric = convertToMetric(record);
+            if (metric == null) continue;
+            set.add(metric);
+        }
+        return set;
+    }
+
     public void addSelectionListener(SelectionChangedHandler listener){
         metricTreeGrid.addSelectionChangedHandler(listener);
     }
 
-    public TreeNode[] defaultData = new TreeNode[] {
+    private MetricNameDto convertToMetric(ListGridRecord record){
+        MetricNameDto metric = new MetricNameDto();
+
+        String metricAttr = record.getAttribute(metricNameAttribute);
+        if (metricAttr == null || metricAttr.isEmpty())
+            return null;
+
+        metric.setName(metricAttr);
+        metric.setTaskName(record.getAttribute(testNameAttribute));
+
+        return metric;
+    }
+
+    private TreeNode[] defaultData = new TreeNode[] {
         new MetricTreeNode("Select tests", null),
     };
 

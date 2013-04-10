@@ -34,6 +34,8 @@ import com.griddynamics.jagger.webclient.client.dto.*;
 import com.griddynamics.jagger.webclient.client.handler.ShowCurrentValueHoverListener;
 import com.griddynamics.jagger.webclient.client.handler.ShowTaskDetailsListener;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
+import com.smartgwt.client.widgets.grid.events.SelectionChangedHandler;
+import com.smartgwt.client.widgets.tree.TreeGrid;
 
 import java.util.*;
 
@@ -189,6 +191,7 @@ public class Trends extends DefaultActivity {
         setupTabPanel();
         setupSessionNumberTextBox();
         setupSessionsDateRange();
+        setupMetricPanel();
     }
 
     private SimplePlot createPlot(final String id, Markings markings) {
@@ -452,6 +455,15 @@ public class Trends extends DefaultActivity {
         sessionsFrom.addValueChangeHandler(valueChangeHandler);
     }
 
+    private void setupMetricPanel(){
+        metricPanel.addSelectionListener(new SelectionChangedHandler() {
+            @Override
+            public void onSelectionChanged(com.smartgwt.client.widgets.grid.events.SelectionEvent selectionEvent) {
+                Set<MetricNameDto> metrics = metricPanel.getSelected();
+            }
+        });
+    }
+
     private boolean isMaxPlotCountReached() {
         return plotPanel.getWidgetCount() >= MAX_PLOT_COUNT;
     }
@@ -604,7 +616,7 @@ public class Trends extends DefaultActivity {
                         (taskDataDto, new TaskPlotNamesAsyncDataProvider(taskDataDto, summaryPanel.getSessionIds()));
             }
 
-            summaryPanel.updateTests(selected);
+            summaryPanel.update(selected);
             metricPanel.updateTests(selected);
         }
     }

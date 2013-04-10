@@ -20,7 +20,7 @@ import java.util.Set;
  * Time: 16:07
  * To change this template use File | Settings | File Templates.
  */
-public class SummaryPanel extends Composite {
+public class SummaryPanel extends Composite implements SessionPanel {
 
     interface SummaryPanelUiBinder extends UiBinder<Widget, SummaryPanel> {
     }
@@ -57,7 +57,8 @@ public class SummaryPanel extends Composite {
         active = chosenSessions;
     }
 
-    public void updateTests(Set<TaskDataDto> tests){
+    @Override
+    public void update(Set<TaskDataDto> tests) {
         sessionPanel.update(tests);
     }
 
@@ -67,22 +68,6 @@ public class SummaryPanel extends Composite {
 
     public void removeTest(TaskDataDto test){
         sessionPanel.removeTest(test);
-    }
-
-    public void showMetric(TaskDataDto test, String metricName){
-        sessionPanel.showMetric(test, metricName);
-    }
-
-    public void hideMetric(TaskDataDto test, String metricName){
-        sessionPanel.hideMetric(test, metricName);
-    }
-
-    public void showMetric(String metricName){
-        sessionPanel.showMetric(metricName);
-    }
-
-    public void hideMetric(String metricName){
-        sessionPanel.hideMetric(metricName);
     }
 
     public Set<SessionDataDto> getSessions(){

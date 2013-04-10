@@ -32,7 +32,6 @@ public class MetricDataServiceImpl implements MetricDataService {
     }
 
     private HashMap<String, String> standardMetrics = new HashMap<String, String>();
-    private String latencyPattern = "Latency";
 
     public MetricDataServiceImpl(){
         standardMetrics.put("Throughput", "throughput");

@@ -56,24 +56,4 @@ public class SessionComparisonPanel extends VerticalPanel implements SessionPane
     public void removeTest(TaskDataDto test) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
-
-    @Override
-    public void showMetric(TaskDataDto test, String metricName) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void hideMetric(TaskDataDto test, String metricName) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void showMetric(String metricName) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void hideMetric(String metricName) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
 }
