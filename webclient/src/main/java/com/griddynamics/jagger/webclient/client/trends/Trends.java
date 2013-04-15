@@ -35,7 +35,6 @@ import com.griddynamics.jagger.webclient.client.handler.ShowCurrentValueHoverLis
 import com.griddynamics.jagger.webclient.client.handler.ShowTaskDetailsListener;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
 import com.smartgwt.client.widgets.grid.events.SelectionChangedHandler;
-import com.smartgwt.client.widgets.tree.TreeGrid;
 
 import java.util.*;
 
@@ -322,7 +321,7 @@ public class Trends extends DefaultActivity {
         final SelectionModel<TaskDataDto> selectionModel = new MultiSelectionModel<TaskDataDto>(new ProvidesKey<TaskDataDto>() {
             @Override
             public Object getKey(TaskDataDto item) {
-                return item.getTaskName()+item.getVersion();
+                return item.getTaskName()+item.getDescription();
             }
         });
         testDataGrid.setSelectionModel(selectionModel, DefaultSelectionEventManager.<TaskDataDto>createCheckboxManager());

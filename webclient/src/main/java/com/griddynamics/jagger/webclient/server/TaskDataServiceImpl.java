@@ -130,7 +130,6 @@ public class TaskDataServiceImpl /*extends RemoteServiceServlet*/ implements Tas
             BigInteger id = (BigInteger)testFields[0];
             String name = (String) testFields[1];
             String description = (String) testFields[2];
-            String version = (String) testFields[3];
             if (map.containsKey(name)){
                 HashMap<String, TaskDataDto> descriptionMap = map.get(name);
                 if (description.equals("")){
@@ -142,20 +141,20 @@ public class TaskDataServiceImpl /*extends RemoteServiceServlet*/ implements Tas
                     if (descriptionMap.containsKey("")){
                         descriptionMap.get("").getIds().add(id.longValue());
                     }else{
-                        descriptionMap.put("", new TaskDataDto(id.longValue(), name, version));
+                        descriptionMap.put("", new TaskDataDto(id.longValue(), name, description));
                     }
                 }else{
                     if (descriptionMap.containsKey(description)){
                         TaskDataDto test = descriptionMap.get(description);
                         test.getIds().add(id.longValue());
                     }else{
-                        TaskDataDto test = new TaskDataDto(id.longValue(), name, version);
+                        TaskDataDto test = new TaskDataDto(id.longValue(), name, description);
                         descriptionMap.put(description, test);
                     }
                 }
             }else{
                 HashMap<String, TaskDataDto> descriptionMap = new HashMap<String, TaskDataDto>();
-                descriptionMap.put(description, new TaskDataDto(id.longValue(), name, version));
+                descriptionMap.put(description, new TaskDataDto(id.longValue(), name, description));
                 map.put(name, descriptionMap);
             }
         }

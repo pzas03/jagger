@@ -49,12 +49,14 @@ public class SessionComparisonPanel extends VerticalPanel implements SessionPane
 
         List<ListGridField> fields = new ArrayList<ListGridField>(chosenSessions.size()+3);
 
-        ListGridField field = new ListGridField("testName", "Name");
-        field.setWidth("300px");
+        ListGridField field = new ListGridField("testDescription", "Test Description");
+        fields.add(field);
+
+        field = new ListGridField("testName", "Name");
         fields.add(field);
 
         field = new ListGridField("testMetric", "Metric");
-        field.setWidth("200px");
+        field.setWidth("300px");
         fields.add(field);
 
         for (SessionDataDto dto : chosenSessions){
@@ -65,9 +67,12 @@ public class SessionComparisonPanel extends VerticalPanel implements SessionPane
 
         grid.setFields(fields.toArray(new ListGridField[]{}));
 
-        grid.setGroupByField("testName");
+        grid.setGroupByField("testDescription", "testName");
         grid.freezeField("testName");
         grid.freezeField("testMetric");
+
+        grid.hideField("testName");
+        grid.hideField("testDescription");
 
         add(grid);
         cache = new HashMap<MetricNameDto, MetricDto>();
@@ -119,6 +124,8 @@ public class SessionComparisonPanel extends VerticalPanel implements SessionPane
 
     private class MetricRecord extends ListGridRecord{
         public MetricRecord(MetricDto dto){
+            String description = dto.getMetricName().getTests().getDescription();
+            setAttribute("testDescription", ((description==null|| "".equals(description) ? "Empty description" : description)));
             setAttribute("testName", dto.getMetricName().getTests().getTaskName());
             setAttribute("testMetric", dto.getMetricName().getName());
             for (MetricValueDto value : dto.getValues()){
