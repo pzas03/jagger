@@ -6,6 +6,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
 import com.griddynamics.jagger.webclient.client.dto.SessionDataDto;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 
@@ -60,6 +61,13 @@ public class SummaryPanel extends Composite implements SessionPanel {
     @Override
     public void update(Set<TaskDataDto> tests) {
         sessionPanel.update(tests);
+    }
+
+    //TODO rebuild interface
+    public void updataMetrics(Set<MetricNameDto> metrics){
+        if (sessionPanel instanceof SessionComparisonPanel){
+            ((SessionComparisonPanel)sessionPanel).updateMetrics(metrics);
+        }
     }
 
     public void addTest(TaskDataDto test){

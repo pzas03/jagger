@@ -48,7 +48,7 @@ public class MetricDataServiceImpl implements MetricDataService {
             for (String standardMetricName : standardMetrics.keySet()){
                 MetricNameDto metric = new MetricNameDto();
                 metric.setName(standardMetricName);
-                metric.setTaskName(taskDataDto.getTaskName());
+                metric.setTests(taskDataDto);
                 set.add(metric);
             }
             set.addAll(getLatencyMetricsNames(taskDataDto));
@@ -57,8 +57,18 @@ public class MetricDataServiceImpl implements MetricDataService {
         return set;
     }
 
+
     @Override
-    public MetricDto getMetric(TaskDataDto tests, MetricNameDto metricName) {
+    public List<MetricDto> getMetrics(List<MetricNameDto> metricNames) {
+        List<MetricDto> result = new ArrayList<MetricDto>(metricNames.size());
+        for (MetricNameDto metricName : metricNames){
+            result.add(getMetric(metricName));
+        }
+        return result;
+    }
+
+    @Override
+    public MetricDto getMetric(MetricNameDto metricName) {
 
         MetricDto dto = new MetricDto();
         dto.setValues(new HashSet<MetricValueDto>());
@@ -67,7 +77,7 @@ public class MetricDataServiceImpl implements MetricDataService {
         if (standardMetrics.containsKey(metricName.getName())){
             //it is a standard metric
             List<Object[]> result = entityManager.createNativeQuery("SELECT " +
-                                                                    "    workload."+ standardMetrics.get(metricName.getName())+", taskData.id " +
+                                                                    "    workload."+ standardMetrics.get(metricName.getName())+", taskData.id, taskData.sessionId " +
                                                                     "FROM " +
                                                                     "    WorkloadTaskData workload " +
                                                                     "        left outer join " +
@@ -77,37 +87,36 @@ public class MetricDataServiceImpl implements MetricDataService {
                                                                     "        TaskData) as taskData ON taskData.taskId = workload.taskId " +
                                                                     "        and taskData.sessionId = workload.sessionId " +
                                                                     "WHERE " +
-                                                                    "    taskData.id in (:ids)").setParameter("ids", tests.getIds()).getResultList();
+                                                                    "    taskData.id in (:ids)").setParameter("ids", metricName.getTests().getIds()).getResultList();
 
             for (Object[] temp : result){
-                String metricValue = (String)temp[0];
+                String metricValue = temp[0].toString();
                 long testId =  ((BigInteger)temp[1]).longValue();
+                long sessionId = Long.parseLong(temp[2].toString());
 
                 MetricValueDto value = new MetricValueDto();
                 value.setTestId(testId);
                 value.setValue(metricValue);
+                value.setSessionId(sessionId);
 
                 dto.getValues().add(value);
             }
         }else{
-            if (metricName.getName().matches("Latency [1]?[0-9]?[0-9]%")){
+            if (metricName.getName().matches("Latency .+ %")){
                 //it is a latency metric
-                Long latencyKey = Long.parseLong(metricName.getName().split(" ")[1].substring(0, metricName.getName().length()-1));
+                Double latencyKey = Double.parseDouble(metricName.getName().split(" ")[1]);
                 List<Object[]> latency = entityManager.createQuery(
-                        "select s.percentileValue, s.workloadProcessDescriptiveStatistics.taskData.id from  WorkloadProcessLatencyPercentile as s " +
+                        "select s.percentileValue, s.workloadProcessDescriptiveStatistics.taskData.id, s.workloadProcessDescriptiveStatistics.taskData.sessionId from  WorkloadProcessLatencyPercentile as s " +
                                 "where s.workloadProcessDescriptiveStatistics.taskData.id in (:taskIds) " +
-                                "      and s.percentileKey=:latencyKey "+
-                                "group by s.percentileKey " +
-                                "having count(s.id)=:size")
-                        .setParameter("taskIds", tests.getIds())
-                        .setParameter("size", (long)tests.getIds().size())
+                                "      and s.percentileKey=:latencyKey ")
+                        .setParameter("taskIds", metricName.getTests().getIds())
                         .setParameter("latencyKey", latencyKey)
                         .getResultList();
                 for (Object[] temp : latency){
                     MetricValueDto value = new MetricValueDto();
-                    value.setValue(Long.toString(((BigInteger)temp[0]).longValue()));
-                    value.setTestId(((BigInteger)temp[1]).longValue());
-
+                    value.setValue(temp[0].toString());
+                    value.setTestId(Long.parseLong(temp[1].toString()));
+                    value.setSessionId(Long.parseLong(temp[2].toString()));
                     dto.getValues().add(value);
                 }
             }else{
@@ -139,7 +148,7 @@ public class MetricDataServiceImpl implements MetricDataService {
                 for(WorkloadProcessLatencyPercentile percentile : latency) {
                     MetricNameDto dto = new MetricNameDto();
                     dto.setName("Latency "+Double.toString(percentile.getPercentileKey())+" %");
-                    dto.setTaskName(tests.getTaskName());
+                    dto.setTests(tests);
                     latencyNames.add(dto);
                 }
             }

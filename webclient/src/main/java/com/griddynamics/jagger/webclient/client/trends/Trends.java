@@ -460,6 +460,7 @@ public class Trends extends DefaultActivity {
             @Override
             public void onSelectionChanged(com.smartgwt.client.widgets.grid.events.SelectionEvent selectionEvent) {
                 Set<MetricNameDto> metrics = metricPanel.getSelected();
+                summaryPanel.updataMetrics(metrics);
             }
         });
     }
