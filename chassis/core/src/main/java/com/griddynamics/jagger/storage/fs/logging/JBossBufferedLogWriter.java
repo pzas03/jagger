@@ -13,6 +13,29 @@ public class JBossBufferedLogWriter extends BufferedLogWriter {
 
     private final Logger log = LoggerFactory.getLogger(JBossBufferedLogWriter.class);
 
+    private static class JBossLogWriterOutput implements LogWriterOutput {
+        private final JBossObjectOutputStream out;
+
+        private JBossLogWriterOutput(OutputStream out) throws IOException {
+            this.out = new JBossObjectOutputStream(out);
+        }
+
+        @Override
+        public void writeObject(Object object) throws IOException {
+                out.writeObject(object);
+        }
+
+        @Override
+        public void close() throws IOException {
+            out.close();
+        }
+    }
+
+    @Override
+    public LogWriterOutput getOutput(OutputStream out) throws IOException {
+        return new JBossLogWriterOutput(out);
+    }
+
     @Override
     protected void log(Collection<Serializable> fileQueue, OutputStream os) throws IOException {
         JBossObjectOutputStream out = new JBossObjectOutputStream(os);
