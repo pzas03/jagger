@@ -6,8 +6,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.Serializable;
-import java.util.Collection;
 
 public class JBossBufferedLogWriter extends BufferedLogWriter {
 
@@ -36,19 +34,4 @@ public class JBossBufferedLogWriter extends BufferedLogWriter {
         return new JBossLogWriterOutput(out);
     }
 
-    @Override
-    protected void log(Collection<Serializable> fileQueue, OutputStream os) throws IOException {
-        JBossObjectOutputStream out = new JBossObjectOutputStream(os);
-        try {
-            for (Serializable logEntry : fileQueue) {
-                out.writeObject(logEntry);
-            }
-        } finally {
-            try {
-                out.close();
-            } catch (IOException e) {
-                log.error(e.getMessage(), e);
-            }
-        }
-    }
 }
