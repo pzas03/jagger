@@ -116,7 +116,7 @@ public abstract  class BufferedLogReader implements LogReader {
                 return;
             }
 
-            for (int i = 0; i < BUF_SIZE; ) {
+            while(buffer.size()<BUF_SIZE) {
                 try {
                     Object entry = input.readObject();
                     if (entry == null) {
@@ -125,7 +125,6 @@ public abstract  class BufferedLogReader implements LogReader {
                     if (!clazz.isInstance(entry)) {
                         throw new IllegalStateException("entry " + entry + " is not instance of class " + clazz);
                     }
-                    i++;
                     buffer.add((T) entry);
                 } catch (EOFException e) {
                     loaded = true;
