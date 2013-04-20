@@ -16,6 +16,7 @@ public class HessianBufferedLogWriter extends BufferedLogWriter {
 
         private HessianLogWriterOutput(OutputStream out) throws IOException {
             this.out = new Hessian2Output(out);
+            this.out.setCloseStreamOnClose(true);
         }
 
         @Override
