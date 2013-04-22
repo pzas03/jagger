@@ -11,9 +11,7 @@
             <g:TabLayoutPanel barHeight="20" ui:field="mainTabPanel">
                 <g:tab>
                     <g:header> <b>Summary</b> </g:header>
-                    <g:ScrollPanel ui:field="scrollPanelSummary" >
-                        <custom:SummaryPanel addStyleNames="{res.css.summaryPanel}" ui:field="summaryPanel"/>
-                    </g:ScrollPanel>
+                    <custom:SummaryPanel addStyleNames="{res.css.summaryPanel}" ui:field="summaryPanel"/>
                 </g:tab>
                 <g:tab>
                     <g:header> <b>Trends</b> </g:header>
@@ -81,17 +79,25 @@
                         </g:north>
                         <g:center>
                             <g:ScrollPanel>
-                                <g:VerticalPanel>
-                                    <g:VerticalPanel width="100%" ui:field="trendsDetails" visible="false">
+                                <g:VerticalPanel width="100%">
+                                    <g:VerticalPanel ui:field="trendsDetails" visible="false">
                                         <g:VerticalPanel ui:field="sessionScopePlotList"/>
                                         <c:CellTree title="Task Details" ui:field="taskDetailsTree"/>
                                     </g:VerticalPanel>
-                                    <g:HorizontalPanel width="100%" ui:field="summaryDetails">
-                                        <c:CellTable ui:field="testDataGrid" width="100%" title="Tests"/>
-                                        <g:VerticalPanel>
-                                            <g:Label text="Available metrics"/>
-                                            <custom:MetricPanel ui:field="metricPanel"/>
-                                        </g:VerticalPanel>
+
+                                    <g:HorizontalPanel width="100%" ui:field="summaryDetails" visible="true">
+                                        <g:cell width="60%">
+                                            <g:ScrollPanel width="100%">
+                                                <c:CellTable ui:field="testDataGrid" width="100%" title="Tests"/>
+                                            </g:ScrollPanel>
+                                        </g:cell>
+
+                                        <g:cell width="40%">
+                                            <g:VerticalPanel width="100%">
+                                                    <g:Label text="Available metrics"/>
+                                                    <custom:MetricPanel ui:field="metricPanel"/>
+                                            </g:VerticalPanel>
+                                        </g:cell>
                                     </g:HorizontalPanel>
                                 </g:VerticalPanel>
                             </g:ScrollPanel>

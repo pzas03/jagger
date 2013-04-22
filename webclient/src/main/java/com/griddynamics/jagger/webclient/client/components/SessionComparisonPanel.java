@@ -2,9 +2,12 @@ package com.griddynamics.jagger.webclient.client.components;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.griddynamics.jagger.webclient.client.MetricDataService;
 import com.griddynamics.jagger.webclient.client.dto.*;
+import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
+import com.smartgwt.client.types.AutoFitWidthApproach;
 import com.smartgwt.client.widgets.grid.ListGrid;
 import com.smartgwt.client.widgets.grid.ListGridField;
 import com.smartgwt.client.widgets.grid.ListGridRecord;
@@ -18,11 +21,12 @@ import java.util.*;
  * Time: 12:30
  * To change this template use File | Settings | File Templates.
  */
-public class SessionComparisonPanel extends VerticalPanel implements SessionPanel{
+public class SessionComparisonPanel extends VerticalPanel{
 
     private Label title = new Label();
     private ListGrid grid = new ListGrid();
 
+    private ListGridRecord[] EMPTY_DATA = new ListGridRecord[0];
     private HashMap<MetricNameDto, MetricDto> cache;
 
     public SessionComparisonPanel(Set<SessionDataDto> chosenSessions){
@@ -33,18 +37,13 @@ public class SessionComparisonPanel extends VerticalPanel implements SessionPane
         add(title);
 
         //init title
-        title.setStyleName("sessionNameHeader");
-        title.setWidth("1350px");
-        StringBuilder titleText = new StringBuilder("Comparison of sessions : ");
-        for (SessionDataDto session : chosenSessions){
-            titleText.append(session.getSessionId()+",");
-        }
-        String titleString = titleText.toString();
-        title.setText(titleString.substring(0, titleString.length()-1));
+        title.setStyleName(JaggerResources.INSTANCE.css().sessionNameHeader());
+        title.setWidth("100%");
 
         grid.setCanEdit(false);
         grid.setShowAllRecords(true);
-        grid.setWidth("1350px");
+        grid.setBorder("1px solid blue");
+        grid.setWidth("97%");
         grid.setHeight("50%");
 
         List<ListGridField> fields = new ArrayList<ListGridField>(chosenSessions.size()+3);
@@ -56,14 +55,32 @@ public class SessionComparisonPanel extends VerticalPanel implements SessionPane
         fields.add(field);
 
         field = new ListGridField("testMetric", "Metric");
-        field.setWidth("300px");
+        field.setAutoFitWidth(true);
         fields.add(field);
 
-        for (SessionDataDto dto : chosenSessions){
+        //sort sessions by number create
+        SortedSet<SessionDataDto> sortedSet = new TreeSet<SessionDataDto>(new Comparator<SessionDataDto>() {
+            @Override
+            public int compare(SessionDataDto o, SessionDataDto o2) {
+                return o.getName().compareTo(o2.getName());
+            }
+        });
+        sortedSet.addAll(chosenSessions);
+
+
+        StringBuilder titleText = new StringBuilder("Comparison of sessions : ");
+
+        for (SessionDataDto dto : sortedSet){
+            titleText.append(dto.getSessionId()+",");
             field = new ListGridField(dto.getName(), dto.getName());
-            field.setWidth("150px");
+            field.setAutoFitWidthApproach(AutoFitWidthApproach.VALUE);
+            field.setCanGroupBy(false);
+            field.setSortByDisplayField(false);
             fields.add(field);
         }
+
+        String titleString = titleText.toString();
+        title.setText(titleString.substring(0, titleString.length()-1));
 
         grid.setFields(fields.toArray(new ListGridField[]{}));
 
@@ -74,11 +91,20 @@ public class SessionComparisonPanel extends VerticalPanel implements SessionPane
         grid.hideField("testName");
         grid.hideField("testDescription");
 
-        add(grid);
+        ScrollPanel scrollPanel = new ScrollPanel(grid);
+        add(scrollPanel);
+        setCellHeight(scrollPanel, "100%");
         cache = new HashMap<MetricNameDto, MetricDto>();
     }
 
     public void updateMetrics(Set<MetricNameDto> dto){
+        if (dto.size()==0){
+            grid.setData(EMPTY_DATA);
+            grid.refreshFields();
+            return;
+        }
+
+
         final ArrayList<MetricRecord> records = new ArrayList<MetricRecord>(dto.size());
         ArrayList<MetricNameDto> notLoaded = new ArrayList<MetricNameDto>();
         for (MetricNameDto metricName : dto){
@@ -102,24 +128,11 @@ public class SessionComparisonPanel extends VerticalPanel implements SessionPane
                     records.add(new MetricRecord(metric));
                 }
                 grid.setData(records.toArray(new MetricRecord[]{}));
+                grid.setShowAllRecords(true);
+                grid.refreshFields();
+                grid.redraw();
             }
         });
-    }
-
-    @Override
-    public void update(Set<TaskDataDto> tests) {
-        //To change body of implemented methods use File | Settings | File Templates.
-
-    }
-
-    @Override
-    public void addTest(TaskDataDto test) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void removeTest(TaskDataDto test) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     private class MetricRecord extends ListGridRecord{

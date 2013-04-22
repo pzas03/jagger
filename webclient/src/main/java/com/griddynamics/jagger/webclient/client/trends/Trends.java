@@ -34,7 +34,8 @@ import com.griddynamics.jagger.webclient.client.dto.*;
 import com.griddynamics.jagger.webclient.client.handler.ShowCurrentValueHoverListener;
 import com.griddynamics.jagger.webclient.client.handler.ShowTaskDetailsListener;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
-import com.smartgwt.client.widgets.grid.events.SelectionChangedHandler;
+import com.smartgwt.client.widgets.grid.events.SelectionUpdatedEvent;
+import com.smartgwt.client.widgets.grid.events.SelectionUpdatedHandler;
 
 import java.util.*;
 
@@ -75,9 +76,6 @@ public class Trends extends DefaultActivity {
     ScrollPanel scrollPanelTrends;
 
     @UiField
-    ScrollPanel scrollPanelSummary;
-
-    @UiField
     SummaryPanel summaryPanel;
 
     @UiField
@@ -98,7 +96,7 @@ public class Trends extends DefaultActivity {
     VerticalPanel trendsDetails;
 
     @UiField
-    HorizontalPanel summaryDetails;
+    Panel summaryDetails;
 
     @UiHandler("uncheckSessionsButton")
     void handleUncheckSessionsButtonClick(ClickEvent e) {
@@ -314,7 +312,7 @@ public class Trends extends DefaultActivity {
 
     private void setupTestDataGrid(){
         testDataGrid = new CellTable<TaskDataDto>();
-        testDataGrid.setPageSize(15);
+        testDataGrid.setWidth("500px");
         testDataGrid.setEmptyTableWidget(new Label("No Tests"));
 
         // Add a selection model so we can select cells.
@@ -455,9 +453,9 @@ public class Trends extends DefaultActivity {
     }
 
     private void setupMetricPanel(){
-        metricPanel.addSelectionListener(new SelectionChangedHandler() {
+        metricPanel.addUpdateListener(new SelectionUpdatedHandler() {
             @Override
-            public void onSelectionChanged(com.smartgwt.client.widgets.grid.events.SelectionEvent selectionEvent) {
+            public void onSelectionUpdated(SelectionUpdatedEvent selectionUpdatedEvent) {
                 Set<MetricNameDto> metrics = metricPanel.getSelected();
                 summaryPanel.updataMetrics(metrics);
             }
@@ -616,7 +614,7 @@ public class Trends extends DefaultActivity {
                         (taskDataDto, new TaskPlotNamesAsyncDataProvider(taskDataDto, summaryPanel.getSessionIds()));
             }
 
-            summaryPanel.update(selected);
+            summaryPanel.updateTests(selected);
             metricPanel.updateTests(selected);
         }
     }
@@ -648,6 +646,8 @@ public class Trends extends DefaultActivity {
             // Clear markings dto map
             markingsMap.clear();
             taskDataTreeViewModel.clear();
+            summaryPanel.updataMetrics(Collections.EMPTY_SET);
+            metricPanel.updateTests(Collections.EMPTY_SET);
             testDataGrid.setRowData(Collections.EMPTY_LIST);
 
             if (selected.size() == 1) {

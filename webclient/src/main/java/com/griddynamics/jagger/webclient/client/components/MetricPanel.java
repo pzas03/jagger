@@ -1,21 +1,20 @@
 package com.griddynamics.jagger.webclient.client.components;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.i18n.client.HasDirection;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import com.griddynamics.jagger.webclient.client.MetricDataService;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 import com.smartgwt.client.types.SelectionAppearance;
 import com.smartgwt.client.types.TreeModelType;
-import com.smartgwt.client.widgets.events.DrawEvent;
-import com.smartgwt.client.widgets.events.DrawHandler;
+import com.smartgwt.client.widgets.grid.ListGridField;
 import com.smartgwt.client.widgets.grid.ListGridRecord;
-import com.smartgwt.client.widgets.grid.events.SelectionChangedHandler;
+import com.smartgwt.client.widgets.grid.events.SelectionUpdatedHandler;
+import com.smartgwt.client.widgets.layout.HLayout;
 import com.smartgwt.client.widgets.tree.Tree;
 import com.smartgwt.client.widgets.tree.TreeGrid;
 import com.smartgwt.client.widgets.tree.TreeNode;
@@ -35,40 +34,60 @@ public class MetricPanel extends Composite {
 
     private static MetricPanelUiBinder ourUiBinder = GWT.create(MetricPanelUiBinder.class);
 
+    final TreeGrid metricTreeGrid = new TreeGrid();
+
     @UiField
     VerticalPanel pane;
-
-    final TreeGrid metricTreeGrid = new TreeGrid();
 
     public MetricPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
 
-        MetricTreeModel tree = new MetricTreeModel(defaultData);
-
-        metricTreeGrid.setWidth(400);
-        metricTreeGrid.setHeight(200);
+        metricTreeGrid.setWidth("500px");
+        metricTreeGrid.setHeight("200px");
+        metricTreeGrid.setMinHeight(500);
         metricTreeGrid.setShowDropIcons(false);
         metricTreeGrid.setShowOpenIcons(false);
         metricTreeGrid.setClosedIconSuffix("");
-        metricTreeGrid.setData(tree);
+        metricTreeGrid.setEmptyMessage("<b>Select some sessions</b>");
 
         metricTreeGrid.setSelectionAppearance(SelectionAppearance.CHECKBOX);
         metricTreeGrid.setShowSelectedStyle(false);
         metricTreeGrid.setShowPartialSelection(true);
         metricTreeGrid.setCascadeSelection(true);
+        metricTreeGrid.setFields(new ListGridField(valueAttribute, "Select metrics"));
 
-        metricTreeGrid.addDrawHandler(new DrawHandler() {
-            public void onDraw(DrawEvent event) {
-                metricTreeGrid.selectAllRecords();
-            }
-        });
+        ScrollPanel scrollPanel = new ScrollPanel(metricTreeGrid);
+        scrollPanel.setWidth("100%");
+        pane.add(scrollPanel);
 
-        pane.add(metricTreeGrid);
+        pane.setCellWidth(scrollPanel, "100%");
+        pane.setCellHeight(scrollPanel, "100%");
     }
 
     public void updateTests(Set<TaskDataDto> tests){
         final Set<TaskDataDto> temp = tests;
         final ArrayList<MetricTreeNode> nodes = new ArrayList<MetricTreeNode>();
+
+        if (tests.size()==0){
+            makeEmpty(metricTreeGrid);
+            metricTreeGrid.setEmptyMessage("<b>Choose at least one test</b>");
+            return;
+        }
+
+        boolean manySessions = false;
+        for (TaskDataDto test : tests){
+            if (test.getIds().size() > 1){
+                manySessions = true;
+                break;
+            }
+        }
+
+        if (!manySessions){
+            //nothing to show
+            makeEmpty(metricTreeGrid);
+            metricTreeGrid.setEmptyMessage("<b>Choose more sessions</b>");
+            return;
+        }
 
         MetricDataService.Async.getInstance().getMetricsNames(tests, new AsyncCallback<Set<MetricNameDto>>() {
             @Override
@@ -91,9 +110,10 @@ public class MetricPanel extends Composite {
                 }
                 final MetricTreeModel model = new MetricTreeModel(nodes);
                 metricTreeGrid.setData(model);
+                metricTreeGrid.refreshFields();
+                metricTreeGrid.selectAllRecords();
             }
         });
-        metricTreeGrid.redraw();
     }
 
     public Set<MetricNameDto> getSelected(){
@@ -109,12 +129,18 @@ public class MetricPanel extends Composite {
         return set;
     }
 
-    public void addSelectionListener(SelectionChangedHandler listener){
-        metricTreeGrid.addSelectionChangedHandler(listener);
+    public void addUpdateListener(SelectionUpdatedHandler handler){
+        metricTreeGrid.addSelectionUpdatedHandler(handler);
     }
 
     private TreeNode[] defaultData = new TreeNode[] {
     };
+
+    private void makeEmpty(TreeGrid grid){
+        grid.setData(defaultData);
+        grid.selectAllRecords();
+        grid.refreshFields();
+    }
 
 
     private String root = "root";

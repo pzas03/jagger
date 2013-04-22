@@ -3,9 +3,7 @@ package com.griddynamics.jagger.webclient.client.components;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
 import com.griddynamics.jagger.webclient.client.dto.SessionDataDto;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
@@ -21,7 +19,7 @@ import java.util.Set;
  * Time: 16:07
  * To change this template use File | Settings | File Templates.
  */
-public class SummaryPanel extends Composite implements SessionPanel {
+public class SummaryPanel extends Composite {
 
     interface SummaryPanelUiBinder extends UiBinder<Widget, SummaryPanel> {
     }
@@ -31,7 +29,8 @@ public class SummaryPanel extends Composite implements SessionPanel {
     @UiField
     VerticalPanel pane;
 
-    private SessionPanel sessionPanel;
+    private SessionSummaryPanel sessionSummaryPanel;
+    private SessionComparisonPanel sessionComparisonPanel;
 
     private Set<SessionDataDto> active = Collections.EMPTY_SET;
 
@@ -43,14 +42,16 @@ public class SummaryPanel extends Composite implements SessionPanel {
         if (chosenSessions.size() == 1){
             //show session summary
             pane.clear();
-            sessionPanel = new SessionSummaryPanel(chosenSessions.iterator().next());
-            pane.add((SessionSummaryPanel)sessionPanel);
+            sessionSummaryPanel = new SessionSummaryPanel(chosenSessions.iterator().next());
+            sessionComparisonPanel = null;
+            pane.add(sessionSummaryPanel);
         }else{
             if (chosenSessions.size() > 1){
-                //show sessions somparison
+                //show sessions comparison
                 pane.clear();
-                sessionPanel = new SessionComparisonPanel(chosenSessions);
-                pane.add((SessionComparisonPanel)sessionPanel);
+                sessionComparisonPanel = new SessionComparisonPanel(chosenSessions);
+                sessionSummaryPanel = null;
+                pane.add(sessionComparisonPanel);
             }else{
                 pane.clear();
             }
@@ -58,28 +59,17 @@ public class SummaryPanel extends Composite implements SessionPanel {
         active = chosenSessions;
     }
 
-    @Override
-    public void update(Set<TaskDataDto> tests) {
-        sessionPanel.update(tests);
-    }
 
-    //TODO rebuild interface
-    public void updataMetrics(Set<MetricNameDto> metrics){
-        if (sessionPanel instanceof SessionComparisonPanel){
-            ((SessionComparisonPanel)sessionPanel).updateMetrics(metrics);
+    public void updateTests(Set<TaskDataDto> tests) {
+        if(sessionSummaryPanel != null){
+            sessionSummaryPanel.updateTests(tests);
         }
     }
 
-    public void addTest(TaskDataDto test){
-        sessionPanel.addTest(test);
-    }
-
-    public void removeTest(TaskDataDto test){
-        sessionPanel.removeTest(test);
-    }
-
-    public Set<SessionDataDto> getSessions(){
-        return active;
+    public void updataMetrics(Set<MetricNameDto> metrics){
+        if (sessionComparisonPanel != null){
+            sessionComparisonPanel.updateMetrics(metrics);
+        }
     }
 
     public Set<String> getSessionIds(){
