@@ -5,6 +5,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.griddynamics.jagger.webclient.client.MetricDataService;
+import com.griddynamics.jagger.webclient.client.data.MetricRankingProvider;
 import com.griddynamics.jagger.webclient.client.dto.*;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
 import com.smartgwt.client.types.AutoFitWidthApproach;
@@ -127,6 +128,15 @@ public class SessionComparisonPanel extends VerticalPanel{
                     cache.put(metric.getMetricName(), metric);
                     records.add(new MetricRecord(metric));
                 }
+
+                Collections.sort(records, new Comparator<MetricRecord>() {
+                    @Override
+                    public int compare(MetricRecord metricRecord, MetricRecord metricRecord2) {
+                        return (-1)*MetricRankingProvider.compare(metricRecord.getAttribute("testMetric"),
+                                                                  metricRecord2.getAttribute("testMetric"));
+                    }
+                });
+
                 grid.setData(records.toArray(new MetricRecord[]{}));
                 grid.setShowAllRecords(true);
                 grid.refreshFields();
