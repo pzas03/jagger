@@ -1,4 +1,4 @@
-package com.griddynamics.jagger.xml;/*
+/*
  * Copyright (c) 2010-2012 Grid Dynamics Consulting Services, Inc, All Rights Reserved
  * http://www.griddynamics.com
  *
@@ -17,6 +17,8 @@ package com.griddynamics.jagger.xml;/*
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+package com.griddynamics.jagger.xml;
 
 /**
  * @author Nikolay Musienko
