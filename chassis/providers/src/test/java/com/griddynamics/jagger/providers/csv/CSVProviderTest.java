@@ -20,9 +20,7 @@
 
 package com.griddynamics.jagger.providers.csv;
 
-import com.griddynamics.jagger.providers.AbstractCsvProvider;
-import com.griddynamics.jagger.providers.csv.RequestPath;
-import com.griddynamics.jagger.providers.csv.RequestPathCvsProvider;
+import com.griddynamics.jagger.providers.CsvProvider;
 import org.apache.commons.csv.CSVStrategy;
 import org.testng.Assert;
 
@@ -40,8 +38,9 @@ public class CSVProviderTest {
 
     @Test
     public static void test() throws Exception {
-        AbstractCsvProvider iterable = new RequestPathCvsProvider();
-        iterable.setFilePath("src/test/resources/requests.csv");
+        CsvProvider iterable = new CsvProvider();
+        iterable.setObjectCreator(new RequestPathCvsWrapper());
+        iterable.setPath("src/test/resources/requests.csv");
         iterable.setStrategy(CSVStrategy.EXCEL_STRATEGY);
         iterable.setReadHeader(true);
         RequestPath[] requestPaths = new RequestPath[]{
@@ -51,8 +50,9 @@ public class CSVProviderTest {
         };
         testIterable(iterable, requestPaths);
         testIterable(iterable, requestPaths);
-        iterable = new RequestPathCvsProvider();
-        iterable.setFilePath("src/test/resources/requests.csv");
+        iterable = new CsvProvider();
+        iterable.setObjectCreator(new RequestPathCvsWrapper());
+        iterable.setPath("src/test/resources/requests.csv");
         iterable.setReadHeader(true);
         testIterable(iterable, requestPaths);
     }

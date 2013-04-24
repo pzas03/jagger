@@ -33,18 +33,27 @@ import java.util.NoSuchElementException;
  *         Date: 22.04.13
  */
 
-public abstract class AbstractCsvProvider<T> implements Iterable<T> {
+public class CsvProvider<T> implements Iterable<T> {
 
-    private String filePath;
+    private String path;
     private CSVStrategy strategy = CSVStrategy.DEFAULT_STRATEGY;
     private boolean readHeader;
+    private CsvObjectCreator<T> objectCreator;
 
-    public String getFilePath() {
-        return filePath;
+    public String getPath() {
+        return path;
     }
 
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public CsvObjectCreator<T> getObjectCreator() {
+        return objectCreator;
+    }
+
+    public void setObjectCreator(CsvObjectCreator<T> objectCreator) {
+        this.objectCreator = objectCreator;
     }
 
     public CSVStrategy getStrategy() {
@@ -55,8 +64,8 @@ public abstract class AbstractCsvProvider<T> implements Iterable<T> {
         this.strategy = strategy;
     }
 
-    protected AbstractCsvProvider(String filePath) {
-        this.filePath = filePath;
+    public CsvProvider(String path) {
+        this.path = path;
     }
 
     public boolean getReadHeader() {
@@ -67,12 +76,8 @@ public abstract class AbstractCsvProvider<T> implements Iterable<T> {
         this.readHeader = readHeader;
     }
 
-    protected AbstractCsvProvider() {
+    public CsvProvider() {
     }
-
-    public abstract T createObject(String[] strings);
-
-    public abstract void setHeader(String[] header);
 
     public Iterator<T> iterator() {
         return new Iterator<T>() {
@@ -86,16 +91,16 @@ public abstract class AbstractCsvProvider<T> implements Iterable<T> {
             }
 
             private void init(){
-                if (filePath == null) {
+                if (path == null) {
                     throw new TechnicalException("File path can't be NULL!");
                 }
                 try {
-                    parser = new CSVParser(new BufferedReader(new FileReader(new File(filePath))), strategy);
+                    parser = new CSVParser(new BufferedReader(new FileReader(new File(path))), strategy);
                 } catch (FileNotFoundException e) {
                     throw Throwables.propagate(e);
                 }  if(readHeader){
                     try {
-                        setHeader(parser.getLine());
+                        objectCreator.setHeader(parser.getLine());
                     } catch (IOException e){
                         throw Throwables.propagate(e);
                     }
@@ -129,7 +134,7 @@ public abstract class AbstractCsvProvider<T> implements Iterable<T> {
                         loaded = true;
                         return null;
                     }
-                    return createObject(strings);
+                    return objectCreator.createObject(strings);
                 } catch (IOException e) {
                     throw Throwables.propagate(e);
                 }

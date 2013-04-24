@@ -33,21 +33,21 @@ import java.util.NoSuchElementException;
 
 public class FileProvider implements Iterable<String> {
 
-    private String filePath;
+    private String path;
 
     public FileProvider(String filePath) {
-        this.filePath = filePath;
+        this.path = filePath;
     }
 
     public FileProvider() {
     }
 
-    public String getFilePath() {
-        return filePath;
+    public String getPath() {
+        return path;
     }
 
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
+    public void setPath(String filePath) {
+        this.path = filePath;
     }
 
     public Iterator<String> iterator() {
@@ -63,11 +63,11 @@ public class FileProvider implements Iterable<String> {
             }
 
             private void init(){
-                if (filePath == null) {
+                if (path == null) {
                     throw new TechnicalException("File path can't be NULL!");
                 }
                 try {
-                    reader = new BufferedReader(new FileReader(new File(filePath)));
+                    reader = new BufferedReader(new FileReader(new File(path)));
                 } catch (FileNotFoundException e) {
                     throw Throwables.propagate(e);
                 }

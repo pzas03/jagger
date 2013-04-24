@@ -18,27 +18,33 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.griddynamics.jagger.providers.csv;
+package com.griddynamics.jagger.xml;
 
-import com.griddynamics.jagger.providers.AbstractCsvProvider;
+import com.griddynamics.jagger.providers.CsvObjectCreator;
 
 /**
  * @author Nikolay Musienko
  *         Date: 22.04.13
  */
 
-public class RequestPathCvsProvider extends AbstractCsvProvider<RequestPath> {
+public class RequestPathCvsWrapper implements CsvObjectCreator<RequestPath> {
+
     String[] header;
 
     @Override
     public RequestPath createObject(String[] strings) {
         RequestPath ret = new RequestPath();
-        for (int i = 0; i < header.length; i++){
-            if ( header[i].equals("host") ) {
-                ret.setHost(strings[i]);
-            } else if( header[i].equals("path") ){
-                ret.setPath(strings[i]);
+        if(header!=null){
+            for (int i = 0; i < header.length; i++){
+                if ( header[i].equals("host") ) {
+                    ret.setHost(strings[i]);
+                } else if( header[i].equals("path") ){
+                    ret.setPath(strings[i]);
+                }
             }
+        } else {
+            ret.setHost(strings[0]);
+            ret.setPath(strings[1]);
         }
         return ret;
     }
