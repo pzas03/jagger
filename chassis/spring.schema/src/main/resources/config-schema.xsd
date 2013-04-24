@@ -1099,7 +1099,7 @@
         </xsd:annotation>
         <xsd:complexContent>
             <xsd:extension base="queryProviderAbstract">
-                <xsd:attribute name="path" type="xsd:string" use="optional"/>
+                <xsd:attribute name="path" type="xsd:string" use="required"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -1141,7 +1141,7 @@
 
     <xsd:element name="objectCreator-ref" type="object-creator-ref" substitutionGroup="objectCreator"/>
 
-    <xsd:complexType name="object-creator-ref" mixed="true">
+    <xsd:complexType name="object-creator-ref">
         <xsd:complexContent>
             <xsd:extension base="objectCreatorAbstract">
                 <xsd:attribute name="ref" type="xsd:string" use="required"/>
@@ -1305,7 +1305,7 @@
         </xsd:annotation>
         <xsd:complexContent>
             <xsd:extension base="endpointProviderAbstract">
-                <xsd:attribute name="path" type="xsd:string" use="optional"/>
+                <xsd:attribute name="path" type="xsd:string" use="required"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
