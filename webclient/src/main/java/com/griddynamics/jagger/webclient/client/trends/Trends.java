@@ -453,9 +453,9 @@ public class Trends extends DefaultActivity {
     }
 
     private void setupMetricPanel(){
-        metricPanel.addUpdateListener(new SelectionUpdatedHandler() {
+        metricPanel.addSelectionListener(new SelectionChangeEvent.Handler() {
             @Override
-            public void onSelectionUpdated(SelectionUpdatedEvent selectionUpdatedEvent) {
+            public void onSelectionChange(SelectionChangeEvent event) {
                 Set<MetricNameDto> metrics = metricPanel.getSelected();
                 summaryPanel.updataMetrics(metrics);
             }

@@ -35,17 +35,16 @@ public class SessionComparisonPanel extends VerticalPanel{
     }
 
     private void init(Set<SessionDataDto> chosenSessions){
-        add(title);
-
         //init title
         title.setStyleName(JaggerResources.INSTANCE.css().sessionNameHeader());
-        title.setWidth("100%");
 
         grid.setCanEdit(false);
         grid.setShowAllRecords(true);
+        grid.setShowResizeBar(true);
+        grid.setRedrawOnResize(true);
         grid.setBorder("1px solid blue");
         grid.setWidth("97%");
-        grid.setHeight("50%");
+        grid.setHeight("80%");
 
         List<ListGridField> fields = new ArrayList<ListGridField>(chosenSessions.size()+3);
 
@@ -94,7 +93,6 @@ public class SessionComparisonPanel extends VerticalPanel{
 
         ScrollPanel scrollPanel = new ScrollPanel(grid);
         add(scrollPanel);
-        setCellHeight(scrollPanel, "100%");
         cache = new HashMap<MetricNameDto, MetricDto>();
     }
 
@@ -124,18 +122,13 @@ public class SessionComparisonPanel extends VerticalPanel{
 
             @Override
             public void onSuccess(List<MetricDto> result) {
+
+                MetricRankingProvider.sortMetrics(result);
+
                 for (MetricDto metric : result){
                     cache.put(metric.getMetricName(), metric);
                     records.add(new MetricRecord(metric));
                 }
-
-                Collections.sort(records, new Comparator<MetricRecord>() {
-                    @Override
-                    public int compare(MetricRecord metricRecord, MetricRecord metricRecord2) {
-                        return (-1)*MetricRankingProvider.compare(metricRecord.getAttribute("testMetric"),
-                                                                  metricRecord2.getAttribute("testMetric"));
-                    }
-                });
 
                 grid.setData(records.toArray(new MetricRecord[]{}));
                 grid.setShowAllRecords(true);
