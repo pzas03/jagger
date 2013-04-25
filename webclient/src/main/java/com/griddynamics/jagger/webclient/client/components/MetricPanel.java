@@ -4,10 +4,12 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.cellview.client.CellTree;
+import com.google.gwt.user.cellview.client.TreeNode;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
-import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.MultiSelectionModel;
-import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.view.client.*;
+import com.griddynamics.jagger.webclient.client.MetricDataService;
+import com.griddynamics.jagger.webclient.client.data.MetricProvider;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 
@@ -29,11 +31,12 @@ public class MetricPanel extends Composite {
     @UiField(provided = true)
     CellTree tree;
 
-    ListDataProvider<TaskDataDto> provider = new ListDataProvider<TaskDataDto>();
-    final MultiSelectionModel selectionModel = new MultiSelectionModel<MetricNameDto>();
+    private final ListDataProvider<TaskDataDto> provider = new ListDataProvider<TaskDataDto>();
+    private final MultiSelectionModel selectionModel = new MultiSelectionModel<MetricNameDto>();
+    private final MetricModel viewModel = new MetricModel(selectionModel, provider);
 
     public MetricPanel() {
-        tree = new CellTree(new MetricModel(selectionModel, provider), null);
+        tree = new CellTree(viewModel, null);
         tree.setTitle("Metrics");
 
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -41,7 +44,11 @@ public class MetricPanel extends Composite {
 
     public void updateTests(Set<TaskDataDto> tests){
 
+        for (Object o : selectionModel.getSelectedSet()){
+            selectionModel.setSelected(o, false);
+        }
         provider.setList(Arrays.asList((TaskDataDto)null));
+
 
         if (tests.size()==0){
             return;
@@ -59,8 +66,21 @@ public class MetricPanel extends Composite {
             //nothing to show
             return;
         }
-
         provider.setList(new ArrayList<TaskDataDto>(tests));
+
+        MetricDataService.Async.getInstance().getMetricsNames(tests, new AsyncCallback<Set<MetricNameDto>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                caught.printStackTrace();
+            }
+
+            @Override
+            public void onSuccess(Set<MetricNameDto> result) {
+                for (MetricNameDto dto : result){
+                    selectionModel.setSelected(dto, true);
+                }
+            }
+        });
     }
 
     public Set<MetricNameDto> getSelected(){

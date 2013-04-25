@@ -103,15 +103,15 @@ public class SessionComparisonPanel extends VerticalPanel{
             return;
         }
 
+        final ArrayList<MetricNameDto> notLoaded = new ArrayList<MetricNameDto>();
+        final ArrayList<MetricDto> loaded = new ArrayList<MetricDto>();
 
-        final ArrayList<MetricRecord> records = new ArrayList<MetricRecord>(dto.size());
-        ArrayList<MetricNameDto> notLoaded = new ArrayList<MetricNameDto>();
         for (MetricNameDto metricName : dto){
             if (!cache.containsKey(metricName)){
                 notLoaded.add(metricName);
             }else{
                 MetricDto metric = cache.get(metricName);
-                records.add(new MetricRecord(metric));
+                loaded.add(metric);
             }
         }
         MetricDataService.Async.getInstance().getMetrics(notLoaded, new AsyncCallback<List<MetricDto>>() {
@@ -122,10 +122,12 @@ public class SessionComparisonPanel extends VerticalPanel{
 
             @Override
             public void onSuccess(List<MetricDto> result) {
+                ArrayList<MetricRecord> records = new ArrayList<MetricRecord>(result.size()+loaded.size());
 
-                MetricRankingProvider.sortMetrics(result);
+                loaded.addAll(result);
+                MetricRankingProvider.sortMetrics(loaded);
 
-                for (MetricDto metric : result){
+                for (MetricDto metric : loaded){
                     cache.put(metric.getMetricName(), metric);
                     records.add(new MetricRecord(metric));
                 }
