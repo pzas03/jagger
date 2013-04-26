@@ -24,7 +24,7 @@
             </g:TabLayoutPanel>
         </g:center>
         <g:south size="250">
-            <g:SplitLayoutPanel>
+            <g:SplitLayoutPanel ui:field="settingsPanel">
                 <g:west size="600">
                     <g:DockLayoutPanel>
                         <g:north size="34">

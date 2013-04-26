@@ -98,9 +98,15 @@ public class Trends extends DefaultActivity {
     @UiField
     Panel summaryDetails;
 
+    @UiField
+    SplitLayoutPanel settingsPanel;
+
     @UiHandler("uncheckSessionsButton")
     void handleUncheckSessionsButtonClick(ClickEvent e) {
-        ((MultiSelectionModel<?>) sessionsDataGrid.getSelectionModel()).clear();
+        MultiSelectionModel model = (MultiSelectionModel<?>) sessionsDataGrid.getSelectionModel();
+        for (Object select : model.getSelectedSet()){
+            model.setSelected(select, false);
+        }
     }
 
     @UiHandler("showCheckedSessionsButton")
@@ -189,6 +195,7 @@ public class Trends extends DefaultActivity {
         setupSessionNumberTextBox();
         setupSessionsDateRange();
         setupMetricPanel();
+        setupSettingsPanel();
     }
 
     private SimplePlot createPlot(final String id, Markings markings) {
@@ -238,6 +245,11 @@ public class Trends extends DefaultActivity {
         }
 
         return plot;
+    }
+
+    private void setupSettingsPanel(){
+        SplitLayoutPanel root = (SplitLayoutPanel) widget;
+        root.setWidgetToggleDisplayAllowed(settingsPanel, true);
     }
 
     private void setupTabPanel(){
