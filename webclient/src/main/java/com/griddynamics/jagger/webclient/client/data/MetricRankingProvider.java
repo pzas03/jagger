@@ -1,5 +1,6 @@
 package com.griddynamics.jagger.webclient.client.data;
 
+import com.google.gwt.regexp.shared.RegExp;
 import com.griddynamics.jagger.webclient.client.dto.MetricDto;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
 
@@ -13,13 +14,12 @@ import java.util.*;
  * To change this template use File | Settings | File Templates.
  */
 public class MetricRankingProvider {
-    private static List<String> patterns = Arrays.asList(
-            "Iterations",
-            "Duration",
-            "Throughput",
-            "Latency",
-            "Success rate",
-            "Latency .+ %"
+    private static List<RegExp> patterns = Arrays.asList(
+            RegExp.compile("Iterations"),
+            RegExp.compile("Duration"),
+            RegExp.compile("Throughput"),
+            RegExp.compile("Success rate"),
+            RegExp.compile("Latency")
     );
 
     protected static int compare(String o1, String o2){
@@ -28,13 +28,16 @@ public class MetricRankingProvider {
         if (o1Rank.compareTo(0)==0 && o2Rank.compareTo(0)==0){
             return o1.compareTo(o2);
         }
+        if (o1Rank.compareTo(o2Rank)==0){
+            return o1.compareTo(o2);
+        }
         return o1Rank.compareTo(o2Rank);
     }
 
     protected static Integer getRank(String o){
         int rank = 0;
-        for (String pattern : patterns){
-            if (pattern.matches(o)){
+        for (RegExp pattern : patterns){
+            if (pattern.test(o)){
                 return new Integer(patterns.size()-rank);
             }
             rank++;
