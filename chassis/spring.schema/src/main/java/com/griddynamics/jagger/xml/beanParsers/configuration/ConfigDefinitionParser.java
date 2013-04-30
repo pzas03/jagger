@@ -65,6 +65,7 @@ public class ConfigDefinitionParser extends CustomBeanDefinitionParser {
             durationLogProcessorBean.setParentName(XMLConstants.DURATION_LOG_PROCESSOR);
 
             setBeanProperty(XMLConstants.GLOBAL_PERCENTILES_KEYS, percentilesElement, parserContext, durationLogProcessorBean.getBeanDefinition());
+            setBeanProperty(XMLConstants.TIME_WINDOW_PERCENTILES_KEYS, percentilesElement, parserContext, durationLogProcessorBean.getBeanDefinition());
 
             initStandardListeners(tlList, slList);
 
@@ -73,6 +74,15 @@ public class ConfigDefinitionParser extends CustomBeanDefinitionParser {
 
             builder.addPropertyValue(XMLConstants.TASK_EXECUTION_LISTENERS_CLASS_FIELD, tlList);
             builder.addPropertyValue(XMLConstants.SESSION_EXECUTION_LISTENERS_CLASS_FIELD, slList);
+
+            //add user's listeners
+            Element sListenerGroup = DomUtils.getChildElementByTagName(element, XMLConstants.SESSION_EXECUTION_LISTENERS);
+            setBeanListProperty(XMLConstants.SESSION_EXECUTION_LISTENERS_CLASS_FIELD, false, true, sListenerGroup, parserContext, builder.getBeanDefinition());
+
+            //add user's listeners
+            Element tListenerGroup = DomUtils.getChildElementByTagName(element, XMLConstants.TASK_EXECUTION_LISTENERS);
+            setBeanListProperty(XMLConstants.TASK_EXECUTION_LISTENERS_CLASS_FIELD, false, true, tListenerGroup, parserContext, builder.getBeanDefinition());
+
         }else{
             if (builder.getBeanDefinition().getParentName() == null){
                 initStandardListeners(tlList, slList);
@@ -83,15 +93,15 @@ public class ConfigDefinitionParser extends CustomBeanDefinitionParser {
                 builder.addPropertyValue(XMLConstants.TASK_EXECUTION_LISTENERS_CLASS_FIELD, tlList);
                 builder.addPropertyValue(XMLConstants.SESSION_EXECUTION_LISTENERS_CLASS_FIELD, slList);
             }
+            //add user's listeners
+            Element sListenerGroup = DomUtils.getChildElementByTagName(element, XMLConstants.SESSION_EXECUTION_LISTENERS);
+            setBeanListProperty(XMLConstants.SESSION_EXECUTION_LISTENERS_CLASS_FIELD, true, true, sListenerGroup, parserContext, builder.getBeanDefinition());
+
+            //add user's listeners
+            Element tListenerGroup = DomUtils.getChildElementByTagName(element, XMLConstants.TASK_EXECUTION_LISTENERS);
+            setBeanListProperty(XMLConstants.TASK_EXECUTION_LISTENERS_CLASS_FIELD, true, true, tListenerGroup, parserContext, builder.getBeanDefinition());
         }
 
-        //add user's listeners
-        Element sListenerGroup = DomUtils.getChildElementByTagName(element, XMLConstants.SESSION_EXECUTION_LISTENERS);
-        setBeanListProperty(XMLConstants.SESSION_EXECUTION_LISTENERS_CLASS_FIELD, true, sListenerGroup, parserContext, builder.getBeanDefinition());
-
-        //add user's listeners
-        Element tListenerGroup = DomUtils.getChildElementByTagName(element, XMLConstants.TASK_EXECUTION_LISTENERS);
-        setBeanListProperty(XMLConstants.TASK_EXECUTION_LISTENERS_CLASS_FIELD, true, tListenerGroup, parserContext, builder.getBeanDefinition());
     }
 
     protected void initStandardListeners(ManagedList tlList, ManagedList slList){

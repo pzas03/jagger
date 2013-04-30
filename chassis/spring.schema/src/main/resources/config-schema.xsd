@@ -913,6 +913,7 @@
                     <xsd:element name="endpoint-provider" type="endpointProviderAbstract" minOccurs="0" maxOccurs="1"/>
                     <xsd:element name="query-distributor" type="queryDistributorAbstract" minOccurs="0" maxOccurs="1"/>
                 </xsd:all>
+                <xsd:attribute name="calibrationSamplesCount" type="xsd:int" use="optional"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -1184,16 +1185,10 @@
         </xsd:annotation>
         <xsd:complexContent>
             <xsd:extension base="queryType">
-                <xsd:choice>
-                    <xsd:sequence>
-                        <xsd:element name="method-params" type="primitiveMap" minOccurs="0" maxOccurs="1"/>
-                        <xsd:element name="client-params" type="primitiveMap" minOccurs="0" maxOccurs="1"/>
-                    </xsd:sequence>
-                    <xsd:sequence>
-                        <xsd:element name="client-params" type="primitiveMap" minOccurs="0" maxOccurs="1"/>
-                        <xsd:element name="method-params" type="primitiveMap" minOccurs="0" maxOccurs="1"/>
-                    </xsd:sequence>
-                </xsd:choice>
+                <xsd:sequence>
+                    <xsd:element name="method-params" type="primitiveMap" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="client-params" type="primitiveMap" minOccurs="0" maxOccurs="1"/>
+                </xsd:sequence>
                 <xsd:attribute name="method" type="httpMethodsEnum" default="GET"/>
             </xsd:extension>
         </xsd:complexContent>

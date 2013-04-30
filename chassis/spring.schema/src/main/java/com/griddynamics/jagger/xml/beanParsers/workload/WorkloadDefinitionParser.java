@@ -28,7 +28,7 @@ public class WorkloadDefinitionParser extends CustomBeanDefinitionParser{
 
     @Override
     protected void parse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
-
+        builder.addPropertyValue(XMLConstants.DESCRIPTION, element.getAttribute(XMLConstants.ID));
         //add user's listeners
         Element listenersGroup = DomUtils.getChildElementByTagName(element, XMLConstants.WORKLOAD_LISTENERS_ELEMENT);
 
@@ -43,7 +43,7 @@ public class WorkloadDefinitionParser extends CustomBeanDefinitionParser{
 
             if (listenersGroup != null){
 
-                setBeanListProperty(XMLConstants.WORKLOAD_LISTENERS_CLASS, true, listenersGroup, parserContext, builder.getBeanDefinition());
+                setBeanListProperty(XMLConstants.WORKLOAD_LISTENERS_CLASS, false, true, listenersGroup, parserContext, builder.getBeanDefinition());
             }
         }else{
             if (listenersGroup != null){
@@ -57,7 +57,7 @@ public class WorkloadDefinitionParser extends CustomBeanDefinitionParser{
 
                 builder.addPropertyValue(XMLConstants.WORKLOAD_LISTENERS_CLASS, listeners);
 
-                setBeanListProperty(XMLConstants.WORKLOAD_LISTENERS_CLASS, true, listenersGroup, parserContext, builder.getBeanDefinition());
+                setBeanListProperty(XMLConstants.WORKLOAD_LISTENERS_CLASS, false, true, listenersGroup, parserContext, builder.getBeanDefinition());
             }
         }
 

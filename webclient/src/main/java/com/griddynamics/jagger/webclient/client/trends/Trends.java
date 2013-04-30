@@ -7,6 +7,8 @@ import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
@@ -25,6 +27,8 @@ import com.google.gwt.view.client.*;
 import com.griddynamics.jagger.webclient.client.*;
 import com.griddynamics.jagger.webclient.client.callback.SessionScopePlotListQueryCallback;
 import com.griddynamics.jagger.webclient.client.callback.TaskDataDtoListQueryAsyncCallback;
+import com.griddynamics.jagger.webclient.client.components.MetricPanel;
+import com.griddynamics.jagger.webclient.client.components.SummaryPanel;
 import com.griddynamics.jagger.webclient.client.data.*;
 import com.griddynamics.jagger.webclient.client.dto.*;
 import com.griddynamics.jagger.webclient.client.handler.ShowCurrentValueHoverListener;
@@ -46,10 +50,16 @@ public class Trends extends DefaultActivity {
     private static final int MAX_PLOT_COUNT = 30;
 
     @UiField
+    TabLayoutPanel mainTabPanel;
+
+    @UiField
     HTMLPanel plotPanel;
 
     @UiField(provided = true)
     DataGrid<SessionDataDto> sessionsDataGrid;
+
+    @UiField(provided = true)
+    CellTable<TaskDataDto> testDataGrid;
 
     @UiField(provided = true)
     SimplePager sessionsPager;
@@ -58,7 +68,13 @@ public class Trends extends DefaultActivity {
     CellTree taskDetailsTree;
 
     @UiField
-    ScrollPanel scrollPanel;
+    MetricPanel metricPanel;
+
+    @UiField
+    ScrollPanel scrollPanelTrends;
+
+    @UiField
+    SummaryPanel summaryPanel;
 
     @UiField
     VerticalPanel sessionScopePlotList;
@@ -74,9 +90,24 @@ public class Trends extends DefaultActivity {
     @UiField
     DateBox sessionsTo;
 
+    @UiField
+    Panel trendsDetails;
+
+    @UiField
+    Panel summaryDetails;
+
+    @UiField
+    SplitLayoutPanel settingsPanel;
+
+    @UiField
+    DockLayoutPanel testsMetricsPanel;
+
     @UiHandler("uncheckSessionsButton")
     void handleUncheckSessionsButtonClick(ClickEvent e) {
-        ((MultiSelectionModel<?>) sessionsDataGrid.getSelectionModel()).clear();
+        MultiSelectionModel model = (MultiSelectionModel<?>) sessionsDataGrid.getSelectionModel();
+        for (Object select : model.getSelectedSet()){
+            model.setSelected(select, false);
+        }
     }
 
     @UiHandler("showCheckedSessionsButton")
@@ -106,7 +137,6 @@ public class Trends extends DefaultActivity {
 
     public Trends(JaggerResources resources) {
         super(resources);
-
         createWidget();
     }
 
@@ -154,15 +184,19 @@ public class Trends extends DefaultActivity {
     }
 
     private void createWidget() {
-        setupTaskDetailsTree();
-        setupDataGrid();
+        setupTestDataGrid();
+        setupSessionDataGrid();
+        setupTestDetailsTree();
         setupPager();
         setupLoadIndicator();
 
         uiBinder.createAndBindUi(this);
 
+        setupTabPanel();
         setupSessionNumberTextBox();
         setupSessionsDateRange();
+        setupMetricPanel();
+        setupSettingsPanel();
     }
 
     private SimplePlot createPlot(final String id, Markings markings) {
@@ -214,7 +248,31 @@ public class Trends extends DefaultActivity {
         return plot;
     }
 
-    private void setupDataGrid() {
+    private void setupSettingsPanel(){
+        SplitLayoutPanel root = (SplitLayoutPanel) widget;
+        root.setWidgetToggleDisplayAllowed(settingsPanel, true);
+        testsMetricsPanel.setWidgetHidden(trendsDetails, true);
+    }
+
+    private void setupTabPanel(){
+        mainTabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
+            @Override
+            public void onSelection(SelectionEvent<Integer> event) {
+                int selected = event.getSelectedItem();
+                if (selected == 0){
+                    testsMetricsPanel.setWidgetHidden(summaryDetails, false);
+                    testsMetricsPanel.setWidgetHidden(trendsDetails, true);
+                }else
+                if (selected == 1){
+                    testsMetricsPanel.setWidgetHidden(summaryDetails, true);
+                    testsMetricsPanel.setWidgetHidden(trendsDetails, false);
+                    testsMetricsPanel.setWidgetSize(trendsDetails, testsMetricsPanel.getOffsetWidth());
+                }
+            }
+        });
+    }
+
+    private void setupSessionDataGrid() {
         sessionsDataGrid = new DataGrid<SessionDataDto>();
         sessionsDataGrid.setPageSize(15);
         sessionsDataGrid.setEmptyTableWidget(new Label("No Sessions"));
@@ -267,13 +325,56 @@ public class Trends extends DefaultActivity {
         sessionDataProvider.addDataDisplay(sessionsDataGrid);
     }
 
+    private void setupTestDataGrid(){
+        testDataGrid = new CellTable<TaskDataDto>();
+        testDataGrid.setWidth("500px");
+        testDataGrid.setEmptyTableWidget(new Label("No Tests"));
+
+        // Add a selection model so we can select cells.
+        final SelectionModel<TaskDataDto> selectionModel = new MultiSelectionModel<TaskDataDto>(new ProvidesKey<TaskDataDto>() {
+            @Override
+            public Object getKey(TaskDataDto item) {
+                return item.getTaskName()+item.getDescription();
+            }
+        });
+        testDataGrid.setSelectionModel(selectionModel, DefaultSelectionEventManager.<TaskDataDto>createCheckboxManager());
+
+        selectionModel.addSelectionChangeHandler(new TestSelectChangeHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+
+            }
+        }));
+
+        // Checkbox column. This table will uses a checkbox column for selection.
+        // Alternatively, you can call dataGrid.setSelectionEnabled(true) to enable mouse selection.
+        Column<TaskDataDto, Boolean> checkColumn =
+                new Column<TaskDataDto, Boolean>(new CheckboxCell(true, false)) {
+                    @Override
+                    public Boolean getValue(TaskDataDto object) {
+                        // Get the value from the selection model.
+                        return selectionModel.isSelected(object);
+                    }
+                };
+        testDataGrid.addColumn(checkColumn, SafeHtmlUtils.fromSafeConstant("<br/>"));
+        testDataGrid.setColumnWidth(checkColumn, 40, Style.Unit.PX);
+
+        testDataGrid.addColumn(new TextColumn<TaskDataDto>() {
+            @Override
+            public String getValue(TaskDataDto object) {
+                return object.getTaskName();
+            }
+        }, "Tests");
+        testDataGrid.setRowData(Collections.EMPTY_LIST);
+    }
+
     private void setupPager() {
         SimplePager.Resources pagerResources = GWT.create(SimplePager.Resources.class);
         sessionsPager = new SimplePager(SimplePager.TextLocation.CENTER, pagerResources, false, 0, true);
         sessionsPager.setDisplay(sessionsDataGrid);
     }
 
-    private void setupTaskDetailsTree() {
+    private void setupTestDetailsTree() {
         CellTree.Resources res = GWT.create(CellTree.BasicResources.class);
         final MultiSelectionModel<PlotNameDto> selectionModel = new MultiSelectionModel<PlotNameDto>();
         taskDetailsTree = new CellTree(new TaskDataTreeViewModel(selectionModel, getResources()), null, res);
@@ -364,6 +465,16 @@ public class Trends extends DefaultActivity {
 
         sessionsTo.addValueChangeHandler(valueChangeHandler);
         sessionsFrom.addValueChangeHandler(valueChangeHandler);
+    }
+
+    private void setupMetricPanel(){
+        metricPanel.addSelectionListener(new SelectionChangeEvent.Handler() {
+            @Override
+            public void onSelectionChange(SelectionChangeEvent event) {
+                Set<MetricNameDto> metrics = metricPanel.getSelected();
+                summaryPanel.updataMetrics(metrics);
+            }
+        });
     }
 
     private boolean isMaxPlotCountReached() {
@@ -486,20 +597,20 @@ public class Trends extends DefaultActivity {
     /**
      * Handles select session event
      */
-    private class SessionSelectChangeHandler implements SelectionChangeEvent.Handler {
-        private final ClickHandler sessionScopePlotCheckBoxClickHandler;
+    private class TestSelectChangeHandler implements SelectionChangeEvent.Handler{
+        private final ClickHandler clickHandler;
 
-        private SessionSelectChangeHandler(ClickHandler sessionScopePlotCheckBoxClickHandler) {
-            this.sessionScopePlotCheckBoxClickHandler = sessionScopePlotCheckBoxClickHandler;
+        private TestSelectChangeHandler(ClickHandler clickHandler){
+            this.clickHandler = clickHandler;
         }
 
         @Override
         public void onSelectionChange(SelectionChangeEvent event) {
-            // Currently selection model for sessions is a single selection model
-            final Set<SessionDataDto> selected = ((MultiSelectionModel<SessionDataDto>) event.getSource()).getSelectedSet();
-
-            final TaskDataTreeViewModel taskDataTreeViewModel = (TaskDataTreeViewModel) taskDetailsTree.getTreeViewModel();
-            final MultiSelectionModel<PlotNameDto> plotNameSelectionModel = taskDataTreeViewModel.getSelectionModel();
+            Set<TaskDataDto> selected = ((MultiSelectionModel<TaskDataDto>) event.getSource()).getSelectedSet();
+            List<TaskDataDto> result = new ArrayList<TaskDataDto>(selected.size());
+            result.addAll(selected);
+            TaskDataTreeViewModel taskDataTreeViewModel = (TaskDataTreeViewModel) taskDetailsTree.getTreeViewModel();
+            MultiSelectionModel<PlotNameDto> plotNameSelectionModel = taskDataTreeViewModel.getSelectionModel();
 
             // Clear plots display
             plotPanel.clear();
@@ -510,6 +621,49 @@ public class Trends extends DefaultActivity {
             // Clear markings dto map
             markingsMap.clear();
             taskDataTreeViewModel.clear();
+
+            taskDataTreeViewModel.populateTaskList(result);
+            // Populate available plots tree level for each task for selected session
+            for (TaskDataDto taskDataDto : result) {
+                taskDataTreeViewModel.getPlotNameDataProviders().put
+                        (taskDataDto, new TaskPlotNamesAsyncDataProvider(taskDataDto, summaryPanel.getSessionIds()));
+            }
+
+            summaryPanel.updateTests(selected);
+            metricPanel.updateTests(selected);
+        }
+    }
+
+    private class SessionSelectChangeHandler implements SelectionChangeEvent.Handler {
+        private final ClickHandler sessionScopePlotCheckBoxClickHandler;
+
+        private SessionSelectChangeHandler(ClickHandler sessionScopePlotCheckBoxClickHandler) {
+            this.sessionScopePlotCheckBoxClickHandler = sessionScopePlotCheckBoxClickHandler;
+        }
+
+        @Override
+        public void onSelectionChange(SelectionChangeEvent event) {
+            // Currently selection model for sessions is a single selection model
+            mainTabPanel.selectTab(0);
+            Set<SessionDataDto> selected = ((MultiSelectionModel<SessionDataDto>) event.getSource()).getSelectedSet();
+
+            TaskDataTreeViewModel taskDataTreeViewModel = (TaskDataTreeViewModel) taskDetailsTree.getTreeViewModel();
+            MultiSelectionModel<PlotNameDto> plotNameSelectionModel = taskDataTreeViewModel.getSelectionModel();
+
+            //Refresh summary
+            summaryPanel.updateSessions(selected);
+            // Clear plots display
+            plotPanel.clear();
+            // Clear task scope plot selection model
+            plotNameSelectionModel.clear();
+            // Clear session scope plot list
+            sessionScopePlotList.clear();
+            // Clear markings dto map
+            markingsMap.clear();
+            taskDataTreeViewModel.clear();
+            summaryPanel.updataMetrics(Collections.EMPTY_SET);
+            metricPanel.updateTests(Collections.EMPTY_SET);
+            testDataGrid.setRowData(Collections.EMPTY_LIST);
 
             if (selected.size() == 1) {
                 // If selected single session clear plot display, clear plot selection and fetch all data for given session
@@ -524,7 +678,7 @@ public class Trends extends DefaultActivity {
 
                 // Populate task scope session list
                 TaskDataService.Async.getInstance().getTaskDataForSession(sessionId,
-                        new TaskDataDtoListQueryAsyncCallback(sessionIds, taskDataTreeViewModel));
+                        new TaskDataDtoListQueryAsyncCallback(sessionIds, testDataGrid));
             } else if (selected.size() > 1) {
                 // If selected several sessions
 
@@ -534,7 +688,7 @@ public class Trends extends DefaultActivity {
                 }
 
                 TaskDataService.Async.getInstance().getTaskDataForSessions(sessionIds,
-                        new TaskDataDtoListQueryAsyncCallback(sessionIds, taskDataTreeViewModel));
+                        new TaskDataDtoListQueryAsyncCallback(sessionIds, testDataGrid));
             }
         }
     }
@@ -592,7 +746,7 @@ public class Trends extends DefaultActivity {
                     }
 
                     plotPanel.add(loadIndicator);
-                    scrollPanel.scrollToBottom();
+                    scrollPanelTrends.scrollToBottom();
                     final int loadingId = plotPanel.getWidgetCount() - 1;
                     // Invoke remote service for plot data retrieving
                     PlotProviderService.Async.getInstance().getPlotData(plotNameDto.getTaskId(), plotNameDto.getPlotName(), new AsyncCallback<List<PlotSeriesDto>>() {
@@ -649,7 +803,7 @@ public class Trends extends DefaultActivity {
                     }
 
                     plotPanel.add(loadIndicator);
-                    scrollPanel.scrollToBottom();
+                    scrollPanelTrends.scrollToBottom();
                     final int loadingId = plotPanel.getWidgetCount() - 1;
 
                     // Invoke remote service for plot data retrieving
@@ -676,7 +830,6 @@ public class Trends extends DefaultActivity {
             }
         }
     }
-
     /**
      * Handles clicks on session scope plot checkboxes
      */
@@ -690,7 +843,7 @@ public class Trends extends DefaultActivity {
             // If checkbox is checked
             if (source.getValue()) {
                 plotPanel.add(loadIndicator);
-                scrollPanel.scrollToBottom();
+                scrollPanelTrends.scrollToBottom();
                 final int loadingId = plotPanel.getWidgetCount() - 1;
                 PlotProviderService.Async.getInstance().getSessionScopePlotData(sessionId, plotName, new AsyncCallback<List<PlotSeriesDto>>() {
                     @Override

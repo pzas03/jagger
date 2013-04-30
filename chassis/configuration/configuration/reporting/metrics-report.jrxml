@@ -30,13 +30,22 @@
     <template class="java.io.InputStream">
         <![CDATA[$P{context}.getResource("configuration/reporting/styles/default-styles.xml")]]></template>
     <parameter name="context" class="com.griddynamics.jagger.reporting.ReportingContext"/>
-    <field name="plot" class="net.sf.jasperreports.engine.JRRenderable"/>
+    <field name="metricPlotDTOs" class="java.util.Collection"/>
     <detail>
-        <band height="280" splitType="Stretch">
-            <image scaleImage="RetainShape" hAlign="Center" isUsingCache="true" isLazy="true">
-                <reportElement x="0" y="25" width="550" height="250"/>
-                <imageExpression class="net.sf.jasperreports.engine.JRRenderable"><![CDATA[$F{plot}]]></imageExpression>
-            </image>
+        <band height="60" splitType="Stretch">
+            <staticText>
+                <reportElement style="Header_Bold" x="0" y="20" width="500" height="20" forecolor="#000000"/>
+                <textElement textAlignment="Left"/>
+                <text><![CDATA[Metric Details]]></text>
+            </staticText>
+            <subreport>
+                <reportElement positionType="Float" x="0" y="45" width="550" height="10"/>
+                <parametersMapExpression><![CDATA[$P{context}.getAsMap()]]></parametersMapExpression>
+                <dataSourceExpression>
+                    <![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{metricPlotDTOs})]]></dataSourceExpression>
+                <subreportExpression class="net.sf.jasperreports.engine.JasperReport">
+                    <![CDATA[$P{context}.getReport("configuration/reporting/metrics/metric-plot.jrxml")]]></subreportExpression>
+            </subreport>
         </band>
     </detail>
 </jasperReport>
