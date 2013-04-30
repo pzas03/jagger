@@ -8,6 +8,7 @@ import com.griddynamics.jagger.webclient.client.MetricDataService;
 import com.griddynamics.jagger.webclient.client.data.MetricRankingProvider;
 import com.griddynamics.jagger.webclient.client.dto.*;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
+import com.smartgwt.client.data.RecordList;
 import com.smartgwt.client.types.AutoFitWidthApproach;
 import com.smartgwt.client.widgets.grid.ListGrid;
 import com.smartgwt.client.widgets.grid.ListGridField;
@@ -122,17 +123,19 @@ public class SessionComparisonPanel extends VerticalPanel{
 
             @Override
             public void onSuccess(List<MetricDto> result) {
-                ArrayList<MetricRecord> records = new ArrayList<MetricRecord>(result.size()+loaded.size());
 
                 loaded.addAll(result);
+
                 MetricRankingProvider.sortMetrics(loaded);
 
+                RecordList list = new RecordList();
                 for (MetricDto metric : loaded){
+                    MetricRecord record = new MetricRecord(metric);
                     cache.put(metric.getMetricName(), metric);
-                    records.add(new MetricRecord(metric));
+                    list.add(record);
                 }
 
-                grid.setData(records.toArray(new MetricRecord[]{}));
+                grid.setData(list);
                 grid.setShowAllRecords(true);
                 grid.refreshFields();
                 grid.redraw();

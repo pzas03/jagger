@@ -34,8 +34,6 @@ import com.griddynamics.jagger.webclient.client.dto.*;
 import com.griddynamics.jagger.webclient.client.handler.ShowCurrentValueHoverListener;
 import com.griddynamics.jagger.webclient.client.handler.ShowTaskDetailsListener;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
-import com.smartgwt.client.widgets.grid.events.SelectionUpdatedEvent;
-import com.smartgwt.client.widgets.grid.events.SelectionUpdatedHandler;
 
 import java.util.*;
 
@@ -93,13 +91,16 @@ public class Trends extends DefaultActivity {
     DateBox sessionsTo;
 
     @UiField
-    VerticalPanel trendsDetails;
+    Panel trendsDetails;
 
     @UiField
     Panel summaryDetails;
 
     @UiField
     SplitLayoutPanel settingsPanel;
+
+    @UiField
+    DockLayoutPanel testsMetricsPanel;
 
     @UiHandler("uncheckSessionsButton")
     void handleUncheckSessionsButtonClick(ClickEvent e) {
@@ -250,6 +251,7 @@ public class Trends extends DefaultActivity {
     private void setupSettingsPanel(){
         SplitLayoutPanel root = (SplitLayoutPanel) widget;
         root.setWidgetToggleDisplayAllowed(settingsPanel, true);
+        testsMetricsPanel.setWidgetHidden(trendsDetails, true);
     }
 
     private void setupTabPanel(){
@@ -258,12 +260,13 @@ public class Trends extends DefaultActivity {
             public void onSelection(SelectionEvent<Integer> event) {
                 int selected = event.getSelectedItem();
                 if (selected == 0){
-                    summaryDetails.setVisible(true);
-                    trendsDetails.setVisible(false);
+                    testsMetricsPanel.setWidgetHidden(summaryDetails, false);
+                    testsMetricsPanel.setWidgetHidden(trendsDetails, true);
                 }else
                 if (selected == 1){
-                    summaryDetails.setVisible(false);
-                    trendsDetails.setVisible(true);
+                    testsMetricsPanel.setWidgetHidden(summaryDetails, true);
+                    testsMetricsPanel.setWidgetHidden(trendsDetails, false);
+                    testsMetricsPanel.setWidgetSize(trendsDetails, testsMetricsPanel.getOffsetWidth());
                 }
             }
         });

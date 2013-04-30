@@ -13,9 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.math.BigInteger;
-import java.text.DecimalFormat;
-import java.text.ParseException;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -142,14 +140,14 @@ public class MetricDataServiceImpl implements MetricDataService {
 
                         ValidationResultEntity validator = (ValidationResultEntity)mas[0];
 
-                        Integer notFailed = validator.getTotal()-validator.getFailed();
-                        Double result = (double)notFailed/validator.getTotal();
+                        BigDecimal percentage = BigDecimal.ZERO;
 
-                        String resultString = result.toString();
-                        if (resultString.length() > 4){
-                            resultString = resultString.substring(0, 4);
+                        if (validator.getTotal() != 0) {
+                            percentage = new BigDecimal(validator.getTotal() - validator.getFailed())
+                                    .divide(new BigDecimal(validator.getTotal()), 3, BigDecimal.ROUND_HALF_UP);
                         }
-                        value.setValue(resultString);
+
+                        value.setValue(percentage.toString());
 
                         value.setSessionId(Long.parseLong(mas[1].toString()));
                         dto.getValues().add(value);

@@ -34,7 +34,7 @@ public class MetricRankingProvider {
         return o1Rank.compareTo(o2Rank);
     }
 
-    protected static Integer getRank(String o){
+    protected static Comparable getRank(String o){
         int rank = 0;
         for (RegExp pattern : patterns){
             if (pattern.test(o)){
