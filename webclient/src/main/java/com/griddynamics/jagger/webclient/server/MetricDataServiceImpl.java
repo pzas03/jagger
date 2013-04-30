@@ -106,7 +106,7 @@ public class MetricDataServiceImpl implements MetricDataService {
                         .getResultList();
                 for (Object[] temp : latency){
                     MetricValueDto value = new MetricValueDto();
-                    value.setValue(temp[0].toString());
+                    value.setValue(String.format("%.3fs", (Double)temp[0] / 1000));
                     value.setTestId(Long.parseLong(temp[1].toString()));
                     value.setSessionId(Long.parseLong(temp[2].toString()));
                     dto.getValues().add(value);
