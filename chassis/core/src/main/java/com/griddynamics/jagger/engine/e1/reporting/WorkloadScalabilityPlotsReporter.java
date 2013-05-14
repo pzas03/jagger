@@ -91,11 +91,12 @@ public class WorkloadScalabilityPlotsReporter extends AbstractReportProvider {
             if (!throughputPlots.containsKey(scenarioName)) {
                 XYDataset latencyData = getLatencyData(scenarioName);
                 XYDataset throughputData = getThroughputData(scenarioName);
+                String clockForPlot = getClockForPlot(scenarioName);
 
-                JFreeChart chartThroughput = ChartHelper.createXYChart(null, throughputData, "Thread Count",
+                JFreeChart chartThroughput = ChartHelper.createXYChart(null, throughputData, clockForPlot,
                         "Throughput (TPS)", 6, 3, ChartHelper.ColorTheme.LIGHT);
 
-                JFreeChart chartLatency = ChartHelper.createXYChart(null, latencyData, "Thread Count",
+                JFreeChart chartLatency = ChartHelper.createXYChart(null, latencyData, clockForPlot,
                         "Latency (sec)", 6, 3, ChartHelper.ColorTheme.LIGHT);
 
                 ScenarioPlotDTO plotDTO = new ScenarioPlotDTO();
@@ -107,6 +108,21 @@ public class WorkloadScalabilityPlotsReporter extends AbstractReportProvider {
             }
         }
         return throughputPlots.values();
+    }
+
+    private String getClock(String scenarioName) {
+        String sessionId = getSessionIdProvider().getSessionId();
+        return (String) getHibernateTemplate().find(
+                "select d.clock from WorkloadTaskData d where d.scenario.name=? and d.sessionId=?",
+                scenarioName, sessionId).iterator().next();
+    }
+
+    private String getClockForPlot(String scenarioName) {
+        String clock = getClock(scenarioName);
+        for (ClockTranslatorForPlots cc : ClockTranslatorForPlots.values()) {
+            if (clock.contains(cc.getContent())) return cc.getResult();
+        }
+        return clock;
     }
 
     private XYDataset getThroughputData(String scenarioName) {
