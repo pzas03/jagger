@@ -51,6 +51,7 @@ public abstract class HessianInvoker<S, Q, R> implements Invoker<Q, R, String> {
         if (service == null) {
             service = initService(url);
             services.putIfAbsent(url, service);
+            service = services.get(url);
         }
 
         return service;
