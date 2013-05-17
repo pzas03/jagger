@@ -85,13 +85,17 @@ public class WorkloadScalabilityPlotsReporter extends AbstractReportProvider {
 
     private Collection<ScenarioPlotDTO> getScenarioPlots(List<WorkloadData> scenarios) {
         HashMap<String, ScenarioPlotDTO> throughputPlots = new HashMap<String, ScenarioPlotDTO>();
+        List<WorkloadTaskData> resultData;
         for (WorkloadData scenario : scenarios) {
             String scenarioName = scenario.getScenario().getName();
 
             if (!throughputPlots.containsKey(scenarioName)) {
-                XYDataset latencyData = getLatencyData(scenarioName);
-                XYDataset throughputData = getThroughputData(scenarioName);
-                String clockForPlot = getClockForPlot(scenarioName);
+
+                resultData = getResultData(scenarioName);
+
+                XYDataset latencyData = getLatencyData(resultData);
+                XYDataset throughputData = getThroughputData(resultData);
+                String clockForPlot = getClockForPlot(resultData);
 
                 JFreeChart chartThroughput = ChartHelper.createXYChart(null, throughputData, clockForPlot,
                         "Throughput (TPS)", 6, 3, ChartHelper.ColorTheme.LIGHT);
@@ -105,45 +109,38 @@ public class WorkloadScalabilityPlotsReporter extends AbstractReportProvider {
                 plotDTO.setLatencyPlot(new JCommonDrawableRenderer(chartLatency));
 
                 throughputPlots.put(scenarioName, plotDTO);
+
+                resultData.clear();
             }
         }
         return throughputPlots.values();
     }
 
-    private String getClock(String scenarioName) {
-        String sessionId = getSessionIdProvider().getSessionId();
-        return (String) getHibernateTemplate().find(
-                "select d.clock from WorkloadTaskData d where d.scenario.name=? and d.sessionId=?",
-                scenarioName, sessionId).iterator().next();
-    }
-
-    private String getClockForPlot(String scenarioName) {
-        String clock = getClock(scenarioName);
+    private String getClockForPlot(List<WorkloadTaskData> resultData) {
+        String clock = resultData.iterator().next().getClock();
         for (ClockTranslatorForPlots cc : ClockTranslatorForPlots.values()) {
             if (clock.contains(cc.getContent())) return cc.getResult();
         }
         return clock;
     }
 
-    private XYDataset getThroughputData(String scenarioName) {
-        List<WorkloadTaskData> all = getResultData(scenarioName);
+    private XYDataset getThroughputData(List<WorkloadTaskData> resultData) {
 
         XYSeries throughput = new XYSeries("Througput");
         throughput.add(0, 0);
-        for (WorkloadTaskData workloadTaskData : all) {
+        for (WorkloadTaskData workloadTaskData : resultData) {
             throughput.add(workloadTaskData.getClockValue(), workloadTaskData.getThroughput());
         }
         return new XYSeriesCollection(throughput);
     }
 
-    private XYDataset getLatencyData(String scenarioName) {
-        List<WorkloadTaskData> all = getResultData(scenarioName);
+    private XYDataset getLatencyData(List<WorkloadTaskData> resultData) {
 
         XYSeries meanLatency = new XYSeries("Mean");
         XYSeries stdDevLatency = new XYSeries("StdDev");
         meanLatency.add(0, 0);
         stdDevLatency.add(0, 0);
-        for (WorkloadTaskData workloadTaskData : all) {
+        for (WorkloadTaskData workloadTaskData : resultData) {
             meanLatency.add(workloadTaskData.getClockValue(), workloadTaskData.getAvgLatency());
             stdDevLatency.add(workloadTaskData.getClockValue(), workloadTaskData.getStdDevLatency());
         }
