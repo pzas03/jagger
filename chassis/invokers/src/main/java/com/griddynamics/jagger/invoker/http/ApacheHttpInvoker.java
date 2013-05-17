@@ -19,23 +19,27 @@
  */
 package com.griddynamics.jagger.invoker.http;
 
-import org.apache.commons.httpclient.*;
-import org.apache.commons.httpclient.params.HttpClientParams;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ApacheHttpInvoker extends  ApacheAbstractHttpInvoker<HttpMethod> {
+import java.net.URI;
+import java.net.URISyntaxException;
+
+public class ApacheHttpInvoker extends  ApacheAbstractHttpInvoker<HttpRequestBase> {
     private static final Logger log = LoggerFactory.getLogger(ApacheHttpInvoker.class);
 
     @Override
-    protected HttpMethod getHttpMethod(HttpMethod query, String endpoint) throws URIException {
-        query.setURI(new URI(endpoint, false));
+    protected HttpRequestBase getHttpMethod(HttpRequestBase query, String endpoint) throws URISyntaxException {
+        query.setURI(new URI(endpoint));
         return query;
     }
 
     @Override
-    protected HttpClientParams getHttpClientParams(HttpMethod query) {
-        return new HttpClientParams();
+    protected HttpParams getHttpClientParams(HttpRequestBase query) {
+        return new BasicHttpParams();
     }
 
     @Override

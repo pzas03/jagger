@@ -22,23 +22,26 @@ package com.griddynamics.jagger.invoker.http;
 import com.google.common.base.Preconditions;
 import com.griddynamics.jagger.invoker.InvocationException;
 import com.griddynamics.jagger.invoker.Invoker;
-import org.apache.commons.httpclient.*;
-import org.apache.commons.httpclient.params.HttpClientParams;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.impl.client.AbstractHttpClient;
+import org.apache.http.params.HttpParams;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.net.URISyntaxException;
 
 public abstract class ApacheAbstractHttpInvoker<Q> implements Invoker<Q, HttpResponse, String> {
     private static final Logger log = LoggerFactory.getLogger(ApacheAbstractHttpInvoker.class);
 
-    private HttpClient httpClient;
+    private AbstractHttpClient httpClient;
 
     @Required
-    public void setHttpClient(HttpClient httpClient) {
+    public void setHttpClient(AbstractHttpClient httpClient) {
         this.httpClient = httpClient;
     }
 
@@ -48,23 +51,18 @@ public abstract class ApacheAbstractHttpInvoker<Q> implements Invoker<Q, HttpRes
         Preconditions.checkNotNull(endpoint);
 
         httpClient.setParams(getHttpClientParams(query));
-        HttpMethod method = null;
-        BufferedReader br = null;
+        HttpRequestBase method;
+        HttpEntity response = null;
         try {
             method = getHttpMethod(query, endpoint);
 
-            int returnCode = httpClient.executeMethod(method);
-
-            br = new BufferedReader(new InputStreamReader(method.getResponseBodyAsStream()));
-            StringBuilder response = new StringBuilder();
-
-            String readLine;
-            while ((readLine = br.readLine()) != null) {
-                response.append(readLine);
-            }
-
-            return HttpResponse.create(returnCode, response.toString());
-        } catch (HttpException e) {
+            org.apache.http.HttpResponse httpResponse = httpClient.execute(method);
+            response = httpResponse.getEntity();
+            return HttpResponse.create(httpResponse.getStatusLine().getStatusCode(), EntityUtils.toString(response));
+        } catch (URISyntaxException e) {
+            log.debug("Error during invocation", e);
+            throw new InvocationException("InvocationException : ", e);
+        } catch (ClientProtocolException e) {
             log.debug("Error during invocation", e);
             throw new InvocationException("InvocationException : ", e);
         } catch (IOException e) {
@@ -72,23 +70,14 @@ public abstract class ApacheAbstractHttpInvoker<Q> implements Invoker<Q, HttpRes
             throw new InvocationException("InvocationException : ", e);
         } finally {
             try {
-                if (method != null) {
-                    method.releaseConnection();
-                }
+                if (response != null) EntityUtils.consume(response);
             } catch (Throwable e) {
                 log.error("Cannot release connection", e);
-            }
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (Throwable e) {
-                    log.error("Can't close connection", e);
-                }
             }
         }
     }
 
-    protected abstract HttpMethod getHttpMethod(Q query, String endpoint) throws URIException;
+    protected abstract HttpRequestBase getHttpMethod(Q query, String endpoint) throws URISyntaxException;// throws URIException;
 
-    protected abstract HttpClientParams getHttpClientParams(Q query);
+    protected abstract HttpParams getHttpClientParams(Q query);
 }
