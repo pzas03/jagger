@@ -22,6 +22,7 @@ package com.griddynamics.jagger.engine.e1.reporting;
 
 import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadTaskData;
 import com.griddynamics.jagger.engine.e1.sessioncomparation.Decision;
+import org.apache.commons.math.util.MathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -31,13 +32,14 @@ import java.util.List;
 
 public class DefaultSessionStatusDecisionMaker implements SessionStatusDecisionMaker {
     private static final Logger log = LoggerFactory.getLogger(DefaultSessionStatusDecisionMaker.class);
+    private static final double epsilon = 0.0000001;
     public static double successRateThreshold = 1.0;
 
     private String description;
 
     @Override
     public Decision decideOnTest(WorkloadTaskData workloadTaskData) {
-        if (Double.compare(workloadTaskData.getSuccessRate().doubleValue(), successRateThreshold) >= 0) {
+        if (MathUtils.compareTo(workloadTaskData.getSuccessRate().doubleValue(), successRateThreshold, epsilon) >= 0) {
             return Decision.OK;
         }
         return Decision.FATAL;
