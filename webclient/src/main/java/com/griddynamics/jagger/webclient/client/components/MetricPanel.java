@@ -4,12 +4,8 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.cellview.client.CellTree;
-import com.google.gwt.user.cellview.client.TreeNode;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
-import com.griddynamics.jagger.webclient.client.MetricDataService;
-import com.griddynamics.jagger.webclient.client.data.MetricProvider;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 
@@ -67,24 +63,14 @@ public class MetricPanel extends Composite {
             return;
         }
         provider.setList(new ArrayList<TaskDataDto>(tests));
-
-        MetricDataService.Async.getInstance().getMetricsNames(tests, new AsyncCallback<Set<MetricNameDto>>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                caught.printStackTrace();
-            }
-
-            @Override
-            public void onSuccess(Set<MetricNameDto> result) {
-                for (MetricNameDto dto : result){
-                    selectionModel.setSelected(dto, true);
-                }
-            }
-        });
     }
 
     public Set<MetricNameDto> getSelected(){
         return selectionModel.getSelectedSet();
+    }
+
+    public void setSelected(MetricNameDto metric){
+        selectionModel.setSelected(metric, true);
     }
 
     public void addSelectionListener(SelectionChangeEvent.Handler handler){
