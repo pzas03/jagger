@@ -97,9 +97,6 @@ public class Trends extends DefaultActivity {
     Panel trendsDetails;
 
     @UiField
-    Panel summaryDetails;
-
-    @UiField
     SplitLayoutPanel settingsPanel;
 
     @UiField

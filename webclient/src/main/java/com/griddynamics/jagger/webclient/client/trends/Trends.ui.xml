@@ -87,14 +87,7 @@
                                         <g:east size="400">
                                             <g:DeckPanel width="100%" height="100%" ui:field="testsMetricsPanel">
 
-                                                <g:DockLayoutPanel height="100%" width="100%" ui:field="summaryDetails">
-                                                    <g:north size="0">
-                                                        <g:Label text="Metrics"/>
-                                                    </g:north>
-                                                    <g:center>
-                                                        <custom:MetricPanel ui:field="metricPanel"/>
-                                                    </g:center>
-                                                </g:DockLayoutPanel>
+                                                <custom:MetricPanel ui:field="metricPanel"/>
 
                                                 <g:DockLayoutPanel height="100%" width="100%" ui:field="trendsDetails">
                                                     <g:north size="20">

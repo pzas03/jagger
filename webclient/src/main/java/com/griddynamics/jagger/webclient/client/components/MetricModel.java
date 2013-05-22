@@ -2,7 +2,9 @@ package com.griddynamics.jagger.webclient.client.components;
 
 import com.google.gwt.cell.client.*;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.view.client.AbstractDataProvider;
 import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.SelectionModel;
@@ -10,6 +12,7 @@ import com.google.gwt.view.client.TreeViewModel;
 import com.griddynamics.jagger.webclient.client.data.MetricProvider;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
+import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,25 +22,50 @@ import java.util.List;
  */
 public class MetricModel implements TreeViewModel {
 
+    private final JaggerResources resources = JaggerResources.INSTANCE;
+
     private final Cell<MetricNameDto> metricDataCell;
 
     private static class TestCell extends AbstractCell<TaskDataDto> {
 
+        private final String imageHtml;
+
+        public TestCell(ImageResource imageResource) {
+            imageHtml = AbstractImagePrototype.create(imageResource).getHTML();
+        }
+
         @Override
-        public void render(Context context,TaskDataDto value, SafeHtmlBuilder sb) {
-            if (value != null) {
-                sb.appendEscaped(value.getTaskName());
+        public void render(Context context, TaskDataDto value, SafeHtmlBuilder sb) {
+            if (value == null) {
+                return;
             }
+            sb.appendHtmlConstant("<table><tr><td>");
+            sb.appendHtmlConstant(imageHtml);
+            sb.appendHtmlConstant("</td><td>");
+            sb.appendEscaped(value.getTaskName());
+            sb.appendHtmlConstant("</td></tr></table>");
         }
     }
 
     private static class MetricCell extends AbstractCell<MetricNameDto> {
 
+        private final String imageHtml;
+
+        public MetricCell(ImageResource imageResource) {
+            imageHtml = AbstractImagePrototype.create(imageResource).getHTML();
+        }
+
         @Override
-        public void render(Context context,MetricNameDto value, SafeHtmlBuilder sb) {
-            if (value != null) {
-                sb.appendEscaped(value.getName());
+        public void render(Context context, MetricNameDto value, SafeHtmlBuilder sb) {
+            if (value == null) {
+                return;
             }
+
+            sb.appendHtmlConstant("<table><tr><td>");
+            sb.appendHtmlConstant(imageHtml);
+            sb.appendHtmlConstant("</td><td>");
+            sb.appendEscaped(value.getName());
+            sb.appendHtmlConstant("</td></tr></table>");
         }
     }
 
@@ -71,7 +99,7 @@ public class MetricModel implements TreeViewModel {
             }
         });
         hasCells.add(new HasCell<MetricNameDto, MetricNameDto>() {
-            private MetricCell cell = new MetricCell();
+            private MetricCell cell = new MetricCell(resources.getRenderPlots());
 
             @Override
             public Cell<MetricNameDto> getCell() {
@@ -119,7 +147,7 @@ public class MetricModel implements TreeViewModel {
     @Override
     public <T> NodeInfo<?> getNodeInfo(T value) {
         if (value == null){
-            return new DefaultNodeInfo<TaskDataDto>(provider, new TestCell());
+            return new DefaultNodeInfo<TaskDataDto>(provider, new TestCell(resources.getTaskImage()));
         }else{
             if (value instanceof TaskDataDto){
                 return new DefaultNodeInfo<MetricNameDto>(new MetricProvider((TaskDataDto)value),

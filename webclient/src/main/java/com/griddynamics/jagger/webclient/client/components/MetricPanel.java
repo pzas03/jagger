@@ -8,6 +8,7 @@ import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
+import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
 
 import java.util.*;
 
@@ -29,11 +30,11 @@ public class MetricPanel extends Composite {
 
     private final ListDataProvider<TaskDataDto> provider = new ListDataProvider<TaskDataDto>();
     private final MultiSelectionModel selectionModel = new MultiSelectionModel<MetricNameDto>();
-    private final MetricModel viewModel = new MetricModel(selectionModel, provider);
 
     public MetricPanel() {
-        tree = new CellTree(viewModel, null);
-        tree.setTitle("Metrics");
+        CellTree.Resources res = GWT.create(CellTree.BasicResources.class);
+        tree = new CellTree(new MetricModel(selectionModel, provider), null, res);
+        tree.addStyleName(JaggerResources.INSTANCE.css().taskDetailsTree());
 
         initWidget(ourUiBinder.createAndBindUi(this));
     }
