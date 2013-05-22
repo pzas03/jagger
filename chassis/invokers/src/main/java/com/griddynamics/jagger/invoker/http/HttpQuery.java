@@ -40,8 +40,7 @@ public class HttpQuery implements Serializable {
         DELETE,
         TRACE,
         HEAD,
-        OPTIONS,
-        CONNECT
+        OPTIONS
     }
 
     private Method method = Method.GET;

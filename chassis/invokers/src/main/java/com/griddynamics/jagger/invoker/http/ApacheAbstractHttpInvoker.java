@@ -23,7 +23,6 @@ import com.google.common.base.Preconditions;
 import com.griddynamics.jagger.invoker.InvocationException;
 import com.griddynamics.jagger.invoker.Invoker;
 import org.apache.http.HttpEntity;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.params.HttpParams;
@@ -32,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
-import java.io.IOException;
 
 public abstract class ApacheAbstractHttpInvoker<Q> implements Invoker<Q, HttpResponse, String> {
     private static final Logger log = LoggerFactory.getLogger(ApacheAbstractHttpInvoker.class);
@@ -50,7 +48,7 @@ public abstract class ApacheAbstractHttpInvoker<Q> implements Invoker<Q, HttpRes
         Preconditions.checkNotNull(endpoint);
 
         httpClient.setParams(getHttpClientParams(query));
-        HttpRequestBase method;
+        HttpRequestBase method = null;
         HttpEntity response = null;
         try {
             method = getHttpMethod(query, endpoint);
@@ -58,14 +56,13 @@ public abstract class ApacheAbstractHttpInvoker<Q> implements Invoker<Q, HttpRes
             org.apache.http.HttpResponse httpResponse = httpClient.execute(method);
             response = httpResponse.getEntity();
             return HttpResponse.create(httpResponse.getStatusLine().getStatusCode(), EntityUtils.toString(response));
-        } catch (IllegalArgumentException e) {
-            log.debug("Error during invocation with endpoint: " + endpoint, e);
-            throw new InvocationException("InvocationException : ", e);
-        } catch (ClientProtocolException e) {
-            log.debug("Error during invocation with endpoint: " + endpoint + ", and query: " + query, e);
-            throw new InvocationException("InvocationException : ", e);
-        } catch (IOException e) {
-            log.debug("Error during invocation with endpoint: " + endpoint + ", and query: " + query, e);
+        } catch (Exception e) {
+            if (method != null) {
+                log.debug("Error during invocation with URL: " + method.getURI() +
+                        ", endpoint: " + endpoint + ", query: " + query, e);
+            } else {
+                log.debug("Error during invocation with: endpoint: " + endpoint + ", query: " + query, e);
+            }
             throw new InvocationException("InvocationException : ", e);
         } finally {
             EntityUtils.consumeQuietly(response);

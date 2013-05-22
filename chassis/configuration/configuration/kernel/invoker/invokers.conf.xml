@@ -57,5 +57,9 @@
         <property name="httpClient" ref="httpClient" />
     </bean>
 
+    <bean id="apacheHttpInvoker" class="com.griddynamics.jagger.invoker.http.ApacheHttpInvoker">
+        <property name="httpClient" ref="httpClient" />
+    </bean>
+
 
 </beans>

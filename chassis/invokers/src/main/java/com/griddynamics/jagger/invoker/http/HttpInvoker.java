@@ -20,12 +20,18 @@
 package com.griddynamics.jagger.invoker.http;
 
 import com.griddynamics.jagger.invoker.Invoker;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.*;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.util.*;
 
 /**
@@ -38,15 +44,20 @@ public class HttpInvoker extends ApacheAbstractHttpInvoker<HttpQuery> {
 
     @Override
     protected HttpRequestBase getHttpMethod(HttpQuery query, String endpoint) {
-        HttpRequestBase method = createMethod(query, endpoint);
 
-        if (!HttpQuery.Method.POST.equals(query.getMethod()) && !HttpQuery.Method.CONNECT.equals(query.getMethod())) {
-            for (Map.Entry<String, String> methodParam : query.getMethodParams().entrySet()) {
-                method.getParams().setParameter(methodParam.getKey(), methodParam.getValue());
+        try {
+            URIBuilder uriBuilder = new URIBuilder(endpoint);
+
+            if (!HttpQuery.Method.POST.equals(query.getMethod())) {
+                for (Map.Entry<String, String> methodParam : query.getMethodParams().entrySet()) {
+                    uriBuilder.setParameter(methodParam.getKey(), methodParam.getValue());
+                }
             }
-        }
 
-        return method;
+            return createMethod(query, uriBuilder.build());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -58,35 +69,34 @@ public class HttpInvoker extends ApacheAbstractHttpInvoker<HttpQuery> {
         return clientParams;
     }
 
-    private HttpRequestBase createMethod(HttpQuery query, String endpoint) {
+    private HttpRequestBase createMethod(HttpQuery query, URI uri) throws UnsupportedEncodingException {
         HttpRequestBase method;
         switch (query.getMethod()) {
             case POST:
-                method = new HttpPost(endpoint);
+                method = new HttpPost(uri);
+                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
                 for (Map.Entry<String, String> methodParam : query.getMethodParams().entrySet()) {
-                    method.getParams().setParameter(methodParam.getKey(), methodParam.getValue());
+                    nameValuePairs.add(new BasicNameValuePair(methodParam.getKey(), methodParam.getValue()));
                 }
+                ((HttpPost) method).setEntity(new UrlEncodedFormEntity(nameValuePairs));
                 break;
             case PUT:
-                method = new HttpPut(endpoint);
+                method = new HttpPut(uri);
                 break;
             case GET:
-                method = new HttpGet(endpoint);
-                for (Map.Entry<String, String> stringStringEntry : query.getMethodParams().entrySet()) {
-                    method.getParams().setParameter(stringStringEntry.getKey(), stringStringEntry.getValue());
-                }
+                method = new HttpGet(uri);
                 break;
             case DELETE:
-                method = new HttpDelete(endpoint);
+                method = new HttpDelete(uri);
                 break;
             case TRACE:
-                method = new HttpTrace(endpoint);
+                method = new HttpTrace(uri);
                 break;
             case HEAD:
-                method = new HttpHead(endpoint);
+                method = new HttpHead(uri);
                 break;
             case OPTIONS:
-                method = new HttpOptions(endpoint);
+                method = new HttpOptions(uri);
                 break;
             default:
                 throw new UnsupportedOperationException("Invoker does not support \"" + query.getMethod() + "\" HTTP request.");
