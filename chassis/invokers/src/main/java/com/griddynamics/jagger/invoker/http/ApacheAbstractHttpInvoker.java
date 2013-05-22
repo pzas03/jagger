@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 
 public abstract class ApacheAbstractHttpInvoker<Q> implements Invoker<Q, HttpResponse, String> {
     private static final Logger log = LoggerFactory.getLogger(ApacheAbstractHttpInvoker.class);
@@ -59,25 +58,21 @@ public abstract class ApacheAbstractHttpInvoker<Q> implements Invoker<Q, HttpRes
             org.apache.http.HttpResponse httpResponse = httpClient.execute(method);
             response = httpResponse.getEntity();
             return HttpResponse.create(httpResponse.getStatusLine().getStatusCode(), EntityUtils.toString(response));
-        } catch (URISyntaxException e) {
-            log.debug("Error during invocation", e);
+        } catch (IllegalArgumentException e) {
+            log.debug("Error during invocation with endpoint: " + endpoint, e);
             throw new InvocationException("InvocationException : ", e);
         } catch (ClientProtocolException e) {
-            log.debug("Error during invocation", e);
+            log.debug("Error during invocation with endpoint: " + endpoint + ", and query: " + query, e);
             throw new InvocationException("InvocationException : ", e);
         } catch (IOException e) {
-            log.debug("Error during invocation", e);
+            log.debug("Error during invocation with endpoint: " + endpoint + ", and query: " + query, e);
             throw new InvocationException("InvocationException : ", e);
         } finally {
-            try {
-                if (response != null) EntityUtils.consume(response);
-            } catch (Throwable e) {
-                log.error("Cannot release connection", e);
-            }
+            EntityUtils.consumeQuietly(response);
         }
     }
 
-    protected abstract HttpRequestBase getHttpMethod(Q query, String endpoint) throws URISyntaxException;// throws URIException;
+    protected abstract HttpRequestBase getHttpMethod(Q query, String endpoint);
 
     protected abstract HttpParams getHttpClientParams(Q query);
 }
