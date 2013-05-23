@@ -69,6 +69,16 @@ public class WorkloadScalabilityPlotsReporter extends AbstractReportProvider {
         }
     }
 
+    private HashMap<String, String> clockDictionary;
+
+    public HashMap<String, String> getClockDictionary() {
+        return clockDictionary;
+    }
+
+    public void setClockDictionary(HashMap<String, String> clockDictionary) {
+        this.clockDictionary = clockDictionary;
+    }
+
     @Override
     public JRDataSource getDataSource() {
 
@@ -117,9 +127,16 @@ public class WorkloadScalabilityPlotsReporter extends AbstractReportProvider {
     }
 
     private String getClockForPlot(List<WorkloadTaskData> resultData) {
-        String clock = resultData.iterator().next().getClock();
-        for (ClockTranslatorForPlots cc : ClockTranslatorForPlots.values()) {
-            if (clock.contains(cc.getContent())) return cc.getResult();
+        String clock = "-";
+        if (resultData.size() > 0) {
+            clock = resultData.get(0).getClock();
+            if (clockDictionary != null) {
+                for (String key : clockDictionary.keySet()) {
+                    if (clock.contains(key)) {
+                        return clockDictionary.get(key);
+                    }
+                }
+            }
         }
         return clock;
     }
