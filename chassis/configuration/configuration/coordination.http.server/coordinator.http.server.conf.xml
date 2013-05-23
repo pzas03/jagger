@@ -30,7 +30,7 @@
                 <bean id="connector" class="org.eclipse.jetty.server.nio.SelectChannelConnector">
                     <property name="port" value="${chassis.coordination.http.port}"/>
                     <property name="requestBufferSize" value="262144"/>
-                    <property name="requestHeaderSize" value="262144"/>
+                    <property name="requestHeaderSize" value="524288"/>
                     <property name="responseBufferSize" value="262144"/>
                     <property name="responseHeaderSize" value="262144"/>
                 </bean>
