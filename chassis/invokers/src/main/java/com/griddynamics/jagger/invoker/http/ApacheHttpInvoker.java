@@ -20,7 +20,7 @@
 package com.griddynamics.jagger.invoker.http;
 
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.params.BasicHttpParams;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.params.HttpParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,13 +32,26 @@ public class ApacheHttpInvoker extends  ApacheAbstractHttpInvoker<HttpRequestBas
 
     @Override
     protected HttpRequestBase getHttpMethod(HttpRequestBase query, String endpoint) {
-        query.setURI(URI.create(endpoint));
-        return query;
+        try {
+            if (query.getURI() == null) {
+                query.setURI(URI.create(endpoint));
+                return query;
+            } else {
+                URIBuilder uriBuilder = new URIBuilder(URI.create(endpoint));
+                uriBuilder.setQuery(query.getURI().getQuery());
+                uriBuilder.setFragment(query.getURI().getFragment());
+                uriBuilder.setUserInfo(query.getURI().getUserInfo());
+                query.setURI(uriBuilder.build());
+                return query;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     protected HttpParams getHttpClientParams(HttpRequestBase query) {
-        return new BasicHttpParams();
+        return query.getParams();
     }
 
     @Override
