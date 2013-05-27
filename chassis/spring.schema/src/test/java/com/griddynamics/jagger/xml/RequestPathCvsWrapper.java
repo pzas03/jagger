@@ -20,14 +20,14 @@
 
 package com.griddynamics.jagger.xml;
 
-import com.griddynamics.jagger.providers.CsvObjectCreator;
+import com.griddynamics.jagger.providers.creators.ObjectCreator;
 
 /**
  * @author Nikolay Musienko
  *         Date: 22.04.13
  */
 
-public class RequestPathCvsWrapper implements CsvObjectCreator<RequestPath> {
+public class RequestPathCvsWrapper implements ObjectCreator<RequestPath> {
 
     String[] header;
 

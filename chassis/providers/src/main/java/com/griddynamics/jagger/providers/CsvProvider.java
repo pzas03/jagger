@@ -22,6 +22,7 @@ package com.griddynamics.jagger.providers;
 
 import com.google.common.base.Throwables;
 import com.griddynamics.jagger.exception.TechnicalException;
+import com.griddynamics.jagger.providers.creators.ObjectCreator;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVStrategy;
 import java.io.*;
@@ -38,7 +39,7 @@ public class CsvProvider<T> implements Iterable<T> {
     private String path;
     private CSVStrategy strategy = CSVStrategy.DEFAULT_STRATEGY;
     private boolean readHeader;
-    private CsvObjectCreator<T> objectCreator;
+    private ObjectCreator<T> objectCreator;
 
     public String getPath() {
         return path;
@@ -48,11 +49,11 @@ public class CsvProvider<T> implements Iterable<T> {
         this.path = path;
     }
 
-    public CsvObjectCreator<T> getObjectCreator() {
+    public ObjectCreator<T> getObjectCreator() {
         return objectCreator;
     }
 
-    public void setObjectCreator(CsvObjectCreator<T> objectCreator) {
+    public void setObjectCreator(ObjectCreator<T> objectCreator) {
         this.objectCreator = objectCreator;
     }
 
