@@ -105,9 +105,7 @@ public class Trends extends DefaultActivity {
     @UiHandler("uncheckSessionsButton")
     void handleUncheckSessionsButtonClick(ClickEvent e) {
         MultiSelectionModel model = (MultiSelectionModel<?>) sessionsDataGrid.getSelectionModel();
-        for (Object select : model.getSelectedSet()){
-            model.setSelected(select, false);
-        }
+        model.clear();
     }
 
     @UiHandler("showCheckedSessionsButton")

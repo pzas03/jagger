@@ -5,10 +5,7 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
-import com.google.gwt.view.client.AbstractDataProvider;
-import com.google.gwt.view.client.DefaultSelectionEventManager;
-import com.google.gwt.view.client.SelectionModel;
-import com.google.gwt.view.client.TreeViewModel;
+import com.google.gwt.view.client.*;
 import com.griddynamics.jagger.webclient.client.data.MetricProvider;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
@@ -23,6 +20,8 @@ import java.util.List;
 public class MetricModel implements TreeViewModel {
 
     private final JaggerResources resources = JaggerResources.INSTANCE;
+
+    public static final TaskDataDto NO_METRIC_TO_SHOW = new TaskDataDto(0, "Choose at least two sessions and one test", "");
 
     private final Cell<MetricNameDto> metricDataCell;
 
@@ -150,6 +149,9 @@ public class MetricModel implements TreeViewModel {
             return new DefaultNodeInfo<TaskDataDto>(provider, new TestCell(resources.getTaskImage()));
         }else{
             if (value instanceof TaskDataDto){
+                if (value == NO_METRIC_TO_SHOW){
+                    return null;
+                }
                 return new DefaultNodeInfo<MetricNameDto>(new MetricProvider((TaskDataDto)value),
                                                               metricDataCell,
                                                               selectionModel,

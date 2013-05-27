@@ -28,7 +28,7 @@ public class MetricPanel extends Composite {
     @UiField(provided = true)
     CellTree tree;
 
-    private final ListDataProvider<TaskDataDto> provider = new ListDataProvider<TaskDataDto>();
+    private final ListDataProvider<TaskDataDto> provider = new ListDataProvider<TaskDataDto>(Arrays.asList(MetricModel.NO_METRIC_TO_SHOW));
     private final MultiSelectionModel selectionModel = new MultiSelectionModel<MetricNameDto>();
 
     public MetricPanel() {
@@ -41,15 +41,8 @@ public class MetricPanel extends Composite {
 
     public void updateTests(Set<TaskDataDto> tests){
 
-        for (Object o : selectionModel.getSelectedSet()){
-            selectionModel.setSelected(o, false);
-        }
+        selectionModel.clear();
         provider.setList(Arrays.asList((TaskDataDto)null));
-
-
-        if (tests.size()==0){
-            return;
-        }
 
         boolean manySessions = false;
         for (TaskDataDto test : tests){
@@ -59,8 +52,9 @@ public class MetricPanel extends Composite {
             }
         }
 
-        if (!manySessions){
+        if (tests.size()==0 || !manySessions){
             //nothing to show
+            provider.setList(Arrays.asList(MetricModel.NO_METRIC_TO_SHOW));
             return;
         }
         provider.setList(new ArrayList<TaskDataDto>(tests));
