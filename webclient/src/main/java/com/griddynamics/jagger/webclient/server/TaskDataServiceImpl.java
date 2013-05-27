@@ -37,30 +37,28 @@ public class TaskDataServiceImpl /*extends RemoteServiceServlet*/ implements Tas
                                                 "select " +
                                                     "l.*, s.name, s.description, s.version " +
                                                 "from "+
-                                                    "WorkloadTaskData as l "+
+                                                    "(select * from WorkloadTaskData where sessionId=:sessionId) as l "+
                                                 "left outer join "+
                                                     "WorkloadDetails as s "+
                                                 "on l.scenario_id=s.id "+
+                                                "where " +
+                                                    "l.sessionId =:sessionId"+
                                             ") as workloadTaskData " +
                             "inner join " +
-                                "TaskData as taskData "+
+                                "(select * from TaskData where sessionId=:sessionId) as taskData "+
                             "on " +
                                     "taskData.taskId=workloadTaskData.taskId and " +
-                                    "taskData.sessionId=workloadTaskData.sessionId " +
-                            "where " +
-                                    "workloadTaskData.sessionId in (:sessionId)")
-                    .setParameter("sessionId", sessionId).getResultList();
+                                    "taskData.sessionId=workloadTaskData.sessionId").setParameter("sessionId", sessionId).getResultList();
+            log.info("For session {} was loaded {} tasks for {} ms", new Object[]{sessionId, taskDataList.size(), System.currentTimeMillis() - timestamp});
             if (taskDataList == null) {
                 return Collections.emptyList();
             }
-
             taskDataDtoList = new ArrayList<TaskDataDto>(taskDataList.size());
             for (Object[] taskData : taskDataList) {
                 TaskDataDto dto = new TaskDataDto(((BigInteger)taskData[0]).longValue(), (String)taskData[1], (String)taskData[2]);
                 taskDataDtoList.add(dto);
             }
 
-            log.info("For session {} was loaded {} tasks for {} ms", new Object[]{sessionId, taskDataDtoList.size(), System.currentTimeMillis() - timestamp});
         } catch (Exception e) {
             log.error("Error was occurred during tasks fetching for session "+sessionId, e);
             throw new RuntimeException(e);
@@ -73,7 +71,7 @@ public class TaskDataServiceImpl /*extends RemoteServiceServlet*/ implements Tas
     public List<TaskDataDto> getTaskDataForSessions(Set<String> sessionIds) {
 
         List<TaskDataDto> taskDataDtoList = new ArrayList<TaskDataDto>();
-
+        long timestamp = System.currentTimeMillis();
         List<Object[]> list = entityManager.createNativeQuery
                 (
                 "select taskData.id, commonTests.name, commonTests.description, commonTests.version from "+
@@ -83,7 +81,7 @@ public class TaskDataServiceImpl /*extends RemoteServiceServlet*/ implements Tas
                                                                           "select " +
                                                                                 "l.*, s.name, s.description, s.version " +
                                                                           "from "+
-                                                                                 "WorkloadTaskData as l "+
+                                                                                 "(select * from WorkloadTaskData where sessionId in (:sessions)) as l "+
                                                                           "left outer join "+
                                                                                  "(select * from WorkloadDetails) as s "+
                                                                           "on l.scenario_id=s.id "+
@@ -95,13 +93,11 @@ public class TaskDataServiceImpl /*extends RemoteServiceServlet*/ implements Tas
                                                        "select " +
                                                             "l.*, s.name, s.description, s.version " +
                                                        "from "+
-                                                            "WorkloadTaskData as l "+
+                                                            "(select * from WorkloadTaskData where sessionId in (:sessions)) as l "+
                                                        "left outer join "+
                                                             "(select * from WorkloadDetails) as s "+
-                                                       "on l.scenario_id=s.id "+
+                                                       "on l.scenario_id=s.id " +
                                                     ") as t "+
-                                        "where "+
-                                            "sessionId in (:sessions) "+
                                         "group by "+
                                             "t.termination, t.clock, t.clockValue, t.name, t.version "+
                                         "having count(t.id)>=:sessionCount" +
@@ -113,11 +109,9 @@ public class TaskDataServiceImpl /*extends RemoteServiceServlet*/ implements Tas
                                    "test.termination=testArch.termination and "+
                                    "test.name=testArch.name and "+
                                    "test.version=testArch.version "+
-                           "where test.sessionId in(:sessions)"+
-                           "order by test.description "+
                            ") as commonTests "+
                 "left outer join "+
-                        "TaskData as taskData "+
+                        "(select * from TaskData where sessionId in (:sessions)) as taskData "+
                 "on "+
                         "commonTests.sessionId=taskData.sessionId and "+
                         "commonTests.taskId=taskData.taskId "
@@ -148,6 +142,7 @@ public class TaskDataServiceImpl /*extends RemoteServiceServlet*/ implements Tas
                 taskDataDtoList.add(taskDataDto);
             }
         }
+        log.info("For sessions {} was loaded {} tasks for {} ms", new Object[]{sessionIds, taskDataDtoList.size(), System.currentTimeMillis() - timestamp});
         return taskDataDtoList;
     }
 }
