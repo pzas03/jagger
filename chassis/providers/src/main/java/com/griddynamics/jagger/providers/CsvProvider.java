@@ -21,6 +21,7 @@
 package com.griddynamics.jagger.providers;
 
 import com.google.common.base.Throwables;
+import com.google.common.collect.AbstractIterator;
 import com.griddynamics.jagger.exception.TechnicalException;
 import com.griddynamics.jagger.providers.creators.ObjectCreator;
 import org.apache.commons.csv.CSVParser;
@@ -81,11 +82,10 @@ public class CsvProvider<T> implements Iterable<T> {
     }
 
     public Iterator<T> iterator() {
-        return new Iterator<T>() {
+
+        return new AbstractIterator<T>() {
 
             private CSVParser parser;
-            T next;
-            private boolean loaded = false;
 
             {
                 init();
@@ -99,41 +99,22 @@ public class CsvProvider<T> implements Iterable<T> {
                     parser = new CSVParser(new BufferedReader(new FileReader(new File(path))), strategy);
                 } catch (FileNotFoundException e) {
                     throw Throwables.propagate(e);
-                }  if(readHeader){
+                }  if(readHeader) {
                     try {
                         objectCreator.setHeader(parser.getLine());
                     } catch (IOException e){
                         throw Throwables.propagate(e);
                     }
                 }
-                next = readNext();
 
             }
 
             @Override
-            public boolean hasNext() {
-                return next != null;
-            }
-
-            @Override
-            public T next() {
-                T ret = next;
-                if(ret == null){
-                    throw new NoSuchElementException("Iteration has no more elements");
-                }
-                next = readNext();
-                return ret;
-            }
-
-            private T readNext() {
-                if (loaded) {
-                    return null;
-                }
+            protected T computeNext() {
                 try {
                     String[] strings = parser.getLine();
                     if(strings == null) {
-                        loaded = true;
-                        return null;
+                        return endOfData();
                     }
                     return objectCreator.createObject(strings);
                 } catch (IOException e) {
@@ -141,10 +122,6 @@ public class CsvProvider<T> implements Iterable<T> {
                 }
             }
 
-            @Override
-            public void remove() {
-                throw new UnsupportedOperationException("Read only iterator!");
-            }
         };
     }
 }

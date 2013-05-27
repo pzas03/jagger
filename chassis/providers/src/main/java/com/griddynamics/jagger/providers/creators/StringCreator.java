@@ -30,7 +30,7 @@ import com.google.common.base.Preconditions;
 public class StringCreator implements ObjectCreator<String> {
 
     @Override
-    public String createObject(final String[] strings) {
+    public String createObject(final String... strings) {
         Preconditions.checkNotNull(strings);
         Preconditions.checkState(strings.length > 0);
         if(strings.length == 1) {

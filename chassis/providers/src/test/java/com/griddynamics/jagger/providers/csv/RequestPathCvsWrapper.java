@@ -32,7 +32,7 @@ public class RequestPathCvsWrapper implements ObjectCreator<RequestPath> {
     String[] header;
 
     @Override
-    public RequestPath createObject(String[] strings) {
+    public RequestPath createObject(String... strings) {
         RequestPath ret = new RequestPath();
         for (int i = 0; i < header.length; i++){
             if ( header[i].equals("host") ) {

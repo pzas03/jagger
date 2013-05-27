@@ -26,7 +26,7 @@ package com.griddynamics.jagger.providers.creators;
  */
 public interface ObjectCreator<T> {
 
-    public abstract T createObject(String[] strings);
+    public abstract T createObject(String... strings);
 
     public abstract void setHeader(String[] header);
 }

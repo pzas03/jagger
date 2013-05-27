@@ -22,11 +22,13 @@ package com.griddynamics.jagger.providers;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
+import com.google.common.collect.AbstractIterator;
 import com.griddynamics.jagger.providers.creators.ObjectCreator;
 import com.griddynamics.jagger.providers.creators.StringCreator;
 
 import java.io.*;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 /**
@@ -83,7 +85,7 @@ public class FileProvider<T> implements Iterable<T> {
         Preconditions.checkNotNull(path);
         Preconditions.checkNotNull(objectCreator);
 
-        return new Iterator<T>() {
+        return new AbstractIterator<T>() {
 
             private Scanner scanner;
 
@@ -98,20 +100,13 @@ public class FileProvider<T> implements Iterable<T> {
                     throw Throwables.propagate(e);
                 }
             }
-
             @Override
-            public boolean hasNext() {
-                return scanner.hasNextLine();
-            }
-
-            @Override
-            public T next() {
-                return objectCreator.createObject(new String []{ scanner.next() });
-            }
-
-            @Override
-            public void remove() {
-                throw new UnsupportedOperationException("Read only iterator!");
+            protected T computeNext() {
+                try {
+                    return objectCreator.createObject(scanner.next());
+                } catch (NoSuchElementException e) {
+                    return endOfData();
+                }
             }
         };
     }
