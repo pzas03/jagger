@@ -762,7 +762,7 @@ public class Trends extends DefaultActivity {
 
 
                 PlotNameDto firePlot = null;
-                if (trendsToSelect.isEmpty())
+                if (!trendsToSelect.isEmpty())
                     firePlot = trendsToSelect.iterator().next();
 
                 for (PlotNameDto plotNameDto : trendsToSelect){
