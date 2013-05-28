@@ -183,7 +183,7 @@ public class MetricDataServiceImpl implements MetricDataService {
         for (String name : metricNames){
             MetricNameDto metric = new MetricNameDto();
             metric.setTests(tests);
-            metric.setName(name);
+            metric.setName((name==null ? "Some metric" : name));
 
             metrics.add(metric);
         }
