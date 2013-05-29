@@ -691,6 +691,7 @@ public class Trends extends DefaultActivity {
         @Override
         public void onSelectionChange(SelectionChangeEvent event) {
             Set<TaskDataDto> selected = ((MultiSelectionModel<TaskDataDto>) event.getSource()).getSelectedSet();
+            Set<SessionDataDto> selectedSessions =  ((MultiSelectionModel<SessionDataDto>)sessionsDataGrid.getSelectionModel()).getSelectedSet();
             List<TaskDataDto> result = new ArrayList<TaskDataDto>(selected.size());
             result.addAll(selected);
             TaskDataTreeViewModel taskDataTreeViewModel = (TaskDataTreeViewModel) taskDetailsTree.getTreeViewModel();
@@ -702,6 +703,12 @@ public class Trends extends DefaultActivity {
             plotNameSelectionModel.clear();
             // Clear session scope plot list
             sessionScopePlotList.clear();
+            if (selectedSessions.size() == 1){
+                SessionDataDto session = selectedSessions.iterator().next();
+                PlotProviderService.Async.getInstance().getSessionScopePlotList(session.getSessionId(),
+                        new SessionScopePlotListQueryCallback(session.getSessionId(), sessionScopePlotList, plotPanel, new SessionScopePlotCheckBoxClickHandler(), getResources()));
+            }
+
             // Clear markings dto map
             markingsMap.clear();
             taskDataTreeViewModel.clear();
