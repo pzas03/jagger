@@ -24,7 +24,7 @@
 
     <groupId>com.griddynamics.jagger</groupId>
     <artifactId>parent</artifactId>
-    <version>1.2.0-rc5</version>
+    <version>1.2.0-rc6-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>${groupId}.${artifactId}</name>
