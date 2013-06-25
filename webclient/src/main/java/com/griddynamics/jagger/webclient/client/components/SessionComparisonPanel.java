@@ -37,7 +37,7 @@ public class SessionComparisonPanel extends VerticalPanel{
         @Override
         protected Canvas createRecordComponent(final ListGridRecord record, Integer colNum) {
             String fieldName = this.getFieldName(colNum);
-            if (fieldName.matches(SESSION_HEADER+".+")){
+            if (fieldName.startsWith(SESSION_HEADER)){
                 String text = record.getAttribute(fieldName+ SESSION_DATA_SUFFIX);
 
                 Label label = new Label(text);
@@ -140,7 +140,7 @@ public class SessionComparisonPanel extends VerticalPanel{
     }
 
     public void updateMetrics(Set<MetricNameDto> dto){
-        if (dto.size() == 0){
+        if (dto.isEmpty()){
             grid.setData(EMPTY_DATA);
             return;
         }
