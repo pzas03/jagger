@@ -59,7 +59,7 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
                     sessionData.getActiveKernels(),
                     sessionData.getTaskExecuted(),
                     sessionData.getTaskFailed(),
-                    sessionData.getComment())
+                    HTMLFormatter.format(sessionData.getComment()))
             );
         }
 
@@ -86,7 +86,7 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
                     sessionData.getActiveKernels(),
                     sessionData.getTaskExecuted(),
                     sessionData.getTaskFailed(),
-                    sessionData.getComment()
+                    HTMLFormatter.format(sessionData.getComment())
             );
             log.info("There was loaded session data with id {} for {} ms", sessionId, System.currentTimeMillis() - timestamp);
         } catch (NoResultException e) {
@@ -140,7 +140,7 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
                         sessionData.getActiveKernels(),
                         sessionData.getTaskExecuted(),
                         sessionData.getTaskFailed(),
-                        sessionData.getComment())
+                        HTMLFormatter.format(sessionData.getComment()))
                 );
             }
 
@@ -191,7 +191,7 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
                         sessionData.getActiveKernels(),
                         sessionData.getTaskExecuted(),
                         sessionData.getTaskFailed(),
-                        sessionData.getComment())
+                        HTMLFormatter.format(sessionData.getComment()))
                 );
             }
 

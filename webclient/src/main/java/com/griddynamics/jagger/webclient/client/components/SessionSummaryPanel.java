@@ -74,7 +74,7 @@ public class SessionSummaryPanel extends VerticalPanel{
         Label commentTitle = new Label("Comment");
         commentTitle.getElement().getStyle().setFontWeight(Style.FontWeight.BOLD);
         summaryGrid.setWidget(6, 0, commentTitle);
-        summaryGrid.setWidget(6, 1, new HTMLPanel(sessionData.getComment().replaceAll("\n","<br>")));
+        summaryGrid.setWidget(6, 1, new HTMLPanel(sessionData.getComment()));
 
         add(summaryGrid);
 

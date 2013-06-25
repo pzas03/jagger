@@ -38,7 +38,7 @@ public class SessionComparisonPanel extends VerticalPanel{
         protected Canvas createRecordComponent(final ListGridRecord record, Integer colNum) {
             String fieldName = this.getFieldName(colNum);
             if (fieldName.matches(SESSION_HEADER+".+")){
-                String text = record.getAttribute(fieldName+ SESSION_DATA_SUFFIX).replaceAll("\n", "<br>");
+                String text = record.getAttribute(fieldName+ SESSION_DATA_SUFFIX);
 
                 Label label = new Label(text);
                 label.setAutoHeight();
