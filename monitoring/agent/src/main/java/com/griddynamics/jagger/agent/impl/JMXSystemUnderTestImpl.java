@@ -20,16 +20,17 @@
 
 package com.griddynamics.jagger.agent.impl;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.griddynamics.jagger.agent.model.DefaultMonitoringParameters;
 import com.griddynamics.jagger.agent.model.SystemUnderTestInfo;
 import com.griddynamics.jagger.agent.model.SystemUnderTestService;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.management.MBeanServerConnection;
+import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
@@ -39,9 +40,8 @@ import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
-import java.net.InetAddress;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -60,11 +60,22 @@ public class JMXSystemUnderTestImpl implements SystemUnderTestService {
     private final static Logger log = LoggerFactory.getLogger(JMXSystemUnderTestImpl.class);
 
     private static final String JMX_URL_TEMPLATE = "service:jmx:rmi:///jndi/rmi://%s/jmxrmi";
-    private static final Collection<String> GENS = Sets.newHashSet("PS Old Gen", "PS Perm Gen");
+    private static final Collection<String> OLD_GEN_GC;
+    private static final ObjectName GC_OBJECT_NAMES;
 
     private String jmxServices;
     private String name;
-    private Map<String, MBeanServerConnection> connections = Maps.newHashMap();
+    private volatile Map<String, MBeanServerConnection> connections = Collections.emptyMap();
+
+    static {
+        OLD_GEN_GC = ImmutableSet.of("MarkSweepCompact", "PS MarkSweep", "ConcurrentMarkSweep", "G1 Old Generation");
+        try {
+            GC_OBJECT_NAMES = new ObjectName(ManagementFactory.GARBAGE_COLLECTOR_MXBEAN_DOMAIN_TYPE + ",*");
+        } catch (MalformedObjectNameException e) {
+            log.error("Error during JMX initializing", e);
+            throw new RuntimeException(e);
+        }
+    }
 
     public void setJmxServices(String jmxServices) {
         this.jmxServices = jmxServices;
@@ -80,88 +91,97 @@ public class JMXSystemUnderTestImpl implements SystemUnderTestService {
 
     @Override
     public Map<String, SystemUnderTestInfo> getInfo() {
-        Map<String, SystemUnderTestInfo> result = Maps.newHashMap();
+        Set<String> identifiers = connections.keySet();
+        Map<String, SystemUnderTestInfo> result = Maps.newHashMapWithExpectedSize(identifiers.size());
 
-        for (String identifier : connections.keySet()) {
-            result.put(identifier, analyzeJVM(identifier));
+        for (String identifier : identifiers) {
+            try {
+                SystemUnderTestInfo info = analyzeJVM(identifier);
+                result.put(identifier, info);
+            } catch (Exception e) {
+                log.error("Error in JMXSystemUnderTestImpl.analyzeJVM", e);
+            }
         }
         return result;
     }
 
     public void init() {
-        String[] jmxServicePorts = this.jmxServices.split(",");
-        JMXConnector connector;
+        String[] jmxServicePorts = jmxServices.split(",");
+
+        ImmutableMap.Builder<String, MBeanServerConnection> builder = ImmutableMap.builder();
+
         for (String service : jmxServicePorts) {
             try {
-                connector = JMXConnectorFactory.connect(new JMXServiceURL(String.format(JMX_URL_TEMPLATE, service)));
-                connections.put(name + " collect from jmx port " +
-                        service, connector.getMBeanServerConnection());
+                JMXServiceURL serviceURL = new JMXServiceURL(String.format(JMX_URL_TEMPLATE, service));
+                JMXConnector connector = JMXConnectorFactory.connect(serviceURL);
+                MBeanServerConnection connection = connector.getMBeanServerConnection();
+
+                builder.put(name + " collect from jmx port " + service, connection);
             } catch (IOException e) {
                 log.error("Error during JMX initializing", e);
             }
         }
-        if (connections.size() == 0) {
+
+        connections = builder.build();
+
+        if (connections.isEmpty()) {
             // TODO: replace it with specific exception for such situations when it is created.
             throw new RuntimeException("Error during JMX initialization. ZERO connections created for url "
                     + jmxServices + ".");
         }
     }
 
-    private SystemUnderTestInfo analyzeJVM(String identifier) {
+    private SystemUnderTestInfo analyzeJVM(String identifier) throws IOException {
         SystemUnderTestInfo result = new SystemUnderTestInfo(identifier);
-        long minor_time = 0;
-        long major_time = 0;
-        long minor_units = 0;
-        long major_units = 0;
-        try {
-            MBeanServerConnection connection = connections.get(identifier);
 
-            MemoryMXBean memoryMXBean = ManagementFactory.newPlatformMXBeanProxy(connection,
-                    ManagementFactory.MEMORY_MXBEAN_NAME, MemoryMXBean.class);
-            MemoryUsage heapMemoryUsage = memoryMXBean.getHeapMemoryUsage();
-            result.putSysUTEntry(DefaultMonitoringParameters.HEAP_MEMORY_MAX, bytesToMiB(heapMemoryUsage.getMax()));
-            result.putSysUTEntry(DefaultMonitoringParameters.HEAP_MEMORY_COMMITTED, bytesToMiB(heapMemoryUsage.getCommitted()));
-            result.putSysUTEntry(DefaultMonitoringParameters.HEAP_MEMORY_USED, bytesToMiB(heapMemoryUsage.getUsed()));
-            result.putSysUTEntry(DefaultMonitoringParameters.HEAP_MEMORY_INIT, bytesToMiB(heapMemoryUsage.getInit()));
+        MBeanServerConnection connection = connections.get(identifier);
 
-            MemoryUsage nonHeapMemoryUsage = memoryMXBean.getNonHeapMemoryUsage();
-            result.putSysUTEntry(DefaultMonitoringParameters.NON_HEAP_MEMORY_MAX, bytesToMiB(nonHeapMemoryUsage.getMax()));
-            result.putSysUTEntry(DefaultMonitoringParameters.NON_HEAP_MEMORY_COMMITTED, bytesToMiB(nonHeapMemoryUsage.getCommitted()));
-            result.putSysUTEntry(DefaultMonitoringParameters.NON_HEAP_MEMORY_USED, bytesToMiB(nonHeapMemoryUsage.getUsed()));
-            result.putSysUTEntry(DefaultMonitoringParameters.NON_HEAP_MEMORY_INIT, bytesToMiB(nonHeapMemoryUsage.getInit()));
+        MemoryMXBean memoryMXBean = ManagementFactory.newPlatformMXBeanProxy(connection,
+                ManagementFactory.MEMORY_MXBEAN_NAME, MemoryMXBean.class);
+        MemoryUsage heapMemoryUsage = memoryMXBean.getHeapMemoryUsage();
+        result.putSysUTEntry(DefaultMonitoringParameters.HEAP_MEMORY_MAX, bytesToMiB(heapMemoryUsage.getMax()));
+        result.putSysUTEntry(DefaultMonitoringParameters.HEAP_MEMORY_COMMITTED, bytesToMiB(heapMemoryUsage.getCommitted()));
+        result.putSysUTEntry(DefaultMonitoringParameters.HEAP_MEMORY_USED, bytesToMiB(heapMemoryUsage.getUsed()));
+        result.putSysUTEntry(DefaultMonitoringParameters.HEAP_MEMORY_INIT, bytesToMiB(heapMemoryUsage.getInit()));
 
-            Set<ObjectName> srvMemMgrNames = connection.queryNames(
-                    new ObjectName(ManagementFactory.GARBAGE_COLLECTOR_MXBEAN_DOMAIN_TYPE + ",*"), null);
-            for (ObjectName gcMgr : srvMemMgrNames) {
-                try {
-                    GarbageCollectorMXBean gcMgrBean =
-                            ManagementFactory.newPlatformMXBeanProxy(connection, gcMgr.toString(),
-                                    GarbageCollectorMXBean.class);
+        MemoryUsage nonHeapMemoryUsage = memoryMXBean.getNonHeapMemoryUsage();
+        result.putSysUTEntry(DefaultMonitoringParameters.NON_HEAP_MEMORY_MAX, bytesToMiB(nonHeapMemoryUsage.getMax()));
+        result.putSysUTEntry(DefaultMonitoringParameters.NON_HEAP_MEMORY_COMMITTED, bytesToMiB(nonHeapMemoryUsage.getCommitted()));
+        result.putSysUTEntry(DefaultMonitoringParameters.NON_HEAP_MEMORY_USED, bytesToMiB(nonHeapMemoryUsage.getUsed()));
+        result.putSysUTEntry(DefaultMonitoringParameters.NON_HEAP_MEMORY_INIT, bytesToMiB(nonHeapMemoryUsage.getInit()));
 
-                    if (gcMgrBean.isValid()) {
-                        HashSet<String> poolNames = Sets.newHashSet(gcMgrBean.getMemoryPoolNames());
-                        if (CollectionUtils.containsAny(poolNames, GENS)) {
-                            major_units += gcMgrBean.getCollectionCount();
-                            major_time += gcMgrBean.getCollectionTime();
-                        } else {
-                            minor_units += gcMgrBean.getCollectionCount();
-                            minor_time += gcMgrBean.getCollectionTime();
-                        }
-                    }
-                } catch (IOException e) {
-                    log.error("Error in JMXSigarMonitorController.analyzeJVM", e);
+        long minorTime = 0;
+        long majorTime = 0;
+        long minorCount = 0;
+        long majorCount = 0;
+        Set<ObjectName> srvMemMgrNames = connection.queryNames(GC_OBJECT_NAMES, null);
+        for (ObjectName gcMgr : srvMemMgrNames) {
+            try {
+                GarbageCollectorMXBean gcMgrBean =
+                        ManagementFactory.newPlatformMXBeanProxy(connection, gcMgr.toString(),
+                                GarbageCollectorMXBean.class);
+
+                if (!gcMgrBean.isValid()) {
+                    continue;
                 }
-            }
-            result.putSysUTEntry(DefaultMonitoringParameters.JMX_GC_MAJOR_TIME, (double) major_time);
-            result.putSysUTEntry(DefaultMonitoringParameters.JMX_GC_MAJOR_UNIT, (double) major_units);
-            result.putSysUTEntry(DefaultMonitoringParameters.JMX_GC_MINOR_TIME, (double) minor_time);
-            result.putSysUTEntry(DefaultMonitoringParameters.JMX_GC_MINOR_UNIT, (double) minor_units);
 
-        } catch (Exception ee) {
-            log.error("Error in JMXSigarMonitorController.analyzeJVM", ee);
+                boolean majorCollector = OLD_GEN_GC.contains(gcMgrBean.getName());
+                if (majorCollector) {
+                    majorCount += gcMgrBean.getCollectionCount();
+                    majorTime += gcMgrBean.getCollectionTime();
+                } else {
+                    minorCount += gcMgrBean.getCollectionCount();
+                    minorTime += gcMgrBean.getCollectionTime();
+                }
+            } catch (IOException e) {
+                log.error("Error in JMXSystemUnderTestImpl.analyzeJVM", e);
+            }
         }
+        result.putSysUTEntry(DefaultMonitoringParameters.JMX_GC_MAJOR_TIME, (double) majorTime);
+        result.putSysUTEntry(DefaultMonitoringParameters.JMX_GC_MAJOR_UNIT, (double) majorCount);
+        result.putSysUTEntry(DefaultMonitoringParameters.JMX_GC_MINOR_TIME, (double) minorTime);
+        result.putSysUTEntry(DefaultMonitoringParameters.JMX_GC_MINOR_UNIT, (double) minorCount);
 
         return result;
-
     }
 }
