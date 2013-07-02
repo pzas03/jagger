@@ -1,4 +1,6 @@
 #!/bin/bash
 # deleting all processes with specified name
-pgrep -f JaggerLauncher | xargs -n1 kill -9
+for PID in `pgrep -f JaggerLauncher `; do
+    kill -9 $PID
+done
 

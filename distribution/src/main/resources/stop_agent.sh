@@ -1,4 +1,6 @@
 #!/bin/bash
 # deleting all processes with specified name
-pgrep -f AgentStarter | xargs -n1 kill -9
+for PID in `pgrep -f AgentStarter`; do
+    kill -9 $PID
+done
 
