@@ -21,9 +21,6 @@
 package com.griddynamics.jagger.storage.fs.logging;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
 import com.google.common.io.Closeables;
 import com.griddynamics.jagger.storage.FileStorage;
 import com.griddynamics.jagger.storage.Namespace;
@@ -35,23 +32,26 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author Alexey Kiselyov, Vladimir Shulga
  *         Date: 20.07.11
  */
 public abstract class BufferedLogWriter implements LogWriter {
+
     private final Logger log = LoggerFactory.getLogger(BufferedLogWriter.class);
-    private final Multimap<String, Serializable> queue;
     private FileStorage fileStorage;
     private int flushSize;
-    private volatile boolean isFlushInProgress;
-    private final Object semaphore = new Object();
+    private ArrayBlockingQueue<Log> buffer;
+    private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     {
-        Multimap<String, Serializable> tmp = LinkedHashMultimap.create();
-        queue = Multimaps.synchronizedMultimap(tmp);
+        buffer = new ArrayBlockingQueue<Log>(5000);
+        executorService.submit(new FileLogger());
     }
 
     @Override
@@ -62,62 +62,28 @@ public abstract class BufferedLogWriter implements LogWriter {
 
     public void log(String path, Serializable logEntry) {
         Preconditions.checkNotNull(logEntry, "Null is not supported");
-        
-        synchronized (semaphore) {
-            queue.put(path, logEntry);
-        }
-
-        if (!isFlushInProgress && (queue.size() >= flushSize)) {
-            flush();
+        try {
+            buffer.put(new Log(path, logEntry));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
     @Override
     public synchronized void flush() {
-        long startTime = System.currentTimeMillis();
-        try {
-            isFlushInProgress = true;
-            Multimap<String, Serializable> forFlush;
-            synchronized (semaphore) {
-                forFlush = LinkedHashMultimap.create(queue);
-                queue.clear();
+        HashMap<String, ArrayList<Serializable>> map =  new HashMap<String, ArrayList<Serializable>>();
+        while (!buffer.isEmpty()){
+            Log logEntry = buffer.poll();
+            ArrayList<Serializable> list = map.get(logEntry.getPath());
+            if (list != null){
+                list.add(logEntry.getLogValue());
+            }else{
+                list = new ArrayList<Serializable>();
+                list.add(logEntry.getLogValue());
+                map.put(logEntry.getPath(), list);
             }
-
-            log.debug("Flush queue. flushId {}. Current queue size is {}", startTime, forFlush.size());
-            for (String logFilePath : forFlush.keySet()) {
-                Collection<Serializable> fileQueue = forFlush.get(logFilePath);
-                if (fileQueue.isEmpty()) {
-                    continue;
-                }
-                OutputStream os = null;
-                LogWriterOutput objectOutput = null;
-                try {
-                    if (this.fileStorage.exists(logFilePath)) {
-                        os = this.fileStorage.append(logFilePath);
-                    } else {
-                        os = this.fileStorage.create(logFilePath);
-                    }
-                    os = new BufferedOutputStream(os);
-                    objectOutput = getOutput(os);
-                    for(Serializable serializable: fileQueue){
-                        objectOutput.writeObject(serializable);
-                    }
-
-                } catch (IOException e) {
-                    log.error(e.getMessage(), e);
-                } finally {
-                    try {
-                        Closeables.closeQuietly(objectOutput);
-                        Closeables.close(os, true);
-                    } catch (IOException e) {
-                        log.error(e.getMessage(), e);
-                    }
-                }
-            }
-        } finally {
-            log.debug("Flush queue finished. flushId {}. Flush took: {}", startTime, (System.currentTimeMillis() - startTime));
-            isFlushInProgress = false;
         }
+        writeToStorage(map);
     }
 
     @Required
@@ -130,4 +96,100 @@ public abstract class BufferedLogWriter implements LogWriter {
         this.flushSize = flushSize;
     }
 
+    private void collectByFlashSize(){
+        HashMap<String, ArrayList<Serializable>> map =  new HashMap<String, ArrayList<Serializable>>();
+        int size = 0;
+        while (size < flushSize){
+            try {
+                Log logEntry = buffer.take();
+                ArrayList<Serializable> list = map.get(logEntry.getPath());
+                if (list != null){
+                    list.add(logEntry.getLogValue());
+                    size++;
+                }else{
+                    list = new ArrayList<Serializable>();
+                    list.add(logEntry.getLogValue());
+                    map.put(logEntry.getPath(), list);
+                    size++;
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        writeToStorage(map);
+    }
+
+    private synchronized void writeToStorage(Map<String, ArrayList<Serializable>> map){
+        long startTime = System.currentTimeMillis();
+
+        for (String logFilePath : map.keySet()) {
+            Collection<Serializable> fileQueue = map.get(logFilePath);
+            if (fileQueue.isEmpty()) {
+                continue;
+            }
+            OutputStream os = null;
+            LogWriterOutput objectOutput = null;
+            try {
+                if (fileStorage.exists(logFilePath)) {
+                    os = fileStorage.append(logFilePath);
+                } else {
+                    os = fileStorage.create(logFilePath);
+                }
+                os = new BufferedOutputStream(os);
+                objectOutput = getOutput(os);
+                for(Serializable serializable: fileQueue){
+                    objectOutput.writeObject(serializable);
+                }
+
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+            } finally {
+                try {
+                    Closeables.closeQuietly(objectOutput);
+                    Closeables.close(os, true);
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
+                }
+                log.debug("Flush queue finished. flushId {}. Flush took: {}", startTime, (System.currentTimeMillis() - startTime));
+            }
+        }
+        map.clear();
+    }
+
+    private class FileLogger implements Runnable{
+
+        @Override
+        public void run() {
+            while(!Thread.interrupted()){
+                collectByFlashSize();
+            }
+        }
+    }
+
+    private class Log{
+        private String path;
+        private Serializable logValue;
+
+        public Log(String path, Serializable logValue){
+            this.path = path;
+            this.logValue = logValue;
+        }
+
+        private String getPath() {
+            return path;
+        }
+
+        private void setPath(String path) {
+            this.path = path;
+        }
+
+        private Serializable getLogValue() {
+            return logValue;
+        }
+
+        private void setLogValue(Serializable logValue) {
+            this.logValue = logValue;
+        }
+    }
 }
