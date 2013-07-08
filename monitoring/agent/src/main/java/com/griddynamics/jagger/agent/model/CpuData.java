@@ -17,32 +17,59 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.griddynamics.jagger.agent.model;
 
-import java.util.List;
-import java.util.Map;
-
 /**
- * User: vshulga
- * Date: 7/5/11
- * Time: 12:21 PM
+ * @author Nikolay Musienko
+ *         Date: 05.07.13
  */
-public interface SystemInfoCollector {
 
-    List<String> getCPUInfo();
+public class CpuData {
 
-    Map<String, String> getCPULoadInfo();
+    double cpuStateSys = 0;
+    double cpuStateUser = 0;
+    double cpuStateWait = 0;
+    double cpuStateIdle = 0;
 
-    Map<String, String> getMemInfo();
+    public double getCpuStateSys() {
+        return cpuStateSys;
+    }
 
-    Map<String, String> getNetworkInfo();
+    public void setCpuStateSys(double cpuStateSys) {
+        this.cpuStateSys = cpuStateSys;
+    }
 
-    TcpData getTcpData();
+    public double getCpuStateUser() {
+        return cpuStateUser;
+    }
 
-    CpuData getCpuData();
+    public void setCpuStateUser(double cpuStateUser) {
+        this.cpuStateUser = cpuStateUser;
+    }
 
-    DisksData getDisksData();
+    public double getCpuStateWait() {
+        return cpuStateWait;
+    }
 
-    double[] getLoadAverage();
+    public void setCpuStateWait(double cpuStateWait) {
+        this.cpuStateWait = cpuStateWait;
+    }
+
+    public double getCpuStateIdle() {
+        return cpuStateIdle;
+    }
+
+    public void setCpuStateIdle(double cpuStateIdle) {
+        this.cpuStateIdle = cpuStateIdle;
+    }
+
+    @Override
+    public String toString() {
+        return "CpuData{" +
+                "cpuStateSys=" + cpuStateSys +
+                ", cpuStateUser=" + cpuStateUser +
+                ", cpuStateWait=" + cpuStateWait +
+                ", cpuStateIdle=" + cpuStateIdle +
+                '}';
+    }
 }
