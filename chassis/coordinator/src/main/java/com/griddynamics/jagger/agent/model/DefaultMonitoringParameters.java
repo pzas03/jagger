@@ -47,6 +47,7 @@ public enum DefaultMonitoringParameters implements MonitoringParameter {
     CPU_STATE_SYSTEM_PERC("CPU system, %", false, BOX),
     CPU_STATE_IDLE_PERC("CPU idle, %", false, BOX),
     CPU_STATE_IDLE_WAIT("CPU wait, %", false, BOX),
+    CPU_STATE_COMBINED("CPU combined, %", false, BOX),
 
     CPU_LOAD_AVERAGE_1("CPU load average for the past 1 minute, %", false, BOX),
     CPU_LOAD_AVERAGE_5("CPU load average for the past 5 minutes, %", false, BOX),

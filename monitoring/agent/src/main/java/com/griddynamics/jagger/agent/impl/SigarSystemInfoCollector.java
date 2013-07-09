@@ -191,6 +191,10 @@ public class SigarSystemInfoCollector implements SystemInfoCollector {
             value = cpuPerc.getWait();
             data.setCpuStateWait(Double.isNaN(value) ? 0 : value);
 
+
+            value = cpuPerc.getCombined();
+            data.setCpuStateCombined(Double.isNaN(value) ? 0 : value);
+
             logger.debug("getCpuData: {}", data);
         } catch (SigarException e) {
             logger.warn("Exception during getCpuData", e);

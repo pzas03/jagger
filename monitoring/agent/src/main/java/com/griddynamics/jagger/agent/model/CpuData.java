@@ -30,6 +30,7 @@ public class CpuData {
     double cpuStateUser = 0;
     double cpuStateWait = 0;
     double cpuStateIdle = 0;
+    double cpuStateCombined = 0;
 
     public double getCpuStateSys() {
         return cpuStateSys;
@@ -63,6 +64,14 @@ public class CpuData {
         this.cpuStateIdle = cpuStateIdle;
     }
 
+    public double getCpuStateCombined() {
+        return cpuStateCombined;
+    }
+
+    public void setCpuStateCombined(double cpuStateCombined) {
+        this.cpuStateCombined = cpuStateCombined;
+    }
+
     @Override
     public String toString() {
         return "CpuData{" +
@@ -70,6 +79,7 @@ public class CpuData {
                 ", cpuStateUser=" + cpuStateUser +
                 ", cpuStateWait=" + cpuStateWait +
                 ", cpuStateIdle=" + cpuStateIdle +
+                ", cpuStateCombined=" + cpuStateCombined +
                 '}';
     }
 }
