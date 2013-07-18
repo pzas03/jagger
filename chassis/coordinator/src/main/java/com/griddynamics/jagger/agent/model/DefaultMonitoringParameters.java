@@ -34,11 +34,11 @@ public enum DefaultMonitoringParameters implements MonitoringParameter {
     TCP_ESTABLISHED("Tcp established connections, count", false, BOX),
     TCP_LISTEN("TCP listen, count", false, BOX),
     TCP_SYNCHRONIZED_RECEIVED("TCP synchronized received, count", false, BOX),
-    TCP_INBOUND_TOTAL("TCP inbound total, KiB/sec", true, BOX),
-    TCP_OUTBOUND_TOTAL("TCP outbound total, KiB/sec", true, BOX),
+    TCP_INBOUND_TOTAL("TCP inbound total, KiB", true, BOX),
+    TCP_OUTBOUND_TOTAL("TCP outbound total, KiB", true, BOX),
 
-    DISKS_READ_BYTES_TOTAL("Disks read bytes total, KiB/sec", true, BOX),
-    DISKS_WRITE_BYTES_TOTAL("Disks write bytes total, KiB/sec", true, BOX),
+    DISKS_READ_BYTES_TOTAL("Disks read bytes total, KiB", true, BOX),
+    DISKS_WRITE_BYTES_TOTAL("Disks write bytes total, KiB", true, BOX),
 
     DISKS_SERVICE_TIME_TOTAL("Disks service time", false, BOX),
     DISKS_AVERAGE_QUEUE_SIZE_TOTAL("Disks queue", false, BOX),
