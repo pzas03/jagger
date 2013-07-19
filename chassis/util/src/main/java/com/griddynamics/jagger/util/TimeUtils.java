@@ -35,16 +35,16 @@ public class TimeUtils {
 
     private static final PeriodFormatter formatter =  new PeriodFormatterBuilder()
                                                         .appendHours()
-                                                        .appendSuffix(" h")
-                                                        .appendSeparator(", ")
+                                                        .appendSuffix("h")
+                                                        .appendSeparator(" ")
                                                         .appendMinutes()
-                                                        .appendSuffix(" m")
-                                                        .appendSeparator(", ")
+                                                        .appendSuffix("m")
+                                                        .appendSeparator(" ")
                                                         .appendSeconds()
-                                                        .appendSuffix(" s")
+                                                        .appendSuffix("s")
                                                         .appendSeparator(" and ")
                                                         .appendMillis()
-                                                        .appendSuffix(" ms")
+                                                        .appendSuffix("ms")
                                                         .toFormatter();
 
     public static String formatDuration(long duration) {
