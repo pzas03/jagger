@@ -24,6 +24,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.io.Closeables;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.griddynamics.jagger.storage.FileStorage;
 import com.griddynamics.jagger.storage.Namespace;
 import org.slf4j.Logger;
@@ -49,12 +50,13 @@ public abstract class BufferedLogWriter implements LogWriter {
     private int bufferSize = 10*flushSize;
     private int possibleKeys = 50;
     private int possibleValues = 1000;
-    private final Log FLUSH_LOG = new Log("FLASH_LOG", null);
+    private final Log FLUSH_LOG = new Log("FLUSH_LOG", null);
 
     private FileStorage fileStorage;
     private ArrayBlockingQueue<Log> buffer = new ArrayBlockingQueue<Log>(bufferSize, false);
-    private Object o = new Object();
-    private ExecutorService executor = Executors.newSingleThreadExecutor();
+    private Object lock = new Object();
+    private ExecutorService executor = Executors.newSingleThreadExecutor(
+                                                    new ThreadFactoryBuilder().setDaemon(true).build());
 
     public BufferedLogWriter(int flushSize, FileStorage fileStorage){
         this.flushSize = flushSize;
@@ -74,7 +76,8 @@ public abstract class BufferedLogWriter implements LogWriter {
         try {
             buffer.put(new Log(path, logEntry));
         } catch (InterruptedException e) {
-            log.error(e.getMessage(), e);
+            log.error("Failed to write {} by path: {}", new Object[]{logEntry, path}, e);
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -83,11 +86,12 @@ public abstract class BufferedLogWriter implements LogWriter {
         try {
             buffer.put(FLUSH_LOG);
 
-            synchronized (o){
-                o.wait();
+            synchronized (lock){
+                lock.wait();
             }
         } catch (InterruptedException e) {
-            log.error(e.getMessage(), e);
+            log.error("Failed during flushing", e);
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -97,15 +101,17 @@ public abstract class BufferedLogWriter implements LogWriter {
         public void run() {
             Multimap<String, Serializable> map = ArrayListMultimap.create(possibleKeys, possibleValues);
 
-            while (!Thread.interrupted()){
+            boolean shutdown = false;
+
+            while (!shutdown){
 
                 int size = 0;
                 boolean need_to_flash = false;
 
                 Log current = null;
 
-                while(size <= flushSize){
-                    try {
+                try {
+                    while(size <= flushSize){
                         current = buffer.take();
 
                         if (isFlushLog(current)){
@@ -115,23 +121,24 @@ public abstract class BufferedLogWriter implements LogWriter {
                             map.put(current.getPath(), current.getValue());
                             size++;
                         }
+                    }
+                } catch (InterruptedException e) {
+                    shutdown = true;
 
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                }finally {
+                    if (!map.isEmpty()){
+                        writeToFileStorage(map, need_to_flash);
+                        map.clear();
                     }
                 }
-
-                writeToFileStorage(map, need_to_flash);
-
-                map.clear();
             }
         }
 
         private boolean isFlushLog(Log current){
-            return current.getPath().equals(FLUSH_LOG.getPath());
+            return current == FLUSH_LOG;
         }
 
-        private void writeToFileStorage(Multimap<String, Serializable> map, boolean unlockFlash){
+        private void writeToFileStorage(Multimap<String, Serializable> map, boolean unlockFlush){
             long startTime = System.currentTimeMillis();
             log.debug("Flush queue. flushId {}. Current queue size is {}", startTime, map.size());
 
@@ -169,9 +176,9 @@ public abstract class BufferedLogWriter implements LogWriter {
             } finally {
                 log.debug("Flush queue finished. flushId {}.Flush took: {}", startTime, (System.currentTimeMillis() - startTime));
 
-                if (unlockFlash)
-                    synchronized (o){
-                        o.notifyAll();
+                if (unlockFlush)
+                    synchronized (lock){
+                        lock.notifyAll();
                     }
             }
         }
