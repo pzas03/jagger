@@ -84,9 +84,9 @@ public abstract class BufferedLogWriter implements LogWriter {
     @Override
     public synchronized void flush() {
         try {
-            buffer.put(FLUSH_LOG);
-
             synchronized (lock){
+                buffer.put(FLUSH_LOG);
+
                 lock.wait();
             }
         } catch (InterruptedException e) {
