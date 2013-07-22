@@ -126,10 +126,8 @@ public abstract class BufferedLogWriter implements LogWriter {
                     shutdown = true;
 
                 }finally {
-                    if (!map.isEmpty()){
-                        writeToFileStorage(map, need_to_flash);
-                        map.clear();
-                    }
+                    writeToFileStorage(map, need_to_flash);
+                    map.clear();
                 }
             }
         }
