@@ -12,8 +12,8 @@ public class JBossBufferedLogWriter extends BufferedLogWriter {
 
     private final Logger log = LoggerFactory.getLogger(JBossBufferedLogWriter.class);
 
-    public JBossBufferedLogWriter(int flushSize, FileStorage fileStorage) {
-        super(flushSize, fileStorage);
+    public JBossBufferedLogWriter(int flushSize, int bufferSize, FileStorage fileStorage) {
+        super(flushSize, bufferSize, fileStorage);
     }
 
     private static class JBossLogWriterOutput implements LogWriterOutput {

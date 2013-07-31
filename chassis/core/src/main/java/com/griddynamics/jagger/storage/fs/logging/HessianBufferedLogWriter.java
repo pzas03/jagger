@@ -12,8 +12,8 @@ public class HessianBufferedLogWriter extends BufferedLogWriter {
 
     private final Logger log = LoggerFactory.getLogger(HessianBufferedLogWriter.class);
 
-    public HessianBufferedLogWriter(int flushSize, FileStorage fileStorage) {
-        super(flushSize, fileStorage);
+    public HessianBufferedLogWriter(int flushSize, int bufferSize, FileStorage fileStorage) {
+        super(flushSize, bufferSize, fileStorage);
     }
 
     private static class HessianLogWriterOutput implements LogWriterOutput {

@@ -30,6 +30,11 @@
             </value>
         </constructor-arg>
         <constructor-arg>
+            <value>
+                ${chassis.log.storage.buffer.size}
+            </value>
+        </constructor-arg>
+        <constructor-arg>
             <ref bean="fileStorage"/>
         </constructor-arg>
     </bean>
@@ -42,6 +47,11 @@
         <constructor-arg>
             <value>
                 ${chassis.log.storage.buffer.flushing.size}
+            </value>
+        </constructor-arg>
+        <constructor-arg>
+            <value>
+                ${chassis.log.storage.buffer.size}
             </value>
         </constructor-arg>
         <constructor-arg>
