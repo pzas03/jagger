@@ -3,6 +3,7 @@ package com.griddynamics.jagger.webclient.server;
 import com.griddynamics.jagger.engine.e1.aggregator.workload.model.DiagnosticResultEntity;
 import com.griddynamics.jagger.engine.e1.aggregator.workload.model.ValidationResultEntity;
 import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadProcessLatencyPercentile;
+import com.griddynamics.jagger.util.TimeUtils;
 import com.griddynamics.jagger.webclient.client.MetricDataService;
 import com.griddynamics.jagger.webclient.client.dto.MetricDto;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
@@ -41,7 +42,8 @@ public class MetricDataServiceImpl implements MetricDataService {
     public MetricDataServiceImpl(){
         standardMetrics.put("Throughput", "throughput");
         standardMetrics.put("Latency", "avgLatency");
-        standardMetrics.put("Duration", "totalDuration");
+        standardMetrics.put("Duration", "duration");
+        standardMetrics.put("TotalDuration", "totalDuration");
         standardMetrics.put("Success rate", "successRate");
         standardMetrics.put("Iterations", "samples");
     }
@@ -81,7 +83,26 @@ public class MetricDataServiceImpl implements MetricDataService {
         dto.setValues(new HashSet<MetricValueDto>());
         dto.setMetricName(metricName);
 
-        if (standardMetrics.containsKey(metricName.getName())){
+        if ("Duration".equals(metricName.getName())) {
+            List<Object[]> result = entityManager.createNativeQuery("select workload.sessionId, workload.endTime, workload.startTime " +
+                    "from WorkloadData as workload inner join (select taskId, sessionId from TaskData where id in (:ids)) as taskData "+
+            "on workload.taskId=taskData.taskId and " +
+                    "workload.sessionId=taskData.sessionId ")
+            .setParameter("ids", metricName.getTests().getIds()).getResultList();
+
+            for (Object [] entry : result) {
+                MetricValueDto value = new MetricValueDto();
+                Date [] date = new Date[2];
+                date[0] = (Date)entry [1];
+                date[1] = (Date)entry [2];
+                value.setValueRepresentation(TimeUtils.formatDuration(date[0].getTime() - date[1].getTime()));
+                value.setValue(String.valueOf( (date[0].getTime() - date[1].getTime()) / 1000));
+                value.setSessionId(Long.parseLong(String.valueOf(entry[0])));
+
+                dto.getValues().add(value);
+            }
+        }
+        else if (standardMetrics.containsKey(metricName.getName())){
             //it is a standard metric
             List<Object[]> result = entityManager.createNativeQuery("select workload."+standardMetrics.get(metricName.getName())+", workload.sessionId "+
                                                                     "from WorkloadTaskData as workload " +

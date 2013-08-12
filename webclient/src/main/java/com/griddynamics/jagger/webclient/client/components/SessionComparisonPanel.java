@@ -160,7 +160,7 @@ public class SessionComparisonPanel extends VerticalPanel{
             setAttribute(TEST_NAME, dto.getMetricName().getTests().getTaskName());
             setAttribute(TEST_METRIC, dto.getMetricName().getName());
             for (MetricValueDto value : dto.getValues()){
-                setAttribute(SESSION_HEADER+value.getSessionId()+ SESSION_DATA_SUFFIX, value.getValue());
+                setAttribute(SESSION_HEADER+value.getSessionId()+ SESSION_DATA_SUFFIX, value.getValueRepresentation());
             }
         }
     }
