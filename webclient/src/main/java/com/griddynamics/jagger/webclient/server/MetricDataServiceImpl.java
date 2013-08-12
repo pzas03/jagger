@@ -3,6 +3,7 @@ package com.griddynamics.jagger.webclient.server;
 import com.griddynamics.jagger.engine.e1.aggregator.workload.model.DiagnosticResultEntity;
 import com.griddynamics.jagger.engine.e1.aggregator.workload.model.ValidationResultEntity;
 import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadProcessLatencyPercentile;
+import com.griddynamics.jagger.util.Pair;
 import com.griddynamics.jagger.util.TimeUtils;
 import com.griddynamics.jagger.webclient.client.MetricDataService;
 import com.griddynamics.jagger.webclient.client.dto.MetricDto;
@@ -37,15 +38,15 @@ public class MetricDataServiceImpl implements MetricDataService {
         this.entityManager = entityManager;
     }
 
-    private HashMap<String, String> standardMetrics = new HashMap<String, String>();
+    private HashMap<String, Pair<String, String>> standardMetrics = new HashMap<String, Pair<String, String>>();
 
     public MetricDataServiceImpl(){
-        standardMetrics.put("Throughput", "throughput");
-        standardMetrics.put("Latency", "avgLatency");
-        standardMetrics.put("Duration", "duration");
-        standardMetrics.put("TotalDuration", "totalDuration");
-        standardMetrics.put("Success rate", "successRate");
-        standardMetrics.put("Iterations", "samples");
+        standardMetrics.put("Throughput", Pair.of("throughput", "Throughput, tps"));
+        standardMetrics.put("Latency", Pair.of("avgLatency", "Latency, sec"));
+        standardMetrics.put("Duration", Pair.of("duration", "Duration, sec"));
+        standardMetrics.put("TotalDuration", Pair.of("totalDuration", "TotalDuration, sec"));
+        standardMetrics.put("Success rate", Pair.of("successRate", "Success rate"));
+        standardMetrics.put("Iterations", Pair.of("samples", "Iterations, samples"));
     }
 
     @Override
@@ -104,7 +105,7 @@ public class MetricDataServiceImpl implements MetricDataService {
         }
         else if (standardMetrics.containsKey(metricName.getName())){
             //it is a standard metric
-            List<Object[]> result = entityManager.createNativeQuery("select workload."+standardMetrics.get(metricName.getName())+", workload.sessionId "+
+            List<Object[]> result = entityManager.createNativeQuery("select workload."+standardMetrics.get(metricName.getName()).getFirst()+", workload.sessionId "+
                                                                     "from WorkloadTaskData as workload " +
                                                                     "inner join (select taskId, sessionId from TaskData where id in (:ids)) as taskData "+
                                                                     "on workload.taskId=taskData.taskId and " +
@@ -117,6 +118,9 @@ public class MetricDataServiceImpl implements MetricDataService {
 
                 MetricValueDto value = new MetricValueDto();
                 value.setValue(metricValue);
+                if ("TotalDuration".equals(metricName.getName())) {
+                    value.setValueRepresentation(TimeUtils.formatDuration((long)(Double.parseDouble(metricValue) * 1000)));
+                }
                 value.setSessionId(sessionId);
 
                 dto.getValues().add(value);
@@ -222,9 +226,13 @@ public class MetricDataServiceImpl implements MetricDataService {
                 yMinimum = temp;
         }
 
+        String legend = metricDto.getMetricName().getName();
+        if (standardMetrics.containsKey(legend)) {
+            legend = standardMetrics.get(legend).getSecond();
+        }
         PlotDatasetDto pdd = new PlotDatasetDto(
                 list,
-                metricDto.getMetricName().getName(),
+                legend,
                 ColorCodeGenerator.getHexColorCode()
         );
 
