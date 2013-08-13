@@ -167,5 +167,6 @@ public class XMLConstants {
     public static final String ATTRIBUTES = "attributes";
     public static final String JMX_METRIC_GROUPS = "jmxMetricGroups";
     public static final String JMX_METRICS = "jmx-metrics";
+    public static final String START_DELAY_ATTRIBUTE = "startDelay";
 
 }
