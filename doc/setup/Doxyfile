@@ -26,7 +26,7 @@ DOXYFILE_ENCODING      = UTF-8
 # identify the project. Note that if you do not use Doxywizard you need
 # to put quotes around the project name if it contains spaces.
 
-PROJECT_NAME           = "My Project"
+PROJECT_NAME           = "Jagger"
 
 # The PROJECT_NUMBER tag can be used to enter a project or revision number.
 # This could be handy for archiving the generated documentation or
@@ -151,7 +151,7 @@ SHORT_NAMES            = NO
 # comments will behave just like regular Qt-style comments
 # (thus requiring an explicit @brief command for a brief description.)
 
-JAVADOC_AUTOBRIEF      = NO
+JAVADOC_AUTOBRIEF      = YES
 
 # If the QT_AUTOBRIEF tag is set to YES then Doxygen will
 # interpret the first line (until the first dot) of a Qt-style
@@ -352,12 +352,12 @@ EXTRACT_ALL            = YES
 # If the EXTRACT_PRIVATE tag is set to YES all private members of a class
 # will be included in the documentation.
 
-EXTRACT_PRIVATE        = YES
+EXTRACT_PRIVATE        = NO
 
 # If the EXTRACT_STATIC tag is set to YES all static members of a file
 # will be included in the documentation.
 
-EXTRACT_STATIC         = YES
+EXTRACT_STATIC         = NO
 
 # If the EXTRACT_LOCAL_CLASSES tag is set to YES classes (and structs)
 # defined locally in source files will be included in the documentation.
@@ -649,7 +649,41 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories
 # with spaces.
 
-INPUT                  = ./src
+INPUT                  =  ./chassis/core/src/main/java/com/griddynamics/jagger/invoker/Invoker.java
+INPUT                  += ./chassis/core/src/main/java/com/griddynamics/jagger/invoker/LoadBalancer.java
+INPUT                  += ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/ResponseValidator.java
+INPUT                  += ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/MetricCalculator.java
+INPUT                  += ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/sessioncomparation/DecisionMaker.java
+INPUT                  += ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/scenario/TerminationStrategy.java
+INPUT                  += ./chassis/providers/src/main/java/com/griddynamics/jagger/providers/creators/ObjectCreator.java
+
+INPUT                  += ./chassis/invokers/src/main/java/com/griddynamics/jagger/invoker/http/ApacheAbstractHttpInvoker.java
+INPUT                  += ./chassis/invokers/src/main/java/com/griddynamics/jagger/invoker/http/HttpInvoker.java
+INPUT                  += ./chassis/invokers/src/main/java/com/griddynamics/jagger/invoker/http/HttpVisitorInvoker.java
+INPUT                  += ./chassis/invokers/src/main/java/com/griddynamics/jagger/invoker/http/ApacheHttpInvoker.java
+INPUT                  += ./chassis/invokers/src/main/java/com/griddynamics/jagger/invoker/http/TcpTrafficInvoker.java
+INPUT                  += ./chassis/invokers/src/main/java/com/griddynamics/jagger/invoker/soap/SOAPInvoker.java
+INPUT                  += ./chassis/invokers/src/main/java/com/griddynamics/jagger/invoker/stubs/WaitingInvoker.java
+INPUT                  += ./chassis/invoker.hessian/src/main/java/com/griddynamics/jagger/invoker/hessian/HessianInvoker.java
+
+INPUT                  += ./chassis/core/src/main/java/com/griddynamics/jagger/invoker/SimpleLoadBalancer.java
+INPUT                  += ./chassis/core/src/main/java/com/griddynamics/jagger/invoker/SimpleCircularLoadBalancer.java
+INPUT                  += ./chassis/core/src/main/java/com/griddynamics/jagger/invoker/RoundRobinLoadBalancer.java
+INPUT                  += ./chassis/core/src/main/java/com/griddynamics/jagger/invoker/QueryPoolLoadBalancer.java
+INPUT                  += ./chassis/core/src/main/java/com/griddynamics/jagger/invoker/PairSupplierFactoryLoadBalancer.java
+INPUT                  += ./chassis/core/src/main/java/com/griddynamics/jagger/invoker/OneByOneLoadBalancer.java
+
+INPUT                  += ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/CompositeValidator.java
+INPUT                  += ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/ConsistencyValidator.java
+INPUT                  += ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/NotNullResponseValidator.java
+
+INPUT                  += ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/SimpleMetricCalculator.java
+
+INPUT                  += ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/sessioncomparation/WorstCaseDecisionMaker.java
+
+INPUT                  += ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/scenario/UserTerminationStrategy.java
+
+INPUT                  += ./chassis/providers/src/main/java/com/griddynamics/jagger/providers/creators/StringCreator.java
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is
@@ -709,14 +743,14 @@ EXCLUDE_SYMBOLS        =
 # directories that contain example code fragments that are included (see
 # the \include command).
 
-EXAMPLE_PATH           = ./src/main/resources/suite/
+EXAMPLE_PATH           = ./archetype-examples/
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp
 # and *.h) to filter out the source-files in the directories. If left
 # blank all files are included.
 
-EXAMPLE_PATTERNS       = *.xml
+EXAMPLE_PATTERNS       = *.java *.xml
 
 # If the EXAMPLE_RECURSIVE tag is set to YES then subdirectories will be
 # searched for input files to be used with the \include or \dontinclude
@@ -1547,7 +1581,7 @@ TAGFILES               =
 # When a file name is specified after GENERATE_TAGFILE, doxygen will create
 # a tag file that is based on the input files it reads.
 
-GENERATE_TAGFILE       = ./doc/html/MyTagFile.tag
+GENERATE_TAGFILE       = ./doc/html/Jagger.tag
 
 # If the ALLEXTERNALS tag is set to YES all external classes will be listed
 # in the class index. If set to NO only the inherited external classes
@@ -1640,7 +1674,7 @@ CLASS_GRAPH            = YES
 # indirect implementation dependencies (inheritance, containment, and
 # class references variables) of the class with other documented classes.
 
-COLLABORATION_GRAPH    = YES
+COLLABORATION_GRAPH    = NO
 
 # If the GROUP_GRAPHS and HAVE_DOT tags are set to YES then doxygen
 # will generate a graph for groups, showing the direct groups dependencies
