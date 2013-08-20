@@ -112,4 +112,25 @@ public abstract class CustomBeanDefinitionParser extends AbstractSimpleBeanDefin
         }
         return result;
     }
+
+    public static ManagedList parseCustomElements(List<Element> elements, ParserContext parserContext, BeanDefinition bean){
+        ManagedList result = new ManagedList();
+        if (elements != null && !elements.isEmpty()){
+            for (Element el : elements){
+                if (el.hasAttribute(XMLConstants.ATTRIBUTE_REF)){
+                    String ref = el.getAttribute(XMLConstants.ATTRIBUTE_REF);
+                    if (!ref.isEmpty()){
+                        result.add(new RuntimeBeanReference(ref));
+                    }else{
+                        result.add(parserContext.getDelegate().parsePropertySubElement(el, bean));
+                    }
+                }else{
+                    result.add(parserContext.getDelegate().parsePropertySubElement(el, bean));
+                }
+            }
+        }else{
+            return null;
+        }
+        return result;
+    }
 }

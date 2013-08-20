@@ -21,9 +21,14 @@
 package com.griddynamics.jagger.engine.e1.scenario;
 
 import com.google.common.collect.Lists;
+import com.griddynamics.jagger.engine.e1.collector.InformationCollector;
+import com.griddynamics.jagger.engine.e1.collector.InformationCollectorProvider;
+import com.griddynamics.jagger.engine.e1.collector.ValidatorProvider;
 import com.griddynamics.jagger.invoker.ScenarioFactory;
 import com.griddynamics.jagger.master.CompositableTask;
 
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -96,6 +101,26 @@ public class WorkloadTask implements CompositableTask {
 
     public void setCollectors(List<KernelSideObjectProvider<ScenarioCollector<Object, Object, Object>>> collectors) {
         this.collectors = collectors;
+
+        //need to merge all information collectors into one
+        List<ValidatorProvider> validators = new LinkedList<ValidatorProvider>();
+
+        Iterator<KernelSideObjectProvider<ScenarioCollector<Object, Object, Object>>> iterator = collectors.iterator();
+
+        while (iterator.hasNext()){
+
+            KernelSideObjectProvider<ScenarioCollector<Object, Object, Object>> provider = iterator.next();
+            if (provider instanceof InformationCollectorProvider){
+                validators.addAll(((InformationCollectorProvider)provider).getValidators());
+                iterator.remove();
+            }
+        }
+
+        //add information collector with all validators
+        InformationCollectorProvider informationCollectorProvider = new InformationCollectorProvider();
+        informationCollectorProvider.setValidators(validators);
+
+        collectors.add(informationCollectorProvider);
     }
 
     public WorkloadClockConfiguration getClockConfiguration() {

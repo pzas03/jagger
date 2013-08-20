@@ -83,7 +83,7 @@ public class JaggerInheritanceTest {
 
         List collectors = description.getCollectors();
         Assert.assertNotNull(collectors);
-        Assert.assertEquals(collectors.size(), 3);
+        Assert.assertEquals(collectors.size(), 2);
 
         QueryPoolScenarioFactory scenario = (QueryPoolScenarioFactory) description.getScenarioFactory();
         Iterable endpoints = scenario.getEndpointProvider();
