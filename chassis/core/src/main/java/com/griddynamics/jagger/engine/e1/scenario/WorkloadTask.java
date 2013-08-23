@@ -101,26 +101,6 @@ public class WorkloadTask implements CompositableTask {
 
     public void setCollectors(List<KernelSideObjectProvider<ScenarioCollector<Object, Object, Object>>> collectors) {
         this.collectors = collectors;
-
-        //need to merge all information collectors into one
-        List<ValidatorProvider> validators = new LinkedList<ValidatorProvider>();
-
-        Iterator<KernelSideObjectProvider<ScenarioCollector<Object, Object, Object>>> iterator = collectors.iterator();
-
-        while (iterator.hasNext()){
-
-            KernelSideObjectProvider<ScenarioCollector<Object, Object, Object>> provider = iterator.next();
-            if (provider instanceof InformationCollectorProvider){
-                validators.addAll(((InformationCollectorProvider)provider).getValidators());
-                iterator.remove();
-            }
-        }
-
-        //add information collector with all validators
-        InformationCollectorProvider informationCollectorProvider = new InformationCollectorProvider();
-        informationCollectorProvider.setValidators(validators);
-
-        collectors.add(informationCollectorProvider);
     }
 
     public WorkloadClockConfiguration getClockConfiguration() {

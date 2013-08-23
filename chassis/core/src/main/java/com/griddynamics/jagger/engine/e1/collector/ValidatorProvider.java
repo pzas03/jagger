@@ -21,4 +21,8 @@ public class ValidatorProvider {
     public void setValidator(KernelSideObjectProvider<ResponseValidator<Object, Object, Object>> validatorProvider) {
         this.validatorProvider = validatorProvider;
     }
+
+    public KernelSideObjectProvider<ResponseValidator<Object, Object, Object>> getValidatorProvider() {
+        return validatorProvider;
+    }
 }
