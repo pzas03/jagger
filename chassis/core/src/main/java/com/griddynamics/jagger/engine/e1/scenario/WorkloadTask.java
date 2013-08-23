@@ -21,14 +21,9 @@
 package com.griddynamics.jagger.engine.e1.scenario;
 
 import com.google.common.collect.Lists;
-import com.griddynamics.jagger.engine.e1.collector.InformationCollector;
-import com.griddynamics.jagger.engine.e1.collector.InformationCollectorProvider;
-import com.griddynamics.jagger.engine.e1.collector.ValidatorProvider;
 import com.griddynamics.jagger.invoker.ScenarioFactory;
 import com.griddynamics.jagger.master.CompositableTask;
 
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
