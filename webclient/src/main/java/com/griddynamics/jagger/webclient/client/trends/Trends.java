@@ -179,7 +179,8 @@ public class Trends extends DefaultActivity {
         newPlace.setSelectedTestsMetrics(testsMetricses);
         newPlace.setSessionTrends(sessionPlotPanel.getSelected());
 
-        String linkText = Window.Location.getHost()+Window.Location.getQueryString()+"/#"+new JaggerPlaceHistoryMapper().getToken(newPlace);
+        String linkText = Window.Location.getHost() + Window.Location.getPath() + Window.Location.getQueryString() +
+                "#" + new JaggerPlaceHistoryMapper().getToken(newPlace);
         linkText = URL.encode(linkText);
 
         //create a dialog for copy link
