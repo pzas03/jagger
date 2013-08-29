@@ -122,9 +122,9 @@ public class UserGroup {
             }
 
             if (time < startInTime)
-                log.debug(String.format("Time before new user will be created in group %d:   %d ms",this.getId(),startInTime-time));
+                log.debug("Time before new user will be created in group {}:   {} ms",this.getId(),startInTime-time);
             else
-                log.debug(String.format("Time before new user will be created in group %d:   %d ms",this.getId(),startByTime-time));
+                log.debug("Time before new user will be created in group {}:   {} ms", this.getId(), startByTime - time);
         }
     }
 
