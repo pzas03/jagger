@@ -122,9 +122,9 @@ public class UserGroup {
             }
 
             if (time < startInTime)
-                log.info(String.format("Time before new user will be created in group %d:   %d ms",this.getId(),startInTime-time));
+                log.debug(String.format("Time before new user will be created in group %d:   %d ms",this.getId(),startInTime-time));
             else
-                log.info(String.format("Time before new user will be created in group %d:   %d ms",this.getId(),startByTime-time));
+                log.debug(String.format("Time before new user will be created in group %d:   %d ms",this.getId(),startByTime-time));
         }
     }
 
@@ -134,8 +134,6 @@ public class UserGroup {
                 new User(clock, this, time, findNodeWithMinThreadCount(workloadConfigurations), workloadConfigurations);
             }
         }
-
-        //???nmusienko startByTime += startBy;
     }
 
     public static NodeId findNodeWithMinThreadCount(LinkedHashMap<NodeId, WorkloadConfiguration> workloadConfigurations) {
