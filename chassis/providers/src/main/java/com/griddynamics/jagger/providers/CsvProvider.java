@@ -30,11 +30,13 @@ import java.io.*;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-/**
+/** Reads information from CSV files
  * @author Nikolay Musienko
- *         Date: 22.04.13
- */
-
+ * @n
+ * @par Details:
+ * @details Reads data from CSV files and translates it to java objects.
+ *
+ * @ingroup Main_Providers_group */
 public class CsvProvider<T> implements Iterable<T>, Serializable  {
 
     private String path;
@@ -46,6 +48,10 @@ public class CsvProvider<T> implements Iterable<T>, Serializable  {
         return path;
     }
 
+    /** Sets file name, which contains data
+     * @author Nikolay Musienko
+     * @n
+     * @param path - full name of file */
     public void setPath(String path) {
         this.path = path;
     }
@@ -54,6 +60,10 @@ public class CsvProvider<T> implements Iterable<T>, Serializable  {
         return objectCreator;
     }
 
+    /** Sets object creator
+     * @author Nikolay Musienko
+     * @n
+     * @param objectCreator - translate data to java objects */
     public void setObjectCreator(ObjectCreator<T> objectCreator) {
         this.objectCreator = objectCreator;
     }
@@ -62,6 +72,10 @@ public class CsvProvider<T> implements Iterable<T>, Serializable  {
         return strategy;
     }
 
+    /** Sets CSV strategy
+     * @author Nikolay Musienko
+     * @n
+     * @param strategy - apache CSV strategy, which say how to read data from CSV file */
     public void setStrategy(CSVStrategy strategy) {
         this.strategy = strategy;
     }
@@ -81,6 +95,11 @@ public class CsvProvider<T> implements Iterable<T>, Serializable  {
     public CsvProvider() {
     }
 
+    /** Returns iterator over created objects.
+     * @author Nikolay Musienko
+     * @n
+     * @par Details:
+     * @details Reads data from file, translates it to java objects, return iterator over this objects */
     public Iterator<T> iterator() {
 
         return new AbstractIterator<T>() {

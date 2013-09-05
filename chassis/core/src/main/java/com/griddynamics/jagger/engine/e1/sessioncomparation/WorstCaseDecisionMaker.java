@@ -22,8 +22,9 @@ package com.griddynamics.jagger.engine.e1.sessioncomparation;
 
 import com.google.common.collect.Multimap;
 
-/** ??? Some short description
- * @author ???
+// @todo edit please
+/**
+ * @author Dmitry Kotlyarov
  * @n
  * @par Details:
  * @details ???
@@ -31,6 +32,13 @@ import com.google.common.collect.Multimap;
  * @ingroup Main_DecisionMakers_group */
 public class WorstCaseDecisionMaker implements DecisionMaker {
 
+    /** Returns decision
+     * @author Dmitry Kotlyarov
+     * @n
+     *
+     * @param verdicts - verdicts of comparison between current test and test from baseline session
+     *
+     * @return the worst decision */
     @Override
     public Decision makeDecision(Multimap<String, Verdict> verdicts) {
         Decision worstResult = Decision.OK;

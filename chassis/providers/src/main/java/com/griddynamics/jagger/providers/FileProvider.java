@@ -31,27 +31,50 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-/**
+/** Reads data from files
  * @author Nikolay Musienko
- *         Date: 22.04.13
- */
-
+ * @n
+ * @par Details:
+ * @details Reads data from files, which uses special delimiter
+ *
+ * @ingroup Main_Providers_group */
 public class FileProvider<T> implements Iterable<T>, Serializable {
 
     private String path;
     private String delimeter;
     private ObjectCreator<T> objectCreator;
 
+    /** Creates new file provider
+     * @author Nikolay Musienko
+     * @n
+     * @param path - full name of file
+     * @param delimeter - a symbol, which separate data
+     * @param objectCreator - translate data to java objects*/
     public FileProvider(String path, String delimeter, ObjectCreator<T> objectCreator) {
         this.path = path;
         this.delimeter = delimeter;
         this.objectCreator = objectCreator;
     }
 
+    /** Creates new file provider.
+     * @author Nikolay Musienko
+     * @n
+     * @par Details:
+     * @details Uses system line separator as default delimiter
+     *
+     * @param path - full name of file
+     * @param objectCreator - translate data to java objects*/
     public FileProvider(String path, ObjectCreator<T> objectCreator) {
         this(path, System.getProperty("line.separator"), objectCreator);
     }
 
+    /** Creates new file provider
+     * @author Nikolay Musienko
+     * @n
+     * @par Details:
+     * @details Uses StringCreator as default objectCreator
+     *
+     * @param path - full name of file*/
     public FileProvider(String path) {
         this(path, (ObjectCreator<T>) new StringCreator());
     }
@@ -111,3 +134,4 @@ public class FileProvider<T> implements Iterable<T>, Serializable {
         };
     }
 }
+

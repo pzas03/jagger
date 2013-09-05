@@ -20,18 +20,15 @@
 
 package com.griddynamics.jagger.invoker;
 
-import com.google.common.collect.ImmutableList;
 import com.griddynamics.jagger.util.Pair;
-
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 
-/** ??? Some short description
- * @author ???
+/** LoadBalancer which uses query and endpoint provider
+ * @author Gribov Kirill
  * @n
  * @par Details:
- * @details ???
+ * @details Abstract implementation of LoadBalancer. Contains query and endpoint providers.
+ * Create pairs of queries and endpoints, which you can take from providers, in your implementation.
  *
  * @ingroup Main_Distributors_group */
 public abstract class QueryPoolLoadBalancer<Q, E> implements LoadBalancer<Q, E> {
@@ -80,3 +77,12 @@ public abstract class QueryPoolLoadBalancer<Q, E> implements LoadBalancer<Q, E> 
         return size;
     }
 }
+
+/* **************** Providers page *************************  */
+/// @defgroup Main_Providers_General_group General information about providers
+///
+/// @li Available implementations: @ref Main_Providers_group
+/// @li How to customize: @ref Main_HowToCustomizeProviders_group
+
+/// @defgroup Main_HowToCustomizeProviders_group Custom providers
+/// custom
