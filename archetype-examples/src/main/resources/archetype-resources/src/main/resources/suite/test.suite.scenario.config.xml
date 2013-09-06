@@ -132,10 +132,12 @@
     </test-description>
 
     <test-description id="fileProviderJaggerPageTest" parent="googlePageTest">
+        <!-- begin: following section is used for docu generation - provider custom -->
         <scenario id="fileProviderScenario" xsi:type="scenario-query-pool" parent="pageScenario">
             <endpoint-provider xsi:type="endpoint-provider-ref" ref="fileEndpointProvider"/>
             <query-provider xsi:type="query-provider-ref" ref="fileQueryProvider"/>
         </scenario>
+        <!-- end: following section is used for docu generation - provider custom -->
     </test-description>
 
 </beans:beans>

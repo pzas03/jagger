@@ -72,7 +72,7 @@ digraph g {
 	W1_calibr		[label	= "Calibrate test"];
 	W1_start		[label	= "Start / change workload"];
 	W1_run			[label	= <<FONT COLOR="black">Run test </FONT><FONT COLOR="#330066" ><B>[more...]</B></FONT>>
-				URL	= "\ref Main_test_flow_sec"];
+				URL	= "\ref Main_Test_Flow_group"];
 	W1_terminate		[label	= "Terminate?"];
 	W1_askM			[label	= "Ask for control?"];
 	K_next			[label	= "Next workload ..."];

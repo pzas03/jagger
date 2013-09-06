@@ -47,6 +47,7 @@ public class HttpVisitorInvoker implements Invoker<Nothing, String, String> {
      * @author Mairbek Khadikov
      * @n
      *
+     * @param query - query of type Nothing
      * @param endpoint - target url
      *
      * @return text of http response

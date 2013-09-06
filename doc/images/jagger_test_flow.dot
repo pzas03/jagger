@@ -43,8 +43,8 @@ digraph g {
     R_collector	   -> E_output	 [constraint=true, style="bold,dashed"];
     R_distributor  -> E_input	 [constraint=true, style="bold,dashed", dir=back];
 
-    E_output	 [style="dashed", label="Start / change workload"];
-    E_input	 [style="dashed", label="Terminate?"];
+    E_output	[style="dashed", label="Terminate?",                URL = "\ref Main_Test_Suite_Flow_group"];
+    E_input	    [style="dashed", label="Start / change workload",   URL = "\ref Main_Test_Suite_Flow_group"];
 
     P_endpoint	 		  [label="Endpoint provider \n\n return Iterator&#60;E&#62;;",
                             URL = "\ref Main_Providers_General_group"];

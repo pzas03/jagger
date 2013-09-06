@@ -32,7 +32,7 @@ import java.net.URL;
 import java.util.Map;
 
 // @todo Lowercase SOAP
-// @todo Refactor
+// @todo Refactor code
 
 /** Create a SOAP request to SuT
  * @author Mairbek Khadikov

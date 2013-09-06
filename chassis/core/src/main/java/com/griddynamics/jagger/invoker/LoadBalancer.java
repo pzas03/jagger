@@ -100,5 +100,7 @@ public interface LoadBalancer<Q, E> extends Iterable<Pair<Q, E>>, Serializable {
 /// @b Note:
 /// @li full examples of the code are available in maven archetype-examples
 /// @li instead of ${package} write the name of your package
+/// @li To view all distributors implementations click here @ref Main_Distributors_group
+
 
 

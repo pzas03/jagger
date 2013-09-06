@@ -123,3 +123,5 @@ public abstract class ResponseValidator<Q, E, R> extends KernelSideObject {
 /// @b Note:
 /// @li full examples of the code are available in maven archetype-examples
 /// @li instead of ${package} write the name of your package
+/// @li To view all collectors implementations click here @ref Main_Collectors_group
+
