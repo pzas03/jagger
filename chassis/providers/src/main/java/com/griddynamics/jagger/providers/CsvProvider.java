@@ -44,6 +44,9 @@ public class CsvProvider<T> implements Iterable<T>, Serializable  {
     private boolean readHeader;
     private ObjectCreator<T> objectCreator;
 
+    /** Returns file name
+     * @author Nikolay Musienko
+     * @return file name*/
     public String getPath() {
         return path;
     }
@@ -56,6 +59,9 @@ public class CsvProvider<T> implements Iterable<T>, Serializable  {
         this.path = path;
     }
 
+    /** Returns object creator, which translates row data to java objects
+     * @author Nikolay Musienko
+     * @return object creator*/
     public ObjectCreator<T> getObjectCreator() {
         return objectCreator;
     }
@@ -68,6 +74,9 @@ public class CsvProvider<T> implements Iterable<T>, Serializable  {
         this.objectCreator = objectCreator;
     }
 
+    /** Returns csv strategy, which describes how to read file
+     * @author Nikolay Musienko
+     * @return csv strategy*/
     public CSVStrategy getStrategy() {
         return strategy;
     }
@@ -80,18 +89,31 @@ public class CsvProvider<T> implements Iterable<T>, Serializable  {
         this.strategy = strategy;
     }
 
+    /** Creates csv provider, which reads from specified file
+     * @author Nikolay Musienko
+     * @n
+     * @param path - file name */
     public CsvProvider(String path) {
         this.path = path;
     }
 
+    /** Returns true if file contains header
+     * @author Nikolay Musienko
+     * @return true if file contains header*/
     public boolean getReadHeader() {
         return readHeader;
     }
 
+    /** Set true if file contains header
+     * @author Nikolay Musienko
+     * @n
+     * @param readHeader - true if file contains header */
     public void setReadHeader(boolean readHeader) {
         this.readHeader = readHeader;
     }
 
+    /** Creates csv provider
+     * @author Nikolay Musienko */
     public CsvProvider() {
     }
 

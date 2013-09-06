@@ -35,7 +35,7 @@ import java.util.Collection;
  * @author Dmitry Kotlyarov
  * @n
  * @par Details:
- * @details To use this validator you should set attribute of test-description 'calibration' to true value.
+ * @details To use this validator you should set attribute of @xlink{test-description} @xlink{test-description,calibration} to true value.
  * It means when Jagger launch test it takes all pairs(of queries and endpoints) and creates an invocations with this pairs.
  * The results will be stored as calibration info. This describes how SuT behave without high load.
  * All invocations of tests will be compared with results from calibration info.
