@@ -22,7 +22,7 @@ package com.griddynamics.jagger.engine.e1.collector;
 
 import com.griddynamics.jagger.coordinator.NodeContext;
 
-/** Validates that invocation is not null
+/** Validates that invocation is not null. To use this validator add @xlink{validator} element with type validator-not-null-response in @xlink{test-description,info-collectors} block.
  * @author Dmitry Kotlyarov
  * @n
  *

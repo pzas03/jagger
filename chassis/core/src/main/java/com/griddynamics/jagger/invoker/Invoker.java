@@ -67,6 +67,7 @@ public interface Invoker<Q,R,E> extends Serializable {
 
 /// @defgroup Main_Test_Flow_group Test execution sequence
 ///
+/// @details
 /// Click on diagram components to learn more about every component:
 /// @li Interface description
 /// @li Interface implementations in Jagger
