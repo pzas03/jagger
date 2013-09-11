@@ -906,7 +906,6 @@ public class Trends extends DefaultActivity {
                 SelectionModel<PlotNameDto> plotNameSelectionModel,
                 List<TaskDataDto> result) {
             if(!plotTempSet.isEmpty()) {
-                plotNameSelectionModel.addSelectionChangeHandler(new TaskPlotSelectionChangedHandler()) ;
                 for(PlotNameDto plotName : plotTempSet) {
                     for(TaskDataDto td : result) {
                         if (plotName.getTest().getTaskName().equals(td.getTaskName())) {
@@ -1011,14 +1010,16 @@ public class Trends extends DefaultActivity {
         private void makeSelectionOnTaskDataGrid(MultiSelectionModel<TaskDataDto> model, List<TaskDataDto> tests) {
 
             if (selectTests) {
-                for (TaskDataDto taskDataDto : tests) {
-                    for (TaskDataDto taskDataPrevious : previousSelectedSet) {
-                        if (taskDataDto.getTaskName().equals(taskDataPrevious.getTaskName())) {
-                            model.setSelected(taskDataDto, true);
+                if (!previousSelectedSet.isEmpty()) {
+                    for (TaskDataDto taskDataDto : tests) {
+                        for (TaskDataDto taskDataPrevious : previousSelectedSet) {
+                            if (taskDataDto.getTaskName().equals(taskDataPrevious.getTaskName())) {
+                                model.setSelected(taskDataDto, true);
+                            }
                         }
                     }
+                    SelectionChangeEvent.fire(testDataGrid.getSelectionModel());
                 }
-                SelectionChangeEvent.fire(testDataGrid.getSelectionModel());
 
             } else {
                 TaskDataDto selectObject = null;
