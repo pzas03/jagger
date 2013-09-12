@@ -11,15 +11,15 @@ import com.griddynamics.jagger.invoker.InvocationException;
  */
 public class ValidatorException extends InvocationException {
 
-    private Validator validator;
+    private ResponseValidator validator;
     private Object result;
 
-    public ValidatorException(Validator validator, Object result) {
+    public ValidatorException(ResponseValidator validator, Object result) {
         this.validator = validator;
         this.result = result;
     }
 
-    public Validator getValidator() {
+    public ResponseValidator getValidator() {
         return validator;
     }
 

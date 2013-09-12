@@ -97,7 +97,7 @@ public class InformationCollector extends ScenarioCollector {
         }
 
         if (failValidator != null){
-            onFail(query, endpoint, new ValidatorException(failValidator, result));
+            onFail(query, endpoint, new ValidatorException(failValidator.getValidator(), result));
         }else{
             metrics.onSuccess(query, endpoint, result, duration);
         }
