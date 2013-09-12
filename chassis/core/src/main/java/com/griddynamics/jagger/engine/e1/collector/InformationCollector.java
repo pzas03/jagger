@@ -83,20 +83,21 @@ public class InformationCollector extends ScenarioCollector {
     @Override
     public void onStart(Object query, Object endpoint) {
         invoked++;
+        metrics.onStart(query, endpoint);
     }
 
     @Override
     public void onSuccess(Object query, Object endpoint, Object result, long duration) {
-        boolean success = true;
+        Validator failValidator = null;
         for (Validator validator : validators){
             if (!validator.validate(query, endpoint, result, duration)){
-                success = false;
+                failValidator = validator;
                 break;
             }
         }
 
-        if (!success){
-            failed++;
+        if (failValidator != null){
+            onFail(query, endpoint, new ValidatorException(failValidator, result));
         }else{
             metrics.onSuccess(query, endpoint, result, duration);
         }

@@ -1,6 +1,7 @@
 package com.griddynamics.jagger.engine.e1.collector;
 
 import com.griddynamics.jagger.coordinator.NodeContext;
+import com.griddynamics.jagger.engine.e1.scenario.KernelSideInitializableObjectProvider;
 import com.griddynamics.jagger.engine.e1.scenario.KernelSideObjectProvider;
 import com.griddynamics.jagger.engine.e1.scenario.ScenarioCollector;
 
@@ -32,6 +33,9 @@ public class InformationCollectorProvider<Q, R, E> implements KernelSideObjectPr
         //create a list of collectors
         ArrayList<ScenarioCollector> collectors = new ArrayList<ScenarioCollector>(collectorsProviders.size());
         for (KernelSideObjectProvider<ScenarioCollector<Object,Object,Object>> provider : collectorsProviders){
+            if (provider instanceof KernelSideInitializableObjectProvider){
+                ((KernelSideInitializableObjectProvider) provider).init(sessionId, taskId, kernelContext);
+            }
             collectors.add(provider.provide(sessionId, taskId, kernelContext));
         }
 
