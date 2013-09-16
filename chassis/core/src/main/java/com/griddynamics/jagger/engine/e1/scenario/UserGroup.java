@@ -103,7 +103,6 @@ public class UserGroup {
     }
 
     public void tick(long time, LinkedHashMap<NodeId, WorkloadConfiguration> workloadConfigurations) {
-
         for (User user : users) {
             user.tick(time, workloadConfigurations);
         }
@@ -115,16 +114,10 @@ public class UserGroup {
                     startByTime = time + startBy;
                 }
             } else {
-                if (time >= startByTime){
+                while (time >= startByTime) {
                     spawnUsers(startCount, time, workloadConfigurations);
-                    startByTime = time + startBy;
                 }
             }
-
-            if (time < startInTime)
-                log.debug("Time before new user will be created in group {}:   {} ms",this.getId(),startInTime-time);
-            else
-                log.debug("Time before new user will be created in group {}:   {} ms", this.getId(), startByTime - time);
         }
     }
 
@@ -134,6 +127,7 @@ public class UserGroup {
                 new User(clock, this, time, findNodeWithMinThreadCount(workloadConfigurations), workloadConfigurations);
             }
         }
+        startByTime += startBy;
     }
 
     public static NodeId findNodeWithMinThreadCount(LinkedHashMap<NodeId, WorkloadConfiguration> workloadConfigurations) {
