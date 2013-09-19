@@ -88,14 +88,11 @@ public abstract class ResponseValidator<Q, E, R> extends KernelSideObject {
 /// @li Available implementations: @ref Main_Collectors_group
 /// @li How to customize: @ref Main_HowToCustomizeCollectors_group
 /// @li @ref Section_collectors_execution_flow
-/// @li @ref Section_collectors_types
 /// @n
 /// @n
 /// @section Section_collectors_execution_flow Collectors execution sequence
 /// Click on diagram components to learn more about every component
 /// @dotfile jagger_collectors.dot "Simplified Collectors execution sequence"
-/// @n
-/// @section Section_collectors_types Different types of collectors
 ///
 
 /* **************** How to customize collector ************************* */
@@ -105,23 +102,46 @@ public abstract class ResponseValidator<Q, E, R> extends KernelSideObject {
 /// @ref Main_Collectors_General_group
 /// @n
 /// @n
-/// There are two ways to collect some information from responses.
-/// @li Create custom @xlink{metric} calculator, which will calculate something and then aggregate this.
-/// @li Create custom @xlink{validator}, which will validate results of invocations.
-/// @n
+/// There are three ways to collect some information from responses. One can create custom metric calculator, @n
+/// validator or collector. Metric calculator and validator are simplified versions of collectors.@n
+/// See comparison below. Order of execution is under link on the top of the page @n
+/// @code
+///   Param                                           Metric calculator               Validator                  Collector
 ///
+///
+/// - What information is coming from invoker         Response from SUT               Endpoint                   Endpoint
+///                                                                                   Query                      Query
+///                                                                                   Response from SUT          Response from SUT
+///                                                                                                              Invoke duration
+///                                                                                                              Was invoke fail or pass
+///
+///
+/// - When is executed                                Invoke was successful           Invoke was successful      Always
+///                                                   All validators - successful     Previous validators pass
+///
+///
+/// - What custom code is required                    Metric class                    Validator class            Collector class
+///                                                   Aggregator class [optional]                                Collector provider class
+///                                                                                                              Aggregator class [optional]
+///
+///
+/// - Can save custom metric to DB                    Yes                             No                         Yes
+/// - Can set invoke result to fails                  No                              Yes                        No
+/// @endcode
 /// @n
 /// @example_begin
 /// @example_addmenu{0,Custom validator}
 /// @example_addmenu{1,Custom metric calculator}
+/// @example_addmenu{2,Custom collector}
 /// @example_begin_content{0}
 /// <ol>
-/// <li> Create class which implements @ref ResponseValidator<Q,E,R>
+/// <li> Create class which implements @ref ResponseValidator<Q,E,R> @n
+/// Will validate responce from SUT after every successful invocation
 /// @dontinclude  ResponseFromFileValidator.java
 /// @skipline  public class ResponseFromFileValidator
 /// @n
 ///
-/// <li> If your validator doesn't have any properties, create @xlink{validator-custom} collector in @xlink{test-description,info-collectors} block.
+/// <li> If your validator doesn't have any properties, create @xlink{validator-custom} collector in @xlink{test-description,info-collectors} block in @xlink{test-description}. @n
 /// Set the name of validator class to attribute @xlink{validator-custom,validator}.
 /// @dontinclude  test.suite.scenario.config.xml
 /// @skip  begin: following section is used for docu generation - validator-custom
@@ -131,7 +151,8 @@ public abstract class ResponseValidator<Q, E, R> extends KernelSideObject {
 /// @example_end_content
 /// @example_begin_content{1}
 /// <ol>
-/// <li> Create class which implements @ref MetricCalculator<R>
+/// <li> Create class which implements @ref MetricCalculator<R>@n
+/// Will calculate some parameters according to SUT response
 /// @dontinclude  ResponseSize.java
 /// @skipline  public class ResponseSize
 /// @n
@@ -142,10 +163,43 @@ public abstract class ResponseValidator<Q, E, R> extends KernelSideObject {
 /// @until end: following section is used for docu generation - metric calculator
 /// @n
 ///
-/// <li> Add @xlink{metric-custom} collector to @xlink{test-description,info-collectors} block. Set id of bean to @xlink{metric-custom,calculator} attribute.
+/// <li> Add @xlink{metric-custom} collector to @xlink{test-description,info-collectors} block.@n
+/// Set id of bean to @xlink{metric-custom,calculator} attribute.
 /// @dontinclude  defaults.config.xml
 /// @skip  begin: following section is used for docu generation - metric calculator usage
 /// @until end: following section is used for docu generation - metric calculator usage
+/// </ol>
+/// @example_end_content
+/// @example_begin_content{2}
+/// <ol>
+/// <li> Create collector class which implements @ref MetricCollector<Q,R,E>@n
+/// Will proceed data after every invoke and save to Kernel storage
+/// @dontinclude  ???ResponseSize.java
+/// @skipline  ???public class ResponseSize
+/// @n
+///
+/// <li> Create collector provider class which implements @ref MetricCollectorProvider<Q,R,E>@n
+/// Will provide an instance of custom collector to Jagger
+/// @dontinclude  ???ResponseSize.java
+/// @skipline  ???public class ResponseSize
+/// @n
+///
+/// <li> Create aggregator class which implements @ref MetricAggregatorProvider@n
+/// Will proceed data after all tests are over and prepare data for DB
+/// @dontinclude  ???ResponseSize.java +++ + aggregator for custom metric metric!
+/// @skipline  ???public class ResponseSize
+/// @n
+///
+/// <li> Create bean of provider class in some configuration file. Put some id for it.
+/// @dontinclude  ???collectors.conf.xml
+/// @skip  ???begin: following section is used for docu generation - metric calculator
+/// @until ???end: following section is used for docu generation - metric calculator
+/// @n
+///
+/// <li> Add @xlink{metric-ref} collector to @xlink{test-description,info-collectors} block.@n ???Set id of bean to @xlink{metric-custom,calculator} attribute.
+/// @dontinclude  ???defaults.config.xml
+/// @skip  ???begin: following section is used for docu generation - metric calculator usage
+/// @until ???end: following section is used for docu generation - metric calculator usage
 /// </ol>
 /// @example_end_content
 /// @example_end

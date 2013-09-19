@@ -664,6 +664,7 @@ INPUT                  = ./chassis/core/src/main/java/com/griddynamics/jagger/in
                          ./chassis/core/src/main/java/com/griddynamics/jagger/invoker/LoadBalancer.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/ResponseValidator.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/MetricCalculator.java \
+                         ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/MetricCollector.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/sessioncomparation/DecisionMaker.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/scenario/TerminationStrategy.java \
                          ./chassis/providers/src/main/java/com/griddynamics/jagger/providers/creators/ObjectCreator.java \
@@ -689,7 +690,10 @@ INPUT                  = ./chassis/core/src/main/java/com/griddynamics/jagger/in
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/scenario/UserTerminationStrategy.java \
                          ./chassis/providers/src/main/java/com/griddynamics/jagger/providers/creators/StringCreator.java  \
                          ./chassis/providers/src/main/java/com/griddynamics/jagger/providers/FileProvider.java  \
-                         ./chassis/providers/src/main/java/com/griddynamics/jagger/providers/CsvProvider.java
+                         ./chassis/providers/src/main/java/com/griddynamics/jagger/providers/CsvProvider.java \
+                         ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/MetricCollectorProvider.java \
+                         ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/MetricAggregatorProvider.java
+
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is
