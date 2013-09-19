@@ -82,13 +82,21 @@ public abstract class ResponseValidator<Q, E, R> extends KernelSideObject {
 /// @defgroup Main_Collectors_General_group General information about collectors
 ///
 /// @details Collectors calculate information based on invocation response and validate result of invocation. @n
-/// If validation fails, invocation will be mark as failed. So validator can affect success rate.
 /// @n
 /// @n
-/// The results of collectors will be available in report and webUI.
 /// @li General information: @ref Main_Collectors_Base_group
 /// @li Available implementations: @ref Main_Collectors_group
 /// @li How to customize: @ref Main_HowToCustomizeCollectors_group
+/// @li @ref Section_collectors_execution_flow
+/// @li @ref Section_collectors_types
+/// @n
+/// @n
+/// @section Section_collectors_execution_flow Collectors execution sequence
+/// Click on diagram components to learn more about every component
+/// @dotfile jagger_collectors.dot "Simplified Collectors execution sequence"
+/// @n
+/// @section Section_collectors_types Different types of collectors
+///
 
 /* **************** How to customize collector ************************* */
 /// @defgroup Main_HowToCustomizeCollectors_group Custom collectors
@@ -99,40 +107,48 @@ public abstract class ResponseValidator<Q, E, R> extends KernelSideObject {
 /// @n
 /// There are two ways to collect some information from responses.
 /// @li Create custom @xlink{metric} calculator, which will calculate something and then aggregate this.
-/// @li Create sutom @xlink{validator}, which will validate results of invocations.
+/// @li Create custom @xlink{validator}, which will validate results of invocations.
 /// @n
 ///
-/// How to create custom validator -
-/// 1. Create class which implements @ref ResponseValidator<Q,E,R>
+/// @n
+/// @example_begin
+/// @example_addmenu{0,Custom validator}
+/// @example_addmenu{1,Custom metric calculator}
+/// @example_begin_content{0}
+/// <ol>
+/// <li> Create class which implements @ref ResponseValidator<Q,E,R>
 /// @dontinclude  ResponseFromFileValidator.java
 /// @skipline  public class ResponseFromFileValidator
 /// @n
 ///
-/// 2. If your validator doesn't have any properties, create @xlink{validator-custom} collector in @xlink{test-description,info-collectors} block.
+/// <li> If your validator doesn't have any properties, create @xlink{validator-custom} collector in @xlink{test-description,info-collectors} block.
 /// Set the name of validator class to attribute @xlink{validator-custom,validator}.
 /// @dontinclude  test.suite.scenario.config.xml
 /// @skip  begin: following section is used for docu generation - validator-custom
 /// @until end: following section is used for docu generation - validator-custom
+/// </ol>
 /// @n
-///
-/// How to create custom metric calculator -
-/// 1. Create class which implements @ref MetricCalculator<R>
+/// @example_end_content
+/// @example_begin_content{1}
+/// <ol>
+/// <li> Create class which implements @ref MetricCalculator<R>
 /// @dontinclude  ResponseSize.java
 /// @skipline  public class ResponseSize
 /// @n
 ///
-/// 2. Create bean of this class in some configuration file. Put some id for it.
+/// <li> Create bean of this class in some configuration file. Put some id for it.
 /// @dontinclude  collectors.conf.xml
 /// @skip  begin: following section is used for docu generation - metric calculator
 /// @until end: following section is used for docu generation - metric calculator
 /// @n
 ///
-/// 3. Add @xlink{metric-custom} collector to @xlink{test-description,info-collectors} block. Set id of bean to @xlink{metric-custom,calculator} attribute.
+/// <li> Add @xlink{metric-custom} collector to @xlink{test-description,info-collectors} block. Set id of bean to @xlink{metric-custom,calculator} attribute.
 /// @dontinclude  defaults.config.xml
 /// @skip  begin: following section is used for docu generation - metric calculator usage
 /// @until end: following section is used for docu generation - metric calculator usage
-/// @n
-///
+/// </ol>
+/// @example_end_content
+/// @example_end
 /// @b Note:
 /// @li full examples of the code are available in maven archetype-examples
 /// @li instead of ${package} write the name of your package
