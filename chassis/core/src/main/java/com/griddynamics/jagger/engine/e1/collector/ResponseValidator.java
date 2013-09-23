@@ -28,10 +28,11 @@ import com.griddynamics.jagger.engine.e1.scenario.KernelSideObject;
  * @author Grid Dynamics
  * @n
  * @par Details:
- * @details Validates the result of invocation of specified query and endpoint. Save validation result to database.
- * Validators execute one by one. If one fails, no another will be executed. @n
+ * @details Simplified type of collector. @n
+ * Validates the result of invocation of specified query and endpoint. Save validation result to database. @n
+ * Validators execute one by one. If one fails, no other will be executed. @n
  * @n
- * To view all collectors implementations click here @ref Main_Collectors_group
+ * To view default implementations of collectors click here @ref Main_Collectors_group
  *
  * @param <Q> - Query type
  * @param <R> - Result type
@@ -66,7 +67,7 @@ public abstract class ResponseValidator<Q, E, R> extends KernelSideObject {
      * @author Grid Dynamics
      * @n
      * @par Details:
-     * @details  Validates the result of invocation with specified query and endpoint. If return false current invoke will be marks as failed.
+     * @details  Validates the result of invocation with specified query and endpoint. If return false current invoke will be marked as failed.
      *
      * @param query     - the query of current invocation
      * @param endpoint  - the endpoint of current invocation
@@ -174,32 +175,34 @@ public abstract class ResponseValidator<Q, E, R> extends KernelSideObject {
 /// <ol>
 /// <li> Create collector class which implements @ref MetricCollector<Q,R,E>@n
 /// Will proceed data after every invoke and save to Kernel storage
-/// @dontinclude  ???ResponseSize.java
-/// @skipline  ???public class ResponseSize
+/// @dontinclude  SuccessRateCollector.java
+/// @skipline  public class SuccessRateCollector
 /// @n
 ///
 /// <li> Create collector provider class which implements @ref MetricCollectorProvider<Q,R,E>@n
 /// Will provide an instance of custom collector to Jagger
-/// @dontinclude  ???ResponseSize.java
-/// @skipline  ???public class ResponseSize
+/// @dontinclude  ProviderOfSuccessRateCollector.java
+/// @skipline  public class ProviderOfSuccessRateCollector
 /// @n
 ///
 /// <li> Create aggregator class which implements @ref MetricAggregatorProvider@n
-/// Will proceed data after all tests are over and prepare data for DB
-/// @dontinclude  ???ResponseSize.java +++ + aggregator for custom metric metric!
-/// @skipline  ???public class ResponseSize
+/// Will proceed data after all tests are over and prepare data for DB @n
+/// Collector provider class is associating aggregator with collector.
+/// @dontinclude  ProviderOfSuccessRateAggregator.java
+/// @skipline  public class ProviderOfSuccessRateAggregator
 /// @n
 ///
 /// <li> Create bean of provider class in some configuration file. Put some id for it.
-/// @dontinclude  ???collectors.conf.xml
-/// @skip  ???begin: following section is used for docu generation - metric calculator
-/// @until ???end: following section is used for docu generation - metric calculator
+/// @dontinclude  collectors.conf.xml
+/// @skip  begin: following section is used for docu generation - custom collector
+/// @until end: following section is used for docu generation - custom collector
 /// @n
 ///
-/// <li> Add @xlink{metric-ref} collector to @xlink{test-description,info-collectors} block.@n ???Set id of bean to @xlink{metric-custom,calculator} attribute.
-/// @dontinclude  ???defaults.config.xml
-/// @skip  ???begin: following section is used for docu generation - metric calculator usage
-/// @until ???end: following section is used for docu generation - metric calculator usage
+/// <li> Add @xlink{metric-ref} collector to @xlink{test-description,info-collectors} block.@n
+/// Set id of bean to @xlink{metric-ref,ref} attribute.
+/// @dontinclude  defaults.config.xml
+/// @skip  begin: following section is used for docu generation - metric calculator usage
+/// @until end: following section is used for docu generation - metric calculator usage
 /// </ol>
 /// @example_end_content
 /// @example_end
