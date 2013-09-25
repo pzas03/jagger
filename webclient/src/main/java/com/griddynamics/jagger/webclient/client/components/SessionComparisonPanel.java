@@ -1,6 +1,7 @@
 package com.griddynamics.jagger.webclient.client.components;
 
 import com.google.gwt.cell.client.AbstractCell;
+import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -8,7 +9,6 @@ import com.griddynamics.jagger.webclient.client.dto.MetricDto;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
 import com.griddynamics.jagger.webclient.client.dto.MetricValueDto;
 import com.griddynamics.jagger.webclient.client.dto.SessionDataDto;
-import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
 import com.sencha.gxt.core.client.ValueProvider;
 import com.sencha.gxt.data.shared.ModelKeyProvider;
 import com.sencha.gxt.data.shared.TreeStore;
@@ -99,7 +99,7 @@ public class SessionComparisonPanel extends VerticalPanel{
         }
 
         ColumnModel<TreeItem> cm = new ColumnModel<TreeItem>(columns);
-        treeGrid = new TreeGrid<TreeItem>(treeStore, cm, nameColumn);
+        treeGrid = new NoIconsTreeGrid<TreeItem>(treeStore, cm, nameColumn);
 
         addCommentRecord(sortedSet);
 
@@ -108,9 +108,6 @@ public class SessionComparisonPanel extends VerticalPanel{
         treeGrid.getView().setAutoExpandColumn(nameColumn);
         treeGrid.setAllowTextSelection(true);
         treeGrid.getTreeView().setAutoFill(true);
-        treeGrid.getStyle().setNodeCloseIcon(JaggerResources.INSTANCE.getArrowRight());
-        treeGrid.getStyle().setNodeOpenIcon(JaggerResources.INSTANCE.getArrowRight());
-
         add(treeGrid);
     }
 
@@ -236,6 +233,19 @@ public class SessionComparisonPanel extends VerticalPanel{
                 }
                 return;
             }
+        }
+    }
+
+    private class NoIconsTreeGrid<M> extends TreeGrid<M> {
+
+
+        public NoIconsTreeGrid(TreeStore<M> store, ColumnModel<M> cm, ColumnConfig<M, ?> treeColumn) {
+            super(store, cm, treeColumn);
+        }
+
+        @Override
+        protected ImageResource calculateIconStyle(M model) {
+            return null;
         }
     }
 
