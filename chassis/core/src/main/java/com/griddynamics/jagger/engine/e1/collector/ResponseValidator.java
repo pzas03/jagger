@@ -165,10 +165,23 @@ public abstract class ResponseValidator<Q, E, R> extends KernelSideObject {
 /// @n
 ///
 /// <li> Add @xlink{metric-custom} collector to @xlink{test-description,info-collectors} block.@n
-/// Set id of bean to @xlink{metric-custom,calculator} attribute.
+/// Set id of custom metric class bean to @xlink{metric-custom,calculator} attribute @n
+/// Attribute @xlink{metric-custom,id} will be used as metric name in reports @n
+/// Set attribute @xlink{metric-custom,plotData} to true if you want to plot 'metric vs time' plot in report
 /// @dontinclude  defaults.config.xml
 /// @skip  begin: following section is used for docu generation - metric calculator usage
 /// @until end: following section is used for docu generation - metric calculator usage
+/// @n
+///
+/// <li> Optional. Add custom aggregator to metric. @n
+/// How to create aggregator provider - see 'Custom collector' example
+/// @code
+/// <beans:bean id="minAggregator" class="test.MinAggregatorProvider"/>
+///         ...
+/// <metric id="customMetric1" xsi:type="metric-custom" calculator="customMetric" plotData="true">
+/// <metric-aggregator xsi:type="metric-aggregator-ref" ref="minAggregator"/>
+/// </metric>
+/// @endcode
 /// </ol>
 /// @example_end_content
 /// @example_begin_content{2}
