@@ -159,6 +159,7 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
             long currentInterval = aggregationInfo.getMinTime() + intervalSize;
             long time = 0;
             int currentCount = 0;
+            int extendedInterval = intervalSize;
             StatisticsCalculator windowStatisticsCalculator = new StatisticsCalculator();
             StatisticsCalculator globalStatisticsCalculator = new StatisticsCalculator();
 
@@ -171,18 +172,18 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
 
                     log.debug("Log entry {} time", logEntry.getTime());
 
-                    int countInterval = intervalSize;
                     while (logEntry.getTime() > currentInterval) {
                         log.debug("processing count {} interval {}", currentCount, intervalSize);
 
                         if (currentCount > 0) {
-                            double throughput = (double) currentCount * 1000 / countInterval;
+                            double throughput = (double) currentCount * 1000 / extendedInterval;
                             statistics.add(assembleInvocationStatistics(time, windowStatisticsCalculator, throughput, taskData));
                             currentCount = 0;
+                            extendedInterval = 0;
                             windowStatisticsCalculator.reset();
                         }
                         time += intervalSize;
-                        countInterval += intervalSize;
+                        extendedInterval += intervalSize;
                         currentInterval += intervalSize;
                     }
                     currentCount++;
