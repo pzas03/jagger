@@ -40,5 +40,5 @@ public interface MetricCalculator<R> extends Serializable {
      * @param response - response of invocation
      *
      * @return the result of calculating*/
-	Integer calculate(R response);
+	Number calculate(R response);
 }
