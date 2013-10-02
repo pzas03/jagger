@@ -27,7 +27,7 @@ public interface PlotProviderService extends RemoteService {
 
     List<PlotSeriesDto> getPlotData(Set<Long> taskId, String plotType);
 
-    Map<PlotNameDto,List<PlotSeriesDto>> getPlotDatas(Set<PlotNameDto> plots);
+    Map<PlotNameDto,List<PlotSeriesDto>> getPlotDatas(Set<PlotNameDto> plots) throws RuntimeException;
 
     Map<String,List<PlotSeriesDto>> getSessionScopePlotData(String sessionId, Collection<String> plotType);
 
