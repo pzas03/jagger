@@ -1110,9 +1110,7 @@ public class Trends extends DefaultActivity {
                     public void onFailure(Throwable caught) {
                         caught.printStackTrace();
                         new ExceptionPanel(caught.getMessage());
-                        chosenMetrics.clear();
-                        plotTrendsPanel.clear();
-                        summaryPanel.getSessionComparisonPanel().clearTreeStore();
+                        metricPanel.getSelectionModel().clear();
                     }
 
                     @Override
