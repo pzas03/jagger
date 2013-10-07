@@ -256,7 +256,7 @@ public class Trends extends DefaultActivity {
             @Override
             public void onFailure(Throwable caught) {
                 caught.printStackTrace();
-                new ExceptionPanel(caught.getMessage());
+                new ExceptionPanel(finalPlace , caught.getMessage());
                 noSessionsFromLink();
             }
 
@@ -954,7 +954,7 @@ public class Trends extends DefaultActivity {
                 @Override
                 public void onFailure(Throwable caught) {
                     caught.printStackTrace();
-                    new ExceptionPanel(caught.getMessage());
+                    new ExceptionPanel(place, caught.getMessage());
                     ((MultiSelectionModel)sessionsDataGrid.getSelectionModel()).clear();
                 }
 
@@ -986,7 +986,7 @@ public class Trends extends DefaultActivity {
                     @Override
                     public void onFailure(Throwable throwable) {
                         throwable.printStackTrace();
-                        new ExceptionPanel(throwable.getMessage());
+                        new ExceptionPanel(place, throwable.getMessage());
                         sessionPlotPanel.clearPlots();
                     }
 
@@ -1109,7 +1109,7 @@ public class Trends extends DefaultActivity {
                     @Override
                     public void onFailure(Throwable caught) {
                         caught.printStackTrace();
-                        new ExceptionPanel(caught.getMessage());
+                        new ExceptionPanel(place, caught.getMessage());
                         metricPanel.getSelectionModel().clear();
                     }
 
@@ -1171,7 +1171,7 @@ public class Trends extends DefaultActivity {
                     public void onFailure(Throwable caught) {
 
                         caught.printStackTrace();
-                        new ExceptionPanel(caught.getLocalizedMessage());
+                        new ExceptionPanel(place, caught.getMessage());
                         ((TaskDataTreeViewModel)taskDetailsTree.getTreeViewModel()).getSelectionModel().clear();
                     }
 
@@ -1268,7 +1268,7 @@ public class Trends extends DefaultActivity {
                             @Override
                             public void onFailure(Throwable caught) {
                                  caught.printStackTrace();
-                                 new ExceptionPanel(caught.getMessage());
+                                 new ExceptionPanel(place, caught.getMessage());
                             }
 
                             @Override
