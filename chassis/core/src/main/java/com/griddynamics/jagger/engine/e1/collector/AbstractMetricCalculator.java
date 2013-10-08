@@ -9,6 +9,6 @@ import java.io.Serializable;
  * Time: 9:21 AM
  * To change this template use File | Settings | File Templates.
  */
-public interface AbstractMetricCalculator<R, C> extends Serializable{
+public interface AbstractMetricCalculator<R, C extends Number> extends Serializable{
     C calculate(R response);
 }

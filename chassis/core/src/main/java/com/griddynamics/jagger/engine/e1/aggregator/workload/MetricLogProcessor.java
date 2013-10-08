@@ -245,10 +245,12 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
                         overallMetricAggregator.append(logEntry.getMetric());
                     }
 
-                    Number aggregated = intervalAggregator.getAggregated();
-                    if (aggregated != null){
-                        statistics.add(new MetricDetails(time, aggregatedMetricName, aggregated.doubleValue(), taskData));
-                        intervalAggregator.reset();
+                    if (intervalAggregator != null){
+                        Number aggregated = intervalAggregator.getAggregated();
+                        if (aggregated != null){
+                            statistics.add(new MetricDetails(time, aggregatedMetricName, aggregated.doubleValue(), taskData));
+                            intervalAggregator.reset();
+                        }
                     }
 
                     persistAggregatedMetricValue(aggregatedMetricName, overallMetricAggregator.getAggregated());

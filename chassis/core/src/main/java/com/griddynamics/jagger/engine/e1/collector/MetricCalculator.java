@@ -20,6 +20,8 @@
 
 package com.griddynamics.jagger.engine.e1.collector;
 
+import java.io.Serializable;
+
 /** Calculates information based on invocation response
  * @author Grid Dynamics
  * @n
@@ -32,7 +34,7 @@ package com.griddynamics.jagger.engine.e1.collector;
  * @param <R> - type of response
  *
  * @ingroup Main_Collectors_Base_group */
-public interface MetricCalculator<R> extends AbstractMetricCalculator<R, Number> {
+public interface MetricCalculator<R> extends AbstractMetricCalculator<R, Number>, Serializable {
 
     /**Returns a number, which was calculated from response
      * @author Grid Dynamics
