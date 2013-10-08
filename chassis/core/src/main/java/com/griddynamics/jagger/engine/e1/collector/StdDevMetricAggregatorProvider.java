@@ -35,15 +35,15 @@ public class StdDevMetricAggregatorProvider implements MetricAggregatorProvider 
         return new StdDevMetricAggregator();
     }
 
-    private static  class StdDevMetricAggregator implements MetricAggregator{
+    private static  class StdDevMetricAggregator implements MetricAggregator {
 
-        List<Double> points = null;
+        List<Integer> points = null;
 
 
         private double getMean() {
             double sum = 0;
 
-            for (Double d : points) {
+            for (Integer d : points) {
                 sum += d;
             }
             return sum / points.size();
@@ -51,25 +51,25 @@ public class StdDevMetricAggregatorProvider implements MetricAggregatorProvider 
         }
 
         @Override
-        public void append(Number calculated) {
+        public void append(Integer calculated) {
             if (points == null)
                 points = Lists.newLinkedList();
-            points.add(calculated.doubleValue());
+            points.add(calculated);
         }
 
         @Override
-        public Number getAggregated() {
+        public Double getAggregated() {
             if (points == null)
                 return null;
 
             double mean = getMean();
             double sum = 0;
 
-            for (Double d : points) {
+            for (Integer d : points) {
                 sum += (d - mean) * (d - mean);
             }
 
-            return new Double(Math.sqrt(sum / points.size()));
+            return Math.sqrt(sum / points.size());
         }
 
         @Override

@@ -17,7 +17,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.griddynamics.jagger.xml.beanParsers.workload.listener;
+package com.griddynamics.jagger.xml.beanParsers.workload.listener.aggregator;
 
 import com.griddynamics.jagger.engine.e1.collector.*;
 import com.griddynamics.jagger.xml.beanParsers.CustomBeanDefinitionParser;
@@ -31,26 +31,20 @@ import org.w3c.dom.Element;
 
 import java.util.List;
 
-/**
- * @author Nikolay Musienko
- *         Date: 22.03.13
- */
-public abstract class AbstractCollectorDefinitionParser extends AbstractSimpleBeanDefinitionParser {
+public class SuccessRateCollectorDefinitionParser extends AbstractSimpleBeanDefinitionParser {
     @Override
     protected Class getBeanClass(Element element) {
-        return MetricCollectorProvider.class;
+        return SuccessRateCollectorProvider.class;
     }
 
     @Override
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
 
-        builder.addPropertyValue(XMLConstants.METRIC_CALCULATOR, getMetricCalculator(element, parserContext, builder));
-
-        if (!element.getAttribute(XMLConstants.ID).isEmpty()) {
-            builder.addPropertyValue(XMLConstants.NAME, element.getAttribute(XMLConstants.ID));
-        } else {
-            builder.addPropertyValue(XMLConstants.NAME, XMLConstants.DEFAULT_METRIC_NAME);
-        }
+//        if (!element.getAttribute(XMLConstants.ID).isEmpty()) {
+//            builder.addPropertyValue(XMLConstants.NAME, element.getAttribute(XMLConstants.ID));
+//        } else {
+//            builder.addPropertyValue(XMLConstants.NAME, XMLConstants.DEFAULT_METRIC_NAME);
+//        }
 
         Boolean plotData = false;
         if (element.hasAttribute(XMLConstants.PLOT_DATA)) {
@@ -60,25 +54,15 @@ public abstract class AbstractCollectorDefinitionParser extends AbstractSimpleBe
         if (element.hasAttribute(XMLConstants.SAVE_SUMMARY)) {
             saveSummary = Boolean.valueOf(element.getAttribute(XMLConstants.SAVE_SUMMARY));
         }
-
-        List aggregators = CustomBeanDefinitionParser.parseCustomListElement(element, parserContext, builder.getBeanDefinition());
         List entries = new ManagedList();
-        if (aggregators != null) {
-            for (Object aggregator: aggregators) {
-                entries.add(getAggregatorEntry(aggregator, plotData, saveSummary));
-            }
-        }
-        if (entries.size() == 0) {
-            entries.add(getAggregatorEntry(new SumMetricAggregatorProvider(), plotData, saveSummary));
-        }
+        entries.add(getAggregatorEntry(new SuccessRateAggregatorProvider(), plotData, saveSummary));
+        entries.add(getAggregatorEntry(new SuccessRateFailsAggregatorProvider(), plotData,saveSummary));
 
         builder.addPropertyValue(XMLConstants.AGGREGATORS, entries);
     }
 
-    protected abstract Object getMetricCalculator(Element element, ParserContext parserContext, BeanDefinitionBuilder builder);
-
     private BeanDefinition getAggregatorEntry(Object aggregatorProvider, boolean plotData, boolean saveSummary) {
-        BeanDefinitionBuilder entry = BeanDefinitionBuilder.genericBeanDefinition(MetricCollectorProvider.MetricDescriptionEntry.class);
+        BeanDefinitionBuilder entry = BeanDefinitionBuilder.genericBeanDefinition(SuccessRateCollectorProvider.MetricDescriptionEntry.class);
         entry.addPropertyValue(XMLConstants.NEED_PLOT_DATA, plotData);
         entry.addPropertyValue(XMLConstants.NEED_SAVE_SUMMARY, saveSummary);
         entry.addPropertyValue(XMLConstants.METRIC_AGGREGATOR_PROVIDER, aggregatorProvider);

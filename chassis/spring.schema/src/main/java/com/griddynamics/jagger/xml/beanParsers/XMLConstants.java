@@ -147,6 +147,7 @@ public class XMLConstants {
     public static final String PAIR_SUPPLIER_FACTORY = "pairSupplierFactory";
 
     public static final String PLOT_DATA = "plotData";
+    public static final String SAVE_SUMMARY = "saveSummary";
     public static final String SIMPLE_COLLECTOR = "simpleCollector";
 
     //default reporting names
@@ -176,5 +177,6 @@ public class XMLConstants {
 
     public static final String AGGREGATORS = "aggregators";
     public static final String NEED_PLOT_DATA = "needPlotData";
+    public static final String NEED_SAVE_SUMMARY = "needSaveSummary";
     public static final String METRIC_AGGREGATOR_PROVIDER = "metricAggregatorProvider";
 }
