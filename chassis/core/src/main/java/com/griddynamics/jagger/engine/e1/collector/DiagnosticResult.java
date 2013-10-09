@@ -26,7 +26,7 @@ public class DiagnosticResult implements Serializable {
     private final String name;
     private final Double total;
 
-    public static DiagnosticResult create(String name, double total) {
+    public static DiagnosticResult create(String name, Double total) {
         return new DiagnosticResult(name, total);
     }
 

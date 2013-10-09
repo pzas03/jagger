@@ -759,8 +759,6 @@
     <xsd:complexType name="workloadCollectorAbstract" abstract="true">
         <xsd:complexContent>
             <xsd:extension base="basicType">
-                <xsd:attribute name="plotData" type="xsd:string" default="false"/>
-                <xsd:attribute name="saveSummary" type="xsd:string" default="true"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -870,6 +868,8 @@
                 <xsd:choice>
                     <xsd:element name="metric-aggregator" type="metricAggregatorAbstract" minOccurs="0" maxOccurs="unbounded"/>
                 </xsd:choice>
+                <xsd:attribute name="plotData" type="xsd:string" default="false"/>
+                <xsd:attribute name="saveSummary" type="xsd:string" default="true"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>

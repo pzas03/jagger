@@ -10,9 +10,9 @@ public class SuccessRateAggregatorProvider implements MetricAggregatorProvider {
             private long failNum = 0;
 
             @Override
-            public void append(Integer calculated)
+            public void append(Number calculated)
             {
-                if (calculated != 0)
+                if (calculated.intValue() != 0)
                     failNum++;
                 else
                     passNum++;

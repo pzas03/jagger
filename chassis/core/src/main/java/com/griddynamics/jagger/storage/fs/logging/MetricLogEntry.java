@@ -7,7 +7,7 @@ package com.griddynamics.jagger.storage.fs.logging;
  * Time: 16:12
  * To change this template use File | Settings | File Templates.
  */
-public class MetricLogEntry extends LogEntry<DurationLogEntry> {
+public class MetricLogEntry extends LogEntry<MetricLogEntry> {
 
     private Number metric;
     private String metricName;
