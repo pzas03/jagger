@@ -3,38 +3,40 @@ package com.griddynamics.jagger.engine.e1.collector;
 public class SuccessRateAggregatorProvider implements MetricAggregatorProvider {
 
     @Override
-    public MetricAggregator provide() {
-        return new MetricAggregator() {
+    public MetricAggregator provide()
+    {
+        return new SuccessRateAggregator();
+    }
 
-            private long passNum = 0;
-            private long failNum = 0;
+    private static class SuccessRateAggregator  implements MetricAggregator<Number>
+    {
+        private long passNum = 0;
+        private long failNum = 0;
 
-            @Override
-            public void append(Number calculated)
-            {
-                if (calculated.intValue() != 0)
-                    failNum++;
-                else
-                    passNum++;
-            }
+        @Override
+        public void append(Number calculated)
+        {
+            if (calculated.intValue() != 0)
+                failNum++;
+            else
+                passNum++;
+        }
 
-            @Override
-            public Double getAggregated() {
-                if ((failNum + passNum) == 0)
-                    return new Double(0.0);
-                else
-                    return new Double(100.0 * (double) (passNum) / (double) (failNum + passNum));
-            }
+        @Override
+        public Double getAggregated() {
+            if ((failNum + passNum) == 0)
+                return new Double(0.0);
+            else
+                return new Double((double) (passNum) / (double) (failNum + passNum));
+        }
 
-            @Override
-            public void reset() {
-            }
+        @Override
+        public void reset() {
+        }
 
-            @Override
-            public String getName() {
-                return "Success rate, %";
-            }
-
-        };
+        @Override
+        public String getName() {
+            return "Success rate";
+        }
     }
 }

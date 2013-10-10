@@ -30,12 +30,13 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 
 public class SuccessRateCollector<Q, R, E> extends MetricCollector<Q, R, E> {
-    private String name = "SR";
+    private final String name;
     private long startTime = 0;
 
-    public SuccessRateCollector(String sessionId, String taskId, NodeContext kernelContext)
+    public SuccessRateCollector(String sessionId, String taskId, NodeContext kernelContext, String name)
     {
-        super(sessionId, taskId, kernelContext,new SimpleMetricCalculator(),"SR");
+        super(sessionId, taskId, kernelContext,new SimpleMetricCalculator(),name);
+        this.name = name;
     }
 
     @Override

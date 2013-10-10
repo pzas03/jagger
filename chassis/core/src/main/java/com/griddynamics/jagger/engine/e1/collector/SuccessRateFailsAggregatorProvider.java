@@ -4,31 +4,32 @@ public class SuccessRateFailsAggregatorProvider implements MetricAggregatorProvi
 
     @Override
     public MetricAggregator provide() {
-        return new MetricAggregator() {
+        return new SuccessRateFailsAggregator();
+    }
 
-            long failNum = 0;
+    private static class SuccessRateFailsAggregator  implements MetricAggregator<Number>
+    {
+        long failNum = 0;
 
-            @Override
-            public void append(Number calculated)
-            {
-                if (calculated.intValue() != 0)
-                    failNum++;
-            }
+        @Override
+        public void append(Number calculated)
+        {
+            if (calculated.intValue() != 0)
+                failNum++;
+        }
 
-            @Override
-            public Double getAggregated() {
-                return new Double(failNum);
-            }
+        @Override
+        public Double getAggregated() {
+            return new Double(failNum);
+        }
 
-            @Override
-            public void reset() {
-            }
+        @Override
+        public void reset() {
+        }
 
-            @Override
-            public String getName() {
-                return "Number of fails";
-            }
-
-        };
+        @Override
+        public String getName() {
+            return "Number of fails";
+        }
     }
 }

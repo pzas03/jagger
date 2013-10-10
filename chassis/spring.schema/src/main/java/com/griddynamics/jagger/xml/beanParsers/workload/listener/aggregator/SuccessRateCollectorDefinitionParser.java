@@ -40,11 +40,10 @@ public class SuccessRateCollectorDefinitionParser extends AbstractSimpleBeanDefi
     @Override
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
 
-//        if (!element.getAttribute(XMLConstants.ID).isEmpty()) {
-//            builder.addPropertyValue(XMLConstants.NAME, element.getAttribute(XMLConstants.ID));
-//        } else {
-//            builder.addPropertyValue(XMLConstants.NAME, XMLConstants.DEFAULT_METRIC_NAME);
-//        }
+        String name = XMLConstants.DEFAULT_METRIC_NAME;
+        // If user have defined name - we will use it
+        if (!element.getAttribute(XMLConstants.ID).isEmpty())
+            name = element.getAttribute(XMLConstants.ID);
 
         Boolean plotData = false;
         if (element.hasAttribute(XMLConstants.PLOT_DATA)) {
@@ -54,10 +53,25 @@ public class SuccessRateCollectorDefinitionParser extends AbstractSimpleBeanDefi
         if (element.hasAttribute(XMLConstants.SAVE_SUMMARY)) {
             saveSummary = Boolean.valueOf(element.getAttribute(XMLConstants.SAVE_SUMMARY));
         }
-        List entries = new ManagedList();
-        entries.add(getAggregatorEntry(new SuccessRateAggregatorProvider(), plotData, saveSummary));
-        entries.add(getAggregatorEntry(new SuccessRateFailsAggregatorProvider(), plotData,saveSummary));
 
+        List aggregators = CustomBeanDefinitionParser.parseCustomListElement(element, parserContext, builder.getBeanDefinition());
+        List entries = new ManagedList();
+        if (aggregators != null) {
+            for (Object aggregator: aggregators) {
+                entries.add(getAggregatorEntry(aggregator, plotData, saveSummary));
+            }
+        }
+        if (entries.size() == 0) {
+            entries.add(getAggregatorEntry(new SuccessRateAggregatorProvider(), plotData, saveSummary));
+            entries.add(getAggregatorEntry(new SuccessRateFailsAggregatorProvider(), plotData,saveSummary));
+
+            // If user have not defined any name
+            // And we are using metric with default aggregators => we will use default name
+            if (name.equals(XMLConstants.DEFAULT_METRIC_NAME) == true)
+                name = XMLConstants.DEFAULT_METRIC_SUCCESS_RATE_NAME;
+        }
+
+        builder.addPropertyValue(XMLConstants.NAME, name);
         builder.addPropertyValue(XMLConstants.AGGREGATORS, entries);
     }
 
