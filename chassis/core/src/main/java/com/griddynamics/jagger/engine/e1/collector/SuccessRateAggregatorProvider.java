@@ -17,9 +17,10 @@ public class SuccessRateAggregatorProvider implements MetricAggregatorProvider {
         public void append(Number calculated)
         {
             if (calculated.intValue() != 0)
-                failNum++;
-            else
                 passNum++;
+            else
+                failNum++;
+
         }
 
         @Override

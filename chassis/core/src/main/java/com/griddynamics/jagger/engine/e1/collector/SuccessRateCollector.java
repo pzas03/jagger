@@ -50,17 +50,17 @@ public class SuccessRateCollector<Q, R, E> extends MetricCollector<Q, R, E> {
 
     @Override
     public void onSuccess(Object query, Object endpoint, Object result, long duration) {
-        log(0);
+        log(1);
     }
 
     @Override
     public void onFail(Object query, Object endpoint, InvocationException e) {
-        log(1);
+        log(0);
     }
 
     @Override
     public void onError(Object query, Object endpoint, Throwable error) {
-        log(1);
+        log(0);
     }
 
     private void log(long result) {
