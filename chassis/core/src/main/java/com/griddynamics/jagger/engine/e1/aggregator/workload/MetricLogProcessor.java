@@ -248,10 +248,10 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
                                         }
                                     }
                                 }
-                                intervalAggregator.append(logEntry.getMetric().intValue());
+                                intervalAggregator.append(logEntry.getMetric());
                             }
                             if (entry.isNeedSaveSummary())
-                                overallMetricAggregator.append(logEntry.getMetric().intValue());
+                                overallMetricAggregator.append(logEntry.getMetric());
                         }
 
                         if (entry.isNeedPlotData()) {
