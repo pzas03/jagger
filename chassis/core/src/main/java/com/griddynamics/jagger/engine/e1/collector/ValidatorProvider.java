@@ -3,6 +3,8 @@ package com.griddynamics.jagger.engine.e1.collector;
 import com.griddynamics.jagger.coordinator.NodeContext;
 import com.griddynamics.jagger.engine.e1.scenario.KernelSideObjectProvider;
 
+import java.io.Serializable;
+
 /**
  * Created with IntelliJ IDEA.
  * User: kgribov
@@ -10,7 +12,7 @@ import com.griddynamics.jagger.engine.e1.scenario.KernelSideObjectProvider;
  * Time: 4:38 PM
  * To change this template use File | Settings | File Templates.
  */
-public class ValidatorProvider implements KernelSideObjectProvider<Validator>{
+public class ValidatorProvider implements KernelSideObjectProvider<Validator>, Serializable{
 
     private KernelSideObjectProvider<ResponseValidator<Object, Object, Object>> validatorProvider;
 
