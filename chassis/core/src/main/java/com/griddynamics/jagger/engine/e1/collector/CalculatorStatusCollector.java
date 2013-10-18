@@ -13,7 +13,7 @@ import java.io.File;
  * Time: 6:55 PM
  * To change this template use File | Settings | File Templates.
  */
-public class CalculatorStatusCollector extends AbstractCalculatorMetricCollector<WorkloadExecutionStatus> implements WorkloadStatusCollector {
+public class CalculatorStatusCollector extends CalculatorBasedMetricContext<WorkloadExecutionStatus> implements WorkloadStatusCollector {
 
     public static final String METRIC_MARKER = "METRIC";
 

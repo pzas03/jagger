@@ -15,12 +15,11 @@ import java.util.List;
  * Time: 6:49 PM
  * To change this template use File | Settings | File Templates.
  */
-public abstract class AbstractCalculatorMetricCollector<R> implements NodeSideInit, Serializable{
+public abstract class MetricContext implements NodeSideInit, Serializable{
     protected String sessionId;
     protected String taskId;
     protected NodeContext nodeContext;
 
-    protected MetricCalculator<R> metricCalculator;
     protected String name;
     protected List<MetricDescriptionEntry> aggregators;
 
@@ -42,20 +41,12 @@ public abstract class AbstractCalculatorMetricCollector<R> implements NodeSideIn
         this.name = name;
     }
 
-    public MetricCalculator<R> getMetricCalculator() {
-        return metricCalculator;
-    }
-
     public String getName() {
         return name;
     }
 
     public void setAggregators(List<MetricDescriptionEntry> aggregators) {
         this.aggregators = aggregators;
-    }
-
-    public void setMetricCalculator(MetricCalculator<R> metricCalculator) {
-        this.metricCalculator = metricCalculator;
     }
 
     public List<MetricDescriptionEntry> getAggregators() {
@@ -65,10 +56,17 @@ public abstract class AbstractCalculatorMetricCollector<R> implements NodeSideIn
 
     public static final class MetricDescriptionEntry {
         private boolean needPlotData;
+        private boolean needSaveSummary;
         private MetricAggregatorProvider metricAggregatorProvider;
 
         public MetricDescriptionEntry(MetricAggregatorProvider metricAggregatorProvider, boolean needPlotData) {
             this.needPlotData = needPlotData;
+            this.needSaveSummary = true;
+            this.metricAggregatorProvider = metricAggregatorProvider;
+        }
+        public MetricDescriptionEntry(MetricAggregatorProvider metricAggregatorProvider, boolean needPlotData, boolean needSaveSummary) {
+            this.needPlotData = needPlotData;
+            this.needSaveSummary = needSaveSummary;
             this.metricAggregatorProvider = metricAggregatorProvider;
         }
 
@@ -81,6 +79,14 @@ public abstract class AbstractCalculatorMetricCollector<R> implements NodeSideIn
 
         public void setNeedPlotData(boolean needPlotData) {
             this.needPlotData = needPlotData;
+        }
+
+        public boolean isNeedSaveSummary() {
+            return needSaveSummary;
+        }
+
+        public void setNeedSaveSummary(boolean needSaveSummary) {
+            this.needSaveSummary = needSaveSummary;
         }
 
         public MetricAggregatorProvider getMetricAggregatorProvider() {

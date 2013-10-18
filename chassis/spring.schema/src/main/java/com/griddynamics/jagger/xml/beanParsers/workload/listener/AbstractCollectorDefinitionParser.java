@@ -29,6 +29,7 @@ import org.springframework.beans.factory.xml.AbstractSimpleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -36,15 +37,9 @@ import java.util.List;
  *         Date: 22.03.13
  */
 public abstract class AbstractCollectorDefinitionParser extends AbstractSimpleBeanDefinitionParser {
-    @Override
-    protected Class getBeanClass(Element element) {
-        return MetricCollectorProvider.class;
-    }
 
     @Override
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
-
-        builder.addPropertyValue(XMLConstants.METRIC_CALCULATOR, getMetricCalculator(element, parserContext, builder));
 
         if (!element.getAttribute(XMLConstants.ID).isEmpty()) {
             builder.addPropertyValue(XMLConstants.NAME, element.getAttribute(XMLConstants.ID));
@@ -56,25 +51,34 @@ public abstract class AbstractCollectorDefinitionParser extends AbstractSimpleBe
         if (element.hasAttribute(XMLConstants.PLOT_DATA)) {
             plotData = Boolean.valueOf(element.getAttribute(XMLConstants.PLOT_DATA));
         }
+
+        Boolean saveSummary = true;
+        if (element.hasAttribute(XMLConstants.SAVE_SUMMARY)) {
+            saveSummary = Boolean.valueOf(element.getAttribute(XMLConstants.SAVE_SUMMARY));
+        }
+
         List aggregators = CustomBeanDefinitionParser.parseCustomListElement(element, parserContext, builder.getBeanDefinition());
         List entries = new ManagedList();
         if (aggregators != null) {
             for (Object aggregator: aggregators) {
-                entries.add(getAggregatorEntry(aggregator, plotData));
+                entries.add(getAggregatorEntry(aggregator, plotData, saveSummary));
             }
         }
         if (entries.size() == 0) {
-            entries.add(getAggregatorEntry(new SumMetricAggregatorProvider(), plotData));
+            for (MetricAggregatorProvider aggregatorProvider : getAggregators()){
+                entries.add(getAggregatorEntry(aggregatorProvider, plotData, saveSummary));
+            }
         }
 
         builder.addPropertyValue(XMLConstants.AGGREGATORS, entries);
     }
 
-    protected abstract Object getMetricCalculator(Element element, ParserContext parserContext, BeanDefinitionBuilder builder);
+    protected abstract Collection<MetricAggregatorProvider> getAggregators();
 
-    private BeanDefinition getAggregatorEntry(Object aggregatorProvider, boolean plotData) {
+    private BeanDefinition getAggregatorEntry(Object aggregatorProvider, boolean plotData, boolean saveSummary) {
         BeanDefinitionBuilder entry = BeanDefinitionBuilder.genericBeanDefinition(MetricCollectorProvider.MetricDescriptionEntry.class);
         entry.addPropertyValue(XMLConstants.NEED_PLOT_DATA, plotData);
+        entry.addPropertyValue(XMLConstants.NEED_SAVE_SUMMARY, saveSummary);
         entry.addPropertyValue(XMLConstants.METRIC_AGGREGATOR_PROVIDER, aggregatorProvider);
         return entry.getBeanDefinition();
     }

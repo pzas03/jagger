@@ -51,8 +51,9 @@
         <property name="metricCalculator" ref="threadCalc"/>
         <property name="aggregators">
             <list>
-                <bean class="com.griddynamics.jagger.engine.e1.collector.AbstractCalculatorMetricCollector$MetricDescriptionEntry">
+                <bean class="com.griddynamics.jagger.engine.e1.collector.MetricContext$MetricDescriptionEntry">
                     <property name="needPlotData" value="true"/>
+                    <property name="needSaveSummary" value="true"/>
                     <property name="metricAggregatorProvider" ref="avgAggregator"/>
                 </bean>
             </list>
