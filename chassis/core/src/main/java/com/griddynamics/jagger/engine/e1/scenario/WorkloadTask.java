@@ -45,7 +45,7 @@ public class WorkloadTask implements CompositableTask {
     private String parentTaskId;
     private Calibrator calibrator = new OneNodeCalibrator();
     private long startDelay = 0;
-    private List<WorkloadStatusCollector> workloadStatusCollectors;
+    private List<WorkloadStatusCollector> workloadStatusCollectors = Lists.newArrayList();
 
     public long getStartDelay() {
         return startDelay;
