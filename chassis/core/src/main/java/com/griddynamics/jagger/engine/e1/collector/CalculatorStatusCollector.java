@@ -13,7 +13,7 @@ import java.io.File;
  * Time: 6:55 PM
  * To change this template use File | Settings | File Templates.
  */
-public class CalculatorStatusCollector extends CalculatorBasedMetricContext<WorkloadExecutionStatus> implements WorkloadStatusCollector {
+public class CalculatorStatusCollector extends CalculatorContextAware<WorkloadExecutionStatus> implements WorkloadStatusCollector {
 
     public static final String METRIC_MARKER = "METRIC";
 
@@ -22,7 +22,7 @@ public class CalculatorStatusCollector extends CalculatorBasedMetricContext<Work
         LogWriter logWriter = nodeContext.getService(LogWriter.class);
         long startTime = System.currentTimeMillis();
         logWriter.log(sessionId, taskId + File.separatorChar + METRIC_MARKER + File.separatorChar + name, nodeContext.getId().getIdentifier(),
-                new MetricLogEntry(startTime, name,  metricCalculator.calculate(status).doubleValue()));
+                new MetricLogEntry(startTime, name,  getMetricCalculator().calculate(status).doubleValue()));
     }
 
     @Override

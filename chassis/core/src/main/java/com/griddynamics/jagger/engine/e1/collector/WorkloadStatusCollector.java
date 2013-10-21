@@ -2,7 +2,7 @@ package com.griddynamics.jagger.engine.e1.collector;
 
 import com.griddynamics.jagger.coordinator.NodeContext;
 import com.griddynamics.jagger.engine.e1.scenario.Flushable;
-import com.griddynamics.jagger.engine.e1.scenario.NodeSideInit;
+import com.griddynamics.jagger.engine.e1.scenario.NodeSideInitializable;
 import com.griddynamics.jagger.engine.e1.scenario.WorkloadExecutionStatus;
 
 /**
@@ -12,7 +12,8 @@ import com.griddynamics.jagger.engine.e1.scenario.WorkloadExecutionStatus;
  * Time: 2:37 PM
  * To change this template use File | Settings | File Templates.
  */
-public interface WorkloadStatusCollector extends NodeSideInit, Flushable{
+public interface WorkloadStatusCollector extends NodeSideInitializable, Flushable{
+
     void collect(WorkloadExecutionStatus status);
 
     public static class Composer implements WorkloadStatusCollector{

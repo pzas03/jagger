@@ -28,7 +28,7 @@ import com.griddynamics.jagger.engine.e1.scenario.ScenarioCollector;
  *         Date: 18.03.13
  */
 
-public class MetricCollectorProvider<Q, R, E> extends CalculatorBasedMetricContext<R> implements KernelSideObjectProvider<ScenarioCollector<Q, R, E>>{
+public class MetricCollectorProvider<Q, R, E> extends CalculatorContextAware<R> implements KernelSideObjectProvider<ScenarioCollector<Q, R, E>>{
 
     @Override
     public ScenarioCollector<Q, R, E> provide(String sessionId, String taskId, NodeContext kernelContext) {

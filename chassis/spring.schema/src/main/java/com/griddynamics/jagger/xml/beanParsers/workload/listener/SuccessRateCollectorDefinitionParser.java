@@ -20,6 +20,7 @@
 package com.griddynamics.jagger.xml.beanParsers.workload.listener;
 
 import com.griddynamics.jagger.engine.e1.collector.*;
+import com.griddynamics.jagger.xml.beanParsers.XMLConstants;
 import org.w3c.dom.Element;
 
 import java.util.ArrayList;
@@ -39,5 +40,10 @@ public class SuccessRateCollectorDefinitionParser extends AbstractCollectorDefin
         result.add(new SuccessRateFailsAggregatorProvider());
 
         return result;
+    }
+
+    @Override
+    protected String getStandardCollectorName() {
+        return XMLConstants.DEFAULT_METRIC_SUCCESS_RATE_NAME;
     }
 }

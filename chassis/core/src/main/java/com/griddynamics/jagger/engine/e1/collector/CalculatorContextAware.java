@@ -7,7 +7,7 @@ package com.griddynamics.jagger.engine.e1.collector;
  * Time: 1:31 PM
  * To change this template use File | Settings | File Templates.
  */
-public abstract class CalculatorBasedMetricContext<R> extends MetricContext {
+public abstract class CalculatorContextAware<R> extends ContextAware {
 
     protected MetricCalculator<R> metricCalculator;
 

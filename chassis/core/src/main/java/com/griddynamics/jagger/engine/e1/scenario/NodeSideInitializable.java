@@ -9,6 +9,6 @@ import com.griddynamics.jagger.coordinator.NodeContext;
  * Time: 2:26 PM
  * To change this template use File | Settings | File Templates.
  */
-public interface NodeSideInit {
+public interface NodeSideInitializable {
     void init(String sessionId, String taskId, NodeContext nodeContext);
 }

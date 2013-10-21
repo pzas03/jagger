@@ -1,7 +1,7 @@
 package com.griddynamics.jagger.engine.e1.collector;
 
 import com.griddynamics.jagger.coordinator.NodeContext;
-import com.griddynamics.jagger.engine.e1.scenario.NodeSideInit;
+import com.griddynamics.jagger.engine.e1.scenario.NodeSideInitializable;
 import com.griddynamics.jagger.storage.KeyValueStorage;
 import com.griddynamics.jagger.storage.Namespace;
 
@@ -15,7 +15,7 @@ import java.util.List;
  * Time: 6:49 PM
  * To change this template use File | Settings | File Templates.
  */
-public abstract class MetricContext implements NodeSideInit, Serializable{
+public abstract class ContextAware implements NodeSideInitializable, Serializable{
     protected String sessionId;
     protected String taskId;
     protected NodeContext nodeContext;

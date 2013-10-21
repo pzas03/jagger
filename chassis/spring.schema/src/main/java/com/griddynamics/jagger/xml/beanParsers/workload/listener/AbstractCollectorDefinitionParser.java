@@ -41,10 +41,10 @@ public abstract class AbstractCollectorDefinitionParser extends AbstractSimpleBe
     @Override
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
 
+        String name = null;
+
         if (!element.getAttribute(XMLConstants.ID).isEmpty()) {
-            builder.addPropertyValue(XMLConstants.NAME, element.getAttribute(XMLConstants.ID));
-        } else {
-            builder.addPropertyValue(XMLConstants.NAME, XMLConstants.DEFAULT_METRIC_NAME);
+            name = element.getAttribute(XMLConstants.ID);
         }
 
         Boolean plotData = false;
@@ -68,12 +68,25 @@ public abstract class AbstractCollectorDefinitionParser extends AbstractSimpleBe
             for (MetricAggregatorProvider aggregatorProvider : getAggregators()){
                 entries.add(getAggregatorEntry(aggregatorProvider, plotData, saveSummary));
             }
+
+            if (name == null){
+                name = getStandardCollectorName();
+            }
         }
 
+        if (name == null){
+            name = XMLConstants.DEFAULT_METRIC_NAME;
+        }
+
+        builder.addPropertyValue(XMLConstants.NAME, name);
         builder.addPropertyValue(XMLConstants.AGGREGATORS, entries);
     }
 
     protected abstract Collection<MetricAggregatorProvider> getAggregators();
+
+    protected String getStandardCollectorName(){
+        return XMLConstants.DEFAULT_METRIC_NAME;
+    }
 
     private BeanDefinition getAggregatorEntry(Object aggregatorProvider, boolean plotData, boolean saveSummary) {
         BeanDefinitionBuilder entry = BeanDefinitionBuilder.genericBeanDefinition(MetricCollectorProvider.MetricDescriptionEntry.class);

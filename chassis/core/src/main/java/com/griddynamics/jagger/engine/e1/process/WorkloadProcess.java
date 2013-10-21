@@ -81,8 +81,8 @@ public class WorkloadProcess implements NodeProcess<WorkloadStatus> {
         log.debug("Going to execute command {}.", command);
 
         for (KernelSideObjectProvider<ScenarioCollector<Object, Object, Object>> provider : command.getCollectors()) {
-            if (provider instanceof NodeSideInit) {
-                ((NodeSideInit) provider).init(sessionId, command.getTaskId(), context);
+            if (provider instanceof NodeSideInitializable) {
+                ((NodeSideInitializable) provider).init(sessionId, command.getTaskId(), context);
             }
         }
 

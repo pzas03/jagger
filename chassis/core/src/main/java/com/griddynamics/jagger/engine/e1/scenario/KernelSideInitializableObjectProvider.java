@@ -26,6 +26,6 @@ package com.griddynamics.jagger.engine.e1.scenario;
  *         Date: 08.08.13
  */
 
-public interface KernelSideInitializableObjectProvider<T extends KernelSideObject> extends KernelSideObjectProvider<T>, NodeSideInit {
+public interface KernelSideInitializableObjectProvider<T extends KernelSideObject> extends KernelSideObjectProvider<T>, NodeSideInitializable {
 
 }

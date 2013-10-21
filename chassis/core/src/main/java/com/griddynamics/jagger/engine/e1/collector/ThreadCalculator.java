@@ -11,7 +11,7 @@ import com.griddynamics.jagger.engine.e1.scenario.WorkloadExecutionStatus;
  */
 public class ThreadCalculator implements MetricCalculator<WorkloadExecutionStatus> {
     @Override
-    public Integer calculate(WorkloadExecutionStatus response) {
-        return new Integer(response.getTotalThreads());
+    public Integer calculate(WorkloadExecutionStatus status) {
+        return new Integer(status.getTotalThreads());
     }
 }
