@@ -12,7 +12,7 @@ import com.griddynamics.jagger.storage.Namespace;
 import java.util.Arrays;
 import java.util.List;
 
-public class ProviderOfSuccessRateCollector<Q, R, E> extends MetricCollectorProvider<Q, R, E> {
+public class ProviderOfExampleSuccessRateCollector<Q, R, E> extends MetricCollectorProvider<Q, R, E> {
 
     @Override
     public void init(java.lang.String sessionId, java.lang.String taskId, NodeContext kernelContext) {
