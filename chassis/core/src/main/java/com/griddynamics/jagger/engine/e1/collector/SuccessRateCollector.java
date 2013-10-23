@@ -24,8 +24,7 @@ import com.griddynamics.jagger.coordinator.NodeContext;
 import com.griddynamics.jagger.invoker.InvocationException;
 import com.griddynamics.jagger.storage.fs.logging.LogWriter;
 import com.griddynamics.jagger.storage.fs.logging.MetricLogEntry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 import java.io.File;
 
