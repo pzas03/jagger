@@ -77,7 +77,11 @@ public class OneTableJdbcKeyValueStorage implements KeyValueStorage {
 		}
 	}
 
-	private void createTable() {
+    @Override
+    public void validate() {
+    }
+
+    private void createTable() {
 		jdbcTemplate.execute("create table " + TABLE_NAME
 				+ " (id int primary key AUTO_INCREMENT, name varchar, key varchar, value blob)");
 	}

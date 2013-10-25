@@ -37,6 +37,8 @@ public interface KeyValueStorage {
 
 	void initialize();
 
+    void validate();
+
 	void put(Namespace namespace, String key, Object value);
 
     void putAll(Namespace namespace, Multimap<String, Object> valuesMap);
