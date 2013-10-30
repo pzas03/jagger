@@ -6,11 +6,11 @@ package ${package}.provider;
 import com.griddynamics.jagger.engine.e1.collector.MetricAggregator;
 import com.griddynamics.jagger.engine.e1.collector.MetricAggregatorProvider;
 
-public class ProviderOfSuccessRateAggregator implements MetricAggregatorProvider {
+public class ProviderOfExampleSuccessRateAggregator implements MetricAggregatorProvider {
 
     @Override
     public MetricAggregator provide() {
-        return new MetricAggregator() {
+        return new MetricAggregator<Integer>() {
 
             int passNum = 0;
             int failNum = 0;

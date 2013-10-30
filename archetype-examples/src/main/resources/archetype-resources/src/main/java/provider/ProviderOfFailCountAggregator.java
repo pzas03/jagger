@@ -10,7 +10,7 @@ public class ProviderOfFailCountAggregator implements MetricAggregatorProvider {
 
     @Override
     public MetricAggregator provide() {
-        return new MetricAggregator() {
+        return new MetricAggregator<Integer>() {
 
             int failNum = 0;
 

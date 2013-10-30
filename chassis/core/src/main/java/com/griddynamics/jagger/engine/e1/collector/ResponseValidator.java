@@ -190,21 +190,21 @@ public abstract class ResponseValidator<Q, E, R> extends KernelSideObject {
 /// <ol>
 /// <li> Create collector class which implements @ref MetricCollector<Q,R,E>@n
 /// Will proceed data after every invoke and save to Kernel storage
-/// @dontinclude  SuccessRateCollector.java
-/// @skipline  public class SuccessRateCollector
+/// @dontinclude  ExampleSuccessRateCollector.java
+/// @skipline  public class ExampleSuccessRateCollector
 /// @n
 ///
 /// <li> Create collector provider class which implements @ref MetricCollectorProvider<Q,R,E>@n
 /// Will provide an instance of custom collector to Jagger
-/// @dontinclude  ProviderOfSuccessRateCollector.java
-/// @skipline  public class ProviderOfSuccessRateCollector
+/// @dontinclude  ProviderOfExampleSuccessRateCollector.java
+/// @skipline  public class ProviderOfExampleSuccessRateCollector
 /// @n
 ///
 /// <li> Create aggregator class which implements @ref MetricAggregatorProvider@n
 /// Will proceed data after all tests are over and prepare data for DB @n
 /// Collector provider class is associating aggregator with collector.
-/// @dontinclude  ProviderOfSuccessRateAggregator.java
-/// @skipline  public class ProviderOfSuccessRateAggregator
+/// @dontinclude  ProviderOfExampleSuccessRateAggregator.java
+/// @skipline  public class ProviderOfExampleSuccessRateAggregator
 /// @n
 ///
 /// <li> Create bean of provider class in some configuration file. Put some id for it.

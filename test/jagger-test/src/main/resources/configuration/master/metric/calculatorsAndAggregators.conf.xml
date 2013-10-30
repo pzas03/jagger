@@ -1,8 +1,4 @@
- #set( $symbol_pound = '#' )
-#set( $symbol_dollar = '$' )
-#set( $symbol_escape = '\' )
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
   ~ Copyright (c) 2010-2012 Grid Dynamics Consulting Services, Inc, All Rights Reserved
   ~ http://www.griddynamics.com
@@ -23,18 +19,24 @@
   ~ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
-       default-lazy-init="true">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <!-- begin: following section is used for docu generation - metric calculator -->
-    <bean id="responseSize" class="${package}.calculator.ResponseSize"/>
-    <!-- end: following section is used for docu generation - metric calculator -->
+    <bean id="alwaysIncrease" class="metric.AlwaysIncrease"/>
 
-    <!-- begin: following section is used for docu generation - custom collector -->
-    <bean id="successRateCollector" class="${package}.provider.ProviderOfExampleSuccessRateCollector"/>
-    <!-- end: following section is used for docu generation - custom collector -->
+    <bean id="constant" class="metric.ConstantMetric">
+        <property name="constant" value="100.98765"/>
+    </bean>
+
+    <bean id="responseSize" class="metric.ResponseBodySize"/>
+
+    <bean id="returnCode" class="metric.ReturnCode"/>
+
+    <bean id="sin" class="metric.SinMetric"/>
+
+    <bean id="maxAggregator" class="metric.aggregator.MaxAggregator"/>
+
+    <bean id="minAggregator" class="metric.aggregator.MinAggregator"/>
 
 </beans>
