@@ -832,7 +832,6 @@ public class Trends extends DefaultActivity {
                 taskDataTreeViewModel.getPlotNameDataProviders().put
                         (taskDataDto, new TaskPlotNamesAsyncDataProvider(taskDataDto, summaryPanel.getSessionIds()));
             }
-            summaryPanel.updateTests(result);
 
             if (selectTests) {
                 makeSelectionForMetricPanel(metricTempSet, metricPanel, result);
@@ -1002,7 +1001,6 @@ public class Trends extends DefaultActivity {
 
 
             if (chosenSessions.size() == 1) {
-                metricPanel.getSelectionModel().clear();
                 final boolean selectTestsFinal = selectTests;
                 final String sessionId = chosenSessions.get(0);
                 PlotProviderService.Async.getInstance().getSessionScopePlotList(sessionId ,new AsyncCallback<Set<String>>() {
