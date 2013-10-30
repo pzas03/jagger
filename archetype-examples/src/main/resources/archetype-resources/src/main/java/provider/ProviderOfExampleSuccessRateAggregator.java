@@ -10,7 +10,7 @@ public class ProviderOfExampleSuccessRateAggregator implements MetricAggregatorP
 
     @Override
     public MetricAggregator provide() {
-        return new MetricAggregator() {
+        return new MetricAggregator<Integer>() {
 
             int passNum = 0;
             int failNum = 0;

@@ -3,7 +3,7 @@
 #set( $symbol_escape = '\' )
 package ${package}.provider;
 
-import com.griddynamics.jagger.collector.SuccessRateCollector;
+import ${package}.collector.ExampleSuccessRateCollector;
 import com.griddynamics.jagger.coordinator.NodeContext;
 import com.griddynamics.jagger.engine.e1.collector.*;
 import com.griddynamics.jagger.storage.KeyValueStorage;
@@ -25,8 +25,8 @@ public class ProviderOfExampleSuccessRateCollector<Q, R, E> extends MetricCollec
     }
 
     @Override
-    public SuccessRateCollector<Q, R, E> provide(String sessionId, String taskId, NodeContext kernelContext) {
-        return new SuccessRateCollector(sessionId, taskId, kernelContext);
+    public ExampleSuccessRateCollector<Q, R, E> provide(String sessionId, String taskId, NodeContext kernelContext) {
+        return new ExampleSuccessRateCollector(sessionId, taskId, kernelContext);
     }
 
     @Override
@@ -39,7 +39,7 @@ public class ProviderOfExampleSuccessRateCollector<Q, R, E> extends MetricCollec
     }
 
     private List<MetricDescriptionEntry> aggregators = Arrays.asList(
-            new MetricDescriptionEntry(new ProviderOfSuccessRateAggregator(), true),
+            new MetricDescriptionEntry(new ProviderOfExampleSuccessRateAggregator(), true),
             new MetricDescriptionEntry(new ProviderOfFailCountAggregator(), true));
 
 }
