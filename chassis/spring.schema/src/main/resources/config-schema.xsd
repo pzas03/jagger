@@ -1599,7 +1599,17 @@
         </xsd:annotation>
         <xsd:complexContent>
             <xsd:extension base="queryDistributorAbstract">
-                <xsd:attribute name="randomSeed" type="xsd:string"/>
+                <xsd:attribute name="randomSeed" type="xsd:string">
+                    <xsd:annotation><xsd:documentation>
+                        When this attribute set , each thread will randomly choose pair in pair collection with help of
+                        Random class object with seed calculated from specified randomSeed:
+                        for every new thread:
+                            1. seed = randomSeed;
+                            2. randomSeed ++;
+
+                        Pair is (endpoint, query).
+                    </xsd:documentation></xsd:annotation>
+                </xsd:attribute>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
