@@ -815,6 +815,7 @@ public class Trends extends DefaultActivity {
             TaskDataTreeViewModel taskDataTreeViewModel = (TaskDataTreeViewModel) taskDetailsTree.getTreeViewModel();
             MultiSelectionModel<PlotNameDto> plotNameSelectionModel = taskDataTreeViewModel.getSelectionModel();
 
+            summaryPanel.updateTests(result);
             //chosen plots
             Set<PlotNameDto> plotTempSet = plotNameSelectionModel.getSelectedSet();
             //chosen metrics

@@ -5,10 +5,7 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safecss.shared.SafeStyles;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.griddynamics.jagger.webclient.client.dto.MetricDto;
-import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
-import com.griddynamics.jagger.webclient.client.dto.MetricValueDto;
-import com.griddynamics.jagger.webclient.client.dto.SessionDataDto;
+import com.griddynamics.jagger.webclient.client.dto.*;
 import com.sencha.gxt.core.client.ValueProvider;
 import com.sencha.gxt.data.shared.ModelKeyProvider;
 import com.sencha.gxt.data.shared.TreeStore;
@@ -50,6 +47,7 @@ public class SessionComparisonPanel extends VerticalPanel{
     @SuppressWarnings("all")
     private final String TASKS_FAILED = "Tasks Failed";
 
+    private Collection<SessionDataDto> chosenSessions;
 
     private final String WHITE_SPACE_NORMAL = "white-space: normal";
 
@@ -70,6 +68,7 @@ public class SessionComparisonPanel extends VerticalPanel{
     public SessionComparisonPanel(Set<SessionDataDto> chosenSessions){
         setWidth(ONE_HUNDRED_PERCENTS);
         setHeight(ONE_HUNDRED_PERCENTS);
+        this.chosenSessions = chosenSessions;
         init(chosenSessions);
     }
 
@@ -306,6 +305,60 @@ public class SessionComparisonPanel extends VerticalPanel{
                 return;
             }
         }
+    }
+
+    public void updateTests(Collection<TaskDataDto> tests) {
+        for (TaskDataDto test : tests) {
+            addTestInfo(test);
+        }
+        treeGrid.expandAll();
+    }
+
+    private void addTestInfo(TaskDataDto test) {
+        TreeItem testItem = getTestItem(test);
+
+        TreeItem testInfo = new TreeItem(test.getTaskName() + "TestInfo");
+        testInfo.put(NAME, "Test Info");
+        treeStore.add(testItem, testInfo);
+
+        TreeItem clock = new TreeItem(testItem.getKey() + "Clock");
+        clock.put(NAME, "Clock");
+        for (SessionDataDto session : chosenSessions) {
+            clock.put(SESSION_HEADER + session.getSessionId(), test.getClock());
+        }
+        treeStore.add(testInfo, clock);
+
+        TreeItem termination = new TreeItem(testItem.getKey() + "Termination");
+        termination.put(NAME, "Termination");
+        for (SessionDataDto session : chosenSessions) {
+            termination.put(SESSION_HEADER + session.getSessionId(), test.getTerminationStrategy());
+        }
+        treeStore.add(testInfo, termination);
+    }
+
+    private TreeItem getTestItem(TaskDataDto test) {
+        TreeItem description = getTestDescriptionItem(test);
+        for (TreeItem item : treeStore.getChildren(description)) {
+            if (test.getTaskName().equals(item.get(TEST_NAME))) {
+                return item;
+            }
+        }
+        TreeItem taskName = new TreeItem(test.getDescription() + test.getTaskName());
+        taskName.put(NAME, test.getTaskName());
+        treeStore.add(description, taskName);
+        return taskName;
+    }
+
+    private TreeItem getTestDescriptionItem(TaskDataDto test) {
+        for (TreeItem item : treeStore.getRootItems()) {
+            if (test.getDescription().equals(item.get(TEST_DESCRIPTION))) {
+                return item;
+            }
+        }
+        TreeItem description = new TreeItem(test.getDescription());
+        description.put(NAME, test.getDescription());
+        treeStore.add(description);
+        return description;
     }
 
     private class NoIconsTreeGrid<M> extends TreeGrid<M> {
