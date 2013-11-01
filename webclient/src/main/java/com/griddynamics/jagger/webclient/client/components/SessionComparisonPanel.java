@@ -92,6 +92,7 @@ public class SessionComparisonPanel extends VerticalPanel{
         ColumnConfig<TreeItem, String> nameColumn =
                 new ColumnConfig<TreeItem, String>(new MapValueProvider(NAME), (int)(MIN_COLUMN_WIDTH * 1.5));
         nameColumn.setHeader("Metric");
+        nameColumn.setSortable(false);
         columns.add(nameColumn);
 
         for (SessionDataDto session: sortedSet) {
@@ -100,6 +101,7 @@ public class SessionComparisonPanel extends VerticalPanel{
             );
             column.setHeader(SESSION_HEADER + session.getSessionId());
             column.setWidth(MIN_COLUMN_WIDTH);
+            column.setSortable(false);
             column.setCell(new AbstractCell<String>() {
                 @Override
                 public void render(Context context, String value, SafeHtmlBuilder sb) {
@@ -125,6 +127,7 @@ public class SessionComparisonPanel extends VerticalPanel{
         addSessionInfo(sortedSet);
 
         treeGrid.setAutoExpand(true);
+        treeGrid.getView().setStripeRows(true);
         treeGrid.setMinColumnWidth(MIN_COLUMN_WIDTH);
         treeGrid.getView().setAutoExpandColumn(nameColumn);
         treeGrid.setAllowTextSelection(true);
