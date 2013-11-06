@@ -9,6 +9,7 @@ import com.griddynamics.jagger.webclient.client.dto.*;
 import com.sencha.gxt.core.client.ValueProvider;
 import com.sencha.gxt.data.shared.ModelKeyProvider;
 import com.sencha.gxt.data.shared.TreeStore;
+import com.sencha.gxt.data.shared.event.StoreAddEvent;
 import com.sencha.gxt.widget.core.client.grid.ColumnConfig;
 import com.sencha.gxt.widget.core.client.grid.ColumnModel;
 import com.sencha.gxt.widget.core.client.treegrid.TreeGrid;
@@ -121,10 +122,12 @@ public class SessionComparisonPanel extends VerticalPanel{
             columns.add(column);
         }
 
-        ColumnModel<TreeItem> cm = new ColumnModel<TreeItem>(columns);
-        treeGrid = new NoIconsTreeGrid<TreeItem>(treeStore, cm, nameColumn);
 
-        addSessionInfo(sortedSet);
+        ColumnModel<TreeItem> cm = new ColumnModel<TreeItem>(columns);
+
+
+
+        treeGrid = new NoIconsTreeGrid(treeStore, cm, nameColumn);
 
         treeGrid.setAutoExpand(true);
         treeGrid.getView().setStripeRows(true);
@@ -133,6 +136,21 @@ public class SessionComparisonPanel extends VerticalPanel{
         treeGrid.setAllowTextSelection(true);
         treeGrid.getTreeView().setAutoFill(true);
         add(treeGrid);
+
+        treeStore.addStoreAddHandler(new StoreAddEvent.StoreAddHandler<TreeItem>() {
+            @Override
+            public void onAdd(StoreAddEvent<TreeItem> event) {
+                for (TreeItem item : event.getItems()) {
+                    if (item.containsKey(TEST_INFO)) {
+                        treeGrid.setExpanded(item, false);
+                    } else {
+                        treeGrid.setExpanded(item, true);
+                    }
+                }
+            }
+        });
+
+        addSessionInfo(chosenSessions);
     }
 
     private void addSessionInfo(Set<SessionDataDto> chosenSessions) {
@@ -144,7 +162,6 @@ public class SessionComparisonPanel extends VerticalPanel{
         addStartEndTimeRecords(chosenSessions, sessionInfo);
         addAdditionalRecords(chosenSessions, sessionInfo);
 
-        treeGrid.expandAll();
     }
 
     private void addAdditionalRecords(Set<SessionDataDto> chosenSessions, TreeItem parent) {
@@ -227,7 +244,6 @@ public class SessionComparisonPanel extends VerticalPanel{
         cache.put(metricDto.getMetricName(), metricDto);
         TreeItem record = new TreeItem(metricDto);
         addItemToStore(record);
-        treeGrid.expandAll();
     }
 
 
@@ -280,6 +296,10 @@ public class SessionComparisonPanel extends VerticalPanel{
 
     public void updateTests(Collection<TaskDataDto> tests) {
 
+        if (treeGrid.isAutoExpand()) {
+            treeGrid.setAutoExpand(false);
+        }
+
         List<TaskDataDto> newTests = new ArrayList<TaskDataDto>();
         for (TaskDataDto test : tests) {
             if (!chosenTests.contains(test)) {
@@ -296,7 +316,6 @@ public class SessionComparisonPanel extends VerticalPanel{
             addTestInfo(test);
         }
         chosenTests = tests;
-        treeGrid.expandAll();
     }
 
     private void removeTaskSubTree(TaskDataDto test) {
@@ -320,6 +339,7 @@ public class SessionComparisonPanel extends VerticalPanel{
         clock.put(NAME, "Clock");
         clock.put(TEST_DESCRIPTION, test.getDescription());
         clock.put(TEST_NAME, test.getTaskName());
+        clock.put(TEST_INFO, TEST_INFO);
         for (SessionDataDto session : chosenSessions) {
             clock.put(SESSION_HEADER + session.getSessionId(), test.getClock());
         }
@@ -329,6 +349,7 @@ public class SessionComparisonPanel extends VerticalPanel{
         termination.put(NAME, "Termination");
         termination.put(TEST_DESCRIPTION, test.getDescription());
         termination.put(TEST_NAME, test.getTaskName());
+        termination.put(TEST_INFO, TEST_INFO);
         for (SessionDataDto session : chosenSessions) {
             termination.put(SESSION_HEADER + session.getSessionId(), test.getTerminationStrategy());
         }
@@ -361,20 +382,20 @@ public class SessionComparisonPanel extends VerticalPanel{
         return description;
     }
 
-    private class NoIconsTreeGrid<M> extends TreeGrid<M> {
+    private class NoIconsTreeGrid extends TreeGrid<TreeItem> {
 
 
-        public NoIconsTreeGrid(TreeStore<M> store, ColumnModel<M> cm, ColumnConfig<M, ?> treeColumn) {
+        public NoIconsTreeGrid(TreeStore<TreeItem> store, ColumnModel<TreeItem> cm, ColumnConfig<TreeItem, ?> treeColumn) {
             super(store, cm, treeColumn);
         }
 
         @Override
-        protected ImageResource calculateIconStyle(M model) {
+        protected ImageResource calculateIconStyle(TreeItem model) {
             return null;
         }
     }
 
-    private class TreeItem extends HashMap<String, String> {
+    public class TreeItem extends HashMap<String, String> {
 
         String key;
 
