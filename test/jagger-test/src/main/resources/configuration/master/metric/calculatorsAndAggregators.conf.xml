@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Copyright (c) 2010-2012 Grid Dynamics Consulting Services, Inc, All Rights Reserved
   ~ http://www.griddynamics.com
@@ -18,35 +19,24 @@
   ~ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <groupId>com.griddynamics.jagger</groupId>
-    <artifactId>chassis.parent</artifactId>
-    <version>1.2.3-SNAPSHOT</version>
-    <packaging>pom</packaging>
+    <bean id="alwaysIncrease" class="metric.AlwaysIncrease"/>
 
-    <name>${groupId}.${artifactId}</name>
-    <url>http://maven.apache.org</url>
+    <bean id="constant" class="metric.ConstantMetric">
+        <property name="constant" value="100.98765"/>
+    </bean>
 
-    <parent>
-        <groupId>com.griddynamics.jagger</groupId>
-        <artifactId>parent</artifactId>
-        <version>1.2.3-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
+    <bean id="responseSize" class="metric.ResponseBodySize"/>
 
-    <modules>
-        <module>core</module>
-        <module>util</module>
-        <module>configuration</module>
-        <module>coordinator</module>
-        <module>coordinator.zookeeper</module>
-        <module>coordinator.http</module>
-        <module>invokers</module>
-        <module>providers</module>
-        <module>invoker.hessian</module>
-        <module>spring.schema</module>
-    </modules>
+    <bean id="returnCode" class="metric.ReturnCode"/>
 
-</project>
+    <bean id="sin" class="metric.SinMetric"/>
+
+    <bean id="maxAggregator" class="metric.aggregator.MaxAggregator"/>
+
+    <bean id="minAggregator" class="metric.aggregator.MinAggregator"/>
+
+</beans>

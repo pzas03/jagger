@@ -14,14 +14,14 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
-public class SuccessRateCollector<Q, R, E> extends MetricCollector<Q, R, E> {
-    private static final Logger log = LoggerFactory.getLogger(SuccessRateCollector.class);
+public class ExampleSuccessRateCollector<Q, R, E> extends MetricCollector<Q, R, E> {
+    private static final Logger log = LoggerFactory.getLogger(ExampleSuccessRateCollector.class);
 
     private long startTime = 0;
 
-    public SuccessRateCollector(String sessionId, String taskId, NodeContext kernelContext)
+    public ExampleSuccessRateCollector(String sessionId, String taskId, NodeContext kernelContext)
     {
-        super(sessionId, taskId, kernelContext,new SimpleMetricCalculator(),"successRate");
+        super(sessionId, taskId, kernelContext,new SimpleMetricCalculator(),"exampleSuccessRate");
     }
 
     @Override
@@ -56,8 +56,8 @@ public class SuccessRateCollector<Q, R, E> extends MetricCollector<Q, R, E> {
         // Log result to Kernel storage
         String METRIC_MARKER = "METRIC";
         LogWriter logWriter = kernelContext.getService(LogWriter.class);
-        logWriter.log(sessionId, taskId + File.separatorChar + METRIC_MARKER + File.separatorChar + "successRate", kernelContext.getId().getIdentifier(),
-                new MetricLogEntry(startTime, "successRate", result));
+        logWriter.log(sessionId, taskId + File.separatorChar + METRIC_MARKER + File.separatorChar + "exampleSuccessRate", kernelContext.getId().getIdentifier(),
+                new MetricLogEntry(startTime, "exampleSuccessRate", result));
     }
 
 }

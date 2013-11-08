@@ -155,7 +155,7 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
                         }
                     });
                 } catch (Exception e) {
-                    log.error("Error during processing metric by path: '{}'",metricPath , e);
+                    log.error("Error during processing metric by path: '{}'",metricPath);
                 }
             }
 

@@ -51,9 +51,9 @@
             <map>
                 <entry key="WAIT_BEFORE" value="20000"/>
                 <entry key="SET_JMX_METRICS">
-                    <array>
+                    <bean class="java.util.ArrayList">
                         <!-- Empty array -->
-                    </array>
+                    </bean>
                 </entry>
                 <!--<entry key="HALT" value="true"/>-->
             </map>
