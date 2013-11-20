@@ -20,12 +20,14 @@
 
 package com.griddynamics.jagger.engine.e1.collector;
 
+import com.griddynamics.jagger.engine.e1.Provider;
+
 /**
  * @author Nikolay Musienko
  *         Date: 25.07.13
  */
 
-public interface MetricAggregatorProvider {
+public interface MetricAggregatorProvider extends Provider<MetricAggregator> {
 
     MetricAggregator provide();
 
