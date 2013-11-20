@@ -105,7 +105,7 @@ public class SamplingProfilerImpl implements SamplingProfiler {
             long timeout = 0;
             while (isRunning.get()) {
                 TimeUtils.sleepMillis(timeout);
-                timeout = 0;
+                timeout = jmxTimeout.getValue();
                 Map<String, ThreadInfo[]> threadInfos = null;
                 if (jmxThreadPoolExecutor.getActiveCount() == 0) {
 
@@ -124,7 +124,6 @@ public class SamplingProfilerImpl implements SamplingProfiler {
                     } catch (TimeoutException e) {
                         log.warn("SamplingProfiler {} : timeout. Collection of jmxInfo was not finished in {}. Pass out without jmxInfo",
                                 identifier,jmxTimeout.toString());
-                        timeout = jmxTimeout.getValue();
                         continue;
                     }
                 } else {
