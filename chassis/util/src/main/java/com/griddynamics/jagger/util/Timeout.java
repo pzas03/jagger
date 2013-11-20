@@ -20,15 +20,10 @@
 
 package com.griddynamics.jagger.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class Timeout {
-    private static final Logger log = LoggerFactory.getLogger(Timeout.class);
-
-    private long    value = 0;
-    private String  unit = "ms";
-    private String  name = "";
+    private long            value = 0;
+    private final String    unit = "ms";
+    private String          name = "";
 
     public Timeout(long value, String name) {
         this.value = value;
@@ -59,6 +54,10 @@ public class Timeout {
 
     public void setValue(long value) {
         this.value = value;
+    }
+
+    public String toString() {
+        return this.value + " " + this.unit + " (" + this.name + ")";
     }
 
 }

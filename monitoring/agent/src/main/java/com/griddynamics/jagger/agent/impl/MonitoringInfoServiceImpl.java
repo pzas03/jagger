@@ -130,8 +130,8 @@ public class MonitoringInfoServiceImpl implements MonitoringInfoService {
                 log.error("Execution failed {}", e);
                 throw Throwables.propagate(e);
             } catch (TimeoutException e) {
-                log.warn("Timeout. Collection of jmxInfo was not finished in {} {} ({}). Pass out without jmxInfo",
-                        new Object[] {jmxTimeout.getValue(),jmxTimeout.getUnit(),jmxTimeout.getName()});
+                log.warn("Timeout. Collection of jmxInfo was not finished in {}. Pass out without jmxInfo",
+                        jmxTimeout.toString());
                 TimeUtils.sleepMillis(jmxTimeout.getValue());
             }
         } else {

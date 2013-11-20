@@ -122,8 +122,8 @@ public class SamplingProfilerImpl implements SamplingProfiler {
                         log.error("Execution failed {}", e);
                         throw Throwables.propagate(e);
                     } catch (TimeoutException e) {
-                        log.warn("SamplingProfiler {} : timeout. Collection of jmxInfo was not finished in {} {} ({}). Pass out without jmxInfo",
-                                new Object[] {identifier,jmxTimeout.getValue(),jmxTimeout.getUnit(),jmxTimeout.getName()});
+                        log.warn("SamplingProfiler {} : timeout. Collection of jmxInfo was not finished in {}. Pass out without jmxInfo",
+                                identifier,jmxTimeout.toString());
                         timeout = jmxTimeout.getValue();
                         continue;
                     }
