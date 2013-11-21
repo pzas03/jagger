@@ -100,7 +100,7 @@ public interface LoadBalancer<Q, E> extends Iterable<Pair<Q, E>>, Serializable {
 /// @section Section_distributors_random Access SUT with random order of endpoint / query pairs
 /// Pairs of endpoint / query are collected into list single time during Jagger start up. @n
 /// By default all threads are accessing elements of mentioned list in the same order: from first element to the last, doing this in cycle. @n
-/// If it is necessary to execute endpoint / query pairs in random order, set @xlink{query-distributor,randomSeed} attribute of @xlink{query-distributor} equal to some integer value @n
+/// If it is necessary to execute endpoint / query pairs in random order, set @xlink_complex{queryDistributorRandomAbstract,randomSeed} attribute of f.e. @xlink{query-distributor-round-robin} equal to some integer value @n
 /// @image html jagger_random_query_distribution.png "Access SUT with random order of endpoint / query pairs"
 
 
