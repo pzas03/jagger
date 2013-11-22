@@ -154,7 +154,7 @@ public class WorkloadExecutionStatusBuilder {
                 report += String.format(format,
                         node.getIdentifier(), this.threads.get(node),
                         this.startedSamples.get(node),
-                        this.finishedSamples.get(node), this.delays.get(node), (double)this.durationTime.get(node)/1000.0);
+                        this.finishedSamples.get(node), this.delays.get(node), this.durationTime.get(node)/1000);
             }
             return report + line;
         }
