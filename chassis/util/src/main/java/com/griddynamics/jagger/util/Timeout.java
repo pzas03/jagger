@@ -20,6 +20,9 @@
 
 package com.griddynamics.jagger.util;
 
+/**
+ * main goal: more meaningful timeout error messages
+ */
 public class Timeout {
     private long            value = 0;
     private final String    unit = "ms";

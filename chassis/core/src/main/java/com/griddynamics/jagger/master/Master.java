@@ -34,6 +34,7 @@ import com.griddynamics.jagger.storage.KeyValueStorage;
 import com.griddynamics.jagger.storage.fs.logging.LogReader;
 import com.griddynamics.jagger.storage.fs.logging.LogWriter;
 import com.griddynamics.jagger.util.Futures;
+import com.griddynamics.jagger.util.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -154,8 +155,8 @@ public class Master implements Runnable {
         new StartWorkConditions(allNodes, countDownLatchMap);
 
         try {
-            agentCountDownLatch.await(timeoutConfiguration.getNodeAwaitTime(), TimeUnit.MILLISECONDS);
-            kernelCountDownLatch.await(timeoutConfiguration.getNodeAwaitTime(), TimeUnit.MILLISECONDS);
+            agentCountDownLatch.await(timeoutConfiguration.getNodeAwaitTime().getValue(), TimeUnit.MILLISECONDS);
+            kernelCountDownLatch.await(timeoutConfiguration.getNodeAwaitTime().getValue(), TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             log.warn("CountDownLatch await interrupted", e);
         }
@@ -294,7 +295,7 @@ public class Master implements Runnable {
                 start = distribute.start();
             }
             Futures.get(start, timeoutConfiguration.getDistributionStartTime());
-            Services.awaitTermination(distribute, timeoutConfiguration.getTaskExecutionTime());
+            Services.awaitTermination(distribute, timeoutConfiguration.getTaskExecutionTime().getValue());
         } finally {
             Future<Service.State> stop = distribute.stop();
             Futures.get(stop, timeoutConfiguration.getDistributionStopTime());

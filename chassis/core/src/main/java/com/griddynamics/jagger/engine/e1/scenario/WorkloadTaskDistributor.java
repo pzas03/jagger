@@ -90,7 +90,7 @@ public class WorkloadTaskDistributor extends AbstractDistributor<WorkloadTask> {
 
                     log.debug("Going to do calibration");
                     Calibrator calibrator = task.getCalibrator();
-                    calibrator.calibrate(sessionId, taskId, task.getScenarioFactory(), remotes, timeoutsConfiguration.getCalibrationTimeout());
+                    calibrator.calibrate(sessionId, taskId, task.getScenarioFactory(), remotes, timeoutsConfiguration.getCalibrationTimeout().getValue());
                     log.debug("Calibrator completed");
 
                     if (task.getStartDelay() > 0) {
