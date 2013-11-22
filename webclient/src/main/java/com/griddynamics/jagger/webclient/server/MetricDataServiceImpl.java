@@ -247,7 +247,7 @@ public class MetricDataServiceImpl implements MetricDataService {
 
         PlotSeriesDto psd = new PlotSeriesDto(
                 Arrays.asList(pdd),
-               "Sessions" ,
+                "Sessions" ,
                 metricDto.getMetricName().getName(),
                 headerBuilder.toString()
         );
