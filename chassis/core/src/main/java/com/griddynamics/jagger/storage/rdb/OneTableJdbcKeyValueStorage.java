@@ -168,4 +168,5 @@ public class OneTableJdbcKeyValueStorage implements KeyValueStorage {
         }
         return result;
     }
+    public void deleteAll(){}
 }

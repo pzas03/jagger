@@ -214,6 +214,7 @@ public class Master implements Runnable {
         } finally {
             try {
                 Runtime.getRuntime().removeShutdownHook(shutdownHook);
+                keyValueStorage.deleteAll();
             } catch (Exception e) {
             }
             terminateConfigurationLatch.countDown();
