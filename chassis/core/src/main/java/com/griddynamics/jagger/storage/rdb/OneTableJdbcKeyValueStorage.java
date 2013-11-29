@@ -170,5 +170,7 @@ import java.util.Map;
     }
 
     @Override
-    public void deleteAll(){}
+    public void deleteAll(){
+        jdbcTemplate.update("delete * from " + TABLE_NAME);
+    }
 }
