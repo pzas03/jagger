@@ -213,8 +213,11 @@ public class Master implements Runnable {
             log.info("Agents stopped");
         } finally {
             try {
-                Runtime.getRuntime().removeShutdownHook(shutdownHook);
                 keyValueStorage.deleteAll();
+            } catch (Exception e){
+            }
+            try {
+                Runtime.getRuntime().removeShutdownHook(shutdownHook);
             } catch (Exception e) {
             }
             terminateConfigurationLatch.countDown();
