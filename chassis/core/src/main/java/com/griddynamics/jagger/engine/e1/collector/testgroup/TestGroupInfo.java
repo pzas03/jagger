@@ -2,21 +2,38 @@ package com.griddynamics.jagger.engine.e1.collector.testgroup;
 
 import com.griddynamics.jagger.master.CompositeTask;
 
-/**
- * Created with IntelliJ IDEA.
- * User: kgribov
- * Date: 11/8/13
- * Time: 10:25 AM
- * To change this template use File | Settings | File Templates.
- */
-public abstract class TestGroupInfo {
-    private CompositeTask task;
+/** Class, which contains some information about test-group execution
+ * @author Gribov Kirill
+ * @n
+ * @par Details:
+ * @details
+ * @n
+ * */
+public class TestGroupInfo {
+    private CompositeTask testGroup;
+    private long duration;
 
-    public CompositeTask getTask() {
-        return task;
+    /** Returns current test-group
+     * @author Gribov Kirill
+     * @n
+     * */
+    public CompositeTask getTestGroup() {
+        return testGroup;
     }
 
-    public void setTask(CompositeTask task) {
-        this.task = task;
+    public void setTestGroup(CompositeTask testGroup) {
+        this.testGroup = testGroup;
+    }
+
+    /** Returns test-group duration
+     * @author Gribov Kirill
+     * @n
+     * */
+    public long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
     }
 }

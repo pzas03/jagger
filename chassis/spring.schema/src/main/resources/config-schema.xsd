@@ -399,7 +399,7 @@
     <xsd:complexType name="t-listener-threads">
         <xsd:annotation>
             <xsd:documentation>
-                Test listener, that collects number of threads.
+                Test listener, that collects number of Jagger threads.
             </xsd:documentation>
         </xsd:annotation>
         <xsd:complexContent>
@@ -2008,7 +2008,6 @@
     <xsd:complexType name="jmxMetricsType">
         <xsd:annotation>
             <xsd:documentation>
-                rtgrtgr
             </xsd:documentation>
         </xsd:annotation>
         <xsd:complexContent>

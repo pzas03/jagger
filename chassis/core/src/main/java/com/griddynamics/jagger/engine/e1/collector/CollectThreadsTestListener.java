@@ -1,8 +1,7 @@
 package com.griddynamics.jagger.engine.e1.collector;
 
-import com.griddynamics.jagger.engine.e1.collector.test.TestInfoStart;
-import com.griddynamics.jagger.engine.e1.collector.test.TestInfoStatus;
-import com.griddynamics.jagger.engine.e1.collector.test.TestInfoStop;
+import com.griddynamics.jagger.engine.e1.collector.test.TestInfo;
+import com.griddynamics.jagger.engine.e1.collector.test.TestListener;
 import com.griddynamics.jagger.engine.e1.services.AbstractServicesAwareProvider;
 
 /**
@@ -28,13 +27,13 @@ public class CollectThreadsTestListener extends AbstractServicesAwareProvider<Te
     public TestListener provide() {
         return new TestListener() {
             @Override
-            public void onStart(TestInfoStart testInfo) {}
+            public void onStart(TestInfo testInfo) {}
 
             @Override
-            public void onStop(TestInfoStop testInfo) {}
+            public void onStop(TestInfo testInfo) {}
 
             @Override
-            public void onTick(TestInfoStatus status) {
+            public void onRun(TestInfo status) {
                 getMetricService().saveValue(metricId, status.getThreads());
             }
         };

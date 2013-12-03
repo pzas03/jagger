@@ -17,7 +17,7 @@ public class MetricDescription implements Serializable{
     protected String id;
     protected String displayName;
     protected boolean showSummary = true;
-    protected boolean showPlotData;
+    protected boolean plotData;
     protected List<MetricAggregatorProvider> aggregators = Lists.newArrayList();
 
     public MetricDescription(String metricId) {
@@ -52,12 +52,12 @@ public class MetricDescription implements Serializable{
         this.showSummary = showSummary;
     }
 
-    public boolean getShowPlotData() {
-        return showPlotData;
+    public boolean getPlotData() {
+        return plotData;
     }
 
-    public void setShowPlotData(boolean showPlot) {
-        this.showPlotData = showPlot;
+    public void setPlotData(boolean showPlot) {
+        this.plotData = showPlot;
     }
 
     public MetricDescription showSummary(boolean show){
@@ -66,7 +66,7 @@ public class MetricDescription implements Serializable{
     }
 
     public MetricDescription plotData(boolean show){
-        this.showPlotData = show;
+        this.plotData = show;
         return this;
     }
 

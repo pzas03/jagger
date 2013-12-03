@@ -26,10 +26,8 @@ import com.google.common.util.concurrent.Service;
 import com.griddynamics.jagger.coordinator.*;
 import com.griddynamics.jagger.engine.e1.Provider;
 import com.griddynamics.jagger.engine.e1.aggregator.session.model.TaskData;
-import com.griddynamics.jagger.engine.e1.collector.TestListener;
-import com.griddynamics.jagger.engine.e1.collector.test.TestInfoStart;
-import com.griddynamics.jagger.engine.e1.collector.test.TestInfoStatus;
-import com.griddynamics.jagger.engine.e1.collector.test.TestInfoStop;
+import com.griddynamics.jagger.engine.e1.collector.test.TestInfo;
+import com.griddynamics.jagger.engine.e1.collector.test.TestListener;
 import com.griddynamics.jagger.engine.e1.process.PollWorkloadProcessStatus;
 import com.griddynamics.jagger.engine.e1.process.StartWorkloadProcess;
 import com.griddynamics.jagger.engine.e1.process.StopWorkloadProcess;
@@ -96,14 +94,18 @@ public class WorkloadTaskDistributor extends AbstractDistributor<WorkloadTask> {
                 TestListener testListener = TestListener.Composer.compose(listeners);
                 Long startTime = null;
 
+                //create status info
+                TestInfo testInfo = new TestInfo();
+                testInfo.setTest(task);
+                testInfo.setDuration(0L);
+                testInfo.setThreads(0);
+                testInfo.setSamples(0);
+                testInfo.setStartedSamples(0);
+
                 DefaultWorkloadController controller = null;
                 try {
-                    // create start status
-                    TestInfoStart infoStart = new TestInfoStart();
-                    infoStart.setTask(task);
 
-                    // launch start actions
-                    testListener.onStart(infoStart);
+                    testListener.onStart(testInfo);
 
                     String line = " ---------------------------------------------------------------------------------------------------------------------------------------------------\n";
                     String report = "\n\n" + line + "S T A R T     W O R K L O A D\n" + line + "\n";
@@ -143,14 +145,13 @@ public class WorkloadTaskDistributor extends AbstractDistributor<WorkloadTask> {
 
                         WorkloadExecutionStatus status = controller.getStatus();
 
-                        // create tick status
-                        TestInfoStatus tickInfo = new TestInfoStatus();
-                        tickInfo.setTask(task);
-                        tickInfo.setSamples(status.getTotalSamples());
-                        tickInfo.setStartedSamples(status.getTotalStartedSamples());
-                        tickInfo.setThreads(status.getTotalThreads());
+                        // update status
+                        testInfo.setSamples(status.getTotalSamples());
+                        testInfo.setStartedSamples(status.getTotalStartedSamples());
+                        testInfo.setThreads(status.getTotalThreads());
+                        testInfo.setDuration(System.currentTimeMillis() - startTime);
 
-                        testListener.onTick(tickInfo);
+                        testListener.onRun(testInfo);
 
                         if (terminationStrategy.isTerminationRequired(status)) {
                             report = "\n\n" + line + "S T O P     W O R K L O A D\n" + line + "\n";
@@ -180,17 +181,10 @@ public class WorkloadTaskDistributor extends AbstractDistributor<WorkloadTask> {
                         controller.stopWorkload();
                         log.debug("Workload stopped");
                     }
+                    testInfo.setThreads(0);
+                    testInfo.setDuration(System.currentTimeMillis()-startTime);
 
-                    // create stop info
-                    TestInfoStop infoStop = new TestInfoStop();
-                    infoStop.setTask(task);
-                    if (startTime == null){
-                        infoStop.setDuration(0L);
-                    }else{
-                        infoStop.setDuration(System.currentTimeMillis() - startTime);
-                    }
-
-                    testListener.onStop(infoStop);
+                    testListener.onStop(testInfo);
                 }
             }
 

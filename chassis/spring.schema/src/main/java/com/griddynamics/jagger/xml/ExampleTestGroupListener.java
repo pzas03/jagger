@@ -1,8 +1,7 @@
 package com.griddynamics.jagger.xml;
 
 import com.griddynamics.jagger.engine.e1.Provider;
-import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupInfoStart;
-import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupInfoStop;
+import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupInfo;
 import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupListener;
 
 /**
@@ -17,12 +16,12 @@ public class ExampleTestGroupListener implements Provider<TestGroupListener> {
     public TestGroupListener provide() {
         return new TestGroupListener() {
             @Override
-            public void onStart(TestGroupInfoStart infoStart) {
+            public void onStart(TestGroupInfo infoStart) {
 
             }
 
             @Override
-            public void onStop(TestGroupInfoStop infoStop) {
+            public void onStop(TestGroupInfo infoStop) {
 
             }
         };

@@ -17,14 +17,14 @@ public interface TestGroupListener {
      * @n
      *
      * @param infoStart - describes test-group start information */
-    void onStart(TestGroupInfoStart infoStart);
+    void onStart(TestGroupInfo infoStart);
 
     /** Executes after test-group stops
      * @author Gribov Kirill
      * @n
      *
      * @param infoStop - describes test-group stop information */
-    void onStop(TestGroupInfoStop infoStop);
+    void onStop(TestGroupInfo infoStop);
 
     public static class Composer implements TestGroupListener{
         private List<TestGroupListener> listenerList;
@@ -34,14 +34,14 @@ public interface TestGroupListener {
         }
 
         @Override
-        public void onStart(TestGroupInfoStart infoStart) {
+        public void onStart(TestGroupInfo infoStart) {
             for (TestGroupListener listener : listenerList){
                 listener.onStart(infoStart);
             }
         }
 
         @Override
-        public void onStop(TestGroupInfoStop infoStop) {
+        public void onStop(TestGroupInfo infoStop) {
             for (TestGroupListener listener : listenerList){
                 listener.onStop(infoStop);
             }

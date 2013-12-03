@@ -2,21 +2,77 @@ package com.griddynamics.jagger.engine.e1.collector.test;
 
 import com.griddynamics.jagger.engine.e1.scenario.WorkloadTask;
 
-/**
- * Created with IntelliJ IDEA.
- * User: kgribov
- * Date: 12/2/13
- * Time: 3:31 PM
- * To change this template use File | Settings | File Templates.
- */
-public abstract class TestInfo {
-    private WorkloadTask task;
+/** Class, which contains some information about test execution
+ * @author Gribov Kirill
+ * @n
+ * @par Details:
+ * @details
+ * @n
+ * */
+public class TestInfo {
+    private WorkloadTask test;
+    private int threads;
+    private int samples;
+    private int startedSamples;
+    private long duration;
 
-    public WorkloadTask getTask() {
-        return task;
+    /** Returns current test
+     * @author Gribov Kirill
+     * @n
+     * */
+    public WorkloadTask getTest() {
+        return test;
     }
 
-    public void setTask(WorkloadTask task) {
-        this.task = task;
+    public void setTest(WorkloadTask test) {
+        this.test = test;
+    }
+
+    /** Returns current number of threads, that Jagger use to generate load
+     * @author Gribov Kirill
+     * @n
+     * */
+    public int getThreads() {
+        return threads;
+    }
+
+    public void setThreads(int threads) {
+        this.threads = threads;
+    }
+
+    /** Returns total number of completed samples (all responses from SUT)
+     * @author Gribov Kirill
+     * @n
+     * */
+    public int getSamples() {
+        return samples;
+    }
+
+    public void setSamples(int samples) {
+        this.samples = samples;
+    }
+
+    /** Returns total number of started samples (invokes)
+     * @author Gribov Kirill
+     * @n
+     * */
+    public int getStartedSamples() {
+        return startedSamples;
+    }
+
+    public void setStartedSamples(int startedSamples) {
+        this.startedSamples = startedSamples;
+    }
+
+    /** Returns test duration
+     * @author Gribov Kirill
+     * @n
+     * */
+    public long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
     }
 }

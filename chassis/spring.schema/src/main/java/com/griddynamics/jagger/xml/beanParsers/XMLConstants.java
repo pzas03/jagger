@@ -184,7 +184,7 @@ public class XMLConstants {
     public static final String START_DELAY_ATTRIBUTE = "startDelay";
 
     public static final String AGGREGATORS = "aggregators";
-    public static final String NEED_PLOT_DATA = "showPlotData";
+    public static final String NEED_PLOT_DATA = "plotData";
     public static final String NEED_SAVE_SUMMARY = "showSummary";
     public static final String METRIC_AGGREGATOR_PROVIDER = "metricAggregatorProvider";
     public static final String METRIC_DESCRIPTION = "metricDescription";

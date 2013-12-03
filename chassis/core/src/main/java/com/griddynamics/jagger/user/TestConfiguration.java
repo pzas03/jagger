@@ -1,9 +1,10 @@
 package com.griddynamics.jagger.user;
 
 import com.griddynamics.jagger.engine.e1.Provider;
-import com.griddynamics.jagger.engine.e1.collector.TestListener;
+import com.griddynamics.jagger.engine.e1.collector.test.TestListener;
 import com.griddynamics.jagger.engine.e1.scenario.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -22,7 +23,7 @@ public class TestConfiguration {
     private int number;
     private String testGroupName;
     private long startDelay = -1;
-    private List<Provider<TestListener>> listeners;
+    private List<Provider<TestListener>> listeners = Collections.EMPTY_LIST;
     private TestDescription testDescription;
 
     public long getStartDelay() {
