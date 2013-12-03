@@ -20,29 +20,47 @@
 
 package com.griddynamics.jagger.util;
 
-import com.google.common.base.Throwables;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+/**
+ * main goal: more meaningful timeout error messages
+ */
+public class Timeout {
+    private long            value = 0;
+    private final String    unit = "ms";
+    private String          name = "";
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+    public Timeout(long value, String name) {
+        this.value = value;
+        this.name = name;
+    }
+    public Timeout() {
+        this(0, "");
+    }
+    public Timeout(Timeout timeout) {
+        this(timeout.getValue(), timeout.getName());
+    }
 
-public class Futures {
-    private final static Logger log = LoggerFactory.getLogger(Futures.class);
+    public String getUnit() {
+        return unit;
+    }
 
-    public static <V> V get(Future<V> future, Timeout millis) {
-        try {
-            return com.google.common.util.concurrent.Futures.makeUninterruptible(future).get(millis.getValue(), TimeUnit.MILLISECONDS);
-        } catch (ExecutionException e) {
-            log.error("Execution failed {}", e);
-            throw Throwables.propagate(e);
-        } catch (TimeoutException e) {
-            log.error("Timeout of {} failed \n{}", millis.toString(), e);
-            throw Throwables.propagate(e);
-        }
+    public String getName() {
+        return name;
+    }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public long getValue() {
+        return value;
+    }
+
+    public void setValue(long value) {
+        this.value = value;
+    }
+
+    public String toString() {
+        return this.value + " " + this.unit + " (" + this.name + ")";
     }
 
 }

@@ -37,6 +37,7 @@ import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupListener;
 import com.griddynamics.jagger.util.Futures;
 import com.griddynamics.jagger.util.Injector;
 import com.griddynamics.jagger.util.TimeUtils;
+import com.griddynamics.jagger.util.Timeout;
 import com.griddynamics.jagger.util.TimeoutsConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -197,9 +198,9 @@ public class CompositeTaskDistributor implements TaskDistributor<CompositeTask> 
             private void awaitAttendant(List<Future<State>> attendantFutures) {
                 for (Future<State> future : attendantFutures) {
                     try {
-                        future.get(timeoutsConfiguration.getWorkloadStopTimeout(), TimeUnit.MILLISECONDS);
+                        future.get(timeoutsConfiguration.getWorkloadStopTimeout().getValue(), TimeUnit.MILLISECONDS);
                     } catch (TimeoutException e) {
-                        log.warn("Attendant task timeout", e);
+                        log.warn("Attendant task timeout " + timeoutsConfiguration.getWorkloadStopTimeout().toString(), e);
                     } catch (InterruptedException e) {
                         log.warn("Interrupted", e);
                     } catch (ExecutionException e) {

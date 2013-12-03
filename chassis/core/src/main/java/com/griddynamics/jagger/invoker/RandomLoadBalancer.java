@@ -18,31 +18,43 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.griddynamics.jagger.util;
+package com.griddynamics.jagger.invoker;
 
-import com.google.common.base.Throwables;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.google.common.collect.AbstractIterator;
+import com.griddynamics.jagger.util.Pair;
+import java.util.Iterator;
+import java.util.Random;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+public class RandomLoadBalancer<Q, E> extends PairSupplierFactoryLoadBalancer<Q, E> {
 
-public class Futures {
-    private final static Logger log = LoggerFactory.getLogger(Futures.class);
+    private long randomSeed;
 
-    public static <V> V get(Future<V> future, Timeout millis) {
-        try {
-            return com.google.common.util.concurrent.Futures.makeUninterruptible(future).get(millis.getValue(), TimeUnit.MILLISECONDS);
-        } catch (ExecutionException e) {
-            log.error("Execution failed {}", e);
-            throw Throwables.propagate(e);
-        } catch (TimeoutException e) {
-            log.error("Timeout of {} failed \n{}", millis.toString(), e);
-            throw Throwables.propagate(e);
-        }
-
+    public void setRandomSeed(long randomSeed) {
+        this.randomSeed = randomSeed;
     }
 
+    public long getRandomSeed() {
+        return randomSeed;
+    }
+
+    @Override
+    public Iterator<Pair<Q, E>> provide() {
+
+        return new AbstractIterator<Pair<Q,E>>() {
+
+            private PairSupplier<Q, E> pairs = getPairSupplier();
+            private int size = pairs.size();
+            private Random random = new Random(randomSeed++);
+
+            @Override
+            protected Pair<Q, E> computeNext() {
+                return pairs.get(random.nextInt(size));
+            }
+
+            @Override
+            public String toString() {
+                return "RandomLoadBalancer iterator";
+            }
+        };
+    }
 }

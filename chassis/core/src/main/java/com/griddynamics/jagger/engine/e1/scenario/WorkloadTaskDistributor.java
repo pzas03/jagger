@@ -94,7 +94,7 @@ public class WorkloadTaskDistributor extends AbstractDistributor<WorkloadTask> {
                     listeners.add(provider.provide());
                 }
                 TestListener testListener = TestListener.Composer.compose(listeners);
-                long startTime = System.currentTimeMillis();
+                Long startTime = null;
 
                 DefaultWorkloadController controller = null;
                 try {
@@ -105,14 +105,14 @@ public class WorkloadTaskDistributor extends AbstractDistributor<WorkloadTask> {
                     // launch start actions
                     testListener.onStart(infoStart);
 
-                    String line = "------------------------------------------------------------------------------------------------------------------------------\n";
+                    String line = " ---------------------------------------------------------------------------------------------------------------------------------------------------\n";
                     String report = "\n\n" + line + "S T A R T     W O R K L O A D\n" + line + "\n";
                     log.info(report);
                     log.info("Going to distribute workload task {}", task);
 
                     log.debug("Going to do calibration");
                     Calibrator calibrator = task.getCalibrator();
-                    calibrator.calibrate(sessionId, taskId, task.getScenarioFactory(), remotes, timeoutsConfiguration.getCalibrationTimeout());
+                    calibrator.calibrate(sessionId, taskId, task.getScenarioFactory(), remotes, timeoutsConfiguration.getCalibrationTimeout().getValue());
                     log.debug("Calibrator completed");
 
                     if (task.getStartDelay() > 0) {
@@ -121,7 +121,8 @@ public class WorkloadTaskDistributor extends AbstractDistributor<WorkloadTask> {
                         log.info("Start execution of task: {}", task);
                     }
 
-                    controller = new DefaultWorkloadController(sessionId, taskId, task, remotes, timeoutsConfiguration);
+                    startTime = System.currentTimeMillis() ;
+                    controller = new DefaultWorkloadController(sessionId, taskId, task, remotes, timeoutsConfiguration, startTime);
 
                     WorkloadClock clock = task.getClock();
                     TerminationStrategy terminationStrategy = task.getTerminationStrategy();
@@ -133,7 +134,6 @@ public class WorkloadTaskDistributor extends AbstractDistributor<WorkloadTask> {
                     int sleepInterval = clock.getTickInterval();
                     long multiplicity = logInterval / sleepInterval;
                     long countIntervals = 0;
-                    startTime = System.currentTimeMillis();
 
                     while (true) {
                         if (!isRunning()) {
@@ -184,7 +184,11 @@ public class WorkloadTaskDistributor extends AbstractDistributor<WorkloadTask> {
                     // create stop info
                     TestInfoStop infoStop = new TestInfoStop();
                     infoStop.setTask(task);
-                    infoStop.setDuration(System.currentTimeMillis() - startTime);
+                    if (startTime == null){
+                        infoStop.setDuration(0L);
+                    }else{
+                        infoStop.setDuration(System.currentTimeMillis() - startTime);
+                    }
 
                     testListener.onStop(infoStop);
                 }

@@ -240,15 +240,7 @@ public class MetricDataServiceImpl implements MetricDataService {
                 ColorCodeGenerator.getHexColorCode()
         );
 
-        StringBuilder headerBuilder = new StringBuilder("Sessions ");
-        List<Long> ids = new ArrayList<Long>();
-        for (MetricValueDto mvd: metricDto.getValues()) {
-            ids.add(mvd.getSessionId());
-        }
-        Collections.sort(ids);
-        for(long id : ids) {
-            headerBuilder.append("#").append(id).append(", ");
-        }
+        StringBuilder headerBuilder = new StringBuilder();
         headerBuilder.append(metricDto.getMetricName().getTests().getTaskName()).
                 append(", ").
                 append(metricDto.getMetricName().getName());
