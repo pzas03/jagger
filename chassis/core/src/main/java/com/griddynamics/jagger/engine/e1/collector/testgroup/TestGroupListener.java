@@ -2,15 +2,28 @@ package com.griddynamics.jagger.engine.e1.collector.testgroup;
 
 import java.util.List;
 
-/**
- * Created with IntelliJ IDEA.
- * User: kgribov
- * Date: 11/8/13
- * Time: 10:07 AM
- * To change this template use File | Settings | File Templates.
- */
+/** Listener, that executes before and after test-group execution.
+ * @author Gribov Kirill
+ * @n
+ * @par Details:
+ * @details
+ * @n
+ *
+ * @ingroup */
 public interface TestGroupListener {
+
+    /** Executes before test-group starts
+     * @author Gribov Kirill
+     * @n
+     *
+     * @param infoStart - describes test-group start information */
     void onStart(TestGroupInfoStart infoStart);
+
+    /** Executes after test-group stops
+     * @author Gribov Kirill
+     * @n
+     *
+     * @param infoStop - describes test-group stop information */
     void onStop(TestGroupInfoStop infoStop);
 
     public static class Composer implements TestGroupListener{

@@ -9,6 +9,7 @@ import com.griddynamics.jagger.monitoring.InfiniteDuration;
 import com.griddynamics.jagger.monitoring.MonitoringTask;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -17,7 +18,7 @@ public class TestGroupConfiguration {
 
     private String id;
     private List<TestConfiguration> tests;
-    private List<Provider<TestGroupListener>> listeners;
+    private List<Provider<TestGroupListener>> listeners = Collections.EMPTY_LIST;
     private boolean monitoringEnabled;
     private int number;
 

@@ -1,6 +1,6 @@
 package com.griddynamics.jagger.engine.e1.collector;
 
-import com.griddynamics.jagger.engine.e1.collector.MetricAggregatorProvider;
+import com.google.common.collect.Lists;
 
 import java.io.Serializable;
 import java.util.List;
@@ -18,10 +18,10 @@ public class MetricDescription implements Serializable{
     protected String displayName;
     protected boolean showSummary = true;
     protected boolean showPlotData;
-    protected List<MetricAggregatorProvider> aggregators;
+    protected List<MetricAggregatorProvider> aggregators = Lists.newArrayList();
 
-    public MetricDescription(String id) {
-        this.id = id;
+    public MetricDescription(String metricId) {
+        this.id = metricId;
     }
 
     public String getId() {
@@ -58,5 +58,25 @@ public class MetricDescription implements Serializable{
 
     public void setShowPlotData(boolean showPlot) {
         this.showPlotData = showPlot;
+    }
+
+    public MetricDescription showSummary(boolean show){
+        this.showSummary = show;
+        return this;
+    }
+
+    public MetricDescription plotData(boolean show){
+        this.showPlotData = show;
+        return this;
+    }
+
+    public MetricDescription displayName(String name){
+        this.displayName = name;
+        return this;
+    }
+
+    public MetricDescription addAggregator(MetricAggregatorProvider provider){
+        aggregators.add(provider);
+        return this;
     }
 }

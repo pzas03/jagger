@@ -87,6 +87,8 @@ public class XMLConstants {
     public static final String INFORMATION_COLLECTOR = "informationCollector";
     public static final String DIAGNOSTIC_COLLECTOR = "diagnosticCollector";
     public static final String THREADS_AVG_COLLECTOR = "threadsAvg";
+    public static final String TEST_LISTENERS = "t-listeners";
+    public static final String TEST_LISTENER = "t-listener";
 
     //don't change the order!!! will not works
     public static final String STANDARD_COLLECTORS = "standardCollectors";
@@ -186,5 +188,5 @@ public class XMLConstants {
     public static final String METRIC_AGGREGATOR_PROVIDER = "metricAggregatorProvider";
     public static final String METRIC_DESCRIPTION = "metricDescription";
     public static final String LISTENERS = "listeners";
-    public static final String TEST_GROUP_LISTENERS = "test-group-listeners";
+    public static final String TEST_GROUP_LISTENERS = "tg-listeners";
 }

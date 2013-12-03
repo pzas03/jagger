@@ -31,8 +31,8 @@ public abstract class ContextAware implements NodeSideInitializable, Serializabl
 
         KeyValueStorage storage = nodeContext.getService(KeyValueStorage.class);
         storage.put(Namespace.of(
-                sessionId, taskId, "metricAggregatorProviders"),
-                name,
+                sessionId, taskId, "metricDescription"),
+                metricDescription.getId(),
                 metricDescription
         );
     }

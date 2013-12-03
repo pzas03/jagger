@@ -9,7 +9,7 @@ import com.griddynamics.jagger.master.CompositeTask;
  * Time: 10:25 AM
  * To change this template use File | Settings | File Templates.
  */
-public class TestGroupInfo {
+public abstract class TestGroupInfo {
     private CompositeTask task;
 
     public CompositeTask getTask() {

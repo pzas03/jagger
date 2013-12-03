@@ -89,7 +89,7 @@ public class CompositeTaskDistributor implements TaskDistributor<CompositeTask> 
         final List<Service> leading = Lists.newLinkedList(Lists.transform(task.getLeading(), convertToRunnable));
         final List<Service> attendant = Lists.newLinkedList(Lists.transform(task.getAttendant(), convertToRunnable));
 
-        return new AbstractDistributionService(executor) {
+        Service serviceToExecute = new AbstractDistributionService(executor) {
 
             final List<Future<State>> leadingTerminateFutures = Lists.newLinkedList();
 
@@ -99,16 +99,18 @@ public class CompositeTaskDistributor implements TaskDistributor<CompositeTask> 
                 List<TestGroupListener> listeners = new ArrayList<TestGroupListener>(task.getListeners().size());
 
                 for (Provider<TestGroupListener> provider : task.getListeners()){
-                    TestGroupListener groupListener = provider.provide();
-                    Injector.injectNodeContext(groupListener, sessionId, taskId, nodeContext);
+                    Injector.injectNodeContext(provider, sessionId, taskId, nodeContext);
 
-                    listeners.add(groupListener);
+                    listeners.add(provider.provide());
                 }
 
                 TestGroupListener compositeTestGroupListener = TestGroupListener.Composer.compose(listeners);
 
-                //update!!!
-                compositeTestGroupListener.onStart(new TestGroupInfoStart());
+                TestGroupInfoStart infoStart = new TestGroupInfoStart();
+                infoStart.setTask(task);
+
+                compositeTestGroupListener.onStart(infoStart);
+
                 long startTime = System.currentTimeMillis();
 
                 List<Future<State>> futures = Lists.newLinkedList();
@@ -130,10 +132,10 @@ public class CompositeTaskDistributor implements TaskDistributor<CompositeTask> 
                     TimeUtils.sleepMillis(500);
                 }
 
-                TestGroupInfoStop testGroupInfoStop = new TestGroupInfoStop();
-                testGroupInfoStop.setTask(task);
-                testGroupInfoStop.setDuration(System.currentTimeMillis() - startTime);
-                compositeTestGroupListener.onStop(testGroupInfoStop);
+                TestGroupInfoStop infoStop = new TestGroupInfoStop();
+                infoStop.setTask(task);
+                infoStop.setDuration(System.currentTimeMillis() - startTime);
+                compositeTestGroupListener.onStop(infoStop);
             }
 
             private int activeLeadingTasks() {
@@ -211,5 +213,7 @@ public class CompositeTaskDistributor implements TaskDistributor<CompositeTask> 
                 return CompositeTaskDistributor.class.getName() + " distributor";
             }
         };
+
+        return new ListenableService<CompositeTask>(serviceToExecute, executor, sessionId, taskId, task, listener, Collections.EMPTY_MAP);
     }
 }

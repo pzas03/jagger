@@ -66,13 +66,17 @@
     <test-suite id="test-plan-1">
         <test-group id="group1">
 
-            <test-group-listeners>
-                <test-group-listener xsi:type="test-group-listener-ref" ref="testGroupListener1"/>
-            </test-group-listeners>
+            <!--Fot current version of Jagger there is no way to show test-group-listeners results-->
+            <!--<tg-listeners>-->
+                <!--<tg-listener xsi:type="tg-listener-ref" ref="testGroupListener1"/>-->
+            <!--</tg-listeners>-->
 
             <test id="tst1" testDescription="w1" >
                 <load xsi:type="load-tps" value="100"/>
                 <termination xsi:type="termination-iterations" iterations="100"/>
+                <t-listeners>
+                    <t-listener xsi:type="t-listener-threads"/>
+                </t-listeners>
             </test>
 
             <test id="tst2" testDescription="w1">
