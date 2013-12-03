@@ -74,6 +74,9 @@ public class WorkloadSessionComparisonReporter extends AbstractMappedReportProvi
         private String name;
         private Decision decision;
         private double throughputDeviation;
+        //we don't show a total duration in the WebUI and a report, but we decided to keep a total duration deviation for a session's comparison.
+        // Afterwords, we should remove it.
+        @Deprecated
         private double totalDurationDeviation;
         private double successRateDeviation;
         private double avgLatencyDeviation;
@@ -103,11 +106,13 @@ public class WorkloadSessionComparisonReporter extends AbstractMappedReportProvi
         public void setThroughputDeviation(double throughputDeviation) {
             this.throughputDeviation = throughputDeviation;
         }
-
+        //we don't show a total duration in the WebUI and a report
+        @Deprecated
         public double getTotalDurationDeviation() {
             return totalDurationDeviation;
         }
-
+        //we don't show a total duration in the WebUI and a report
+        @Deprecated
         public void setTotalDurationDeviation(double totalDurationDeviation) {
             this.totalDurationDeviation = totalDurationDeviation;
         }

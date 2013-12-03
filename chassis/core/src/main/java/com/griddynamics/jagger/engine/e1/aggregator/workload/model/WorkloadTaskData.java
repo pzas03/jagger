@@ -36,6 +36,8 @@ public class WorkloadTaskData {
     private Integer clockValue;
     private String termination;
 	private Integer kernels;
+    // an odd parameter (we don't show a total duration in the WebUI and a report)
+    @Deprecated
 	private BigDecimal totalDuration;
 	private BigDecimal throughput;
 	private Integer failuresCount;
@@ -118,10 +120,14 @@ public class WorkloadTaskData {
 		return kernels;
 	}
 
+    //we don't show a total duration in the WebUI and a report
+    //For a backward compatibility
+    @Deprecated
 	public BigDecimal getTotalDuration() {
 		return totalDuration;
 	}
-
+    //we don't show a total duration in the WebUI and a report
+    @Deprecated
 	public void setTotalDuration(BigDecimal totalDuration) {
 		this.totalDuration = totalDuration;
 	}
