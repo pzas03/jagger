@@ -67,7 +67,7 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
 
     private MetricDescription defaultMetricDescription;
     {
-        defaultMetricDescription = new MetricDescription("default");
+        defaultMetricDescription = new MetricDescription("No name metric");
         defaultMetricDescription.setPlotData(false);
         defaultMetricDescription.setShowSummary(true);
         defaultMetricDescription.setAggregators(Arrays.<MetricAggregatorProvider>asList(new SumMetricAggregatorProvider()));
@@ -194,10 +194,12 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
             if (metricDescription == null) {
                 log.warn("Aggregators not found for metric: '{}' in task: '{}'; Using default aggregator", metricName, taskData.getTaskId());
                 metricDescription = defaultMetricDescription;
+                metricDescription.setMetricId(metricName);
             }else{
-                // if there are no aggregators - add default avg-aggregator
+                // if there are no aggregators - add default sum-aggregator
                 if (metricDescription.getAggregators().isEmpty()){
-                    metricDescription.getAggregators().add(new AvgMetricAggregatorProvider());
+                    log.warn("Aggregators not found for metric: '{}' in task: '{}'; Using default aggregator", metricName, taskData.getTaskId());
+                    metricDescription.getAggregators().add(new SumMetricAggregatorProvider());
                 }
             }
 

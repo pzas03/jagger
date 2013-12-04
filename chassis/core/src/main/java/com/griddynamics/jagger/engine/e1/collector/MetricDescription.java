@@ -24,8 +24,12 @@ public class MetricDescription implements Serializable{
         this.id = metricId;
     }
 
-    public String getId() {
-        return id;
+    public String getMetricId() {
+        return this.id;
+    }
+
+    public void setMetricId(String metricId){
+        this.id = metricId;
     }
 
     public String getDisplayName() {

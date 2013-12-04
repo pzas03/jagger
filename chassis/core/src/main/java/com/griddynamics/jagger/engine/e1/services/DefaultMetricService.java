@@ -34,7 +34,7 @@ public class DefaultMetricService implements MetricService {
         KeyValueStorage storage = context.getService(KeyValueStorage.class);
 
         storage.put(Namespace.of(sessionId, taskId, "metricDescription"),
-                    metricDescription.getId(),
+                    metricDescription.getMetricId(),
                     metricDescription
         );
 
