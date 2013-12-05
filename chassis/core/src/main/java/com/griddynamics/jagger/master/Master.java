@@ -216,6 +216,7 @@ public class Master implements Runnable {
                 keyValueStorage.deleteAll();
                 log.info("Temporary data deleted");
             } catch (Exception e){
+                log.warn(e.getMessage(), e);
             }
             try {
                 Runtime.getRuntime().removeShutdownHook(shutdownHook);
