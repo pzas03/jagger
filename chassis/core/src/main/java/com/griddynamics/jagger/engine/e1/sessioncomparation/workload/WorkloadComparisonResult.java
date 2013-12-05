@@ -27,8 +27,10 @@ public class WorkloadComparisonResult {
     private final WorkloadTaskData baselineData;
 
     private final double throughputDeviation;
-    //we don't show a total duration in the WebUI and a report, but we decided to keep a total duration deviation for a comparison.
-    // Afterwords, we should remove it.
+    /**
+     * @deprecated we don't show a total duration in the WebUI and a report, but we decided to keep a total duration deviation for a comparison.
+     *             Afterwords, we should remove it.
+     */
     @Deprecated
     private final double totalDurationDeviation;
     private final double successRateDeviation;
@@ -55,8 +57,10 @@ public class WorkloadComparisonResult {
         return throughputDeviation;
     }
 
-    //we don't show a total duration in the WebUI and a report, but we decided to keep a total duration deviation for a comparison.
-    // Afterwords, we should remove it.
+    /**
+     * @deprecated we don't show a total duration in the WebUI and a report, but we decided to keep a total duration deviation for a comparison.
+     *             Afterwords, we should remove it.
+     */
     @Deprecated
     public double getTotalDurationDeviation() {
         return totalDurationDeviation;
@@ -135,8 +139,11 @@ public class WorkloadComparisonResult {
     public static class WorkloadComparisonResultBuilder {
         private double throughputDeviation;
         @Deprecated
-        //we don't show a total duration in the WebUI and a report, but we decided to keep a total duration deviation for a comparison.
-        // Afterwords, we should remove it.
+        /**
+         * @deprecated
+         * We don't show a total duration in the WebUI and a report, but we decided to keep a total duration deviation for a comparison.
+         * Afterwords, we should remove it.
+         */
         private double totalDurationDeviation;
         private double successRateDeviation;
         private double avgLatencyDeviation;
@@ -152,6 +159,7 @@ public class WorkloadComparisonResult {
             this.throughputDeviation = throughputDeviation;
             return this;
         }
+
         @Deprecated
         public WorkloadComparisonResultBuilder totalDurationDeviation(double totalDurationDeviation) {
             this.totalDurationDeviation = totalDurationDeviation;
