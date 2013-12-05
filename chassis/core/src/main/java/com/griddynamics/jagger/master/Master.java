@@ -213,6 +213,12 @@ public class Master implements Runnable {
             log.info("Agents stopped");
         } finally {
             try {
+                keyValueStorage.deleteAll();
+                log.info("Temporary data deleted");
+            } catch (Exception e){
+                log.warn(e.getMessage(), e);
+            }
+            try {
                 Runtime.getRuntime().removeShutdownHook(shutdownHook);
             } catch (Exception e) {
             }

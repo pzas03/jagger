@@ -44,7 +44,7 @@ import java.util.Map;
  *
  * @author Mairbek Khadikov
  */
-public class OneTableJdbcKeyValueStorage implements KeyValueStorage {
+@Deprecated public class OneTableJdbcKeyValueStorage implements KeyValueStorage {
     private static final Logger log = LoggerFactory.getLogger(OneTableJdbcKeyValueStorage.class);
 
     private static String TABLE_NAME = "keyvalue";
@@ -167,5 +167,10 @@ public class OneTableJdbcKeyValueStorage implements KeyValueStorage {
             throw new IllegalStateException("Cannot find value for namespace " + namespace + " and key " + key);
         }
         return result;
+    }
+
+    @Override
+    public void deleteAll(){
+        jdbcTemplate.update("delete * from " + TABLE_NAME);
     }
 }
