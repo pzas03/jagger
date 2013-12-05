@@ -214,6 +214,7 @@ public class Master implements Runnable {
         } finally {
             try {
                 keyValueStorage.deleteAll();
+                log.info("Temporary data deleted");
             } catch (Exception e){
             }
             try {
