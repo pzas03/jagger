@@ -19,7 +19,7 @@ public interface PlotProviderServiceAsync {
 
     void getSessionScopePlotList(String sessionId, AsyncCallback<Set<String>> async);
 
-    void getSessionScopePlotData(String sessionId, Collection<String> plotType, AsyncCallback<Map<String, List<PlotSeriesDto>>> async);
+    void getSessionScopePlotData(String sessionId, Collection<PlotNameDto> plotType, AsyncCallback<Map<String, List<PlotSeriesDto>>> async);
 
     void getTaskScopePlotList(Set<String> sessionIds, TaskDataDto taskDataDto, AsyncCallback<Set<PlotNameDto>> async);
 

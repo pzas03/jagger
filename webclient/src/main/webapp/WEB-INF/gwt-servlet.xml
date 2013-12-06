@@ -52,6 +52,7 @@
                 <entry key="/WorkloadService" value-ref="workloadDataService"/>
                 <entry key="/WorkloadTaskDataService" value-ref="workloadTaskDataService"/>
                 <entry key="/MetricDataService" value-ref="metricDataService"/>
+                <entry key="/ControlTreeCreatorService" value-ref="controlTreeCreatorService"/>
             </map>
         </property>
     </bean>
@@ -69,6 +70,17 @@
         <property name="workloadPlotDataProviders" ref="workloadPlotDataProviders"/>
         <property name="customMetricPlotDataProvider" ref="customMetricPlotDataProvider"/>
     </bean>
+
+    <bean id="controlTreeCreatorService" class="com.griddynamics.jagger.webclient.server.ControlTreeCreatorServiceImpl" >
+        <property name="databaseFetcher" ref="databaseFetcher" />
+    </bean>
+
+    <bean id="databaseFetcher" class="com.griddynamics.jagger.webclient.server.CommonDataProviderImpl">
+        <property name="customMetricPlotDataProvider" ref="customMetricPlotDataProvider"/>
+        <property name="monitoringPlotGroups" ref="monitoringPlotGroups"/>
+        <property name="workloadPlotGroups" ref="workloadPlotGroups"/>
+    </bean>
+
 
     <bean id="sessionDataService" class="com.griddynamics.jagger.webclient.server.SessionDataServiceImpl"/>
     <bean id="taskDataService" class="com.griddynamics.jagger.webclient.server.TaskDataServiceImpl"/>

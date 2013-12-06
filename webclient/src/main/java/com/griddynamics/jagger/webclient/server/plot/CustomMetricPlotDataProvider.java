@@ -57,6 +57,7 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
         ArrayList<PlotNameDto> result = new ArrayList<PlotNameDto>(plotNames.size());
 
         for (String plotName : plotNames){
+            if (plotName != null)
             result.add(new PlotNameDto(taskDataDto, plotName));
         }
 

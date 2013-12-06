@@ -17,6 +17,7 @@ import java.util.Set;
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
  * @since 6/19/12
  */
+@Deprecated
 public class TaskPlotNamesAsyncDataProvider extends AsyncDataProvider<PlotNameDto> {
     private final TaskDataDto taskDataDto;
     private final Set<String> sessionIds;

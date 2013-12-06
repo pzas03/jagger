@@ -10,6 +10,7 @@ import com.sencha.gxt.core.client.ValueProvider;
 import com.sencha.gxt.data.shared.ModelKeyProvider;
 import com.sencha.gxt.data.shared.TreeStore;
 import com.sencha.gxt.data.shared.event.StoreAddEvent;
+import com.sencha.gxt.widget.core.client.event.BeforeCollapseItemEvent;
 import com.sencha.gxt.widget.core.client.grid.ColumnConfig;
 import com.sencha.gxt.widget.core.client.grid.ColumnModel;
 import com.sencha.gxt.widget.core.client.treegrid.TreeGrid;
@@ -50,7 +51,7 @@ public class SessionComparisonPanel extends VerticalPanel{
     private final String TEST_INFO = "Test Info";
     private final double METRIC_COLUMN_WIDTH_FACTOR = 1.5;
 
-    private Collection<SessionDataDto> chosenSessions;
+    private Set<SessionDataDto> chosenSessions;
     private Collection<TaskDataDto> chosenTests;
 
     private final String WHITE_SPACE_NORMAL = "white-space: normal";
@@ -76,6 +77,9 @@ public class SessionComparisonPanel extends VerticalPanel{
         this.chosenTests = new ArrayList<TaskDataDto>();
         init(chosenSessions, width);
     }
+
+    private boolean disableExpanding = false;
+
 
     private void init(Set<SessionDataDto> chosenSessions, int width){
 
@@ -133,7 +137,15 @@ public class SessionComparisonPanel extends VerticalPanel{
 
 
 
+
         treeGrid = new NoIconsTreeGrid(treeStore, cm, nameColumn);
+
+        treeGrid.addBeforeCollapseHandler(new BeforeCollapseItemEvent.BeforeCollapseItemHandler<TreeItem>() {
+            @Override
+            public void onBeforeCollapse(BeforeCollapseItemEvent<TreeItem> event) {
+                event.setCancelled(true);
+            }
+        });
 
         treeGrid.setAutoExpand(true);
         treeGrid.getView().setStripeRows(true);
@@ -145,16 +157,13 @@ public class SessionComparisonPanel extends VerticalPanel{
             @Override
             public void onAdd(StoreAddEvent<TreeItem> event) {
                 for (TreeItem item : event.getItems()) {
-                    if (item.containsKey(TEST_INFO)) {
-                        treeGrid.setExpanded(item, false);
-                    } else {
-                        treeGrid.setExpanded(item, true);
-                    }
+                    treeGrid.setExpanded(item, true);
                 }
             }
         });
 
-        addSessionInfo(chosenSessions);
+        //not required
+        //addSessionInfo(chosenSessions);
 
         add(treeGrid);
     }
@@ -173,15 +182,21 @@ public class SessionComparisonPanel extends VerticalPanel{
         return colWidth;
     }
 
-    private void addSessionInfo(Set<SessionDataDto> chosenSessions) {
+    public void addSessionInfo() {
         TreeItem sessionInfo = new TreeItem(SESSION_INFO_ID);
         sessionInfo.put(NAME, "Session Info");
-        treeStore.add(sessionInfo);
+        // sessionInfo always on top
+        treeStore.insert(0, sessionInfo);
 
         addCommentRecord(chosenSessions, sessionInfo);
         addStartEndTimeRecords(chosenSessions, sessionInfo);
         addAdditionalRecords(chosenSessions, sessionInfo);
+    }
 
+    public void removeSessionInfo() {
+        TreeItem sessionInfo = treeStore.findModelWithKey(SESSION_INFO_ID);
+        if (sessionInfo != null)
+            treeStore.remove(sessionInfo);
     }
 
     private void addAdditionalRecords(Set<SessionDataDto> chosenSessions, TreeItem parent) {
@@ -252,7 +267,7 @@ public class SessionComparisonPanel extends VerticalPanel{
                     if (TEST_INFO.equals(item.get(NAME))) {
                         continue;
                     }
-                    treeStore.remove(item);
+                    removeWithParent(item);
                 }
             }
         }
@@ -308,17 +323,21 @@ public class SessionComparisonPanel extends VerticalPanel{
         TreeItem testItem = getTestItem(description, testName);
         for (TreeItem item : treeStore.getChildren(testItem)) {
             if (metricName.equals(item.get(NAME))) {
-                treeStore.remove(item);
+                removeWithParent(item);
                 return;
             }
         }
     }
 
-    public void updateTests(Collection<TaskDataDto> tests) {
-
-        if (treeGrid.isAutoExpand()) {
-            treeGrid.setAutoExpand(false);
+    private void removeWithParent(TreeItem toRemove) {
+        TreeItem parent = treeStore.getParent(toRemove);
+        treeStore.remove(toRemove);
+        if (parent != null && !treeStore.hasChildren(parent)) {
+            removeWithParent(parent);
         }
+    }
+
+    public void updateTests(Collection<TaskDataDto> tests) {
 
         List<TaskDataDto> newTests = new ArrayList<TaskDataDto>();
         for (TaskDataDto test : tests) {
@@ -346,14 +365,19 @@ public class SessionComparisonPanel extends VerticalPanel{
         }
     }
 
-    private void addTestInfo(TaskDataDto test) {
+    public void addTestInfo(TaskDataDto test) {
         TreeItem testItem = getTestItem(test.getDescription(), test.getTaskName());
 
-        TreeItem testInfo = new TreeItem(test.getDescription() + test.getTaskName() + TEST_INFO );
+        String testInfoId = test.getDescription() + test.getTaskName() + TEST_INFO;
+        if (treeStore.findModelWithKey(testInfoId) != null) {
+            return;
+        }
+
+        TreeItem testInfo = new TreeItem(testInfoId);
         testInfo.put(NAME, TEST_INFO);
         testInfo.put(TEST_DESCRIPTION, test.getDescription());
         testInfo.put(TEST_NAME, test.getTaskName());
-        treeStore.add(testItem, testInfo);
+        treeStore.insert(testItem, 0 , testInfo);
 
         TreeItem clock = new TreeItem(testItem.getKey() + "Clock");
         clock.put(NAME, "Clock");
@@ -374,6 +398,14 @@ public class SessionComparisonPanel extends VerticalPanel{
             termination.put(SESSION_HEADER + session.getSessionId(), test.getTerminationStrategy());
         }
         treeStore.add(testInfo, termination);
+    }
+
+    public void removeTestInfo(TaskDataDto test) {
+
+        TreeItem testItem = getTestItem(test.getDescription(), test.getTaskName());
+        TreeItem testInfo = treeStore.getFirstChild(testItem);
+        if (testInfo != null && TEST_INFO.equals(testInfo.get(NAME)))
+            removeWithParent(testInfo);
     }
 
     private TreeItem getTestItem(String descriptionStr, String taskNameStr) {

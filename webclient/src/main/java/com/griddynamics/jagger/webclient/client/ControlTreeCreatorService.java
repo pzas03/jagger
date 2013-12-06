@@ -1,0 +1,27 @@
+package com.griddynamics.jagger.webclient.client;
+
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.rpc.RemoteService;
+import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
+import com.griddynamics.jagger.webclient.client.components.control.model.RootNode;
+import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
+
+import java.util.List;
+import java.util.Set;
+
+@RemoteServiceRelativePath("rpc/ControlTreeCreatorService")
+public interface ControlTreeCreatorService extends RemoteService {
+
+    @Deprecated
+    RootNode getControlTreeForSession(String sessionId) throws RuntimeException;
+
+    RootNode getControlTreeForSessions(Set<String> sessionIds) throws RuntimeException;
+
+    public static class Async {
+        private static final ControlTreeCreatorServiceAsync ourInstance = (ControlTreeCreatorServiceAsync) GWT.create(ControlTreeCreatorService.class);
+
+        public static ControlTreeCreatorServiceAsync getInstance() {
+            return ourInstance;
+        }
+    }
+}

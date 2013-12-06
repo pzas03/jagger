@@ -1,8 +1,9 @@
 package com.griddynamics.jagger.webclient.client.data;
 
 import com.google.gwt.regexp.shared.RegExp;
+import com.griddynamics.jagger.webclient.client.components.control.model.MetricNode;
+import com.griddynamics.jagger.webclient.client.components.control.model.PlotNode;
 import com.griddynamics.jagger.webclient.client.dto.MetricDto;
-import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
 
 import java.util.*;
 
@@ -19,7 +20,8 @@ public class MetricRankingProvider {
             RegExp.compile("Duration"),
             RegExp.compile("Throughput"),
             RegExp.compile("Success rate"),
-            RegExp.compile("Latency")
+            RegExp.compile("Latency"),
+            RegExp.compile("Time Latency Percentile")
     );
 
     protected static int compare(String o1, String o2){
@@ -38,18 +40,27 @@ public class MetricRankingProvider {
         int rank = 0;
         for (RegExp pattern : patterns){
             if (pattern.test(o)){
-                return new Integer(patterns.size()-rank);
+                return new Integer(-patterns.size()+rank);
             }
             rank++;
         }
         return 0;
     }
 
-    public static void sortMetricNames(List<MetricNameDto> list){
-        Collections.sort(list, new Comparator<MetricNameDto>() {
+    public static void sortMetricNodes(List<MetricNode> list){
+        Collections.sort(list, new Comparator<MetricNode>() {
             @Override
-            public int compare(MetricNameDto o, MetricNameDto o2) {
-                return (-1)*MetricRankingProvider.compare(o.getName(), o2.getName());
+            public int compare(MetricNode o, MetricNode o2) {
+                return MetricRankingProvider.compare(o.getMetricName().getDisplay(), o2.getMetricName().getDisplay());
+            }
+        });
+    }
+
+    public static void sortPlotNodes(List<PlotNode> list){
+        Collections.sort(list, new Comparator<PlotNode>() {
+            @Override
+            public int compare(PlotNode o, PlotNode o2) {
+                return MetricRankingProvider.compare(o.getPlotName().getDisplay(), o2.getPlotName().getDisplay());
             }
         });
     }
@@ -58,7 +69,7 @@ public class MetricRankingProvider {
         Collections.sort(list, new Comparator<MetricDto>() {
             @Override
             public int compare(MetricDto metricDto, MetricDto metricDto2) {
-                return (-1)*MetricRankingProvider.compare(metricDto.getMetricName().getName(), metricDto2.getMetricName().getName());
+                return MetricRankingProvider.compare(metricDto.getMetricName().getName(), metricDto2.getMetricName().getName());
             }
         });
     }

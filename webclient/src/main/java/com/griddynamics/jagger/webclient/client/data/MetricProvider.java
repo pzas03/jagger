@@ -16,6 +16,7 @@ import java.util.*;
  * Time: 15:12
  * To change this template use File | Settings | File Templates.
  */
+@Deprecated
 public class MetricProvider extends AsyncDataProvider<MetricNameDto> {
 
     private TaskDataDto taskDataDto;
@@ -35,7 +36,7 @@ public class MetricProvider extends AsyncDataProvider<MetricNameDto> {
             @Override
             public void onSuccess(Set<MetricNameDto> result) {
                 List list =  new ArrayList<MetricNameDto>(result);
-                MetricRankingProvider.sortMetricNames(list);
+               // MetricRankingProvider.sortMetricNames(list);
                 updateRowData(0, list);
             }
         });

@@ -29,7 +29,7 @@ public interface PlotProviderService extends RemoteService {
 
     Map<PlotNameDto,List<PlotSeriesDto>> getPlotDatas(Set<PlotNameDto> plots) throws RuntimeException;
 
-    Map<String,List<PlotSeriesDto>> getSessionScopePlotData(String sessionId, Collection<String> plotType) throws RuntimeException;
+    Map<String,List<PlotSeriesDto>> getSessionScopePlotData(String sessionId, Collection<PlotNameDto> plotType) throws RuntimeException;
 
     public static class Async {
         private static final PlotProviderServiceAsync ourInstance = (PlotProviderServiceAsync) GWT.create(PlotProviderService.class);

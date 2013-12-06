@@ -17,6 +17,18 @@ public class NameTokens {
 
     public static final String METRICS = "metrics";
 
+    public static final String CONTROL_SUMMARY_TRENDS = "Summary & Trends";
+    public static final String CONTROL_METRICS = "Metrics";
+    public static final String SESSION_INFO = "Session Info";
+    public static final String TEST_INFO = "Test Info";
+    public static final String SESSION_SCOPE_PLOTS = "Session Scope Plots";
+    public static final String SESSION_SCOPE_PREFIX = "ss-";
+
+    // used to understand if test from summary subtree or from metrics subtree
+    public static final String SUMMARY_PREFIX = "sum-";
+    public static final String METRICS_PREFIX = "met-";
+
+
     public static String EMPTY = "";
 
     public static String summary() {

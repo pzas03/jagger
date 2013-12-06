@@ -1,6 +1,7 @@
 package com.griddynamics.jagger.webclient.client.dto;
 
 import java.io.Serializable;
+import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,6 +14,7 @@ public class MetricNameDto implements Serializable {
 
     private TaskDataDto tests;
     private String name;
+    private String displayName;
 
     public MetricNameDto() {
     }
@@ -21,6 +23,18 @@ public class MetricNameDto implements Serializable {
         this.tests = tests;
         this.name = name;
     }
+
+    public long getTaskId() {
+        if (tests.getIds() == null || tests.getIds().size() != 1) {
+            throw new UnsupportedOperationException("Cannot return id because of ids is null or its size is not equal 1");
+        }
+        return tests.getIds().iterator().next();
+    }
+
+    public Set<Long> getTaskIds() {
+        return tests.getIds();
+    }
+
 
     public String getName() {
         return name;
@@ -36,6 +50,18 @@ public class MetricNameDto implements Serializable {
 
     public void setTests(TaskDataDto tests) {
         this.tests = tests;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getDisplay() {
+        return displayName == null ? name : displayName;
     }
 
     @Override
