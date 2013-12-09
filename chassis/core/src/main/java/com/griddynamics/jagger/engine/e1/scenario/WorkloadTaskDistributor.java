@@ -92,6 +92,8 @@ public class WorkloadTaskDistributor extends AbstractDistributor<WorkloadTask> {
                     listeners.add(provider.provide());
                 }
                 TestListener testListener = TestListener.Composer.compose(listeners);
+                // start time must be initialized after calibration
+                // if start time will not initialize(calibration) - set 0 test duration
                 Long startTime = null;
 
                 //create status info
@@ -176,8 +178,13 @@ public class WorkloadTaskDistributor extends AbstractDistributor<WorkloadTask> {
                         controller.stopWorkload();
                         log.debug("Workload stopped");
                     }
+
                     testInfo.setThreads(0);
-                    testInfo.setDuration(System.currentTimeMillis()-startTime);
+                    if (startTime == null){
+                        testInfo.setDuration(0L);
+                    }else{
+                        testInfo.setDuration(System.currentTimeMillis()-startTime);
+                    }
 
                     testListener.onStop(testInfo);
                 }
