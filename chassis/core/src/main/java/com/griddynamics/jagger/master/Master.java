@@ -20,9 +20,7 @@
 
 package com.griddynamics.jagger.master;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.*;
 import com.google.common.util.concurrent.Service;
 import com.griddynamics.jagger.agent.model.ManageAgent;
 import com.griddynamics.jagger.coordinator.*;
@@ -40,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -310,7 +309,25 @@ public class Master implements Runnable {
     }
 
     private DistributionListener distributionListener() {
-        return CompositeDistributionListener.of(configuration.getDistributionListeners());
+        return CompositeDistributionListener.of(Iterables.concat(Arrays.asList(createFlushListener()),
+                                                                 configuration.getDistributionListeners()
+                                                                ));
+    }
+
+    // provide listener, which will flush temporary data in LogStorage
+    // it guarantees that all data will be recorded
+    private DistributionListener createFlushListener(){
+        return new DistributionListener() {
+            @Override
+            public void onDistributionStarted(String sessionId, String taskId, Task task, Collection<NodeId> capableNodes) {
+                //nothing
+            }
+
+            @Override
+            public void onTaskDistributionCompleted(String sessionId, String taskId, Task task) {
+                logWriter.flush();
+            }
+        };
     }
 
     public void setSessionIdProvider(SessionIdProvider sessionIdProvider) {
