@@ -104,9 +104,7 @@ public class CompositeTaskDistributor implements TaskDistributor<CompositeTask> 
 
                 TestGroupListener compositeTestGroupListener = TestGroupListener.Composer.compose(listeners);
 
-                TestGroupInfo testGroupInfo = new TestGroupInfo();
-                testGroupInfo.setTestGroup(task);
-                testGroupInfo.setDuration(0L);
+                TestGroupInfo testGroupInfo = new TestGroupInfo(task);
 
                 compositeTestGroupListener.onStart(testGroupInfo);
 

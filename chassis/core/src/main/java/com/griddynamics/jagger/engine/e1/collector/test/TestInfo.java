@@ -16,6 +16,14 @@ public class TestInfo {
     private int startedSamples;
     private long duration;
 
+
+    public TestInfo(){
+    }
+
+    public TestInfo(WorkloadTask test){
+        this.test = test;
+    }
+
     /** Returns current test
      * @author Gribov Kirill
      * @n

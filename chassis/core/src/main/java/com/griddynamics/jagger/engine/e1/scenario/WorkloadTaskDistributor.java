@@ -95,12 +95,7 @@ public class WorkloadTaskDistributor extends AbstractDistributor<WorkloadTask> {
                 Long startTime = null;
 
                 //create status info
-                TestInfo testInfo = new TestInfo();
-                testInfo.setTest(task);
-                testInfo.setDuration(0L);
-                testInfo.setThreads(0);
-                testInfo.setSamples(0);
-                testInfo.setStartedSamples(0);
+                TestInfo testInfo = new TestInfo(task);
 
                 DefaultWorkloadController controller = null;
                 try {
@@ -145,7 +140,7 @@ public class WorkloadTaskDistributor extends AbstractDistributor<WorkloadTask> {
 
                         WorkloadExecutionStatus status = controller.getStatus();
 
-                        // update status
+                        // update status for test-listeners
                         testInfo.setSamples(status.getTotalSamples());
                         testInfo.setStartedSamples(status.getTotalStartedSamples());
                         testInfo.setThreads(status.getTotalThreads());

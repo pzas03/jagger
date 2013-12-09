@@ -13,6 +13,13 @@ public class TestGroupInfo {
     private CompositeTask testGroup;
     private long duration;
 
+    public TestGroupInfo(){
+    }
+
+    public TestGroupInfo(CompositeTask testGroup){
+        this.testGroup = testGroup;
+    }
+
     /** Returns current test-group
      * @author Gribov Kirill
      * @n

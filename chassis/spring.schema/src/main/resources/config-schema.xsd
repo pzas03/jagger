@@ -348,7 +348,7 @@
                 <xsd:all>
                     <xsd:element name="load" type="loadAbstract" maxOccurs="1"/>
                     <xsd:element name="termination" type="terminationAbstract" maxOccurs="1"/>
-                    <xsd:element name="t-listeners" type="t-listeners" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="test-listeners" type="test-listeners" minOccurs="0" maxOccurs="1"/>
                 </xsd:all>
                 <xsd:attribute name="startDelay" type="xsd:string" use="optional"/>
                 <xsd:attribute name="testDescription" type="xsd:string" use="required"/>
@@ -356,7 +356,7 @@
         </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:complexType name="t-listeners">
+    <xsd:complexType name="test-listeners">
         <xsd:annotation>
             <xsd:documentation>
                 A list of t-listener elements, which give you an ability to execute some actions before and after test.
@@ -365,7 +365,7 @@
         <xsd:complexContent>
             <xsd:extension base="identifiedType">
                 <xsd:choice>
-                    <xsd:element name="t-listener" type="testListenerAbstract" minOccurs="1" maxOccurs="unbounded"/>
+                    <xsd:element name="test-listener" type="testListenerAbstract" minOccurs="1" maxOccurs="unbounded"/>
                 </xsd:choice>
             </xsd:extension>
         </xsd:complexContent>
@@ -383,7 +383,7 @@
         </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:complexType name="t-listener-ref">
+    <xsd:complexType name="test-listener-ref">
         <xsd:annotation>
             <xsd:documentation>
                 A reference to test listener bean or element. Create bean, which implements TestListener, set bean id to ref attribute.
@@ -396,7 +396,7 @@
         </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:complexType name="t-listener-threads">
+    <xsd:complexType name="test-listener-threads">
         <xsd:annotation>
             <xsd:documentation>
                 Test listener, that collects number of Jagger threads.

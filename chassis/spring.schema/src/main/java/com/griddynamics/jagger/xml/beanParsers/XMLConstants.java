@@ -87,8 +87,8 @@ public class XMLConstants {
     public static final String INFORMATION_COLLECTOR = "informationCollector";
     public static final String DIAGNOSTIC_COLLECTOR = "diagnosticCollector";
     public static final String THREADS_AVG_COLLECTOR = "threadsAvg";
-    public static final String TEST_LISTENERS = "t-listeners";
-    public static final String TEST_LISTENER = "t-listener";
+    public static final String TEST_LISTENERS = "test-listeners";
+    public static final String TEST_LISTENER = "test-listener";
 
     //don't change the order!!! will not works
     public static final String STANDARD_COLLECTORS = "standardCollectors";
