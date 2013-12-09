@@ -1,7 +1,5 @@
 package com.griddynamics.jagger.webclient.server;
 
-import com.griddynamics.jagger.agent.model.DefaultMonitoringParameters;
-import com.griddynamics.jagger.monitoring.reporting.GroupKey;
 import com.griddynamics.jagger.webclient.client.PlotProviderService;
 import com.griddynamics.jagger.webclient.client.dto.*;
 import com.griddynamics.jagger.webclient.server.plot.CustomMetricPlotDataProvider;
@@ -12,8 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.*;
 
 /**
@@ -23,11 +19,7 @@ import java.util.*;
 public class PlotProviderServiceImpl implements PlotProviderService {
     private static final Logger log = LoggerFactory.getLogger(PlotProviderServiceImpl.class);
 
-    private EntityManager entityManager;
-
     private DataPointCompressingProcessor compressingProcessor;
-    private Map<GroupKey, DefaultWorkloadParameters[]> workloadPlotGroups;
-    private Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups;
     private Map<String, PlotDataProvider> workloadPlotDataProviders;
     private Map<String, PlotDataProvider> monitoringPlotDataProviders;
     private CustomMetricPlotDataProvider customMetricPlotDataProvider;
@@ -37,16 +29,6 @@ public class PlotProviderServiceImpl implements PlotProviderService {
     @Required
     public void setCompressingProcessor(DataPointCompressingProcessor compressingProcessor) {
         this.compressingProcessor = compressingProcessor;
-    }
-
-    @Required
-    public void setWorkloadPlotGroups(Map<GroupKey, DefaultWorkloadParameters[]> workloadPlotGroups) {
-        this.workloadPlotGroups = workloadPlotGroups;
-    }
-
-    @Required
-    public void setMonitoringPlotGroups(Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups) {
-        this.monitoringPlotGroups = monitoringPlotGroups;
     }
 
     @Required
@@ -64,67 +46,9 @@ public class PlotProviderServiceImpl implements PlotProviderService {
         this.customMetricPlotDataProvider = customMetricPlotDataProvider;
     }
 
-    @PersistenceContext
-    public void setEntityManager(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
-
     //===========================
     //===========Contract Methods
     //===========================
-
-    @Override
-    public Set<PlotNameDto> getTaskScopePlotList(Set<String> sessionIds, TaskDataDto taskDataDto) {
-        Set<PlotNameDto> plotNameDtoSet = new LinkedHashSet<PlotNameDto>();
-        try {
-            if (isWorkloadStatisticsAvailable(sessionIds, taskDataDto)) {
-                for (Map.Entry<GroupKey, DefaultWorkloadParameters[]> monitoringPlot : workloadPlotGroups.entrySet()) {
-                    plotNameDtoSet.add(new PlotNameDto(taskDataDto, monitoringPlot.getKey().getUpperName()));
-                }
-            }
-
-            for (String sessionId : sessionIds) {
-                if (isMonitoringStatisticsAvailable(sessionId)) {
-                    for (Map.Entry<GroupKey, DefaultMonitoringParameters[]> monitoringPlot : monitoringPlotGroups.entrySet()) {
-                        plotNameDtoSet.add(new PlotNameDto(taskDataDto, monitoringPlot.getKey().getUpperName()));
-                    }
-                }
-            }
-
-            List<PlotNameDto> customMetrics = customMetricPlotDataProvider.getPlotNames(taskDataDto);
-            for (PlotNameDto plotNameDto : customMetrics){
-                plotNameDtoSet.add(new PlotNameDto(taskDataDto, plotNameDto.getPlotName()));
-            }
-
-            log.debug("For sessions {} are available these plots: {}", sessionIds, plotNameDtoSet);
-        } catch (Exception e) {
-            log.error("Error was occurred during task scope plots data getting for session IDs " + sessionIds + ", task name " + taskDataDto.getTaskName(), e);
-            throw new RuntimeException(e);
-        }
-
-        return plotNameDtoSet;
-    }
-
-    @Override
-    public Set<String> getSessionScopePlotList(String sessionId) {
-        Set<String> plotNameDtoSet = null;
-        try {
-            if (!isMonitoringStatisticsAvailable(sessionId)) {
-                return Collections.emptySet();
-            }
-
-            plotNameDtoSet = new LinkedHashSet<String>();
-
-            for (Map.Entry<GroupKey, DefaultMonitoringParameters[]> monitoringPlot : monitoringPlotGroups.entrySet()) {
-                plotNameDtoSet.add(monitoringPlot.getKey().getUpperName());
-            }
-        } catch (Exception e) {
-            log.error("Error was occurred during session scope plots data getting for session ID " + sessionId, e);
-            throw new RuntimeException(e);
-        }
-
-        return plotNameDtoSet;
-    }
 
     @Override
     public List<PlotSeriesDto> getPlotData(long taskId, String plotName) {
@@ -133,7 +57,7 @@ public class PlotProviderServiceImpl implements PlotProviderService {
 
         PlotDataProvider plotDataProvider = findPlotDataProvider(plotName);
 
-        List<PlotSeriesDto> plotSeriesDto = null;
+        List<PlotSeriesDto> plotSeriesDto;
         try {
             plotSeriesDto = plotDataProvider.getPlotData(taskId, plotName);
             log.info("getPlotData(): {}", getFormattedLogMessage(plotSeriesDto, "" + taskId, plotName, System.currentTimeMillis() - timestamp));
@@ -152,7 +76,7 @@ public class PlotProviderServiceImpl implements PlotProviderService {
 
         PlotDataProvider plotDataProvider = findPlotDataProvider(plotName);
 
-        List<PlotSeriesDto> plotSeriesDtoList = null;
+        List<PlotSeriesDto> plotSeriesDtoList;
         try {
             plotSeriesDtoList = plotDataProvider.getPlotData(taskIds, plotName);
             log.info("getPlotData(): {}", getFormattedLogMessage(plotSeriesDtoList, "" + taskIds, plotName, System.currentTimeMillis() - timestamp));
@@ -241,49 +165,6 @@ public class PlotProviderServiceImpl implements PlotProviderService {
         }
 
         return logBuilder.toString();
-    }
-
-    private boolean isMonitoringStatisticsAvailable(String sessionId) {
-        long timestamp = System.currentTimeMillis();
-        long monitoringStatisticsCount = (Long) entityManager.createQuery("select count(ms.id) from MonitoringStatistics as ms where ms.sessionId=:sessionId")
-                .setParameter("sessionId", sessionId)
-                .getSingleResult();
-
-        if (monitoringStatisticsCount == 0) {
-            log.info("For session {} monitoring statistics were not found in DB for {} ms", sessionId, System.currentTimeMillis() - timestamp);
-            return false;
-        }
-
-        return true;
-    }
-
-    private boolean isWorkloadStatisticsAvailable(long taskId) {
-        long timestamp = System.currentTimeMillis();
-        long workloadStatisticsCount = (Long) entityManager.createQuery("select count(tis.id) from TimeInvocationStatistics as tis where tis.taskData.id=:taskId")
-                .setParameter("taskId", taskId)
-                .getSingleResult();
-
-        if (workloadStatisticsCount == 0) {
-            log.info("For task ID {} workload statistics were not found in DB for {} ms", taskId, System.currentTimeMillis() - timestamp);
-            return false;
-        }
-
-        return true;
-    }
-
-    private boolean isWorkloadStatisticsAvailable(Set<String> sessionIds, TaskDataDto tests) {
-        long timestamp = System.currentTimeMillis();
-        long workloadStatisticsCount = (Long) entityManager.createQuery("select count(tis.id) from TimeInvocationStatistics as tis where tis.taskData.sessionId in (:sessionIds) and tis.taskData.id in (:tests)")
-                .setParameter("tests", tests.getIds())
-                .setParameter("sessionIds", sessionIds)
-                .getSingleResult();
-
-        if (workloadStatisticsCount < tests.getIds().size()) {
-            log.info("For task ID {} workload statistics were not found in DB for {} ms", tests.getTaskName(), System.currentTimeMillis() - timestamp);
-            return false;
-        }
-
-        return true;
     }
 
     private PlotDataProvider findPlotDataProvider(String plotName) {

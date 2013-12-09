@@ -10,6 +10,7 @@ import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 import com.griddynamics.jagger.webclient.server.plot.CustomMetricPlotDataProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Required;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -60,15 +61,11 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         this.customMetricPlotDataProvider = customMetricPlotDataProvider;
     }
 
-    private HashMap<String, Pair<String, String>> standardMetrics = new HashMap<String, Pair<String, String>>();
+    private HashMap<String, Pair<String, String>> standardMetrics;
 
-    public CommonDataProviderImpl(){
-        standardMetrics.put("Throughput", Pair.of("throughput", "Throughput, tps"));
-        standardMetrics.put("Latency", Pair.of("avgLatency", "Latency, sec"));
-        standardMetrics.put("Duration", Pair.of("duration", "Duration, sec"));
-        standardMetrics.put("TotalDuration", Pair.of("totalDuration", "TotalDuration, sec"));
-        standardMetrics.put("Success rate", Pair.of("successRate", "Success rate"));
-        standardMetrics.put("Iterations", Pair.of("samples", "Iterations, samples"));
+    @Required
+    public void setStandardMetrics(HashMap<String, Pair<String, String>> standardMetrics) {
+        this.standardMetrics = standardMetrics;
     }
 
     @Override

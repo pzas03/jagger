@@ -40,20 +40,20 @@
                                     <table width="100%">
                                         <tr>
                                             <td align="center">
-                                                <c:SimplePager addStyleNames="{res.css.controlFont}" ui:field="sessionsPager"/>
+                                                <c:SimplePager ui:field="sessionsPager"/>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>
                                                 <table width="100%">
                                                     <tr>
-                                                        <td style="white-space: nowrap; font: normal 11px arial, tahoma, helvetica, sans-serif">Select by Session Number:</td>
+                                                        <td style="white-space: nowrap; font: normal 11px arial, tahoma, helvetica, sans-serif; color: black">Select by Session Number:</td>
                                                         <td colspan="3">
                                                             <g:TextBox ui:field="sessionIdsTextBox" width="99%"/>
                                                         </td>
                                                     </tr>
                                                     <tr>
-                                                        <td style="white-space: nowrap; font: normal 11px arial, tahoma, helvetica, sans-serif">Select by Date Range</td>
+                                                        <td style="white-space: nowrap; font: normal 11px arial, tahoma, helvetica, sans-serif; color: black">Select by Date Range</td>
                                                         <td>
                                                             <datepicker:DateBox ui:field="sessionsFrom" width="98%"/>
                                                         </td>

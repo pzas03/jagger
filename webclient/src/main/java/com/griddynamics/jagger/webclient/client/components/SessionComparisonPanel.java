@@ -78,8 +78,6 @@ public class SessionComparisonPanel extends VerticalPanel{
         init(chosenSessions, width);
     }
 
-    private boolean disableExpanding = false;
-
 
     private void init(Set<SessionDataDto> chosenSessions, int width){
 
@@ -406,6 +404,10 @@ public class SessionComparisonPanel extends VerticalPanel{
         TreeItem testInfo = treeStore.getFirstChild(testItem);
         if (testInfo != null && TEST_INFO.equals(testInfo.get(NAME)))
             removeWithParent(testInfo);
+
+        if (treeStore.getChildCount(testItem) == 0) {
+            removeWithParent(testItem);
+        }
     }
 
     private TreeItem getTestItem(String descriptionStr, String taskNameStr) {

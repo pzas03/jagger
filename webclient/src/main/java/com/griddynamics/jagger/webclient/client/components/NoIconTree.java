@@ -85,8 +85,6 @@ public class NoIconTree <C> extends Tree <SimpleNode, C> {
         this.addCheckChangeHandler(new CheckChangeEvent.CheckChangeHandler<SimpleNode>() {
             @Override
             public void onCheckChange(CheckChangeEvent<SimpleNode> event) {
-                // testing
-                Info.display("treeDemo", event.getItem() + "");
 
                 tree.disableEvents();
                     check(event.getItem(), event.getChecked());
@@ -102,7 +100,6 @@ public class NoIconTree <C> extends Tree <SimpleNode, C> {
                 }
 
                 tree.enableEvents();
-                NoIconTree.this.disable();
                 CheckHandlerMap.getHandler(item.getClass()).onCheckChange(new CheckChangeEvent(item, state));
             }
 

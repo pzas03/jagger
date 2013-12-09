@@ -2,7 +2,6 @@ package com.griddynamics.jagger.webclient.server;
 
 import com.griddynamics.jagger.engine.e1.aggregator.workload.model.DiagnosticResultEntity;
 import com.griddynamics.jagger.engine.e1.aggregator.workload.model.ValidationResultEntity;
-import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadProcessLatencyPercentile;
 import com.griddynamics.jagger.util.Pair;
 import com.griddynamics.jagger.util.TimeUtils;
 import com.griddynamics.jagger.webclient.client.MetricDataService;
@@ -12,9 +11,9 @@ import com.griddynamics.jagger.webclient.client.dto.MetricValueDto;
 import com.griddynamics.jagger.webclient.client.dto.PlotDatasetDto;
 import com.griddynamics.jagger.webclient.client.dto.PlotSeriesDto;
 import com.griddynamics.jagger.webclient.client.dto.PointDto;
-import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Required;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -39,34 +38,12 @@ public class MetricDataServiceImpl implements MetricDataService {
         this.entityManager = entityManager;
     }
 
-    private HashMap<String, Pair<String, String>> standardMetrics = new HashMap<String, Pair<String, String>>();
+    private HashMap<String, Pair<String, String>> standardMetrics;
 
-    public MetricDataServiceImpl(){
-        standardMetrics.put("Throughput", Pair.of("throughput", "Throughput, tps"));
-        standardMetrics.put("Latency", Pair.of("avgLatency", "Latency, sec"));
-        standardMetrics.put("Duration", Pair.of("duration", "Duration, sec"));
-        standardMetrics.put("Success rate", Pair.of("successRate", "Success rate"));
-        standardMetrics.put("Iterations", Pair.of("samples", "Iterations, samples"));
+    @Required
+    public void setStandardMetrics(HashMap<String, Pair<String, String>> standardMetrics) {
+        this.standardMetrics = standardMetrics;
     }
-
-    @Override
-    public Set<MetricNameDto> getMetricsNames(Set<TaskDataDto> tests) {
-        Long time = System.currentTimeMillis();
-        HashSet<MetricNameDto> set = new HashSet<MetricNameDto>();
-        for (TaskDataDto taskDataDto : tests){
-            for (String standardMetricName : standardMetrics.keySet()){
-                MetricNameDto metric = new MetricNameDto();
-                metric.setName(standardMetricName);
-                metric.setTests(taskDataDto);
-                set.add(metric);
-            }
-            set.addAll(getLatencyMetricsNames(taskDataDto));
-            set.addAll(getCustomMetricsNames(taskDataDto));
-        }
-        log.info("For tasks {} was found {} metrics names for {} ms", new Object[]{tests, set.size(), System.currentTimeMillis() - time});
-        return set;
-    }
-
 
     @Override
     public List<MetricDto> getMetrics(List<MetricNameDto> metricNames) {
@@ -199,7 +176,6 @@ public class MetricDataServiceImpl implements MetricDataService {
         double yMinimum = Double.MAX_VALUE;
 
         //So plot draws as {(0, val0),(1, val1), (2, val2), ... (n, valn)}
-        int iter = 0;
         List<PointDto> list = new ArrayList<PointDto>();
 
         List<MetricValueDto> metricList = new ArrayList<MetricValueDto>();
@@ -253,67 +229,4 @@ public class MetricDataServiceImpl implements MetricDataService {
         return psd;
     }
 
-    public Set<MetricNameDto> getCustomMetricsNames(TaskDataDto tests){
-        Set<MetricNameDto> metrics;
-
-        List<String> metricNames = entityManager.createNativeQuery("select metric.name from DiagnosticResultEntity as metric " +
-                                                                       "where metric.workloadData_id in " +
-                                                                       "(select workloadData.id from WorkloadData as workloadData " +
-                                                                        "inner join (select id, taskId, sessionId from TaskData where id in (:ids)) as taskData on " +
-                                                                        "workloadData.taskId=taskData.taskId and workloadData.sessionId=taskData.sessionId)")
-                                                                       .setParameter("ids", tests.getIds()).getResultList();
-
-        List<String> validatorNames = entityManager.createNativeQuery("select metric.validator from ValidationResultEntity as metric " +
-                                                                        "where metric.workloadData_id in " +
-                                                                        "(select workloadData.id from WorkloadData as workloadData " +
-                                                                        "inner join (select id, taskId, sessionId from TaskData where id in (:ids)) as taskData on " +
-                                                                        "workloadData.taskId=taskData.taskId and workloadData.sessionId=taskData.sessionId)")
-                                                                        .setParameter("ids", tests.getIds()).getResultList();
-        metrics = new HashSet<MetricNameDto>(metricNames.size()+validatorNames.size());
-
-        for (String name : metricNames){
-            if (name == null) continue;
-
-            MetricNameDto metric = new MetricNameDto();
-            metric.setTests(tests);
-            metric.setName(name);
-
-            metrics.add(metric);
-        }
-
-        for (String name : validatorNames){
-            if (name == null) continue;
-
-            MetricNameDto validator = new MetricNameDto();
-            validator.setTests(tests);
-            validator.setName(name);
-
-            metrics.add(validator);
-        }
-
-        return metrics;
-    }
-
-    public Set<MetricNameDto> getLatencyMetricsNames(TaskDataDto tests){
-        Set<MetricNameDto> latencyNames;
-
-        List<WorkloadProcessLatencyPercentile> latency = entityManager.createQuery(
-                "select s from  WorkloadProcessLatencyPercentile as s where s.workloadProcessDescriptiveStatistics.taskData.id in (:taskIds) " +
-                        "group by s.percentileKey " +
-                        "having count(s.id)=:size")
-                .setParameter("taskIds", tests.getIds())
-                .setParameter("size", (long) tests.getIds().size())
-                .getResultList();
-
-        latencyNames = new HashSet<MetricNameDto>(latency.size());
-        if (!latency.isEmpty()){
-            for(WorkloadProcessLatencyPercentile percentile : latency) {
-                MetricNameDto dto = new MetricNameDto();
-                dto.setName("Latency "+Double.toString(percentile.getPercentileKey())+" %");
-                dto.setTests(tests);
-                latencyNames.add(dto);
-            }
-        }
-        return latencyNames;
-    }
 }

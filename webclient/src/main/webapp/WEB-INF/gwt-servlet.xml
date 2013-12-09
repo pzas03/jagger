@@ -22,10 +22,11 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd
        http://www.springframework.org/schema/context
-       http://www.springframework.org/schema/context/spring-context.xsd">
+       http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
     <context:annotation-config/>
 
@@ -48,9 +49,6 @@
             <map>
                 <entry key="/PlotProviderService" value-ref="plotProviderService"/>
                 <entry key="/SessionDataService" value-ref="sessionDataService"/>
-                <entry key="/TaskDataService" value-ref="taskDataService"/>
-                <entry key="/WorkloadService" value-ref="workloadDataService"/>
-                <entry key="/WorkloadTaskDataService" value-ref="workloadTaskDataService"/>
                 <entry key="/MetricDataService" value-ref="metricDataService"/>
                 <entry key="/ControlTreeCreatorService" value-ref="controlTreeCreatorService"/>
             </map>
@@ -64,8 +62,6 @@
 
     <bean id="plotProviderService" class="com.griddynamics.jagger.webclient.server.PlotProviderServiceImpl">
         <property name="compressingProcessor" ref="dataPointCompressingProcessor"/>
-        <property name="monitoringPlotGroups" ref="monitoringPlotGroups"/>
-        <property name="workloadPlotGroups" ref="workloadPlotGroups"/>
         <property name="monitoringPlotDataProviders" ref="monitoringPlotDataProviders"/>
         <property name="workloadPlotDataProviders" ref="workloadPlotDataProviders"/>
         <property name="customMetricPlotDataProvider" ref="customMetricPlotDataProvider"/>
@@ -79,15 +75,21 @@
         <property name="customMetricPlotDataProvider" ref="customMetricPlotDataProvider"/>
         <property name="monitoringPlotGroups" ref="monitoringPlotGroups"/>
         <property name="workloadPlotGroups" ref="workloadPlotGroups"/>
+        <property name="standardMetrics" ref="standardMetrics"/>
     </bean>
 
 
     <bean id="sessionDataService" class="com.griddynamics.jagger.webclient.server.SessionDataServiceImpl"/>
+
+    <!-- @deprecated another conception of control since jagger 1.2.2-m3
     <bean id="taskDataService" class="com.griddynamics.jagger.webclient.server.TaskDataServiceImpl"/>
 
     <bean id="workloadDataService" class="com.griddynamics.jagger.webclient.server.WorkloadServiceImpl"/>
     <bean id="workloadTaskDataService" class="com.griddynamics.jagger.webclient.server.WorkloadTaskDataServiceImpl"/>
-    <bean id="metricDataService" class="com.griddynamics.jagger.webclient.server.MetricDataServiceImpl"/>
+    -->
+    <bean id="metricDataService" class="com.griddynamics.jagger.webclient.server.MetricDataServiceImpl">
+        <property name="standardMetrics" ref="standardMetrics"/>
+    </bean>
 
     <!--==========Legend Provider==========-->
     <bean id="legendProvider" class="com.griddynamics.jagger.webclient.server.LegendProvider"/>
@@ -143,4 +145,37 @@
             </map>
         </constructor-arg>
     </bean>
+
+    <util:map id="standardMetrics" key-type="java.lang.String">
+        <entry key="Throughput">
+            <bean class="com.griddynamics.jagger.util.Pair">
+                <constructor-arg name="first" value="throughput"/>
+                <constructor-arg name="second" value="Throughput, tps"/>
+            </bean>
+        </entry>
+        <entry key="Latency">
+            <bean class="com.griddynamics.jagger.util.Pair">
+                <constructor-arg name="first" value="avgLatency"/>
+                <constructor-arg name="second" value="Latency, sec"/>
+            </bean>
+        </entry>
+        <entry key="Duration">
+            <bean class="com.griddynamics.jagger.util.Pair">
+                <constructor-arg name="first" value="duration"/>
+                <constructor-arg name="second" value="Duration, sec"/>
+            </bean>
+        </entry>
+        <entry key="Success rate">
+            <bean class="com.griddynamics.jagger.util.Pair">
+                <constructor-arg name="first" value="successRate"/>
+                <constructor-arg name="second" value="Success rate"/>
+            </bean>
+        </entry>
+        <entry key="Iterations">
+            <bean class="com.griddynamics.jagger.util.Pair">
+                <constructor-arg name="first" value="samples"/>
+                <constructor-arg name="second" value="Iterations, samples"/>
+            </bean>
+        </entry>
+    </util:map>
 </beans>

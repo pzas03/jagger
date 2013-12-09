@@ -13,7 +13,9 @@ import java.util.*;
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
  * @since 5/30/12
+ * @deprecated another conception of control since jagger 1.2.2-m3
  */
+@Deprecated
 public class TaskDataServiceImpl /*extends RemoteServiceServlet*/ implements TaskDataService {
     private static final Logger log = LoggerFactory.getLogger(TaskDataServiceImpl.class);
 

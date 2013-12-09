@@ -42,6 +42,8 @@ import com.griddynamics.jagger.webclient.client.handler.ShowTaskDetailsListener;
 import com.griddynamics.jagger.webclient.client.mvp.JaggerPlaceHistoryMapper;
 import com.griddynamics.jagger.webclient.client.mvp.NameTokens;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
+import com.griddynamics.jagger.webclient.client.resources.SessionDataGridResources;
+import com.griddynamics.jagger.webclient.client.resources.SessionPagerResources;
 import com.sencha.gxt.data.shared.ModelKeyProvider;
 import com.sencha.gxt.data.shared.TreeStore;
 import com.sencha.gxt.widget.core.client.ContentPanel;
@@ -466,7 +468,6 @@ public class Trends extends DefaultActivity {
 
     private void onMetricsTabSelected() {
 
-        // todo very slow plot rendering
         mainTabPanel.forceLayout();
         controlTree.onMetricsTab();
         for (String plotId : chosenPlots.keySet()) {
@@ -488,8 +489,8 @@ public class Trends extends DefaultActivity {
     }
 
     private void setupSessionDataGrid() {
-        sessionsDataGrid = new DataGrid<SessionDataDto>();
-        sessionsDataGrid.setPageSize(15);
+        SessionDataGridResources resources = GWT.create(SessionDataGridResources.class);
+        sessionsDataGrid = new DataGrid<SessionDataDto>(15, resources);
         sessionsDataGrid.setEmptyTableWidget(new Label("No Sessions"));
 
         // Add a selection model so we can select cells.
@@ -526,7 +527,7 @@ public class Trends extends DefaultActivity {
             }
         };
         sessionsDataGrid.addColumn(nameColumn, "Name");
-        sessionsDataGrid.setColumnWidth(nameColumn, 30, Style.Unit.PCT);
+        sessionsDataGrid.setColumnWidth(nameColumn, 25, Style.Unit.PCT);
 
         TextColumn<SessionDataDto> startDateColumn = new TextColumn<SessionDataDto>() {
 
@@ -541,23 +542,31 @@ public class Trends extends DefaultActivity {
             }
         };
         sessionsDataGrid.addColumn(startDateColumn, "Start Date");
-        sessionsDataGrid.setColumnWidth(nameColumn, 40, Style.Unit.PCT);
+        sessionsDataGrid.setColumnWidth(startDateColumn, 30, Style.Unit.PCT);
 
 
-        // todo dissccus what to do here
-//        sessionsDataGrid.addColumn(new TextColumn<SessionDataDto>() {
-//            @Override
-//            public String getDisplayName(SessionDataDto object) {
-//                return object.getEndDate();
-//            }
-//        }, "End Date");
+        TextColumn<SessionDataDto> endDateColumn = new TextColumn<SessionDataDto>() {
+
+            @Override
+            public String getCellStyleNames(Cell.Context context, SessionDataDto object) {
+                return super.getCellStyleNames(context, object) + " " + JaggerResources.INSTANCE.css().controlFont();
+            }
+
+            @Override
+            public String getValue(SessionDataDto object) {
+                return object.getEndDate();
+            }
+        };
+        sessionsDataGrid.addColumn(endDateColumn, "End Date");
+        sessionsDataGrid.setColumnWidth(endDateColumn, 30, Style.Unit.PCT);
 
         sessionDataProvider.addDataDisplay(sessionsDataGrid);
     }
 
     private void setupPager() {
-        SimplePager.Resources pagerResources = GWT.create(SimplePager.Resources.class);
+        SimplePager.Resources pagerResources = GWT.create(SessionPagerResources.class);
         sessionsPager = new SimplePager(SimplePager.TextLocation.CENTER, pagerResources, false, 0, true);
+        //sessionsPager.setStylePrimaryName(JaggerResources.INSTANCE.css().controlFont());
         sessionsPager.setDisplay(sessionsDataGrid);
     }
 
@@ -853,8 +862,6 @@ public class Trends extends DefaultActivity {
                 public void onFailure(Throwable caught) {
                     caught.printStackTrace();
                     new ExceptionPanel(caught.getMessage());
-//                    disabledSessionDataGrid = false;
-                    // enableSessionDataGrid()
                     enableControl();
                 }
 
@@ -886,19 +893,6 @@ public class Trends extends DefaultActivity {
                 }
 
             });
-//            TaskDataService.Async.getInstance().getTaskDataForSessions(sessionIds, new AsyncCallback<List<TaskDataDto>>() {
-//                @Override
-//                public void onFailure(Throwable caught) {
-//                    caught.printStackTrace();
-//                    new ExceptionPanel(place, caught.getMessage());
-//                    ((MultiSelectionModel)sessionsDataGrid.getSelectionModel()).clear();
-//                }
-//
-//                @Override
-//                public void onSuccess(List<TaskDataDto> result) {
-//                    updateTests(result);
-//                }
-//            });
         }
 
         private void processLink(RootNode result) {
@@ -1035,11 +1029,15 @@ public class Trends extends DefaultActivity {
             fetchSessionInfoData(summaryNode.getSessionInfo());
             fetchMetricsForTests(summaryNode.getTests());
 
-            DetailsNode detailsNode = rootNode.getDetailsNode();
-            fetchPlotsForTests(detailsNode.getTests());
+            fetchSessionScopePlots();
+            fetchPlotsForTests();
         }
 
-        private void fetchPlotsForTests(List<TestDetailsNode> tests) {
+        private void fetchSessionScopePlots() {
+            sessionScopePlotFetcher.fetchPlots(controlTree.getCheckedSessionScopePlots(), false);
+        }
+
+        private void fetchPlotsForTests() {
             testPlotFetcher.fetchPlots(controlTree.getCheckedPlots(), false);
         }
 
@@ -1105,7 +1103,7 @@ public class Trends extends DefaultActivity {
                 summaryPanel.getSessionComparisonPanel().clearTreeStore();
 
                 if (enableTree)
-                    controlTree.enable();
+                    enableControl();
             } else {
 
                 final ArrayList<MetricNameDto> notLoaded = new ArrayList<MetricNameDto>();
@@ -1116,12 +1114,6 @@ public class Trends extends DefaultActivity {
                         notLoaded.add(metricName);
                     }else{
                         MetricDto metric = summaryPanel.getCachedMetrics().get(metricName);
-
-                        // if we have not checked it on previous selection, but already cached it some time
-                        if (!chosenMetrics.values().contains(metric)) {
-                            summaryPanel.getSessionComparisonPanel().addMetricRecord(metric);
-                        }
-
                         loaded.add(metric);
                     }
                 }
@@ -1155,27 +1147,35 @@ public class Trends extends DefaultActivity {
                 }
                 summaryPanel.getSessionComparisonPanel().removeRecords(toRemoveFromTable);
 
-                MetricDataService.Async.getInstance().getMetrics(notLoaded, new AsyncCallback<List<MetricDto>>() {
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        caught.printStackTrace();
-                        new ExceptionPanel(place, caught.getMessage());
-                        if (enableTree)
-                            controlTree.enable();
-                    }
+                if (!notLoaded.isEmpty()) {
+                    disableControl();
+                    MetricDataService.Async.getInstance().getMetrics(notLoaded, new AsyncCallback<List<MetricDto>>() {
+                        @Override
+                        public void onFailure(Throwable caught) {
+                            caught.printStackTrace();
+                            new ExceptionPanel(place, caught.getMessage());
+                            if (enableTree)
+                                enableControl();
+                        }
 
-                    @Override
-                    public void onSuccess(List<MetricDto> result) {
-                        loaded.addAll(result);
-                        MetricRankingProvider.sortMetrics(result);
-                        summaryPanel.getSessionComparisonPanel().addMetricRecords(result);
-                        renderMetricPlots(loaded);
-
-                        if (enableTree)
-                            controlTree.enable();
-                    }
-                });
+                        @Override
+                        public void onSuccess(List<MetricDto> result) {
+                            loaded.addAll(result);
+                            renderMetrics(loaded);
+                            if (enableTree)
+                                enableControl();
+                        }
+                    });
+                } else {
+                    renderMetrics(loaded);
+                }
             }
+        }
+
+        private void renderMetrics(List<MetricDto> loaded) {
+            MetricRankingProvider.sortMetrics(loaded);
+            summaryPanel.getSessionComparisonPanel().addMetricRecords(loaded);
+            renderMetricPlots(loaded);
         }
 
         private void renderMetricPlots(List<MetricDto> result) {
@@ -1207,7 +1207,7 @@ public class Trends extends DefaultActivity {
                 // Remove plots from display which were unchecked
                 removeUncheckedPlots(Collections.EMPTY_SET);
                 if (enableTree)
-                    controlTree.enable();
+                    enableControl();
             } else {
                 // Generate all id of plots which should be displayed
                 Set<String> selectedTaskIds = generateTaskPlotIds(selected, chosenSessions.size());
@@ -1215,6 +1215,7 @@ public class Trends extends DefaultActivity {
                 // Remove plots from display which were unchecked
                 removeUncheckedPlots(selectedTaskIds);
 
+                disableControl();
                 PlotProviderService.Async.getInstance().getPlotDatas(selected, new AsyncCallback<Map<PlotNameDto, List<PlotSeriesDto>>>() {
 
                     @Override
@@ -1223,7 +1224,7 @@ public class Trends extends DefaultActivity {
                         caught.printStackTrace();
                         new ExceptionPanel(place, caught.getMessage());
                         if (enableTree)
-                            controlTree.enable();
+                            enableControl();
                     }
 
                     @Override
@@ -1249,7 +1250,7 @@ public class Trends extends DefaultActivity {
                             onMetricsTabSelected();
                         }
                         if (enableTree)
-                            controlTree.enable();
+                            enableControl();
                     }
                 });
             }
@@ -1301,7 +1302,8 @@ public class Trends extends DefaultActivity {
             if (selected.isEmpty()) {
                 // Remove plots from display which were unchecked
                 removeUncheckedPlots(Collections.EMPTY_SET);
-                controlTree.enable(enableTree);
+                if (enableTree)
+                    enableControl();
             } else {
                 // Generate all id of plots which should be displayed
                 Set<String> selectedSessionScopePlotIds = generateSessionPlotIds(selected);
@@ -1309,6 +1311,7 @@ public class Trends extends DefaultActivity {
                 // Remove plots from display which were unchecked
                 removeUncheckedPlots(selectedSessionScopePlotIds);
 
+                disableControl();
                 PlotProviderService.Async.getInstance().getSessionScopePlotData
                         (chosenSessions.get(0), selected,
                                 new AsyncCallback<Map<String, List<PlotSeriesDto>>>() {
@@ -1317,7 +1320,8 @@ public class Trends extends DefaultActivity {
                                     public void onFailure(Throwable caught) {
                                         caught.printStackTrace();
                                         new ExceptionPanel(place, caught.getMessage());
-                                        controlTree.enable(enableTree);
+                                        if (enableTree)
+                                            enableControl();
                                     }
 
                                     @Override
@@ -1335,7 +1339,8 @@ public class Trends extends DefaultActivity {
                                         if (mainTabPanel.getSelectedIndex() == 2) {
                                             onMetricsTabSelected();
                                         }
-                                        controlTree.enable(enableTree);
+                                        if (enableTree)
+                                            enableControl();
                                     }
 
                                 }

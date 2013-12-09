@@ -21,7 +21,9 @@ import java.util.*;
  * Date: 18.03.13
  * Time: 10:49
  * To change this template use File | Settings | File Templates.
+ * @deprecated another conception of control since jagger 1.2.2-m3
  */
+@Deprecated
 public class WorkloadTaskDataServiceImpl implements WorkloadTaskDataService {
 
     private static final Logger log = LoggerFactory.getLogger(WorkloadTaskDataServiceImpl.class);

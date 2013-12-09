@@ -5,10 +5,8 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import com.google.gwt.core.client.GWT;
 import com.griddynamics.jagger.webclient.client.dto.MetricDto;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
-import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -31,7 +29,6 @@ public interface MetricDataService extends RemoteService {
         }
     }
 
-    public Set<MetricNameDto> getMetricsNames(Set<TaskDataDto> tests) throws RuntimeException;
     public MetricDto getMetric( MetricNameDto metricName) throws RuntimeException;
     public List<MetricDto> getMetrics(List<MetricNameDto> metricNames) throws RuntimeException;
 }

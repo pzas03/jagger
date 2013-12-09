@@ -13,7 +13,9 @@ import java.util.Set;
  * Date: 18.03.13
  * Time: 10:43
  * To change this template use File | Settings | File Templates.
+ * @deprecated another conception of control since jagger 1.2.2-m3
  */
+@Deprecated
 public interface WorkloadTaskDataServiceAsync {
     void getWorkloadTaskData(String sessionId, AsyncCallback<List<WorkloadTaskDataDto>> async);
     void getWorkloadTaskData(String sessionId, long taskId, AsyncCallback<WorkloadTaskDataDto> async);

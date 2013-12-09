@@ -205,7 +205,7 @@ input[type="text"] {
 
 .controlFont {
     font: normal 11px arial, tahoma, helvetica, sans-serif !important;
-    color: black !important;
+    color: #000000 !important;
 }
 
 .toolBar img {
