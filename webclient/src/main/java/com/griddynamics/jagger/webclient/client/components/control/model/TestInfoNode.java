@@ -3,11 +3,10 @@ package com.griddynamics.jagger.webclient.client.components.control.model;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
  * User: amikryukov
  * Date: 11/26/13
  */
-public class TestInfoNode extends SimpleNode {
+public class TestInfoNode extends AbstractIdentifyNode {
 
     List<TestInfoLeaf> testInfoList;
 
@@ -28,7 +27,7 @@ public class TestInfoNode extends SimpleNode {
     }
 
     @Override
-    public List<? extends SimpleNode> getChildren() {
+    public List<? extends AbstractIdentifyNode> getChildren() {
         return testInfoList;
     }
 }

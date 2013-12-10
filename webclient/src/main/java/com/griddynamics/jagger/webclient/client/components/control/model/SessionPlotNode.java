@@ -6,11 +6,10 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
  * User: amikryukov
  * Date: 12/4/13
  */
-public class SessionPlotNode extends SimpleNode {
+public class SessionPlotNode extends AbstractIdentifyNode {
     private PlotNameDto plotNameDto;
 
     public SessionPlotNode (PlotNameDto metricName) {
@@ -28,7 +27,7 @@ public class SessionPlotNode extends SimpleNode {
     }
 
     @Override
-    public List<? extends SimpleNode> getChildren() {
+    public List<? extends AbstractIdentifyNode> getChildren() {
         return Collections.EMPTY_LIST;
     }
 }

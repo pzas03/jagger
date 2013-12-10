@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
+ * Corresponds to "Summary" and "Trends" tabs in UI
  * User: amikryukov
  * Date: 11/26/13
  */
-public class SummaryNode extends SimpleNode {
+public class SummaryNode extends AbstractIdentifyNode {
 
     List<TestNode> tests;
 
@@ -38,8 +38,8 @@ public class SummaryNode extends SimpleNode {
     }
 
     @Override
-    public List<? extends SimpleNode> getChildren() {
-        ArrayList<SimpleNode> result = new ArrayList<SimpleNode>();
+    public List<? extends AbstractIdentifyNode> getChildren() {
+        ArrayList<AbstractIdentifyNode> result = new ArrayList<AbstractIdentifyNode>();
         result.add(sessionInfo);
         if (tests != null && !tests.isEmpty())result.addAll(tests);
         return result;

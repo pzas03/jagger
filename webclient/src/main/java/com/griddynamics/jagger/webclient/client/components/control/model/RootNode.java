@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
+ * Have no view representation.
  * User: amikryukov
  * Date: 11/26/13
  */
-public class RootNode extends SimpleNode {
+public class RootNode extends AbstractIdentifyNode {
 
     SummaryNode summary;
 
@@ -31,8 +31,8 @@ public class RootNode extends SimpleNode {
     }
 
     @Override
-    public List<? extends SimpleNode> getChildren() {
-        List<SimpleNode> result = new ArrayList<SimpleNode>();
+    public List<? extends AbstractIdentifyNode> getChildren() {
+        List<AbstractIdentifyNode> result = new ArrayList<AbstractIdentifyNode>();
         result.add(summary);
         if (detailsNode != null) result.add(detailsNode);
         return result;

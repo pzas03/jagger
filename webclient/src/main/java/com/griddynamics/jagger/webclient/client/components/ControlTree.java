@@ -10,7 +10,6 @@ import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 import com.sencha.gxt.core.client.ValueProvider;
 import com.sencha.gxt.data.shared.TreeStore;
 import com.sencha.gxt.widget.core.client.event.*;
-import com.sencha.gxt.widget.core.client.info.Info;
 import com.sencha.gxt.widget.core.client.tree.Tree;
 
 import java.util.Collections;
@@ -25,7 +24,7 @@ import java.util.Set;
  *
  * @param <C> cell data type
  */
-public class NoIconTree <C> extends Tree <SimpleNode, C> {
+public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
 
 
     /**
@@ -58,39 +57,39 @@ public class NoIconTree <C> extends Tree <SimpleNode, C> {
 
     {
 
-        this.addBeforeExpandHandler(new BeforeExpandItemEvent.BeforeExpandItemHandler<SimpleNode>() {
+        this.addBeforeExpandHandler(new BeforeExpandItemEvent.BeforeExpandItemHandler<AbstractIdentifyNode>() {
             @Override
-            public void onBeforeExpand(BeforeExpandItemEvent<SimpleNode> event) {
+            public void onBeforeExpand(BeforeExpandItemEvent<AbstractIdentifyNode> event) {
                 if (disabled)
                     event.setCancelled(true);
             }
         });
 
-        this.addBeforeCollapseHandler(new BeforeCollapseItemEvent.BeforeCollapseItemHandler<SimpleNode>() {
+        this.addBeforeCollapseHandler(new BeforeCollapseItemEvent.BeforeCollapseItemHandler<AbstractIdentifyNode>() {
             @Override
-            public void onBeforeCollapse(BeforeCollapseItemEvent<SimpleNode> event) {
+            public void onBeforeCollapse(BeforeCollapseItemEvent<AbstractIdentifyNode> event) {
                 if (disabled)
                     event.setCancelled(true);
             }
         });
 
-        this.addBeforeCheckChangeHandler(new BeforeCheckChangeEvent.BeforeCheckChangeHandler<SimpleNode>() {
+        this.addBeforeCheckChangeHandler(new BeforeCheckChangeEvent.BeforeCheckChangeHandler<AbstractIdentifyNode>() {
             @Override
-            public void onBeforeCheckChange(BeforeCheckChangeEvent<SimpleNode> event) {
+            public void onBeforeCheckChange(BeforeCheckChangeEvent<AbstractIdentifyNode> event) {
                 if (disabled)
                     event.setCancelled(true);
             }
         });
 
-        this.addCheckChangeHandler(new CheckChangeEvent.CheckChangeHandler<SimpleNode>() {
+        this.addCheckChangeHandler(new CheckChangeEvent.CheckChangeHandler<AbstractIdentifyNode>() {
             @Override
-            public void onCheckChange(CheckChangeEvent<SimpleNode> event) {
+            public void onCheckChange(CheckChangeEvent<AbstractIdentifyNode> event) {
 
                 tree.disableEvents();
                     check(event.getItem(), event.getChecked());
             }
 
-            private void check(SimpleNode item, CheckState state) {
+            private void check(AbstractIdentifyNode item, CheckState state) {
                 checkSubTree(item, state);
                 if (state.equals(CheckState.CHECKED)) {
                     checkParent(item);
@@ -103,23 +102,23 @@ public class NoIconTree <C> extends Tree <SimpleNode, C> {
                 CheckHandlerMap.getHandler(item.getClass()).onCheckChange(new CheckChangeEvent(item, state));
             }
 
-            private Tree<SimpleNode, C> tree = NoIconTree.this;
-            private TreeStore<SimpleNode> treeStore = NoIconTree.this.getStore();
+            private Tree<AbstractIdentifyNode, C> tree = ControlTree.this;
+            private TreeStore<AbstractIdentifyNode> treeStore = ControlTree.this.getStore();
 
-            private void checkSubTree(SimpleNode item, CheckState state) {
+            private void checkSubTree(AbstractIdentifyNode item, CheckState state) {
                 if (treeStore.hasChildren(item))
-                    for (SimpleNode child : treeStore.getChildren(item)) {
+                    for (AbstractIdentifyNode child : treeStore.getChildren(item)) {
                         tree.setChecked(child, state);
                         checkSubTree(child, state);
                     }
             }
 
 
-            private void unCheckParent(SimpleNode item) {
-                SimpleNode parent = treeStore.getParent(item);
+            private void unCheckParent(AbstractIdentifyNode item) {
+                AbstractIdentifyNode parent = treeStore.getParent(item);
                 if (parent == null) return;
                 boolean hasChecked = false;
-                for (SimpleNode ch : treeStore.getChildren(parent)) {
+                for (AbstractIdentifyNode ch : treeStore.getChildren(parent)) {
                     if (tree.getChecked(ch).equals(CheckState.CHECKED) || tree.getChecked(ch).equals(CheckState.PARTIAL)) {
                         tree.setChecked(parent, CheckState.PARTIAL);
                         hasChecked = true;
@@ -136,13 +135,13 @@ public class NoIconTree <C> extends Tree <SimpleNode, C> {
         });
     }
 
-    public void checkParent(SimpleNode item) {
-        SimpleNode parent = store.getParent(item);
+    public void checkParent(AbstractIdentifyNode item) {
+        AbstractIdentifyNode parent = store.getParent(item);
         if (parent == null) return;
 
         boolean hasUnchecked = false;
 
-        for (SimpleNode ch : store.getChildren(parent)) {
+        for (AbstractIdentifyNode ch : store.getChildren(parent)) {
             if (!isChecked(ch) || CheckState.PARTIAL.equals(getChecked(ch))) {
                 setChecked(parent, CheckState.PARTIAL);
                 hasUnchecked = true;
@@ -158,25 +157,25 @@ public class NoIconTree <C> extends Tree <SimpleNode, C> {
 
 
 
-    public void setCheckedWithParent (SimpleNode item) {
+    public void setCheckedWithParent (AbstractIdentifyNode item) {
         setChecked(item, Tree.CheckState.CHECKED);
         checkParent(item);
     }
 
 
-    public void setCheckedExpandedWithParent (SimpleNode item) {
+    public void setCheckedExpandedWithParent (AbstractIdentifyNode item) {
         setChecked(item, Tree.CheckState.CHECKED);
         checkParent(item);
         setExpanded(item, true, false);
     }
 
     @UiConstructor
-    public NoIconTree(TreeStore<SimpleNode> store, ValueProvider<? super SimpleNode, C> valueProvider) {
+    public ControlTree(TreeStore<AbstractIdentifyNode> store, ValueProvider<? super AbstractIdentifyNode, C> valueProvider) {
         super(store, valueProvider);
     }
 
     @Override
-    protected ImageResource calculateIconStyle(SimpleNode model) {
+    protected ImageResource calculateIconStyle(AbstractIdentifyNode model) {
         return null;
     }
 
@@ -292,7 +291,7 @@ public class NoIconTree <C> extends Tree <SimpleNode, C> {
      * @param model tree model
      * @return bool
      */
-    public boolean isChosen(SimpleNode model) {
+    public boolean isChosen(AbstractIdentifyNode model) {
         return !CheckState.UNCHECKED.equals(getChecked(model));
     }
 

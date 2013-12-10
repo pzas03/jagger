@@ -1,7 +1,7 @@
 package com.griddynamics.jagger.webclient.client.handler;
 
 import com.griddynamics.jagger.webclient.client.PlotsServingBase;
-import com.griddynamics.jagger.webclient.client.components.NoIconTree;
+import com.griddynamics.jagger.webclient.client.components.ControlTree;
 import com.griddynamics.jagger.webclient.client.components.SessionComparisonPanel;
 import com.griddynamics.jagger.webclient.client.trends.Trends;
 import com.sencha.gxt.widget.core.client.event.CheckChangeEvent;
@@ -13,13 +13,13 @@ import com.sencha.gxt.widget.core.client.event.CheckChangeEvent;
  */
 public abstract class TreeAwareHandler<T> extends PlotsServingBase implements CheckChangeEvent.CheckChangeHandler<T> {
 
-    protected NoIconTree<String> tree;
+    protected ControlTree<String> tree;
     protected Trends.MetricFetcher metricFetcher;
     protected SessionComparisonPanel sessionComparisonPanel;
     protected Trends.TestPlotFetcher testPlotFetcher;
     protected Trends.SessionScopePlotFetcher sessionScopePlotFetcher;
 
-    public void setTree(NoIconTree<String> tree) {
+    public void setTree(ControlTree<String> tree) {
         this.tree = tree;
     }
 

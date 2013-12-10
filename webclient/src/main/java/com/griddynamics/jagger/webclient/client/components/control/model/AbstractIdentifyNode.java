@@ -8,14 +8,21 @@ import java.util.List;
  * User: amikryukov
  * Date: 11/26/13
  */
-public abstract class SimpleNode implements Serializable {
+public abstract class AbstractIdentifyNode implements Serializable {
 
+    /**
+     * id in tree - uniq for all nodes
+     */
     protected String id;
+
+    /**
+     * representation of the node in control tree
+     */
     protected String displayName;
 
-    public SimpleNode() {}
+    public AbstractIdentifyNode() {}
 
-    public SimpleNode (String id, String displayName) {
+    public AbstractIdentifyNode(String id, String displayName) {
         this.id = id;
         this.displayName = displayName;
     }
@@ -36,5 +43,8 @@ public abstract class SimpleNode implements Serializable {
         this.displayName = displayName;
     }
 
-    public abstract List<? extends SimpleNode> getChildren();
+    /**
+     * @return List of children. empty list if has no children.
+     */
+    public abstract List<? extends AbstractIdentifyNode> getChildren();
 }

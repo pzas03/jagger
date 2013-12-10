@@ -13,11 +13,7 @@
         <g:west size="350">
             <g:SplitLayoutPanel>
                 <g:center>
-                    <g:SimplePanel ui:field="controlTreePanel" height="100%" width="100%">
-                       <!-- <custom:NoIconTree ui:field="controlTree" controlTreeStore="{controlTreeStore}"
-                                           valueProvider="{valueProvider}"
-                                           checkable="true" checkStyle="NONE" checkNodes="BOTH" width="100%" height="100%" />-->
-                    </g:SimplePanel>
+                    <g:SimplePanel ui:field="controlTreePanel" height="100%" width="100%"/>
                 </g:center>
                 <g:south size="250" >
                     <gxt:ContentPanel ui:field="sessionDataGridContainer" headerVisible="false" height="250" bodyBorder="false" borders="false">

@@ -31,7 +31,7 @@ import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.gwt.view.client.*;
 import com.griddynamics.jagger.webclient.client.*;
 import com.griddynamics.jagger.webclient.client.components.*;
-import com.griddynamics.jagger.webclient.client.components.NoIconTree;
+import com.griddynamics.jagger.webclient.client.components.ControlTree;
 import com.griddynamics.jagger.webclient.client.components.control.CheckHandlerMap;
 import com.griddynamics.jagger.webclient.client.components.control.SimpleNodeValueProvider;
 import com.griddynamics.jagger.webclient.client.components.control.model.*;
@@ -207,12 +207,12 @@ public class Trends extends DefaultActivity {
     @UiField
     Widget widget;
 
-    NoIconTree<String> controlTree;
+    ControlTree<String> controlTree;
 
-    private final ModelKeyProvider <SimpleNode> modelKeyProvider = new ModelKeyProvider<SimpleNode>() {
+    private final ModelKeyProvider <AbstractIdentifyNode> modelKeyProvider = new ModelKeyProvider<AbstractIdentifyNode>() {
 
         @Override
-        public String getKey(SimpleNode item) {
+        public String getKey(AbstractIdentifyNode item) {
             return item.getId();
         }
     };
@@ -330,7 +330,7 @@ public class Trends extends DefaultActivity {
 
     private void setupControlTree() {
 
-        controlTree = new NoIconTree<String>(new TreeStore<SimpleNode>(modelKeyProvider), new SimpleNodeValueProvider());
+        controlTree = new ControlTree<String>(new TreeStore<AbstractIdentifyNode>(modelKeyProvider), new SimpleNodeValueProvider());
         setupControlTree(controlTree);
 
         Label label = new Label("Choose at least One session");
@@ -340,7 +340,7 @@ public class Trends extends DefaultActivity {
         controlTreePanel.add(NO_SESSION_CHOSEN);
     }
 
-    private void setupControlTree(NoIconTree<String> tree) {
+    private void setupControlTree(ControlTree<String> tree) {
         tree.setTitle("Control Tree");
         tree.setCheckable(true);
         tree.setCheckStyle(Tree.CheckCascade.NONE);
@@ -425,18 +425,21 @@ public class Trends extends DefaultActivity {
             public void onSelection(SelectionEvent<Integer> event) {
                 int selected = event.getSelectedItem();
                 switch (selected) {
-                    case 0: onSummaryTabSelected();
+                    case 0:
+                        onSummaryTabSelected();
                         break;
-                    case 1: onTrendsTabSelected();
+                    case 1:
+                        onTrendsTabSelected();
                         break;
-                    case 2: onMetricsTabSelected();
+                    case 2:
+                        onMetricsTabSelected();
                     default:
                 }
             }
         });
     }
 
-    private boolean needRefresh = true;
+    private boolean needRefresh = false;
     private void onSummaryTabSelected() {
         mainTabPanel.forceLayout();
         controlTree.onSummaryTrendsTab();
@@ -444,6 +447,7 @@ public class Trends extends DefaultActivity {
         //summaryPanel.getSessionComparisonPanel().refresh();
         if (needRefresh) {
             summaryPanel.getSessionComparisonPanel().refresh();
+            needRefresh = false;
         }
     }
 
@@ -822,6 +826,8 @@ public class Trends extends DefaultActivity {
             summaryPanel.updateSessions(selected);
             if (mainTabPanel.getSelectedIndex() == 0) {
                 needRefresh = false;
+            } else {
+                needRefresh = true;
             }
 
             CheckHandlerMap.setMetricFetcher(metricFetcher);
@@ -867,7 +873,6 @@ public class Trends extends DefaultActivity {
 
                 @Override
                 public void onSuccess(RootNode result) {
-                    Info.display("NEW SERVICE", "WORKS");
                     if (!selectTests) { // if it was link
                         selectTests = true;
 
@@ -897,7 +902,7 @@ public class Trends extends DefaultActivity {
 
         private void processLink(RootNode result) {
 
-            NoIconTree<String> tempTree = createControlTree(result);
+            ControlTree<String> tempTree = createControlTree(result);
 
             tempTree.disableEvents();
 
@@ -989,11 +994,11 @@ public class Trends extends DefaultActivity {
         }
 
         private void updateControlTree(RootNode result) {
-            NoIconTree<String> tempTree = createControlTree(result);
+            ControlTree<String> tempTree = createControlTree(result);
 
             tempTree.disableEvents();
-            for (SimpleNode s : controlTree.getStore().getAll()) {
-                SimpleNode model = tempTree.getStore().findModelWithKey(s.getId());
+            for (AbstractIdentifyNode s : controlTree.getStore().getAll()) {
+                AbstractIdentifyNode model = tempTree.getStore().findModelWithKey(s.getId());
                 if (model == null) continue;
                 tempTree.setChecked(model, controlTree.getChecked(s));
                 if (controlTree.isExpanded(s)) {
@@ -1003,8 +1008,8 @@ public class Trends extends DefaultActivity {
                 }
             }
             // collapse/expand root nodes
-            for (SimpleNode s : controlTree.getStore().getRootItems()) {
-                SimpleNode model = tempTree.getStore().findModelWithKey(s.getId());
+            for (AbstractIdentifyNode s : controlTree.getStore().getRootItems()) {
+                AbstractIdentifyNode model = tempTree.getStore().findModelWithKey(s.getId());
                 if (controlTree.isExpanded(s)) {
                     tempTree.setExpanded(model, true);
                 } else {
@@ -1056,30 +1061,30 @@ public class Trends extends DefaultActivity {
             }
         }
 
-        private NoIconTree<String> createControlTree(RootNode result) {
+        private ControlTree<String> createControlTree(RootNode result) {
 
-            TreeStore<SimpleNode> temporaryStore = new TreeStore<SimpleNode>(modelKeyProvider);
-            NoIconTree<String> newTree = new NoIconTree<String>(temporaryStore, new SimpleNodeValueProvider());
+            TreeStore<AbstractIdentifyNode> temporaryStore = new TreeStore<AbstractIdentifyNode>(modelKeyProvider);
+            ControlTree<String> newTree = new ControlTree<String>(temporaryStore, new SimpleNodeValueProvider());
             setupControlTree(newTree);
 
-            for (SimpleNode node : result.getChildren()) {
+            for (AbstractIdentifyNode node : result.getChildren()) {
                 addToStore(temporaryStore, node);
             }
 
            return newTree;
         }
 
-        private void addToStore(TreeStore<SimpleNode> store, SimpleNode node) {
+        private void addToStore(TreeStore<AbstractIdentifyNode> store, AbstractIdentifyNode node) {
             store.add(node);
 
-            for (SimpleNode child : node.getChildren()) {
+            for (AbstractIdentifyNode child : node.getChildren()) {
                 addToStore(store, child, node);
             }
         }
 
-        private void addToStore(TreeStore<SimpleNode> store, SimpleNode node, SimpleNode parent) {
+        private void addToStore(TreeStore<AbstractIdentifyNode> store, AbstractIdentifyNode node, AbstractIdentifyNode parent) {
             store.add(parent, node);
-            for (SimpleNode child : node.getChildren()) {
+            for (AbstractIdentifyNode child : node.getChildren()) {
                 addToStore(store, child, node);
             }
         }

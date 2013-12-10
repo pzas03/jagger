@@ -4,11 +4,10 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
  * User: amikryukov
  * Date: 11/27/13
  */
-public class SessionScopePlotsNode extends SimpleNode {
+public class SessionScopePlotsNode extends AbstractIdentifyNode {
 
     List<SessionPlotNode> plots;
 
@@ -28,7 +27,7 @@ public class SessionScopePlotsNode extends SimpleNode {
     }
 
     @Override
-    public List<? extends SimpleNode> getChildren() {
+    public List<? extends AbstractIdentifyNode> getChildren() {
         return plots == null ? Collections.EMPTY_LIST : plots;
     }
 }

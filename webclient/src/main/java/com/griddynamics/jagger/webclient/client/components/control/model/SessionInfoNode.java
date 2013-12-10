@@ -3,11 +3,10 @@ package com.griddynamics.jagger.webclient.client.components.control.model;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
  * User: amikryukov
  * Date: 11/26/13
  */
-public class SessionInfoNode extends SimpleNode {
+public class SessionInfoNode extends AbstractIdentifyNode {
 
     List<SessionInfoLeaf> sessionInfoList;
 
@@ -27,7 +26,7 @@ public class SessionInfoNode extends SimpleNode {
     }
 
     @Override
-    public List<? extends SimpleNode> getChildren() {
+    public List<? extends AbstractIdentifyNode> getChildren() {
         return sessionInfoList;
     }
 }

@@ -6,11 +6,11 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
+ * Corresponds to summary/trends metrics
  * User: amikryukov
  * Date: 11/26/13
  */
-public class MetricNode extends SimpleNode {
+public class MetricNode extends AbstractIdentifyNode {
 
     private MetricNameDto metricName;
 
@@ -29,7 +29,7 @@ public class MetricNode extends SimpleNode {
     }
 
     @Override
-    public List<? extends SimpleNode> getChildren() {
+    public List<? extends AbstractIdentifyNode> getChildren() {
         return Collections.EMPTY_LIST;
     }
 

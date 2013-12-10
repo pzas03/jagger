@@ -4,11 +4,10 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
  * User: amikryukov
  * Date: 11/26/13
  */
-public class SessionInfoLeaf extends SimpleNode {
+public class SessionInfoLeaf extends AbstractIdentifyNode {
 
     public SessionInfoLeaf () {}
 
@@ -18,7 +17,7 @@ public class SessionInfoLeaf extends SimpleNode {
     }
 
     @Override
-    public List<? extends SimpleNode> getChildren() {
+    public List<? extends AbstractIdentifyNode> getChildren() {
         return Collections.EMPTY_LIST;
     }
 }

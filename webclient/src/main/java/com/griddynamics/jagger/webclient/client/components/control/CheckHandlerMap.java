@@ -1,6 +1,6 @@
 package com.griddynamics.jagger.webclient.client.components.control;
 
-import com.griddynamics.jagger.webclient.client.components.NoIconTree;
+import com.griddynamics.jagger.webclient.client.components.ControlTree;
 import com.griddynamics.jagger.webclient.client.components.SessionComparisonPanel;
 import com.griddynamics.jagger.webclient.client.components.control.model.*;
 import com.griddynamics.jagger.webclient.client.handler.*;
@@ -52,7 +52,7 @@ public class CheckHandlerMap {
         }
     }
 
-    public static void setTree(NoIconTree<String> tree) {
+    public static void setTree(ControlTree<String> tree) {
         for (TreeAwareHandler tah : handlers.values()) {
             tah.setTree(tree);
         }

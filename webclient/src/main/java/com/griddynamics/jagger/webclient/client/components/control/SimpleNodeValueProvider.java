@@ -1,6 +1,6 @@
 package com.griddynamics.jagger.webclient.client.components.control;
 
-import com.griddynamics.jagger.webclient.client.components.control.model.SimpleNode;
+import com.griddynamics.jagger.webclient.client.components.control.model.AbstractIdentifyNode;
 import com.sencha.gxt.core.client.ValueProvider;
 
 /**
@@ -8,15 +8,15 @@ import com.sencha.gxt.core.client.ValueProvider;
  * User: amikryukov
  * Date: 11/26/13
  */
-public class SimpleNodeValueProvider implements ValueProvider<SimpleNode, String> {
+public class SimpleNodeValueProvider implements ValueProvider<AbstractIdentifyNode, String> {
 
     @Override
-    public String getValue(SimpleNode object) {
+    public String getValue(AbstractIdentifyNode object) {
         return object.getDisplayName();
     }
 
     @Override
-    public void setValue(SimpleNode object, String value) {
+    public void setValue(AbstractIdentifyNode object, String value) {
         object.setDisplayName(value);
     }
 

@@ -6,12 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
+ * Corresponds to test as child of DetailsNode
  * User: amikryukov
  * Date: 11/27/13
  */
 
-public class TestDetailsNode extends SimpleNode {
+public class TestDetailsNode extends AbstractIdentifyNode {
 
     private TaskDataDto taskDataDto;
 
@@ -39,8 +39,8 @@ public class TestDetailsNode extends SimpleNode {
     }
 
     @Override
-    public List<? extends SimpleNode> getChildren() {
-        ArrayList<SimpleNode> result = new ArrayList<SimpleNode>();
+    public List<? extends AbstractIdentifyNode> getChildren() {
+        ArrayList<AbstractIdentifyNode> result = new ArrayList<AbstractIdentifyNode>();
         result.addAll(plots);
         return result;
     }

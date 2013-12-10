@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
+ * Corresponds to "Metric" tab in UI.
  * User: amikryukov
  * Date: 11/27/13
  */
-public class DetailsNode extends SimpleNode {
+public class DetailsNode extends AbstractIdentifyNode {
 
     SessionScopePlotsNode sessionScopePlotsNode;
 
@@ -37,8 +37,8 @@ public class DetailsNode extends SimpleNode {
     }
 
     @Override
-    public List<? extends SimpleNode> getChildren() {
-        List<SimpleNode> result = new ArrayList<SimpleNode>();
+    public List<? extends AbstractIdentifyNode> getChildren() {
+        List<AbstractIdentifyNode> result = new ArrayList<AbstractIdentifyNode>();
         if (sessionScopePlotsNode != null) result.add(sessionScopePlotsNode);
         if (tests != null && !tests.isEmpty()) result.addAll(tests);
         return result;
