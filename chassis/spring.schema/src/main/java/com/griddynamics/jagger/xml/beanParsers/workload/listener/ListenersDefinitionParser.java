@@ -14,7 +14,7 @@ import java.util.ArrayList;
  * Time: 5:32 PM
  * To change this template use File | Settings | File Templates.
  */
-public class TestListenersDefinitionParser extends CustomBeanDefinitionParser {
+public class ListenersDefinitionParser extends CustomBeanDefinitionParser {
 
     @Override
     protected Class getBeanClass(Element element) {
