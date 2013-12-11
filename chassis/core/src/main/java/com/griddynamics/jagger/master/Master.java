@@ -195,9 +195,9 @@ public class Master implements Runnable {
 
             for (SessionExecutionListener listener : configuration.getSessionExecutionListeners()) {
                 if(listener instanceof SessionListener){
-                    ((SessionListener)listener).onSessionExecuted(sessionId, commentStorage.getComment(), status);
+                    ((SessionListener)listener).onSessionExecuted(sessionId, commentStorage.get(), status);
                 } else {
-                    listener.onSessionExecuted(sessionId, commentStorage.getComment());
+                    listener.onSessionExecuted(sessionId, commentStorage.get());
                 }
             }
 

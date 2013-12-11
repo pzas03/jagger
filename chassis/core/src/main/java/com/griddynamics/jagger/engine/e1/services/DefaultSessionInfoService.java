@@ -19,12 +19,12 @@ public class DefaultSessionInfoService implements SessionInfoService {
 
     @Override
     public String getComment() {
-        return commentStorage.getComment();
+        return commentStorage.get();
     }
 
     @Override
     public void setComment(String comment) {
-        commentStorage.setComment(comment);
+        commentStorage.set(comment);
     }
 
     @Override

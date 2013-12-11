@@ -19,7 +19,7 @@ public class SessionCommentStorage {
         currentString = new StringBuilder(defaultValue);
     }
 
-    public synchronized void setComment(String comment){
+    public synchronized void set(String comment){
         currentString = new StringBuilder(comment);
     }
 
@@ -27,7 +27,7 @@ public class SessionCommentStorage {
         currentString.append(toComment);
     }
 
-    public synchronized String getComment(){
+    public synchronized String get(){
         return currentString.toString();
     }
 }
