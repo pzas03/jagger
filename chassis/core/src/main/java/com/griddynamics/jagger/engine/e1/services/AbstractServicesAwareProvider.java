@@ -32,7 +32,7 @@ public abstract class AbstractServicesAwareProvider<T> implements ServicesInitia
      * @n
      * @par Details:
      * @details Returns sessionInfo service for current test
-     *@return metric service */
+     *@return sessionInfo service */
     protected SessionInfoService getSessionInfoService(){
         return sessionInfoService;
     }
