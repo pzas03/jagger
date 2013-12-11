@@ -824,11 +824,7 @@ public class Trends extends DefaultActivity {
             chosenMetrics.clear();
             chosenPlots.clear();
             summaryPanel.updateSessions(selected);
-            if (mainTabPanel.getSelectedIndex() == 0) {
-                needRefresh = false;
-            } else {
-                needRefresh = true;
-            }
+            needRefresh = mainTabPanel.getSelectedIndex() != 0;
 
             CheckHandlerMap.setMetricFetcher(metricFetcher);
             CheckHandlerMap.setTestPlotFetcher(testPlotFetcher);
@@ -1028,6 +1024,8 @@ public class Trends extends DefaultActivity {
 
         private void fireCheckEvents() {
 
+            disableControl();
+
             RootNode rootNode = controlTree.getRootNode();
             SummaryNode summaryNode = rootNode.getSummary();
 
@@ -1036,6 +1034,8 @@ public class Trends extends DefaultActivity {
 
             fetchSessionScopePlots();
             fetchPlotsForTests();
+
+            enableControl();
         }
 
         private void fetchSessionScopePlots() {
@@ -1206,20 +1206,21 @@ public class Trends extends DefaultActivity {
 
     public class TestPlotFetcher extends PlotsServingBase {
 
+
+        /**
+         * Fetch selected plots
+         * @param selected plotNames to fetch and render
+         * @param enableTree tells return control or not
+         */
         public void fetchPlots(Set<PlotNameDto> selected, final boolean enableTree) {
 
             if (selected.isEmpty()) {
-                // Remove plots from display which were unchecked
-                removeUncheckedPlots(Collections.EMPTY_SET);
                 if (enableTree)
                     enableControl();
             } else {
-                // Generate all id of plots which should be displayed
-                Set<String> selectedTaskIds = generateTaskPlotIds(selected, chosenSessions.size());
-
-                // Remove plots from display which were unchecked
-                removeUncheckedPlots(selectedTaskIds);
-
+              /*  // Generate all id of plots which should be displayed
+                Set<String> selectedPlotIds = generateTaskPlotIds(selected, chosenSessions.size());
+*/
                 disableControl();
                 PlotProviderService.Async.getInstance().getPlotDatas(selected, new AsyncCallback<Map<PlotNameDto, List<PlotSeriesDto>>>() {
 
@@ -1227,7 +1228,7 @@ public class Trends extends DefaultActivity {
                     public void onFailure(Throwable caught) {
 
                         caught.printStackTrace();
-                        new ExceptionPanel(place, caught.getMessage());
+                        new ExceptionPanel(place, caught.toString());
                         if (enableTree)
                             enableControl();
                     }
@@ -1261,6 +1262,38 @@ public class Trends extends DefaultActivity {
             }
         }
 
+        /**
+         * Removes plots
+         * @param plotNames plotNames to remove
+         */
+        public void removePlots(Set<PlotNameDto> plotNames) {
+
+            List<Widget> toRemove = new ArrayList<Widget>();
+            Set<String> widgetIds = generateTaskPlotIds(plotNames, chosenSessions.size());
+            for (int i = 0; i < plotPanel.getWidgetCount(); i++) {
+                Widget widget = plotPanel.getWidget(i);
+                String widgetId = widget.getElement().getId();
+                if (widgetIds.contains(widgetId))
+                    toRemove.add(widget);
+            }
+            for (Widget w : toRemove) {
+                plotPanel.remove(w);
+                chosenPlots.remove(w.getElement().getId());
+            }
+        }
+
+        public void fetchPlot(PlotNameDto selected, final boolean enableTree) {
+            Set<PlotNameDto> selectedSet = new HashSet<PlotNameDto>();
+            selectedSet.add(selected);
+            fetchPlots(selectedSet, enableTree);
+        }
+
+        public void removePlot(PlotNameDto plotNameDto) {
+            Set<PlotNameDto> setToRemove = new HashSet<PlotNameDto>();
+            setToRemove.add(plotNameDto);
+            removePlots(setToRemove);
+        }
+
         private Set<String> generateTaskPlotIds(Set<PlotNameDto> selected, int size) {
             HashSet<String> idSet = new HashSet<String>();
             for (PlotNameDto plotName : selected) {
@@ -1273,26 +1306,6 @@ public class Trends extends DefaultActivity {
             return idSet;
         }
 
-        private void removeUncheckedPlots(Set<String> selectedTaskIds) {
-
-            List<Widget> toRemove = new ArrayList<Widget>();
-            for (int i = 0; i < plotPanel.getWidgetCount(); i++) {
-                Widget widget = plotPanel.getWidget(i);
-                String widgetId = widget.getElement().getId();
-                if ((!isCrossSessionsTaskScopePlotId(widgetId)
-                        && !isTaskScopePlotId(widgetId))
-                        || selectedTaskIds.contains(widgetId)) {
-                    continue;
-                }
-
-                toRemove.add(widget);
-            }
-            for(Widget widget : toRemove) {
-                plotPanel.remove(widget);
-                chosenPlots.remove(widget.getElement().getId());
-            }
-        }
-
     }
 
     /**
@@ -1302,20 +1315,17 @@ public class Trends extends DefaultActivity {
 
     public class SessionScopePlotFetcher extends PlotsServingBase {
 
-        public void fetchPlots(Set<PlotNameDto> selected, final boolean enableTree) {
 
+        /**
+         * Fetch selected plots
+         * @param selected plotNames to fetch and render
+         * @param enableTree tells return control or not
+         */
+        public void fetchPlots(Set<PlotNameDto> selected, final boolean enableTree) {
             if (selected.isEmpty()) {
-                // Remove plots from display which were unchecked
-                removeUncheckedPlots(Collections.EMPTY_SET);
                 if (enableTree)
                     enableControl();
             } else {
-                // Generate all id of plots which should be displayed
-                Set<String> selectedSessionScopePlotIds = generateSessionPlotIds(selected);
-
-                // Remove plots from display which were unchecked
-                removeUncheckedPlots(selectedSessionScopePlotIds);
-
                 disableControl();
                 PlotProviderService.Async.getInstance().getSessionScopePlotData
                         (chosenSessions.get(0), selected,
@@ -1324,9 +1334,9 @@ public class Trends extends DefaultActivity {
                                     @Override
                                     public void onFailure(Throwable caught) {
                                         caught.printStackTrace();
-                                        new ExceptionPanel(place, caught.getMessage());
                                         if (enableTree)
                                             enableControl();
+                                        new ExceptionPanel(place, caught.getMessage());
                                     }
 
                                     @Override
@@ -1353,6 +1363,41 @@ public class Trends extends DefaultActivity {
             }
         }
 
+        public void fetchPlot(PlotNameDto plotName, final boolean enableTree) {
+            Set<PlotNameDto> set = new HashSet<PlotNameDto>();
+            set.add(plotName);
+            fetchPlots(set, enableTree);
+        }
+
+
+        /**
+         * Removes plots
+         * @param plotNames plotNames to remove
+         */
+        public void removePlots(Set<PlotNameDto> plotNames) {
+
+            Set<String> widgetIdsToRemove = generateSessionPlotIds(plotNames);
+            List<Widget> toRemove = new ArrayList<Widget>();
+            for (int i = 0; i < plotPanel.getWidgetCount(); i ++) {
+                Widget widget = plotPanel.getWidget(i);
+                String widgetId = widget.getElement().getId();
+                if (widgetIdsToRemove.contains(widgetId)) {
+                    toRemove.add(widget);
+                }
+            }
+            for(Widget widget : toRemove) {
+                plotPanel.remove(widget);
+                chosenPlots.remove(widget.getElement().getId());
+            }
+        }
+
+        public void removePlot(PlotNameDto plotNameDto) {
+            Set<PlotNameDto> set = new HashSet<PlotNameDto>();
+            set.add(plotNameDto);
+            removePlots(set);
+        }
+
+
         private Set<String> generateSessionPlotIds(Set<PlotNameDto> selected) {
             HashSet<String> idSet = new HashSet<String>();
             for (PlotNameDto plotName : selected) {
@@ -1361,23 +1406,6 @@ public class Trends extends DefaultActivity {
             return idSet;
         }
 
-        private void removeUncheckedPlots(Set<String> selectedTaskIds) {
-
-            List<Widget> toRemove = new ArrayList<Widget>();
-            for (int i = 0; i < plotPanel.getWidgetCount(); i++) {
-                Widget widget = plotPanel.getWidget(i);
-                String widgetId = widget.getElement().getId();
-                if ((!isSessionScopePlotId(widgetId))
-                        || selectedTaskIds.contains(widgetId)) {
-                    continue;
-                }
-                toRemove.add(widget);
-            }
-            for(Widget widget : toRemove) {
-                plotPanel.remove(widget);
-                chosenPlots.remove(widget.getElement().getId());
-            }
-        }
     }
 
 }
