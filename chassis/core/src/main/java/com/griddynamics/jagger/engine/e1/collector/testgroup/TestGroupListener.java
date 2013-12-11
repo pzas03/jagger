@@ -1,5 +1,8 @@
 package com.griddynamics.jagger.engine.e1.collector.testgroup;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 
 /** Listener, that executes before and after test-group execution.
@@ -27,6 +30,8 @@ public interface TestGroupListener {
     void onStop(TestGroupInfo infoStop);
 
     public static class Composer implements TestGroupListener{
+        private static Logger log = LoggerFactory.getLogger(Composer.class);
+
         private List<TestGroupListener> listenerList;
 
         private Composer(List<TestGroupListener> listenerList){
@@ -34,16 +39,24 @@ public interface TestGroupListener {
         }
 
         @Override
-        public void onStart(TestGroupInfo infoStart) {
+        public void onStart(TestGroupInfo testGroupInfo) {
             for (TestGroupListener listener : listenerList){
-                listener.onStart(infoStart);
+                try{
+                    listener.onStart(testGroupInfo);
+                }catch (RuntimeException ex){
+                    log.error("Failed to call on start in {} test-group-listener", listener.toString(), ex);
+                }
             }
         }
 
         @Override
-        public void onStop(TestGroupInfo infoStop) {
+        public void onStop(TestGroupInfo testGroupInfo) {
             for (TestGroupListener listener : listenerList){
-                listener.onStop(infoStop);
+                try{
+                    listener.onStop(testGroupInfo);
+                }catch (RuntimeException ex){
+                    log.error("Failed to call on stop in {} test-group-listener", listener.toString(), ex);
+                }
             }
         }
 

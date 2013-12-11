@@ -59,4 +59,9 @@ public class DefaultMetricService implements MetricService {
         LogWriter logWriter = context.getService(LogWriter.class);
         logWriter.flush();
     }
+
+    @Override
+    public boolean isAvailable() {
+        return true;
+    }
 }

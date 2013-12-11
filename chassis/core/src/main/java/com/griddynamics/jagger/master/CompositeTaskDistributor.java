@@ -33,6 +33,7 @@ import com.griddynamics.jagger.coordinator.NodeType;
 import com.griddynamics.jagger.engine.e1.Provider;
 import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupInfo;
 import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupListener;
+import com.griddynamics.jagger.engine.e1.services.JaggerEnvironment;
 import com.griddynamics.jagger.util.Futures;
 import com.griddynamics.jagger.util.Injector;
 import com.griddynamics.jagger.util.TimeUtils;
@@ -97,7 +98,7 @@ public class CompositeTaskDistributor implements TaskDistributor<CompositeTask> 
                 List<TestGroupListener> listeners = new ArrayList<TestGroupListener>(task.getListeners().size());
 
                 for (Provider<TestGroupListener> provider : task.getListeners()){
-                    Injector.injectNodeContext(provider, sessionId, taskId, nodeContext);
+                    Injector.injectNodeContext(provider, sessionId, taskId, nodeContext, JaggerEnvironment.TEST_GROUP);
 
                     listeners.add(provider.provide());
                 }
