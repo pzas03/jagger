@@ -1,5 +1,8 @@
 package com.griddynamics.jagger.engine.e1.collector.test;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /** Listener, that executes before test, after test and during all test
  * @author Gribov Kirill
  * @n
@@ -30,6 +33,7 @@ public interface TestListener{
     void onRun(TestInfo status);
 
     public static class Composer implements TestListener {
+        private static Logger log = LoggerFactory.getLogger(Composer.class);
 
         private Iterable<TestListener> listeners;
 
@@ -41,25 +45,36 @@ public interface TestListener{
             return new Composer(collectors);
         }
 
-
         @Override
         public void onStart(TestInfo testInfo) {
             for (TestListener listener : listeners){
-                listener.onStart(testInfo);
+                try{
+                    listener.onStart(testInfo);
+                }catch (RuntimeException ex){
+                    log.error("Failed to call on start in {} test-listener", listener.toString(), ex);
+                }
             }
         }
 
         @Override
         public void onStop(TestInfo testInfo) {
             for (TestListener listener : listeners){
-                listener.onStop(testInfo);
+                try{
+                    listener.onStop(testInfo);
+                }catch (RuntimeException ex){
+                    log.error("Failed to call on stop in {} test-listener", listener.toString(), ex);
+                }
             }
         }
 
         @Override
         public void onRun(TestInfo testInfo) {
             for (TestListener listener : listeners){
-                listener.onRun(testInfo);
+                try{
+                    listener.onRun(testInfo);
+                }catch (RuntimeException ex){
+                    log.error("Failed to call on run in {} test-listener", listener.toString(), ex);
+                }
             }
         }
     }

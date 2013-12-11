@@ -31,6 +31,7 @@ import com.griddynamics.jagger.engine.e1.collector.test.TestListener;
 import com.griddynamics.jagger.engine.e1.process.PollWorkloadProcessStatus;
 import com.griddynamics.jagger.engine.e1.process.StartWorkloadProcess;
 import com.griddynamics.jagger.engine.e1.process.StopWorkloadProcess;
+import com.griddynamics.jagger.engine.e1.services.JaggerEnvironment;
 import com.griddynamics.jagger.master.AbstractDistributionService;
 import com.griddynamics.jagger.master.AbstractDistributor;
 import com.griddynamics.jagger.master.TaskExecutionStatusProvider;
@@ -88,9 +89,10 @@ public class WorkloadTaskDistributor extends AbstractDistributor<WorkloadTask> {
                 //create test-listeners
                 ArrayList<TestListener> listeners = new ArrayList<TestListener>(task.getTestListeners().size());
                 for (Provider<TestListener> provider : task.getTestListeners()){
-                    Injector.injectNodeContext(provider, sessionId, taskId, nodeContext);
+                    Injector.injectNodeContext(provider, sessionId, taskId, nodeContext, JaggerEnvironment.TEST);
                     listeners.add(provider.provide());
                 }
+
                 TestListener testListener = TestListener.Composer.compose(listeners);
                 // start time must be initialized after calibration
                 // if start time will not initialize(calibration) - set 0 test duration

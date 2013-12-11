@@ -1,7 +1,6 @@
 package com.griddynamics.jagger.engine.e1.services;
 
 import com.griddynamics.jagger.coordinator.NodeContext;
-import com.griddynamics.jagger.engine.e1.scenario.NodeSideInitializable;
 import com.griddynamics.jagger.engine.e1.Provider;
 
 /** Abstract type of Provider, that gives user an access to Jagger services
@@ -13,9 +12,10 @@ import com.griddynamics.jagger.engine.e1.Provider;
  *
  * @param <T> - type of element, that will be provided
  * */
-public abstract class AbstractServicesAwareProvider<T> implements NodeSideInitializable, Provider<T> {
+public abstract class AbstractServicesAwareProvider<T> implements ServicesInitializable, Provider<T> {
 
     private MetricService metricService;
+    private SessionInfoService sessionInfoService;
 
     /** Returns MetricService
      * @author Gribov Kirill
@@ -27,8 +27,29 @@ public abstract class AbstractServicesAwareProvider<T> implements NodeSideInitia
         return metricService;
     }
 
-    public final void init(String sessionId, String taskId, NodeContext context){
-        metricService = new DefaultMetricService(sessionId, taskId, context);
+    /** Returns SessionInfoService
+     * @author Gribov Kirill
+     * @n
+     * @par Details:
+     * @details Returns sessionInfo service for current test
+     *@return sessionInfo service */
+    protected SessionInfoService getSessionInfoService(){
+        return sessionInfoService;
+    }
+
+    @Override
+    public final void initServices(String sessionId, String taskId, NodeContext context, JaggerEnvironment environment){
+        if (environment.equals(JaggerEnvironment.TEST)){
+            initTestServices(sessionId, taskId, context);
+        }
+
+        if (environment.equals(JaggerEnvironment.TEST_GROUP)){
+            initTestGroupServices(sessionId, taskId, context);
+        }
+
+        if (environment.equals(JaggerEnvironment.TEST_SUITE)){
+            initTestSuiteServices(sessionId, taskId, context);
+        }
 
         init();
     }
@@ -40,4 +61,19 @@ public abstract class AbstractServicesAwareProvider<T> implements NodeSideInitia
      * @details */
     protected void init(){
     };
+
+    private void initTestServices(String sessionId, String taskId, NodeContext context){
+        metricService = new DefaultMetricService(sessionId, taskId, context);
+        sessionInfoService = new DefaultSessionInfoService(context);
+    }
+
+    private void initTestGroupServices(String sessionId, String taskId, NodeContext context){
+        metricService = new EmptyMetricService();
+        sessionInfoService = new DefaultSessionInfoService(context);
+    }
+
+    private void initTestSuiteServices(String sessionId, String taskId, NodeContext context){
+        metricService = new EmptyMetricService();
+        sessionInfoService = new DefaultSessionInfoService(context);
+    }
 }

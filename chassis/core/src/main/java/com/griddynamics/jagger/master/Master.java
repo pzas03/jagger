@@ -25,6 +25,7 @@ import com.google.common.util.concurrent.Service;
 import com.griddynamics.jagger.agent.model.ManageAgent;
 import com.griddynamics.jagger.coordinator.*;
 import com.griddynamics.jagger.engine.e1.process.Services;
+import com.griddynamics.jagger.engine.e1.services.SessionCommentStorage;
 import com.griddynamics.jagger.master.configuration.*;
 import com.griddynamics.jagger.monitoring.reporting.DynamicPlotGroups;
 import com.griddynamics.jagger.reporting.ReportingService;
@@ -32,7 +33,6 @@ import com.griddynamics.jagger.storage.KeyValueStorage;
 import com.griddynamics.jagger.storage.fs.logging.LogReader;
 import com.griddynamics.jagger.storage.fs.logging.LogWriter;
 import com.griddynamics.jagger.util.Futures;
-import com.griddynamics.jagger.util.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -134,11 +134,14 @@ public class Master implements Runnable {
         Multimap<NodeType, NodeId> allNodes = HashMultimap.create();
         allNodes.putAll(NodeType.MASTER, coordinator.getAvailableNodes(NodeType.MASTER));
 
+        SessionCommentStorage commentStorage = new SessionCommentStorage(sessionIdProvider.getSessionComment());
+
         NodeContextBuilder contextBuilder = Coordination.contextBuilder(NodeId.masterNode());
         contextBuilder
                 .addService(LogWriter.class, getLogWriter())
                 .addService(LogReader.class, getLogReader())
-                .addService(KeyValueStorage.class, keyValueStorage);
+                .addService(KeyValueStorage.class, keyValueStorage)
+                .addService(SessionCommentStorage.class, commentStorage);
         NodeContext context = contextBuilder.build();
 
         Map<NodeType, CountDownLatch> countDownLatchMap = Maps.newHashMap();
@@ -192,9 +195,9 @@ public class Master implements Runnable {
 
             for (SessionExecutionListener listener : configuration.getSessionExecutionListeners()) {
                 if(listener instanceof SessionListener){
-                    ((SessionListener)listener).onSessionExecuted(sessionId, sessionComment, status);
+                    ((SessionListener)listener).onSessionExecuted(sessionId, commentStorage.get(), status);
                 } else {
-                    listener.onSessionExecuted(sessionId, sessionComment);
+                    listener.onSessionExecuted(sessionId, commentStorage.get());
                 }
             }
 

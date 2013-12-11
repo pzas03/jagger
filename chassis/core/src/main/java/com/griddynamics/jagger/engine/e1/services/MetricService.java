@@ -6,7 +6,7 @@ import com.griddynamics.jagger.engine.e1.collector.MetricDescription;
  * @author Gribov Kirill
  * @n
  * */
-public interface MetricService {
+public interface MetricService extends JaggerService{
 
     /** Creates metric. You can define metric name, metric aggregators
      * @author Gribov Kirill
