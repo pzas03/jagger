@@ -5,7 +5,9 @@ import java.io.Serializable;
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
  * @since 5/29/12
+ * @deprecated another conception of control since jagger 1.2.2-m3
  */
+@Deprecated
 public class WorkloadDetailsDto implements Serializable {
     private long id;
     private String name;

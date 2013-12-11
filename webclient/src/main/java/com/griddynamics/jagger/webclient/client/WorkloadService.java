@@ -10,8 +10,10 @@ import java.util.List;
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
  * @since 5/29/12
+ * @deprecated another conception of control since jagger 1.2.2-m3
  */
 @RemoteServiceRelativePath("rpc/WorkloadService")
+@Deprecated
 public interface WorkloadService extends RemoteService {
 
     List<WorkloadDetailsDto> getWorkloadDetailsForSession(List<String> sessionIds) throws RuntimeException;

@@ -172,12 +172,14 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
 
         Map<String, Map<String, List<MonitoringStatistics>>> finalComposedMap = new HashMap<String, Map<String, List<MonitoringStatistics>>>();
         for (long taskId : taskIds) {
+            // todo get all TaskData entities in one step.time safe.
             TaskData workloadTaskData = entityManager.find(TaskData.class, taskId);
 
             WorkloadData workloadData = findWorkloadDataBySessionIdAndTaskId(workloadTaskData.getSessionId(), workloadTaskData.getTaskId());
 
             TaskData monitoringTaskData = findMonitoringTaskDataBySessionIdAndParentId(workloadData.getSessionId(), workloadData.getParentId());
 
+            // todo here we fetching all MonitoringStatistic entity with TaskData in it. may be it could be simplified.
             List<MonitoringStatistics> monitoringStatisticsList = findAllMonitoringStatisticsByMonitoringTaskDataAndDescriptionInList(monitoringTaskData, monitoringParametersList);
 
             Map<String, Map<String, List<MonitoringStatistics>>> composedMap = composeByBoxIdentifierAndDescription(monitoringStatisticsList, true);

@@ -14,7 +14,7 @@ public class MetricDto implements Serializable {
 
     private MetricNameDto metricName;
 
-    PlotSeriesDto plotSeriesDto;
+    private PlotSeriesDto plotSeriesDto;
 
     private Set<MetricValueDto> values;
 

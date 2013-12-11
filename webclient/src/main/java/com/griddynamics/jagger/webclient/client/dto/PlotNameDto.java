@@ -11,6 +11,7 @@ public class PlotNameDto implements Serializable {
 
     private TaskDataDto test;
     private String plotName;
+    private String displayName;
 
     public PlotNameDto(){}
 
@@ -42,10 +43,22 @@ public class PlotNameDto implements Serializable {
         this.test = test;
     }
 
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getDisplay() {
+        return displayName == null ? plotName : displayName;
+    }
+
     @Override
     public String toString() {
         return "PlotNameDto{" +
-                "taskIds=" + test.getIds() +
+                (test != null ? "taskIds=" + test.getIds() : "") +
                 ", plotName='" + plotName + '\'' +
                 '}';
     }

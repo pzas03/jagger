@@ -11,8 +11,10 @@ import java.util.Set;
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
  * @since 5/30/12
+ * @deprecated another conception of control since jagger 1.2.2-m3
  */
 @RemoteServiceRelativePath("rpc/TaskDataService")
+@Deprecated
 public interface TaskDataService extends RemoteService {
 
     List<TaskDataDto> getTaskDataForSession(String sessionId) throws RuntimeException;
