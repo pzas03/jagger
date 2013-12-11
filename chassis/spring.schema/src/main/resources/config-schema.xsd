@@ -488,8 +488,7 @@
                 <xsd:sequence minOccurs="0" maxOccurs="unbounded">
                     <xsd:choice>
                         <xsd:element ref="test" maxOccurs="unbounded"/>
-                        <!--Fot current version of Jagger there is no way to show test-group-listeners results-->
-                        <!--<xsd:element ref="tg-listeners" maxOccurs="1"/>-->
+                        <xsd:element ref="test-group-listeners" maxOccurs="1"/>
                         <xsd:element ref="beans:bean"/>
                         <xsd:element ref="beans:ref"/>
                     </xsd:choice>
@@ -499,48 +498,47 @@
         </xsd:complexContent>
     </xsd:complexType>
 
-    <!--Fot current version of Jagger there is no way to show test-group-listeners results-->
-    <!--<xsd:element name="tg-listeners" type="testGroupListenersType"/>-->
+    <xsd:element name="test-group-listeners" type="testGroupListenersType"/>
     
-    <!--<xsd:complexType name="testGroupListenersType">-->
-        <!--<xsd:annotation>-->
-            <!--<xsd:documentation>-->
-                <!--ADD-->
-            <!--</xsd:documentation>-->
-        <!--</xsd:annotation>-->
-        <!--<xsd:complexContent>-->
-            <!--<xsd:extension base="identifiedType">-->
-                <!--<xsd:choice minOccurs="1" maxOccurs="unbounded">-->
-                    <!--<xsd:element name="tg-listener" type="testGroupListenerAbstract" maxOccurs="unbounded"/>-->
-                <!--</xsd:choice>-->
-            <!--</xsd:extension>-->
-        <!--</xsd:complexContent>-->
-    <!--</xsd:complexType>-->
+    <xsd:complexType name="testGroupListenersType">
+        <xsd:annotation>
+            <xsd:documentation>
+                A list of test-group-listener elements, which give you an ability to execute some actions before and after test-group.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="identifiedType">
+                <xsd:choice minOccurs="1" maxOccurs="unbounded">
+                    <xsd:element name="test-group-listener" type="testGroupListenerAbstract" maxOccurs="unbounded"/>
+                </xsd:choice>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
 
-    <!--<xsd:complexType name="testGroupListenerAbstract" abstract="true">-->
-        <!--<xsd:annotation>-->
-            <!--<xsd:documentation>-->
-                <!--ADD-->
-            <!--</xsd:documentation>-->
-        <!--</xsd:annotation>-->
-        <!--<xsd:complexContent>-->
-            <!--<xsd:extension base="identifiedType">-->
-            <!--</xsd:extension>-->
-        <!--</xsd:complexContent>-->
-    <!--</xsd:complexType>-->
+    <xsd:complexType name="testGroupListenerAbstract" abstract="true">
+        <xsd:annotation>
+            <xsd:documentation>
+                Abstract type for test-group listeners
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="identifiedType">
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
 
-    <!--<xsd:complexType name="tg-listener-ref">-->
-        <!--<xsd:annotation>-->
-            <!--<xsd:documentation>-->
-                <!--ADD-->
-            <!--</xsd:documentation>-->
-        <!--</xsd:annotation>-->
-        <!--<xsd:complexContent>-->
-            <!--<xsd:extension base="testGroupListenerAbstract">-->
-                <!--<xsd:attribute name="ref" type="xsd:string"/>-->
-            <!--</xsd:extension>-->
-        <!--</xsd:complexContent>-->
-    <!--</xsd:complexType>-->
+    <xsd:complexType name="test-group-listener-ref">
+        <xsd:annotation>
+            <xsd:documentation>
+                A reference to test-group-listener element or TestGroupListener provider bean.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="testGroupListenerAbstract">
+                <xsd:attribute name="ref" type="xsd:string"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
 
     <xsd:complexType name="testGroupTypeIn">
         <xsd:annotation>

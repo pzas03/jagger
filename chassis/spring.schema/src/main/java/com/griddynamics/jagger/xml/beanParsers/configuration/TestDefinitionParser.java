@@ -27,12 +27,7 @@ public class TestDefinitionParser extends CustomBeanDefinitionParser {
         List<Element> tests = DomUtils.getChildElementsByTagName(element, XMLConstants.TEST);
         builder.addPropertyValue(XMLConstants.TESTS, parseCustomElements(tests, parserContext, builder.getBeanDefinition()));
 
-        Element listenerGroup = DomUtils.getChildElementByTagName(element, XMLConstants.TEST_GROUP_LISTENERS);
-        if (listenerGroup != null){
-            List<Element> listenerElements = DomUtils.getChildElements(listenerGroup);
-            List listeners = parseCustomElements(listenerElements, parserContext, builder.getBeanDefinition());
-            builder.addPropertyValue(XMLConstants.LISTENERS, listeners);
-        }
+        setBeanProperty(XMLConstants.LISTENERS, DomUtils.getChildElementByTagName(element, XMLConstants.TEST_GROUP_LISTENERS), parserContext, builder.getBeanDefinition());
     }
 
     @Override
