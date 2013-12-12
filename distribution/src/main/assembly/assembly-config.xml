@@ -94,6 +94,7 @@
             <directory>src/main/resources/</directory>
             <includes>
                 <include>*.sh</include>
+                <include>*.bat</include>
             </includes>
             <fileMode>0744</fileMode>
             <outputDirectory>.</outputDirectory>
