@@ -1268,6 +1268,10 @@ public class Trends extends DefaultActivity {
          */
         public void removePlots(Set<PlotNameDto> plotNames) {
 
+            if (plotNames.isEmpty()) {
+                return;
+            }
+
             List<Widget> toRemove = new ArrayList<Widget>();
             Set<String> widgetIds = generateTaskPlotIds(plotNames, chosenSessions.size());
             for (int i = 0; i < plotPanel.getWidgetCount(); i++) {
@@ -1375,6 +1379,10 @@ public class Trends extends DefaultActivity {
          * @param plotNames plotNames to remove
          */
         public void removePlots(Set<PlotNameDto> plotNames) {
+
+            if (plotNames.isEmpty()) {
+                return;
+            }
 
             Set<String> widgetIdsToRemove = generateSessionPlotIds(plotNames);
             List<Widget> toRemove = new ArrayList<Widget>();
