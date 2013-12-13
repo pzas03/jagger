@@ -22,6 +22,8 @@ package com.griddynamics.jagger.master.configuration;
 
 import java.util.List;
 
+import com.griddynamics.jagger.engine.e1.Provider;
+import com.griddynamics.jagger.engine.e1.collector.testsuite.TestSuiteListener;
 import com.griddynamics.jagger.master.DistributionListener;
 import com.griddynamics.jagger.reporting.ReportingService;
 
@@ -38,6 +40,7 @@ public class Configuration {
 	private List<SessionExecutionListener> sessionExecutionListeners = Lists.newLinkedList();
 	private List<DistributionListener> distributionListeners = Lists.newLinkedList();
 
+    private List<Provider<TestSuiteListener>> testSuiteListeners;
 
     private MonitoringConfiguration monitoringConfiguration = null;
     private ReportingService report;
@@ -81,4 +84,13 @@ public class Configuration {
     public List<DistributionListener> getDistributionListeners() {
         return distributionListeners;
     }
+
+    public List<Provider<TestSuiteListener>> getTestSuiteListeners() {
+        return testSuiteListeners;
+    }
+
+    public void setTestSuiteListeners(List<Provider<TestSuiteListener>> testSuiteListeners) {
+        this.testSuiteListeners = testSuiteListeners;
+    }
+
 }

@@ -92,6 +92,7 @@ public class XMLConstants {
     public static final String TEST_LISTENERS = "test-listeners";
     public static final String TEST_LISTENER = "test-listener";
     public static final String TEST_GROUP_LISTENERS = "test-group-listeners";
+    public static final String TEST_SUITE_LISTENERS = "test-suite-listeners";
 
     //don't change the order!!! will not works
     public static final String STANDARD_COLLECTORS = "standardCollectors";
