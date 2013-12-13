@@ -131,14 +131,14 @@ public class MonitoringAggregator extends LogProcessor implements DistributionLi
             Iterator<MonitoringLogEntry> it = fileReader.iterator();
             while (it.hasNext()) {
                 MonitoringLogEntry logEntry = it.next();
-                    try{
-                        currentInterval = processLogEntry(sessionId, aggregationInfo, intervalSize, taskData, currentInterval,
-                                sumByIntervalAgent, countByIntervalAgent, sumByIntervalSuT, countByIntervalSuT, avgStatisticsByAgent,
-                                avgStatisticsBySuT, logEntry);
-                    } catch (ClassCastException e){
-                        //HotFix for hessian de/serialization problem
-                        log.error("Deserialization problem: {}",e);
-                    }
+                try{
+                    currentInterval = processLogEntry(sessionId, aggregationInfo, intervalSize, taskData, currentInterval,
+                            sumByIntervalAgent, countByIntervalAgent, sumByIntervalSuT, countByIntervalSuT, avgStatisticsByAgent,
+                            avgStatisticsBySuT, logEntry);
+                } catch (ClassCastException e){
+                    //HotFix for hessian de/serialization problem
+                    log.error("Deserialization problem: {}", e);
+                }
             }
 
             fileReader.close();
@@ -147,7 +147,7 @@ public class MonitoringAggregator extends LogProcessor implements DistributionLi
                     sumByIntervalAgent, countByIntervalAgent, avgStatisticsByAgent);
             finalizeIntervalSysUT(sessionId, taskData, currentInterval - aggregationInfo.getMinTime(),
                     sumByIntervalSuT, countByIntervalSuT, avgStatisticsBySuT);
-            
+
             differentiateRelativeParameters(avgStatisticsByAgent);
             differentiateRelativeParameters(avgStatisticsBySuT);
 
@@ -195,10 +195,14 @@ public class MonitoringAggregator extends LogProcessor implements DistributionLi
                 @Override
                 public Void doInHibernate(Session session) throws HibernateException, SQLException {
                     String prefix = "Agent on (" + profileDTO.getHostAddress() + ") : ";
-                    for (Map.Entry<String, RuntimeGraph> runtimeGraphEntry : profileDTO.getRuntimeGraphs().entrySet()) {
-                        String context = SerializationUtils.toString(runtimeGraphEntry.getValue());
-                        session.persist(new ProfilingSuT(prefix + runtimeGraphEntry.getKey(), sessionId,
-                                getTaskData(taskId, sessionId), context));
+                    if (profileDTO.getRuntimeGraphs() != null)
+                        for (Map.Entry<String, RuntimeGraph> runtimeGraphEntry : profileDTO.getRuntimeGraphs().entrySet()) {
+                            String context = SerializationUtils.toString(runtimeGraphEntry.getValue());
+                            session.persist(new ProfilingSuT(prefix + runtimeGraphEntry.getKey(), sessionId,
+                                    getTaskData(taskId, sessionId), context));
+                        }
+                    else {
+                        log.info("Nothing to aggregate.");
                     }
                     session.flush();
                     return null;
