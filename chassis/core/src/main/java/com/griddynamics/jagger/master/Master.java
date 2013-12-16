@@ -172,7 +172,7 @@ public class Master implements Runnable {
 		    processAgentManagement(sessionId, agentStartManagementProps);
 		}
 
-        
+
 
         for (SessionExecutionListener listener : configuration.getSessionExecutionListeners()) {
             listener.onSessionStarted(sessionId, allNodes);
