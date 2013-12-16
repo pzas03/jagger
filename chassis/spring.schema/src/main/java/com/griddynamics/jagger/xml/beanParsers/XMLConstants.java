@@ -90,10 +90,10 @@ public class XMLConstants {
     public static final String THREADS_AVG_COLLECTOR = "threadsAvg";
 
     public static final String LISTENERS = "listeners";
-    public static final String TEST_LISTENERS = "test-listeners";
-    public static final String TEST_LISTENER = "test-listener";
-    public static final String TEST_GROUP_LISTENERS = "test-group-listeners";
-    public static final String TEST_SUITE_LISTENERS = "test-suite-listeners";
+    public static final String TEST_LISTENERS = "listeners-test";
+    public static final String TEST_LISTENER = "listener-test";
+    public static final String TEST_GROUP_LISTENERS = "listeners-test-group";
+    public static final String TEST_SUITE_LISTENERS = "listeners-test-suite";
 
     //don't change the order!!! will not works
     public static final String STANDARD_COLLECTORS = "standardCollectors";
