@@ -38,6 +38,7 @@ import java.util.List;
 public class ProcessingConfig implements Serializable {
     private List<Test> tests;
 
+
     public ProcessingConfig(@ElementList(name = "tests", entry = "test", inline = true) List<Test> tests) {
         this.tests = Collections.unmodifiableList(tests);
     }

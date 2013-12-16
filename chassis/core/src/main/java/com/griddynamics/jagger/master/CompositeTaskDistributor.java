@@ -30,12 +30,11 @@ import com.griddynamics.jagger.coordinator.Coordinator;
 import com.griddynamics.jagger.coordinator.NodeContext;
 import com.griddynamics.jagger.coordinator.NodeId;
 import com.griddynamics.jagger.coordinator.NodeType;
-import com.griddynamics.jagger.engine.e1.Provider;
+import com.griddynamics.jagger.engine.e1.ProviderUtil;
 import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupInfo;
 import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupListener;
 import com.griddynamics.jagger.engine.e1.services.JaggerEnvironment;
 import com.griddynamics.jagger.util.Futures;
-import com.griddynamics.jagger.util.Injector;
 import com.griddynamics.jagger.util.TimeUtils;
 import com.griddynamics.jagger.util.TimeoutsConfiguration;
 import org.slf4j.Logger;
@@ -95,15 +94,11 @@ public class CompositeTaskDistributor implements TaskDistributor<CompositeTask> 
             @Override
             protected void run() throws Exception {
 
-                List<TestGroupListener> listeners = new ArrayList<TestGroupListener>(task.getListeners().size());
-
-                for (Provider<TestGroupListener> provider : task.getListeners()){
-                    Injector.injectNodeContext(provider, sessionId, taskId, nodeContext, JaggerEnvironment.TEST_GROUP);
-
-                    listeners.add(provider.provide());
-                }
-
-                TestGroupListener compositeTestGroupListener = TestGroupListener.Composer.compose(listeners);
+                TestGroupListener compositeTestGroupListener = TestGroupListener.Composer.compose(ProviderUtil.provideElements(task.getListeners(),
+                                                                                                                                sessionId,
+                                                                                                                                taskId,
+                                                                                                                                nodeContext,
+                                                                                                                                JaggerEnvironment.TEST_GROUP));
 
                 TestGroupInfo testGroupInfo = new TestGroupInfo(task);
 
