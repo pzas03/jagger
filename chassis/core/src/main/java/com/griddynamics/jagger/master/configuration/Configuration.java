@@ -40,7 +40,7 @@ public class Configuration {
 	private List<SessionExecutionListener> sessionExecutionListeners = Lists.newLinkedList();
 	private List<DistributionListener> distributionListeners = Lists.newLinkedList();
 
-    private List<Provider<TestSuiteListener>> testSuiteListeners;
+    private List<Provider<TestSuiteListener>> testSuiteListeners = Lists.newLinkedList();
 
     private MonitoringConfiguration monitoringConfiguration = null;
     private ReportingService report;

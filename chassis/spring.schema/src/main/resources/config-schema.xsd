@@ -564,11 +564,14 @@
         </xsd:annotation>
         <xsd:complexContent>
             <xsd:extension base="identifiedType">
-                <xsd:choice minOccurs="0" maxOccurs="unbounded">
-                    <xsd:element name="test-group" type="testGroupTypeIn" maxOccurs="unbounded"/>
-                    <xsd:element ref="beans:bean"/>
-                    <xsd:element ref="beans:ref"/>
-                </xsd:choice>
+                <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+                    <xsd:choice>
+                        <xsd:element name="test-group" type="testGroupTypeIn" maxOccurs="unbounded"/>
+                        <xsd:element ref="test-suite-listeners"/>
+                        <xsd:element ref="beans:bean"/>
+                        <xsd:element ref="beans:ref"/>
+                    </xsd:choice>
+                </xsd:sequence>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -582,6 +585,48 @@
         </xsd:annotation>
         <xsd:complexContent>
             <xsd:extension base="testSuiteType">
+                <xsd:attribute name="ref" type="xsd:string"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="test-suite-listeners" type="testSuiteListenersType"/>
+
+    <xsd:complexType name="testSuiteListenersType">
+        <xsd:annotation>
+            <xsd:documentation>
+                A list of test-suite-listener elements, which give you an ability to execute some actions before and after test-suite.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="identifiedType">
+                <xsd:choice minOccurs="1" maxOccurs="unbounded">
+                    <xsd:element name="test-suite-listener" type="testSuiteListenerAbstract" maxOccurs="unbounded"/>
+                </xsd:choice>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="testSuiteListenerAbstract" abstract="true">
+        <xsd:annotation>
+            <xsd:documentation>
+                Abstract type for test-suite listeners
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="identifiedType">
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="test-suite-listener-ref">
+        <xsd:annotation>
+            <xsd:documentation>
+                A reference to test-suite-listener element or TestSuiteListener provider bean.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="testSuiteListenerAbstract">
                 <xsd:attribute name="ref" type="xsd:string"/>
             </xsd:extension>
         </xsd:complexContent>

@@ -23,6 +23,8 @@ public class ProviderUtil {
                 ServicesInitializable nodeSideInitializable = (ServicesInitializable)provider;
                 nodeSideInitializable.initServices(sessionId, taskId, context, environment);
             }
+
+            result.add(provider.provide());
         }
 
         return result;

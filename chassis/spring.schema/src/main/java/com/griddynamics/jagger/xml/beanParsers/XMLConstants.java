@@ -50,6 +50,7 @@ public class XMLConstants {
     public static final String CUSTOM_BASELINE_SESSION_PROVIDER = "customBaselineSessionProvider";
     public static final String BASELINE_SESSION_PROVIDER = "baselineSessionProvider";
     public static final String TEST_SUITE = "test-suite";
+    public static final String TEST_GROUP = "test-group";
     public static final String CONFIG = "config";
     public static final String TASKS = "tasks";
     public static final String TASK = "task";
