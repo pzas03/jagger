@@ -133,11 +133,15 @@ public class MonitorProcess extends LogProcessor implements NodeProcess<Monitori
                             try {
                                 final ProfileDTO profileDTO =
                                         remote.runSyncWithTimeout(GetCollectedProfileFromSuT.create(sessionId), Coordination.<GetCollectedProfileFromSuT>doNothing(), ttl);
-                                log.debug("got collected profiler from agent {} from kernel {}", agentId, nodeContext.getId());
-                                logWriter.log(sessionId, taskId + "/" + PROFILER_MARKER, agentId.getIdentifier(), SerializationUtils.toString(profileDTO));
-                                log.debug("Profiler {} received from agent {} and has been written to FileStorage", profileDTO, agentId);
-                                logWriter.flush();
-                                log.debug("Flushing performed on kernel {}", nodeContext.getId());
+                                if (profileDTO == null) {
+                                    log.info("Profiler turned off. There is no profiler information for write.");
+                                } else {
+                                    log.debug("got collected profiler from agent {} from kernel {}", agentId, nodeContext.getId());
+                                    logWriter.log(sessionId, taskId + "/" + PROFILER_MARKER, agentId.getIdentifier(), SerializationUtils.toString(profileDTO));
+                                    log.debug("Profiler {} received from agent {} and has been written to FileStorage", profileDTO, agentId);
+                                    logWriter.flush();
+                                    log.debug("Flushing performed on kernel {}", nodeContext.getId());
+                                }
                             } catch (Throwable e) {
                                 log.error("Get collected profile failed for agent " + agentId + "\n" + Throwables.getStackTraceAsString(e));
                             }
@@ -147,17 +151,15 @@ public class MonitorProcess extends LogProcessor implements NodeProcess<Monitori
                     } else {
                         log.warn("Collection profiling from SuT didn't start");
                     }
-                }
-                catch (Throwable e) {
+                } catch (Throwable e) {
                     log.error("Start polling failed for agent " + agentId + "\n" + Throwables.getStackTraceAsString(e));
-                }
-                finally {
+                } finally {
                     log.debug("releasing a latch");
                     if (latch != null) {
                         log.debug("latch is available");
                         latch.countDown();
                     }
-                    alive=false;
+                    alive = false;
                     log.debug("latch released");
 
                 }
@@ -175,7 +177,7 @@ public class MonitorProcess extends LogProcessor implements NodeProcess<Monitori
     @Override
     public void stop() {
         log.info("Stop of monitoring requested. agent {}", agentId);
-        if(alive){
+        if (alive) {
             latch = new CountDownLatch(1);
             alive = false;
             try {
@@ -184,9 +186,8 @@ public class MonitorProcess extends LogProcessor implements NodeProcess<Monitori
                 log.warn("Interrupted {}", e);
             }
             log.info("Kernel {} has stopped monitoring on agent {}", nodeContext.getId(), agentId);
-        }
-        else {
-            log.warn("Monitoring on agent {} is not running.  Skipping StopMonitoring",agentId);
+        } else {
+            log.warn("Monitoring on agent {} is not running.  Skipping StopMonitoring", agentId);
         }
     }
 

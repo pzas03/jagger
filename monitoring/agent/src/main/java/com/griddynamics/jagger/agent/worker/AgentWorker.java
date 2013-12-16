@@ -101,25 +101,21 @@ public class AgentWorker extends ConfigurableWorker {
 
                     @Override
                     public ProfileDTO execute(GetCollectedProfileFromSuT command, NodeContext nodeContext) {
-                        ProfileDTO profileDTO;
-                        Map<String, RuntimeGraph> runtimeGraphs;
-                        String hostAddress;
-                        try {
-                            hostAddress = InetAddress.getLocalHost().getHostAddress();
-                        } catch (UnknownHostException e) {
-                            hostAddress = "UNKNOWN";
-                        }
                         if (profilerEnabled) {
+                            String hostAddress;
                             long startTime = System.currentTimeMillis();
+                            try {
+                                hostAddress = InetAddress.getLocalHost().getHostAddress();
+                            } catch (UnknownHostException e) {
+                                hostAddress = "UNKNOWN";
+                            }
                             log.debug("start GetCollectedProfileFromSuT on agent {}", nodeContext.getId());
-                            runtimeGraphs = profiler.getSamplingProfiler().getRuntimeGraph();
-                            profileDTO = new ProfileDTO(hostAddress, runtimeGraphs);
+                            Map<String, RuntimeGraph> runtimeGraphs = profiler.getSamplingProfiler().getRuntimeGraph();
+                            ProfileDTO profileDTO = new ProfileDTO(hostAddress, runtimeGraphs);
                             log.debug("finish GetCollectedProfileFromSuT on agent {} time {} ms", nodeContext.getId(), System.currentTimeMillis() - startTime);
-                        } else {
-                            runtimeGraphs = profiler.getSamplingProfiler().getRuntimeGraph();
-                            profileDTO = new ProfileDTO(hostAddress, runtimeGraphs);
-                        }
-                        return profileDTO;
+                            return profileDTO;
+                        } else
+                            return null;
                     }
                 });
         onCommandReceived(ManageCollectionProfileFromSuT.class).execute(
@@ -133,7 +129,6 @@ public class AgentWorker extends ConfigurableWorker {
                     public VoidResult execute(final ManageCollectionProfileFromSuT command, NodeContext nodeContext) {
                         VoidResult voidResult = new VoidResult();
                         if (profilerEnabled) {
-                            voidResult = new VoidResult();
                             long startTime = System.currentTimeMillis();
                             log.debug("start ManageCollectionProfileFromSuT on agent {}", nodeContext.getId());
                             try {

@@ -195,14 +195,10 @@ public class MonitoringAggregator extends LogProcessor implements DistributionLi
                 @Override
                 public Void doInHibernate(Session session) throws HibernateException, SQLException {
                     String prefix = "Agent on (" + profileDTO.getHostAddress() + ") : ";
-                    if (profileDTO.getRuntimeGraphs() != null)
-                        for (Map.Entry<String, RuntimeGraph> runtimeGraphEntry : profileDTO.getRuntimeGraphs().entrySet()) {
-                            String context = SerializationUtils.toString(runtimeGraphEntry.getValue());
-                            session.persist(new ProfilingSuT(prefix + runtimeGraphEntry.getKey(), sessionId,
-                                    getTaskData(taskId, sessionId), context));
-                        }
-                    else {
-                        log.info("Nothing to aggregate.");
+                    for (Map.Entry<String, RuntimeGraph> runtimeGraphEntry : profileDTO.getRuntimeGraphs().entrySet()) {
+                        String context = SerializationUtils.toString(runtimeGraphEntry.getValue());
+                        session.persist(new ProfilingSuT(prefix + runtimeGraphEntry.getKey(), sessionId,
+                                getTaskData(taskId, sessionId), context));
                     }
                     session.flush();
                     return null;
