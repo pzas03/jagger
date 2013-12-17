@@ -91,7 +91,6 @@ public class XMLConstants {
 
     public static final String LISTENERS = "listeners";
     public static final String TEST_LISTENERS = "listeners-test";
-    public static final String TEST_LISTENER = "listener-test";
     public static final String TEST_GROUP_LISTENERS = "listeners-test-group";
     public static final String TEST_SUITE_LISTENERS = "listeners-test-suite";
 
