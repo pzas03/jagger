@@ -98,7 +98,7 @@ public class WorkloadTaskDistributor extends AbstractDistributor<WorkloadTask> {
                 Long startTime = null;
 
                 //create status info
-                TestInfo testInfo = new TestInfo(task);
+                TestInfo testInfo = new TestInfo(task, sessionId);
 
                 DefaultWorkloadController controller = null;
                 try {
