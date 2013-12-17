@@ -100,7 +100,7 @@ public class CompositeTaskDistributor implements TaskDistributor<CompositeTask> 
                                                                                                                                 nodeContext,
                                                                                                                                 JaggerEnvironment.TEST_GROUP));
 
-                TestGroupInfo testGroupInfo = new TestGroupInfo(task);
+                TestGroupInfo testGroupInfo = new TestGroupInfo(task, sessionId);
 
                 compositeTestGroupListener.onStart(testGroupInfo);
 
