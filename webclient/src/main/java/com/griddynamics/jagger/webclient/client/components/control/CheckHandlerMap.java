@@ -34,6 +34,8 @@ public class CheckHandlerMap {
                 put(TestDetailsNode.class, new TestDetailsNodeHandler());
                 put(PlotNode.class, new PlotNodeHandler());
                 put(SessionPlotNode.class, new SessionPlotNodeHandler());
+                put(MonitoringPlotNode.class, new MonitoringPlotNodeHandler());
+                put(MonitoringSessionScopePlotNode.class, new MonitoringSessionScopePlotNodeHandler());
             }
         };
 

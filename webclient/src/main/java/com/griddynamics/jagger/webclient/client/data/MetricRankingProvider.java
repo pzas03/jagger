@@ -1,8 +1,8 @@
 package com.griddynamics.jagger.webclient.client.data;
 
 import com.google.gwt.regexp.shared.RegExp;
+import com.griddynamics.jagger.webclient.client.components.control.model.AbstractIdentifyNode;
 import com.griddynamics.jagger.webclient.client.components.control.model.MetricNode;
-import com.griddynamics.jagger.webclient.client.components.control.model.PlotNode;
 import com.griddynamics.jagger.webclient.client.dto.MetricDto;
 
 import java.util.*;
@@ -56,11 +56,11 @@ public class MetricRankingProvider {
         });
     }
 
-    public static void sortPlotNodes(List<PlotNode> list){
-        Collections.sort(list, new Comparator<PlotNode>() {
+    public static void sortPlotNodes(List<? extends AbstractIdentifyNode> list){
+        Collections.sort(list, new Comparator<AbstractIdentifyNode>() {
             @Override
-            public int compare(PlotNode o, PlotNode o2) {
-                return MetricRankingProvider.compare(o.getPlotName().getDisplay(), o2.getPlotName().getDisplay());
+            public int compare(AbstractIdentifyNode o, AbstractIdentifyNode o2) {
+                return MetricRankingProvider.compare(o.getDisplayName(), o2.getDisplayName());
             }
         });
     }

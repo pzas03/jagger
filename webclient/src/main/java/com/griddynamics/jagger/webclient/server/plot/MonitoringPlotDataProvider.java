@@ -23,13 +23,15 @@ import java.util.*;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import static com.griddynamics.jagger.webclient.client.mvp.NameTokens.*;
+
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
  * @since 6/5/12
  */
 public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScopePlotDataProvider {
     private static final Logger log = LoggerFactory.getLogger(MonitoringPlotDataProvider.class);
-    private static final String IP_ADDRESS_REG_EXP = ".*[\\[\\(](?:\\d{1,3}\\.){3}\\d{1,3}[\\]\\)]";
+//  private static final String IP_ADDRESS_REG_EXP = ".*[\\[\\(](?:\\d{1,3}\\.){3}\\d{1,3}[\\]\\)]";
 
     private Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups;
     private LegendProvider legendProvider;
@@ -71,19 +73,9 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
      */
     @Override
     public List<PlotSeriesDto> getPlotData(long taskId, String plotName) {
-        DefaultMonitoringParameters[] defaultMonitoringParametersGroup = findDefaultMonitoringParameters(monitoringPlotGroups, plotName);
-        List<String> monitoringParametersList = assembleDefaultMonitoringParametersDescriptions(defaultMonitoringParametersGroup);
-        log.debug("For plot {} there are exist {} monitoring parameters", plotName, defaultMonitoringParametersGroup);
-
-        TaskData workloadTaskData = entityManager.find(TaskData.class, taskId);
-
-        WorkloadData workloadData = findWorkloadDataBySessionIdAndTaskId(workloadTaskData.getSessionId(), workloadTaskData.getTaskId());
-
-        TaskData monitoringTaskData = findMonitoringTaskDataBySessionIdAndParentId(workloadData.getSessionId(), workloadData.getParentId());
-
-        List<MonitoringStatistics> monitoringStatisticsList = findAllMonitoringStatisticsByMonitoringTaskDataAndDescriptionInList(monitoringTaskData, monitoringParametersList);
-
-        return assemble(composeByBoxIdentifierAndDescription(monitoringStatisticsList, false), plotName, Collections.singleton(taskId));
+        Set<Long> taskIds = new HashSet<Long>();
+        taskIds.add(taskId);
+        return getPlotData(taskIds, plotName);
     }
 
     /**
@@ -91,11 +83,15 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
      *
      * @param sessionId session ID
      * @param plotName  plot name
-     * @return list of PlotSeriesDto
+     * @return Session Scope Plots as list of PlotSeriesDto
      * @see PlotSeriesDto
      */
     @Override
     public List<PlotSeriesDto> getPlotData(String sessionId, String plotName) {
+
+        String monitoringKey = plotName.substring(0, plotName.indexOf(AGENT_NAME_SEPARATOR));
+        String agentIdentifier = plotName.substring(plotName.indexOf(AGENT_NAME_SEPARATOR) + AGENT_NAME_SEPARATOR.length());
+
         List<WorkloadData> workloadDataList = findAllWorkloadDataBySessionId(sessionId);
         Map<String, WorkloadData> workloadDataMap = createIndexParentId2WorkloadData(workloadDataList);
 
@@ -103,11 +99,11 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
 
         Map<String, PerformedMonitoring> performedMonitoringMap = createIndexMonitoringId2PerformedMonitoring(findAllPerformedMonitoringBySessionId(sessionId));
 
-        DefaultMonitoringParameters[] defaultMonitoringParametersGroup = findDefaultMonitoringParameters(monitoringPlotGroups, plotName);
+        DefaultMonitoringParameters[] defaultMonitoringParametersGroup = findDefaultMonitoringParameters(monitoringPlotGroups, monitoringKey);
         List<String> monitoringParametersList = assembleDefaultMonitoringParametersDescriptions(defaultMonitoringParametersGroup);
         log.debug("For plot {} there are exist {} monitoring parameters", plotName, defaultMonitoringParametersGroup);
 
-        List<MonitoringStatistics> monitoringStatisticsList = findAllMonitoringStatisticsBySessionIdAndDescriptionInList(sessionId, monitoringParametersList);
+        List<MonitoringStatistics> monitoringStatisticsList = findAllMonitoringStatisticsBySessionIdAndDescriptionInList(sessionId, monitoringParametersList, agentIdentifier);
 
         List<PlotSeriesDto> plotSeriesDtoList = new ArrayList<PlotSeriesDto>();
         for (Map.Entry<String, Map<String, List<MonitoringStatistics>>> entry : composeByBoxIdentifierAndDescription(monitoringStatisticsList, false).entrySet()) {
@@ -154,7 +150,7 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
                 }
             }
 
-            plotSeriesDtoList.add(new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", "Session #" + sessionId + " " + plotName + " on " + boxIdentifier, markings));
+            plotSeriesDtoList.add(new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", "Session #" + sessionId + " " + monitoringKey + " on " + boxIdentifier, markings));
         }
 
         return plotSeriesDtoList;
@@ -166,7 +162,10 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
         checkArgument(!taskIds.isEmpty(), "taskIds is empty");
         checkNotNull(plotName, "plotName is null");
 
-        DefaultMonitoringParameters[] defaultMonitoringParametersGroup = findDefaultMonitoringParameters(monitoringPlotGroups, plotName);
+        String monitoringKey = plotName.substring(0, plotName.indexOf(AGENT_NAME_SEPARATOR));
+        String agentIdentifier = plotName.substring(plotName.indexOf(AGENT_NAME_SEPARATOR) + AGENT_NAME_SEPARATOR.length());
+
+        DefaultMonitoringParameters[] defaultMonitoringParametersGroup = findDefaultMonitoringParameters(monitoringPlotGroups, monitoringKey);
         List<String> monitoringParametersList = assembleDefaultMonitoringParametersDescriptions(defaultMonitoringParametersGroup);
         log.debug("For plot {} there are exist {} monitoring parameters", plotName, defaultMonitoringParametersGroup);
 
@@ -180,7 +179,7 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
             TaskData monitoringTaskData = findMonitoringTaskDataBySessionIdAndParentId(workloadData.getSessionId(), workloadData.getParentId());
 
             // todo here we fetching all MonitoringStatistic entity with TaskData in it. may be it could be simplified.
-            List<MonitoringStatistics> monitoringStatisticsList = findAllMonitoringStatisticsByMonitoringTaskDataAndDescriptionInList(monitoringTaskData, monitoringParametersList);
+            List<MonitoringStatistics> monitoringStatisticsList = findAllMonitoringStatisticsByMonitoringTaskDataAndDescriptionInList(monitoringTaskData, monitoringParametersList, agentIdentifier);
 
             Map<String, Map<String, List<MonitoringStatistics>>> composedMap = composeByBoxIdentifierAndDescription(monitoringStatisticsList, true);
 
@@ -198,7 +197,7 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
             }
         }
 
-        return assemble(finalComposedMap, plotName, taskIds);
+        return assemble(finalComposedMap, monitoringKey, taskIds);
     }
 
     //============================
@@ -208,8 +207,8 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
     /**
      * Composed monitoring statistics to map: [ boxID -> [ description -> list of monitoringStatistics ] ]
      *
-     * @param monitoringStatisticsList
-     * @return
+     * @param monitoringStatisticsList Monitoring Statistic to compose into Map
+     * @return composed Map
      */
     protected Map<String, Map<String, List<MonitoringStatistics>>> composeByBoxIdentifierAndDescription(List<MonitoringStatistics> monitoringStatisticsList, boolean addSessionPrefix) {
         Map<String, Map<String, List<MonitoringStatistics>>> map = new HashMap<String, Map<String, List<MonitoringStatistics>>>();
@@ -311,20 +310,22 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
     }
 
     @SuppressWarnings("unchecked")
-    private List<MonitoringStatistics> findAllMonitoringStatisticsBySessionIdAndDescriptionInList(String sessionId, List<String> monitoringParametersList) {
+    private List<MonitoringStatistics> findAllMonitoringStatisticsBySessionIdAndDescriptionInList(String sessionId, List<String> monitoringParametersList, String agentIdentifier) {
         return entityManager.createQuery("select ms from MonitoringStatistics as ms where sessionId=:sessionId " +
-                "and ms.parameterId.description in (:descrList) order by ms.taskData.number asc, ms.time asc")
+                "and ms.parameterId.description in (:descrList) and (ms.boxIdentifier=:agentIdentifier or ms.systemUnderTestUrl=:agentIdentifier) order by ms.taskData.number asc, ms.time asc")
                 .setParameter("sessionId", sessionId)
                 .setParameter("descrList", monitoringParametersList)
+                .setParameter("agentIdentifier", agentIdentifier)
                 .getResultList();
     }
 
     @SuppressWarnings("unchecked")
-    private List<MonitoringStatistics> findAllMonitoringStatisticsByMonitoringTaskDataAndDescriptionInList(TaskData monitoringTaskData, List<String> monitoringParametersList) {
+    private List<MonitoringStatistics> findAllMonitoringStatisticsByMonitoringTaskDataAndDescriptionInList(TaskData monitoringTaskData, List<String> monitoringParametersList, String agentIdentifier) {
         return entityManager.createQuery("select ms from MonitoringStatistics as ms where ms.taskData = :monitoringTaskData " +
-                "and ms.parameterId.description in (:descrList)")
+                "and ms.parameterId.description in (:descrList) and (ms.boxIdentifier=:agentIdentifier or ms.systemUnderTestUrl=:agentIdentifier)")
                 .setParameter("monitoringTaskData", monitoringTaskData)
                 .setParameter("descrList", monitoringParametersList)
+                .setParameter("agentIdentifier", agentIdentifier)
                 .getResultList();
     }
 

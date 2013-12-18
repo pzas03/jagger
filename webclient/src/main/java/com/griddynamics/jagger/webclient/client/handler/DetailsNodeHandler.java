@@ -2,6 +2,7 @@ package com.griddynamics.jagger.webclient.client.handler;
 
 import com.griddynamics.jagger.webclient.client.components.control.model.*;
 import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
+import com.griddynamics.jagger.webclient.client.dto.SessionPlotNameDto;
 import com.sencha.gxt.widget.core.client.event.CheckChangeEvent;
 import com.sencha.gxt.widget.core.client.tree.Tree;
 
@@ -9,7 +10,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created with IntelliJ IDEA.
  * User: amikryukov
  * Date: 11/27/13
  */
@@ -24,11 +24,20 @@ public class DetailsNodeHandler extends TreeAwareHandler<DetailsNode> {
             for (PlotNode plotNode: test.getPlots()) {
                 testScopePlotNames.add(plotNode.getPlotName());
             }
+            for (MonitoringPlotNode monitoringPlotNode: test.getMonitoringPlots()) {
+                for (PlotNode mPlotNode : monitoringPlotNode.getPlots()) {
+                    testScopePlotNames.add(mPlotNode.getPlotName());
+                }
+            }
         }
 
-        Set<PlotNameDto> sessionScopePlotNames = new HashSet<PlotNameDto>();
-        for (SessionPlotNode plotNode: detailsNode.getSessionScopePlotsNode().getPlots()) {
-            sessionScopePlotNames.add(plotNode.getPlotNameDto());
+        Set<SessionPlotNameDto> sessionScopePlotNames = new HashSet<SessionPlotNameDto>();
+        if (detailsNode.getSessionScopePlotsNode() != null) {
+            for (MonitoringSessionScopePlotNode monitoringPlotNode: detailsNode.getSessionScopePlotsNode().getPlots()) {
+                for (SessionPlotNode plotNode : monitoringPlotNode.getPlots()) {
+                    sessionScopePlotNames.add(plotNode.getPlotNameDto());
+                }
+            }
         }
 
         if (Tree.CheckState.CHECKED.equals(event.getChecked())) {
