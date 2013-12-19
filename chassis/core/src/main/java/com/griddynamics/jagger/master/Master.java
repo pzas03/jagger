@@ -24,6 +24,9 @@ import com.google.common.collect.*;
 import com.google.common.util.concurrent.Service;
 import com.griddynamics.jagger.agent.model.ManageAgent;
 import com.griddynamics.jagger.coordinator.*;
+import com.griddynamics.jagger.databaseapi.EntityUtil;
+import com.griddynamics.jagger.databaseapi.entity.SessionEntity;
+import com.griddynamics.jagger.databaseapi.entity.TestEntity;
 import com.griddynamics.jagger.engine.e1.ProviderUtil;
 import com.griddynamics.jagger.engine.e1.collector.testsuite.TestSuiteInfo;
 import com.griddynamics.jagger.engine.e1.collector.testsuite.TestSuiteListener;
@@ -73,7 +76,15 @@ public class Master implements Runnable {
     private DynamicPlotGroups dynamicPlotGroups;
     private LogWriter logWriter;
     private LogReader logReader;
+    private EntityUtil entityUtil;
 
+    public EntityUtil getEntityUtil() {
+        return entityUtil;
+    }
+
+    public void setEntityUtil(EntityUtil entityUtil) {
+        this.entityUtil = entityUtil;
+    }
 
     @Required
     public void setReconnectPeriod(long reconnectPeriod) {
@@ -142,8 +153,17 @@ public class Master implements Runnable {
                 .addService(LogWriter.class, getLogWriter())
                 .addService(LogReader.class, getLogReader())
                 .addService(KeyValueStorage.class, keyValueStorage)
-                .addService(SessionCommentStorage.class, commentStorage);
+                .addService(SessionCommentStorage.class, commentStorage)
+                .addService(EntityUtil.class, entityUtil);
         NodeContext context = contextBuilder.build();
+
+        SessionEntity sessionEntity = entityUtil.getSession("70");
+
+        List<TestEntity> tests = entityUtil.getTests(sessionEntity.getId());
+
+        TestEntity testEntity = entityUtil.getTestByName(sessionEntity.getId(), "tps1000");
+
+
 
         Map<NodeType, CountDownLatch> countDownLatchMap = Maps.newHashMap();
         CountDownLatch agentCountDownLatch = new CountDownLatch(

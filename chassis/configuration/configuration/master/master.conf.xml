@@ -62,6 +62,7 @@
         <property name="timeoutConfiguration" ref="masterTimeoutConfiguration"/>
         <property name="logReader" ref="bufferedLogReader"/>
         <property name="logWriter" ref="bufferedLogWriter"/>
+        <property name="entityUtil" ref="entityUtil"/>
     </bean>
 
     <bean id="distributionStartTimeTimeout" class="com.griddynamics.jagger.util.Timeout">
@@ -132,6 +133,9 @@
         <property name="taskExecutionStatusProvider" ref="taskStatusProvider"/>
     </bean>
 
+    <bean id="entityUtil" class="com.griddynamics.jagger.databaseapi.DefaultEntityUtil">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
 </beans>
 
 
