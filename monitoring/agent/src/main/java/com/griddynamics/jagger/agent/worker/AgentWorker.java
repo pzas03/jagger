@@ -103,17 +103,16 @@ public class AgentWorker extends ConfigurableWorker {
                     @Override
                     public ProfileDTO execute(GetCollectedProfileFromSuT command, NodeContext nodeContext) {
                         String hostAddress;
-                        Map<String, RuntimeGraph> runtimeGraphs = Maps.newConcurrentMap();
                         long startTime = System.currentTimeMillis();
                         try {
                             hostAddress = InetAddress.getLocalHost().getHostAddress();
                         } catch (UnknownHostException e) {
                             hostAddress = "UNKNOWN";
                         }
-                        ProfileDTO profileDTO = new ProfileDTO(hostAddress, runtimeGraphs);
+                        ProfileDTO profileDTO = new ProfileDTO(hostAddress, Collections.EMPTY_MAP);
                         if (profilerEnabled) {
                             log.debug("start GetCollectedProfileFromSuT on agent {}", nodeContext.getId());
-                            runtimeGraphs = profiler.getSamplingProfiler().getRuntimeGraph();
+                            Map<String, RuntimeGraph> runtimeGraphs = profiler.getSamplingProfiler().getRuntimeGraph();
                             profileDTO = new ProfileDTO(hostAddress, runtimeGraphs);
                             log.debug("finish GetCollectedProfileFromSuT on agent {} time {} ms", nodeContext.getId(), System.currentTimeMillis() - startTime);
                         }
