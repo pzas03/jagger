@@ -133,8 +133,8 @@ public class MonitorProcess extends LogProcessor implements NodeProcess<Monitori
                             try {
                                 final ProfileDTO profileDTO =
                                         remote.runSyncWithTimeout(GetCollectedProfileFromSuT.create(sessionId), Coordination.<GetCollectedProfileFromSuT>doNothing(), ttl);
-                                if (profileDTO == null) {
-                                    log.info("Profiler turned off. There is no profiler information for write.");
+                                if (profileDTO.getRuntimeGraphs().isEmpty()) {
+                                    log.info("Profiler of {} turned off. There is no profiler data for recording", agentId);
                                 } else {
                                     log.debug("got collected profiler from agent {} from kernel {}", agentId, nodeContext.getId());
                                     logWriter.log(sessionId, taskId + "/" + PROFILER_MARKER, agentId.getIdentifier(), SerializationUtils.toString(profileDTO));

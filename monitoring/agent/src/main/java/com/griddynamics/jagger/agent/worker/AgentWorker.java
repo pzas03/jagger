@@ -20,6 +20,7 @@
 
 package com.griddynamics.jagger.agent.worker;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.griddynamics.jagger.agent.Agent;
 import com.griddynamics.jagger.agent.AgentStarter;
@@ -101,21 +102,22 @@ public class AgentWorker extends ConfigurableWorker {
 
                     @Override
                     public ProfileDTO execute(GetCollectedProfileFromSuT command, NodeContext nodeContext) {
+                        String hostAddress;
+                        Map<String, RuntimeGraph> runtimeGraphs = Maps.newConcurrentMap();
+                        long startTime = System.currentTimeMillis();
+                        try {
+                            hostAddress = InetAddress.getLocalHost().getHostAddress();
+                        } catch (UnknownHostException e) {
+                            hostAddress = "UNKNOWN";
+                        }
+                        ProfileDTO profileDTO = new ProfileDTO(hostAddress, runtimeGraphs);
                         if (profilerEnabled) {
-                            String hostAddress;
-                            long startTime = System.currentTimeMillis();
-                            try {
-                                hostAddress = InetAddress.getLocalHost().getHostAddress();
-                            } catch (UnknownHostException e) {
-                                hostAddress = "UNKNOWN";
-                            }
                             log.debug("start GetCollectedProfileFromSuT on agent {}", nodeContext.getId());
-                            Map<String, RuntimeGraph> runtimeGraphs = profiler.getSamplingProfiler().getRuntimeGraph();
-                            ProfileDTO profileDTO = new ProfileDTO(hostAddress, runtimeGraphs);
+                            runtimeGraphs = profiler.getSamplingProfiler().getRuntimeGraph();
+                            profileDTO = new ProfileDTO(hostAddress, runtimeGraphs);
                             log.debug("finish GetCollectedProfileFromSuT on agent {} time {} ms", nodeContext.getId(), System.currentTimeMillis() - startTime);
-                            return profileDTO;
-                        } else
-                            return null;
+                        }
+                        return profileDTO;
                     }
                 });
         onCommandReceived(ManageCollectionProfileFromSuT.class).execute(
