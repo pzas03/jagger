@@ -45,7 +45,7 @@ public class NodeInfoEntity {
     @Column
     private String osVersion;
     @Column
-    private String javaVersion;
+    private String jaggerJavaVersion;
     @Column
     private String cpuModel;
     @Column
@@ -63,7 +63,7 @@ public class NodeInfoEntity {
         this.systemTime         = generalNodeInfo.getSystemTime();
         this.osName             = generalNodeInfo.getOsName();
         this.osVersion          = generalNodeInfo.getOsVersion();
-        this.javaVersion        = generalNodeInfo.getJavaVersion();
+        this.jaggerJavaVersion = generalNodeInfo.getJaggerJavaVersion();
         this.cpuModel           = generalNodeInfo.getCpuModel();
         this.cpuMHz             = generalNodeInfo.getCpuMHz();
         this.cpuTotalCores      = generalNodeInfo.getCpuTotalCores();
@@ -130,12 +130,12 @@ public class NodeInfoEntity {
         this.osVersion = osVersion;
     }
 
-    public String getJavaVersion() {
-        return javaVersion;
+    public String getJaggerJavaVersion() {
+        return jaggerJavaVersion;
     }
 
-    public void setJavaVersion(String javaVersion) {
-        this.javaVersion = javaVersion;
+    public void setJaggerJavaVersion(String jaggerJavaVersion) {
+        this.jaggerJavaVersion = jaggerJavaVersion;
     }
 
     public int getCpuTotalSockets() {

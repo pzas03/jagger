@@ -62,6 +62,7 @@
         <property name="timeoutConfiguration" ref="masterTimeoutConfiguration"/>
         <property name="logReader" ref="bufferedLogReader"/>
         <property name="logWriter" ref="bufferedLogWriter"/>
+        <property name="generalNodeInfoAggregator" ref="generalNodeInfoAggregator"/>
     </bean>
 
     <bean id="distributionStartTimeTimeout" class="com.griddynamics.jagger.util.Timeout">
@@ -130,6 +131,16 @@
     <bean id="monitoringTaskDistributor" class="com.griddynamics.jagger.monitoring.MonitoringTaskDistributor">
         <property name="ttl" value="${chassis.monitoring.command.execution.ttl}"/>
         <property name="taskExecutionStatusProvider" ref="taskStatusProvider"/>
+    </bean>
+
+    <bean id="generalNodeInfoAggregator" class="com.griddynamics.jagger.engine.e1.aggregator.session.GeneralNodeInfoAggregator">
+        <property name="sessionFactory" ref="sessionFactory"/>
+        <property name="nodeCollectInfoTime" ref="nodeCollectInfoTimeTimeout"/>
+    </bean>
+
+    <bean id="nodeCollectInfoTimeTimeout" class="com.griddynamics.jagger.util.Timeout">
+        <property name="value" value="${chassis.master.collect.node.info.awaittime}"/>
+        <property name="name"  value="chassis.master.collect.node.info.awaittime=30000"/>
     </bean>
 
 </beans>

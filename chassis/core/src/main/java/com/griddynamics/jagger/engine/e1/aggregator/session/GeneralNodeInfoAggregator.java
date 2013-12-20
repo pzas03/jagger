@@ -59,20 +59,19 @@ import static com.griddynamics.jagger.engine.e1.collector.CollectorConstants.*;
  * @par Details:
  * @details
  */
-public class GeneralNodeInfoAggregator extends HibernateDaoSupport implements SessionExecutionListener {
+public class GeneralNodeInfoAggregator extends HibernateDaoSupport {
     private static final Logger log = LoggerFactory.getLogger(GeneralNodeInfoAggregator.class);
 
-    private Coordinator coordinator;
     private Timeout nodeCollectInfoTime;
 
-    @Override
-    public void onSessionStarted(String sessionId, Multimap<NodeType, NodeId> nodes) {
+    public Map<NodeId,GeneralNodeInfo> getGeneralNodeInfo(String sessionId, Coordinator coordinator) {
         final String localSessionId = sessionId;
-        Set<NodeId> localNodes = new HashSet<NodeId>();
-        localNodes.addAll(coordinator.getAvailableNodes(NodeType.KERNEL));
-        localNodes.addAll(coordinator.getAvailableNodes(NodeType.AGENT));
+        Set<NodeId> nodes = new HashSet<NodeId>();
+        Map<NodeId,GeneralNodeInfo> result = new HashMap<NodeId, GeneralNodeInfo>();
+        nodes.addAll(coordinator.getAvailableNodes(NodeType.KERNEL));
+        nodes.addAll(coordinator.getAvailableNodes(NodeType.AGENT));
 
-        for (NodeId node : localNodes)
+        for (NodeId node : nodes)
         {
             try {
                 final GeneralNodeInfo generalNodeInfo = coordinator.getExecutor(node).runSyncWithTimeout(new GetGeneralNodeInfo(sessionId),
@@ -88,22 +87,18 @@ public class GeneralNodeInfoAggregator extends HibernateDaoSupport implements Se
                         return null;
                     }
                 });
+
+                result.put(node,generalNodeInfo);
             }
             catch (Throwable e) {
                 log.error("Get node info failed for node " + node + "\n" + Throwables.getStackTraceAsString(e));
             }
         }
-    }
 
-    @Override
-    public void onSessionExecuted(String sessionId, String sessionComment) {
+        return result;
     }
 
     @Required
     public void setNodeCollectInfoTime(Timeout nodeCollectInfoTime) { this.nodeCollectInfoTime = nodeCollectInfoTime;}
-
-    @Required
-    public void setCoordinator(Coordinator coordinator) { this.coordinator = coordinator;}
-
 
 }

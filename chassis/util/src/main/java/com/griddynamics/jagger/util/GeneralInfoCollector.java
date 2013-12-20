@@ -46,7 +46,7 @@ public class GeneralInfoCollector {
         generalInfo.setSystemTime(System.currentTimeMillis());
         generalInfo.setOsName(System.getProperty("os.name"));
         generalInfo.setOsVersion(System.getProperty("os.version"));
-        generalInfo.setJavaVersion(System.getProperty("java.version"));
+        generalInfo.setJaggerJavaVersion(System.getProperty("java.version"));
 
         // CPU
         try {

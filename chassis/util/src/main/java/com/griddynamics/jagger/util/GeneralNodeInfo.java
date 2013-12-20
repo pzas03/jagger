@@ -36,7 +36,7 @@ public class GeneralNodeInfo implements Serializable{
     private long systemTime = 0;
     private String osName = "";
     private String osVersion = "";
-    private String javaVersion = "";
+    private String jaggerJavaVersion = "";
     private String cpuModel = "";
     private int cpuMHz = 0;
     private int cpuTotalCores = 0;
@@ -83,12 +83,12 @@ public class GeneralNodeInfo implements Serializable{
         this.osVersion = osVersion;
     }
 
-    public String getJavaVersion() {
-        return javaVersion;
+    public String getJaggerJavaVersion() {
+        return jaggerJavaVersion;
     }
 
-    public void setJavaVersion(String javaVersion) {
-        this.javaVersion = javaVersion;
+    public void setJaggerJavaVersion(String jaggerJavaVersion) {
+        this.jaggerJavaVersion = jaggerJavaVersion;
     }
 
     public int getCpuTotalSockets() {
@@ -130,7 +130,7 @@ public class GeneralNodeInfo implements Serializable{
                 ", nodeId=" + nodeId +
                 ", osName=" + osName +
                 ", osVersion=" + osVersion +
-                ", javaVersion=" + javaVersion +
+                ", jaggerJavaVersion=" + jaggerJavaVersion +
                 ", systemRAM=" + systemRAM +
                 ", cpuModel=" + cpuModel +
                 ", cpuMHz=" + cpuMHz +

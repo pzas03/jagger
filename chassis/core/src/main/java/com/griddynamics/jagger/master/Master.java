@@ -24,6 +24,7 @@ import com.google.common.collect.*;
 import com.google.common.util.concurrent.Service;
 import com.griddynamics.jagger.agent.model.ManageAgent;
 import com.griddynamics.jagger.coordinator.*;
+import com.griddynamics.jagger.engine.e1.aggregator.session.GeneralNodeInfoAggregator;
 import com.griddynamics.jagger.engine.e1.process.Services;
 import com.griddynamics.jagger.engine.e1.services.SessionCommentStorage;
 import com.griddynamics.jagger.master.configuration.*;
@@ -72,6 +73,7 @@ public class Master implements Runnable {
     private DynamicPlotGroups dynamicPlotGroups;
     private LogWriter logWriter;
     private LogReader logReader;
+    private GeneralNodeInfoAggregator generalNodeInfoAggregator;
 
 
     @Required
@@ -119,6 +121,8 @@ public class Master implements Runnable {
     public void setLogReader(LogReader logReader) {
         this.logReader = logReader;
     }
+
+    public void setGeneralNodeInfoAggregator(GeneralNodeInfoAggregator generalNodeInfoAggregator) { this.generalNodeInfoAggregator = generalNodeInfoAggregator; }
 
     @Override
     public void run() {
@@ -172,7 +176,8 @@ public class Master implements Runnable {
 		    processAgentManagement(sessionId, agentStartManagementProps);
 		}
 
-
+        // collect information about environment on kernel and agent nodes
+        generalNodeInfoAggregator.getGeneralNodeInfo(sessionId,coordinator);
 
         for (SessionExecutionListener listener : configuration.getSessionExecutionListeners()) {
             listener.onSessionStarted(sessionId, allNodes);
