@@ -1,9 +1,11 @@
 package com.griddynamics.jagger.databaseapi;
 
 import com.griddynamics.jagger.databaseapi.entity.MetricEntity;
+import com.griddynamics.jagger.databaseapi.entity.MetricValueEntity;
 import com.griddynamics.jagger.databaseapi.entity.SessionEntity;
 import com.griddynamics.jagger.databaseapi.entity.TestEntity;
 import com.griddynamics.jagger.engine.e1.aggregator.session.model.SessionData;
+import com.griddynamics.jagger.engine.e1.aggregator.workload.model.DiagnosticResultEntity;
 import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadTaskData;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -118,12 +120,19 @@ public class DefaultEntityUtil extends HibernateDaoSupport implements EntityUtil
         return result;
     }
 
-    public List<MetricEntity> getMetrics(String testId){
-        return null;
+    public List<MetricEntity> getMetrics(Long testId){
+        Map<Long, List<MetricEntity>> map = getMetrics(Arrays.asList(testId));
+
+        List<MetricEntity> result = map.get(testId);
+        if (result != null){
+            return result;
+        }
+
+        return Collections.EMPTY_LIST;
     }
 
-    public Map<String, List<MetricEntity>> getMetrics(List<String> testIds){
-        MultiMap<String, MetricEntity> result = new MultiMap<String, MetricEntity>();
+    public Map<Long, List<MetricEntity>> getMetrics(List<Long> testIds){
+        MultiMap<Long, MetricEntity> result = new MultiMap<Long, MetricEntity>();
 
         //try to find standard metrics
         List<WorkloadTaskData> tasks = getHibernateTemplate().findByNamedParam("select task from WorkloadTaskData as task where task.id in (:ids)","ids", testIds);
@@ -132,44 +141,56 @@ public class DefaultEntityUtil extends HibernateDaoSupport implements EntityUtil
             throughput.setMetricId(JaggerMetric.Throughput);
             throughput.setSummaryValue(task.getThroughput().doubleValue());
             throughput.setDisplayName(STANDARD_METRICS.get(JaggerMetric.Throughput));
-            result.put(task.getId().toString(), throughput);
+            result.put(task.getId(), throughput);
 
             MetricEntity avgLatency = new MetricEntity();
             avgLatency.setMetricId(JaggerMetric.AvgLatency);
             avgLatency.setSummaryValue(task.getAvgLatency().doubleValue());
             avgLatency.setDisplayName(STANDARD_METRICS.get(JaggerMetric.AvgLatency));
-            result.put(task.getId().toString(), avgLatency);
+            result.put(task.getId(), avgLatency);
 
             MetricEntity failures = new MetricEntity();
             failures.setMetricId(JaggerMetric.Failures);
             failures.setSummaryValue(task.getFailuresCount().doubleValue());
             failures.setDisplayName(STANDARD_METRICS.get(JaggerMetric.Failures));
-            result.put(task.getId().toString(), failures);
+            result.put(task.getId(), failures);
 
             MetricEntity samples = new MetricEntity();
             samples.setMetricId(JaggerMetric.Samples);
             samples.setSummaryValue(task.getSamples().doubleValue());
             samples.setDisplayName(STANDARD_METRICS.get(JaggerMetric.Samples));
-            result.put(task.getId().toString(), samples);
+            result.put(task.getId(), samples);
 
             MetricEntity stdDevLatency = new MetricEntity();
             stdDevLatency.setMetricId(JaggerMetric.StdDevLatency);
             stdDevLatency.setSummaryValue(task.getStdDevLatency().doubleValue());
             stdDevLatency.setDisplayName(STANDARD_METRICS.get(JaggerMetric.StdDevLatency));
-            result.put(task.getId().toString(), stdDevLatency);
+            result.put(task.getId(), stdDevLatency);
 
             MetricEntity successRate = new MetricEntity();
             successRate.setMetricId(JaggerMetric.SuccessRate);
             successRate.setSummaryValue(task.getSuccessRate().doubleValue());
             successRate.setDisplayName(STANDARD_METRICS.get(JaggerMetric.SuccessRate));
-            result.put(task.getId().toString(), successRate);
+            result.put(task.getId(), successRate);
         }
 
         //try to find monitor metrics
 
 
         //try to find custom metrics
+        List<DiagnosticResultEntity> customMetrics = getHibernateTemplate().findByNamedParam("select metric " +
+                                                                                             "from DiagnosticResultEntity as metric " +
+                                                                                             "where metric.name=:name " +
+                                                                                             "and metric.workloadData.id in (:ids)", "ids", testIds);
+        for (DiagnosticResultEntity customMetric : customMetrics){
+            MetricEntity metricEntity = new MetricEntity();
+            metricEntity.setMetricId(customMetric.getName());
+            //need to change to real display name!!
+            metricEntity.setDisplayName(customMetric.getName());
+            metricEntity.setSummaryValue(customMetric.getTotal());
 
+            result.put(customMetric.getWorkloadData().getId(), metricEntity);
+        }
 
         return result.getOrigin();
     }
