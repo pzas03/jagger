@@ -185,11 +185,16 @@ public class CommonDataProviderImpl implements CommonDataProvider {
     public List<MonitoringPlotNode> getMonitoringPlotNodes(Set<String> sessionIds, TaskDataDto taskDataDto) {
         Set<MonitoringPlotNode> monitoringPlotNodes = new LinkedHashSet<MonitoringPlotNode>();
         try {
+            List<Long> monitoringIds = getMonitoringIds(sessionIds, taskDataDto);
+            if (monitoringIds.isEmpty()) {
+                return Collections.EMPTY_LIST;
+            }
+
             for (Map.Entry<GroupKey, DefaultMonitoringParameters[]> monitoringPlot : monitoringPlotGroups.entrySet()) {
 
                 List<PlotNode> plotNodes = new ArrayList<PlotNode>();
 
-                        plotNodes.addAll(getMonitoringPlotNames(sessionIds, monitoringPlot, taskDataDto));
+                plotNodes.addAll(getMonitoringPlotNames(sessionIds, monitoringPlot, taskDataDto, monitoringIds));
 
                 if (plotNodes.isEmpty()) {
                     continue;
@@ -211,6 +216,28 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         List<MonitoringPlotNode> resultList = new ArrayList<MonitoringPlotNode>(monitoringPlotNodes);
         MetricRankingProvider.sortPlotNodes(resultList);
         return resultList;
+    }
+
+
+
+    private List<Long> getMonitoringIds(Set<String> sessionIds, TaskDataDto taskDataDto) {
+
+        List<Long> monitoringTaskIds = (List<Long>) entityManager.createNativeQuery(
+                "select td.id from TaskData as td where td.sessionId in (:sessionIds) and td.taskId in " +
+                    "(" +
+                         "select pm.monitoringId from PerformedMonitoring as pm where pm.sessionId in (:sessionIds) and parentId in " +
+                            "(" +
+                                "select wd.parentId from WorkloadData as wd where wd.sessionId in (:sessionIds) and wd.taskId in " +
+                                    "(" +
+                                        "select td2.taskId from TaskData as td2 where td2.sessionId in (:sessionIds) and td2.id in (:ids)" +
+                                    ")" +
+                            ")" +
+                    ")")
+                .setParameter("ids", taskDataDto.getIds())
+                .setParameter("sessionIds", sessionIds)
+                .getResultList();
+
+        return monitoringTaskIds;
     }
 
     @Override
@@ -282,7 +309,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         return resultList;
     }
 
-    private List<PlotNode> getMonitoringPlotNames(Set<String> sessionIds, Map.Entry<GroupKey, DefaultMonitoringParameters[]> monitoringParameters, TaskDataDto taskDataDto) {
+    private List<PlotNode> getMonitoringPlotNames(Set<String> sessionIds, Map.Entry<GroupKey, DefaultMonitoringParameters[]> monitoringParameters, TaskDataDto taskDataDto, List<Long> monitoringIds) {
         List<PlotNode> resultList = new ArrayList<PlotNode>();
 
         List<String> parametersList = new ArrayList<String>();
@@ -293,14 +320,11 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         List<Object[]> agentIdentifierObjects =
                 entityManager.createNativeQuery("select ms.boxIdentifier, ms.systemUnderTestUrl from MonitoringStatistics as ms" +
                 "  where ms.sessionId in (:sessionIds) " +
-                        "and ms.taskData_id in (select td.id from TaskData as td where td.taskId in " +
-                        "(select pm.monitoringId from PerformedMonitoring as pm where pm.parentId in " +
-                        "(select wd.parentId from WorkloadData as wd where wd.sessionId in (:sessionIds) and wd.taskId in " +
-                        "(select td2.taskId from TaskData as td2 where td2.id in (:taskIds))))) and ms.description in (:parametersList)" +
+                        "and ms.taskData_id in (:taskIds) and ms.description in (:parametersList)" +
                 " group by ms.boxIdentifier, ms.systemUnderTestUrl")
         .setParameter("sessionIds", sessionIds)
         .setParameter("parametersList", parametersList)
-        .setParameter("taskIds", taskDataDto.getIds())
+        .setParameter("taskIds", monitoringIds)
                 .getResultList();
 
         Set<String> differentAgentIdentifiers = new LinkedHashSet<String>();
