@@ -25,6 +25,7 @@ import com.google.common.util.concurrent.Service;
 import com.griddynamics.jagger.agent.model.ManageAgent;
 import com.griddynamics.jagger.coordinator.*;
 import com.griddynamics.jagger.databaseapi.EntityUtil;
+import com.griddynamics.jagger.databaseapi.entity.MetricEntity;
 import com.griddynamics.jagger.databaseapi.entity.SessionEntity;
 import com.griddynamics.jagger.databaseapi.entity.TestEntity;
 import com.griddynamics.jagger.engine.e1.ProviderUtil;
@@ -163,7 +164,7 @@ public class Master implements Runnable {
 
         TestEntity testEntity = entityUtil.getTestByName(sessionEntity.getId(), "tps1000");
 
-
+        List<MetricEntity> metrics = entityUtil.getMetrics(testEntity.getId());
 
         Map<NodeType, CountDownLatch> countDownLatchMap = Maps.newHashMap();
         CountDownLatch agentCountDownLatch = new CountDownLatch(

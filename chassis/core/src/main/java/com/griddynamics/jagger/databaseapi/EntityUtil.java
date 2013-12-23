@@ -25,6 +25,7 @@ public interface EntityUtil {
     Map<String, TestEntity> getTestsByName(List<String> sessionIds, String testName);
     Map<String, List<TestEntity>> getTests(List<String> sessionIds);
 
+    List<MetricEntity> getMetrics(Long testId);
 //    TestEntity getTestBySessionId(String sessionId, String testName);
 //    TestEntity getTest(SessionEntity session, String testName);
 //

@@ -118,12 +118,12 @@ public class DefaultEntityUtil extends HibernateDaoSupport implements EntityUtil
         return result;
     }
 
-    public List<MetricEntity> getMetrics(String testId){
-        return null;
+    public List<MetricEntity> getMetrics(Long testId){
+        return getMetrics(Arrays.asList(testId)).get(testId);
     }
 
-    public Map<String, List<MetricEntity>> getMetrics(List<String> testIds){
-        MultiMap<String, MetricEntity> result = new MultiMap<String, MetricEntity>();
+    public Map<Long, List<MetricEntity>> getMetrics(List<Long> testIds){
+        MultiMap<Long, MetricEntity> result = new MultiMap<Long, MetricEntity>();
 
         //try to find standard metrics
         List<WorkloadTaskData> tasks = getHibernateTemplate().findByNamedParam("select task from WorkloadTaskData as task where task.id in (:ids)","ids", testIds);
@@ -132,37 +132,37 @@ public class DefaultEntityUtil extends HibernateDaoSupport implements EntityUtil
             throughput.setMetricId(JaggerMetric.Throughput);
             throughput.setSummaryValue(task.getThroughput().doubleValue());
             throughput.setDisplayName(STANDARD_METRICS.get(JaggerMetric.Throughput));
-            result.put(task.getId().toString(), throughput);
+            result.put(task.getId(), throughput);
 
             MetricEntity avgLatency = new MetricEntity();
             avgLatency.setMetricId(JaggerMetric.AvgLatency);
             avgLatency.setSummaryValue(task.getAvgLatency().doubleValue());
             avgLatency.setDisplayName(STANDARD_METRICS.get(JaggerMetric.AvgLatency));
-            result.put(task.getId().toString(), avgLatency);
+            result.put(task.getId(), avgLatency);
 
             MetricEntity failures = new MetricEntity();
             failures.setMetricId(JaggerMetric.Failures);
             failures.setSummaryValue(task.getFailuresCount().doubleValue());
             failures.setDisplayName(STANDARD_METRICS.get(JaggerMetric.Failures));
-            result.put(task.getId().toString(), failures);
+            result.put(task.getId(), failures);
 
             MetricEntity samples = new MetricEntity();
             samples.setMetricId(JaggerMetric.Samples);
             samples.setSummaryValue(task.getSamples().doubleValue());
             samples.setDisplayName(STANDARD_METRICS.get(JaggerMetric.Samples));
-            result.put(task.getId().toString(), samples);
+            result.put(task.getId(), samples);
 
             MetricEntity stdDevLatency = new MetricEntity();
             stdDevLatency.setMetricId(JaggerMetric.StdDevLatency);
             stdDevLatency.setSummaryValue(task.getStdDevLatency().doubleValue());
             stdDevLatency.setDisplayName(STANDARD_METRICS.get(JaggerMetric.StdDevLatency));
-            result.put(task.getId().toString(), stdDevLatency);
+            result.put(task.getId(), stdDevLatency);
 
             MetricEntity successRate = new MetricEntity();
             successRate.setMetricId(JaggerMetric.SuccessRate);
             successRate.setSummaryValue(task.getSuccessRate().doubleValue());
             successRate.setDisplayName(STANDARD_METRICS.get(JaggerMetric.SuccessRate));
-            result.put(task.getId().toString(), successRate);
+            result.put(task.getId(), successRate);
         }
 
         //try to find monitor metrics
