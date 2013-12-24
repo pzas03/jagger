@@ -151,6 +151,7 @@ public class MonitoringAggregator extends LogProcessor implements DistributionLi
             differentiateRelativeParameters(avgStatisticsByAgent);
             differentiateRelativeParameters(avgStatisticsBySuT);
 
+            log.info("BEGIN: Save to data base " + dir);
             getHibernateTemplate().execute(new HibernateCallback<Void>() {
                 @Override
                 public Void doInHibernate(Session session) throws HibernateException, SQLException {
@@ -164,6 +165,7 @@ public class MonitoringAggregator extends LogProcessor implements DistributionLi
                     return null;
                 }
             });
+            log.info("END: Save to data base " + dir);
 
             saveProfilers(sessionId, taskId);
 
