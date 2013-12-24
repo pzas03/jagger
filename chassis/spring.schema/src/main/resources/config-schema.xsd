@@ -348,7 +348,7 @@
                 <xsd:all>
                     <xsd:element name="load" type="loadAbstract" maxOccurs="1"/>
                     <xsd:element name="termination" type="terminationAbstract" maxOccurs="1"/>
-                    <xsd:element name="test-listeners" type="test-listeners" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="listeners-test" type="listeners-test" minOccurs="0" maxOccurs="1"/>
                 </xsd:all>
                 <xsd:attribute name="startDelay" type="xsd:string" use="optional"/>
                 <xsd:attribute name="testDescription" type="xsd:string" use="required"/>
@@ -356,7 +356,7 @@
         </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:complexType name="test-listeners">
+    <xsd:complexType name="listeners-test">
         <xsd:annotation>
             <xsd:documentation>
                 A list of t-listener elements, which give you an ability to execute some actions before and after test.
@@ -365,16 +365,16 @@
         <xsd:complexContent>
             <xsd:extension base="identifiedType">
                 <xsd:choice>
-                    <xsd:element name="test-listener" type="testListenerAbstract" minOccurs="1" maxOccurs="unbounded"/>
+                    <xsd:element name="listener-test" type="listenerTestAbstract" minOccurs="1" maxOccurs="unbounded"/>
                 </xsd:choice>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
     
-    <xsd:complexType name="testListenerAbstract">
+    <xsd:complexType name="listenerTestAbstract">
         <xsd:annotation>
             <xsd:documentation>
-                Test listener abstract type. See some realizations - t-listener-ref, t-listener-threads.
+                Test listener abstract type. See some realizations - listener-test-ref, listener-test-threads.
             </xsd:documentation>
         </xsd:annotation>
         <xsd:complexContent>
@@ -383,27 +383,27 @@
         </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:complexType name="test-listener-ref">
+    <xsd:complexType name="listener-test-ref">
         <xsd:annotation>
             <xsd:documentation>
                 A reference to test listener bean or element. Create bean, which implements TestListener, set bean id to ref attribute.
             </xsd:documentation>
         </xsd:annotation>
         <xsd:complexContent>
-            <xsd:extension base="testListenerAbstract">
+            <xsd:extension base="listenerTestAbstract">
                 <xsd:attribute name="ref" type="xsd:string" use="required"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:complexType name="test-listener-threads">
+    <xsd:complexType name="listener-test-threads">
         <xsd:annotation>
             <xsd:documentation>
                 Test listener, that collects number of Jagger threads.
             </xsd:documentation>
         </xsd:annotation>
         <xsd:complexContent>
-            <xsd:extension base="testListenerAbstract">
+            <xsd:extension base="listenerTestAbstract">
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -488,7 +488,7 @@
                 <xsd:sequence minOccurs="0" maxOccurs="unbounded">
                     <xsd:choice>
                         <xsd:element ref="test" maxOccurs="unbounded"/>
-                        <xsd:element ref="test-group-listeners" maxOccurs="1"/>
+                        <xsd:element ref="listeners-test-group" maxOccurs="1"/>
                         <xsd:element ref="beans:bean"/>
                         <xsd:element ref="beans:ref"/>
                     </xsd:choice>
@@ -498,24 +498,24 @@
         </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:element name="test-group-listeners" type="testGroupListenersType"/>
+    <xsd:element name="listeners-test-group" type="listenersTestGroupType"/>
     
-    <xsd:complexType name="testGroupListenersType">
+    <xsd:complexType name="listenersTestGroupType">
         <xsd:annotation>
             <xsd:documentation>
-                A list of test-group-listener elements, which give you an ability to execute some actions before and after test-group.
+                A list of listener-test-group  elements, which give you an ability to execute some actions before and after test-group.
             </xsd:documentation>
         </xsd:annotation>
         <xsd:complexContent>
             <xsd:extension base="identifiedType">
                 <xsd:choice minOccurs="1" maxOccurs="unbounded">
-                    <xsd:element name="test-group-listener" type="testGroupListenerAbstract" maxOccurs="unbounded"/>
+                    <xsd:element name="listener-test-group" type="listenerTestGroupAbstract" maxOccurs="unbounded"/>
                 </xsd:choice>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:complexType name="testGroupListenerAbstract" abstract="true">
+    <xsd:complexType name="listenerTestGroupAbstract" abstract="true">
         <xsd:annotation>
             <xsd:documentation>
                 Abstract type for test-group listeners
@@ -527,14 +527,14 @@
         </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:complexType name="test-group-listener-ref">
+    <xsd:complexType name="listener-test-group-ref">
         <xsd:annotation>
             <xsd:documentation>
-                A reference to test-group-listener element or TestGroupListener provider bean.
+                A reference to listener-test-group element or TestGroupListener provider bean.
             </xsd:documentation>
         </xsd:annotation>
         <xsd:complexContent>
-            <xsd:extension base="testGroupListenerAbstract">
+            <xsd:extension base="listenerTestGroupAbstract">
                 <xsd:attribute name="ref" type="xsd:string"/>
             </xsd:extension>
         </xsd:complexContent>
@@ -564,11 +564,14 @@
         </xsd:annotation>
         <xsd:complexContent>
             <xsd:extension base="identifiedType">
-                <xsd:choice minOccurs="0" maxOccurs="unbounded">
-                    <xsd:element name="test-group" type="testGroupTypeIn" maxOccurs="unbounded"/>
-                    <xsd:element ref="beans:bean"/>
-                    <xsd:element ref="beans:ref"/>
-                </xsd:choice>
+                <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+                    <xsd:choice>
+                        <xsd:element name="test-group" type="testGroupTypeIn" maxOccurs="unbounded"/>
+                        <xsd:element ref="listeners-test-suite"/>
+                        <xsd:element ref="beans:bean"/>
+                        <xsd:element ref="beans:ref"/>
+                    </xsd:choice>
+                </xsd:sequence>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -582,6 +585,48 @@
         </xsd:annotation>
         <xsd:complexContent>
             <xsd:extension base="testSuiteType">
+                <xsd:attribute name="ref" type="xsd:string"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="listeners-test-suite" type="listenersTestSuiteType"/>
+
+    <xsd:complexType name="listenersTestSuiteType">
+        <xsd:annotation>
+            <xsd:documentation>
+                A list of listener-test-suite elements, which give you an ability to execute some actions before and after test-suite.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="identifiedType">
+                <xsd:choice minOccurs="1" maxOccurs="unbounded">
+                    <xsd:element name="listener-test-suite" type="listenerTestSuiteAbstract" maxOccurs="unbounded"/>
+                </xsd:choice>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="listenerTestSuiteAbstract" abstract="true">
+        <xsd:annotation>
+            <xsd:documentation>
+                Abstract type for test-suite listeners
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="identifiedType">
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="listener-test-suite-ref">
+        <xsd:annotation>
+            <xsd:documentation>
+                A reference to listener-test-suite element or TestSuiteListener provider bean.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="listenerTestSuiteAbstract">
                 <xsd:attribute name="ref" type="xsd:string"/>
             </xsd:extension>
         </xsd:complexContent>
@@ -1963,7 +2008,7 @@
     </xsd:complexType>
 
     <xsd:attributeGroup name="sessionComparatorsAttribute">
-        <xsd:attribute name="baselineId" type="xsd:string" use="optional"/>
+        <xsd:attribute name="baselineId" type="xsd:string" use="optional" default="${chassis.engine.e1.reporting.session.comparison.baseline.session.id}"/>
         <xsd:attribute name="strategy" type="strategyType" use="optional"/>
     </xsd:attributeGroup>
 

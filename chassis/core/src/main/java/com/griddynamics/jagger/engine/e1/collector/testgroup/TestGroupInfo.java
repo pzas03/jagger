@@ -11,13 +11,16 @@ import com.griddynamics.jagger.master.CompositeTask;
  * */
 public class TestGroupInfo {
     private CompositeTask testGroup;
+    private String sessionId;
+
     private long duration;
 
     public TestGroupInfo(){
     }
 
-    public TestGroupInfo(CompositeTask testGroup){
+    public TestGroupInfo(CompositeTask testGroup, String sessionId){
         this.testGroup = testGroup;
+        this.sessionId = sessionId;
     }
 
     /** Returns current test-group
@@ -42,5 +45,17 @@ public class TestGroupInfo {
 
     public void setDuration(long duration) {
         this.duration = duration;
+    }
+
+    /** Returns session id
+     * @author Gribov Kirill
+     * @n
+     * */
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
     }
 }

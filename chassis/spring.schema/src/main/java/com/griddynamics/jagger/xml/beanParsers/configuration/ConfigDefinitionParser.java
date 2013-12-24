@@ -43,6 +43,13 @@ public class ConfigDefinitionParser extends CustomBeanDefinitionParser {
         //parse test-plan
         Element testPlan = DomUtils.getChildElementByTagName(element, XMLConstants.TEST_SUITE);
 
+        if (testPlan != null){
+            Element testSuiteListeners = DomUtils.getChildElementByTagName(testPlan, XMLConstants.TEST_SUITE_LISTENERS);
+            if (testSuiteListeners!=null){
+                setBeanListProperty("testSuiteListeners", true, true, testSuiteListeners, parserContext, builder.getBeanDefinition());
+            }
+        }
+
         TaskGeneratorBean generator = new TaskGeneratorBean();
         generator.getBean().getPropertyValues().addPropertyValue(XMLConstants.TEST_GROUPS, parseCustomElement(testPlan, parserContext, builder.getBeanDefinition()));
         parserContext.getRegistry().registerBeanDefinition(generator.getName(), generator.getBean());

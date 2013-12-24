@@ -30,8 +30,6 @@ import java.util.Date;
  */
 public class GeneralNodeInfo implements Serializable{
 
-    public static final String NODE_INFO_MARKER = "NODE_INFO";
-
     private String nodeId;
     private long systemTime = 0;
     private String osName = "";

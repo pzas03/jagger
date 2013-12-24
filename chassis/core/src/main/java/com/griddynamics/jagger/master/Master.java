@@ -25,7 +25,11 @@ import com.google.common.util.concurrent.Service;
 import com.griddynamics.jagger.agent.model.ManageAgent;
 import com.griddynamics.jagger.coordinator.*;
 import com.griddynamics.jagger.engine.e1.aggregator.session.GeneralNodeInfoAggregator;
+import com.griddynamics.jagger.engine.e1.ProviderUtil;
+import com.griddynamics.jagger.engine.e1.collector.testsuite.TestSuiteInfo;
+import com.griddynamics.jagger.engine.e1.collector.testsuite.TestSuiteListener;
 import com.griddynamics.jagger.engine.e1.process.Services;
+import com.griddynamics.jagger.engine.e1.services.JaggerEnvironment;
 import com.griddynamics.jagger.engine.e1.services.SessionCommentStorage;
 import com.griddynamics.jagger.master.configuration.*;
 import com.griddynamics.jagger.monitoring.reporting.DynamicPlotGroups;
@@ -34,15 +38,13 @@ import com.griddynamics.jagger.storage.KeyValueStorage;
 import com.griddynamics.jagger.storage.fs.logging.LogReader;
 import com.griddynamics.jagger.storage.fs.logging.LogWriter;
 import com.griddynamics.jagger.util.Futures;
+import com.griddynamics.jagger.util.GeneralNodeInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.*;
 import java.util.concurrent.*;
 
 /**
@@ -177,7 +179,7 @@ public class Master implements Runnable {
 		}
 
         // collect information about environment on kernel and agent nodes
-        generalNodeInfoAggregator.getGeneralNodeInfo(sessionId,coordinator);
+        Map<NodeId,GeneralNodeInfo> generalNodeInfo = generalNodeInfoAggregator.getGeneralNodeInfo(sessionId, coordinator);
 
         for (SessionExecutionListener listener : configuration.getSessionExecutionListeners()) {
             listener.onSessionStarted(sessionId, allNodes);
@@ -194,9 +196,24 @@ public class Master implements Runnable {
         try {
             log.info("Configuration launched!!");
 
+            TestSuiteListener testSuiteListener = TestSuiteListener.Composer.compose(ProviderUtil.provideElements(configuration.getTestSuiteListeners(),
+                                                                                                                    sessionId,
+                                                                                                                    "session",
+                                                                                                                    context,
+                                                                                                                    JaggerEnvironment.TEST_SUITE));
+
+            TestSuiteInfo testSuiteInfo = new TestSuiteInfo(sessionId,generalNodeInfo);
+            long startTime = System.currentTimeMillis();
+
+            testSuiteListener.onStart(testSuiteInfo);
+
             SessionExecutionStatus status=runConfiguration(allNodes, context);
 
+            testSuiteInfo.setDuration(System.currentTimeMillis()-startTime);
+
             log.info("Configuration work finished!!");
+
+            testSuiteListener.onStop(testSuiteInfo);
 
             for (SessionExecutionListener listener : configuration.getSessionExecutionListeners()) {
                 if(listener instanceof SessionListener){

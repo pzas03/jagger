@@ -35,7 +35,7 @@ public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
 
         //CONFIGURATION
         registerBeanDefinitionParser("configuration", new ConfigDefinitionParser());
-        registerBeanDefinitionParser("test-suite", listCustomDefinitionParser);
+        registerBeanDefinitionParser("test-suite", new TestSuiteDefinitionParser());
         registerBeanDefinitionParser("test-group", new TestDefinitionParser());
         registerBeanDefinitionParser("latency-percentiles", listCustomDefinitionParser);
         registerBeanDefinitionParser("percentile", primitiveParser);
@@ -164,11 +164,15 @@ public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
         registerBeanDefinitionParser("metric-aggregator-ref", new RefMetricAggregatorDefinitionParser());
 
         //listeners
-        registerBeanDefinitionParser("test-listener", findTypeParser);
-        registerBeanDefinitionParser("test-listeners", new ListenersDefinitionParser());
-        registerBeanDefinitionParser("test-listener-threads", new ThreadsTestListenerDefinitionParser());
 
-        registerBeanDefinitionParser("test-group-listener", findTypeParser);
-        registerBeanDefinitionParser("test-group-listeners", new ListenersDefinitionParser());
+        registerBeanDefinitionParser("listener-test", findTypeParser);
+        registerBeanDefinitionParser("listeners-test", listCustomDefinitionParser);
+        registerBeanDefinitionParser("listener-test-threads", new ThreadsTestListenerDefinitionParser());
+
+        registerBeanDefinitionParser("listener-test-group", findTypeParser);
+        registerBeanDefinitionParser("listeners-test-group", listCustomDefinitionParser);
+
+        registerBeanDefinitionParser("listener-test-suite", findTypeParser);
+        registerBeanDefinitionParser("listeners-test-suite", listCustomDefinitionParser);
     }
 }
