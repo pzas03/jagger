@@ -94,7 +94,6 @@ public class SuccessRateCollector<Q, R, E> extends MetricCollector<Q, R, E> {
     }
 
     private void log(long result) {
-        String METRIC_MARKER = "METRIC";
         LogWriter logWriter = kernelContext.getService(LogWriter.class);
         logWriter.log(sessionId, taskId + File.separatorChar + METRIC_MARKER + File.separatorChar + name, kernelContext.getId().getIdentifier(),
                 new MetricLogEntry(startTime, name, result));
