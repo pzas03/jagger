@@ -1,7 +1,6 @@
 package com.griddynamics.jagger.engine.e1.services;
 
 import com.griddynamics.jagger.coordinator.NodeContext;
-import com.griddynamics.jagger.databaseapi.EntityUtil;
 import com.griddynamics.jagger.engine.e1.Provider;
 
 /** Abstract type of Provider, that gives user an access to Jagger services
