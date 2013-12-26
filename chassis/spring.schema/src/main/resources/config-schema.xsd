@@ -2008,7 +2008,7 @@
     </xsd:complexType>
 
     <xsd:attributeGroup name="sessionComparatorsAttribute">
-        <xsd:attribute name="baselineId" type="xsd:string" use="optional"/>
+        <xsd:attribute name="baselineId" type="xsd:string" use="optional" default="${chassis.engine.e1.reporting.session.comparison.baseline.session.id}"/>
         <xsd:attribute name="strategy" type="strategyType" use="optional"/>
     </xsd:attributeGroup>
 

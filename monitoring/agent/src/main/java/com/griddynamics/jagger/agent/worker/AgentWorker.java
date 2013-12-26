@@ -20,6 +20,7 @@
 
 package com.griddynamics.jagger.agent.worker;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.griddynamics.jagger.agent.Agent;
 import com.griddynamics.jagger.agent.AgentStarter;
@@ -47,6 +48,7 @@ public class AgentWorker extends ConfigurableWorker {
     private MonitoringInfoService monitoringInfoService;
     private Profiler profiler;
     private final Agent agent;
+    private Boolean profilerEnabled;
 
     private ArrayList<JmxMetric> jmxMetricList = null;
 
@@ -56,6 +58,14 @@ public class AgentWorker extends ConfigurableWorker {
 
     public Profiler getProfiler() {
         return profiler;
+    }
+
+    public Boolean getProfilerEnabled() {
+        return profilerEnabled;
+    }
+
+    public void setProfilerEnabled(Boolean profilerEnabled) {
+        this.profilerEnabled = profilerEnabled;
     }
 
     public Set<Qualifier<Command<Serializable>>> getQualifiers() {
@@ -92,17 +102,20 @@ public class AgentWorker extends ConfigurableWorker {
 
                     @Override
                     public ProfileDTO execute(GetCollectedProfileFromSuT command, NodeContext nodeContext) {
-                        long startTime = System.currentTimeMillis();
-                        log.debug("start GetCollectedProfileFromSuT on agent {}", nodeContext.getId());
                         String hostAddress;
+                        long startTime = System.currentTimeMillis();
                         try {
                             hostAddress = InetAddress.getLocalHost().getHostAddress();
                         } catch (UnknownHostException e) {
                             hostAddress = "UNKNOWN";
                         }
-                        Map<String, RuntimeGraph> runtimeGraphs = profiler.getSamplingProfiler().getRuntimeGraph();
-                        ProfileDTO profileDTO = new ProfileDTO(hostAddress, runtimeGraphs);
-                        log.debug("finish GetCollectedProfileFromSuT on agent {} time {} ms", nodeContext.getId(), System.currentTimeMillis() - startTime);
+                        ProfileDTO profileDTO = new ProfileDTO(hostAddress, Collections.EMPTY_MAP);
+                        if (profilerEnabled) {
+                            log.debug("start GetCollectedProfileFromSuT on agent {}", nodeContext.getId());
+                            Map<String, RuntimeGraph> runtimeGraphs = profiler.getSamplingProfiler().getRuntimeGraph();
+                            profileDTO = new ProfileDTO(hostAddress, runtimeGraphs);
+                            log.debug("finish GetCollectedProfileFromSuT on agent {} time {} ms", nodeContext.getId(), System.currentTimeMillis() - startTime);
+                        }
                         return profileDTO;
                     }
                 });
@@ -115,17 +128,19 @@ public class AgentWorker extends ConfigurableWorker {
 
                     @Override
                     public VoidResult execute(final ManageCollectionProfileFromSuT command, NodeContext nodeContext) {
-                        long startTime = System.currentTimeMillis();
-                        log.debug("start ManageCollectionProfileFromSuT on agent {}", nodeContext.getId());
                         VoidResult voidResult = new VoidResult();
-                        try {
-                            profiler.manageRuntimeGraphsCollection(command.getAction(),
-                                    Collections.<String, Object>singletonMap(Profiler.POLL_INTERVAL, command.getProfilerPollingInterval()));
-                        } catch (Exception e) {
-                            voidResult.setException(e);
+                        if (profilerEnabled) {
+                            long startTime = System.currentTimeMillis();
+                            log.debug("start ManageCollectionProfileFromSuT on agent {}", nodeContext.getId());
+                            try {
+                                profiler.manageRuntimeGraphsCollection(command.getAction(),
+                                        Collections.<String, Object>singletonMap(Profiler.POLL_INTERVAL, command.getProfilerPollingInterval()));
+                            } catch (Exception e) {
+                                voidResult.setException(e);
+                            }
+                            log.debug("finish ManageCollectionProfileFromSuT on agent {} time {} ms", nodeContext.getId(),
+                                    System.currentTimeMillis() - startTime);
                         }
-                        log.debug("finish ManageCollectionProfileFromSuT on agent {} time {} ms", nodeContext.getId(),
-                                System.currentTimeMillis() - startTime);
                         return voidResult;
                     }
                 });
