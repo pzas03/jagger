@@ -7,11 +7,9 @@ import java.util.Set;
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
  * @since 5/29/12
  */
-public class PlotNameDto implements Serializable {
+public class PlotNameDto extends PlotName {
 
     private TaskDataDto test;
-    private String plotName;
-    private String displayName;
 
     public PlotNameDto(){}
 
@@ -31,28 +29,12 @@ public class PlotNameDto implements Serializable {
         return test.getIds();
     }
 
-    public String getPlotName() {
-        return plotName;
-    }
-
     public TaskDataDto getTest() {
         return test;
     }
 
     public void setTest(TaskDataDto test) {
         this.test = test;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-
-    public String getDisplay() {
-        return displayName == null ? plotName : displayName;
     }
 
     @Override
