@@ -1,4 +1,4 @@
-package com.griddynamics.jagger.databaseapi.entity;
+package com.griddynamics.jagger.dbapi.entity;
 
 /**
  * Created with IntelliJ IDEA.
@@ -9,7 +9,7 @@ package com.griddynamics.jagger.databaseapi.entity;
  */
 public class MetricValueEntity {
     private Long timeStamp;
-    private Number value;
+    private Double value;
 
     public Long getTimeStamp() {
         return timeStamp;
@@ -19,11 +19,11 @@ public class MetricValueEntity {
         this.timeStamp = timeStamp;
     }
 
-    public Number getValue() {
+    public Double getValue() {
         return value;
     }
 
-    public void setValue(Number value) {
+    public void setValue(Double value) {
         this.value = value;
     }
 }

@@ -1,4 +1,4 @@
-package com.griddynamics.jagger.databaseapi;
+package com.griddynamics.jagger.dbapi;
 
 /**
  * Created with IntelliJ IDEA.
