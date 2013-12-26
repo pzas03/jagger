@@ -53,12 +53,14 @@ public class JaggerLoadTest {
         Assert.assertEquals(invClock.getSamplesCount(), 100);
         Assert.assertEquals(invClock.getThreadCount(), 1);
         Assert.assertEquals(invClock.getDelay(), 100);
+        Assert.assertEquals("15m", invClock.getPeriod());
 
         invClock = (ExactInvocationsClockConfiguration)context.getBean("inv2");
         Assert.assertEquals(invClock.getTickInterval(), 500);
         Assert.assertEquals(invClock.getSamplesCount(), 50);
         Assert.assertEquals(invClock.getThreadCount(), 2);
         Assert.assertEquals(invClock.getDelay(), 0);
+        Assert.assertEquals("-1" , invClock.getPeriod());
 
     }
 

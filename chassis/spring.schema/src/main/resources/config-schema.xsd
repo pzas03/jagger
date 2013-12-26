@@ -370,7 +370,7 @@
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
-    
+
     <xsd:complexType name="listenerTestAbstract">
         <xsd:annotation>
             <xsd:documentation>
@@ -499,7 +499,7 @@
     </xsd:complexType>
 
     <xsd:element name="listeners-test-group" type="listenersTestGroupType"/>
-    
+
     <xsd:complexType name="listenersTestGroupType">
         <xsd:annotation>
             <xsd:documentation>
@@ -767,6 +767,7 @@
         <xsd:attribute name="exactcount" type="xsd:string" use="required"></xsd:attribute>
         <xsd:attribute name="threads" type="xsd:string" use="required"></xsd:attribute>
         <xsd:attribute name="delay" type="xsd:string" default="0"></xsd:attribute>
+        <xsd:attribute name="period" type="xsd:string" use="optional"></xsd:attribute>
     </xsd:attributeGroup>
 
     <xsd:attributeGroup name="tpsAttributes">

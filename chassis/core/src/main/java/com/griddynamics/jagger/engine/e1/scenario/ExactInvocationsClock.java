@@ -21,11 +21,14 @@ public class ExactInvocationsClock implements WorkloadClock {
 
     private int tickInterval;
 
-    public ExactInvocationsClock(int samplesCount, int threadCount, int delay, int tickInterval) {
+    private long period;
+
+    public ExactInvocationsClock(int samplesCount, int threadCount, int delay, int tickInterval, long period) {
         this.samplesCount = samplesCount;
         this.threadCount  = threadCount;
         this.delay        = delay;
         this.tickInterval = tickInterval;
+        this.period = period;
     }
 
     @Override
@@ -38,11 +41,33 @@ public class ExactInvocationsClock implements WorkloadClock {
         return result;
     }
 
+    private long startTime = 0;
+
     @Override
     public void tick(WorkloadExecutionStatus status, WorkloadAdjuster adjuster) {
         log.debug("Going to perform tick with status {}", status);
 
-        int samplesLeft = samplesCount - samplesSubmitted;
+        if (isPeriodic()) {
+
+
+                long currentTime = System.currentTimeMillis();
+                long difference = currentTime - startTime;
+                if(difference >= period) {
+                    startTime = currentTime;
+                    sendSamples(samplesCount, status, adjuster);
+                }
+
+
+        } else {
+
+            int samplesLeft = samplesCount - samplesSubmitted;
+            sendSamples(samplesLeft, status, adjuster);
+        }
+    }
+
+
+    private void sendSamples(int samplesLeft, WorkloadExecutionStatus status, WorkloadAdjuster adjuster) {
+
         if (samplesLeft <= 0) {
             return;
         }
@@ -60,7 +85,7 @@ public class ExactInvocationsClock implements WorkloadClock {
 
         int s = 0;
         for (NodeId node : nodes) {
-            int curSamples = 0;
+            int curSamples = status.getSamples(node);
             int curThreads = threadsForOneNode;
             if (threadsResidue > 0) {
                 curThreads ++;
@@ -77,6 +102,10 @@ public class ExactInvocationsClock implements WorkloadClock {
             s += curSamples;
         }
         samplesSubmitted = s;
+    }
+
+    private boolean isPeriodic() {
+        return period != -1;
     }
 
     @Override

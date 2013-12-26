@@ -33,7 +33,7 @@
 
     <jgr:load-tps id="tps2" value="100" tickInterval="500"/>
 
-    <jgr:load-invocation id="inv1" exactcount="100" threads="1" delay="100"/>
+    <jgr:load-invocation id="inv1" exactcount="100" threads="1" delay="100" period="15m"/>
 
     <jgr:load-threads id="load_threads_with_delay" count="100" delay="1101" />
 
