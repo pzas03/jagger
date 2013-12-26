@@ -117,7 +117,7 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
             final Collection<TimeInvocationStatistics> statistics = statisticsGenerator.getStatistics();
             final WorkloadProcessDescriptiveStatistics workloadProcessDescriptiveStatistics = statisticsGenerator.getWorkloadProcessDescriptiveStatistics();
 
-            log.info("BEGIN: Save to data base");
+            log.info("BEGIN: Save to data base " + dir);
             getHibernateTemplate().execute(new HibernateCallback<Void>() {
                 @Override
                 public Void doInHibernate(Session session) throws HibernateException, SQLException {
@@ -129,7 +129,7 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
                     return null;
                 }
             });
-            log.info("END: Save to data base");
+            log.info("END: Save to data base " + dir);
 
         } catch (Exception e) {
             log.error("Error during log processing", e);
