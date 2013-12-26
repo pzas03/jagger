@@ -28,34 +28,11 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
     }
 
     @Override
-    @Deprecated
     public RootNode getControlTreeForSession(String sessionId) throws RuntimeException {
 
-        try {
-            RootNode rootNode = new RootNode();
-            SummaryNode sn = new SummaryNode(SUMMARY, CONTROL_SUMMARY_TRENDS);
-            SessionInfoNode sin = new SessionInfoNode(SESSION_INFO, SESSION_INFO);
-            sin.setSessionInfoList(getSessionInfoLeafList());
-            sn.setSessionInfo(sin);
-            sn.setTests(getSummaryTaskNodeList(sessionId));
-            rootNode.setSummary(sn);
-
-            DetailsNode dn = new DetailsNode(CONTROL_METRICS, CONTROL_METRICS);
-
-//            SessionScopePlotsNode sspn = new SessionScopePlotsNode();
-//            sspn.setPlots(getSessionScopePlotNames());
-//            dn.setSessionScopePlotsNode(sspn);
-//
-//            dn.setTests(getDetailsTaskNodeList(sessionId));
-//
-//            rootNode.setDetailsNode(dn);
-
-            return rootNode;
-        } catch (Throwable th) {
-            log.error("Error while creating Control Tree", th);
-            th.printStackTrace();
-            throw new RuntimeException(th);
-        }
+        Set<String> dummySet = new HashSet<String>();
+        dummySet.add(sessionId);
+        return getControlTreeForSessions(dummySet);
     }
 
     @Override
@@ -65,7 +42,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
             RootNode rootNode = new RootNode();
             SummaryNode sn = new SummaryNode(CONTROL_SUMMARY_TRENDS, CONTROL_SUMMARY_TRENDS);
             SessionInfoNode sin = new SessionInfoNode(SESSION_INFO, SESSION_INFO);
-            sin.setSessionInfoList(getSessionInfoLeafList());
+            sin.setSessionInfoList(getSessionInfoLeafList(sessionIds));
             sn.setSessionInfo(sin);
             sn.setTests(getSummaryTaskNodeList(sessionIds));
             rootNode.setSummary(sn);
@@ -74,7 +51,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
 
             if (sessionIds.size() == 1) {
                 SessionScopePlotsNode sspn = new SessionScopePlotsNode(SESSION_SCOPE_PLOTS, SESSION_SCOPE_PLOTS);
-                sspn.setPlots(getSessionScopePlotNames(sessionIds.iterator().next()));
+                sspn.setPlots(getSessionScopePlotNames(sessionIds));
                 if (!sspn.getPlots().isEmpty()) {
                     dn.setSessionScopePlotsNode(sspn);
                 }
@@ -100,6 +77,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
             testNode.setTaskDataDto(tdd);
 
             testNode.setPlots(getPlotNames(sessionIds, tdd));
+            testNode.setMonitoringPlots(getMonitoringPlots(sessionIds, tdd));
 
             taskDataDtoList.add(testNode);
         }
@@ -107,37 +85,8 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
         return taskDataDtoList;
     }
 
-    private List<SessionPlotNode> getSessionScopePlotNames(String sessionId) {
-        List<SessionPlotNode> plotNodes = new ArrayList<SessionPlotNode>();
-        Set<PlotNameDto> metricDtos = databaseFetcher.getSessionScopePlotNames(sessionId);
-        for (PlotNameDto mnd : metricDtos) {
-            SessionPlotNode mn = new SessionPlotNode();
-            mn.setId(SESSION_SCOPE_PREFIX + mnd.getPlotName());
-            mn.setDisplayName(mnd.getDisplay());
-            mn.setPlotNameDto(mnd);
-            plotNodes.add(mn);
-        }
-        return plotNodes;
-    }
-
-    private List<TestNode> getSummaryTaskNodeList(String sessionId) {
-
-        List<TestNode> taskDataDtoList = new ArrayList<TestNode>();
-        for (final TaskDataDto tdd : databaseFetcher.getTaskDataForSession(sessionId)) {
-            TestNode testNode = new TestNode();
-            testNode.setId(SUMMARY_PREFIX + tdd.getTaskName());
-            testNode.setTaskDataDto(tdd);
-
-            testNode.setMetrics(getMetricNodeList(tdd));
-
-            TestInfoNode tin = new TestInfoNode(tdd.getTaskName() + TEST_INFO, TEST_INFO);
-            tin.setTestInfoList(getTestInfoNamesList(tdd));
-            testNode.setTestInfo(tin);
-
-            taskDataDtoList.add(testNode);
-        }
-
-        return taskDataDtoList;
+    private List<MonitoringSessionScopePlotNode> getSessionScopePlotNames(Set<String> sessionIds) {
+        return databaseFetcher.getMonitoringPlotNodes(sessionIds);
     }
 
     private List<TestNode> getSummaryTaskNodeList(Set<String> sessionIds) {
@@ -161,13 +110,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
     }
 
     private List<TestInfoLeaf> getTestInfoNamesList(TaskDataDto task) {
-
-        // first Test Info should be stand alone dto
         return Collections.EMPTY_LIST;
-        /*return Arrays.asList(
-                new TestInfoLeaf(task.getTaskName() + "clock", "Clock"),
-                new TestInfoLeaf(task.getTaskName() + "termination", "Termination")
-        );*/
     }
 
     private List<PlotNode> getPlotNames(Set<String> sessionIds, TaskDataDto tdd) {
@@ -182,6 +125,11 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
         }
         MetricRankingProvider.sortPlotNodes(result);
         return result;
+    }
+
+    private List<MonitoringPlotNode> getMonitoringPlots(Set<String> sessionIds, TaskDataDto tdd) {
+
+        return databaseFetcher.getMonitoringPlotNodes(sessionIds, tdd);
     }
 
     private List<MetricNode> getMetricNodeList(TaskDataDto dto) {
@@ -200,18 +148,8 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
         return result;
     }
 
-    private List<SessionInfoLeaf> getSessionInfoLeafList() {
+    private List<SessionInfoLeaf> getSessionInfoLeafList(Set<String> sessionIds) {
         return Collections.EMPTY_LIST;
-        /*List<SessionInfoLeaf> result = new ArrayList<SessionInfoLeaf>();
-
-            result.add(new SessionInfoLeaf("sumStartTime", "Star Time"));
-            result.add(new SessionInfoLeaf("sumEndTime", "End Time"));
-            result.add(new SessionInfoLeaf("sumActiveKernels", "Active Kernels"));
-            result.add(new SessionInfoLeaf("sumTaskExecuted", "Task Executed"));
-            result.add(new SessionInfoLeaf("sumTaskFailed", "Task Failed"));
-            result.add(new SessionInfoLeaf("sumComment", "Comment"));
-
-        return result;*/
     }
 
 }

@@ -47,7 +47,6 @@ import com.griddynamics.jagger.webclient.client.resources.SessionPagerResources;
 import com.sencha.gxt.data.shared.ModelKeyProvider;
 import com.sencha.gxt.data.shared.TreeStore;
 import com.sencha.gxt.widget.core.client.ContentPanel;
-import com.sencha.gxt.widget.core.client.info.Info;
 import com.sencha.gxt.widget.core.client.tree.Tree;
 
 import java.util.*;
@@ -127,7 +126,7 @@ public class Trends extends DefaultActivity {
 
         Set<MetricNameDto> metrics = controlTree.getCheckedMetrics();
 
-        Set<PlotNameDto> trends = controlTree.getCheckedPlots();
+        Map<String, List<String>> trends = getTestTrendsMap(controlTree.getRootNode().getDetailsNode().getTests());
 
         HashSet<String> sessionsIds = new HashSet<String>();
         HashSet<TestsMetrics> testsMetricses = new HashSet<TestsMetrics>(tests.size());
@@ -147,8 +146,8 @@ public class Trends extends DefaultActivity {
             map.get(metricNameDto.getTests().getTaskName()).getMetrics().add(metricNameDto.getName());
         }
 
-        for (PlotNameDto plotNameDto : trends){
-            map.get(plotNameDto.getTest().getTaskName()).getTrends().add(plotNameDto.getPlotName());
+        for (Map.Entry<String, List<String>> entry : trends.entrySet()) {
+            map.get(entry.getKey()).getTrends().addAll(entry.getValue());
         }
 
         TrendsPlace newPlace = new TrendsPlace(
@@ -160,8 +159,8 @@ public class Trends extends DefaultActivity {
         newPlace.setSelectedTestsMetrics(testsMetricses);
 
         Set<String> sessionScopePlots = new HashSet<String>();
-        for (PlotNameDto plotName : controlTree.getCheckedSessionScopePlots()) {
-            sessionScopePlots.add(plotName.getPlotName()); // id of plot
+        for (String plotName : getLinkRepresentationForSessionScopePlots(controlTree.getRootNode().getDetailsNode().getSessionScopePlotsNode())) {
+            sessionScopePlots.add(plotName);
         }
         newPlace.setSessionTrends(sessionScopePlots);
 
@@ -194,6 +193,55 @@ public class Trends extends DefaultActivity {
 
         dialog.show();
 
+    }
+
+    private Map<String, List<String>> getTestTrendsMap(List<TestDetailsNode> tests) {
+        Map<String, List<String>> resultMap = new LinkedHashMap<String, List<String>>();
+
+        for (TestDetailsNode test : tests) {
+            if (controlTree.isChosen(test)) {
+                List<String> trends = new ArrayList<String>();
+                for (PlotNode plotNode : test.getPlots()) {
+                    if (controlTree.isChecked(plotNode)) {
+                        trends.add(plotNode.getPlotName().getPlotName());
+                    }
+                }
+                for (MonitoringPlotNode monitoringPlotNode : test.getMonitoringPlots()) {
+                    if (controlTree.isChecked(monitoringPlotNode)) {
+                        trends.add(monitoringPlotNode.getDisplayName());
+                    } else if (controlTree.isChosen(monitoringPlotNode)) {
+                        for (PlotNode plotNode : monitoringPlotNode.getPlots()) {
+                            if (controlTree.isChecked(plotNode)) {
+                                trends.add(plotNode.getPlotName().getPlotName());
+                            }
+                        }
+                    }
+                }
+                resultMap.put(test.getTaskDataDto().getTaskName(), trends);
+            }
+        }
+
+        return resultMap;
+    }
+
+    private List<String> getLinkRepresentationForSessionScopePlots(SessionScopePlotsNode sessionScopePlotsNode) {
+
+        if (sessionScopePlotsNode == null) {
+            return Collections.EMPTY_LIST;
+        }
+        List<String> result = new ArrayList<String>();
+        for (MonitoringSessionScopePlotNode monitoringSessionScopePlotNode : sessionScopePlotsNode.getPlots()) {
+            if (controlTree.isChecked(monitoringSessionScopePlotNode)) {
+                result.add(monitoringSessionScopePlotNode.getDisplayName());
+            } else if (controlTree.isChosen(monitoringSessionScopePlotNode)) {
+                for (SessionPlotNode spn : monitoringSessionScopePlotNode.getPlots()) {
+                    if (controlTree.isChecked(spn)) {
+                        result.add(spn.getPlotNameDto().getPlotName());
+                    }
+                }
+            }
+        }
+        return result;
     }
 
     private final Map<String, Set<MarkingDto>> markingsMap = new HashMap<String, Set<MarkingDto>>();
@@ -906,9 +954,15 @@ public class Trends extends DefaultActivity {
 
             SessionScopePlotsNode sessionScopePlotsNode = result.getDetailsNode().getSessionScopePlotsNode();
             if (sessionScopePlotsNode != null) {
-                for (SessionPlotNode sessionPlotNode : sessionScopePlotsNode.getPlots()) {
-                    if (place.getSessionTrends().contains(sessionPlotNode.getPlotNameDto().getPlotName())) {
-                        tempTree.setCheckedWithParent(sessionPlotNode);
+                for (MonitoringSessionScopePlotNode monitoringSessionScopePlotNode : sessionScopePlotsNode.getPlots()) {
+                    if (place.getSessionTrends().contains(monitoringSessionScopePlotNode.getDisplayName())) {
+                        tempTree.setCheckedWithParent(monitoringSessionScopePlotNode);
+                    } else {
+                        for (SessionPlotNode plotNode: monitoringSessionScopePlotNode.getPlots()) {
+                            if (place.getSessionTrends().contains(plotNode.getPlotNameDto().getPlotName())) {
+                                tempTree.setCheckedWithParent(plotNode);
+                            }
+                        }
                     }
                 }
             }
@@ -932,12 +986,23 @@ public class Trends extends DefaultActivity {
                 }
 
                 TestDetailsNode testDetailsNode = getTestDetailsNodeByName(testsMetrics.getTestName(), result);
-                if (testDetailsNode == null) { // have not find appropriate TestNode
+                if (testDetailsNode == null) { // have not find appropriate TestDetailNode
                     new ExceptionPanel("could not find Test with test name \'" + testsMetrics.getTestName() + "\' for details");
                 } else {
                     for (PlotNode plotNode : testDetailsNode.getPlots()) {
                         if (testsMetrics.getTrends().contains(plotNode.getPlotName().getPlotName())) {
                             tempTree.setCheckedWithParent(plotNode);
+                        }
+                    }
+                    for (MonitoringPlotNode monitoringPlotNode : testDetailsNode.getMonitoringPlots()) {
+                        if (testsMetrics.getTrends().contains(monitoringPlotNode.getDisplayName())) {
+                            tempTree.setCheckedWithParent(monitoringPlotNode);
+                        } else {
+                            for (PlotNode plotNode: monitoringPlotNode.getPlots()) {
+                                if (testsMetrics.getTrends().contains(plotNode.getPlotName().getPlotName())) {
+                                    tempTree.setCheckedWithParent(plotNode);
+                                }
+                            }
                         }
                     }
                 }
@@ -1218,9 +1283,6 @@ public class Trends extends DefaultActivity {
                 if (enableTree)
                     enableControl();
             } else {
-              /*  // Generate all id of plots which should be displayed
-                Set<String> selectedPlotIds = generateTaskPlotIds(selected, chosenSessions.size());
-*/
                 disableControl();
                 PlotProviderService.Async.getInstance().getPlotDatas(selected, new AsyncCallback<Map<PlotNameDto, List<PlotSeriesDto>>>() {
 
@@ -1238,7 +1300,9 @@ public class Trends extends DefaultActivity {
                         for (PlotNameDto plotNameDto : result.keySet()){
                             final String id;
                             // Generate DOM id for plot
-                            if (chosenSessions.size() == 1) {
+                            if (plotNameDto.getTest() == null) {
+                                id = generateSessionScopePlotId(chosenSessions.get(0), plotNameDto.getPlotName());
+                            } else if (chosenSessions.size() == 1) {
                                 id = generateTaskScopePlotId(plotNameDto);
                             } else {
                                 id = generateCrossSessionsTaskScopePlotId(plotNameDto);
@@ -1325,7 +1389,7 @@ public class Trends extends DefaultActivity {
          * @param selected plotNames to fetch and render
          * @param enableTree tells return control or not
          */
-        public void fetchPlots(Set<PlotNameDto> selected, final boolean enableTree) {
+        public void fetchPlots(Set<SessionPlotNameDto> selected, final boolean enableTree) {
             if (selected.isEmpty()) {
                 if (enableTree)
                     enableControl();
@@ -1333,20 +1397,20 @@ public class Trends extends DefaultActivity {
                 disableControl();
                 PlotProviderService.Async.getInstance().getSessionScopePlotData
                         (chosenSessions.get(0), selected,
-                                new AsyncCallback<Map<String, List<PlotSeriesDto>>>() {
+                                new AsyncCallback<Map<SessionPlotNameDto, List<PlotSeriesDto>>>() {
 
                                     @Override
                                     public void onFailure(Throwable caught) {
                                         caught.printStackTrace();
                                         if (enableTree)
                                             enableControl();
-                                        new ExceptionPanel(place, caught.getMessage());
+                                        new ExceptionPanel(place, caught.toString());
                                     }
 
                                     @Override
-                                    public void onSuccess(Map<String, List<PlotSeriesDto>> result) {
-                                        for (String plotName : result.keySet()) {
-                                            final String id = generateSessionScopePlotId(chosenSessions.get(0), plotName);
+                                    public void onSuccess(Map<SessionPlotNameDto, List<PlotSeriesDto>> result) {
+                                        for (SessionPlotNameDto plotName : result.keySet()) {
+                                            final String id = generateSessionScopePlotId(chosenSessions.get(0), plotName.getPlotName());
 
                                             // If plot has already displayed, then pass it
                                             if (chosenPlots.containsKey(id)) {
@@ -1367,8 +1431,8 @@ public class Trends extends DefaultActivity {
             }
         }
 
-        public void fetchPlot(PlotNameDto plotName, final boolean enableTree) {
-            Set<PlotNameDto> set = new HashSet<PlotNameDto>();
+        public void fetchPlot(SessionPlotNameDto plotName, final boolean enableTree) {
+            Set<SessionPlotNameDto> set = new HashSet<SessionPlotNameDto>();
             set.add(plotName);
             fetchPlots(set, enableTree);
         }
@@ -1378,7 +1442,11 @@ public class Trends extends DefaultActivity {
          * Removes plots
          * @param plotNames plotNames to remove
          */
-        public void removePlots(Set<PlotNameDto> plotNames) {
+        public void removePlots(Set<? extends PlotName> plotNames) {
+
+            if (plotNames.isEmpty()) {
+                return;
+            }
 
             if (plotNames.isEmpty()) {
                 return;
@@ -1399,16 +1467,16 @@ public class Trends extends DefaultActivity {
             }
         }
 
-        public void removePlot(PlotNameDto plotNameDto) {
-            Set<PlotNameDto> set = new HashSet<PlotNameDto>();
+        public void removePlot(PlotName plotNameDto) {
+            Set<PlotName> set = new HashSet<PlotName>();
             set.add(plotNameDto);
             removePlots(set);
         }
 
 
-        private Set<String> generateSessionPlotIds(Set<PlotNameDto> selected) {
+        private Set<String> generateSessionPlotIds(Set<? extends PlotName> selected) {
             HashSet<String> idSet = new HashSet<String>();
-            for (PlotNameDto plotName : selected) {
+            for (PlotName plotName : selected) {
                 idSet.add(generateSessionScopePlotId(chosenSessions.get(0), plotName.getPlotName()));
             }
             return idSet;

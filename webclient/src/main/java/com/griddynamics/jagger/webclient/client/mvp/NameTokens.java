@@ -22,12 +22,18 @@ public class NameTokens {
     public static final String SESSION_INFO = "Session Info";
     public static final String TEST_INFO = "Test Info";
     public static final String SESSION_SCOPE_PLOTS = "Session Scope Plots";
-    public static final String SESSION_SCOPE_PREFIX = "ss-";
 
     // used to understand if test from summary subtree or from metrics subtree
     public static final String SUMMARY_PREFIX = "sum-";
     public static final String METRICS_PREFIX = "met-";
 
+    public static final String MONITORING_PREFIX = "mon-";
+
+    /**
+     * used to separate monitoring plot name and agent id in PolNameDto.plotName/SessionNameDto.plotName
+     * note: '|' == '%7C' in while link processing
+     */
+    public static final String AGENT_NAME_SEPARATOR = "|";
 
     public static String EMPTY = "";
 

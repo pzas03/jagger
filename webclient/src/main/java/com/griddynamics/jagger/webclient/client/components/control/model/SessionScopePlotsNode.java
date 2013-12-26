@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class SessionScopePlotsNode extends AbstractIdentifyNode {
 
-    List<SessionPlotNode> plots;
+    List<MonitoringSessionScopePlotNode> plots;
 
     public SessionScopePlotsNode() {
     }
@@ -18,11 +18,11 @@ public class SessionScopePlotsNode extends AbstractIdentifyNode {
         super(id, displayName);
     }
 
-    public List<SessionPlotNode> getPlots() {
+    public List<MonitoringSessionScopePlotNode> getPlots() {
         return plots;
     }
 
-    public void setPlots(List<SessionPlotNode> plots) {
+    public void setPlots(List<MonitoringSessionScopePlotNode> plots) {
         this.plots = plots;
     }
 

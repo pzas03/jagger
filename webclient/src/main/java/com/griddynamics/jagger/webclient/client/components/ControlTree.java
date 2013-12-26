@@ -6,6 +6,7 @@ import com.griddynamics.jagger.webclient.client.components.control.CheckHandlerM
 import com.griddynamics.jagger.webclient.client.components.control.model.*;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
 import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
+import com.griddynamics.jagger.webclient.client.dto.SessionPlotNameDto;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 import com.sencha.gxt.core.client.ValueProvider;
 import com.sencha.gxt.data.shared.TreeStore;
@@ -93,7 +94,7 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
                 checkSubTree(item, state);
                 if (state.equals(CheckState.CHECKED)) {
                     checkParent(item);
-                    tree.setExpanded(item, true, true);
+                    tree.setExpanded(item, true, false);
                 } else {
                     unCheckParent(item);
                 }
@@ -105,13 +106,6 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
             private Tree<AbstractIdentifyNode, C> tree = ControlTree.this;
             private TreeStore<AbstractIdentifyNode> treeStore = ControlTree.this.getStore();
 
-            private void checkSubTree(AbstractIdentifyNode item, CheckState state) {
-                if (treeStore.hasChildren(item))
-                    for (AbstractIdentifyNode child : treeStore.getChildren(item)) {
-                        tree.setChecked(child, state);
-                        checkSubTree(child, state);
-                    }
-            }
 
 
             private void unCheckParent(AbstractIdentifyNode item) {
@@ -133,6 +127,14 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
 
 
         });
+    }
+
+    private void checkSubTree(AbstractIdentifyNode item, CheckState state) {
+        if (store.hasChildren(item))
+            for (AbstractIdentifyNode child : store.getChildren(item)) {
+                setChecked(child, state);
+                checkSubTree(child, state);
+            }
     }
 
     public void checkParent(AbstractIdentifyNode item) {
@@ -159,6 +161,7 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
 
     public void setCheckedWithParent (AbstractIdentifyNode item) {
         setChecked(item, Tree.CheckState.CHECKED);
+        checkSubTree(item, Tree.CheckState.CHECKED);
         checkParent(item);
     }
 
@@ -263,6 +266,13 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
                     resultSet.add(plotNode.getPlotName());
                 }
             }
+            for (MonitoringPlotNode monitoringPlotNode : test.getMonitoringPlots()) {
+                for (PlotNode plotNode : monitoringPlotNode.getPlots()) {
+                    if (isChecked(plotNode)) {
+                        resultSet.add(plotNode.getPlotName());
+                    }
+                }
+            }
         }
         return resultSet;
     }
@@ -271,14 +281,16 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
     /**
      * @return checked PlotNameDto for session scope plots
      */
-    public Set<PlotNameDto> getCheckedSessionScopePlots() {
+    public Set<SessionPlotNameDto> getCheckedSessionScopePlots() {
         if (rootNode.getDetailsNode().getSessionScopePlotsNode() == null) {
             return Collections.EMPTY_SET;
         }
-        Set<PlotNameDto> resultSet = new HashSet<PlotNameDto>();
-        for (SessionPlotNode plotNode : rootNode.getDetailsNode().getSessionScopePlotsNode().getPlots()) {
-            if (isChecked(plotNode)) {
-                resultSet.add(plotNode.getPlotNameDto());
+        Set<SessionPlotNameDto> resultSet = new HashSet<SessionPlotNameDto>();
+        for (MonitoringSessionScopePlotNode mPlotNode : rootNode.getDetailsNode().getSessionScopePlotsNode().getPlots()) {
+            for (SessionPlotNode plotNode: mPlotNode.getPlots()) {
+                if (isChecked(plotNode)) {
+                    resultSet.add(plotNode.getPlotNameDto());
+                }
             }
         }
         return resultSet;
