@@ -11,6 +11,8 @@ import com.griddynamics.jagger.engine.e1.scenario.WorkloadTask;
  * */
 public class TestInfo {
     private WorkloadTask test;
+    private String sessionId;
+
     private int threads;
     private int samples;
     private int startedSamples;
@@ -20,8 +22,9 @@ public class TestInfo {
     public TestInfo(){
     }
 
-    public TestInfo(WorkloadTask test){
+    public TestInfo(WorkloadTask test, String sessionId){
         this.test = test;
+        this.sessionId = sessionId;
     }
 
     /** Returns current test
@@ -82,5 +85,17 @@ public class TestInfo {
 
     public void setDuration(long duration) {
         this.duration = duration;
+    }
+
+    /** Returns session id
+     * @author Gribov Kirill
+     * @n
+     * */
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
     }
 }

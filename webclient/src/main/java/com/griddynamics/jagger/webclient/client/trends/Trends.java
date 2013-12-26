@@ -1448,6 +1448,10 @@ public class Trends extends DefaultActivity {
                 return;
             }
 
+            if (plotNames.isEmpty()) {
+                return;
+            }
+
             Set<String> widgetIdsToRemove = generateSessionPlotIds(plotNames);
             List<Widget> toRemove = new ArrayList<Widget>();
             for (int i = 0; i < plotPanel.getWidgetCount(); i ++) {

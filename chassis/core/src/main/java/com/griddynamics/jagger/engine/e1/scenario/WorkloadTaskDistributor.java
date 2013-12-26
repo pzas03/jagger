@@ -25,16 +25,17 @@ import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.Service;
 import com.griddynamics.jagger.coordinator.*;
 import com.griddynamics.jagger.engine.e1.Provider;
+import com.griddynamics.jagger.engine.e1.ProviderUtil;
 import com.griddynamics.jagger.engine.e1.aggregator.session.model.TaskData;
 import com.griddynamics.jagger.engine.e1.collector.test.TestInfo;
 import com.griddynamics.jagger.engine.e1.collector.test.TestListener;
 import com.griddynamics.jagger.engine.e1.process.PollWorkloadProcessStatus;
 import com.griddynamics.jagger.engine.e1.process.StartWorkloadProcess;
 import com.griddynamics.jagger.engine.e1.process.StopWorkloadProcess;
+import com.griddynamics.jagger.engine.e1.services.JaggerEnvironment;
 import com.griddynamics.jagger.master.AbstractDistributionService;
 import com.griddynamics.jagger.master.AbstractDistributor;
 import com.griddynamics.jagger.master.TaskExecutionStatusProvider;
-import com.griddynamics.jagger.util.Injector;
 import com.griddynamics.jagger.util.TimeUtils;
 import com.griddynamics.jagger.util.TimeoutsConfiguration;
 import org.slf4j.Logger;
@@ -85,19 +86,19 @@ public class WorkloadTaskDistributor extends AbstractDistributor<WorkloadTask> {
         return new AbstractDistributionService(executor) {
             @Override
             protected void run() throws Exception {
-                //create test-listeners
-                ArrayList<TestListener> listeners = new ArrayList<TestListener>(task.getTestListeners().size());
-                for (Provider<TestListener> provider : task.getTestListeners()){
-                    Injector.injectNodeContext(provider, sessionId, taskId, nodeContext);
-                    listeners.add(provider.provide());
-                }
-                TestListener testListener = TestListener.Composer.compose(listeners);
+                //create test-listener
+                TestListener testListener = TestListener.Composer.compose(ProviderUtil.provideElements(task.getTestListeners(),
+                                                                                                        sessionId,
+                                                                                                        taskId,
+                                                                                                        nodeContext,
+                                                                                                        JaggerEnvironment.TEST));
+
                 // start time must be initialized after calibration
                 // if start time will not initialize(calibration) - set 0 test duration
                 Long startTime = null;
 
                 //create status info
-                TestInfo testInfo = new TestInfo(task);
+                TestInfo testInfo = new TestInfo(task, sessionId);
 
                 DefaultWorkloadController controller = null;
                 try {

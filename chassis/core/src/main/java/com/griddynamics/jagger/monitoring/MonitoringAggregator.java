@@ -131,14 +131,14 @@ public class MonitoringAggregator extends LogProcessor implements DistributionLi
             Iterator<MonitoringLogEntry> it = fileReader.iterator();
             while (it.hasNext()) {
                 MonitoringLogEntry logEntry = it.next();
-                    try{
-                        currentInterval = processLogEntry(sessionId, aggregationInfo, intervalSize, taskData, currentInterval,
-                                sumByIntervalAgent, countByIntervalAgent, sumByIntervalSuT, countByIntervalSuT, avgStatisticsByAgent,
-                                avgStatisticsBySuT, logEntry);
-                    } catch (ClassCastException e){
-                        //HotFix for hessian de/serialization problem
-                        log.error("Deserialization problem: {}",e);
-                    }
+                try{
+                    currentInterval = processLogEntry(sessionId, aggregationInfo, intervalSize, taskData, currentInterval,
+                            sumByIntervalAgent, countByIntervalAgent, sumByIntervalSuT, countByIntervalSuT, avgStatisticsByAgent,
+                            avgStatisticsBySuT, logEntry);
+                } catch (ClassCastException e){
+                    //HotFix for hessian de/serialization problem
+                    log.error("Deserialization problem: {}", e);
+                }
             }
 
             fileReader.close();
@@ -147,10 +147,11 @@ public class MonitoringAggregator extends LogProcessor implements DistributionLi
                     sumByIntervalAgent, countByIntervalAgent, avgStatisticsByAgent);
             finalizeIntervalSysUT(sessionId, taskData, currentInterval - aggregationInfo.getMinTime(),
                     sumByIntervalSuT, countByIntervalSuT, avgStatisticsBySuT);
-            
+
             differentiateRelativeParameters(avgStatisticsByAgent);
             differentiateRelativeParameters(avgStatisticsBySuT);
 
+            log.info("BEGIN: Save to data base " + dir);
             getHibernateTemplate().execute(new HibernateCallback<Void>() {
                 @Override
                 public Void doInHibernate(Session session) throws HibernateException, SQLException {
@@ -164,6 +165,7 @@ public class MonitoringAggregator extends LogProcessor implements DistributionLi
                     return null;
                 }
             });
+            log.info("END: Save to data base " + dir);
 
             saveProfilers(sessionId, taskId);
 

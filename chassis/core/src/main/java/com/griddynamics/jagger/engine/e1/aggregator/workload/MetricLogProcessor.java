@@ -144,7 +144,7 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
                     StatisticsGenerator statisticsGenerator = new StatisticsGenerator(file, aggregationInfo, intervalSize, taskData).generate();
                     final Collection<MetricDetails> statistics = statisticsGenerator.getStatistics();
 
-                    log.info("BEGIN: Save to data base");
+                    log.info("BEGIN: Save to data base " + metricPath);
                     getHibernateTemplate().execute(new HibernateCallback<Void>() {
                         @Override
                         public Void doInHibernate(Session session) throws HibernateException, SQLException {
@@ -155,7 +155,7 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
                             return null;
                         }
                     });
-                    log.info("END: Save to data base");
+                    log.info("END: Save to data base " + metricPath);
                 } catch (Exception e) {
                     log.error("Error during processing metric by path: '{}'",metricPath);
                 }
