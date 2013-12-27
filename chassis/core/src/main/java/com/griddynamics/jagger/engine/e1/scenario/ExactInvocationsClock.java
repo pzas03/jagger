@@ -49,15 +49,15 @@ public class ExactInvocationsClock implements WorkloadClock {
 
         if (isPeriodic()) {
 
-
-                long currentTime = System.currentTimeMillis();
-                long difference = currentTime - startTime;
-                if(difference >= period) {
-                    startTime = currentTime;
-                    sendSamples(samplesCount, status, adjuster);
-                }
-
-
+            long currentTime = System.currentTimeMillis();
+            if (startTime == 0) {
+                startTime = currentTime - period;
+            }
+            long difference = currentTime - startTime;
+            if(difference >= period) {
+                startTime = startTime + period;
+                sendSamples(samplesCount, status, adjuster);
+            }
         } else {
 
             int samplesLeft = samplesCount - samplesSubmitted;
@@ -74,14 +74,14 @@ public class ExactInvocationsClock implements WorkloadClock {
 
         Set<NodeId> nodes = status.getNodes();
         int nodesSize = nodes.size();
-        int threadsForOneNode =  threadCount / nodesSize;
-        int threadsResidue = threadCount % nodesSize;
+        int threadsForOneNode =  threadCount / nodesSize;                      // how many threads should be distributed for one node(kernel)
+        int threadsResidue = threadCount % nodesSize;                          // residue of threads
 
-        int samplesForOneThread = samplesLeft / threadCount;
+        int samplesForOneThread = samplesLeft / threadCount;                   //how many samples should be distributed for ont thread
 
-        int samplesResidueByThreads = samplesLeft % threadCount;
-        int additionalSamplesForOneNode = samplesResidueByThreads / nodesSize;
-        int samplesResidue = samplesResidueByThreads % nodesSize;
+        int samplesResidueByThreads = samplesLeft % threadCount;               // residue samples of threads
+        int additionalSamplesForOneNode = samplesResidueByThreads / nodesSize; // how many samples should be added for each node(kernel)
+        int samplesResidue = samplesResidueByThreads % nodesSize;              // residue samples of nodes
 
         int s = 0;
         for (NodeId node : nodes) {
