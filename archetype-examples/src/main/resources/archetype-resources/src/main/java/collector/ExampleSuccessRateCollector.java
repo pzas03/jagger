@@ -19,8 +19,7 @@ public class ExampleSuccessRateCollector<Q, R, E> extends MetricCollector<Q, R, 
 
     private long startTime = 0;
 
-    public ExampleSuccessRateCollector(String sessionId, String taskId, NodeContext kernelContext)
-    {
+    public ExampleSuccessRateCollector(String sessionId, String taskId, NodeContext kernelContext) {
         super(sessionId, taskId, kernelContext,new SimpleMetricCalculator(),"exampleSuccessRate");
     }
 
