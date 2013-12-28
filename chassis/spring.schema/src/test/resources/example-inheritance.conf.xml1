@@ -126,5 +126,29 @@
         </info-collectors>
         <scenario xsi:type="scenario-ref" ref="sc2"/>
     </test-description>
+    <test-description id="testIntDescr" calibration="false"/>
 
+    <test id="testParent">
+        <load xsi:type="load-tps" value="100"/>
+        <termination xsi:type="termination-iterations" iterations="255" maxDuration="2h"/>
+    </test>
+
+    <test id="testChild1" parent="testParent">
+    </test>
+
+    <test id="testChild2" testDescription="testIntDescr" parent="testParent">
+    </test>
+
+    <test id="testChild3"  parent="testParent">
+        <load xsi:type="load-tps" value="20"/>
+        <termination xsi:type="termination-iterations" iterations="25" maxDuration="2h"/>
+    </test>
+
+    <test id="testChild4"  parent="testParent">
+        <termination xsi:type="termination-iterations" iterations="25" maxDuration="2h"/>
+    </test>
+
+    <test id="testChild5"  parent="testParent">
+        <load xsi:type="load-tps" value="20"/>
+    </test>
 </beans:beans>
