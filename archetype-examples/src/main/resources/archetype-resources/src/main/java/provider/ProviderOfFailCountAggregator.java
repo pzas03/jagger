@@ -10,30 +10,29 @@ public class ProviderOfFailCountAggregator implements MetricAggregatorProvider {
 
     @Override
     public MetricAggregator provide() {
-        return new MetricAggregator<Integer>() {
-
-            int failNum = 0;
+        return new  MetricAggregator<Number>() {
+            long failNum = 0;
 
             @Override
-            public void append(Integer calculated)
+            public void append(Number calculated)
             {
-                if (calculated!=0)
+                if (calculated.intValue() == 0)
                     failNum++;
             }
 
             @Override
-            public Integer getAggregated() {
-                return failNum;
+            public Double getAggregated() {
+                return new Double(failNum);
             }
 
             @Override
-            public void reset() {}
+            public void reset() {
+            }
 
             @Override
             public String getName() {
                 return "aggFails";
             }
-
         };
     }
 }

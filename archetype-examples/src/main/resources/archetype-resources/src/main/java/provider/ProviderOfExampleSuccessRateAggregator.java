@@ -10,24 +10,25 @@ public class ProviderOfExampleSuccessRateAggregator implements MetricAggregatorP
 
     @Override
     public MetricAggregator provide() {
-        return new MetricAggregator<Integer>() {
-
-            int passNum = 0;
-            int failNum = 0;
+        return new  MetricAggregator<Number>() {
+            private long passNum = 0;
+            private long failNum = 0;
 
             @Override
-            public void append(Integer calculated)
+            public void append(Number calculated)
             {
-                if (calculated!=0)
-                    failNum++;
-                else
+                if (calculated.intValue() != 0)
                     passNum++;
+                else
+                    failNum++;
             }
 
             @Override
-            public Integer getAggregated() {
-                // September 2013 - metrics can store only long values => store in 0.01% instead of %
-                return ((failNum + passNum) == 0) ? 0 : (int)((double) ((passNum) * 10000 / (double) (failNum + passNum)));
+            public Double getAggregated() {
+                if ((failNum + passNum) == 0)
+                    return new Double(0.0);
+                else
+                    return new Double((double) (passNum) / (double) (failNum + passNum));
             }
 
             @Override
@@ -36,9 +37,8 @@ public class ProviderOfExampleSuccessRateAggregator implements MetricAggregatorP
 
             @Override
             public String getName() {
-                return "aggSR, 0.01%";
+                return "aggSR";
             }
-
         };
     }
 }

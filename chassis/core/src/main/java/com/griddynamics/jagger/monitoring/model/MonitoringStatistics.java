@@ -47,11 +47,9 @@ public class MonitoringStatistics {
     private String sessionId;
 
     @Column(name = "time")
-    @Index(name="time_index")
     private long time;
 
     @Column(name = "averageValue")
-    @Index(name="averageValue_index")
     private Double averageValue;
 
     @ManyToOne
