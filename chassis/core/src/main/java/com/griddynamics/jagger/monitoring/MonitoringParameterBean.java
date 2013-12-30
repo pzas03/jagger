@@ -32,10 +32,8 @@ public class MonitoringParameterBean implements MonitoringParameter {
     @Index(name="description_index")
     private String description;
 
-    @Index(name="level_index")
     private MonitoringParameterLevel level;
 
-    @Index(name="cumulativeCounter_index")
     private boolean cumulativeCounter;
 
     public static MonitoringParameterBean copyOf(MonitoringParameter parameter) {
