@@ -19,8 +19,7 @@ public class ExampleSuccessRateCollector<Q, R, E> extends MetricCollector<Q, R, 
 
     private long startTime = 0;
 
-    public ExampleSuccessRateCollector(String sessionId, String taskId, NodeContext kernelContext)
-    {
+    public ExampleSuccessRateCollector(String sessionId, String taskId, NodeContext kernelContext) {
         super(sessionId, taskId, kernelContext,new SimpleMetricCalculator(),"exampleSuccessRate");
     }
 
@@ -37,19 +36,19 @@ public class ExampleSuccessRateCollector<Q, R, E> extends MetricCollector<Q, R, 
     @Override
     public void onSuccess(Object query, Object endpoint, Object result, long duration) {
         // Count pass result
-        remember(0);
+        remember(1);
     }
 
     @Override
     public void onFail(Object query, Object endpoint, InvocationException e) {
         // Count fail result
-        remember(1);
+        remember(0);
     }
 
     @Override
     public void onError(Object query, Object endpoint, Throwable error) {
         // Count fail result
-        remember(1);
+        remember(0);
     }
 
     private void remember(long result) {
