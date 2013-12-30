@@ -21,6 +21,7 @@ package com.griddynamics.jagger.util;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Map;
 
 /** Container to store information about environment on particular node
  * @author Dmitry Latnikov
@@ -40,6 +41,7 @@ public class GeneralNodeInfo implements Serializable{
     private int cpuTotalCores = 0;
     private int cpuTotalSockets = 0;
     private long systemRAM = 0;
+    private Map<String, String> properties;
 
     public String getNodeId() {
         return nodeId;
@@ -119,6 +121,14 @@ public class GeneralNodeInfo implements Serializable{
 
     public void setCpuTotalCores(int cpuTotalCores) {
         this.cpuTotalCores = cpuTotalCores;
+    }
+
+    public Map<String, String> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(Map<String, String> properties) {
+        this.properties = properties;
     }
 
     @Override

@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snmp4j.smi.OID;
 
+import java.util.Collections;
 import java.util.Map;
 
 import static com.griddynamics.jagger.util.Units.bytesToMiB;
@@ -103,5 +104,10 @@ public class SNMPJVMSystemUnderTestImpl implements SystemUnderTestService {
         } catch(Exception e) {
             log.error("Failed to collect metrics from " + snmpProvider.getAddress(), e);
         }
+    }
+
+    @Override
+    public Map<String, Map<String, String>> getSystemProperties() {
+        return Collections.EMPTY_MAP;
     }
 }

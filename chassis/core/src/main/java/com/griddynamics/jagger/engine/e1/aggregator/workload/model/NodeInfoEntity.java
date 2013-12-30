@@ -21,10 +21,10 @@ package com.griddynamics.jagger.engine.e1.aggregator.workload.model;
 
 import com.griddynamics.jagger.util.GeneralNodeInfo;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Entity
 public class NodeInfoEntity {
@@ -57,6 +57,12 @@ public class NodeInfoEntity {
     @Column
     private long systemRAM;
 
+    @OneToMany(
+            fetch = FetchType.EAGER,
+            cascade = CascadeType.ALL,
+            mappedBy = "nodeInfoEntity")
+    private List<NodePropertyEntity> properties;
+
     public NodeInfoEntity(String sessionId, GeneralNodeInfo generalNodeInfo) {
         this.sessionId          = sessionId;
         this.nodeId             = generalNodeInfo.getNodeId();
@@ -69,6 +75,13 @@ public class NodeInfoEntity {
         this.cpuTotalCores      = generalNodeInfo.getCpuTotalCores();
         this.cpuTotalSockets    = generalNodeInfo.getCpuTotalSockets();
         this.systemRAM          = generalNodeInfo.getSystemRAM();
+
+        if (generalNodeInfo.getProperties() != null){
+            properties = new ArrayList<NodePropertyEntity>(generalNodeInfo.getProperties().size());
+            for (Map.Entry<String, String> entry : generalNodeInfo.getProperties().entrySet()){
+                properties.add(new NodePropertyEntity(entry.getKey(), entry.getValue(), this));
+            }
+        }
     }
 
     public NodeInfoEntity() {
@@ -168,5 +181,13 @@ public class NodeInfoEntity {
 
     public void setCpuTotalCores(int cpuTotalCores) {
         this.cpuTotalCores = cpuTotalCores;
+    }
+
+    public List<NodePropertyEntity> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(List<NodePropertyEntity> properties) {
+        this.properties = properties;
     }
 }

@@ -38,10 +38,7 @@ import org.springframework.beans.factory.annotation.Required;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class AgentWorker extends ConfigurableWorker {
@@ -211,6 +208,16 @@ public class AgentWorker extends ConfigurableWorker {
                 long startTime = System.currentTimeMillis();
                 log.debug("start GetGeneralNodeInfo on agent {}", nodeContext.getId());
                 GeneralNodeInfo generalNodeInfo = generalInfoCollector.getGeneralNodeInfo();
+
+                //Get system properties from all SUT's
+                Map<String, Map<String, String>> props = monitoringInfoService.getSystemProperties();
+                Map<String, String> resultProps = new HashMap<String, String>();
+
+                String javaVerProp = "java.version";
+                for (String identifier : props.keySet()){
+                    resultProps.put(getJmxPort(identifier)+";"+javaVerProp, props.get(identifier).get(javaVerProp));
+                }
+                generalNodeInfo.setProperties(resultProps);
                 log.debug("finish GetGeneralNodeInfo on agent {} time {} ms", nodeContext.getId(), System.currentTimeMillis() - startTime);
                 return generalNodeInfo;
             }
@@ -222,6 +229,11 @@ public class AgentWorker extends ConfigurableWorker {
         SystemInfo systemInfo = this.monitoringInfoService.getSystemInfo();
         systemInfo.setNodeId(this.agent.getNodeContext().getId());
         return new ArrayList<SystemInfo>(Collections.singletonList(systemInfo));
+    }
+
+    private String getJmxPort(String identifier){
+        String[] temp = identifier.split(":");
+        return temp[temp.length-1];
     }
 
     public void setMonitoringInfoService(MonitoringInfoService monitoringInfoService) {
