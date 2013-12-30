@@ -115,7 +115,7 @@ public class MonitoringInfoServiceImpl implements MonitoringInfoService {
         startTimeLog = System.currentTimeMillis();
         log.debug("start collecting SuT info through jmx on agent");
 
-        Map<String, SystemUnderTestInfo> jmxInfo = getRequestFromSut(new Callable<Map<String, SystemUnderTestInfo>>() {
+        Map<String, SystemUnderTestInfo> jmxInfo = getResponseFromSut(new Callable<Map<String, SystemUnderTestInfo>>() {
             @Override
             public Map<String, SystemUnderTestInfo> call() throws Exception {
                 return systemUnderTestService.getInfo();
@@ -129,11 +129,11 @@ public class MonitoringInfoServiceImpl implements MonitoringInfoService {
 
     @Override
     public Map<String, Map<String, String>> getSystemProperties() {
-        Map<String, Map<String, String>> result = getRequestFromSut(new Callable<Map<String, Map<String, String>>>() {
-                @Override
-                public Map<String, Map<String, String>> call() throws Exception {
-                    return systemUnderTestService.getSystemProperties();
-                }
+        Map<String, Map<String, String>> result = getResponseFromSut(new Callable<Map<String, Map<String, String>>>() {
+            @Override
+            public Map<String, Map<String, String>> call() throws Exception {
+                return systemUnderTestService.getSystemProperties();
+            }
         });
 
         if (result == null){
@@ -143,7 +143,7 @@ public class MonitoringInfoServiceImpl implements MonitoringInfoService {
         return result;
     }
 
-    private <T>T getRequestFromSut(Callable<T> request){
+    private <T>T getResponseFromSut(Callable<T> request){
         T result = null;
 
         if (jmxThreadPoolExecutor.getActiveCount() == 0) {
