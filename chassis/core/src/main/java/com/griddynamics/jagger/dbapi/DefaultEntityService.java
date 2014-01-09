@@ -38,6 +38,10 @@ public class DefaultEntityService extends HibernateDaoSupport implements EntityS
 
     @Override
     public List<SessionEntity> getSessions(List<String> sessionIds) {
+        if (sessionIds.isEmpty()){
+            return Collections.EMPTY_LIST;
+        }
+
         List<SessionData> sessions = getHibernateTemplate().findByNamedParam("select ses from SessionData as ses " +
                                                                                 "where ses.sessionId in (:sessionIds)",
                                                                                 "sessionIds", sessionIds);
@@ -105,6 +109,10 @@ public class DefaultEntityService extends HibernateDaoSupport implements EntityS
     }
 
     private Map<String, List<TestEntity>> getTestsWithName(List<String> sessionIds, String testName){
+        if (sessionIds.isEmpty()){
+            return Collections.EMPTY_MAP;
+        }
+
         List<Object[]> tasksEntities = getHibernateTemplate().findByNamedParam("select task, taskData.id from WorkloadTaskData task, TaskData taskData " +
                                                                                    "where task.sessionId in (:sessionIds) and " +
                                                                                    "      task.scenario.name like :name and " +
@@ -180,6 +188,10 @@ public class DefaultEntityService extends HibernateDaoSupport implements EntityS
     }
 
     public Map<Long, List<MetricEntity>> getMetricsByIds(List<Long> testIds){
+        if (testIds.isEmpty()){
+            return Collections.EMPTY_MAP;
+        }
+
         MultiMap<Long, MetricEntity> result = new MultiMap<Long, MetricEntity>();
 
         //try to find standard metrics
@@ -290,6 +302,10 @@ public class DefaultEntityService extends HibernateDaoSupport implements EntityS
     }
 
     public Map<String, List<MetricValueEntity>> getMetricValuesByIds(Long testId, List<String> metricIds){
+        if (metricIds.isEmpty()){
+            return Collections.EMPTY_MAP;
+        }
+
         MultiMap<String, MetricValueEntity> result = new MultiMap<String,MetricValueEntity>();
 
         List<MetricDetails> metricValues = getHibernateTemplate().findByNamedParam("select metric from MetricDetails metric " +
