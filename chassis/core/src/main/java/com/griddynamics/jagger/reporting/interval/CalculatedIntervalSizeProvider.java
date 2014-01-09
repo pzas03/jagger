@@ -5,11 +5,11 @@ package com.griddynamics.jagger.reporting.interval;
  *         Date: 12/9/13
  */
 
-public class ComputationalIntervalSizeProvider implements IntervalSizeProvider {
+public class CalculatedIntervalSizeProvider implements IntervalSizeProvider {
 
     private final int intervalsCount;
 
-    public ComputationalIntervalSizeProvider(int intervalsCount) {
+    public CalculatedIntervalSizeProvider(int intervalsCount) {
         this.intervalsCount = intervalsCount;
     }
 

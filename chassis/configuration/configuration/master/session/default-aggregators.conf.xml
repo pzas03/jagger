@@ -65,7 +65,7 @@
         </constructor-arg>
     </bean>
 
-    <bean id="durationIntervalSizeProvider_count" class="com.griddynamics.jagger.reporting.interval.ComputationalIntervalSizeProvider" lazy-init="true">
+    <bean id="durationIntervalSizeProvider_count" class="com.griddynamics.jagger.reporting.interval.CalculatedIntervalSizeProvider" lazy-init="true">
         <constructor-arg value="${chassis.engine.e1.reporting.task.point.count}"/>
     </bean>
 
@@ -85,7 +85,7 @@
         <property name="globalPercentilesKeys" ref="standardPercentilesGlobal"/>
     </bean>
 
-    <bean id="metricIntervalSizeProvider_count" class="com.griddynamics.jagger.reporting.interval.ComputationalIntervalSizeProvider" lazy-init="true">
+    <bean id="metricIntervalSizeProvider_count" class="com.griddynamics.jagger.reporting.interval.CalculatedIntervalSizeProvider" lazy-init="true">
         <constructor-arg value="${chassis.engine.e1.reporting.task.monitoring.point.count}"/>
     </bean>
 
@@ -108,7 +108,7 @@
         <property name="globalPercentilesKeys" ref="standardPercentilesGlobal"/>
     </bean>
 
-    <bean id="monitoringIntervalSizeProvider_count" class="com.griddynamics.jagger.reporting.interval.ComputationalIntervalSizeProvider" lazy-init="true">
+    <bean id="monitoringIntervalSizeProvider_count" class="com.griddynamics.jagger.reporting.interval.CalculatedIntervalSizeProvider" lazy-init="true">
         <constructor-arg value="${chassis.engine.e1.reporting.task.monitoring.point.count}"/>
     </bean>
 

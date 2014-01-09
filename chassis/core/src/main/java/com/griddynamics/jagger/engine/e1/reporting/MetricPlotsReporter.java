@@ -94,6 +94,9 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
         if (plots == null) {
             plots = createTaskPlots();
         }
+        if (plots.size() == 0) {
+            return null;
+        }
         return new JRBeanCollectionDataSource(Collections.singleton(plots.get(testId)));
     }
 
