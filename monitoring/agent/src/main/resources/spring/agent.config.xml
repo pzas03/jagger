@@ -62,6 +62,7 @@
                 <property name="samplingProfiler" ref="samplingProfiler"/>
             </bean>
         </property>
+        <property name="generalInfoCollector" ref="generalInfoCollector"/>
     </bean>
 
     <bean id="sigarAgent" class="com.griddynamics.jagger.agent.impl.SigarSystemInfoCollector">
@@ -145,6 +146,10 @@
 
     <bean id="agentConfig" class="com.griddynamics.jagger.agent.AgentConfig">
         <property name="name" value="${agent.name}"/>
+    </bean>
+
+    <bean id="generalInfoCollector" class="com.griddynamics.jagger.agent.GeneralAgentInfoCollector">
+        <property name="monitoringInfoService" ref="monitoringService"/>
     </bean>
 
 </beans>

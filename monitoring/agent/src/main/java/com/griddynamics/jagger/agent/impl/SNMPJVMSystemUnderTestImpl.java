@@ -108,6 +108,7 @@ public class SNMPJVMSystemUnderTestImpl implements SystemUnderTestService {
 
     @Override
     public Map<String, Map<String, String>> getSystemProperties() {
+        log.warn("System properties a not available for SNMP");
         return Collections.EMPTY_MAP;
     }
 }

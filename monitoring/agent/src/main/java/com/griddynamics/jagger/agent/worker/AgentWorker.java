@@ -20,7 +20,6 @@
 
 package com.griddynamics.jagger.agent.worker;
 
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.griddynamics.jagger.agent.Agent;
 import com.griddynamics.jagger.agent.AgentStarter;
@@ -45,7 +44,7 @@ public class AgentWorker extends ConfigurableWorker {
     private static final Logger log = LoggerFactory.getLogger(AgentWorker.class);
 
     private MonitoringInfoService monitoringInfoService;
-    private GeneralInfoCollector generalInfoCollector = new GeneralInfoCollector();
+    private GeneralInfoCollector generalInfoCollector;
     private Profiler profiler;
     private final Agent agent;
     private Boolean profilerEnabled;
@@ -208,16 +207,6 @@ public class AgentWorker extends ConfigurableWorker {
                 long startTime = System.currentTimeMillis();
                 log.debug("start GetGeneralNodeInfo on agent {}", nodeContext.getId());
                 GeneralNodeInfo generalNodeInfo = generalInfoCollector.getGeneralNodeInfo();
-
-                //Get system properties from all SUT's
-                Map<String, Map<String, String>> props = monitoringInfoService.getSystemProperties();
-                Map<String, String> resultProps = new HashMap<String, String>();
-
-                String javaVerProp = "java.version";
-                for (String identifier : props.keySet()){
-                    resultProps.put(getJmxPort(identifier)+";"+javaVerProp, props.get(identifier).get(javaVerProp));
-                }
-                generalNodeInfo.setProperties(resultProps);
                 log.debug("finish GetGeneralNodeInfo on agent {} time {} ms", nodeContext.getId(), System.currentTimeMillis() - startTime);
                 return generalNodeInfo;
             }
@@ -231,11 +220,6 @@ public class AgentWorker extends ConfigurableWorker {
         return new ArrayList<SystemInfo>(Collections.singletonList(systemInfo));
     }
 
-    private String getJmxPort(String identifier){
-        String[] temp = identifier.split(":");
-        return temp[temp.length-1];
-    }
-
     public void setMonitoringInfoService(MonitoringInfoService monitoringInfoService) {
         this.monitoringInfoService = monitoringInfoService;
     }
@@ -243,5 +227,9 @@ public class AgentWorker extends ConfigurableWorker {
     @Required
     public void setProfiler(Profiler profiler) {
         this.profiler = profiler;
+    }
+
+    public void setGeneralInfoCollector(GeneralInfoCollector generalInfoCollector) {
+        this.generalInfoCollector = generalInfoCollector;
     }
 }

@@ -200,7 +200,7 @@ public class Master implements Runnable {
                                                                                                                     sessionId,
                                                                                                                     "session",
                                                                                                                     context,
-                                                                                                                    JaggerEnvironment.TEST_SUITE));
+                                                                                                                    JaggerEnvironment.TEST_SUITE_LISTENER));
 
             TestSuiteInfo testSuiteInfo = new TestSuiteInfo(sessionId,generalNodeInfo);
             long startTime = System.currentTimeMillis();

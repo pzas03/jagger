@@ -143,11 +143,11 @@ public class MonitoringInfoServiceImpl implements MonitoringInfoService {
         return result;
     }
 
-    private <T>T getResponseFromSut(Callable<T> request){
+    private <T>T getResponseFromSut(Callable<T> response){
         T result = null;
 
         if (jmxThreadPoolExecutor.getActiveCount() == 0) {
-            Future<T> future = jmxThreadPoolExecutor.submit(request);
+            Future<T> future = jmxThreadPoolExecutor.submit(response);
             try {
                 result = Futures.makeUninterruptible(future).get(jmxTimeout.getValue(), TimeUnit.MILLISECONDS);
             } catch (ExecutionException e) {
