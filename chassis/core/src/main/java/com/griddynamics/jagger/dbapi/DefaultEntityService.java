@@ -33,7 +33,12 @@ public class DefaultEntityService extends HibernateDaoSupport implements EntityS
 
     @Override
     public SessionEntity getSession(String sessionId) {
-        return getSessions(Arrays.asList(sessionId)).iterator().next();
+        List<SessionEntity> sessions = getSessions(Arrays.asList(sessionId));
+        if (!sessions.isEmpty()){
+            return sessions.iterator().next();
+        }
+
+        return null;
     }
 
     @Override
@@ -98,7 +103,10 @@ public class DefaultEntityService extends HibernateDaoSupport implements EntityS
         Map<String, TestEntity> result = new HashMap<String, TestEntity>(tests.size());
 
         for (Map.Entry<String, List<TestEntity>> entry : tests.entrySet()){
-            result.put(entry.getKey(), entry.getValue().iterator().next());
+            List<TestEntity> testEntities = entry.getValue();
+            if (!testEntities.isEmpty()){
+                result.put(entry.getKey(), testEntities.iterator().next());
+            }
         }
 
         return result;
