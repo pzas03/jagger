@@ -344,14 +344,14 @@
             </xsd:documentation>
         </xsd:annotation>
         <xsd:complexContent>
-            <xsd:extension base="identifiedType">
+            <xsd:extension base="basicIdentifiedType">
                 <xsd:all>
-                    <xsd:element name="load" type="loadAbstract" maxOccurs="1"/>
-                    <xsd:element name="termination" type="terminationAbstract" maxOccurs="1"/>
-                    <xsd:element name="listeners-test" type="listeners-test" minOccurs="0" maxOccurs="1"/>
+                   <xsd:element name="load" type="loadAbstract" minOccurs="0" maxOccurs="1"/>
+                   <xsd:element name="termination" type="terminationAbstract" minOccurs="0" maxOccurs="1"/>
+                   <xsd:element name="listeners-test" type="listeners-test" minOccurs="0" maxOccurs="1"/>
                 </xsd:all>
                 <xsd:attribute name="startDelay" type="xsd:string" use="optional"/>
-                <xsd:attribute name="testDescription" type="xsd:string" use="required"/>
+                <xsd:attribute name="testDescription" type="xsd:string" use="optional"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
