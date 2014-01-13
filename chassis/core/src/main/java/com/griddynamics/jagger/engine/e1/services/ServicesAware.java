@@ -35,16 +35,16 @@ public abstract class ServicesAware implements ServicesInitializable {
     }
 
     @Override
-    public final void initServices(String sessionId, String taskId, NodeContext context, JaggerEnvironment environment){
-        if (environment.equals(JaggerEnvironment.TEST_LISTENER)){
+    public final void initServices(String sessionId, String taskId, NodeContext context, JaggerPlace environment){
+        if (environment.equals(JaggerPlace.TEST_LISTENER)){
             initTestServices(sessionId, taskId, context);
         }
 
-        if (environment.equals(JaggerEnvironment.TEST_GROUP_LISTENER)){
+        if (environment.equals(JaggerPlace.TEST_GROUP_LISTENER)){
             initTestGroupServices(sessionId, taskId, context);
         }
 
-        if (environment.equals(JaggerEnvironment.TEST_SUITE_LISTENER)){
+        if (environment.equals(JaggerPlace.TEST_SUITE_LISTENER)){
             initTestSuiteServices(sessionId, taskId, context);
         }
 
@@ -65,12 +65,12 @@ public abstract class ServicesAware implements ServicesInitializable {
     }
 
     private void initTestGroupServices(String sessionId, String taskId, NodeContext context){
-        metricService = new EmptyMetricService(JaggerEnvironment.TEST_GROUP_LISTENER);
+        metricService = new EmptyMetricService(JaggerPlace.TEST_GROUP_LISTENER);
         sessionInfoService = new DefaultSessionInfoService(context);
     }
 
     private void initTestSuiteServices(String sessionId, String taskId, NodeContext context){
-        metricService = new EmptyMetricService(JaggerEnvironment.TEST_SUITE_LISTENER);
+        metricService = new EmptyMetricService(JaggerPlace.TEST_SUITE_LISTENER);
         sessionInfoService = new DefaultSessionInfoService(context);
     }
 }

@@ -15,30 +15,30 @@ public class EmptyMetricService implements MetricService {
 
     private static Logger log = LoggerFactory.getLogger(EmptyMetricService.class);
 
-    private JaggerEnvironment jaggerEnvironment;
+    private JaggerPlace jaggerPlace;
 
-    public EmptyMetricService(JaggerEnvironment jaggerEnvironment) {
-        this.jaggerEnvironment = jaggerEnvironment;
+    public EmptyMetricService(JaggerPlace jaggerPlace) {
+        this.jaggerPlace = jaggerPlace;
     }
 
     @Override
     public void createMetric(MetricDescription metricDescription) {
-        log.warn("Can't create metric with id {}. MetricService is not supported in {}", metricDescription.getMetricId(), jaggerEnvironment);
+        log.warn("Can't create metric with id {}. MetricService is not supported in {}", metricDescription.getMetricId(), jaggerPlace);
     }
 
     @Override
     public void saveValue(String metricId, Number value) {
-        log.warn("Can't save metric value with id {}. MetricService is not supported in {}", metricId, jaggerEnvironment);
+        log.warn("Can't save metric value with id {}. MetricService is not supported in {}", metricId, jaggerPlace);
     }
 
     @Override
     public void saveValue(String metricId, Number value, long timeStamp) {
-        log.warn("Can't save metric value with id {}. MetricService is not supported in {}", metricId, jaggerEnvironment);
+        log.warn("Can't save metric value with id {}. MetricService is not supported in {}", metricId, jaggerPlace);
     }
 
     @Override
     public void flush() {
-        log.warn("Can't to do flush. MetricService is not supported in {}", jaggerEnvironment);
+        log.warn("Can't to do flush. MetricService is not supported in {}", jaggerPlace);
     }
 
     @Override

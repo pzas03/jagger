@@ -1,7 +1,7 @@
 package com.griddynamics.jagger.engine.e1;
 
 import com.griddynamics.jagger.coordinator.NodeContext;
-import com.griddynamics.jagger.engine.e1.services.JaggerEnvironment;
+import com.griddynamics.jagger.engine.e1.services.JaggerPlace;
 import com.griddynamics.jagger.engine.e1.services.ServicesInitializable;
 
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public class ProviderUtil {
-    public static <T>List provideElements(List<Provider<T>> providers, String sessionId, String taskId, NodeContext context, JaggerEnvironment environment){
+    public static <T>List provideElements(List<Provider<T>> providers, String sessionId, String taskId, NodeContext context, JaggerPlace environment){
         List<T> result = new ArrayList<T>(providers.size());
 
         for (Provider<T> provider : providers){

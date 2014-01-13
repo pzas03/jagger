@@ -10,5 +10,5 @@ import com.griddynamics.jagger.coordinator.NodeContext;
  * To change this template use File | Settings | File Templates.
  */
 public interface ServicesInitializable {
-    void initServices(String sessionId, String taskId, NodeContext context, JaggerEnvironment environment);
+    void initServices(String sessionId, String taskId, NodeContext context, JaggerPlace environment);
 }
