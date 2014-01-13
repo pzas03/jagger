@@ -5,12 +5,12 @@ import com.griddynamics.jagger.engine.e1.aggregator.workload.DurationLogProcesso
 import com.griddynamics.jagger.engine.e1.collector.ConsistencyValidatorProvider;
 import com.griddynamics.jagger.engine.e1.collector.Validator;
 import com.griddynamics.jagger.engine.e1.collector.ValidatorProvider;
-import com.griddynamics.jagger.engine.e1.scenario.KernelSideObjectProvider;
-import com.griddynamics.jagger.engine.e1.scenario.ReflectionProvider;
+import com.griddynamics.jagger.engine.e1.scenario.*;
 import com.griddynamics.jagger.invoker.QueryPoolScenarioFactory;
 import com.griddynamics.jagger.master.DistributionListener;
 import com.griddynamics.jagger.master.configuration.Configuration;
 import com.griddynamics.jagger.reporting.ReportingService;
+import com.griddynamics.jagger.user.TestConfiguration;
 import com.griddynamics.jagger.user.TestDescription;
 import com.griddynamics.jagger.xml.beanParsers.XMLConstants;
 import junit.framework.Assert;
@@ -22,6 +22,7 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created with IntelliJ IDEA.
@@ -104,6 +105,38 @@ public class JaggerInheritanceTest {
 
         Assert.assertEquals(getSize(endpoints), 3);
         Assert.assertEquals(getSize(queries), 2);
+    }
+
+    @Test
+    public void testTestInheritance(){
+        TestConfiguration test1 = (TestConfiguration)ctx.getBean("testChild1");
+        IterationsOrDurationStrategyConfiguration termination;
+        TpsClockConfiguration tps;
+        TestDescription testDescription;
+
+        termination = (IterationsOrDurationStrategyConfiguration)test1.getTerminateStrategyConfiguration();
+        Assert.assertEquals(termination.getIterations(), 255);
+        Assert.assertEquals(termination.getDuration(), "1h");
+
+        tps = (TpsClockConfiguration)test1.getClockConfiguration();
+        Assert.assertEquals(tps.getTps(), 50d);
+
+        testDescription = test1.getTestDescription();
+        Assert.assertEquals(testDescription.getDescription(),"testIntDescrParent");
+
+
+        TestConfiguration test2 = (TestConfiguration)ctx.getBean("testChild2");
+
+        termination = (IterationsOrDurationStrategyConfiguration)test2.getTerminateStrategyConfiguration();
+        Assert.assertEquals(termination.getIterations(), 25);
+        Assert.assertEquals(termination.getDuration(), "2h");
+
+        tps = (TpsClockConfiguration)test2.getClockConfiguration();
+        Assert.assertEquals(tps.getTps(), 20d);
+
+        testDescription = test1.getTestDescription();
+        Assert.assertEquals(testDescription.getDescription(),"testIntDescrParent");
+
     }
 
     private int getSize(Iterable iterable){
