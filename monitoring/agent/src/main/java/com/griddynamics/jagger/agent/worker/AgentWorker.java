@@ -20,7 +20,6 @@
 
 package com.griddynamics.jagger.agent.worker;
 
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.griddynamics.jagger.agent.Agent;
 import com.griddynamics.jagger.agent.AgentStarter;
@@ -38,17 +37,14 @@ import org.springframework.beans.factory.annotation.Required;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class AgentWorker extends ConfigurableWorker {
     private static final Logger log = LoggerFactory.getLogger(AgentWorker.class);
 
     private MonitoringInfoService monitoringInfoService;
-    private GeneralInfoCollector generalInfoCollector = new GeneralInfoCollector();
+    private GeneralInfoCollector generalInfoCollector;
     private Profiler profiler;
     private final Agent agent;
     private Boolean profilerEnabled;
@@ -231,5 +227,9 @@ public class AgentWorker extends ConfigurableWorker {
     @Required
     public void setProfiler(Profiler profiler) {
         this.profiler = profiler;
+    }
+
+    public void setGeneralInfoCollector(GeneralInfoCollector generalInfoCollector) {
+        this.generalInfoCollector = generalInfoCollector;
     }
 }

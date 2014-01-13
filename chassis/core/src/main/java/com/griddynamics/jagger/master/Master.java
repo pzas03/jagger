@@ -29,7 +29,7 @@ import com.griddynamics.jagger.engine.e1.ProviderUtil;
 import com.griddynamics.jagger.engine.e1.collector.testsuite.TestSuiteInfo;
 import com.griddynamics.jagger.engine.e1.collector.testsuite.TestSuiteListener;
 import com.griddynamics.jagger.engine.e1.process.Services;
-import com.griddynamics.jagger.engine.e1.services.JaggerEnvironment;
+import com.griddynamics.jagger.engine.e1.services.JaggerPlace;
 import com.griddynamics.jagger.engine.e1.services.SessionCommentStorage;
 import com.griddynamics.jagger.master.configuration.*;
 import com.griddynamics.jagger.monitoring.reporting.DynamicPlotGroups;
@@ -200,7 +200,7 @@ public class Master implements Runnable {
                                                                                                                     sessionId,
                                                                                                                     "session",
                                                                                                                     context,
-                                                                                                                    JaggerEnvironment.TEST_SUITE));
+                                                                                                                    JaggerPlace.TEST_SUITE_LISTENER));
 
             TestSuiteInfo testSuiteInfo = new TestSuiteInfo(sessionId,generalNodeInfo);
             long startTime = System.currentTimeMillis();

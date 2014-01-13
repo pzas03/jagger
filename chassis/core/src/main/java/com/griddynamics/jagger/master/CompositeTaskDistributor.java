@@ -33,7 +33,7 @@ import com.griddynamics.jagger.coordinator.NodeType;
 import com.griddynamics.jagger.engine.e1.ProviderUtil;
 import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupInfo;
 import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupListener;
-import com.griddynamics.jagger.engine.e1.services.JaggerEnvironment;
+import com.griddynamics.jagger.engine.e1.services.JaggerPlace;
 import com.griddynamics.jagger.util.Futures;
 import com.griddynamics.jagger.util.TimeUtils;
 import com.griddynamics.jagger.util.TimeoutsConfiguration;
@@ -98,7 +98,7 @@ public class CompositeTaskDistributor implements TaskDistributor<CompositeTask> 
                                                                                                                                 sessionId,
                                                                                                                                 taskId,
                                                                                                                                 nodeContext,
-                                                                                                                                JaggerEnvironment.TEST_GROUP));
+                                                                                                                                JaggerPlace.TEST_GROUP_LISTENER));
 
                 TestGroupInfo testGroupInfo = new TestGroupInfo(task, sessionId);
 

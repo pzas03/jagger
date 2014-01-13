@@ -20,6 +20,8 @@
 
 package com.griddynamics.jagger.agent.model;
 
+import java.util.Map;
+
 /**
  * User: vshulga
  * Date: 7/5/11
@@ -28,6 +30,8 @@ package com.griddynamics.jagger.agent.model;
 public interface MonitoringInfoService {
 
     SystemInfo getSystemInfo();
+
+    Map<String, Map<String, String>> getSystemProperties();
 
     void setContext(AgentContext context);
 
