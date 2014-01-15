@@ -55,6 +55,9 @@ public class ExactInvocationsClock implements WorkloadClock {
             }
             long difference = currentTime - startTime;
             if(difference >= period) {
+                if (status.getTotalSamples() < samplesSubmitted) {
+                    log.warn("Can not create such load with {} invocations with {} ms period", samplesCount, period);
+                }
                 startTime = startTime + period;
                 sendSamples(samplesCount, status, adjuster);
             }
