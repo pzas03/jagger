@@ -64,6 +64,7 @@ public interface Invoker<Q,R,E> extends Serializable {
 /// @li @ref Main_Collectors_General_group
 /// @li @ref Main_Providers_General_group
 /// @li @ref Main_Distributors_General_group
+/// @li @ref Main_Services_General_group
 ///
 /// @li @ref Main_Custom_Components_group
 
@@ -98,7 +99,7 @@ public interface Invoker<Q,R,E> extends Serializable {
 /// @li @ref Main_HowToCustomizeCollectors_group
 /// @li @ref Main_HowToCustomizeDecisionMakers_group
 
-/* **************** Invokerss page *************************  */
+/* **************** Invokers page *************************  */
 /// @defgroup Main_Invokers_General_group Invokers main page
 ///
 /// @details Invokers take query and try to create invocation to endpoint. @n
@@ -148,6 +149,8 @@ public interface Invoker<Q,R,E> extends Serializable {
 /// @details @ref Main_Distributors_General_group
 /// @defgroup Main_Collectors_Base_group Collector
 /// @details @ref Main_Collectors_General_group
+/// @defgroup Main_Services_Base_group Jagger service
+/// @details @ref Main_Services_General_group
 
 
 /* **************** Implementations ************************* */
@@ -158,6 +161,8 @@ public interface Invoker<Q,R,E> extends Serializable {
 /// @details @ref Main_Distributors_General_group
 /// @defgroup Main_Collectors_group Implementations of collectors
 /// @details @ref Main_Collectors_General_group
+/// @defgroup Main_Services_group Implementations of Jagger services
+/// @details @ref Main_Services_General_group
 /// @defgroup Main_Aggregators_group Implementations of aggregators
 /// @defgroup Main_DecisionMakers_group Implementations of decision makers
 /// @defgroup Main_Terminators_group Implementations of termination strategies
