@@ -36,8 +36,75 @@ public class JaggerLoadTest {
     }
 
     @Test
-    public void testNewTest(){
-        TestConfiguration testConfiguration = (TestConfiguration) context.getBean("test1");
+    public void testThreadsLoad(){
+        TestConfiguration testConfiguration = (TestConfiguration) context.getBean("test-threads");
+
+        InfiniteTerminationStrategyConfiguration termination = (InfiniteTerminationStrategyConfiguration)testConfiguration.getTerminateStrategyConfiguration();
+        Assert.assertNotNull(termination);
+
+        VirtualUsersClockConfiguration threads = (VirtualUsersClockConfiguration)testConfiguration.getClockConfiguration();
+        Assert.assertEquals(threads.getClock().getValue(), 10);
+    }
+
+    @Test
+    public void testUserGroupLoad(){
+        TestConfiguration testGroup = (TestConfiguration)context.getBean("test-user-group");
+
+        IterationsOrDurationStrategyConfiguration termination = (IterationsOrDurationStrategyConfiguration)testGroup.getTerminateStrategyConfiguration();
+        Assert.assertNotNull(termination);
+        Assert.assertEquals(termination.getDuration(), "10m");
+
+        UserGroupsClockConfiguration userGroup = (UserGroupsClockConfiguration)testGroup.getClockConfiguration();
+        Assert.assertEquals(userGroup.getUsers().size(), 1);
+
+        ProcessingConfig.Test.Task.User user = userGroup.getUsers().get(0);
+        Assert.assertEquals(user.getCount(), "10");
+        Assert.assertEquals(user.getStartBy(), "1");
+        Assert.assertEquals(user.getStartCount(), "2");
+        Assert.assertEquals(user.getStartIn(), "3");
+        Assert.assertEquals(user.getLife(), "2h");
+    }
+
+    @Test
+    public void testUserGroupsLoad(){
+        TestConfiguration testGroups = (TestConfiguration)context.getBean("test-user-groups");
+
+        IterationsOrDurationStrategyConfiguration termination = (IterationsOrDurationStrategyConfiguration)testGroups.getTerminateStrategyConfiguration();
+        Assert.assertNotNull(termination);
+        Assert.assertEquals(termination.getIterations(), 10000);
+
+        UserGroupsClockConfiguration userGroup = (UserGroupsClockConfiguration)testGroups.getClockConfiguration();
+        Assert.assertEquals(userGroup.getUsers().size(), 2);
+
+        ProcessingConfig.Test.Task.User user1 = userGroup.getUsers().get(0);
+        Assert.assertEquals(user1.getCount(), "10");
+        Assert.assertEquals(user1.getStartBy(), "7");
+        Assert.assertEquals(user1.getStartCount(), "5");
+        Assert.assertEquals(user1.getStartIn(), "6");
+        Assert.assertEquals(user1.getLife(), "1h");
+
+        ProcessingConfig.Test.Task.User user2 = userGroup.getUsers().get(1);
+        Assert.assertEquals(user2.getCount(), "20");
+        Assert.assertEquals(user2.getStartBy(), "14");
+        Assert.assertEquals(user2.getStartCount(), "10");
+        Assert.assertEquals(user2.getStartIn(), "12");
+        Assert.assertEquals(user2.getLife(), "2h");
+    }
+
+    @Test
+    public void testInvocationLoad(){
+        TestConfiguration testConfiguration = (TestConfiguration) context.getBean("test-invocation");
+
+        InfiniteTerminationStrategyConfiguration termination = (InfiniteTerminationStrategyConfiguration)testConfiguration.getTerminateStrategyConfiguration();
+        Assert.assertNotNull(termination);
+
+        ExactInvocationsClockConfiguration invocation = (ExactInvocationsClockConfiguration)testConfiguration.getClockConfiguration();
+        Assert.assertEquals(invocation.getSamplesCount(), 50);
+    }
+
+    @Test
+    public void testTpsLoad(){
+        TestConfiguration testConfiguration = (TestConfiguration) context.getBean("test-tps");
 
         IterationsOrDurationStrategyConfiguration termination = (IterationsOrDurationStrategyConfiguration)testConfiguration.getTerminateStrategyConfiguration();
         Assert.assertEquals(termination.getIterations(), 255);
@@ -45,21 +112,6 @@ public class JaggerLoadTest {
 
         TpsClockConfiguration tps = (TpsClockConfiguration)testConfiguration.getClockConfiguration();
         Assert.assertEquals(tps.getTps(), 100d);
-    }
-
-    @Test
-    public void testRpsLoad(){
-        TestConfiguration testConfiguration = (TestConfiguration) context.getBean("test-rps");
-
-        IterationsOrDurationStrategyConfiguration termination = (IterationsOrDurationStrategyConfiguration)testConfiguration.getTerminateStrategyConfiguration();
-        Assert.assertEquals(255, termination.getIterations());
-        Assert.assertEquals("2h", termination.getDuration());
-
-        Assert.assertEquals(0, testConfiguration.generate(new AtomicBoolean(false)).getStartDelay());
-
-        RpsClockConfiguration tps = (RpsClockConfiguration) testConfiguration.getClockConfiguration();
-        Assert.assertEquals(100d, tps.getTps());
-        Assert.assertEquals(RpsClock.class, tps.getClock().getClass());
     }
 
     @Test
@@ -77,21 +129,17 @@ public class JaggerLoadTest {
     }
 
     @Test
-    public void testNewTestGroup(){
-        TestGroupConfiguration testGroup = (TestGroupConfiguration)context.getBean("gr1");
+    public void testRpsLoad(){
+        TestConfiguration testConfiguration = (TestConfiguration) context.getBean("test-rps");
 
-        List<TestConfiguration> tests = testGroup.getTests();
-        Assert.assertEquals(tests.size(), 1);
+        IterationsOrDurationStrategyConfiguration termination = (IterationsOrDurationStrategyConfiguration)testConfiguration.getTerminateStrategyConfiguration();
+        Assert.assertEquals(255, termination.getIterations());
+        Assert.assertEquals("2h", termination.getDuration());
 
-        TestConfiguration test = tests.get(0);
-        InfiniteTerminationStrategyConfiguration termination = (InfiniteTerminationStrategyConfiguration)test.getTerminateStrategyConfiguration();
-        Assert.assertEquals(10, test.getStartDelay());
-        Assert.assertNotNull(termination);
+        Assert.assertEquals(0, testConfiguration.generate(new AtomicBoolean(false)).getStartDelay());
 
-        UserGroupsClockConfiguration userGroup = (UserGroupsClockConfiguration)test.getClockConfiguration();
-        Assert.assertEquals(userGroup.getUsers().size(), 1);
-
-        ProcessingConfig.Test.Task.User user = userGroup.getUsers().get(0);
-        Assert.assertEquals(user.getCount(), "5");
+        RpsClockConfiguration tps = (RpsClockConfiguration) testConfiguration.getClockConfiguration();
+        Assert.assertEquals(100d, tps.getTps());
+        Assert.assertEquals(RpsClock.class, tps.getClock().getClass());
     }
 }

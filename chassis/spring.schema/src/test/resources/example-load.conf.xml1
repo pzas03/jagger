@@ -28,7 +28,30 @@
         http://www.springframework.org/schema/beans/spring-beans.xsd"
         >
 
-    <jgr:test id="test1" testDescription="descr">
+    <jgr:test id="test-threads" testDescription="descr">
+        <jgr:load xsi:type="jgr:load-threads" count="10" delay="1000"/>
+        <jgr:termination xsi:type="jgr:termination-background"/>
+    </jgr:test>
+
+    <jgr:test id="test-user-group" testDescription="descr">
+        <jgr:load xsi:type="jgr:load-user-group" count="10" startBy="1" startCount="2" startIn="3" life="2h"/>
+        <jgr:termination xsi:type="jgr:termination-duration" duration="10m"/>
+    </jgr:test>
+
+    <jgr:test id="test-user-groups" testDescription="descr">
+        <jgr:load xsi:type="jgr:load-user-groups">
+            <jgr:user count="10" startCount="5" startIn="6" startBy="7" life="1h"/>
+            <jgr:user count="20" startCount="10" startIn="12" startBy="14" life="2h"/>
+        </jgr:load>
+        <jgr:termination xsi:type="jgr:termination-iterations" iterations="10000"/>
+    </jgr:test>
+
+    <jgr:test id="test-invocation" testDescription="descr">
+        <jgr:load xsi:type="jgr:load-invocation" exactcount="50" threads="5" tickInterval="1000"/>
+        <jgr:termination xsi:type="jgr:termination-background"/>
+    </jgr:test>
+
+    <jgr:test id="test-tps" testDescription="descr">
         <jgr:load xsi:type="jgr:load-tps" value="100"/>
         <jgr:termination xsi:type="jgr:termination-iterations" iterations="255" maxDuration="2h"/>
     </jgr:test>
@@ -44,12 +67,4 @@
     </jgr:test>
 
     <jgr:test-description id="descr" calibration="false"/>
-
-    <jgr:test-group id="gr1">
-         <jgr:test id="innerTest1" testDescription="descr" startDelay="10">
-             <jgr:load xsi:type="jgr:load-user-group" count="5" startCount="5" startBy="0" startIn="0" life="2h"/>
-             <jgr:termination xsi:type="jgr:termination-background"/>
-         </jgr:test>
-    </jgr:test-group>
-
 </beans>
