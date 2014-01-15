@@ -325,6 +325,7 @@
                 </xsd:all>
                 <xsd:attribute name="startDelay" type="xsd:string" use="optional"/>
                 <xsd:attribute name="testDescription" type="xsd:string" use="optional"/>
+                <xsd:attribute name="parent" type="xsd:string" use="optional"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
