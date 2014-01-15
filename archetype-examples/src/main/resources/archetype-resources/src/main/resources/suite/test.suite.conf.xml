@@ -87,6 +87,7 @@
 
 
             <test-group id="myFirstSearchTest">
+                <!-- begin: following section is used for docu generation - test listener usage -->
                <test id="jaggerPage" testDescription="jaggerPageTest">
                    <load xsi:type="load-tps" value="100" maxThreadNumber="1000"/>
                    <termination xsi:type="termination-iterations" iterations="1000" maxDuration="2m"/>
@@ -99,6 +100,7 @@
                        <listener-test xsi:type="listener-test-ref" ref="listenerTest"/>
                    </listeners-test>
                </test>
+               <!-- end: following section is used for docu generation - test listener usage -->
 
                <test id="googlePage" testDescription="googlePageTest">
                    <load xsi:type="load-threads" count="1"/>
@@ -106,10 +108,12 @@
                </test>
             </test-group>
 
+            <!-- begin: following section is used for docu generation - test suite listener usage -->
             <!-- Custom test suite listener will be executed on test suite start and stop -->
             <listeners-test-suite>
                 <listener-test-suite xsi:type="listener-test-suite-ref" ref="listenerTestSuite"/>
             </listeners-test-suite>
+            <!-- end: following section is used for docu generation - test suite listener usage -->
 
         </test-suite>
 

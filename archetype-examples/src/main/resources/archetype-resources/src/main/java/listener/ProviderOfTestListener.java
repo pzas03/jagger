@@ -22,6 +22,7 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/* begin: following section is used for docu generation - custom test listener */
 public class ProviderOfTestListener extends ServicesAware implements Provider<TestListener> {
 
     private static final Logger log = LoggerFactory.getLogger(ProviderOfTestListener.class);
@@ -103,4 +104,4 @@ public class ProviderOfTestListener extends ServicesAware implements Provider<Te
         };
     }
 }
-
+/* end: following section is used for docu generation - custom test listener */

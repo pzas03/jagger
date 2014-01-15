@@ -27,10 +27,11 @@ public interface JaggerService {
 ///
 /// @li General information about interfaces: @ref Main_Services_Base_group
 /// @li Available implementations: @ref Main_Services_group
-/// @li How to use: ???
+/// @li Where services can be used: @ref Main_ListenersAndServices_group
 /// @n
 /// @n
 /// @details
 /// @par General info
-/// Main goal of Jagger services - give user easy access to Jagger internal components from custom code (f.e. from listeners ??? ) @n
+/// Main goal of Jagger services - give user easy access to Jagger internal components from custom code @n
+/// You can find example of services usage in custom listeners under link: @ref Main_CustomListenersExamples_group
 ///

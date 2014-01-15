@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.io.FileReader;
 import java.util.Map;
 
+/* begin: following section is used for docu generation - custom test suite listener */
 public class ProviderOfTestSuiteListener extends ServicesAware implements Provider<TestSuiteListener> {
 
     private static final Logger log = LoggerFactory.getLogger(ProviderOfTestSuiteListener.class);
@@ -74,4 +75,4 @@ public class ProviderOfTestSuiteListener extends ServicesAware implements Provid
 
     }
 }
-
+/* end: following section is used for docu generation - custom test suite listener */
