@@ -47,13 +47,34 @@ public class JaggerLoadTest {
     }
 
     @Test
+    public void testInvocationTask(){
+        TestConfiguration testConfiguration = (TestConfiguration) context.getBean("test-invocation-1");
+        Assert.assertNotNull(testConfiguration.getTerminateStrategyConfiguration());
+        ExactInvocationsClockConfiguration invClock = (ExactInvocationsClockConfiguration)testConfiguration.getClockConfiguration();
+        Assert.assertEquals(invClock.getTickInterval(), 1000);
+        Assert.assertEquals(invClock.getSamplesCount(), 100);
+        Assert.assertEquals(invClock.getThreadCount(), 1);
+        Assert.assertEquals(invClock.getDelay(), 100);
+        Assert.assertEquals("15m", invClock.getPeriod());
+
+        testConfiguration = (TestConfiguration) context.getBean("test-invocation-2");
+        Assert.assertNotNull(testConfiguration.getTerminateStrategyConfiguration());
+        invClock = (ExactInvocationsClockConfiguration)testConfiguration.getClockConfiguration();
+        Assert.assertEquals(invClock.getTickInterval(), 500);
+        Assert.assertEquals(invClock.getSamplesCount(), 50);
+        Assert.assertEquals(invClock.getThreadCount(), 2);
+        Assert.assertEquals(invClock.getDelay(), 0);
+        Assert.assertEquals("-1" , invClock.getPeriod());
+
+    }
+
+    @Test
     public void testUserGroupLoad(){
         TestConfiguration testGroup = (TestConfiguration)context.getBean("test-user-group");
 
         IterationsOrDurationStrategyConfiguration termination = (IterationsOrDurationStrategyConfiguration)testGroup.getTerminateStrategyConfiguration();
         Assert.assertNotNull(termination);
-        Assert.assertEquals(termination.getDuration(), "10m");
-
+        Assert.assertEquals(termination.getDuration(), "10m");   
         UserGroupsClockConfiguration userGroup = (UserGroupsClockConfiguration)testGroup.getClockConfiguration();
         Assert.assertEquals(userGroup.getUsers().size(), 1);
 
@@ -89,17 +110,6 @@ public class JaggerLoadTest {
         Assert.assertEquals(user2.getStartCount(), "10");
         Assert.assertEquals(user2.getStartIn(), "12");
         Assert.assertEquals(user2.getLife(), "2h");
-    }
-
-    @Test
-    public void testInvocationLoad(){
-        TestConfiguration testConfiguration = (TestConfiguration) context.getBean("test-invocation");
-
-        InfiniteTerminationStrategyConfiguration termination = (InfiniteTerminationStrategyConfiguration)testConfiguration.getTerminateStrategyConfiguration();
-        Assert.assertNotNull(termination);
-
-        ExactInvocationsClockConfiguration invocation = (ExactInvocationsClockConfiguration)testConfiguration.getClockConfiguration();
-        Assert.assertEquals(invocation.getSamplesCount(), 50);
     }
 
     @Test

@@ -46,10 +46,15 @@
         <jgr:termination xsi:type="jgr:termination-iterations" iterations="10000"/>
     </jgr:test>
 
-    <jgr:test id="test-invocation" testDescription="descr">
-        <jgr:load xsi:type="jgr:load-invocation" exactcount="50" threads="5" tickInterval="1000"/>
+   <jgr:test id="test-invocation-1" testDescription="descr">
+        <jgr:load xsi:type="jgr:load-invocation" exactcount="100" threads="1" tickInterval="1000" delay="100" period="15m"/>
         <jgr:termination xsi:type="jgr:termination-background"/>
     </jgr:test>
+
+     <jgr:test id="test-invocation-2" testDescription="descr">
+         <jgr:load xsi:type="jgr:load-invocation" exactcount="50" threads="2" tickInterval="500"/>
+         <jgr:termination xsi:type="jgr:termination-background"/>
+     </jgr:test>
 
     <jgr:test id="test-tps" testDescription="descr">
         <jgr:load xsi:type="jgr:load-tps" value="100"/>

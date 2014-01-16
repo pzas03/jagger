@@ -572,8 +572,10 @@
 
     <xsd:complexType name="load-invocation">
         <xsd:annotation><xsd:documentation>
-            This type of load provides an exact number of invocations.
-            Attribute exactcount says - how much invocations jagger have to execute, attribute threads - how much threads jagger can use. delay is a time(milliseconds) between invocations. By default it equals 0.
+                This type of load provides an exact number of invocations.
+                Attribute exactcount says - how much invocations jagger have to execute, attribute threads - how much threads jagger can use. delay is a time(milliseconds) between invocations. By default it equals 0.
+                Attribute period says - with what period jagger have to create load (exactcount samples with threads and determined delay), if not set then jagger creates load once.
+                If ( ((exactcount/threads) * delay) + invocation time > period ) then jagger just wont be able to create such load in period. Actual period will be ~ (exactcount / threads) * delay + invocation time.
         </xsd:documentation></xsd:annotation>
         <xsd:complexContent>
             <xsd:extension base="loadAbstract">
@@ -635,9 +637,27 @@
     </xsd:attributeGroup>
 
     <xsd:attributeGroup name="invocationAttributes">
-        <xsd:attribute name="exactcount" type="xsd:string" use="required"></xsd:attribute>
-        <xsd:attribute name="threads" type="xsd:string" use="required"></xsd:attribute>
-        <xsd:attribute name="delay" type="xsd:string" default="0"></xsd:attribute>
+        <xsd:attribute name="exactcount" type="xsd:string" use="required">
+            <xsd:annotation><xsd:documentation>
+                Says - how much invocations jagger have to execute.
+            </xsd:documentation></xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="threads" type="xsd:string" use="required">
+            <xsd:annotation><xsd:documentation>
+                Says how much threads jagger will use.
+            </xsd:documentation></xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="delay" type="xsd:string" default="0">
+            <xsd:annotation><xsd:documentation>
+                Is a time(milliseconds) between invocations. By default it equals 0.
+            </xsd:documentation></xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="period" type="xsd:string" use="optional">
+            <xsd:annotation><xsd:documentation>
+                Says with what period jagger have to create load (exactcount samples with threads and determined delay), if not set then jagger creates load once.
+                If ( ((exactcount/threads) * delay) + invocation time > period ) then jagger just wont be able to create such load in period. Actual period will be ~ (exactcount / threads) * delay + invocation time.
+            </xsd:documentation></xsd:annotation>
+        </xsd:attribute>
     </xsd:attributeGroup>
 
     <xsd:attributeGroup name="tpsAttributes">
