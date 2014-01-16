@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.TreeMap;
 
 public class DiagnosticReporter extends AbstractMappedReportProvider<String> {
     private static final Logger log = LoggerFactory.getLogger(DiagnosticReporter.class);
@@ -69,11 +70,11 @@ public class DiagnosticReporter extends AbstractMappedReportProvider<String> {
         }
 
 
-        List<DiagnosticResult> result = Lists.newLinkedList();
+        TreeMap<String,DiagnosticResult> result = new TreeMap<String, DiagnosticResult>();
         for (DiagnosticResultEntity entity : diagnosticResults) {
-            result.add(convert(entity));
+            result.put(entity.getName(), convert(entity));
         }
-        return new JRBeanCollectionDataSource(result);
+        return new JRBeanCollectionDataSource(result.values());
     }
 
     private DiagnosticResult convert(DiagnosticResultEntity entity) {
