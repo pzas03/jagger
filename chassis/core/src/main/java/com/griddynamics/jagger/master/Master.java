@@ -24,11 +24,12 @@ import com.google.common.collect.*;
 import com.google.common.util.concurrent.Service;
 import com.griddynamics.jagger.agent.model.ManageAgent;
 import com.griddynamics.jagger.coordinator.*;
+import com.griddynamics.jagger.engine.e1.aggregator.session.GeneralNodeInfoAggregator;
 import com.griddynamics.jagger.engine.e1.ProviderUtil;
 import com.griddynamics.jagger.engine.e1.collector.testsuite.TestSuiteInfo;
 import com.griddynamics.jagger.engine.e1.collector.testsuite.TestSuiteListener;
 import com.griddynamics.jagger.engine.e1.process.Services;
-import com.griddynamics.jagger.engine.e1.services.JaggerEnvironment;
+import com.griddynamics.jagger.engine.e1.services.JaggerPlace;
 import com.griddynamics.jagger.engine.e1.services.SessionCommentStorage;
 import com.griddynamics.jagger.master.configuration.*;
 import com.griddynamics.jagger.monitoring.reporting.DynamicPlotGroups;
@@ -37,6 +38,7 @@ import com.griddynamics.jagger.storage.KeyValueStorage;
 import com.griddynamics.jagger.storage.fs.logging.LogReader;
 import com.griddynamics.jagger.storage.fs.logging.LogWriter;
 import com.griddynamics.jagger.util.Futures;
+import com.griddynamics.jagger.util.GeneralNodeInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -73,6 +75,7 @@ public class Master implements Runnable {
     private DynamicPlotGroups dynamicPlotGroups;
     private LogWriter logWriter;
     private LogReader logReader;
+    private GeneralNodeInfoAggregator generalNodeInfoAggregator;
 
 
     @Required
@@ -120,6 +123,8 @@ public class Master implements Runnable {
     public void setLogReader(LogReader logReader) {
         this.logReader = logReader;
     }
+
+    public void setGeneralNodeInfoAggregator(GeneralNodeInfoAggregator generalNodeInfoAggregator) { this.generalNodeInfoAggregator = generalNodeInfoAggregator; }
 
     @Override
     public void run() {
@@ -173,7 +178,8 @@ public class Master implements Runnable {
 		    processAgentManagement(sessionId, agentStartManagementProps);
 		}
 
-        
+        // collect information about environment on kernel and agent nodes
+        Map<NodeId,GeneralNodeInfo> generalNodeInfo = generalNodeInfoAggregator.getGeneralNodeInfo(sessionId, coordinator);
 
         for (SessionExecutionListener listener : configuration.getSessionExecutionListeners()) {
             listener.onSessionStarted(sessionId, allNodes);
@@ -194,9 +200,9 @@ public class Master implements Runnable {
                                                                                                                     sessionId,
                                                                                                                     "session",
                                                                                                                     context,
-                                                                                                                    JaggerEnvironment.TEST_SUITE));
+                                                                                                                    JaggerPlace.TEST_SUITE_LISTENER));
 
-            TestSuiteInfo testSuiteInfo = new TestSuiteInfo(sessionId);
+            TestSuiteInfo testSuiteInfo = new TestSuiteInfo(sessionId,generalNodeInfo);
             long startTime = System.currentTimeMillis();
 
             testSuiteListener.onStart(testSuiteInfo);

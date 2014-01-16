@@ -17,6 +17,16 @@ public class TestDetailsNode extends AbstractIdentifyNode {
 
     private List<PlotNode> plots;
 
+    private List<MonitoringPlotNode> monitoringPlots;
+
+    public List<MonitoringPlotNode> getMonitoringPlots() {
+        return monitoringPlots;
+    }
+
+    public void setMonitoringPlots(List<MonitoringPlotNode> monitoringPlots) {
+        this.monitoringPlots = monitoringPlots;
+    }
+
     public TaskDataDto getTaskDataDto() {
         return taskDataDto;
     }
@@ -41,7 +51,8 @@ public class TestDetailsNode extends AbstractIdentifyNode {
     @Override
     public List<? extends AbstractIdentifyNode> getChildren() {
         ArrayList<AbstractIdentifyNode> result = new ArrayList<AbstractIdentifyNode>();
-        result.addAll(plots);
+        if (plots != null) result.addAll(plots);
+        if (monitoringPlots != null) result.addAll(monitoringPlots);
         return result;
     }
 }

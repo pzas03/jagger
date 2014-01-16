@@ -38,6 +38,11 @@ public class JMXSystemUnderTestStub implements SystemUnderTestService {
     }
 
     @Override
+    public Map<String, Map<String, String>> getSystemProperties() {
+        return null;
+    }
+
+    @Override
     public void setContext(AgentContext context) {
         //nothing to do...
     }

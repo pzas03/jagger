@@ -18,37 +18,35 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.griddynamics.jagger.engine.e1.collector;
+package com.griddynamics.jagger.agent.model;
 
-import com.google.common.collect.ImmutableList;
-import com.griddynamics.jagger.coordinator.NodeContext;
+import com.griddynamics.jagger.coordinator.Command;
+import com.griddynamics.jagger.util.GeneralNodeInfo;
 
-import java.util.List;
+/** Command to start information collection about environment on particular node
+ * @author Dmitry Latnikov
+ * @n
+ * @par Details:
+ * @details
+ */
+public class GetGeneralNodeInfo implements Command<GeneralNodeInfo> {
 
-//@todo remove
-public class CompositeValidator extends ResponseValidator<Object, Object, Object> {
-    private final List<ResponseValidator> validators;
+    private String sessionId;
 
-    public CompositeValidator(String taskId, NodeContext kernelContext, String sessionId, List<ResponseValidator> validators) {
-        super(taskId, sessionId, kernelContext);
-        this.validators = ImmutableList.copyOf(validators);
+    public GetGeneralNodeInfo(String sessionId) {
+        this.sessionId = sessionId;
     }
 
+    public GetGeneralNodeInfo() {
+    }
 
     @Override
-    public String getName() {
-        return "Composite validator";
+    public String getSessionId() {
+        return sessionId;
     }
 
-    @Override
-    public boolean validate(Object query, Object endpoint, Object result, long duration) {
-        for (ResponseValidator validator : validators) {
-            if (!validator.validate(query, endpoint, result, duration)) {
-                return false;
-            }
-
-        }
-
-        return true;
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
     }
+
 }

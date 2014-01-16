@@ -1,7 +1,7 @@
 package com.griddynamics.jagger.webclient.client.handler;
 
 import com.griddynamics.jagger.webclient.client.components.control.model.SessionPlotNode;
-import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
+import com.griddynamics.jagger.webclient.client.dto.SessionPlotNameDto;
 import com.sencha.gxt.widget.core.client.event.CheckChangeEvent;
 import com.sencha.gxt.widget.core.client.tree.Tree;
 
@@ -13,7 +13,7 @@ import com.sencha.gxt.widget.core.client.tree.Tree;
 public class SessionPlotNodeHandler extends TreeAwareHandler<SessionPlotNode> {
     @Override
     public void onCheckChange(CheckChangeEvent<SessionPlotNode> event) {
-        PlotNameDto plotName = event.getItem().getPlotNameDto();
+        SessionPlotNameDto plotName = event.getItem().getPlotNameDto();
         if (Tree.CheckState.CHECKED.equals(event.getChecked())) {
             sessionScopePlotFetcher.fetchPlot(plotName, true);
         } else {

@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Required;
 
 import java.util.*;
 
+import static com.griddynamics.jagger.webclient.client.mvp.NameTokens.*;
+
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
  * @since 5/30/12
@@ -89,8 +91,8 @@ public class PlotProviderServiceImpl implements PlotProviderService {
     }
 
     @Override
-    public Map<PlotNameDto,List<PlotSeriesDto>> getPlotDatas(Set<PlotNameDto> plots) throws IllegalArgumentException{
-        Map<PlotNameDto,List<PlotSeriesDto>> result = new HashMap<PlotNameDto, List<PlotSeriesDto>>(plots.size());
+    public Map<PlotNameDto, List<PlotSeriesDto>> getPlotDatas(Set<PlotNameDto> plots) throws IllegalArgumentException{
+        Map<PlotNameDto,List<PlotSeriesDto>> result = new LinkedHashMap<PlotNameDto, List<PlotSeriesDto>>(plots.size());
         for (PlotNameDto plot : plots){
             result.put(plot, getPlotData(plot.getTaskIds(), plot.getPlotName()));
         }
@@ -99,15 +101,15 @@ public class PlotProviderServiceImpl implements PlotProviderService {
 
 
     @Override
-    public Map<String,List<PlotSeriesDto>> getSessionScopePlotData(String sessionId, Collection<PlotNameDto> plotNames) {
+    public Map<SessionPlotNameDto, List<PlotSeriesDto>> getSessionScopePlotData(String sessionId, Collection<SessionPlotNameDto> plotNames) {
         long timestamp = System.currentTimeMillis();
-        Map<String, List<PlotSeriesDto>> resultMap = new HashMap<String, List<PlotSeriesDto>>();
+        Map<SessionPlotNameDto, List<PlotSeriesDto>> resultMap = new HashMap<SessionPlotNameDto, List<PlotSeriesDto>>();
 
-        for(PlotNameDto plotName : plotNames) {
+        for(SessionPlotNameDto plotName : plotNames) {
             log.debug("getPlotData was invoked with sessionId={} and plotName={}", sessionId, plotName);
             List<PlotSeriesDto> plotSeriesDtoList;
 
-            SessionScopePlotDataProvider plotDataProvider = (SessionScopePlotDataProvider) monitoringPlotDataProviders.get(plotName.getPlotName());
+            SessionScopePlotDataProvider plotDataProvider = (SessionScopePlotDataProvider) findPlotDataProvider(plotName.getPlotName());
             if (plotDataProvider == null) {
                 log.warn("getPlotData was invoked with unsupported plotName={}", plotName);
                 throw new UnsupportedOperationException("Plot type " + plotName + " doesn't supported");
@@ -126,10 +128,11 @@ public class PlotProviderServiceImpl implements PlotProviderService {
                 }
                 log.info("getSessionScopePlotData() after compressing: {}", getFormattedLogMessage(plotSeriesDtoList, sessionId, plotName.getPlotName(), System.currentTimeMillis() - timestamp));
             } catch (Exception e) {
+                System.err.println(e);
                 log.error("Error is occurred during plot data loading for sessionId=" + sessionId + ", plotName=" + plotName, e);
                 throw new RuntimeException(e);
             }
-            resultMap.put(plotName.getPlotName(), plotSeriesDtoList);
+            resultMap.put(plotName, plotSeriesDtoList);
         }
 
         return resultMap;
@@ -170,7 +173,11 @@ public class PlotProviderServiceImpl implements PlotProviderService {
     private PlotDataProvider findPlotDataProvider(String plotName) {
         PlotDataProvider plotDataProvider = workloadPlotDataProviders.get(plotName);
         if (plotDataProvider == null) {
-            plotDataProvider = monitoringPlotDataProviders.get(plotName);
+            // any ideas ?
+            if (plotName.contains(AGENT_NAME_SEPARATOR)) {
+                String temp = plotName.substring(0, plotName.indexOf(AGENT_NAME_SEPARATOR));
+                plotDataProvider = monitoringPlotDataProviders.get(temp);
+            }
         }
         if (plotDataProvider == null) {
             if (customMetricPlotDataProvider.isAvailable(plotName)){

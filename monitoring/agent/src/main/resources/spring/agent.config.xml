@@ -56,11 +56,13 @@
     <bean id="agentWorker" class="com.griddynamics.jagger.agent.worker.AgentWorker">
         <constructor-arg ref="agent"/>
         <property name="monitoringInfoService" ref="monitoringService"/>
+        <property name="profilerEnabled" value="${profiler.enabled}"/>
         <property name="profiler">
             <bean class="com.griddynamics.jagger.agent.Profiler">
                 <property name="samplingProfiler" ref="samplingProfiler"/>
             </bean>
         </property>
+        <property name="generalInfoCollector" ref="generalInfoCollector"/>
     </bean>
 
     <bean id="sigarAgent" class="com.griddynamics.jagger.agent.impl.SigarSystemInfoCollector">
@@ -144,6 +146,10 @@
 
     <bean id="agentConfig" class="com.griddynamics.jagger.agent.AgentConfig">
         <property name="name" value="${agent.name}"/>
+    </bean>
+
+    <bean id="generalInfoCollector" class="com.griddynamics.jagger.agent.GeneralAgentInfoCollector">
+        <property name="monitoringInfoService" ref="monitoringService"/>
     </bean>
 
 </beans>

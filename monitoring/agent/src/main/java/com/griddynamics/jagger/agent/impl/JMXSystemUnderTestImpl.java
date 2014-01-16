@@ -31,10 +31,7 @@ import org.slf4j.LoggerFactory;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import java.io.IOException;
-import java.lang.management.GarbageCollectorMXBean;
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
-import java.lang.management.MemoryUsage;
+import java.lang.management.*;
 import java.util.*;
 
 import static com.griddynamics.jagger.util.Units.bytesToMiB;
@@ -77,6 +74,24 @@ public class JMXSystemUnderTestImpl implements SystemUnderTestService {
 
         for (String identifier : connections.keySet()) {
             result.put(identifier, analyzeJVM(identifier));
+        }
+        return result;
+    }
+
+    @Override
+    public Map<String, Map<String,String>> getSystemProperties() {
+        Map<String, Map<String,String>> result = Maps.newHashMap();
+
+        try {
+            for (String identifier : connections.keySet()){
+                MBeanServerConnection connection = connections.get(identifier);
+                RuntimeMXBean runtimeMXBean = ManagementFactory.newPlatformMXBeanProxy(connection,
+                                                                                     ManagementFactory.RUNTIME_MXBEAN_NAME,
+                                                                                     RuntimeMXBean.class);
+                result.put(identifier, runtimeMXBean.getSystemProperties());
+            }
+        }catch (IOException ex){
+            log.error("Error in JMXSigarMonitorController.analyzeJVM", ex);
         }
         return result;
     }

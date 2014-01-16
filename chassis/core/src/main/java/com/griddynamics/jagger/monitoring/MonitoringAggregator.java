@@ -22,7 +22,6 @@ package com.griddynamics.jagger.monitoring;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
-import com.griddynamics.jagger.agent.model.DefaultMonitoringParameters;
 import com.griddynamics.jagger.agent.model.MonitoringParameter;
 import com.griddynamics.jagger.agent.model.MonitoringParameterLevel;
 import com.griddynamics.jagger.agent.model.SystemUnderTestInfo;
@@ -35,6 +34,7 @@ import com.griddynamics.jagger.master.configuration.Task;
 import com.griddynamics.jagger.monitoring.model.MonitoringStatistics;
 import com.griddynamics.jagger.monitoring.model.PerformedMonitoring;
 import com.griddynamics.jagger.monitoring.model.ProfilingSuT;
+import com.griddynamics.jagger.reporting.interval.IntervalSizeProvider;
 import com.griddynamics.jagger.storage.FileStorage;
 import com.griddynamics.jagger.storage.fs.logging.*;
 import com.griddynamics.jagger.util.SerializationUtils;
@@ -60,7 +60,7 @@ public class MonitoringAggregator extends LogProcessor implements DistributionLi
     private FileStorage fileStorage;
 
     private LogReader logReader;
-    private int pointCount;
+    IntervalSizeProvider intervalSizeProvider;
 
     public void setLogReader(LogReader logReader) {
         this.logReader = logReader;
@@ -108,7 +108,7 @@ public class MonitoringAggregator extends LogProcessor implements DistributionLi
                 return;
             }
 
-            long intervalSize = (aggregationInfo.getMaxTime() - aggregationInfo.getMinTime()) / (long) (pointCount - 1);
+            int intervalSize = intervalSizeProvider.getIntervalSize(aggregationInfo.getMaxTime(), aggregationInfo.getMinTime());
             if (intervalSize < 1) {
                 intervalSize = 1;
             }
@@ -131,14 +131,14 @@ public class MonitoringAggregator extends LogProcessor implements DistributionLi
             Iterator<MonitoringLogEntry> it = fileReader.iterator();
             while (it.hasNext()) {
                 MonitoringLogEntry logEntry = it.next();
-                    try{
-                        currentInterval = processLogEntry(sessionId, aggregationInfo, intervalSize, taskData, currentInterval,
-                                sumByIntervalAgent, countByIntervalAgent, sumByIntervalSuT, countByIntervalSuT, avgStatisticsByAgent,
-                                avgStatisticsBySuT, logEntry);
-                    } catch (ClassCastException e){
-                        //HotFix for hessian de/serialization problem
-                        log.error("Deserialization problem: {}",e);
-                    }
+                try{
+                    currentInterval = processLogEntry(sessionId, aggregationInfo, intervalSize, taskData, currentInterval,
+                            sumByIntervalAgent, countByIntervalAgent, sumByIntervalSuT, countByIntervalSuT, avgStatisticsByAgent,
+                            avgStatisticsBySuT, logEntry);
+                } catch (ClassCastException e){
+                    //HotFix for hessian de/serialization problem
+                    log.error("Deserialization problem: {}", e);
+                }
             }
 
             fileReader.close();
@@ -147,10 +147,11 @@ public class MonitoringAggregator extends LogProcessor implements DistributionLi
                     sumByIntervalAgent, countByIntervalAgent, avgStatisticsByAgent);
             finalizeIntervalSysUT(sessionId, taskData, currentInterval - aggregationInfo.getMinTime(),
                     sumByIntervalSuT, countByIntervalSuT, avgStatisticsBySuT);
-            
+
             differentiateRelativeParameters(avgStatisticsByAgent);
             differentiateRelativeParameters(avgStatisticsBySuT);
 
+            log.info("BEGIN: Save to data base " + dir);
             getHibernateTemplate().execute(new HibernateCallback<Void>() {
                 @Override
                 public Void doInHibernate(Session session) throws HibernateException, SQLException {
@@ -164,6 +165,7 @@ public class MonitoringAggregator extends LogProcessor implements DistributionLi
                     return null;
                 }
             });
+            log.info("END: Save to data base " + dir);
 
             saveProfilers(sessionId, taskId);
 
@@ -353,8 +355,8 @@ public class MonitoringAggregator extends LogProcessor implements DistributionLi
         this.fileStorage = fileStorage;
     }
 
-    public void setPointCount(int pointCount) {
-        this.pointCount = pointCount;
+    public void setIntervalSizeProvider(IntervalSizeProvider intervalSizeProvider) {
+        this.intervalSizeProvider = intervalSizeProvider;
     }
 
     private static class MonitoringStream {

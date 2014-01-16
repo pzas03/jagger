@@ -1,6 +1,6 @@
 package com.griddynamics.jagger.webclient.client.components.control.model;
 
-import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
+import com.griddynamics.jagger.webclient.client.dto.SessionPlotNameDto;
 
 import java.util.Collections;
 import java.util.List;
@@ -10,19 +10,19 @@ import java.util.List;
  * Date: 12/4/13
  */
 public class SessionPlotNode extends AbstractIdentifyNode {
-    private PlotNameDto plotNameDto;
+    private SessionPlotNameDto plotNameDto;
 
-    public SessionPlotNode (PlotNameDto metricName) {
+    public SessionPlotNode (SessionPlotNameDto metricName) {
         this.plotNameDto = metricName;
     }
 
     public SessionPlotNode() {}
 
-    public PlotNameDto getPlotNameDto() {
+    public SessionPlotNameDto getPlotNameDto() {
         return plotNameDto;
     }
 
-    public void setPlotNameDto(PlotNameDto plotNameDto) {
+    public void setPlotNameDto(SessionPlotNameDto plotNameDto) {
         this.plotNameDto = plotNameDto;
     }
 

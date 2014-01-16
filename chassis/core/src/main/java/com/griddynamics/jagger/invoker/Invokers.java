@@ -34,7 +34,7 @@ import java.util.Collection;
 import static com.google.common.collect.Lists.newArrayList;
 
 /**
- * Useful utility methods, mostly static factories, for ixnvokers.
+ * Useful utility methods, mostly static factories, for invokers.
  *
  * @author Mairbek Khadikov
  */

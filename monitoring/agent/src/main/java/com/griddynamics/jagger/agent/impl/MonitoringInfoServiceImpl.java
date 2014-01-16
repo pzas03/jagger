@@ -23,13 +23,13 @@ package com.griddynamics.jagger.agent.impl;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.SettableFuture;
 import com.griddynamics.jagger.agent.model.*;
 import com.griddynamics.jagger.util.TimeUtils;
 import com.griddynamics.jagger.util.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.*;
 
@@ -114,32 +114,55 @@ public class MonitoringInfoServiceImpl implements MonitoringInfoService {
         systemInfo.setSysInfo(sysInfoStringMap);
         startTimeLog = System.currentTimeMillis();
         log.debug("start collecting SuT info through jmx on agent");
+
+        Map<String, SystemUnderTestInfo> jmxInfo = getResponseFromSut(new Callable<Map<String, SystemUnderTestInfo>>() {
+            @Override
+            public Map<String, SystemUnderTestInfo> call() throws Exception {
+                return systemUnderTestService.getInfo();
+            }
+        });
+        systemInfo.setSysUnderTest(jmxInfo);
+
+        log.debug("finish collecting SuT info through jmx on agent: time {} ms", System.currentTimeMillis() - startTimeLog);
+        return systemInfo;
+    }
+
+    @Override
+    public Map<String, Map<String, String>> getSystemProperties() {
+        Map<String, Map<String, String>> result = getResponseFromSut(new Callable<Map<String, Map<String, String>>>() {
+            @Override
+            public Map<String, Map<String, String>> call() throws Exception {
+                return systemUnderTestService.getSystemProperties();
+            }
+        });
+
+        if (result == null){
+            return Collections.EMPTY_MAP;
+        }
+
+        return result;
+    }
+
+    private <T>T getResponseFromSut(Callable<T> response){
+        T result = null;
+
         if (jmxThreadPoolExecutor.getActiveCount() == 0) {
-            final SettableFuture<Map<String, SystemUnderTestInfo>> future = SettableFuture.create();
-            jmxThreadPoolExecutor.submit(new Thread() {
-                @Override
-                public void run() {
-                    future.set(systemUnderTestService.getInfo());
-                }
-            });
-            Map<String, SystemUnderTestInfo> jmxInfo;
+            Future<T> future = jmxThreadPoolExecutor.submit(response);
             try {
-                jmxInfo = Futures.makeUninterruptible(future).get(jmxTimeout.getValue(), TimeUnit.MILLISECONDS);
-                systemInfo.setSysUnderTest(jmxInfo);
+                result = Futures.makeUninterruptible(future).get(jmxTimeout.getValue(), TimeUnit.MILLISECONDS);
             } catch (ExecutionException e) {
                 log.error("Execution failed {}", e);
                 throw Throwables.propagate(e);
             } catch (TimeoutException e) {
-                log.warn("Timeout. Collection of jmxInfo was not finished in {}. Pass out without jmxInfo",
+                log.warn("Timeout. Collection of jmx data was not finished in {}. Pass out without jmx data",
                         jmxTimeout.toString());
                 TimeUtils.sleepMillis(jmxTimeout.getValue());
             }
         } else {
-            log.warn("jmxThread is busy. Pass out without jmxInfo");
+            log.warn("jmxThread is busy. Pass out without jmx data");
         }
 
-        log.debug("finish collecting SuT info through jmx on agent: time {} ms", System.currentTimeMillis() - startTimeLog);
-        return systemInfo;
+        return result;
     }
 
     @Override
