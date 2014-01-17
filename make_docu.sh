@@ -9,7 +9,9 @@ version=$1
 
 # set version - don't change text (doxygen will use it)
 echo "Version: $version"
-echo "Version: $version" > ./doc/setup/JaggerVersion.txt
+if [ ! -z "$version" ]; then
+    echo "Version: $version" > ./doc/setup/JaggerVersion.txt
+fi
 
 # xsd schema
 rm -r ./doc/html/xsd/*.*
