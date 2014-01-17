@@ -56,6 +56,10 @@ public interface Invoker<Q,R,E> extends Serializable {
 /* Below is doxygen documentation for Jagger customization */
 
 /// @mainpage Jagger source code documentation
+/// Documentation version:
+/// @dontinclude  JaggerVersion.txt
+/// @skipline  Version
+/// @n
 /// Back to <a href="https://github.com/griddynamics/jagger/wiki">GitHub</a> documentation @n
 /// @n
 /// @li @ref Main_Test_Suite_Flow_group

@@ -775,7 +775,8 @@ EXAMPLE_PATH           = ./archetype-examples/src/main/resources/archetype-resou
                          ./test/jagger-test/src/main/resources/configuration/master/session/ \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/services/ServicesAware.java \
                          ./archetype-examples/src/main/resources/archetype-resources/src/main/java/listener/ProviderOfTestListener.java \
-                         ./archetype-examples/src/main/resources/archetype-resources/src/main/java/listener/ProviderOfTestSuiteListener.java
+                         ./archetype-examples/src/main/resources/archetype-resources/src/main/java/listener/ProviderOfTestSuiteListener.java \
+                         ./doc/setup/JaggerVersion.txt
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp
