@@ -32,6 +32,7 @@ import com.griddynamics.jagger.engine.e1.process.Services;
 import com.griddynamics.jagger.engine.e1.services.JaggerPlace;
 import com.griddynamics.jagger.engine.e1.services.SessionCommentStorage;
 import com.griddynamics.jagger.master.configuration.*;
+import com.griddynamics.jagger.master.database.DatabaseValidator;
 import com.griddynamics.jagger.monitoring.reporting.DynamicPlotGroups;
 import com.griddynamics.jagger.reporting.ReportingService;
 import com.griddynamics.jagger.storage.KeyValueStorage;

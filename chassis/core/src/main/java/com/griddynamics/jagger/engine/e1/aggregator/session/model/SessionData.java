@@ -22,10 +22,7 @@ package com.griddynamics.jagger.engine.e1.aggregator.session.model;
 
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class SessionData {
@@ -41,7 +38,7 @@ public class SessionData {
     private String errorMessage;
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public Long getId() {
 		return id;
 	}

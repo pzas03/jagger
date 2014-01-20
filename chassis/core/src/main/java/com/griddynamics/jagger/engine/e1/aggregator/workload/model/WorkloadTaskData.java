@@ -48,7 +48,7 @@ public class WorkloadTaskData {
     private BigDecimal stdDevLatency;
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long getId() {
         return id;
     }

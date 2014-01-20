@@ -22,10 +22,7 @@ package com.griddynamics.jagger.engine.e1.aggregator.workload.model;
 
 import java.util.Date;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 @Entity
 public class WorkloadData {
@@ -39,7 +36,7 @@ public class WorkloadData {
 	private Date endTime;
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public Long getId() {
 		return id;
 	}

@@ -29,7 +29,7 @@ import java.util.List;
 @Entity
 public class TimeInvocationStatistics {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column

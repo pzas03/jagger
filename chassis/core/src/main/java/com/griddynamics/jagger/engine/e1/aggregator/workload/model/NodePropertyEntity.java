@@ -13,7 +13,7 @@ import javax.persistence.*;
 public class NodePropertyEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private Long id;
 

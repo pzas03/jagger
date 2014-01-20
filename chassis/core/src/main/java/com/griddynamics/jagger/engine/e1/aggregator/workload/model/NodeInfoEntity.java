@@ -30,7 +30,7 @@ import java.util.Map;
 public class NodeInfoEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private Long id;
 

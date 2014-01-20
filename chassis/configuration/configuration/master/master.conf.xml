@@ -144,7 +144,7 @@
         <property name="name"  value="chassis.master.collect.node.info.awaittime"/>
     </bean>
 
-    <bean id="databaseValidator" class="com.griddynamics.jagger.master.DatabaseValidator">
+    <bean id="databaseValidator" class="com.griddynamics.jagger.master.database.DatabaseValidator">
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
 

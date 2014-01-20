@@ -1,6 +1,10 @@
-package com.griddynamics.jagger.master;
+package com.griddynamics.jagger.master.database;
 
+import com.griddynamics.jagger.engine.e1.aggregator.workload.model.MetricDetails;
+import com.griddynamics.jagger.engine.e1.aggregator.workload.model.TimeInvocationStatistics;
 import org.hibernate.*;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Projections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -8,6 +12,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -28,6 +33,45 @@ public class DatabaseValidator extends HibernateDaoSupport {
 
     public void validate(){
         checkRequiredTypes();
+        checkMetricDetailsIndex();
+    }
+
+    private void checkMetricDetailsIndex(){
+        //check if metricId record is already in IdGenerator table
+        IdGenerator metricIdGenerator = null;
+
+        try{
+            metricIdGenerator = getHibernateTemplate().get(IdGenerator.class, MetricDetails.METRIC_ID);
+        }catch (Exception ex){
+            log.debug("IdGenerator is missing for entity {}", "MetricDetails");
+        }
+
+        if (metricIdGenerator == null){
+            List<Long> maxMetricId = Collections.EMPTY_LIST;
+
+            //try to get the last MetricDetails entity
+            try{
+                maxMetricId = getHibernateTemplate().findByCriteria(DetachedCriteria.forClass(MetricDetails.class)
+                                                                                    .setProjection(Projections.max("id")));
+            }catch (Exception ex){
+                log.debug("Database is new, use annotation @TableGenerator to create IdGenerator table");
+            }
+
+            // if database already exist
+            if (!maxMetricId.isEmpty()){
+                Long lastIndex = maxMetricId.get(0);
+
+                final long initialValue = ++lastIndex + MetricDetails.ALLOCATION_SIZE;
+                getHibernateTemplate().execute(new HibernateCallback<Void>() {
+                    @Override
+                    public Void doInHibernate(Session session) throws HibernateException, SQLException {
+                        session.persist(new IdGenerator(MetricDetails.METRIC_ID, initialValue));
+                        session.flush();
+                        return null;
+                    }
+                });
+            }
+        }
     }
 
     private void checkRequiredTypes(){
