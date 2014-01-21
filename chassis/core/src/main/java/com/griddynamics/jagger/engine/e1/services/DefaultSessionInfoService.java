@@ -33,6 +33,21 @@ public class DefaultSessionInfoService implements SessionInfoService {
     }
 
     @Override
+    public void createTag(String name, String description) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void setTagDescription(String name, String description) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void addTag(String name) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
     public boolean isAvailable() {
         return true;
     }

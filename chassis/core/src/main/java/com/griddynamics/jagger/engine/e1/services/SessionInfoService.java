@@ -27,4 +27,11 @@ public interface SessionInfoService extends JaggerService{
      * @n
      * @param st - string to append */
     void appendToComment(String st);
+
+    void createTag(String name, String description);
+
+    void setTagDescription(String name, String description);
+
+    void addTag(String name);
+
 }

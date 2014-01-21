@@ -21,11 +21,10 @@
 package com.griddynamics.jagger.engine.e1.aggregator.session.model;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class SessionData {
@@ -39,8 +38,12 @@ public class SessionData {
 	private String comment;
     private transient String sessionName;
     private String errorMessage;
+    private Set<Tags> tags = new HashSet<Tags>(0);
 
-	@Id
+    public SessionData() {
+    }
+
+    @Id
 	@GeneratedValue
 	public Long getId() {
 		return id;
@@ -121,5 +124,14 @@ public class SessionData {
 
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+    }
+
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "sessions")
+    public Set<Tags> getTags() {
+        return tags;
+    }
+
+    public void setTags(Set<Tags> tags) {
+        this.tags = tags;
     }
 }
