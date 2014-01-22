@@ -36,10 +36,10 @@ public class Futures {
         try {
             return com.google.common.util.concurrent.Futures.makeUninterruptible(future).get(millis.getValue(), TimeUnit.MILLISECONDS);
         } catch (ExecutionException e) {
-            log.error("Execution failed {}", e);
+            log.error("Execution failed {}", Throwables.getStackTraceAsString(e));
             throw Throwables.propagate(e);
         } catch (TimeoutException e) {
-            log.error("Timeout of {} failed \n{}", millis.toString(), e);
+            log.error("Timeout of {} failed \n{}", millis.toString(), Throwables.getStackTraceAsString(e));
             throw Throwables.propagate(e);
         }
 

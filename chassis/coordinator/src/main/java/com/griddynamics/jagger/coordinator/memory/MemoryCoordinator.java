@@ -21,6 +21,7 @@
 package com.griddynamics.jagger.coordinator.memory;
 
 import com.google.common.base.Predicate;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.griddynamics.jagger.coordinator.*;
@@ -33,7 +34,9 @@ import org.springframework.beans.factory.annotation.Required;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 /**
  * Performs in memory coordination. <b>Works only for the local mode</b>.
@@ -88,26 +91,49 @@ public class MemoryCoordinator implements Coordinator {
         return new AbstractRemoteExecutor() {
             @Override
             public <C extends Command<R>, R extends Serializable> void run(final C command, final NodeCommandExecutionListener<C> listener, final AsyncCallback<R> callback) {
+                final NodeContext nodeContext = nodePair.getFirst();
+                executorService.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        listener.onCommandExecutionStarted(command, nodeContext);
+                        try {
+                            R execute = getCommandExecutor(command).execute(command, nodeContext);
+                            listener.onCommandExecuted(command);
+                            callback.onSuccess(execute);
+                        } catch (Throwable throwable) {
+                            log.error("Error during command execution!", throwable);
+                            callback.onFailure(throwable);
+                        }
+                    }
+                });
+                return;
+            }
+
+            @Override
+            public <C extends Command<R>, R extends Serializable> Future<R> run(final C command, final NodeCommandExecutionListener<C> listener) {
+                final NodeContext nodeContext = nodePair.getFirst();
+                return executorService.submit(new Callable<R>() {
+                    @Override
+                    public R call() {
+                        listener.onCommandExecutionStarted(command, nodeContext);
+                        try {
+                            R execute = getCommandExecutor(command).execute(command, nodeContext);
+                            listener.onCommandExecuted(command);
+                            return execute;
+                        }
+                        catch (Throwable throwable) {
+                            throw Throwables.propagate(throwable);
+                        }
+                    }
+                });
+            }
+
+            private <C extends Command<R>, R extends Serializable> CommandExecutor<C, R> getCommandExecutor(C command){
                 for (CommandExecutor<?, ?> commandExecutor : nodePair.getSecond()) {
                     final CommandExecutor<C, R> executor = (CommandExecutor<C, R>) commandExecutor;
 
                     if (executor.getQualifier().equals(Qualifier.of(command))) {
-                        final NodeContext nodeContext = nodePair.getFirst();
-                        executorService.execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                listener.onCommandExecutionStarted(command, nodeContext);
-                                    try {
-                                        R execute = executor.execute(command, nodeContext);
-                                        listener.onCommandExecuted(command);
-                                        callback.onSuccess(execute);
-                                    } catch (Throwable throwable) {
-                                        log.error("Error during command execution!", throwable);
-                                        callback.onFailure(throwable);
-                                    }
-                            }
-                        });
-                        return;
+                        return executor;
                     }
                 }
                 throw new CoordinatorException("Command " + command + " is not available on " + nodeId.getIdentifier());
