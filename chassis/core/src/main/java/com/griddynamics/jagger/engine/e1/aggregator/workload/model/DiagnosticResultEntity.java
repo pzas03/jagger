@@ -31,6 +31,7 @@ public class DiagnosticResultEntity {
     private WorkloadData workloadData;
 
     @Id
+    // Identity strategy is not supported by Oracle DB from the box
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long getId() {
         return id;

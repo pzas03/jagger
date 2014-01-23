@@ -30,6 +30,7 @@ import javax.persistence.*;
 @Entity
 public class MonitoringStatistics {
     @Id
+    // Identity strategy is not supported by Oracle DB from the box
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;

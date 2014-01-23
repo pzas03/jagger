@@ -11,8 +11,10 @@ import javax.persistence.Id;
  * Time: 12:20 PM
  * To change this template use File | Settings | File Templates.
  */
+
+//A table to generate ids for entities. Is required for batching processing.
 @Entity
-public class IdGenerator {
+public class IdGeneratorEntity {
 
     @Id
     private String tableName;
@@ -20,12 +22,12 @@ public class IdGenerator {
     @Column
     private Long idValue;
 
-    public IdGenerator(String tableName, Long idValue) {
+    public IdGeneratorEntity(String tableName, Long idValue) {
         this.tableName = tableName;
         this.idValue = idValue;
     }
 
-    public IdGenerator() {
+    public IdGeneratorEntity() {
     }
 
     public String getTableName() {

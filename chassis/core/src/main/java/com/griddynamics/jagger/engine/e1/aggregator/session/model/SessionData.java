@@ -38,6 +38,7 @@ public class SessionData {
     private String errorMessage;
 
 	@Id
+    // Identity strategy is not supported by Oracle DB from the box
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public Long getId() {
 		return id;

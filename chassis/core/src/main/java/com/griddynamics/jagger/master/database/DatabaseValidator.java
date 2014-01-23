@@ -1,7 +1,6 @@
 package com.griddynamics.jagger.master.database;
 
 import com.griddynamics.jagger.engine.e1.aggregator.workload.model.MetricDetails;
-import com.griddynamics.jagger.engine.e1.aggregator.workload.model.TimeInvocationStatistics;
 import org.hibernate.*;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
@@ -38,10 +37,10 @@ public class DatabaseValidator extends HibernateDaoSupport {
 
     private void checkMetricDetailsIndex(){
         //check if metricId record is already in IdGenerator table
-        IdGenerator metricIdGenerator = null;
+        IdGeneratorEntity metricIdGenerator = null;
 
         try{
-            metricIdGenerator = getHibernateTemplate().get(IdGenerator.class, MetricDetails.METRIC_ID);
+            metricIdGenerator = getHibernateTemplate().get(IdGeneratorEntity.class, MetricDetails.METRIC_ID);
         }catch (Exception ex){
             log.debug("IdGenerator is missing for entity {}", "MetricDetails");
         }
@@ -65,7 +64,7 @@ public class DatabaseValidator extends HibernateDaoSupport {
                 getHibernateTemplate().execute(new HibernateCallback<Void>() {
                     @Override
                     public Void doInHibernate(Session session) throws HibernateException, SQLException {
-                        session.persist(new IdGenerator(MetricDetails.METRIC_ID, initialValue));
+                        session.persist(new IdGeneratorEntity(MetricDetails.METRIC_ID, initialValue));
                         session.flush();
                         return null;
                     }

@@ -26,6 +26,7 @@ import javax.persistence.*;
 @Inheritance(strategy = InheritanceType.JOINED)
 public class Percentile {
     @Id
+    // Identity strategy is not supported by Oracle DB from the box
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 

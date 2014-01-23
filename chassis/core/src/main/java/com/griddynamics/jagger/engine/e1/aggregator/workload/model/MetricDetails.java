@@ -37,7 +37,7 @@ public class MetricDetails {
     public static final String METRIC_ID = "MetricDetails_ID";
 
     @TableGenerator(name="GENERATOR",
-                    table="IdGenerator",
+                    table="IdGeneratorEntity",
 
                     pkColumnName="tableName",
                     valueColumnName="idValue",

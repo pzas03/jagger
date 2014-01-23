@@ -71,7 +71,7 @@
 				<!--TODO not extensible solution -->
 				<value>com.griddynamics.jagger.master.Session</value>
 				<value>com.griddynamics.jagger.storage.rdb.KeyValue</value>
-                <value>com.griddynamics.jagger.master.database.IdGenerator</value>
+                <value>com.griddynamics.jagger.master.database.IdGeneratorEntity</value>
 			</list>
 		</property>
 	</bean>

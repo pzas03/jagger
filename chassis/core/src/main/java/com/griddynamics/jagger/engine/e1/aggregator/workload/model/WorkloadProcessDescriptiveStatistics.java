@@ -28,6 +28,7 @@ import java.util.List;
 @Entity
 public class WorkloadProcessDescriptiveStatistics {
     @Id
+    // Identity strategy is not supported by Oracle DB from the box
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
