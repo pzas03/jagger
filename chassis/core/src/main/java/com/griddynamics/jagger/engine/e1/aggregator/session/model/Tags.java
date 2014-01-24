@@ -13,12 +13,18 @@ import java.util.Set;
  * Time: 4:59 PM
  * To change this template use File | Settings | File Templates.
  */
+
 @Entity
 public class Tags {
 
     private String name;
     private String description;
     private Set<SessionData> sessions = new HashSet<SessionData>();
+
+    public Tags(String name, String description) {
+        this.name=name;
+        this.description = description;
+    }
 
     public Tags() {
     }
@@ -43,17 +49,8 @@ public class Tags {
     }
 
 
-//    @JoinTable(name = "tag_session",joinColumns = {
-//            @JoinColumn(name = "name", nullable = false, updatable = false) },
-//            inverseJoinColumns = {
-//                    @JoinColumn(name = "id", nullable = false, updatable = false) })
-
-
-
-
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name ="tag_session")
-    public Set<SessionData> getSessionId(){
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "tags")
+    public Set<SessionData> getSessions(){
         return sessions;
     }
 

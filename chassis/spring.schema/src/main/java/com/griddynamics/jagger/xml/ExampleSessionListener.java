@@ -3,6 +3,7 @@ package com.griddynamics.jagger.xml;
 import com.google.common.collect.Multimap;
 import com.griddynamics.jagger.coordinator.NodeId;
 import com.griddynamics.jagger.coordinator.NodeType;
+import com.griddynamics.jagger.engine.e1.services.SessionTagStorage;
 import com.griddynamics.jagger.master.configuration.SessionExecutionStatus;
 import com.griddynamics.jagger.master.configuration.SessionListener;
 
@@ -15,7 +16,7 @@ import com.griddynamics.jagger.master.configuration.SessionListener;
  */
 public class ExampleSessionListener implements SessionListener {
     @Override
-    public void onSessionExecuted(String sessionId, String sessionComment, SessionExecutionStatus errorStatus) {
+    public void onSessionExecuted(String sessionId, String sessionComment, SessionExecutionStatus errorStatus, SessionTagStorage tagStorage) {
 
     }
 

@@ -24,7 +24,9 @@ import com.google.common.collect.Multimap;
 import com.griddynamics.jagger.coordinator.NodeId;
 import com.griddynamics.jagger.coordinator.NodeType;
 import com.griddynamics.jagger.engine.e1.aggregator.session.model.SessionData;
+import com.griddynamics.jagger.engine.e1.aggregator.session.model.Tags;
 import com.griddynamics.jagger.engine.e1.aggregator.session.model.TaskData;
+import com.griddynamics.jagger.engine.e1.services.SessionTagStorage;
 import com.griddynamics.jagger.master.DistributionListener;
 import com.griddynamics.jagger.master.TaskExecutionStatusProvider;
 import com.griddynamics.jagger.master.configuration.SessionExecutionStatus;
@@ -32,6 +34,7 @@ import com.griddynamics.jagger.master.configuration.SessionListener;
 import com.griddynamics.jagger.master.configuration.Task;
 import com.griddynamics.jagger.storage.KeyValueStorage;
 import com.griddynamics.jagger.storage.Namespace;
+import org.hibernate.HibernateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -39,6 +42,11 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.List;
+
+
 
 import static com.griddynamics.jagger.engine.e1.collector.CollectorConstants.*;
 
@@ -67,17 +75,18 @@ public class BasicAggregator extends HibernateDaoSupport implements Distribution
 
     @Override
     public void onSessionExecuted(String sessionId, String sessionComment) {
-        onSessionExecuted(sessionId, sessionComment, SessionExecutionStatus.EMPTY);
+        onSessionExecuted(sessionId, sessionComment, SessionExecutionStatus.EMPTY, null);
     }
 
     @Override
-    public void onSessionExecuted(String sessionId, String sessionComment, SessionExecutionStatus status) {
+    public void onSessionExecuted(String sessionId, String sessionComment, SessionExecutionStatus status, SessionTagStorage tagStorage) {
         log.debug("onSessionExecuted invoked");
 
         Namespace namespace = Namespace.of(SESSION, sessionId);
         Multimap<String, Object> all = keyValueStorage.fetchAll(namespace);
 
         SessionData sessionData = new SessionData();
+
         sessionData.setSessionId(sessionId);
         sessionData.setComment(sessionComment);
 
@@ -99,7 +108,45 @@ public class BasicAggregator extends HibernateDaoSupport implements Distribution
         String errorMessage = (String) getFirst(all, ERROR_MESSAGE);
         sessionData.setErrorMessage(errorMessage);
 
-        getHibernateTemplate().persist(sessionData);
+
+        Set<Tags> tags = new HashSet<Tags>();
+
+        Tags tag = new Tags();
+
+        for (String tagName : tagStorage.getNewTags().keySet()) {
+            try {
+                tag = new Tags(tagName,tagStorage.getNewTags().get(tagName));
+                getHibernateTemplate().persist(tag);
+            } catch (HibernateException e) {
+                log.info("Cannot add new tag: {}",tag.getName());
+            }
+        }
+        for (String tagName : tagStorage.getUpdateTags().keySet()) {
+            try {
+                tag = new Tags(tagName, tagStorage.getUpdateTags().get(tagName));
+                getHibernateTemplate().update(tag);
+            }
+            catch (HibernateException e) {
+                log.info("Cannot update tag: {}",tag.getName());
+            }
+        }
+
+        for (String tagName : tagStorage.getSessionTags()) {
+            try {
+                List<Tags> sessionTagList = getHibernateTemplate().find("from Tags t where t.name = ?",tagName);
+                if (!sessionTagList.isEmpty()) {
+                    tag = sessionTagList.remove(0);
+                    tags.add(tag);
+                }
+                else
+                    log.info("Cannot assign tag {}  to session, this tag doesn't exist",tag.getName());
+            }
+            catch (HibernateException e) {
+                log.info("Cannot assign tag {}  to session",tag.getName());
+            }
+        }
+        sessionData.setTags(tags);
+        getHibernateTemplate().saveOrUpdate(sessionData);
     }
 
     public void setKeyValueStorage(KeyValueStorage keyValueStorage) {

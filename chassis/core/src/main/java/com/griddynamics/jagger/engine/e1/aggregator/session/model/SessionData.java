@@ -38,7 +38,7 @@ public class SessionData {
 	private String comment;
     private transient String sessionName;
     private String errorMessage;
-    private Set<Tags> tags = new HashSet<Tags>(0);
+    private Set<Tags> tags = new HashSet<Tags>();
 
     public SessionData() {
     }
@@ -126,7 +126,8 @@ public class SessionData {
         this.errorMessage = errorMessage;
     }
 
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "sessions")
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name ="SessionsTags")
     public Set<Tags> getTags() {
         return tags;
     }

@@ -30,8 +30,8 @@ public interface SessionInfoService extends JaggerService{
 
     void createTag(String name, String description);
 
-    void setTagDescription(String name, String description);
+    void updateTagDescription(String name, String description);
 
-    void addTag(String name);
+    void assignTagToSession(String name);
 
 }

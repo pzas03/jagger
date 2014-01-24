@@ -12,9 +12,11 @@ import com.griddynamics.jagger.coordinator.NodeContext;
 public class DefaultSessionInfoService implements SessionInfoService {
 
     private SessionCommentStorage commentStorage;
+    private SessionTagStorage tagStorage;
 
     public DefaultSessionInfoService(NodeContext context){
         commentStorage = context.getService(SessionCommentStorage.class);
+        tagStorage = context.getService(SessionTagStorage.class);
     }
 
     @Override
@@ -34,17 +36,17 @@ public class DefaultSessionInfoService implements SessionInfoService {
 
     @Override
     public void createTag(String name, String description) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        tagStorage.setNewTag(name,description);
     }
 
     @Override
-    public void setTagDescription(String name, String description) {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void updateTagDescription(String name, String newDescription) {
+        tagStorage.setUpdateTag(name,newDescription);
     }
 
     @Override
-    public void addTag(String name) {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void assignTagToSession(String name) {
+        tagStorage.setSessionTag(name);
     }
 
     @Override

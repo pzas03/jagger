@@ -25,6 +25,7 @@ import com.google.common.collect.Multimap;
 import com.griddynamics.jagger.coordinator.NodeId;
 import com.griddynamics.jagger.coordinator.NodeType;
 import com.griddynamics.jagger.engine.e1.aggregator.session.model.TaskData;
+import com.griddynamics.jagger.engine.e1.services.SessionTagStorage;
 import com.griddynamics.jagger.master.DistributionListener;
 import com.griddynamics.jagger.master.TaskExecutionStatusProvider;
 import com.griddynamics.jagger.master.configuration.SessionExecutionStatus;
@@ -75,11 +76,11 @@ public class BasicSessionCollector implements SessionListener, DistributionListe
 
     @Override
     public void onSessionExecuted(String sessionId, String sessionComment) {
-        onSessionExecuted(sessionId, sessionComment, SessionExecutionStatus.EMPTY);
+        onSessionExecuted(sessionId, sessionComment, SessionExecutionStatus.EMPTY, null);
     }
 
     @Override
-    public void onSessionExecuted(String sessionId, String sessionComment, SessionExecutionStatus status) {
+    public void onSessionExecuted(String sessionId, String sessionComment, SessionExecutionStatus status, SessionTagStorage tagStorage) {
         Namespace namespace = Namespace.of(SESSION, sessionId);
         Multimap<String, Object> objectsMap = HashMultimap.create();
         objectsMap.put(END_TIME, System.currentTimeMillis());
