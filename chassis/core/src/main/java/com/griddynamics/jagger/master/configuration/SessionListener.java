@@ -20,8 +20,6 @@
 
 package com.griddynamics.jagger.master.configuration;
 
-import com.griddynamics.jagger.engine.e1.services.SessionTagStorage;
-
 /**
  * Listens to session execution on master side.
  * 
@@ -38,5 +36,5 @@ public interface SessionListener extends SessionExecutionListener {
      * @param errorStatus
      *            session error status
 	 */
-	void onSessionExecuted(String sessionId, String sessionComment, SessionExecutionStatus errorStatus, SessionTagStorage tagStorage);
+	void onSessionExecuted(String sessionId, String sessionComment, SessionExecutionStatus errorStatus);
 }

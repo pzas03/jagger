@@ -15,18 +15,18 @@ import java.util.Set;
  */
 
 @Entity
-public class Tags {
+public class TagEntity {
 
     private String name;
     private String description;
     private Set<SessionData> sessions = new HashSet<SessionData>();
 
-    public Tags(String name, String description) {
+    public TagEntity(String name, String description) {
         this.name=name;
         this.description = description;
     }
 
-    public Tags() {
+    public TagEntity() {
     }
 
     @Id
@@ -47,7 +47,6 @@ public class Tags {
     public void setDescription(String description) {
         this.description = description;
     }
-
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "tags")
     public Set<SessionData> getSessions(){

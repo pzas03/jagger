@@ -25,11 +25,11 @@ import com.google.common.collect.Multimap;
 import com.griddynamics.jagger.coordinator.NodeId;
 import com.griddynamics.jagger.coordinator.NodeType;
 import com.griddynamics.jagger.engine.e1.aggregator.session.model.TaskData;
-import com.griddynamics.jagger.engine.e1.services.SessionTagStorage;
+import com.griddynamics.jagger.engine.e1.services.SessionMetaDataStorage;
 import com.griddynamics.jagger.master.DistributionListener;
 import com.griddynamics.jagger.master.TaskExecutionStatusProvider;
 import com.griddynamics.jagger.master.configuration.SessionExecutionStatus;
-import com.griddynamics.jagger.master.configuration.SessionListener;
+import com.griddynamics.jagger.master.configuration.SessionListenerMetaData;
 import com.griddynamics.jagger.master.configuration.Task;
 import com.griddynamics.jagger.storage.KeyValueStorage;
 import com.griddynamics.jagger.storage.Namespace;
@@ -44,7 +44,7 @@ import static com.griddynamics.jagger.engine.e1.collector.CollectorConstants.*;
  *
  * @author Mairbek Khadikov
  */
-public class BasicSessionCollector implements SessionListener, DistributionListener {
+public class BasicSessionCollector implements SessionListenerMetaData, DistributionListener {
     private KeyValueStorage keyValueStorage;
     private Integer taskCounter;
 
@@ -76,11 +76,11 @@ public class BasicSessionCollector implements SessionListener, DistributionListe
 
     @Override
     public void onSessionExecuted(String sessionId, String sessionComment) {
-        onSessionExecuted(sessionId, sessionComment, SessionExecutionStatus.EMPTY, null);
+        onSessionExecuted(sessionId, sessionComment, SessionExecutionStatus.EMPTY);
     }
 
     @Override
-    public void onSessionExecuted(String sessionId, String sessionComment, SessionExecutionStatus status, SessionTagStorage tagStorage) {
+    public void onSessionExecuted(String sessionId, String sessionComment, SessionExecutionStatus status) {
         Namespace namespace = Namespace.of(SESSION, sessionId);
         Multimap<String, Object> objectsMap = HashMultimap.create();
         objectsMap.put(END_TIME, System.currentTimeMillis());
@@ -106,5 +106,10 @@ public class BasicSessionCollector implements SessionListener, DistributionListe
     @Override
     public void onTaskDistributionCompleted(String sessionId, String taskId, Task task) {
         taskCounter++;
+    }
+
+    @Override
+    public void persistTags(String sessionId, SessionMetaDataStorage metaDataStorage){
+        //do nothing
     }
 }

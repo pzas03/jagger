@@ -24,13 +24,13 @@ import com.google.common.collect.Multimap;
 import com.griddynamics.jagger.coordinator.NodeId;
 import com.griddynamics.jagger.coordinator.NodeType;
 import com.griddynamics.jagger.engine.e1.aggregator.session.model.SessionData;
-import com.griddynamics.jagger.engine.e1.aggregator.session.model.Tags;
+import com.griddynamics.jagger.engine.e1.aggregator.session.model.TagEntity;
 import com.griddynamics.jagger.engine.e1.aggregator.session.model.TaskData;
-import com.griddynamics.jagger.engine.e1.services.SessionTagStorage;
+import com.griddynamics.jagger.engine.e1.services.SessionMetaDataStorage;
 import com.griddynamics.jagger.master.DistributionListener;
 import com.griddynamics.jagger.master.TaskExecutionStatusProvider;
 import com.griddynamics.jagger.master.configuration.SessionExecutionStatus;
-import com.griddynamics.jagger.master.configuration.SessionListener;
+import com.griddynamics.jagger.master.configuration.SessionListenerMetaData;
 import com.griddynamics.jagger.master.configuration.Task;
 import com.griddynamics.jagger.storage.KeyValueStorage;
 import com.griddynamics.jagger.storage.Namespace;
@@ -47,7 +47,6 @@ import java.util.Set;
 import java.util.List;
 
 
-
 import static com.griddynamics.jagger.engine.e1.collector.CollectorConstants.*;
 
 /**
@@ -57,7 +56,7 @@ import static com.griddynamics.jagger.engine.e1.collector.CollectorConstants.*;
  *
  * @author Mairbek Khadikov
  */
-public class BasicAggregator extends HibernateDaoSupport implements DistributionListener, SessionListener {
+public class BasicAggregator extends HibernateDaoSupport implements DistributionListener, SessionListenerMetaData {
     private static final Logger log = LoggerFactory.getLogger(BasicAggregator.class);
 
     private KeyValueStorage keyValueStorage;
@@ -75,11 +74,11 @@ public class BasicAggregator extends HibernateDaoSupport implements Distribution
 
     @Override
     public void onSessionExecuted(String sessionId, String sessionComment) {
-        onSessionExecuted(sessionId, sessionComment, SessionExecutionStatus.EMPTY, null);
+        onSessionExecuted(sessionId, sessionComment, SessionExecutionStatus.EMPTY);
     }
 
     @Override
-    public void onSessionExecuted(String sessionId, String sessionComment, SessionExecutionStatus status, SessionTagStorage tagStorage) {
+    public void onSessionExecuted(String sessionId, String sessionComment, SessionExecutionStatus status) {
         log.debug("onSessionExecuted invoked");
 
         Namespace namespace = Namespace.of(SESSION, sessionId);
@@ -108,45 +107,7 @@ public class BasicAggregator extends HibernateDaoSupport implements Distribution
         String errorMessage = (String) getFirst(all, ERROR_MESSAGE);
         sessionData.setErrorMessage(errorMessage);
 
-
-        Set<Tags> tags = new HashSet<Tags>();
-
-        Tags tag = new Tags();
-
-        for (String tagName : tagStorage.getNewTags().keySet()) {
-            try {
-                tag = new Tags(tagName,tagStorage.getNewTags().get(tagName));
-                getHibernateTemplate().persist(tag);
-            } catch (HibernateException e) {
-                log.info("Cannot add new tag: {}",tag.getName());
-            }
-        }
-        for (String tagName : tagStorage.getUpdateTags().keySet()) {
-            try {
-                tag = new Tags(tagName, tagStorage.getUpdateTags().get(tagName));
-                getHibernateTemplate().update(tag);
-            }
-            catch (HibernateException e) {
-                log.info("Cannot update tag: {}",tag.getName());
-            }
-        }
-
-        for (String tagName : tagStorage.getSessionTags()) {
-            try {
-                List<Tags> sessionTagList = getHibernateTemplate().find("from Tags t where t.name = ?",tagName);
-                if (!sessionTagList.isEmpty()) {
-                    tag = sessionTagList.remove(0);
-                    tags.add(tag);
-                }
-                else
-                    log.info("Cannot assign tag {}  to session, this tag doesn't exist",tag.getName());
-            }
-            catch (HibernateException e) {
-                log.info("Cannot assign tag {}  to session",tag.getName());
-            }
-        }
-        sessionData.setTags(tags);
-        getHibernateTemplate().saveOrUpdate(sessionData);
+        getHibernateTemplate().persist(sessionData);
     }
 
     public void setKeyValueStorage(KeyValueStorage keyValueStorage) {
@@ -181,4 +142,37 @@ public class BasicAggregator extends HibernateDaoSupport implements Distribution
         taskData.setStatus(taskExecutionStatusProvider.getStatus(taskId));
         getHibernateTemplate().persist(taskData);
     }
+
+    @Override
+    public void persistTags(String sessionId, SessionMetaDataStorage metaDataStorage) {
+        Set<TagEntity> tags = new HashSet<TagEntity>();
+
+        for (TagEntity tagEntity : metaDataStorage.getTagsForSaveOrUpdate()) {
+            try {
+                getHibernateTemplate().saveOrUpdate(tagEntity);
+            } catch (HibernateException e   ) {
+                log.error("Cannot add new tag: {}", tagEntity.getName());
+                e.printStackTrace();
+            }
+        }
+
+        List<TagEntity> sessionTagList = getHibernateTemplate().find("from TagEntity");
+
+        for (String tagName : metaDataStorage.getSessionTags()) {
+            for (TagEntity tagEntity : sessionTagList) {
+                if (tagEntity.getName().equals(tagName))
+                    tags.add(tagEntity);
+            }
+        }
+
+        if (!tags.isEmpty()) {
+            List<SessionData> sessionsById = getHibernateTemplate().find("from SessionData s where s.sessionId=?", sessionId);
+            for (SessionData sessionData : sessionsById) {
+                sessionData.setTags(tags);
+                getHibernateTemplate().saveOrUpdate(sessionData);
+            }
+        } else
+            log.info("No tags for mark session {}", sessionId);
+    }
+
 }
