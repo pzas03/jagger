@@ -109,6 +109,7 @@ public class MemoryCoordinator implements Coordinator {
                 return;
             }
 
+            //create Future instance, which can interrupt coordinator thread by some reason(f.e. by time)
             @Override
             public <C extends Command<R>, R extends Serializable> Future<R> run(final C command, final NodeCommandExecutionListener<C> listener) {
                 final NodeContext nodeContext = nodePair.getFirst();
@@ -116,14 +117,9 @@ public class MemoryCoordinator implements Coordinator {
                     @Override
                     public R call() {
                         listener.onCommandExecutionStarted(command, nodeContext);
-                        try {
-                            R execute = getCommandExecutor(command).execute(command, nodeContext);
-                            listener.onCommandExecuted(command);
-                            return execute;
-                        }
-                        catch (Throwable throwable) {
-                            throw Throwables.propagate(throwable);
-                        }
+                        R execute = getCommandExecutor(command).execute(command, nodeContext);
+                        listener.onCommandExecuted(command);
+                        return execute;
                     }
                 });
             }
