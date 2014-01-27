@@ -374,7 +374,7 @@ public class Trends extends DefaultActivity {
         setupControlTree();
     }
 
-    private final Widget NO_SESSION_CHOSEN = new Label("Choose at least One session (temp string)");
+    private final Widget NO_SESSION_CHOSEN = new Label("Choose at least One session");
 
     private void setupControlTree() {
 

@@ -4,10 +4,7 @@ import com.griddynamics.jagger.agent.model.DefaultMonitoringParameters;
 import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadProcessLatencyPercentile;
 import com.griddynamics.jagger.monitoring.reporting.GroupKey;
 import com.griddynamics.jagger.util.Pair;
-import com.griddynamics.jagger.webclient.client.components.control.model.MonitoringPlotNode;
-import com.griddynamics.jagger.webclient.client.components.control.model.MonitoringSessionScopePlotNode;
-import com.griddynamics.jagger.webclient.client.components.control.model.PlotNode;
-import com.griddynamics.jagger.webclient.client.components.control.model.SessionPlotNode;
+import com.griddynamics.jagger.webclient.client.components.control.model.*;
 import com.griddynamics.jagger.webclient.client.data.MetricRankingProvider;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
 import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
@@ -22,6 +19,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static com.griddynamics.jagger.webclient.client.mvp.NameTokens.*;
 
@@ -76,23 +77,6 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         this.standardMetrics = standardMetrics;
     }
 
-    @Override
-    public Set<MetricNameDto> getMetricNames(Set<TaskDataDto> tests) {
-        Long time = System.currentTimeMillis();
-        HashSet<MetricNameDto> set = new HashSet<MetricNameDto>();
-        for (TaskDataDto taskDataDto : tests){
-            for (String standardMetricName : standardMetrics.keySet()){
-                MetricNameDto metric = new MetricNameDto();
-                metric.setName(standardMetricName);
-                metric.setTests(taskDataDto);
-                set.add(metric);
-            }
-            set.addAll(getLatencyMetricsNames(taskDataDto));
-            set.addAll(getCustomMetricsNames(taskDataDto));
-        }
-        log.info("For tasks {} was found {} metrics names for {} ms", new Object[]{tests, set.size(), System.currentTimeMillis() - time});
-        return set;
-    }
 
     public Set<MetricNameDto> getCustomMetricsNames(TaskDataDto tests){
         Set<MetricNameDto> metrics;
@@ -135,6 +119,63 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         return metrics;
     }
 
+    public Set<MetricNameDto> getCustomMetricsNames(List<TaskDataDto> tests){
+        Set<MetricNameDto> metrics;
+
+        Set<Long> taskIds = new HashSet<Long>();
+        for (TaskDataDto tdd : tests) {
+            taskIds.addAll(tdd.getIds());
+        }
+
+        long temp = System.currentTimeMillis();
+        List<Object[]> metricNames = entityManager.createNativeQuery(
+                                                                    "select metric.name, task.id from DiagnosticResultEntity as metric " +
+                                                                            "    inner join TaskData as task " +
+                                                                            "     on task.id in (:ids) and metric.workloadData_id in " +
+                                                                            "      (select workloadData.id from WorkloadData as workloadData where workloadData.taskId=task.taskId and workloadData.sessionId=task.sessionId)")
+                                                                    .setParameter("ids", taskIds).getResultList();
+
+        log.debug("{} ms spent for fetching {} metrics", System.currentTimeMillis() - temp, metricNames.size());
+        temp = System.currentTimeMillis();
+
+        List<Object[]> validatorNames = entityManager.createNativeQuery( "select metric.validator, task.id from ValidationResultEntity as metric " +
+                "    inner join TaskData as task " +
+                "     on task.id in (:ids) and metric.workloadData_id in " +
+                "      (select workloadData.id from WorkloadData as workloadData where workloadData.taskId=task.taskId and workloadData.sessionId=task.sessionId)")
+                .setParameter("ids", taskIds).getResultList();
+        log.debug("{} ms spent for fetching {} metrics", System.currentTimeMillis() - temp, validatorNames.size());
+
+        metrics = new HashSet<MetricNameDto>(metricNames.size()+validatorNames.size());
+
+        for (Object[] name : metricNames){
+            if (name == null || name[0] == null) continue;
+            for (TaskDataDto td : tests) {
+                if (td.getIds().contains(((BigInteger)name[1]).longValue())) {
+                    MetricNameDto metric = new MetricNameDto();
+                    metric.setTests(td);
+                    metric.setName((String)name[0]);
+                    metrics.add(metric);
+                    break;
+                }
+            }
+        }
+
+        for (Object[] name : validatorNames){
+            if (name == null || name[0] == null) continue;
+            for (TaskDataDto td : tests) {
+                if (td.getIds().contains(((BigInteger)name[1]).longValue())) {
+                    MetricNameDto metric = new MetricNameDto();
+                    metric.setTests(td);
+                    metric.setName((String)name[0]);
+                    metrics.add(metric);
+                    break;
+                }
+            }
+        }
+
+        return metrics;
+    }
+
     public Set<MetricNameDto> getLatencyMetricsNames(TaskDataDto tests){
         Set<MetricNameDto> latencyNames;
 
@@ -158,71 +199,79 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         return latencyNames;
     }
 
+    public Set<MetricNameDto> getLatencyMetricsNames(List<TaskDataDto> tests){
+        Set<MetricNameDto> latencyNames;
 
-    @Override
-    public Set<PlotNameDto> getPlotNames(Set<String> sessionIds, TaskDataDto taskDataDto) {
-        Set<PlotNameDto> plotNameDtoSet = new LinkedHashSet<PlotNameDto>();
-        try {
-            if (isWorkloadStatisticsAvailable(sessionIds, taskDataDto)) {
-                for (Map.Entry<GroupKey, DefaultWorkloadParameters[]> monitoringPlot : workloadPlotGroups.entrySet()) {
-                    plotNameDtoSet.add(new PlotNameDto(taskDataDto, monitoringPlot.getKey().getUpperName()));
-                }
-            }
-
-            List<PlotNameDto> customMetrics = customMetricPlotDataProvider.getPlotNames(taskDataDto);
-            plotNameDtoSet.addAll(customMetrics);
-
-            log.debug("For sessions {} are available these plots: {}", sessionIds, plotNameDtoSet);
-        } catch (Exception e) {
-            log.error("Error was occurred during task scope plots data getting for session IDs " + sessionIds + ", task name " + taskDataDto.getTaskName(), e);
-            throw new RuntimeException(e);
+        Set<Long> testIds = new HashSet<Long>();
+        for (TaskDataDto tdd : tests) {
+            testIds.addAll(tdd.getIds());
         }
 
-        return plotNameDtoSet;
+        long temp = System.currentTimeMillis();
+        List<WorkloadProcessLatencyPercentile> latency = entityManager.createQuery(
+                "select s from  WorkloadProcessLatencyPercentile as s where s.workloadProcessDescriptiveStatistics.taskData.id in (:taskIds) ")
+                .setParameter("taskIds", testIds)
+                .getResultList();
+
+
+        log.debug("{} ms spent for Latency Percentile fetching (size ={})", System.currentTimeMillis() - temp, latency.size());
+
+        latencyNames = new HashSet<MetricNameDto>(latency.size());
+
+        if (!latency.isEmpty()){
+
+
+            for(WorkloadProcessLatencyPercentile percentile : latency) {
+                for (TaskDataDto tdd : tests) {
+
+                    if (tdd.getIds().contains(percentile.getWorkloadProcessDescriptiveStatistics().getTaskData().getId())) {
+                        MetricNameDto dto = new MetricNameDto();
+                        dto.setName("Latency "+Double.toString(percentile.getPercentileKey())+" %");
+                        dto.setTests(tdd);
+                        latencyNames.add(dto);
+                        break;
+                    }
+                }
+            }
+        }
+        return latencyNames;
     }
 
-    @Override
-    public List<MonitoringPlotNode> getMonitoringPlotNodes(Set<String> sessionIds, TaskDataDto taskDataDto) {
-        Set<MonitoringPlotNode> monitoringPlotNodes = new LinkedHashSet<MonitoringPlotNode>();
+
+    /**
+     * one db call method
+     * @param sessionIds
+     * @param taskDataDtos
+     * @return
+     */
+    public Map<TaskDataDto, List<MonitoringPlotNode>> getMonitoringPlotNodes(Set<String> sessionIds, List<TaskDataDto> taskDataDtos) {
         try {
-            List<Long> monitoringIds = getMonitoringIds(sessionIds, taskDataDto);
+            Map<TaskDataDto, List<BigInteger>>  monitoringIds = getMonitoringIds(sessionIds, taskDataDtos);
             if (monitoringIds.isEmpty()) {
-                return Collections.EMPTY_LIST;
+                return Collections.EMPTY_MAP;
             }
 
-            for (Map.Entry<GroupKey, DefaultMonitoringParameters[]> monitoringPlot : monitoringPlotGroups.entrySet()) {
 
-                List<PlotNode> plotNodes = new ArrayList<PlotNode>();
 
-                plotNodes.addAll(getMonitoringPlotNames(sessionIds, monitoringPlot, taskDataDto, monitoringIds));
+            Map<TaskDataDto, List<MonitoringPlotNode>> result = getMonitoringPlotNames(sessionIds, monitoringPlotGroups.entrySet(), monitoringIds);
 
-                if (plotNodes.isEmpty()) {
-                    continue;
-                }
-
-                MonitoringPlotNode monitoringPlotNode = new MonitoringPlotNode();
-                monitoringPlotNode.setId(MONITORING_PREFIX + taskDataDto.getTaskName() + monitoringPlot.getKey().getUpperName());
-                monitoringPlotNode.setDisplayName(monitoringPlot.getKey().getUpperName());
-                MetricRankingProvider.sortPlotNodes(plotNodes);
-                monitoringPlotNode.setPlots(plotNodes);
-                monitoringPlotNodes.add(monitoringPlotNode);
+            if (result.isEmpty()) {
+                return Collections.EMPTY_MAP;
             }
-            log.debug("For sessions {} are available these plots: {}", sessionIds, monitoringPlotNodes);
+
+            log.debug("For sessions {} are available these plots: {}", sessionIds, result);
+            return result;
+
         } catch (Exception e) {
-            log.error("Error was occurred during task scope plots data getting for session IDs " + sessionIds + ", task name " + taskDataDto.getTaskName(), e);
+            log.error("Error was occurred during task scope plots data getting for session IDs " + sessionIds + ", tasks  " + taskDataDtos, e);
             throw new RuntimeException(e);
         }
-
-        List<MonitoringPlotNode> resultList = new ArrayList<MonitoringPlotNode>(monitoringPlotNodes);
-        MetricRankingProvider.sortPlotNodes(resultList);
-        return resultList;
     }
 
 
+    private List<BigInteger> getMonitoringIds(Set<String> sessionIds, TaskDataDto taskDataDto) {
 
-    private List<Long> getMonitoringIds(Set<String> sessionIds, TaskDataDto taskDataDto) {
-
-        List<Long> monitoringTaskIds = (List<Long>) entityManager.createNativeQuery(
+        List<BigInteger> monitoringTaskIds = (List<BigInteger>) entityManager.createNativeQuery(
                 "select td.id from TaskData as td where td.sessionId in (:sessionIds) and td.taskId in " +
                     "(" +
                          "select pm.monitoringId from PerformedMonitoring as pm where pm.sessionId in (:sessionIds) and parentId in " +
@@ -240,36 +289,195 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         return monitoringTaskIds;
     }
 
-    @Override
-    public List<MonitoringSessionScopePlotNode> getMonitoringPlotNodes(Set<String> sessionIds) {
+    /**
+     * Fetch all Monitoring tasks ids for all tests
+     * @param sessionIds all sessions
+     * @param taskDataDtos all tests
+     * @return list of monitoring task ids
+     */
+    private Map<TaskDataDto, List<BigInteger>> getMonitoringIds(Set<String> sessionIds, List<TaskDataDto> taskDataDtos) {
 
-        Set<MonitoringSessionScopePlotNode> monitoringPlotNodes = new LinkedHashSet<MonitoringSessionScopePlotNode>();
-        try {
-            for (Map.Entry<GroupKey, DefaultMonitoringParameters[]> monitoringPlot : monitoringPlotGroups.entrySet()) {
+        List<Long> taskIds = new ArrayList<Long>();
+        for (TaskDataDto tdd : taskDataDtos) {
+            taskIds.addAll(tdd.getIds());
+        }
 
-                List<SessionPlotNode> plotNodes = new ArrayList<SessionPlotNode>();
-                plotNodes.addAll(getMonitoringPlotNames(sessionIds, monitoringPlot));
 
-                if (plotNodes.isEmpty()) {
-                    continue;
+        List<Object[]> monitoringTaskIds = entityManager.createNativeQuery(
+                "select test.id, selected.testId from TaskData as test inner join" +
+                        " (" +
+                        "  select td2.id as testId, pm.monitoringId, pm.sessionId from PerformedMonitoring as pm join TaskData as td2" +
+                        "    on pm.sessionId in (:sessionIds) and td2.sessionId in (:sessionIds) and (td2.id, pm.parentId) in" +
+                        "    (" +
+                        "        select td2.id, wd.parentId from WorkloadData as wd join TaskData as td2" +
+                        "      on td2.id in (:ids) and wd.sessionId in (:sessionIds) and wd.taskId=td2.taskId" +
+                        "    )" +
+                        " ) as selected on test.taskId=selected.monitoringId and test.sessionId=selected.sessionId"
+        )
+                .setParameter("ids", taskIds)
+                .setParameter("sessionIds", sessionIds)
+                .getResultList();
+
+        Map<TaskDataDto, List<BigInteger>> result = new HashMap<TaskDataDto, List<BigInteger>>();
+        if (monitoringTaskIds.isEmpty()) {
+            return Collections.EMPTY_MAP;
+        }
+
+
+        for (Object[] ids : monitoringTaskIds) {
+            for (TaskDataDto tdd : taskDataDtos) {
+                if (tdd.getIds().contains(((BigInteger)ids[1]).longValue())) {
+                    if (!result.containsKey(tdd)) {
+                        result.put(tdd, new ArrayList<BigInteger>());
+                    }
+                    result.get(tdd).add(((BigInteger)ids[0]));
+                    break;
                 }
-
-                MonitoringSessionScopePlotNode monitoringPlotNode = new MonitoringSessionScopePlotNode();
-                monitoringPlotNode.setId(MONITORING_PREFIX + monitoringPlot.getKey().getUpperName());
-                monitoringPlotNode.setDisplayName(monitoringPlot.getKey().getUpperName());
-                MetricRankingProvider.sortPlotNodes(plotNodes);
-                monitoringPlotNode.setPlots(plotNodes);
-                monitoringPlotNodes.add(monitoringPlotNode);
             }
+        }
+
+        return result;
+    }
+
+
+    @Override
+    public List<MonitoringSessionScopePlotNode> getMonitoringPlotNodesNew(Set<String> sessionIds) {
+
+        List<MonitoringSessionScopePlotNode> monitoringPlotNodes;
+        try {
+
+            monitoringPlotNodes = getMonitoringPlotNamesNew(sessionIds);
             log.debug("For sessions {} are available these plots: {}", sessionIds, monitoringPlotNodes);
         } catch (Exception e) {
             log.error("Error was occurred during task scope plots data getting for session IDs " + sessionIds, e);
             throw new RuntimeException(e);
         }
 
-        List<MonitoringSessionScopePlotNode> resultList = new ArrayList<MonitoringSessionScopePlotNode>(monitoringPlotNodes);
-        MetricRankingProvider.sortPlotNodes(resultList);
-        return resultList;
+        if (monitoringPlotNodes == null) {
+            return Collections.EMPTY_LIST;
+        }
+        return monitoringPlotNodes;
+    }
+
+
+    @Override
+    public Map<TaskDataDto, List<MetricNode>> getTestMetricsMap(final List<TaskDataDto> tddos) {
+
+        Long time = System.currentTimeMillis();
+        List<MetricNameDto> list = new ArrayList<MetricNameDto>();
+        for (TaskDataDto taskDataDto : tddos){
+            for (String standardMetricName : standardMetrics.keySet()){
+                MetricNameDto metric = new MetricNameDto();
+                metric.setName(standardMetricName);
+                metric.setTests(taskDataDto);
+                list.add(metric);
+            }
+        }
+
+        ExecutorService pool = null;
+
+        try {
+            pool = Executors.newFixedThreadPool(2);
+
+            Future<Set<MetricNameDto>> latencyMetricNamesFuture = pool.submit(
+                    new Callable<Set<MetricNameDto>>(){
+
+                        @Override
+                        public Set<MetricNameDto> call() throws Exception {
+                            return getLatencyMetricsNames(tddos);
+                        }
+                    }
+            );
+
+            Future<Set<MetricNameDto>> customMetricNamesFuture = pool.submit(
+                    new Callable<Set<MetricNameDto>>(){
+
+                        @Override
+                        public Set<MetricNameDto> call() throws Exception {
+                            return getCustomMetricsNames(tddos);
+                        }
+                    }
+            );
+
+            list.addAll(latencyMetricNamesFuture.get());
+            list.addAll(customMetricNamesFuture.get());
+        } catch (Exception e) {
+            log.error("Exception occurs while fetching MetricNames for tests : ", e);
+            throw new RuntimeException(e);
+        } finally {
+            if (pool != null) {
+                pool.shutdown();
+            }
+        }
+
+        log.info("For tasks {} was found {} metrics names for {} ms", new Object[]{tddos, list.size(), System.currentTimeMillis() - time});
+
+        Map<TaskDataDto, List<MetricNode>> result = new HashMap<TaskDataDto, List<MetricNode>>();
+
+        for (MetricNameDto mnd : list) {
+            for (TaskDataDto tdd : tddos) {
+                if (tdd.getIds().containsAll(mnd.getTaskIds())) {
+                    if (!result.containsKey(tdd)) {
+                        result.put(tdd, new ArrayList<MetricNode>());
+                    }
+                    MetricNode mn = new MetricNode();
+                    mn.setMetricName(mnd);
+                    mn.setId(SUMMARY_PREFIX + tdd.getTaskName() + mnd.getName());
+                    mn.setDisplayName(mnd.getDisplay());
+                    result.get(tdd).add(mn);
+                    break;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public Map<TaskDataDto, List<PlotNode>> getTestPlotsMap(Set<String> sessionIds, List<TaskDataDto> taskList) {
+
+        Map<TaskDataDto, List<PlotNode>> result = new HashMap<TaskDataDto, List<PlotNode>>();
+
+        List<PlotNameDto> plotNameDtoSet = new ArrayList<PlotNameDto>();
+        try {
+
+            Map<TaskDataDto, Boolean> isWorkloadMap = isWorkloadStatisticsAvailable(sessionIds, taskList);
+            for (Map.Entry<TaskDataDto, Boolean> entry: isWorkloadMap.entrySet()) {
+                if (entry.getValue()) {
+                    for (Map.Entry<GroupKey, DefaultWorkloadParameters[]> monitoringPlot : workloadPlotGroups.entrySet()) {
+                        plotNameDtoSet.add(new PlotNameDto(entry.getKey(), monitoringPlot.getKey().getUpperName()));
+                    }
+                }
+            }
+
+            List<PlotNameDto> customMetrics = customMetricPlotDataProvider.getPlotNames(taskList);
+
+            plotNameDtoSet.addAll(customMetrics);
+
+            log.debug("For sessions {} are available these plots: {}", sessionIds, plotNameDtoSet);
+
+            for (PlotNameDto pnd : plotNameDtoSet) {
+                for (TaskDataDto tdd : taskList) {
+                    if (tdd.getIds().containsAll(pnd.getTaskIds())) {
+                        if (!result.containsKey(tdd)) {
+                            result.put(tdd, new ArrayList<PlotNode>());
+                        }
+                        PlotNode pn = new PlotNode();
+                        pn.setPlotName(pnd);
+                        pn.setId(METRICS_PREFIX + tdd.getTaskName() + pnd.getPlotName());
+                        pn.setDisplayName(pnd.getDisplay());
+                        result.get(tdd).add(pn);
+                        break;
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            log.error("Error was occurred during task scope plots data getting for session IDs " + sessionIds + ", tasks : " + taskList, e);
+            throw new RuntimeException(e);
+        }
+
+        return result;
     }
 
     private List<SessionPlotNode> getMonitoringPlotNames(Set<String> sessionIds, Map.Entry<GroupKey, DefaultMonitoringParameters[]> monitoringParameters) {
@@ -309,7 +517,63 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         return resultList;
     }
 
-    private List<PlotNode> getMonitoringPlotNames(Set<String> sessionIds, Map.Entry<GroupKey, DefaultMonitoringParameters[]> monitoringParameters, TaskDataDto taskDataDto, List<Long> monitoringIds) {
+    private List<MonitoringSessionScopePlotNode> getMonitoringPlotNamesNew(Set<String> sessionIds) {
+
+        List<Object[]> agentIdentifierObjects =
+                entityManager.createNativeQuery("select ms.boxIdentifier, ms.systemUnderTestUrl, ms.description from MonitoringStatistics as ms" +
+                        "  where ms.sessionId in (:sessionId)" +
+                        " group by ms.description, ms.boxIdentifier, ms.systemUnderTestUrl")
+                        .setParameter("sessionId", sessionIds)
+                        .getResultList();
+
+        if (agentIdentifierObjects.size() == 0) {
+            return Collections.EMPTY_LIST;
+        }
+
+        Map<String, MonitoringSessionScopePlotNode> tempMap = new HashMap<String, MonitoringSessionScopePlotNode>();
+
+        Set<Map.Entry<GroupKey, DefaultMonitoringParameters[]>> set = monitoringPlotGroups.entrySet();
+        for (Object[] objects : agentIdentifierObjects) {
+
+            String groupKey = findMonitoringKey((String)objects[2], set);
+            if (groupKey == null) {
+
+                continue;
+            }
+
+            if (!tempMap.containsKey(groupKey)) {
+
+                MonitoringSessionScopePlotNode monitoringPlotNode = new MonitoringSessionScopePlotNode();
+                monitoringPlotNode.setId(MONITORING_PREFIX + groupKey);
+                monitoringPlotNode.setDisplayName(groupKey);
+                monitoringPlotNode.setPlots(new ArrayList<SessionPlotNode>());
+                tempMap.put(groupKey, monitoringPlotNode);
+            }
+
+            MonitoringSessionScopePlotNode monitoringPlotNode = tempMap.get(groupKey);
+
+            SessionPlotNode plotNode = new SessionPlotNode();
+            String agentIdenty = objects[0] == null ? objects[1].toString() : objects[0].toString();
+            plotNode.setPlotNameDto(new SessionPlotNameDto(sessionIds, groupKey + AGENT_NAME_SEPARATOR + agentIdenty));
+            plotNode.setDisplayName(agentIdenty);
+            String id = METRICS_PREFIX + groupKey + agentIdenty;
+            plotNode.setId(id);
+
+            if (!monitoringPlotNode.getPlots().contains(plotNode))
+                monitoringPlotNode.getPlots().add(plotNode);
+
+        }
+
+        ArrayList<MonitoringSessionScopePlotNode> result = new ArrayList<MonitoringSessionScopePlotNode>(tempMap.values());
+        for (MonitoringSessionScopePlotNode ms : result) {
+            MetricRankingProvider.sortPlotNodes(ms.getPlots());
+        }
+        MetricRankingProvider.sortPlotNodes(result);
+
+        return result;
+    }
+
+    private List<PlotNode> getMonitoringPlotNames(Set<String> sessionIds, Map.Entry<GroupKey, DefaultMonitoringParameters[]> monitoringParameters, TaskDataDto taskDataDto, List<BigInteger> monitoringIds) {
         List<PlotNode> resultList = new ArrayList<PlotNode>();
 
         List<String> parametersList = new ArrayList<String>();
@@ -346,6 +610,108 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         return resultList;
     }
 
+    private Map<TaskDataDto, List<MonitoringPlotNode>> getMonitoringPlotNames(Set<String> sessionIds, Set<Map.Entry<GroupKey, DefaultMonitoringParameters[]>> monitoringParameters, Map<TaskDataDto, List<BigInteger>> monitoringIdsMap) {
+
+        List<String> parametersList = new ArrayList<String>();
+
+        Map<String, List<String>> map = new HashMap<String, List<String>>();
+
+        for (Map.Entry<GroupKey, DefaultMonitoringParameters[]> entry : monitoringParameters) {
+            map.put(entry.getKey().getUpperName(), new ArrayList<String>());
+            for (DefaultMonitoringParameters mp: entry.getValue()) {
+                parametersList.add(mp.getDescription());
+                map.get(entry.getKey().getUpperName()).add(mp.getDescription());
+            }
+        }
+
+        List<BigInteger> monitoringIds = new ArrayList<BigInteger>();
+        for (List<BigInteger> mIds : monitoringIdsMap.values()) {
+            monitoringIds.addAll(mIds);
+        }
+
+        List<Object[]> agentIdentifierObjects =
+                entityManager.createNativeQuery("select ms.boxIdentifier, ms.systemUnderTestUrl, ms.taskData_id, ms.description  from MonitoringStatistics as ms" +
+                        "  where " +
+                        " ms.taskData_id in (:taskIds) " +
+                        " group by ms.taskData_id, ms.description, boxIdentifier, systemUnderTestUrl")
+                        .setParameter("taskIds", monitoringIds)
+                        .getResultList();
+
+        Map<TaskDataDto, List<MonitoringPlotNode>> resultMap = new HashMap<TaskDataDto, List<MonitoringPlotNode>>();
+
+        Set<TaskDataDto> taskSet = monitoringIdsMap.keySet();
+
+        for (Object[] objects : agentIdentifierObjects) {
+            BigInteger testId = (BigInteger)objects[2];
+            for (TaskDataDto tdd : taskSet) {
+                if (monitoringIdsMap.get(tdd).contains(testId)) {
+                    if (!resultMap.containsKey(tdd)) {
+                        resultMap.put(tdd, new ArrayList<MonitoringPlotNode>());
+                    }
+
+                    List<MonitoringPlotNode> mpnList = resultMap.get(tdd);
+                    String monitoringKey = findMonitoringKey((String)objects[3], monitoringParameters);
+                    if (monitoringKey == null) {
+                        log.warn("Could not find monitoing key for description: '{}' and monitoing task id: '{}'", objects[3], objects[2]);
+                        break;
+                    }
+                    String identy = objects[0] == null ? objects[1].toString() : objects[0].toString();
+
+                    PlotNode plotNode = new PlotNode();
+                    plotNode.setPlotName(new PlotNameDto(tdd, monitoringKey + AGENT_NAME_SEPARATOR + identy));
+                    plotNode.setDisplayName(identy);
+                    String id = METRICS_PREFIX + tdd.getTaskName() + monitoringKey + identy;
+                    plotNode.setId(id);
+
+                    boolean present = false;
+                    for (MonitoringPlotNode mpn : mpnList) {
+                        if (mpn.getDisplayName().equals(monitoringKey)) {
+                            if (!mpn.getPlots().contains(plotNode))
+                                mpn.getPlots().add(plotNode);
+                            present = true;
+                            break;
+                        }
+                    }
+
+                    if (!present) {
+                        MonitoringPlotNode monitoringPlotNode = new MonitoringPlotNode();
+                        monitoringPlotNode.setId(MONITORING_PREFIX + tdd.getTaskName() + monitoringKey);
+                        monitoringPlotNode.setDisplayName(monitoringKey);
+                        resultMap.get(tdd).add(monitoringPlotNode);
+                        monitoringPlotNode.setPlots(new ArrayList<PlotNode>());
+                        if (!monitoringPlotNode.getPlots().contains(plotNode))
+                            monitoringPlotNode.getPlots().add(plotNode);
+                    }
+                    break;
+                }
+            }
+        }
+
+
+        // sorting
+        for (TaskDataDto tdd : taskSet) {
+            List<MonitoringPlotNode> mpnList = resultMap.get(tdd);
+            if (mpnList == null) continue;
+            MetricRankingProvider.sortPlotNodes(mpnList);
+            for (MonitoringPlotNode mpn : mpnList) {
+                MetricRankingProvider.sortPlotNodes(mpn.getPlots());
+            }
+        }
+        return resultMap;
+    }
+
+    private String findMonitoringKey(String description, Set<Map.Entry<GroupKey, DefaultMonitoringParameters[]>> monitoringParameters) {
+        for (Map.Entry<GroupKey, DefaultMonitoringParameters[]> entry : monitoringParameters) {
+            for (DefaultMonitoringParameters dmp : entry.getValue()) {
+                if (dmp.getDescription().equals(description)) {
+                    return entry.getKey().getUpperName();
+                }
+            }
+        }
+        return null;
+    }
+
+
     private boolean isWorkloadStatisticsAvailable(Set<String> sessionIds, TaskDataDto tests) {
         long timestamp = System.currentTimeMillis();
         long workloadStatisticsCount = (Long) entityManager.createQuery("select count(tis.id) from TimeInvocationStatistics as tis where tis.taskData.sessionId in (:sessionIds) and tis.taskData.id in (:tests)")
@@ -359,6 +725,45 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         }
 
         return true;
+    }
+
+    private Map<TaskDataDto, Boolean> isWorkloadStatisticsAvailable(Set<String> sessionIds, List<TaskDataDto> tests) {
+
+        List<Long> testsIds = new ArrayList<Long>();
+        for (TaskDataDto tdd : tests) {
+            testsIds.addAll(tdd.getIds());
+        }
+
+
+        List<Object[]> objects  = entityManager.createQuery("select tis.taskData.id, count(tis.id) from TimeInvocationStatistics as tis where tis.taskData.id in (:tests)")
+                .setParameter("tests", testsIds)
+                .getResultList();
+
+
+        if (objects.isEmpty()) {
+            return Collections.EMPTY_MAP;
+        }
+
+        Map<TaskDataDto, Integer> tempMap = new HashMap<TaskDataDto, Integer>(tests.size());
+        for (TaskDataDto tdd : tests) {
+            tempMap.put(tdd, 0);
+        }
+
+        for (Object[] object : objects) {
+            for (TaskDataDto tdd : tests) {
+                if (tdd.getIds().contains((Long) object[1])) {
+                    int value = tempMap.get(tdd);
+                    tempMap.put(tdd, ++value);
+                }
+            }
+        }
+
+        Map<TaskDataDto, Boolean> resultMap = new HashMap<TaskDataDto, Boolean>(tests.size());
+        for (Map.Entry<TaskDataDto, Integer> entry : tempMap.entrySet()) {
+            resultMap.put(entry.getKey(), entry.getValue() < entry.getKey().getIds().size());
+        }
+
+        return resultMap;
     }
 
     private boolean isMonitoringStatisticsAvailable(String sessionId) {
