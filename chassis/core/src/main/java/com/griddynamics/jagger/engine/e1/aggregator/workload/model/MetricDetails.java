@@ -33,7 +33,7 @@ import javax.persistence.*;
 @Entity
 public class MetricDetails {
 
-    public static final int ALLOCATION_SIZE = 150;
+    public static final int ALLOCATION_SIZE = 100;
     public static final String METRIC_ID = "MetricDetails_ID";
 
     @TableGenerator(name="GENERATOR",
