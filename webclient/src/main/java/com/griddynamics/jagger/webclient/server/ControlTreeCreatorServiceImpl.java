@@ -24,6 +24,10 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
 
     CommonDataProvider databaseFetcher;
 
+    // todo: implement same idea for fetching plots/summary data
+    // to implement parallel fetching data for control tree
+    private final ExecutorService threadPool = Executors.newFixedThreadPool(15);
+
     public void setDatabaseFetcher(CommonDataProvider databaseFetcher) {
         this.databaseFetcher = databaseFetcher;
     }
@@ -39,7 +43,6 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
     @Override
     public RootNode getControlTreeForSessions(Set<String> sessionIds) throws RuntimeException {
 
-        ExecutorService pool = null;
         try {
 
             long temp = System.currentTimeMillis();
@@ -48,11 +51,9 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
 
             List<TaskDataDto> taskList = fetchTaskDatas(sessionIds);
 
-            pool = Executors.newFixedThreadPool(3);
-
-            Future<SummaryNode> summaryFuture = pool.submit(new SummaryNodeFetcherTread(sessionIds, taskList));
-            Future<DetailsNode> detailsNodeFuture = pool.submit(new DetailsNodeFetcherTread(sessionIds, taskList));
-            Future<SessionScopePlotsNode> sessionScopePlotsNodeFuture = pool.submit(new SessionScopePlotsNodeFetcherThread(sessionIds));
+            Future<SummaryNode> summaryFuture = threadPool.submit(new SummaryNodeFetcherTread(sessionIds, taskList));
+            Future<DetailsNode> detailsNodeFuture = threadPool.submit(new DetailsNodeFetcherTread(sessionIds, taskList));
+            Future<SessionScopePlotsNode> sessionScopePlotsNodeFuture = threadPool.submit(new SessionScopePlotsNodeFetcherThread(sessionIds));
 
             SummaryNode summaryNode = summaryFuture.get();
             DetailsNode detailsNode = detailsNodeFuture.get();
@@ -63,17 +64,13 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
             rootNode.setSummary(summaryNode);
             rootNode.setDetailsNode(detailsNode);
 
-            log.info("Total time fetching all data for control tree : " + (System.currentTimeMillis() - temp));
+            log.info("Total time fetching all data for control tree : {} ms", (System.currentTimeMillis() - temp));
 
             return rootNode;
         } catch (Throwable th) {
             log.error("Error while creating Control Tree", th);
             th.printStackTrace();
             throw new RuntimeException(th);
-        } finally {
-            if (pool != null) {
-                pool.shutdown();
-            }
         }
     }
 
@@ -87,12 +84,8 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
     private List<TestDetailsNode> getDetailsTaskNodeList(final Set<String> sessionIds, final List<TaskDataDto> taskList) {
         List<TestDetailsNode> taskDataDtoList = new ArrayList<TestDetailsNode>();
 
-        ExecutorService pool = null;
-
         try {
-            pool = Executors.newFixedThreadPool(2);
-
-            Future<Map<TaskDataDto, List<PlotNode>>> metricsPlotsMapFuture = pool.submit(
+            Future<Map<TaskDataDto, List<PlotNode>>> metricsPlotsMapFuture = threadPool.submit(
                 new Callable<Map<TaskDataDto, List<PlotNode>>>() {
                     @Override
                     public Map<TaskDataDto, List<PlotNode>> call() throws Exception {
@@ -101,7 +94,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
                 }
             );
 
-            Future<Map<TaskDataDto, List<MonitoringPlotNode>>> monitoringPlotsMapFuture = pool.submit(
+            Future<Map<TaskDataDto, List<MonitoringPlotNode>>> monitoringPlotsMapFuture = threadPool.submit(
                     new Callable<Map<TaskDataDto, List<MonitoringPlotNode>>>() {
                         @Override
                         public Map<TaskDataDto, List<MonitoringPlotNode>> call() throws Exception {
@@ -130,10 +123,6 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
         } catch (Exception e) {
             log.error("Exception occurs while fetching plotNames for sessions {}, and tests {}", sessionIds, taskList);
             throw new RuntimeException(e);
-        } finally {
-            if (pool != null) {
-                pool.shutdown();
-            }
         }
     }
 
@@ -166,7 +155,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
     }
 
     private Map<TaskDataDto, List<MetricNode>> getTestMetricsMap(List<TaskDataDto> tddos) {
-        return databaseFetcher.getTestMetricsMap(tddos);
+        return databaseFetcher.getTestMetricsMap(tddos, threadPool);
     }
 
 
@@ -177,8 +166,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
 
     private Map<TaskDataDto, List<MonitoringPlotNode>> getMonitoringPlots(Set<String> sessionIds, List<TaskDataDto> tdds) {
 
-        Map<TaskDataDto, List<MonitoringPlotNode>> map =  databaseFetcher.getMonitoringPlotNodes(sessionIds, tdds);
-        return map;
+        return databaseFetcher.getMonitoringPlotNodes(sessionIds, tdds);
     }
 
 

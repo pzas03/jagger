@@ -934,11 +934,13 @@ public class Trends extends DefaultActivity {
                         } else {
                             controlTree.onMetricsTab();
                         }
+                        enableControl();
 
                     } else {
                         updateControlTree(result);
+                        enableControl();
                     }
-                    enableControl();
+
                 }
 
             });
@@ -1100,15 +1102,14 @@ public class Trends extends DefaultActivity {
             fetchSessionScopePlots();
             fetchPlotsForTests();
 
-            enableControl();
         }
 
         private void fetchSessionScopePlots() {
-            sessionScopePlotFetcher.fetchPlots(controlTree.getCheckedSessionScopePlots(), false);
+            sessionScopePlotFetcher.fetchPlots(controlTree.getCheckedSessionScopePlots(), true);
         }
 
         private void fetchPlotsForTests() {
-            testPlotFetcher.fetchPlots(controlTree.getCheckedPlots(), false);
+            testPlotFetcher.fetchPlots(controlTree.getCheckedPlots(), true);
         }
 
         private void fetchMetricsForTests(List<TestNode> testNodes) {
