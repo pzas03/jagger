@@ -224,6 +224,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         }
 
 
+        long temp = System.currentTimeMillis();
         List<Object[]> monitoringTaskIds = entityManager.createNativeQuery(
                 "select test.id, some.testId from TaskData as test inner join" +
                         "  (" +
@@ -237,6 +238,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                 .setParameter("ids", taskIds)
                 .setParameter("sessionIds", sessionIds)
                 .getResultList();
+        log.debug("db call to fetch all monitoring tasks ids in {} ms (size : {})", System.currentTimeMillis() - temp, monitoringTaskIds.size());
 
         Map<TaskDataDto, List<BigInteger>> result = new HashMap<TaskDataDto, List<BigInteger>>();
         if (monitoringTaskIds.isEmpty()) {
@@ -396,12 +398,14 @@ public class CommonDataProviderImpl implements CommonDataProvider {
 
     private List<MonitoringSessionScopePlotNode> getMonitoringPlotNamesNew(Set<String> sessionIds) {
 
+        long temp = System.currentTimeMillis();
         List<Object[]> agentIdentifierObjects =
                 entityManager.createNativeQuery("select ms.boxIdentifier, ms.systemUnderTestUrl, ms.description from MonitoringStatistics as ms" +
                         "  where ms.sessionId in (:sessionId)" +
                         " group by ms.description, ms.boxIdentifier, ms.systemUnderTestUrl")
                         .setParameter("sessionId", sessionIds)
                         .getResultList();
+        log.debug("db call to fetch session scope monitoring in {} ms (size: {})", System.currentTimeMillis() - temp, agentIdentifierObjects.size());
 
         if (agentIdentifierObjects.size() == 0) {
             return Collections.EMPTY_LIST;
@@ -453,23 +457,12 @@ public class CommonDataProviderImpl implements CommonDataProvider {
 
     private Map<TaskDataDto, List<MonitoringPlotNode>> getMonitoringPlotNames(Set<String> sessionIds, Set<Map.Entry<GroupKey, DefaultMonitoringParameters[]>> monitoringParameters, Map<TaskDataDto, List<BigInteger>> monitoringIdsMap) {
 
-        List<String> parametersList = new ArrayList<String>();
-
-        Map<String, List<String>> map = new HashMap<String, List<String>>();
-
-        for (Map.Entry<GroupKey, DefaultMonitoringParameters[]> entry : monitoringParameters) {
-            map.put(entry.getKey().getUpperName(), new ArrayList<String>());
-            for (DefaultMonitoringParameters mp: entry.getValue()) {
-                parametersList.add(mp.getDescription());
-                map.get(entry.getKey().getUpperName()).add(mp.getDescription());
-            }
-        }
-
         List<BigInteger> monitoringIds = new ArrayList<BigInteger>();
         for (List<BigInteger> mIds : monitoringIdsMap.values()) {
             monitoringIds.addAll(mIds);
         }
 
+        long temp = System.currentTimeMillis();
         List<Object[]> agentIdentifierObjects =
                 entityManager.createNativeQuery("select ms.boxIdentifier, ms.systemUnderTestUrl, ms.taskData_id, ms.description  from MonitoringStatistics as ms" +
                         "  where " +
@@ -477,6 +470,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                         " group by ms.taskData_id, ms.description, boxIdentifier, systemUnderTestUrl")
                         .setParameter("taskIds", monitoringIds)
                         .getResultList();
+        log.debug("db call to fetch all MonitoringPlotNames for tests in {} ms (size: {})", System.currentTimeMillis() - temp, agentIdentifierObjects.size());
 
         Map<TaskDataDto, List<MonitoringPlotNode>> resultMap = new HashMap<TaskDataDto, List<MonitoringPlotNode>>();
 
@@ -560,10 +554,11 @@ public class CommonDataProviderImpl implements CommonDataProvider {
             testsIds.addAll(tdd.getIds());
         }
 
-
+        long temp = System.currentTimeMillis();
         List<Object[]> objects  = entityManager.createQuery("select tis.taskData.id, count(tis.id) from TimeInvocationStatistics as tis where tis.taskData.id in (:tests)")
                 .setParameter("tests", testsIds)
                 .getResultList();
+        log.debug("db call to check if WorkloadStatisticsAvailable in {} ms (size: {})", System.currentTimeMillis() - temp, objects.size());
 
 
         if (objects.isEmpty()) {
