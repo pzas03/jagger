@@ -85,19 +85,26 @@ public class CommonDataProviderImpl implements CommonDataProvider {
 
         long temp = System.currentTimeMillis();
         List<Object[]> metricNames = entityManager.createNativeQuery(
-                                                                    "select metric.name, task.id from DiagnosticResultEntity as metric " +
-                                                                            "    inner join TaskData as task " +
-                                                                            "     on task.id in (:ids) and metric.workloadData_id in " +
-                                                                            "      (select workloadData.id from WorkloadData as workloadData where workloadData.taskId=task.taskId and workloadData.sessionId=task.sessionId)")
-                                                                    .setParameter("ids", taskIds).getResultList();
+                    "select dre.name, selected.taskdataID from DiagnosticResultEntity dre join (" +
+                            "  select wd.id as workloaddataID, td.taskdataID from WorkloadData wd join   " +
+                            "      ( " +
+                            "        SELECT td.id as taskdataID, td.taskId, td.sessionId from TaskData td where td.id in (:ids)" +
+                            "      ) as td on wd.sessionId=td.sessionId and wd.taskId=td.taskId" +
+                            ") as selected on dre.workloadData_id=selected.workloaddataID")
+                    .setParameter("ids", taskIds)
+                    .getResultList();
 
         log.debug("{} ms spent for fetching {} metrics", System.currentTimeMillis() - temp, metricNames.size());
         temp = System.currentTimeMillis();
 
-        List<Object[]> validatorNames = entityManager.createNativeQuery( "select metric.validator, task.id from ValidationResultEntity as metric " +
-                "    inner join TaskData as task " +
-                "     on task.id in (:ids) and metric.workloadData_id in " +
-                "      (select workloadData.id from WorkloadData as workloadData where workloadData.taskId=task.taskId and workloadData.sessionId=task.sessionId)")
+        List<Object[]> validatorNames = entityManager.createNativeQuery(
+                "select v.validator, selected.taskdataID from ValidationResultEntity v join " +
+                "  (" +
+                "    select wd.id as workloaddataID, td.taskdataID from WorkloadData wd join   " +
+                "        ( " +
+                "          SELECT td.id as taskdataID, td.taskId, td.sessionId from TaskData td where td.id in (:ids)" +
+                "        ) as td on wd.taskId=td.taskId and wd.sessionId=td.sessionId" +
+                "  ) as selected on v.workloadData_id=selected.workloaddataID")
                 .setParameter("ids", taskIds).getResultList();
         log.debug("{} ms spent for fetching {} metrics", System.currentTimeMillis() - temp, validatorNames.size());
 
@@ -218,15 +225,14 @@ public class CommonDataProviderImpl implements CommonDataProvider {
 
 
         List<Object[]> monitoringTaskIds = entityManager.createNativeQuery(
-                "select test.id, selected.testId from TaskData as test inner join" +
-                        " (" +
-                        "  select td2.id as testId, pm.monitoringId, pm.sessionId from PerformedMonitoring as pm join TaskData as td2" +
-                        "    on pm.sessionId in (:sessionIds) and td2.sessionId in (:sessionIds) and (td2.id, pm.parentId) in" +
-                        "    (" +
-                        "        select td2.id, wd.parentId from WorkloadData as wd join TaskData as td2" +
-                        "      on td2.id in (:ids) and wd.sessionId in (:sessionIds) and wd.taskId=td2.taskId" +
-                        "    )" +
-                        " ) as selected on test.taskId=selected.monitoringId and test.sessionId=selected.sessionId"
+                "select test.id, some.testId from TaskData as test inner join" +
+                        "  (" +
+                        "   select some.id as testId, some.parentId, pm.monitoringId from PerformedMonitoring as pm join " +
+                        "            (" +
+                        "                select td2.id, wd.parentId from WorkloadData as wd join TaskData as td2" +
+                        "                      on td2.id in (:ids) and wd.sessionId in (:sessionIds) and wd.taskId=td2.taskId" +
+                        "            ) as some on pm.sessionId in (:sessionIds) and pm.parentId=some.parentId" +
+                        "  ) as some  on test.sessionId in (:sessionIds) and test.taskId=some.monitoringId"
         )
                 .setParameter("ids", taskIds)
                 .setParameter("sessionIds", sessionIds)
