@@ -32,6 +32,7 @@ import com.griddynamics.jagger.engine.e1.process.Services;
 import com.griddynamics.jagger.engine.e1.services.JaggerPlace;
 import com.griddynamics.jagger.engine.e1.services.SessionCommentStorage;
 import com.griddynamics.jagger.master.configuration.*;
+import com.griddynamics.jagger.master.database.DatabaseValidator;
 import com.griddynamics.jagger.monitoring.reporting.DynamicPlotGroups;
 import com.griddynamics.jagger.reporting.ReportingService;
 import com.griddynamics.jagger.storage.KeyValueStorage;
@@ -76,6 +77,7 @@ public class Master implements Runnable {
     private LogWriter logWriter;
     private LogReader logReader;
     private GeneralNodeInfoAggregator generalNodeInfoAggregator;
+    private DatabaseValidator databaseValidator;
 
 
     @Required
@@ -124,10 +126,18 @@ public class Master implements Runnable {
         this.logReader = logReader;
     }
 
-    public void setGeneralNodeInfoAggregator(GeneralNodeInfoAggregator generalNodeInfoAggregator) { this.generalNodeInfoAggregator = generalNodeInfoAggregator; }
+    public void setGeneralNodeInfoAggregator(GeneralNodeInfoAggregator generalNodeInfoAggregator) {
+        this.generalNodeInfoAggregator = generalNodeInfoAggregator;
+    }
+
+    public void setDatabaseValidator(DatabaseValidator databaseValidator) {
+        this.databaseValidator = databaseValidator;
+    }
 
     @Override
     public void run() {
+        databaseValidator.validate();
+
         validateConfiguration();
 
         if (!keyValueStorage.isAvailable()) {

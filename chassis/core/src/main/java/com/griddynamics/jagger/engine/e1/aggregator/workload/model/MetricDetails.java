@@ -20,12 +20,8 @@
 package com.griddynamics.jagger.engine.e1.aggregator.workload.model;
 
 import com.griddynamics.jagger.engine.e1.aggregator.session.model.TaskData;
-import javax.persistence.Entity;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -36,8 +32,23 @@ import javax.persistence.ManyToOne;
 
 @Entity
 public class MetricDetails {
+
+    public static final int ALLOCATION_SIZE = 100;
+    public static final String METRIC_ID = "MetricDetails_ID";
+
+    @TableGenerator(name="GENERATOR",
+                    table="IdGeneratorEntity",
+
+                    pkColumnName="tableName",
+                    valueColumnName="idValue",
+                    pkColumnValue=METRIC_ID,
+
+                    //do not change allocationSize value, it will cause duplicated key problem
+                    allocationSize=ALLOCATION_SIZE,
+                    initialValue = 0
+    )
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.TABLE, generator="GENERATOR")
     private Long id;
 
     @Column

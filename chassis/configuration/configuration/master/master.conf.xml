@@ -63,6 +63,7 @@
         <property name="logReader" ref="bufferedLogReader"/>
         <property name="logWriter" ref="bufferedLogWriter"/>
         <property name="generalNodeInfoAggregator" ref="generalNodeInfoAggregator"/>
+        <property name="databaseValidator" ref="databaseValidator"/>
     </bean>
 
     <bean id="distributionStartTimeTimeout" class="com.griddynamics.jagger.util.Timeout">
@@ -141,6 +142,10 @@
     <bean id="nodeCollectInfoTimeTimeout" class="com.griddynamics.jagger.util.Timeout">
         <property name="value" value="${chassis.master.collect.node.info.awaittime}"/>
         <property name="name"  value="chassis.master.collect.node.info.awaittime"/>
+    </bean>
+
+    <bean id="databaseValidator" class="com.griddynamics.jagger.master.database.DatabaseValidator">
+        <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
 
 </beans>

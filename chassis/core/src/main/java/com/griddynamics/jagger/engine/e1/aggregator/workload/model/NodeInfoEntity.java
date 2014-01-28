@@ -30,7 +30,8 @@ import java.util.Map;
 public class NodeInfoEntity {
 
     @Id
-    @GeneratedValue
+    // Identity strategy is not supported by Oracle DB from the box
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private Long id;
 

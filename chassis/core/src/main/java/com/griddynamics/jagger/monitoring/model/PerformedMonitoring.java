@@ -21,6 +21,7 @@ package com.griddynamics.jagger.monitoring.model;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
@@ -33,7 +34,8 @@ public class PerformedMonitoring {
     private String termination;
 
     @Id
-    @GeneratedValue
+    // Identity strategy is not supported by Oracle DB from the box
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long getId() {
         return id;
     }
