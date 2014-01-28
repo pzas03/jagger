@@ -22,6 +22,7 @@ package com.griddynamics.jagger.master;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
@@ -29,7 +30,8 @@ public class Session {
 	private Long id;
 
 	@Id
-	@GeneratedValue
+    // Identity strategy is not supported by Oracle DB from the box
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public Long getId() {
 		return id;
 	}

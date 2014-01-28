@@ -20,9 +20,7 @@
 
 package com.griddynamics.jagger.engine.e1.aggregator.workload.model;
 
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 @Entity
 public class TimeLatencyPercentile extends Percentile {

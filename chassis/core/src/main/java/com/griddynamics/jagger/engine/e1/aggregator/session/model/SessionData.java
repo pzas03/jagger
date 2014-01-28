@@ -30,7 +30,7 @@ import javax.persistence.*;
 public class SessionData {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String sessionId;
     private Date startTime;

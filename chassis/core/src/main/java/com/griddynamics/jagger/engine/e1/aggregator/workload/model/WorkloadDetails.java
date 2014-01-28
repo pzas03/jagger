@@ -20,10 +20,7 @@
 
 package com.griddynamics.jagger.engine.e1.aggregator.workload.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class WorkloadDetails {
@@ -34,7 +31,8 @@ public class WorkloadDetails {
 	private String comment;
 
 	@Id
-	@GeneratedValue
+    // Identity strategy is not supported by Oracle DB from the box
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public Long getId() {
 		return id;
 	}
