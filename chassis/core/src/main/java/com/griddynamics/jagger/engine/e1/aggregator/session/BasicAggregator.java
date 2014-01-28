@@ -59,7 +59,7 @@ public class BasicAggregator extends HibernateDaoSupport implements Distribution
     private static final Logger log = LoggerFactory.getLogger(BasicAggregator.class);
 
     private KeyValueStorage keyValueStorage;
-    private SessionMetaDataStorage metaDataStorageExecute;
+    private SessionMetaDataStorage sessionMetaDataStorage;
 
     TaskExecutionStatusProvider taskExecutionStatusProvider;
 
@@ -107,7 +107,7 @@ public class BasicAggregator extends HibernateDaoSupport implements Distribution
         String errorMessage = (String) getFirst(all, ERROR_MESSAGE);
         sessionData.setErrorMessage(errorMessage);
         getHibernateTemplate().persist(sessionData);
-        persistTags(sessionId,metaDataStorageExecute);
+        persistTags(sessionId, sessionMetaDataStorage);
 
     }
 
@@ -115,8 +115,8 @@ public class BasicAggregator extends HibernateDaoSupport implements Distribution
         this.keyValueStorage = keyValueStorage;
     }
 
-    public void setMetaDataStorageExecute(SessionMetaDataStorage metaDataStorageExecute) {
-        this.metaDataStorageExecute = metaDataStorageExecute;
+    public void setSessionMetaDataStorage(SessionMetaDataStorage sessionMetaDataStorage) {
+        this.sessionMetaDataStorage = sessionMetaDataStorage;
     }
 
     private static Object getFirst(Multimap<String, Object> all, String key) {
