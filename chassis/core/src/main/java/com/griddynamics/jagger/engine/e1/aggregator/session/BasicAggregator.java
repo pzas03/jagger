@@ -46,7 +46,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.List;
 
-
 import static com.griddynamics.jagger.engine.e1.collector.CollectorConstants.*;
 
 /**

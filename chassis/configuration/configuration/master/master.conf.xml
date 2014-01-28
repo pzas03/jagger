@@ -144,10 +144,6 @@
         <property name="name"  value="chassis.master.collect.node.info.awaittime"/>
     </bean>
 
-    <!--<bean id="metaDataAggregator" class="com.griddynamics.jagger.engine.e1.aggregator.session.MetaDataAggregator">-->
-        <!--<property name="sessionFactory" ref="sessionFactory"/>-->
-    <!--</bean>-->
-
     <bean id="metaDataStorage" class="com.griddynamics.jagger.engine.e1.services.SessionMetaDataStorage">
     </bean>
 
