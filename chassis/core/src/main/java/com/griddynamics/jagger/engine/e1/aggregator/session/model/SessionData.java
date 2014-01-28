@@ -21,8 +21,8 @@
 package com.griddynamics.jagger.engine.e1.aggregator.session.model;
 
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.Collections;
 
 import javax.persistence.*;
 
@@ -44,7 +44,7 @@ public class SessionData {
     private String errorMessage;
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "SessionTagEntity")
-    private Set<TagEntity> tags = new HashSet<TagEntity>();
+    private Set<TagEntity> tags = Collections.EMPTY_SET;
 
     public SessionData() {
     }

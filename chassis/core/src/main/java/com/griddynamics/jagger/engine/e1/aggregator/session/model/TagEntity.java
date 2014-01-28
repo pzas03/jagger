@@ -1,8 +1,7 @@
 package com.griddynamics.jagger.engine.e1.aggregator.session.model;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
 
 
@@ -20,9 +19,10 @@ public class TagEntity {
     @Id
     @Column(unique = true, nullable = false)
     private String name;
+    @Column(length = 100)
     private String description;
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "tags")
-    private Set<SessionData> sessions = new HashSet<SessionData>();
+    private Set<SessionData> sessions = Collections.EMPTY_SET;
 
     public TagEntity(String name, String description) {
         this.name = name;

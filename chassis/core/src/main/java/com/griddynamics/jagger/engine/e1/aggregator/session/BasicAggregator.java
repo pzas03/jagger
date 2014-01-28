@@ -149,8 +149,7 @@ public class BasicAggregator extends HibernateDaoSupport implements Distribution
     }
 
     public void persistTags(String sessionId, SessionMetaDataStorage metaDataStorage) {
-        Set<TagEntity> tags = new HashSet<TagEntity>();
-
+        Set<TagEntity> sessionTagList = new HashSet<TagEntity>();
         for (TagEntity tagEntity : metaDataStorage.getTagsForSaveOrUpdate()) {
             try {
                 getHibernateTemplate().saveOrUpdate(tagEntity);
@@ -159,19 +158,13 @@ public class BasicAggregator extends HibernateDaoSupport implements Distribution
             }
         }
 
-        List<TagEntity> sessionTagList = getHibernateTemplate().findByNamedParam("select tags from TagEntity as tags " +
-                "where tags.name in (:sTagsName)","sTagsName", metaDataStorage.getSessionTags());
-        for (String tagName : metaDataStorage.getSessionTags()) {
-            for (TagEntity tagEntity : sessionTagList) {
-                if (tagEntity.getName().equals(tagName))
-                    tags.add(tagEntity);
-            }
-        }
+        sessionTagList.addAll(getHibernateTemplate().findByNamedParam("select tags from TagEntity as tags " +
+                "where tags.name in (:sTagsName)", "sTagsName", metaDataStorage.getSessionTags()));
 
-        if (!tags.isEmpty()) {
+        if (!sessionTagList.isEmpty()) {
             List<SessionData> sessionsById = getHibernateTemplate().find("from SessionData s where s.sessionId=?", sessionId);
             for (SessionData sessionData : sessionsById) {
-                sessionData.setTags(tags);
+                sessionData.setTags(sessionTagList);
                 getHibernateTemplate().saveOrUpdate(sessionData);
             }
         } else
