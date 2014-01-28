@@ -154,9 +154,8 @@ public class BasicAggregator extends HibernateDaoSupport implements Distribution
         for (TagEntity tagEntity : metaDataStorage.getTagsForSaveOrUpdate()) {
             try {
                 getHibernateTemplate().saveOrUpdate(tagEntity);
-            } catch (HibernateException e   ) {
-                log.error("Cannot add new tag: {}", tagEntity.getName());
-                e.printStackTrace();
+            } catch (HibernateException e) {
+                log.error("Cannot add new tag", e);
             }
         }
 
