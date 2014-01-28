@@ -30,7 +30,7 @@ import com.griddynamics.jagger.engine.e1.services.SessionMetaDataStorage;
 import com.griddynamics.jagger.master.DistributionListener;
 import com.griddynamics.jagger.master.TaskExecutionStatusProvider;
 import com.griddynamics.jagger.master.configuration.SessionExecutionStatus;
-import com.griddynamics.jagger.master.configuration.SessionListenerMetaData;
+import com.griddynamics.jagger.master.configuration.SessionListener;
 import com.griddynamics.jagger.master.configuration.Task;
 import com.griddynamics.jagger.storage.KeyValueStorage;
 import com.griddynamics.jagger.storage.Namespace;
@@ -56,10 +56,11 @@ import static com.griddynamics.jagger.engine.e1.collector.CollectorConstants.*;
  *
  * @author Mairbek Khadikov
  */
-public class BasicAggregator extends HibernateDaoSupport implements DistributionListener, SessionListenerMetaData {
+public class BasicAggregator extends HibernateDaoSupport implements DistributionListener, SessionListener {
     private static final Logger log = LoggerFactory.getLogger(BasicAggregator.class);
 
     private KeyValueStorage keyValueStorage;
+    private SessionMetaDataStorage metaDataStorageExecute;
 
     TaskExecutionStatusProvider taskExecutionStatusProvider;
 
@@ -106,12 +107,17 @@ public class BasicAggregator extends HibernateDaoSupport implements Distribution
 
         String errorMessage = (String) getFirst(all, ERROR_MESSAGE);
         sessionData.setErrorMessage(errorMessage);
-
         getHibernateTemplate().persist(sessionData);
+        persistTags(sessionId,metaDataStorageExecute);
+
     }
 
     public void setKeyValueStorage(KeyValueStorage keyValueStorage) {
         this.keyValueStorage = keyValueStorage;
+    }
+
+    public void setMetaDataStorageExecute(SessionMetaDataStorage metaDataStorageExecute) {
+        this.metaDataStorageExecute = metaDataStorageExecute;
     }
 
     private static Object getFirst(Multimap<String, Object> all, String key) {
@@ -143,7 +149,6 @@ public class BasicAggregator extends HibernateDaoSupport implements Distribution
         getHibernateTemplate().persist(taskData);
     }
 
-    @Override
     public void persistTags(String sessionId, SessionMetaDataStorage metaDataStorage) {
         Set<TagEntity> tags = new HashSet<TagEntity>();
 
@@ -156,8 +161,8 @@ public class BasicAggregator extends HibernateDaoSupport implements Distribution
             }
         }
 
-        List<TagEntity> sessionTagList = getHibernateTemplate().find("from TagEntity");
-
+        List<TagEntity> sessionTagList = getHibernateTemplate().findByNamedParam("select tags from TagEntity as tags " +
+                "where tags.name in (:sTagsName)","sTagsName", metaDataStorage.getSessionTags());
         for (String tagName : metaDataStorage.getSessionTags()) {
             for (TagEntity tagEntity : sessionTagList) {
                 if (tagEntity.getName().equals(tagName))

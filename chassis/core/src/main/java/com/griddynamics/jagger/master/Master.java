@@ -76,7 +76,7 @@ public class Master implements Runnable {
     private LogWriter logWriter;
     private LogReader logReader;
     private GeneralNodeInfoAggregator generalNodeInfoAggregator;
-
+    private SessionMetaDataStorage metaDataStorage;
 
     @Required
     public void setReconnectPeriod(long reconnectPeriod) {
@@ -124,6 +124,10 @@ public class Master implements Runnable {
         this.logReader = logReader;
     }
 
+    public void setMetaDataStorage(SessionMetaDataStorage metaDataStorage) {
+        this.metaDataStorage = metaDataStorage;
+    }
+
     public void setGeneralNodeInfoAggregator(GeneralNodeInfoAggregator generalNodeInfoAggregator) { this.generalNodeInfoAggregator = generalNodeInfoAggregator; }
 
     @Override
@@ -138,9 +142,6 @@ public class Master implements Runnable {
 
         Multimap<NodeType, NodeId> allNodes = HashMultimap.create();
         allNodes.putAll(NodeType.MASTER, coordinator.getAvailableNodes(NodeType.MASTER));
-
-        SessionMetaDataStorage metaDataStorage = new SessionMetaDataStorage(sessionIdProvider.getSessionComment());
-
         NodeContextBuilder contextBuilder = Coordination.contextBuilder(NodeId.masterNode());
         contextBuilder
                 .addService(LogWriter.class, getLogWriter())
@@ -215,12 +216,11 @@ public class Master implements Runnable {
             testSuiteListener.onStop(testSuiteInfo);
 
             for (SessionExecutionListener listener : configuration.getSessionExecutionListeners()) {
-                if(listener instanceof SessionListener){
-                    ((SessionListener)listener).onSessionExecuted(sessionId, metaDataStorage.getComment(), status);
-                    ((SessionListenerMetaData)listener).persistTags(sessionId,metaDataStorage);
-                } else {
-                    listener.onSessionExecuted(sessionId, metaDataStorage.getComment());
-                }
+                    if(listener instanceof SessionListener) {
+                        ((SessionListener) listener).onSessionExecuted(sessionId, metaDataStorage.getComment(), status);
+                    } else {
+                        listener.onSessionExecuted(sessionId, metaDataStorage.getComment());
+                    }
             }
 
             log.info("Going to generate report");

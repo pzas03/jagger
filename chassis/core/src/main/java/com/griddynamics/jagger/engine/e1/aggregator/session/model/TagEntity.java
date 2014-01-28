@@ -17,20 +17,22 @@ import java.util.Set;
 @Entity
 public class TagEntity {
 
+    @Id
+    @Column(unique = true, nullable = false)
     private String name;
     private String description;
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "tags")
     private Set<SessionData> sessions = new HashSet<SessionData>();
 
     public TagEntity(String name, String description) {
-        this.name=name;
+        this.name = name;
         this.description = description;
     }
 
     public TagEntity() {
     }
 
-    @Id
-    @Column(unique = true, nullable = false)
+
     public String getName() {
         return name;
     }
@@ -39,7 +41,6 @@ public class TagEntity {
         this.name = name;
     }
 
-    @Column
     public String getDescription() {
         return description;
     }
@@ -48,8 +49,7 @@ public class TagEntity {
         this.description = description;
     }
 
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "tags")
-    public Set<SessionData> getSessions(){
+    public Set<SessionData> getSessions() {
         return sessions;
     }
 

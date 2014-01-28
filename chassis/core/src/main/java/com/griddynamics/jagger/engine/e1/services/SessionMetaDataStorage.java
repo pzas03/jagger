@@ -2,11 +2,10 @@ package com.griddynamics.jagger.engine.e1.services;
 
 import com.griddynamics.jagger.engine.e1.aggregator.session.model.TagEntity;
 
+import java.util.*;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.List;
-import java.util.LinkedList;
-
+import java.util.Collections;
 
 
 /**
@@ -20,14 +19,15 @@ import java.util.LinkedList;
 public class SessionMetaDataStorage {
 
     private StringBuilder currentString;
-    private Set<String> sessionTags;
-    private List<TagEntity> tagsForSaveOrUpdate;
+    private Set<String> sessionTags=new HashSet<String>();
+    private List<TagEntity> tagsForSaveOrUpdate= new LinkedList<TagEntity>();
 
+    public SessionMetaDataStorage() {
+        currentString = new StringBuilder();
+    }
 
     public SessionMetaDataStorage(String commentDefaultValue){
         currentString = new StringBuilder(commentDefaultValue);
-        sessionTags = new HashSet<String>();
-        tagsForSaveOrUpdate = new LinkedList<TagEntity>();
     }
 
     public synchronized void setComment(String comment){
@@ -42,19 +42,19 @@ public class SessionMetaDataStorage {
         return currentString.toString();
     }
 
-    public void addNewOrUpdateTag(TagEntity newTag){
+    public synchronized void addNewOrUpdateTag(TagEntity newTag){
         tagsForSaveOrUpdate.add(newTag);
     }
 
-    public void addSessionTag(String sessionTagName){
+    public synchronized void addSessionTag(String sessionTagName){
         sessionTags.add(sessionTagName);
     }
 
-    public List<TagEntity> getTagsForSaveOrUpdate() {
+    public synchronized List<TagEntity> getTagsForSaveOrUpdate() {
         return tagsForSaveOrUpdate;
     }
 
-    public Set<String> getSessionTags() {
+    public synchronized Set<String> getSessionTags() {
         return sessionTags;
     }
 }

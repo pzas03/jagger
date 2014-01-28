@@ -25,11 +25,10 @@ import com.google.common.collect.Multimap;
 import com.griddynamics.jagger.coordinator.NodeId;
 import com.griddynamics.jagger.coordinator.NodeType;
 import com.griddynamics.jagger.engine.e1.aggregator.session.model.TaskData;
-import com.griddynamics.jagger.engine.e1.services.SessionMetaDataStorage;
 import com.griddynamics.jagger.master.DistributionListener;
 import com.griddynamics.jagger.master.TaskExecutionStatusProvider;
 import com.griddynamics.jagger.master.configuration.SessionExecutionStatus;
-import com.griddynamics.jagger.master.configuration.SessionListenerMetaData;
+import com.griddynamics.jagger.master.configuration.SessionListener;
 import com.griddynamics.jagger.master.configuration.Task;
 import com.griddynamics.jagger.storage.KeyValueStorage;
 import com.griddynamics.jagger.storage.Namespace;
@@ -44,7 +43,7 @@ import static com.griddynamics.jagger.engine.e1.collector.CollectorConstants.*;
  *
  * @author Mairbek Khadikov
  */
-public class BasicSessionCollector implements SessionListenerMetaData, DistributionListener {
+public class BasicSessionCollector implements SessionListener, DistributionListener {
     private KeyValueStorage keyValueStorage;
     private Integer taskCounter;
 
@@ -106,10 +105,5 @@ public class BasicSessionCollector implements SessionListenerMetaData, Distribut
     @Override
     public void onTaskDistributionCompleted(String sessionId, String taskId, Task task) {
         taskCounter++;
-    }
-
-    @Override
-    public void persistTags(String sessionId, SessionMetaDataStorage metaDataStorage){
-        //do nothing
     }
 }

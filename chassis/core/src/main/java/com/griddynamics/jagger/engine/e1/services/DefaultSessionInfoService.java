@@ -3,6 +3,8 @@ package com.griddynamics.jagger.engine.e1.services;
 import com.griddynamics.jagger.coordinator.NodeContext;
 import com.griddynamics.jagger.engine.e1.aggregator.session.model.TagEntity;
 
+import java.util.Set;
+
 /**
  * Created with IntelliJ IDEA.
  * User: kgribov
@@ -14,7 +16,7 @@ public class DefaultSessionInfoService implements SessionInfoService {
 
     private SessionMetaDataStorage metaDataStorage;
 
-    public DefaultSessionInfoService(NodeContext context){
+    public DefaultSessionInfoService(NodeContext context) {
         metaDataStorage = context.getService(SessionMetaDataStorage.class);
     }
 
@@ -41,6 +43,11 @@ public class DefaultSessionInfoService implements SessionInfoService {
     @Override
     public void markSessionWithTag(String tagName) {
         metaDataStorage.addSessionTag(tagName);
+    }
+
+    @Override
+    public Set<String> getSessionTags() {
+        return metaDataStorage.getSessionTags();
     }
 
     @Override

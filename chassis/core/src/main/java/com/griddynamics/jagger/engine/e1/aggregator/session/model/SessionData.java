@@ -28,87 +28,90 @@ import javax.persistence.*;
 
 @Entity
 public class SessionData {
-	private Long id;
-	private String sessionId;
-	private Date startTime;
-	private Date endTime;
-	private Integer taskExecuted;
-	private Integer taskFailed;
-	private Integer activeKernels;
-	private String comment;
+
+    @Id
+    @GeneratedValue
+    private Long id;
+    private String sessionId;
+    private Date startTime;
+    private Date endTime;
+    private Integer taskExecuted;
+    private Integer taskFailed;
+    private Integer activeKernels;
+    @Column(length = 7000)
+    private String comment;
     private transient String sessionName;
     private String errorMessage;
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "SessionTagEntity")
     private Set<TagEntity> tags = new HashSet<TagEntity>();
 
     public SessionData() {
     }
 
-    @Id
-	@GeneratedValue
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public String getSessionId() {
-		return sessionId;
-	}
+    public String getSessionId() {
+        return sessionId;
+    }
 
-	public void setSessionId(String sessionId) {
-		this.sessionId = sessionId;
-	}
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
 
-	public Date getStartTime() {
-		return startTime;
-	}
+    public Date getStartTime() {
+        return startTime;
+    }
 
-	public void setStartTime(Date startTime) {
-		this.startTime = startTime;
-	}
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
 
-	public Date getEndTime() {
-		return endTime;
-	}
+    public Date getEndTime() {
+        return endTime;
+    }
 
-	public void setEndTime(Date endTime) {
-		this.endTime = endTime;
-	}
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
+    }
 
-	public Integer getTaskExecuted() {
-		return taskExecuted;
-	}
+    public Integer getTaskExecuted() {
+        return taskExecuted;
+    }
 
-	public void setTaskExecuted(Integer taskExecuted) {
-		this.taskExecuted = taskExecuted;
-	}
+    public void setTaskExecuted(Integer taskExecuted) {
+        this.taskExecuted = taskExecuted;
+    }
 
-	public Integer getTaskFailed() {
-		return taskFailed;
-	}
+    public Integer getTaskFailed() {
+        return taskFailed;
+    }
 
-	public void setTaskFailed(Integer taskFailed) {
-		this.taskFailed = taskFailed;
-	}
+    public void setTaskFailed(Integer taskFailed) {
+        this.taskFailed = taskFailed;
+    }
 
-	public Integer getActiveKernels() {
-		return activeKernels;
-	}
+    public Integer getActiveKernels() {
+        return activeKernels;
+    }
 
-	public void setActiveKernels(Integer activeKernels) {
-		this.activeKernels = activeKernels;
-	}
+    public void setActiveKernels(Integer activeKernels) {
+        this.activeKernels = activeKernels;
+    }
 
-    @Column(length=7000)
-	public String getComment() {
-		return comment;
-	}
+    public String getComment() {
+        return comment;
+    }
 
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
 
     public String getSessionName() {
         return sessionName;
@@ -126,8 +129,6 @@ public class SessionData {
         this.errorMessage = errorMessage;
     }
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name ="SessionTagEntity")
     public Set<TagEntity> getTags() {
         return tags;
     }

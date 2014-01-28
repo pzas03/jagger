@@ -37,10 +37,16 @@ public interface SessionInfoService extends JaggerService{
      */
     void saveOrUpdateTag(String tagName, String tagDescription);
 
-    /**  Marks session with tag
+    /** Marks session with tag
      *
      * @param tagName - a tag name which should be used to mark a session
      */
     void markSessionWithTag(String tagName);
+
+    /** Returns tags which already marked the session
+     *
+     * @return set names of tags
+     */
+    Set<String> getSessionTags();
 
 }
