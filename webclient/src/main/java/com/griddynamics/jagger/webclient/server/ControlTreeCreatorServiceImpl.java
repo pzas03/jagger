@@ -10,7 +10,6 @@ import static com.griddynamics.jagger.webclient.client.mvp.NameTokens.*;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
@@ -26,10 +25,14 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
 
     // todo: implement same idea for fetching plots/summary data
     // to implement parallel fetching data for control tree
-    private final ExecutorService threadPool = Executors.newFixedThreadPool(15);
+    private ExecutorService threadPool;
 
     public void setDatabaseFetcher(CommonDataProvider databaseFetcher) {
         this.databaseFetcher = databaseFetcher;
+    }
+
+    public void setThreadPool(ExecutorService threadPool) {
+        this.threadPool = threadPool;
     }
 
     @Override
