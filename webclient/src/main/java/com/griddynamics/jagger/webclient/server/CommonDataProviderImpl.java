@@ -1,6 +1,8 @@
 package com.griddynamics.jagger.webclient.server;
 
 import com.griddynamics.jagger.agent.model.DefaultMonitoringParameters;
+import com.griddynamics.jagger.engine.e1.aggregator.workload.model.MetricDescriptionEntity;
+import com.griddynamics.jagger.engine.e1.aggregator.workload.model.MetricSummaryEntity;
 import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadProcessLatencyPercentile;
 import com.griddynamics.jagger.monitoring.reporting.GroupKey;
 import com.griddynamics.jagger.util.Pair;
@@ -75,15 +77,43 @@ public class CommonDataProviderImpl implements CommonDataProvider {
     }
 
 
+    /**
+     * Fetch custom metrics names from database
+     * @param tests tests data
+     * @return set of MetricNameDto representing name of metric
+     */
     public Set<MetricNameDto> getCustomMetricsNames(List<TaskDataDto> tests){
-        Set<MetricNameDto> metrics;
+
+        Set<MetricNameDto>  metrics = new HashSet<MetricNameDto>();
 
         Set<Long> taskIds = new HashSet<Long>();
         for (TaskDataDto tdd : tests) {
             taskIds.addAll(tdd.getIds());
         }
 
+        // check new data
         long temp = System.currentTimeMillis();
+        List<Object[]> metricDescriptionEntities = entityManager.createQuery(
+            "select mse.metricDescription.metricId, mse.metricDescription.displayName, mse.metricDescription.taskData.id " +
+            "from MetricSummaryEntity as mse where mse.metricDescription.taskData.id in (:taskIds)")
+            .setParameter("taskIds", taskIds)
+            .getResultList();
+
+        System.out.println("Time spent for new Metrics request : " + (System.currentTimeMillis() - temp));
+        for (Object[] mde : metricDescriptionEntities) {
+            for (TaskDataDto td : tests) {
+                if (td.getIds().contains((Long) mde[2])) {
+                    MetricNameDto metric = new MetricNameDto();
+                    metric.setTests(td);
+                    metric.setName((String)mde[0]);
+                    metric.setDisplayName((String)mde[1]);
+                    metrics.add(metric);
+                    break;
+                }
+            }
+        }
+
+        // check old data (before jagger 1.2.4 version)
         List<Object[]> metricNames = entityManager.createNativeQuery(
                     "select dre.name, selected.taskdataID from DiagnosticResultEntity dre join (" +
                             "  select wd.id as workloaddataID, td.taskdataID from WorkloadData wd join   " +
@@ -95,20 +125,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                     .getResultList();
 
         log.debug("{} ms spent for fetching {} metrics", System.currentTimeMillis() - temp, metricNames.size());
-        temp = System.currentTimeMillis();
-
-        List<Object[]> validatorNames = entityManager.createNativeQuery(
-                "select v.validator, selected.taskdataID from ValidationResultEntity v join " +
-                "  (" +
-                "    select wd.id as workloaddataID, td.taskdataID from WorkloadData wd join   " +
-                "        ( " +
-                "          SELECT td.id as taskdataID, td.taskId, td.sessionId from TaskData td where td.id in (:ids)" +
-                "        ) as td on wd.taskId=td.taskId and wd.sessionId=td.sessionId" +
-                "  ) as selected on v.workloadData_id=selected.workloaddataID")
-                .setParameter("ids", taskIds).getResultList();
-        log.debug("{} ms spent for fetching {} metrics", System.currentTimeMillis() - temp, validatorNames.size());
-
-        metrics = new HashSet<MetricNameDto>(metricNames.size()+validatorNames.size());
+        System.out.println("Custom metrics at all took : " + (System.currentTimeMillis() - temp));
 
         for (Object[] name : metricNames){
             if (name == null || name[0] == null) continue;
@@ -123,6 +140,37 @@ public class CommonDataProviderImpl implements CommonDataProvider {
             }
         }
 
+        return metrics;
+    }
+
+
+    /**
+     * Fetch validators names from database
+     * @param tests tests data
+     * @return set of MetricNameDto representing name of validator
+     */
+    public Set<MetricNameDto> getValidatorsNames(List<TaskDataDto> tests){
+
+        Set<Long> taskIds = new HashSet<Long>();
+        for (TaskDataDto tdd : tests) {
+            taskIds.addAll(tdd.getIds());
+        }
+
+        long temp = System.currentTimeMillis();
+
+        List<Object[]> validatorNames = entityManager.createNativeQuery(
+                "select v.validator, selected.taskdataID, v.displayName from ValidationResultEntity v join " +
+                        "  (" +
+                        "    select wd.id as workloaddataID, td.taskdataID from WorkloadData wd join   " +
+                        "        ( " +
+                        "          SELECT td.id as taskdataID, td.taskId, td.sessionId from TaskData td where td.id in (:ids)" +
+                        "        ) as td on wd.taskId=td.taskId and wd.sessionId=td.sessionId" +
+                        "  ) as selected on v.workloadData_id=selected.workloaddataID")
+                .setParameter("ids", taskIds).getResultList();
+        log.debug("{} ms spent for fetching {} metrics", System.currentTimeMillis() - temp, validatorNames.size());
+
+        Set<MetricNameDto> validators = new HashSet<MetricNameDto>(validatorNames.size());
+
         for (Object[] name : validatorNames){
             if (name == null || name[0] == null) continue;
             for (TaskDataDto td : tests) {
@@ -130,14 +178,17 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                     MetricNameDto metric = new MetricNameDto();
                     metric.setTests(td);
                     metric.setName((String)name[0]);
-                    metrics.add(metric);
+                    metric.setDisplayName((String)name[2]);
+                    validators.add(metric);
                     break;
                 }
             }
         }
 
-        return metrics;
+        return validators;
     }
+
+
 
     public Set<MetricNameDto> getLatencyMetricsNames(List<TaskDataDto> tests){
         Set<MetricNameDto> latencyNames;
@@ -318,8 +369,19 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                     }
             );
 
+            Future<Set<MetricNameDto>> validatorsNamesFuture = treadPool.submit(
+                    new Callable<Set<MetricNameDto>>(){
+
+                        @Override
+                        public Set<MetricNameDto> call() throws Exception {
+                            return getValidatorsNames(tddos);
+                        }
+                    }
+            );
+
             list.addAll(latencyMetricNamesFuture.get());
             list.addAll(customMetricNamesFuture.get());
+            list.addAll(validatorsNamesFuture.get());
         } catch (Exception e) {
             log.error("Exception occurs while fetching MetricNames for tests : ", e);
             throw new RuntimeException(e);
@@ -365,7 +427,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                 }
             }
 
-            List<PlotNameDto> customMetrics = customMetricPlotDataProvider.getPlotNames(taskList);
+            Set<PlotNameDto> customMetrics = customMetricPlotDataProvider.getPlotNames(taskList);
 
             plotNameDtoSet.addAll(customMetrics);
 

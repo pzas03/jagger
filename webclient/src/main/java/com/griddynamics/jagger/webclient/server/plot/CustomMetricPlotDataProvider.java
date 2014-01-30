@@ -64,21 +64,43 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
         return result;
     }
 
-    public List<PlotNameDto> getPlotNames(List<TaskDataDto> taskDataDtos){
+    public Set<PlotNameDto> getPlotNames(List<TaskDataDto> taskDataDtos){
+
+        Set<PlotNameDto> result = new HashSet<PlotNameDto>();
 
         Set<Long> testIds = new HashSet<Long>();
         for (TaskDataDto tdd : taskDataDtos) {
             testIds.addAll(tdd.getIds());
         }
+
+        // check new model
+        long temp = System.currentTimeMillis();
+        List<Object[]> plotNamesNew = entityManager.createQuery(
+                "select mpe.metricDescription.metricId, mpe.metricDescription.displayName, mpe.metricDescription.taskData.id " +
+                "from MetricPointEntity as mpe where mpe.metricDescription.taskData.id in (:taskIds) group by mpe.metricDescription.id")
+                .setParameter("taskIds", testIds)
+                .getResultList();
+        System.out.println("Custom plots NEW for : " + (System.currentTimeMillis() - temp));
+
+        for (Object[] plotName : plotNamesNew){
+            if (plotName != null) {
+                for (TaskDataDto tdd : taskDataDtos) {
+                    if (tdd.getIds().contains((Long)plotName[2])) {
+                        result.add(new PlotNameDto(tdd, (String)plotName[0], (String)plotName[1]));
+                    }
+                }
+            }
+        }
+
+        // check old model (before jagger 1.2.4)
+        temp = System.currentTimeMillis();
         List<Object[]> plotNames = entityManager.createNativeQuery("select metricDetails.metric, metricDetails.taskData_id from MetricDetails metricDetails " +
                 "where metricDetails.taskData_id in (:ids) " +
-                "group by metricDetails.metric")
+                "group by metricDetails.metric, metricDetails.taskData_id")
                 .setParameter("ids", testIds)
                 .getResultList();
-        if (plotNames.isEmpty())
-            return Collections.emptyList();
 
-        ArrayList<PlotNameDto> result = new ArrayList<PlotNameDto>(plotNames.size());
+        System.out.println("Custom plots for : " + (System.currentTimeMillis() - temp));
 
         for (Object[] plotName : plotNames){
             if (plotName != null) {

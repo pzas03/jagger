@@ -158,8 +158,9 @@ public class BasicAggregator extends HibernateDaoSupport implements Distribution
             }
         }
 
-        sessionTagList.addAll(getHibernateTemplate().findByNamedParam("select tags from TagEntity as tags " +
-                "where tags.name in (:sTagsName)", "sTagsName", metaDataStorage.getSessionTags()));
+        if (!metaDataStorage.getSessionTags().isEmpty())
+            sessionTagList.addAll(getHibernateTemplate().findByNamedParam("select tags from TagEntity as tags " +
+                    "where tags.name in (:sTagsName)", "sTagsName", metaDataStorage.getSessionTags()));
 
         if (!sessionTagList.isEmpty()) {
             List<SessionData> sessionsById = getHibernateTemplate().find("from SessionData s where s.sessionId=?", sessionId);
