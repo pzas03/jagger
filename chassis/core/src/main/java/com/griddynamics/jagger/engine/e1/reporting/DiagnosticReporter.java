@@ -21,6 +21,7 @@
 package com.griddynamics.jagger.engine.e1.reporting;
 
 import com.griddynamics.jagger.engine.e1.aggregator.workload.model.DiagnosticResultEntity;
+import com.griddynamics.jagger.engine.e1.aggregator.workload.model.MetricSummaryEntity;
 import com.griddynamics.jagger.reporting.AbstractMappedReportProvider;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
@@ -57,32 +58,69 @@ public class DiagnosticReporter extends AbstractMappedReportProvider<String> {
     @Override
     public JRDataSource getDataSource(String key) {
         String sessionId = getSessionIdProvider().getSessionId();
-        @SuppressWarnings("unchecked")
-        List<DiagnosticResultEntity> diagnosticResults = getHibernateTemplate().find(
-                "select v from DiagnosticResultEntity v where v.workloadData.taskId=? and v.workloadData.sessionId=?",
+
+
+        // check new model
+        List<MetricSummaryEntity> metricSummaryEntities = getHibernateTemplate().find(
+                "select d from MetricSummaryEntity d where d.metricDescription.taskData.taskId=? and d.metricDescription.taskData.sessionId=?",
                 key, sessionId);
 
-        if (diagnosticResults == null || diagnosticResults.isEmpty()) {
-            log.info("Diagnostic info for task id " + key + "] not found");
-            return null;
-        }
+        if (metricSummaryEntities != null && !metricSummaryEntities.isEmpty()) {
 
-        TreeSet<DiagnosticResult> treeSet = new TreeSet<DiagnosticResult>(new Comparator<DiagnosticResult>() {
-            @Override
-            public int compare(DiagnosticResult o1, DiagnosticResult o2) {
-                return o1.getName().compareTo(o2.getName());
+
+            TreeSet<DiagnosticResult> treeSet = new TreeSet<DiagnosticResult>(new Comparator<DiagnosticResult>() {
+                @Override
+                public int compare(DiagnosticResult o1, DiagnosticResult o2) {
+                    return o1.getName().compareTo(o2.getName());
+                }
+            });
+
+            for (MetricSummaryEntity mse : metricSummaryEntities) {
+                treeSet.add(convert(mse));
             }
-        });
 
-        for (DiagnosticResultEntity entity : diagnosticResults) {
-            treeSet.add(convert(entity));
+            return new JRBeanCollectionDataSource(treeSet);
+        } else {
+
+            // check old model
+            List<DiagnosticResultEntity> diagnosticResults = getHibernateTemplate().find(
+                    "select v from DiagnosticResultEntity v where v.workloadData.taskId=? and v.workloadData.sessionId=?",
+                    key, sessionId);
+
+
+            if (diagnosticResults == null || diagnosticResults.isEmpty()) {
+                log.info("Diagnostic info for task id " + key + "] not found");
+                return null;
+            }
+
+            TreeSet<DiagnosticResult> treeSet = new TreeSet<DiagnosticResult>(new Comparator<DiagnosticResult>() {
+                @Override
+                public int compare(DiagnosticResult o1, DiagnosticResult o2) {
+                    return o1.getName().compareTo(o2.getName());
+                }
+            });
+
+            for (DiagnosticResultEntity entity : diagnosticResults) {
+                treeSet.add(convert(entity));
+            }
+
+            return new JRBeanCollectionDataSource(treeSet);
         }
-
-        return new JRBeanCollectionDataSource(treeSet);
     }
 
     private DiagnosticResult convert(DiagnosticResultEntity entity) {
         String name  = entity.getName();
+        Double total = entity.getTotal();
+
+        DiagnosticResult result = new DiagnosticResult();
+        result.setTotal(total);
+        result.setName(name);
+
+        return result;
+    }
+
+    private DiagnosticResult convert(MetricSummaryEntity entity) {
+        String name  = entity.getDisplay();
         Double total = entity.getTotal();
 
         DiagnosticResult result = new DiagnosticResult();
