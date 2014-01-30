@@ -108,7 +108,7 @@ public class MonitoringController {
 
                                     log.info("Going to send stop monitoring command to kernel {}", kernel);
                                     remote.runSyncWithTimeout(StopMonitoring.create(sessionId, processId),
-                                            Coordination.doNothing(), ttl);
+                                            Coordination.doNothing(), 2*ttl);
                                     log.info("Command stop monitoring successfully sent");
 
                                     NodeId agent = agentMapping.get(processId);

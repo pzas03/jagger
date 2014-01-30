@@ -1,6 +1,9 @@
 package com.griddynamics.jagger.engine.e1.services;
 
 import com.griddynamics.jagger.coordinator.NodeContext;
+import com.griddynamics.jagger.engine.e1.aggregator.session.model.TagEntity;
+
+import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,25 +14,40 @@ import com.griddynamics.jagger.coordinator.NodeContext;
  */
 public class DefaultSessionInfoService implements SessionInfoService {
 
-    private SessionCommentStorage commentStorage;
+    private SessionMetaDataStorage metaDataStorage;
 
-    public DefaultSessionInfoService(NodeContext context){
-        commentStorage = context.getService(SessionCommentStorage.class);
+    public DefaultSessionInfoService(NodeContext context) {
+        metaDataStorage = context.getService(SessionMetaDataStorage.class);
     }
 
     @Override
     public String getComment() {
-        return commentStorage.get();
+        return metaDataStorage.getComment();
     }
 
     @Override
     public void setComment(String comment) {
-        commentStorage.set(comment);
+        metaDataStorage.setComment(comment);
     }
 
     @Override
     public void appendToComment(String st) {
-        commentStorage.append(st);
+        metaDataStorage.appendToComment(st);
+    }
+
+    @Override
+    public void saveOrUpdateTag(String tagName, String tagDescription) {
+        metaDataStorage.addNewOrUpdateTag(new TagEntity(tagName, tagDescription));
+    }
+
+    @Override
+    public void markSessionWithTag(String tagName) {
+        metaDataStorage.addSessionTag(tagName);
+    }
+
+    @Override
+    public Set<String> getSessionTags() {
+        return metaDataStorage.getSessionTags();
     }
 
     @Override

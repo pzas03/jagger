@@ -133,6 +133,9 @@ public class ExchangeClient {
             log.error("URIException while building uri with: \nurlBase: " + urlBase +
                     "\nurl: " + url + "\nobj: " + obj.toString());
             throw Throwables.propagate(e);
+        } catch (Exception e) {
+            log.error("Exception during HTTP request execution");
+            throw Throwables.propagate(e);
         } finally {
             try {
                 EntityUtils.consumeQuietly(entity);

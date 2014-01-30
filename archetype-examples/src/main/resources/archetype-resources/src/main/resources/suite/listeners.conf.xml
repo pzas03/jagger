@@ -1,4 +1,8 @@
+#set( $symbol_pound = '#' )
+#set( $symbol_dollar = '$' )
+#set( $symbol_escape = '\' )
 <?xml version="1.0" encoding="UTF-8"?>
+
 <!--
   ~ Copyright (c) 2010-2012 Grid Dynamics Consulting Services, Inc, All Rights Reserved
   ~ http://www.griddynamics.com
@@ -19,40 +23,13 @@
   ~ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <groupId>com.griddynamics.jagger</groupId>
-    <artifactId>chassis.invoker.hessian</artifactId>
-    <packaging>jar</packaging>
+    <!-- begin: following section is used for docu generation - listener usage -->
+    <bean id="listenerTestSuite" class="${package}.listener.ProviderOfTestSuiteListener"/>
+    <!-- end: following section is used for docu generation - listener usage -->
+    <bean id="listenerTest" class="${package}.listener.ProviderOfTestListener"/>
 
-    <name>${groupId}.${artifactId}</name>
-    <url>http://maven.apache.org</url>
-
-    <parent>
-        <groupId>com.griddynamics.jagger</groupId>
-        <artifactId>chassis.parent</artifactId>
-        <version>1.2.4-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.griddynamics.jagger</groupId>
-            <artifactId>chassis.core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.caucho</groupId>
-            <artifactId>hessian</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
-
-    </dependencies>
-
-
-</project>
+</beans>

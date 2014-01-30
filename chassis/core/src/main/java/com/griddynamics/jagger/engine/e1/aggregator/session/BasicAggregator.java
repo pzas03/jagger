@@ -24,7 +24,9 @@ import com.google.common.collect.Multimap;
 import com.griddynamics.jagger.coordinator.NodeId;
 import com.griddynamics.jagger.coordinator.NodeType;
 import com.griddynamics.jagger.engine.e1.aggregator.session.model.SessionData;
+import com.griddynamics.jagger.engine.e1.aggregator.session.model.TagEntity;
 import com.griddynamics.jagger.engine.e1.aggregator.session.model.TaskData;
+import com.griddynamics.jagger.engine.e1.services.SessionMetaDataStorage;
 import com.griddynamics.jagger.master.DistributionListener;
 import com.griddynamics.jagger.master.TaskExecutionStatusProvider;
 import com.griddynamics.jagger.master.configuration.SessionExecutionStatus;
@@ -32,6 +34,7 @@ import com.griddynamics.jagger.master.configuration.SessionListener;
 import com.griddynamics.jagger.master.configuration.Task;
 import com.griddynamics.jagger.storage.KeyValueStorage;
 import com.griddynamics.jagger.storage.Namespace;
+import org.hibernate.HibernateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -39,6 +42,9 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.List;
 
 import static com.griddynamics.jagger.engine.e1.collector.CollectorConstants.*;
 
@@ -53,6 +59,7 @@ public class BasicAggregator extends HibernateDaoSupport implements Distribution
     private static final Logger log = LoggerFactory.getLogger(BasicAggregator.class);
 
     private KeyValueStorage keyValueStorage;
+    private SessionMetaDataStorage sessionMetaDataStorage;
 
     TaskExecutionStatusProvider taskExecutionStatusProvider;
 
@@ -78,6 +85,7 @@ public class BasicAggregator extends HibernateDaoSupport implements Distribution
         Multimap<String, Object> all = keyValueStorage.fetchAll(namespace);
 
         SessionData sessionData = new SessionData();
+
         sessionData.setSessionId(sessionId);
         sessionData.setComment(sessionComment);
 
@@ -98,12 +106,17 @@ public class BasicAggregator extends HibernateDaoSupport implements Distribution
 
         String errorMessage = (String) getFirst(all, ERROR_MESSAGE);
         sessionData.setErrorMessage(errorMessage);
-
         getHibernateTemplate().persist(sessionData);
+        persistTags(sessionId, sessionMetaDataStorage);
+
     }
 
     public void setKeyValueStorage(KeyValueStorage keyValueStorage) {
         this.keyValueStorage = keyValueStorage;
+    }
+
+    public void setSessionMetaDataStorage(SessionMetaDataStorage sessionMetaDataStorage) {
+        this.sessionMetaDataStorage = sessionMetaDataStorage;
     }
 
     private static Object getFirst(Multimap<String, Object> all, String key) {
@@ -134,4 +147,28 @@ public class BasicAggregator extends HibernateDaoSupport implements Distribution
         taskData.setStatus(taskExecutionStatusProvider.getStatus(taskId));
         getHibernateTemplate().persist(taskData);
     }
+
+    public void persistTags(String sessionId, SessionMetaDataStorage metaDataStorage) {
+        Set<TagEntity> sessionTagList = new HashSet<TagEntity>();
+        for (TagEntity tagEntity : metaDataStorage.getTagsForSaveOrUpdate()) {
+            try {
+                getHibernateTemplate().saveOrUpdate(tagEntity);
+            } catch (HibernateException e) {
+                log.error("Cannot add new tag", e);
+            }
+        }
+
+        sessionTagList.addAll(getHibernateTemplate().findByNamedParam("select tags from TagEntity as tags " +
+                "where tags.name in (:sTagsName)", "sTagsName", metaDataStorage.getSessionTags()));
+
+        if (!sessionTagList.isEmpty()) {
+            List<SessionData> sessionsById = getHibernateTemplate().find("from SessionData s where s.sessionId=?", sessionId);
+            for (SessionData sessionData : sessionsById) {
+                sessionData.setTags(sessionTagList);
+                getHibernateTemplate().saveOrUpdate(sessionData);
+            }
+        } else
+            log.info("No tags for mark session {}", sessionId);
+    }
+
 }

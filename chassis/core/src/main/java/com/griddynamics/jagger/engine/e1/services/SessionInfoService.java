@@ -1,12 +1,14 @@
 package com.griddynamics.jagger.engine.e1.services;
 
-/** Create and modify session metadata(such as session comment)
+import java.util.Set;
+
+/** Service gives ability to create and modify session metadata(such as session comment)
  * @author Gribov Kirill
  * @n
  * @par Details:
  * @details
  * @n
- * */
+ * @ingroup Main_Services_group */
 public interface SessionInfoService extends JaggerService{
 
     /** Returns current session comment
@@ -27,4 +29,24 @@ public interface SessionInfoService extends JaggerService{
      * @n
      * @param st - string to append */
     void appendToComment(String st);
+
+    /** Creates new or update existing tag
+     *
+     * @param tagName - a tag name which should be created or updated
+     * @param tagDescription - a description of the tag
+     */
+    void saveOrUpdateTag(String tagName, String tagDescription);
+
+    /** Marks session with tag
+     *
+     * @param tagName - a tag name which should be used to mark a session
+     */
+    void markSessionWithTag(String tagName);
+
+    /** Returns tags which already marked the session
+     *
+     * @return set names of tags
+     */
+    Set<String> getSessionTags();
+
 }

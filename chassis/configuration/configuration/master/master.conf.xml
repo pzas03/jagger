@@ -64,6 +64,7 @@
         <property name="logWriter" ref="bufferedLogWriter"/>
         <property name="generalNodeInfoAggregator" ref="generalNodeInfoAggregator"/>
         <property name="databaseValidator" ref="databaseValidator"/>
+        <property name="metaDataStorage" ref="metaDataStorage"/>
     </bean>
 
     <bean id="distributionStartTimeTimeout" class="com.griddynamics.jagger.util.Timeout">
@@ -147,6 +148,10 @@
     <bean id="databaseValidator" class="com.griddynamics.jagger.master.database.DatabaseValidator">
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
+
+    <bean id="metaDataStorage" class="com.griddynamics.jagger.engine.e1.services.SessionMetaDataStorage">
+    </bean>
+
 
 </beans>
 

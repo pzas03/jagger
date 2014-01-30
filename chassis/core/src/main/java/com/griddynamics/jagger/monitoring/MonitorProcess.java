@@ -112,7 +112,7 @@ public class MonitorProcess extends LogProcessor implements NodeProcess<Monitori
                             }
                             log.debug("monitoring logged to file storage on kernel {}", nodeContext.getId());
                         } catch (Throwable e) {
-                            log.warn("Ignore GetSystemInfo from agent {} due to error", agentId);
+                            log.error("Ignore GetSystemInfo from agent " + agentId + " due to error", e);
                         }
                         TimeUtils.sleepMillis(pollingInterval);
                     }

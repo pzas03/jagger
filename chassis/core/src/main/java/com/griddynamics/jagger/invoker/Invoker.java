@@ -56,6 +56,10 @@ public interface Invoker<Q,R,E> extends Serializable {
 /* Below is doxygen documentation for Jagger customization */
 
 /// @mainpage Jagger source code documentation
+/// Documentation version:
+/// @dontinclude  JaggerVersion.txt
+/// @skipline  Version
+/// @n
 /// Back to <a href="https://github.com/griddynamics/jagger/wiki">GitHub</a> documentation @n
 /// @n
 /// @li @ref Main_Test_Suite_Flow_group
@@ -64,8 +68,14 @@ public interface Invoker<Q,R,E> extends Serializable {
 /// @li @ref Main_Collectors_General_group
 /// @li @ref Main_Providers_General_group
 /// @li @ref Main_Distributors_General_group
+/// @li @ref Main_Services_General_group @e @htmlonly <font color="#009900">NEW ver 1.2.3</font>@endhtmlonly
+/// @li @ref Main_Listeners_General_group @e @htmlonly <font color="#009900">NEW ver 1.2.3</font>@endhtmlonly
 ///
 /// @li @ref Main_Custom_Components_group
+///
+/// @n
+/// @n
+/// Other documentation <a href='../archive/index.html'>versions</a>
 
 /// @defgroup Main_Test_Suite_Flow_group Test suite execution sequence
 ///
@@ -97,8 +107,9 @@ public interface Invoker<Q,R,E> extends Serializable {
 /// @li @ref Main_HowToCustomizeDistributors_group
 /// @li @ref Main_HowToCustomizeCollectors_group
 /// @li @ref Main_HowToCustomizeDecisionMakers_group
+/// @li @ref Main_HowToCustomizeListeners_group
 
-/* **************** Invokerss page *************************  */
+/* **************** Invokers page *************************  */
 /// @defgroup Main_Invokers_General_group Invokers main page
 ///
 /// @details Invokers take query and try to create invocation to endpoint. @n
@@ -148,6 +159,10 @@ public interface Invoker<Q,R,E> extends Serializable {
 /// @details @ref Main_Distributors_General_group
 /// @defgroup Main_Collectors_Base_group Collector
 /// @details @ref Main_Collectors_General_group
+/// @defgroup Main_Services_Base_group Jagger service
+/// @details @ref Main_Services_General_group
+/// @defgroup Main_Listeners_Base_group Listener
+/// @details @ref Main_Listeners_General_group
 
 
 /* **************** Implementations ************************* */
@@ -158,6 +173,10 @@ public interface Invoker<Q,R,E> extends Serializable {
 /// @details @ref Main_Distributors_General_group
 /// @defgroup Main_Collectors_group Implementations of collectors
 /// @details @ref Main_Collectors_General_group
+/// @defgroup Main_Services_group Implementations of Jagger services
+/// @details @ref Main_Services_General_group
+/// @defgroup Main_Listeners_group Implementations of listeners
+/// @details @ref Main_Listeners_General_group
 /// @defgroup Main_Aggregators_group Implementations of aggregators
 /// @defgroup Main_DecisionMakers_group Implementations of decision makers
 /// @defgroup Main_Terminators_group Implementations of termination strategies

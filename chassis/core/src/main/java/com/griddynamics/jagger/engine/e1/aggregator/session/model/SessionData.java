@@ -21,89 +21,97 @@
 package com.griddynamics.jagger.engine.e1.aggregator.session.model;
 
 import java.util.Date;
+import java.util.Set;
+import java.util.Collections;
 
 import javax.persistence.*;
 
 @Entity
 public class SessionData {
-	private Long id;
-	private String sessionId;
-	private Date startTime;
-	private Date endTime;
-	private Integer taskExecuted;
-	private Integer taskFailed;
-	private Integer activeKernels;
-	private String comment;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String sessionId;
+    private Date startTime;
+    private Date endTime;
+    private Integer taskExecuted;
+    private Integer taskFailed;
+    private Integer activeKernels;
+    @Column(length = 7000)
+    private String comment;
     private transient String sessionName;
     private String errorMessage;
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "SessionTagEntity")
+    private Set<TagEntity> tags = Collections.EMPTY_SET;
 
-	@Id
-    // Identity strategy is not supported by Oracle DB from the box
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	public Long getId() {
-		return id;
-	}
+    public SessionData() {
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public String getSessionId() {
-		return sessionId;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setSessionId(String sessionId) {
-		this.sessionId = sessionId;
-	}
+    public String getSessionId() {
+        return sessionId;
+    }
 
-	public Date getStartTime() {
-		return startTime;
-	}
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
 
-	public void setStartTime(Date startTime) {
-		this.startTime = startTime;
-	}
+    public Date getStartTime() {
+        return startTime;
+    }
 
-	public Date getEndTime() {
-		return endTime;
-	}
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
 
-	public void setEndTime(Date endTime) {
-		this.endTime = endTime;
-	}
+    public Date getEndTime() {
+        return endTime;
+    }
 
-	public Integer getTaskExecuted() {
-		return taskExecuted;
-	}
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
+    }
 
-	public void setTaskExecuted(Integer taskExecuted) {
-		this.taskExecuted = taskExecuted;
-	}
+    public Integer getTaskExecuted() {
+        return taskExecuted;
+    }
 
-	public Integer getTaskFailed() {
-		return taskFailed;
-	}
+    public void setTaskExecuted(Integer taskExecuted) {
+        this.taskExecuted = taskExecuted;
+    }
 
-	public void setTaskFailed(Integer taskFailed) {
-		this.taskFailed = taskFailed;
-	}
+    public Integer getTaskFailed() {
+        return taskFailed;
+    }
 
-	public Integer getActiveKernels() {
-		return activeKernels;
-	}
+    public void setTaskFailed(Integer taskFailed) {
+        this.taskFailed = taskFailed;
+    }
 
-	public void setActiveKernels(Integer activeKernels) {
-		this.activeKernels = activeKernels;
-	}
+    public Integer getActiveKernels() {
+        return activeKernels;
+    }
 
-    @Column(length=7000)
-	public String getComment() {
-		return comment;
-	}
+    public void setActiveKernels(Integer activeKernels) {
+        this.activeKernels = activeKernels;
+    }
 
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
 
     public String getSessionName() {
         return sessionName;
@@ -119,5 +127,13 @@ public class SessionData {
 
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+    }
+
+    public Set<TagEntity> getTags() {
+        return tags;
+    }
+
+    public void setTags(Set<TagEntity> tags) {
+        this.tags = tags;
     }
 }
