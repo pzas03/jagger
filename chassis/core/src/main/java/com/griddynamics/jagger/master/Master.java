@@ -30,7 +30,7 @@ import com.griddynamics.jagger.engine.e1.collector.testsuite.TestSuiteInfo;
 import com.griddynamics.jagger.engine.e1.collector.testsuite.TestSuiteListener;
 import com.griddynamics.jagger.engine.e1.process.Services;
 import com.griddynamics.jagger.engine.e1.services.JaggerPlace;
-import com.griddynamics.jagger.engine.e1.services.SessionCommentStorage;
+import com.griddynamics.jagger.engine.e1.services.SessionMetaDataStorage;
 import com.griddynamics.jagger.master.configuration.*;
 import com.griddynamics.jagger.master.database.DatabaseValidator;
 import com.griddynamics.jagger.monitoring.reporting.DynamicPlotGroups;
@@ -77,6 +77,7 @@ public class Master implements Runnable {
     private LogWriter logWriter;
     private LogReader logReader;
     private GeneralNodeInfoAggregator generalNodeInfoAggregator;
+    private SessionMetaDataStorage metaDataStorage;
     private DatabaseValidator databaseValidator;
 
 
@@ -126,6 +127,10 @@ public class Master implements Runnable {
         this.logReader = logReader;
     }
 
+    public void setMetaDataStorage(SessionMetaDataStorage metaDataStorage) {
+        this.metaDataStorage = metaDataStorage;
+    }
+
     public void setGeneralNodeInfoAggregator(GeneralNodeInfoAggregator generalNodeInfoAggregator) {
         this.generalNodeInfoAggregator = generalNodeInfoAggregator;
     }
@@ -149,15 +154,13 @@ public class Master implements Runnable {
 
         Multimap<NodeType, NodeId> allNodes = HashMultimap.create();
         allNodes.putAll(NodeType.MASTER, coordinator.getAvailableNodes(NodeType.MASTER));
-
-        SessionCommentStorage commentStorage = new SessionCommentStorage(sessionIdProvider.getSessionComment());
-
         NodeContextBuilder contextBuilder = Coordination.contextBuilder(NodeId.masterNode());
         contextBuilder
                 .addService(LogWriter.class, getLogWriter())
                 .addService(LogReader.class, getLogReader())
                 .addService(KeyValueStorage.class, keyValueStorage)
-                .addService(SessionCommentStorage.class, commentStorage);
+                .addService(SessionMetaDataStorage.class, metaDataStorage);
+
         NodeContext context = contextBuilder.build();
 
         Map<NodeType, CountDownLatch> countDownLatchMap = Maps.newHashMap();
@@ -216,7 +219,6 @@ public class Master implements Runnable {
             long startTime = System.currentTimeMillis();
 
             testSuiteListener.onStart(testSuiteInfo);
-
             SessionExecutionStatus status=runConfiguration(allNodes, context);
 
             testSuiteInfo.setDuration(System.currentTimeMillis()-startTime);
@@ -226,11 +228,11 @@ public class Master implements Runnable {
             testSuiteListener.onStop(testSuiteInfo);
 
             for (SessionExecutionListener listener : configuration.getSessionExecutionListeners()) {
-                if(listener instanceof SessionListener){
-                    ((SessionListener)listener).onSessionExecuted(sessionId, commentStorage.get(), status);
-                } else {
-                    listener.onSessionExecuted(sessionId, commentStorage.get());
-                }
+                    if(listener instanceof SessionListener) {
+                        ((SessionListener) listener).onSessionExecuted(sessionId, metaDataStorage.getComment(), status);
+                    } else {
+                        listener.onSessionExecuted(sessionId, metaDataStorage.getComment());
+                    }
             }
 
             log.info("Going to generate report");
