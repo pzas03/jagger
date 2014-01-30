@@ -2,6 +2,7 @@ package com.griddynamics.jagger.webclient.server;
 
 import com.griddynamics.jagger.webclient.client.ControlTreeCreatorService;
 import com.griddynamics.jagger.webclient.client.components.control.model.*;
+import com.griddynamics.jagger.webclient.client.data.MetricRankingProvider;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -146,7 +147,9 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
             TestNode testNode = new TestNode();
             testNode.setId(SUMMARY_PREFIX + tdd.getTaskName());
             testNode.setTaskDataDto(tdd);
-            testNode.setMetrics(map.get(tdd));
+            List<MetricNode> metricNodeList = map.get(tdd);
+            MetricRankingProvider.sortPlotNodes(metricNodeList);
+            testNode.setMetrics(metricNodeList);
             TestInfoNode tin = new TestInfoNode(tdd.getTaskName() + TEST_INFO, TEST_INFO);
             tin.setTestInfoList(getTestInfoNamesList(tdd));
             testNode.setTestInfo(tin);

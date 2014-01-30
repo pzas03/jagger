@@ -99,7 +99,6 @@ public class CommonDataProviderImpl implements CommonDataProvider {
             .setParameter("taskIds", taskIds)
             .getResultList();
 
-        System.out.println("Time spent for new Metrics request : " + (System.currentTimeMillis() - temp));
         for (Object[] mde : metricDescriptionEntities) {
             for (TaskDataDto td : tests) {
                 if (td.getIds().contains((Long) mde[2])) {
@@ -124,8 +123,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                     .setParameter("ids", taskIds)
                     .getResultList();
 
-        log.debug("{} ms spent for fetching {} metrics", System.currentTimeMillis() - temp, metricNames.size());
-        System.out.println("Custom metrics at all took : " + (System.currentTimeMillis() - temp));
+        log.debug("{} ms spent for fetching {} custom metrics", System.currentTimeMillis() - temp, metricNames.size());
 
         for (Object[] name : metricNames){
             if (name == null || name[0] == null) continue;
@@ -134,7 +132,8 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                     MetricNameDto metric = new MetricNameDto();
                     metric.setTests(td);
                     metric.setName((String)name[0]);
-                    metrics.add(metric);
+                    if (!metrics.contains(metric)) // if we already have same metric from new model
+                        metrics.add(metric);
                     break;
                 }
             }

@@ -7,6 +7,8 @@ import com.griddynamics.jagger.engine.e1.aggregator.workload.model.MetricDetails
 import com.griddynamics.jagger.webclient.client.dto.*;
 import com.griddynamics.jagger.webclient.server.ColorCodeGenerator;
 import com.griddynamics.jagger.webclient.server.LegendProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -21,6 +23,9 @@ import java.util.*;
  * To change this template use File | Settings | File Templates.
  */
 public class CustomMetricPlotDataProvider implements PlotDataProvider{
+
+    Logger log = LoggerFactory.getLogger(CustomMetricPlotDataProvider.class);
+
     private LegendProvider legendProvider;
     private EntityManager entityManager;
 
@@ -80,7 +85,6 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
                 "from MetricPointEntity as mpe where mpe.metricDescription.taskData.id in (:taskIds) group by mpe.metricDescription.id")
                 .setParameter("taskIds", testIds)
                 .getResultList();
-        System.out.println("Custom plots NEW for : " + (System.currentTimeMillis() - temp));
 
         for (Object[] plotName : plotNamesNew){
             if (plotName != null) {
@@ -100,7 +104,7 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
                 .setParameter("ids", testIds)
                 .getResultList();
 
-        System.out.println("Custom plots for : " + (System.currentTimeMillis() - temp));
+        log.debug("{} ms spent to fetch custom metrics plots names", System.currentTimeMillis() - temp);
 
         for (Object[] plotName : plotNames){
             if (plotName != null) {

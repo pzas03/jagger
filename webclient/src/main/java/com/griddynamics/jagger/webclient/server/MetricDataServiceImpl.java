@@ -119,47 +119,59 @@ public class MetricDataServiceImpl implements MetricDataService {
                 }
             }else{
                 //custom metric
-                List<Object[]> metrics = entityManager.createQuery("select metric, metric.workloadData.sessionId " +
-                                                                   "from DiagnosticResultEntity as metric " +
-                                                                   "where metric.name=:name " +
-                                                                            "and (metric.workloadData.taskId, metric.workloadData.sessionId) " +
-                                                                                "in (select taskData.taskId, taskData.sessionId from TaskData as taskData where taskData.id in (:ids))")
-                                                                   .setParameter("ids", metricName.getTests().getIds()).setParameter("name", metricName.getName()).getResultList();
+
+                // check new model
+                List<Object[]> metrics = entityManager.createQuery(
+                        "select summary.total, summary.metricDescription.taskData.sessionId " +
+                        "from MetricSummaryEntity as summary" +
+                        " where summary.metricDescription.taskData.id in (:ids) and summary.metricDescription.metricId=:metricId")
+                        .setParameter("ids", metricName.getTests().getIds())
+                        .setParameter("metricId", metricName.getName())
+                        .getResultList();
+
+                //check old model (before jagger 1.2.4)
+                metrics.addAll(entityManager.createQuery(
+                        "select metric.total, metric.workloadData.sessionId " +
+                       "from DiagnosticResultEntity as metric " +
+                       "where metric.name=:name " +
+                                "and (metric.workloadData.taskId, metric.workloadData.sessionId) " +
+                                    "in (select taskData.taskId, taskData.sessionId from TaskData as taskData where taskData.id in (:ids))")
+                       .setParameter("ids", metricName.getTests().getIds()).setParameter("name", metricName.getName()).getResultList());
 
                 if (!metrics.isEmpty()){
                     for (Object[] mas : metrics){
 
-                        DiagnosticResultEntity metric = (DiagnosticResultEntity)mas[0];
-                        if (metric.getTotal() == null) continue;
+                        if (mas[0] == null) continue;
 
                         MetricValueDto value = new MetricValueDto();
-                        value.setValue(new DecimalFormat("0.0###").format(metric.getTotal()));
+                        value.setValue(new DecimalFormat("0.0###").format(mas[0]));
 
-                        value.setSessionId(Long.parseLong(mas[1].toString()));
+                        value.setSessionId(Long.parseLong((String)mas[1]));
                         dto.getValues().add(value);
                     }
                 }else{
-                    List<Object[]> validators = entityManager.createQuery("select metric, metric.workloadData.sessionId " +
+                    List<Object[]> validators = entityManager.createQuery("select metric.total, metric.failed, metric.workloadData.sessionId " +
                                                                                 "from ValidationResultEntity as metric " +
                                                                           "where metric.validator=:name " +
                                                                                    "and (metric.workloadData.taskId, metric.workloadData.sessionId) " +
                                                                                         "in (select taskData.taskId, taskData.sessionId from TaskData as taskData where taskData.id in (:ids))").setParameter("ids", metricName.getTests().getIds()).setParameter("name", metricName.getName()).getResultList();
                     for (Object[] mas : validators){
 
-                        ValidationResultEntity validator = (ValidationResultEntity)mas[0];
-                        if (validator.getTotal() == null || validator.getFailed() == null) continue;
+                        Integer total = (Integer)mas[0];
+                        Integer failed = (Integer)mas[1];
+                        if (total == null || failed == null) continue;
                         MetricValueDto value = new MetricValueDto();
 
                         BigDecimal percentage = BigDecimal.ZERO;
 
-                        if (validator.getTotal() != 0) {
-                            percentage = new BigDecimal(validator.getTotal() - validator.getFailed())
-                                    .divide(new BigDecimal(validator.getTotal()), 3, BigDecimal.ROUND_HALF_UP);
+                        if (total != 0) {
+                            percentage = new BigDecimal(total - failed)
+                                    .divide(new BigDecimal(total), 3, BigDecimal.ROUND_HALF_UP);
                         }
 
                         value.setValue(percentage.toString());
 
-                        value.setSessionId(Long.parseLong(mas[1].toString()));
+                        value.setSessionId(Long.parseLong((String)mas[2]));
                         dto.getValues().add(value);
                     }
                 }
