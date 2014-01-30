@@ -587,7 +587,10 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         // sorting
         for (TaskDataDto tdd : taskSet) {
             List<MonitoringPlotNode> mpnList = resultMap.get(tdd);
-            if (mpnList == null) continue;
+            if (mpnList == null) {
+                resultMap.put(tdd, Collections.EMPTY_LIST);
+                continue;
+            }
             MetricRankingProvider.sortPlotNodes(mpnList);
             for (MonitoringPlotNode mpn : mpnList) {
                 MetricRankingProvider.sortPlotNodes(mpn.getPlots());

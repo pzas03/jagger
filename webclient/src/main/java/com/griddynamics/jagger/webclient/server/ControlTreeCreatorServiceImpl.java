@@ -115,13 +115,20 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
                 testNode.setId(METRICS_PREFIX + tdd.getTaskName());
                 testNode.setTaskDataDto(tdd);
 
-                testNode.setPlots(map.get(tdd));
+                List<PlotNode> plotList = map.get(tdd);
+                MetricRankingProvider.sortPlotNodes(plotList);
+                testNode.setPlots(plotList);
 
-                testNode.setMonitoringPlots(monitoringMap.get(tdd));
+                if (!monitoringMap.isEmpty()) {
+                    List<MonitoringPlotNode> monitoringPlotNodeList = monitoringMap.get(tdd);
+                    MetricRankingProvider.sortPlotNodes(monitoringPlotNodeList);
+                    testNode.setMonitoringPlots(monitoringPlotNodeList);
+                }
 
                 taskDataDtoList.add(testNode);
             }
 
+            MetricRankingProvider.sortPlotNodes(taskDataDtoList);
             return taskDataDtoList;
 
         } catch (Exception e) {
@@ -157,6 +164,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
             taskDataDtoList.add(testNode);
         }
 
+        MetricRankingProvider.sortPlotNodes(taskDataDtoList);
         return taskDataDtoList;
     }
 
