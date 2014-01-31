@@ -2,8 +2,6 @@ package com.griddynamics.jagger.webclient.server.plot;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import com.griddynamics.jagger.engine.e1.aggregator.session.model.TaskData;
-import com.griddynamics.jagger.engine.e1.aggregator.workload.model.MetricDetails;
 import com.griddynamics.jagger.webclient.client.dto.*;
 import com.griddynamics.jagger.webclient.server.ColorCodeGenerator;
 import com.griddynamics.jagger.webclient.server.LegendProvider;
@@ -38,17 +36,6 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
         this.entityManager = entityManager;
     }
 
-
-    public boolean isAvailable(String plotName) {
-        BigInteger count = (BigInteger)entityManager.createNativeQuery("select count(id) FROM MetricDetails where metric=:plotName")
-                            .setParameter("plotName", plotName)
-                            .getSingleResult();
-
-        if (count.intValue() > 0)
-            return true;
-
-        return false;
-    }
 
     public List<PlotNameDto> getPlotNames(TaskDataDto taskDataDto){
         List<String> plotNames = entityManager.createNativeQuery("select metricDetails.metric from MetricDetails metricDetails " +
@@ -97,7 +84,6 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
         }
 
         // check old model (before jagger 1.2.4)
-        temp = System.currentTimeMillis();
         List<Object[]> plotNames = entityManager.createNativeQuery("select metricDetails.metric, metricDetails.taskData_id from MetricDetails metricDetails " +
                 "where metricDetails.taskData_id in (:ids) " +
                 "group by metricDetails.metric, metricDetails.taskData_id")
@@ -120,44 +106,67 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
     }
 
     @Override
-    public List<PlotSeriesDto> getPlotData(long taskId, String plotName) {
+    public List<PlotSeriesDto> getPlotData(long taskId, PlotNameDto plotName) {
         return getPlotData(new HashSet<Long>(Arrays.asList(taskId)), plotName);
     }
 
     @Override
-    public List<PlotSeriesDto> getPlotData(Set<Long> taskId, String plotName) {
-        List<MetricDetails> metricValues = entityManager.createNativeQuery("select * from MetricDetails metrics " +
-                                                                           "where metrics.metric=:plotName and metrics.taskData_id in (:taskIds)",
-                                                                            MetricDetails.class)
-                                            .setParameter("taskIds", taskId)
-                                            .setParameter("plotName", plotName)
-                                            .getResultList();
+    public List<PlotSeriesDto> getPlotData(Set<Long> taskId, PlotNameDto plotNameDto) {
+
+        String plotName = plotNameDto.getPlotName();
+        String displayName = plotNameDto.getDisplay();
+
+        long temp = System.currentTimeMillis();
+        // check new way
+        List<Object[]> metricValues = entityManager.createQuery(
+                "select mpe.metricDescription.taskData.id, mpe.time, mpe.value, mpe.metricDescription.taskData.sessionId from MetricPointEntity as mpe " +
+                "where mpe.metricDescription.taskData.id in (:taskIds) and mpe.metricDescription.metricId=:metricId")
+                .setParameter("taskIds", taskId)
+                .setParameter("metricId", plotName)
+                .getResultList();
+
+        log.debug("Fetch metric plot new in: {}", (System.currentTimeMillis() - temp));
+        temp = System.currentTimeMillis();
+
+        // check old way
+        metricValues.addAll(
+                entityManager.createQuery(
+                        "select metrics.taskData.id, metrics.time, metrics.value, metrics.taskData.sessionId from MetricDetails metrics " +
+                                "where metrics.metric=:plotName and metrics.taskData.id in (:taskIds)")
+                        .setParameter("taskIds", taskId)
+                        .setParameter("plotName", plotName)
+                        .getResultList()
+        );
+
+        log.debug("Fetch metric plot old in: {}", (System.currentTimeMillis() - temp));
 
         if (metricValues.isEmpty())
             return Collections.emptyList();
 
-        Multimap<Long, MetricDetails> metrics = ArrayListMultimap.create(taskId.size(), metricValues.size());
+        Multimap<Long, Object[]> metrics = ArrayListMultimap.create(taskId.size(), metricValues.size());
         List<PlotDatasetDto> plots = new ArrayList<PlotDatasetDto>();
 
-        for (MetricDetails metricDetails : metricValues){
-            metrics.put(metricDetails.getTaskData().getId(), metricDetails);
+        for (Object[] metricDetails : metricValues){
+            metrics.put((Long)metricDetails[0], metricDetails);
         }
 
         for (Long id : metrics.keySet()){
-            Collection<MetricDetails> taskMetrics = metrics.get(id);
+            Collection<Object[]> taskMetrics = metrics.get(id);
             List<PointDto> points = new ArrayList<PointDto>(taskMetrics.size());
-            TaskData taskData = null;
+            String sessionId = null;
+            //TaskData taskData = null;
 
-            for (MetricDetails metricDetails : taskMetrics){
-                if (taskData == null) taskData = metricDetails.getTaskData();
-                points.add(new PointDto(metricDetails.getTime() / 1000D, metricDetails.getValue()));
+            for (Object[] metricDetails : taskMetrics){
+                //if (taskData == null) taskData = metricDetails.getTaskData();
+                if (sessionId == null) sessionId = (String)metricDetails[3];
+                points.add(new PointDto((Long)metricDetails[1] / 1000D, Double.parseDouble(metricDetails[2].toString())));
             }
 
-            PlotDatasetDto plotDatasetDto = new PlotDatasetDto(points, legendProvider.generatePlotLegend(taskData.getSessionId(), plotName, true), ColorCodeGenerator.getHexColorCode());
+            PlotDatasetDto plotDatasetDto = new PlotDatasetDto(points, legendProvider.generatePlotLegend(sessionId, displayName, true), ColorCodeGenerator.getHexColorCode());
             plots.add(plotDatasetDto);
         }
 
-        PlotSeriesDto plotSeriesDto = new PlotSeriesDto(plots, "Time, sec", "", legendProvider.getPlotHeader(taskId, plotName));
+        PlotSeriesDto plotSeriesDto = new PlotSeriesDto(plots, "Time, sec", "", legendProvider.getPlotHeader(taskId, displayName));
 
         return Arrays.asList(plotSeriesDto);
     }

@@ -53,7 +53,7 @@ public class PlotProviderServiceImpl implements PlotProviderService {
     //===========================
 
     @Override
-    public List<PlotSeriesDto> getPlotData(long taskId, String plotName) {
+    public List<PlotSeriesDto> getPlotData(long taskId, PlotNameDto plotName) {
         long timestamp = System.currentTimeMillis();
         log.debug("getPlotData was invoked with taskId={} and plotName={}", taskId, plotName);
 
@@ -62,7 +62,7 @@ public class PlotProviderServiceImpl implements PlotProviderService {
         List<PlotSeriesDto> plotSeriesDto;
         try {
             plotSeriesDto = plotDataProvider.getPlotData(taskId, plotName);
-            log.info("getPlotData(): {}", getFormattedLogMessage(plotSeriesDto, "" + taskId, plotName, System.currentTimeMillis() - timestamp));
+            log.info("getPlotData(): {}", getFormattedLogMessage(plotSeriesDto, "" + taskId, plotName.getPlotName(), System.currentTimeMillis() - timestamp));
         } catch (Exception e) {
             log.error("Error is occurred during plot data loading for taskId=" + taskId + ", plotName=" + plotName, e);
             throw new RuntimeException(e);
@@ -72,7 +72,7 @@ public class PlotProviderServiceImpl implements PlotProviderService {
     }
 
     @Override
-    public List<PlotSeriesDto> getPlotData(Set<Long> taskIds, String plotName) {
+    public List<PlotSeriesDto> getPlotData(Set<Long> taskIds, PlotNameDto plotName) {
         long timestamp = System.currentTimeMillis();
         log.debug("getPlotData was invoked with taskIds={} and plotName={}", taskIds, plotName);
 
@@ -81,7 +81,7 @@ public class PlotProviderServiceImpl implements PlotProviderService {
         List<PlotSeriesDto> plotSeriesDtoList;
         try {
             plotSeriesDtoList = plotDataProvider.getPlotData(taskIds, plotName);
-            log.info("getPlotData(): {}", getFormattedLogMessage(plotSeriesDtoList, "" + taskIds, plotName, System.currentTimeMillis() - timestamp));
+            log.info("getPlotData(): {}", getFormattedLogMessage(plotSeriesDtoList, "" + taskIds, plotName.getPlotName(), System.currentTimeMillis() - timestamp));
         } catch (Exception e) {
             log.error("Error is occurred during plot data loading for taskIds=" + taskIds + ", plotName=" + plotName, e);
             throw new RuntimeException(e);
@@ -93,8 +93,9 @@ public class PlotProviderServiceImpl implements PlotProviderService {
     @Override
     public Map<PlotNameDto, List<PlotSeriesDto>> getPlotDatas(Set<PlotNameDto> plots) throws IllegalArgumentException{
         Map<PlotNameDto,List<PlotSeriesDto>> result = new LinkedHashMap<PlotNameDto, List<PlotSeriesDto>>(plots.size());
+        // todo : fetch metrics  plots in one query
         for (PlotNameDto plot : plots){
-            result.put(plot, getPlotData(plot.getTaskIds(), plot.getPlotName()));
+            result.put(plot, getPlotData(plot.getTaskIds(), plot));
         }
         return result;
     }
@@ -109,7 +110,7 @@ public class PlotProviderServiceImpl implements PlotProviderService {
             log.debug("getPlotData was invoked with sessionId={} and plotName={}", sessionId, plotName);
             List<PlotSeriesDto> plotSeriesDtoList;
 
-            SessionScopePlotDataProvider plotDataProvider = (SessionScopePlotDataProvider) findPlotDataProvider(plotName.getPlotName());
+            SessionScopePlotDataProvider plotDataProvider = (SessionScopePlotDataProvider) findPlotDataProvider(plotName);
             if (plotDataProvider == null) {
                 log.warn("getPlotData was invoked with unsupported plotName={}", plotName);
                 throw new UnsupportedOperationException("Plot type " + plotName + " doesn't supported");
@@ -170,25 +171,26 @@ public class PlotProviderServiceImpl implements PlotProviderService {
         return logBuilder.toString();
     }
 
-    private PlotDataProvider findPlotDataProvider(String plotName) {
-        PlotDataProvider plotDataProvider = workloadPlotDataProviders.get(plotName);
+    private PlotDataProvider findPlotDataProvider(PlotName plotName) {
+        PlotDataProvider plotDataProvider = workloadPlotDataProviders.get(plotName.getPlotName());
         if (plotDataProvider == null) {
             // any ideas ?
-            if (plotName.contains(AGENT_NAME_SEPARATOR)) {
-                String temp = plotName.substring(0, plotName.indexOf(AGENT_NAME_SEPARATOR));
+            if (plotName.getPlotName().contains(AGENT_NAME_SEPARATOR)) {
+                String temp = plotName.getPlotName().substring(0, plotName.getPlotName().indexOf(AGENT_NAME_SEPARATOR));
                 plotDataProvider = monitoringPlotDataProviders.get(temp);
             }
         }
         if (plotDataProvider == null) {
-            if (customMetricPlotDataProvider.isAvailable(plotName)){
-                plotDataProvider = customMetricPlotDataProvider;
-            }
+            // we already checked if plot is available on tree creating step
+            plotDataProvider = customMetricPlotDataProvider;
         }
-        if (plotDataProvider == null){
-            log.warn("getPlotData was invoked with unsupported plotName={}", plotName);
-            throw new UnsupportedOperationException("Can not find data for plot \"" + plotName +
-                    "\". \nProbably it is link problem");
-        }
+
+// We changed the idea , this wont happen any more
+//        if (plotDataProvider == null){
+//            log.warn("getPlotData was invoked with unsupported plotName={}", plotName);
+//            throw new UnsupportedOperationException("Can not find data for plot \"" + plotName +
+//                    "\". \nProbably it is link problem");
+//        }
 
         return plotDataProvider;
     }
