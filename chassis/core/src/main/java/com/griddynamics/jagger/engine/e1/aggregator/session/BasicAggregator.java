@@ -171,7 +171,7 @@ public class BasicAggregator extends HibernateDaoSupport implements Distribution
                         getHibernateTemplate().saveOrUpdate(sessionData);
                     }
                 else
-                    log.error("Session's id is not valid");
+                    log.error("Must be one session's id which is equals {}, but got {} ids",sessionId,sessionsById.size());
             } else
                 log.info("No tags for mark session {}", sessionId);
         }
