@@ -335,6 +335,26 @@ public class Trends extends DefaultActivity {
         History.newItem(NameTokens.EMPTY);
     }
 
+    public void validateUpdatePlace(final TrendsPlace place){
+
+        ValidationService.Async.getInstance().validateDatabaseModel(new AsyncCallback<Boolean>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                new ExceptionPanel(caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(Boolean result) {
+                if (!result) {
+                    new ExceptionPanel(NameTokens.EXCEPTION_MESSAGE_NO_METRICDESCRIPTION_TABLE);
+                    disableControl();
+                } else {
+                    updatePlace(place);
+                }
+            }
+        });
+    }
+
     private void noSessionsFromLink() {
         sessionsDataGrid.getSelectionModel().addSelectionChangeHandler(new SessionSelectChangeHandler());
         selectTests = true;

@@ -120,23 +120,26 @@ public class MetricDataServiceImpl implements MetricDataService {
             }else{
                 //custom metric
 
-                // check new model
-                List<Object[]> metrics = entityManager.createQuery(
-                        "select summary.total, summary.metricDescription.taskData.sessionId " +
-                        "from MetricSummaryEntity as summary" +
-                        " where summary.metricDescription.taskData.id in (:ids) and summary.metricDescription.metricId=:metricId")
-                        .setParameter("ids", metricName.getTests().getIds())
-                        .setParameter("metricId", metricName.getName())
-                        .getResultList();
 
                 //check old model (before jagger 1.2.4)
-                metrics.addAll(entityManager.createQuery(
+                List<Object[]> metrics = entityManager.createQuery(
                         "select metric.total, metric.workloadData.sessionId " +
                        "from DiagnosticResultEntity as metric " +
                        "where metric.name=:name " +
                                 "and (metric.workloadData.taskId, metric.workloadData.sessionId) " +
                                     "in (select taskData.taskId, taskData.sessionId from TaskData as taskData where taskData.id in (:ids))")
-                       .setParameter("ids", metricName.getTests().getIds()).setParameter("name", metricName.getName()).getResultList());
+                       .setParameter("ids", metricName.getTests().getIds()).setParameter("name", metricName.getName()).getResultList();
+
+                // check new model
+                metrics.addAll(
+                        entityManager.createQuery(
+                            "select summary.total, summary.metricDescription.taskData.sessionId " +
+                                    "from MetricSummaryEntity as summary" +
+                                    " where summary.metricDescription.taskData.id in (:ids) and summary.metricDescription.metricId=:metricId")
+                            .setParameter("ids", metricName.getTests().getIds())
+                            .setParameter("metricId", metricName.getName())
+                            .getResultList()
+                );
 
                 if (!metrics.isEmpty()){
                     for (Object[] mas : metrics){
@@ -150,11 +153,15 @@ public class MetricDataServiceImpl implements MetricDataService {
                         dto.getValues().add(value);
                     }
                 }else{
-                    List<Object[]> validators = entityManager.createQuery("select metric.total, metric.failed, metric.workloadData.sessionId " +
-                                                                                "from ValidationResultEntity as metric " +
-                                                                          "where metric.validator=:name " +
-                                                                                   "and (metric.workloadData.taskId, metric.workloadData.sessionId) " +
-                                                                                        "in (select taskData.taskId, taskData.sessionId from TaskData as taskData where taskData.id in (:ids))").setParameter("ids", metricName.getTests().getIds()).setParameter("name", metricName.getName()).getResultList();
+                    List<Object[]> validators = entityManager.createNativeQuery(
+                            "select vr.total, vr.failed, selected.sessionId from ValidationResultEntity vr join (" +
+                                    "  select wd.id, wd.sessionId from WorkloadData wd join (\n" +
+                                    "      select td.taskId, td.sessionId from TaskData td where td.id in (:ids)" +
+                                    "  ) as selected on wd.sessionId=selected.sessionId and wd.taskId=selected.taskId" +
+                                    ") as selected on vr.workloadData_id=selected.id and vr.validator=:name")
+                            .setParameter("ids", metricName.getTests().getIds())
+                            .setParameter("name", metricName.getName())
+                            .getResultList();
                     for (Object[] mas : validators){
 
                         Integer total = (Integer)mas[0];

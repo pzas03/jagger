@@ -51,6 +51,7 @@
                 <entry key="/SessionDataService" value-ref="sessionDataService"/>
                 <entry key="/MetricDataService" value-ref="metricDataService"/>
                 <entry key="/ControlTreeCreatorService" value-ref="controlTreeCreatorService"/>
+                <entry key="/ValidationService" value-ref="validationService"/>
             </map>
         </property>
     </bean>
@@ -87,6 +88,8 @@
 
 
     <bean id="sessionDataService" class="com.griddynamics.jagger.webclient.server.SessionDataServiceImpl"/>
+
+    <bean id="validationService" class="com.griddynamics.jagger.webclient.server.ValidationServiceImpl"/>
 
     <!-- @deprecated another conception of control since jagger 1.2.2-m3
     <bean id="taskDataService" class="com.griddynamics.jagger.webclient.server.TaskDataServiceImpl"/>
