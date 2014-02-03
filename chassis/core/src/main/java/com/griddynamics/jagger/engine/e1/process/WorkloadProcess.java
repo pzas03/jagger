@@ -26,8 +26,12 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.Service;
 import com.griddynamics.jagger.coordinator.NodeContext;
 import com.griddynamics.jagger.coordinator.NodeProcess;
+import com.griddynamics.jagger.engine.e1.Provider;
+import com.griddynamics.jagger.engine.e1.ProviderUtil;
 import com.griddynamics.jagger.engine.e1.collector.Validator;
+import com.griddynamics.jagger.engine.e1.collector.invocation.InvocationListener;
 import com.griddynamics.jagger.engine.e1.scenario.*;
+import com.griddynamics.jagger.engine.e1.services.JaggerPlace;
 import com.griddynamics.jagger.invoker.Scenario;
 import com.griddynamics.jagger.util.Futures;
 import com.griddynamics.jagger.util.TimeoutsConfiguration;
@@ -84,6 +88,10 @@ public class WorkloadProcess implements NodeProcess<WorkloadStatus> {
             if (provider instanceof NodeSideInitializable) {
                 ((NodeSideInitializable) provider).init(sessionId, command.getTaskId(), context);
             }
+        }
+
+        for (Provider<InvocationListener<Object, Object, Object>> provider : command.getListeners()){
+            ProviderUtil.injectContext(provider, sessionId, command.getTaskId(), context, JaggerPlace.INVOCATION_LISTENER);
         }
 
         totalSamplesCountRequested = command.getScenarioContext().getWorkloadConfiguration().getSamples();
@@ -165,6 +173,11 @@ public class WorkloadProcess implements NodeProcess<WorkloadStatus> {
         log.debug("Adding new workload thread");
         Scenario<Object, Object, Object> scenario = command.getScenarioFactory().get(context);
 
+        List<InvocationListener<?, ?, ?>> listeners = Lists.newArrayList();
+        for (Provider<InvocationListener<Object, Object, Object>> listener : command.getListeners()){
+            listeners.add(listener.provide());
+        }
+
         List<ScenarioCollector<?, ?, ?>> collectors = Lists.newLinkedList();
         for (KernelSideObjectProvider<ScenarioCollector<Object, Object, Object>> provider : command.getCollectors()) {
             collectors.add(provider.provide(sessionId, command.getTaskId(), context));
@@ -179,6 +192,7 @@ public class WorkloadProcess implements NodeProcess<WorkloadStatus> {
                 .builder(scenario)
                 .addCollectors(collectors)
                 .addValidators(validators)
+                .addListeners(listeners)
                 .useExecutor(executor);
         WorkloadService thread = ( predefinedSamplesCount()) ? builder.buildServiceWithSharedSamplesCount(leftSamplesCount) : builder.buildInfiniteService();
         thread.changeDelay(delay);

@@ -89,6 +89,9 @@ public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
         registerBeanDefinitionParser("metric-custom", new CustomMetricDefinitionParser());
         registerBeanDefinitionParser("metric-success-rate", new SuccessRateCollectorDefinitionParser());
 
+        //listener
+        registerBeanDefinitionParser("listener-invoke", findTypeParser);
+
         //scenario
         registerBeanDefinitionParser("scenario",  findTypeParser);
 

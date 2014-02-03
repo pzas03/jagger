@@ -20,8 +20,11 @@
 
 package com.griddynamics.jagger.invoker;
 
+import com.griddynamics.jagger.engine.e1.collector.invocation.InvocationListener;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.griddynamics.jagger.invoker.Invokers.doNothing;
+import static com.griddynamics.jagger.invoker.Invokers.emptyListener;
 
 /**
  * Encapsulates algorithm of load testing.
@@ -30,6 +33,7 @@ import static com.griddynamics.jagger.invoker.Invokers.doNothing;
  */
 public abstract class Scenario<Q, R, E> {
     private LoadInvocationListener<Q, R, E> listener = doNothing();
+    private InvocationListener<Q, R, E> invocationListener = emptyListener();
 
     protected LoadInvocationListener<Q, R, E> getListener() {
         return listener;
@@ -38,6 +42,15 @@ public abstract class Scenario<Q, R, E> {
     public void setListener(LoadInvocationListener<Q, R, E> listener) {
         checkNotNull(listener);
         this.listener = Invokers.logErrors(listener);
+    }
+
+    protected InvocationListener<Q, R, E> getInvocationListener(){
+        return invocationListener;
+    }
+
+    public void setInvocationListener(InvocationListener<Q, R, E> invocationListener) {
+        checkNotNull(invocationListener);
+        this.invocationListener = invocationListener;
     }
 
     public abstract void doTransaction();

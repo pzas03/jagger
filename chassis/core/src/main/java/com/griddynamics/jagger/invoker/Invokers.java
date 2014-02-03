@@ -23,6 +23,8 @@ package com.griddynamics.jagger.invoker;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.griddynamics.jagger.engine.e1.collector.Validator;
+import com.griddynamics.jagger.engine.e1.collector.invocation.InvocationInfo;
+import com.griddynamics.jagger.engine.e1.collector.invocation.InvocationListener;
 import com.griddynamics.jagger.engine.e1.scenario.Flushable;
 import com.griddynamics.jagger.util.Nothing;
 import com.griddynamics.jagger.util.SystemClock;
@@ -45,8 +47,8 @@ public class Invokers {
 
     }
 
-    public static <Q, R, E> Invoker<Q, Nothing, E> listenableInvoker(Invoker<Q, R, E> invoker, LoadInvocationListener<Q, R, E> listener, SystemClock clock) {
-        return new ListenableInvoker<Q, R, E>(invoker, listener, clock);
+    public static <Q, R, E> Invoker<Q, Nothing, E> listenableInvoker(Invoker<Q, R, E> invoker, LoadInvocationListener<Q, R, E> listener, InvocationListener<Q, R, E> invocationListener, SystemClock clock) {
+        return new ListenableInvoker<Q, R, E>(invoker, listener, invocationListener, clock);
     }
 
     public static <Q, R, E> CompositeLoadInvocationListener<Q, R, E> composeListeners(Iterable<? extends LoadInvocationListener<Q, R, E>> listeners) {
@@ -84,6 +86,26 @@ public class Invokers {
         return DoNothing.INSTANCE;
     }
 
+    public static <Q, R, E> InvocationListener<Q, R, E> emptyListener() {
+        return new InvocationListener<Q, R, E>() {
+            @Override
+            public void onStart(InvocationInfo<Q, R, E> invocationInfo) {
+            }
+
+            @Override
+            public void onSuccess(InvocationInfo<Q, R, E> invocationInfo) {
+            }
+
+            @Override
+            public void onFail(InvocationInfo<Q, R, E> invocationInfo, InvocationException e) {
+            }
+
+            @Override
+            public void onError(InvocationInfo<Q, R, E> invocationInfo, Throwable error) {
+            }
+        };
+    }
+
     @SuppressWarnings("rawtypes")
     private enum DoNothing implements LoadInvocationListener {
         INSTANCE;
@@ -113,27 +135,38 @@ public class Invokers {
         private final Invoker<Q, R, E> invoker;
         private final LoadInvocationListener<Q, R, E> listener;
         private final SystemClock clock;
+        private final InvocationListener invocationListener;
 
-        private ListenableInvoker(Invoker<Q, R, E> invoker, LoadInvocationListener<Q, R, E> listener, SystemClock clock) {
+        private ListenableInvoker(Invoker<Q, R, E> invoker, LoadInvocationListener<Q, R, E> listener, InvocationListener invocationListener, SystemClock clock) {
             this.invoker = Preconditions.checkNotNull(invoker);
             this.listener = Preconditions.checkNotNull(listener);
             this.clock = Preconditions.checkNotNull(clock);
+            this.invocationListener = Preconditions.checkNotNull(invocationListener);
         }
 
         @Override
         public Nothing invoke(Q query, E endpoint) throws InvocationException {
             LoadInvocationListener<Q, R, E> listener = logErrors(composeListeners(this.listener, LoadInvocationLogger.<Q, R, E>create()));
+            InvocationInfo<Q, R, E> invocationInfo = new InvocationInfo<Q, R, E>(query, endpoint);
+
             listener.onStart(query, endpoint);
+            invocationListener.onStart(invocationInfo);
             long before = clock.currentTimeMillis();
             try {
                 R result = invoker.invoke(query, endpoint);
                 long after = clock.currentTimeMillis();
                 long duration = after - before;
+                invocationInfo.setDuration(duration);
+                invocationInfo.setResult(result);
+
                 listener.onSuccess(query, endpoint, result, duration);
+                invocationListener.onSuccess(invocationInfo);
             } catch (InvocationException e) {
                 listener.onFail(query, endpoint, e);
+                invocationListener.onFail(invocationInfo, e);
             } catch (Throwable throwable) {
                 listener.onError(query, endpoint, throwable);
+                invocationListener.onError(invocationInfo, throwable);
             }
             return Nothing.INSTANCE;
         }
