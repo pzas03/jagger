@@ -149,7 +149,7 @@ public class BasicAggregator extends HibernateDaoSupport implements Distribution
     }
 
     public void persistTags(String sessionId, SessionMetaDataStorage metaDataStorage) {
-        Set<TagEntity> sessionTagList = new HashSet<TagEntity>();
+
         for (TagEntity tagEntity : metaDataStorage.getTagsForSaveOrUpdate()) {
             try {
                 getHibernateTemplate().saveOrUpdate(tagEntity);
@@ -158,18 +158,23 @@ public class BasicAggregator extends HibernateDaoSupport implements Distribution
             }
         }
 
-        if (!metaDataStorage.getSessionTags().isEmpty())
+        if (!metaDataStorage.getSessionTags().isEmpty()) {
+            Set<TagEntity> sessionTagList = new HashSet<TagEntity>();
             sessionTagList.addAll(getHibernateTemplate().findByNamedParam("select tags from TagEntity as tags " +
                     "where tags.name in (:sTagsName)", "sTagsName", metaDataStorage.getSessionTags()));
 
-        if (!sessionTagList.isEmpty()) {
-            List<SessionData> sessionsById = getHibernateTemplate().find("from SessionData s where s.sessionId=?", sessionId);
-            for (SessionData sessionData : sessionsById) {
-                sessionData.setTags(sessionTagList);
-                getHibernateTemplate().saveOrUpdate(sessionData);
-            }
-        } else
-            log.info("No tags for mark session {}", sessionId);
+            if (!sessionTagList.isEmpty()) {
+                List<SessionData> sessionsById = getHibernateTemplate().find("from SessionData s where s.sessionId=?", sessionId);
+                if (sessionsById.size()==1)
+                    for (SessionData sessionData : sessionsById) {
+                        sessionData.setTags(sessionTagList);
+                        getHibernateTemplate().saveOrUpdate(sessionData);
+                    }
+                else
+                    log.error("Must be one session's id which is equals {}, but got {} ids",sessionId,sessionsById.size());
+            } else
+                log.info("No tags for mark session {}", sessionId);
+        }
     }
 
 }
