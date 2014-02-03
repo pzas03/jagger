@@ -6,7 +6,7 @@ import javax.persistence.*;
 public class MetricPointEntity {
 
     public static final int ALLOCATION_SIZE = 100;
-    public static final String METRIC_ID = "MetricDetails_ID";
+    public static final String METRIC_ID = "MetricPointEntity_ID";
 
     @TableGenerator(name="GENERATOR",
             table="IdGeneratorEntity",
