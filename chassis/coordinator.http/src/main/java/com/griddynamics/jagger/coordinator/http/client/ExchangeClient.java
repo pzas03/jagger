@@ -135,7 +135,7 @@ public class ExchangeClient {
             throw Throwables.propagate(e);
         } catch (IOException e) {
             log.error("Exception during HTTP request execution", e);
-            throw Throwables.propagate(e);
+            throw e;
         } finally {
             try {
                 EntityUtils.consumeQuietly(entity);
