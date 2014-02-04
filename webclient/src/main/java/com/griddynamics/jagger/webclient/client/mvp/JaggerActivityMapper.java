@@ -28,7 +28,7 @@ public class JaggerActivityMapper implements ActivityMapper {
                 trendsActivity = new Trends(resources);
             }
             if (!was){
-                trendsActivity.validateUpdatePlace((TrendsPlace)place);
+                trendsActivity.updatePlace((TrendsPlace)place);
                 was = true;
             }
             return trendsActivity;

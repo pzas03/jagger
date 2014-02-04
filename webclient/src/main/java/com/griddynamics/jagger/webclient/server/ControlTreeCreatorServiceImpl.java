@@ -142,7 +142,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
     }
 
     private List<MonitoringSessionScopePlotNode> getSessionScopePlotNames(Set<String> sessionIds) {
-        return databaseFetcher.getMonitoringPlotNodesNew(sessionIds);
+        return databaseFetcher.getSessionScopeMonitoringPlotNodes(sessionIds);
     }
 
     private List<TestNode> getSummaryTaskNodeList(List<TaskDataDto> tasks) {
