@@ -109,9 +109,6 @@ public class ExchangeClient {
                 log.warn("Connection lost! Waiting for the next exchange session!");
             }
             log.warn(e.toString());
-        } catch (IOException e) {
-            log.error("IOException during deserialization of this data ({})", str);
-            throw e;
         }
         return packResponse;
     }
