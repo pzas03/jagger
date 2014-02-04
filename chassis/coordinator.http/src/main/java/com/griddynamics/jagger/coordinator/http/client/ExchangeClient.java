@@ -133,8 +133,8 @@ public class ExchangeClient {
             log.error("URIException while building uri with: \nurlBase: " + urlBase +
                     "\nurl: " + url + "\nobj: " + obj.toString());
             throw Throwables.propagate(e);
-        } catch (Exception e) {
-            log.error("Exception during HTTP request execution");
+        } catch (IOException e) {
+            log.error("Exception during HTTP request execution", e);
             throw Throwables.propagate(e);
         } finally {
             try {
