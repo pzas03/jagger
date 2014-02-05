@@ -86,5 +86,7 @@ public interface JaggerResources extends ClientBundle {
         String exceptionPanel();
 
         String controlFont();
+
+        String userCommentBox();
     }
 }
