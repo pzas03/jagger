@@ -65,7 +65,6 @@ public class MetricDescriptionEntity {
 
         MetricDescriptionEntity that = (MetricDescriptionEntity) o;
 
-//        if (displayName != null ? !displayName.equals(that.displayName) : that.displayName != null) return false;
         if (metricId != null ? !metricId.equals(that.metricId) : that.metricId != null) return false;
         if (taskData != null ? !taskData.equals(that.taskData) : that.taskData != null) return false;
 
@@ -75,7 +74,6 @@ public class MetricDescriptionEntity {
     @Override
     public int hashCode() {
         int result = metricId != null ? metricId.hashCode() : 0;
-//        result = 31 * result + (displayName != null ? displayName.hashCode() : 0);
         result = 31 * result + (taskData != null ? taskData.hashCode() : 0);
         return result;
     }
