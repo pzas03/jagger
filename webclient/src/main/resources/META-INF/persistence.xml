@@ -27,6 +27,8 @@
         <class>com.griddynamics.jagger.engine.e1.aggregator.workload.model.MetricDescriptionEntity</class>
         <class>com.griddynamics.jagger.engine.e1.aggregator.workload.model.MetricSummaryEntity</class>
 
+        <class>com.griddynamics.jagger.engine.e1.aggregator.session.model.TagEntity</class>
+
         <validation-mode>NONE</validation-mode>
 
         <properties>
