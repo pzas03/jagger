@@ -24,6 +24,7 @@ public class EmptySessionInfoService implements SessionInfoService {
 
     @Override
     public String getComment() {
+        log.warn("Can't get comment. SessionInfoService is not supported in {}", jaggerPlace);
         return null;
     }
 

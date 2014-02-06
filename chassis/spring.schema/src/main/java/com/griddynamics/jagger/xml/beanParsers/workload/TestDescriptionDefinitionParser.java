@@ -39,6 +39,7 @@ public class TestDescriptionDefinitionParser extends CustomBeanDefinitionParser 
         validators.setMergeEnabled(true);
 
         ManagedList listeners = new ManagedList();
+        listeners.setMergeEnabled(true);
 
         ManagedList standardCollectors = new ManagedList();
 

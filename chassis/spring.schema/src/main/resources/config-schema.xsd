@@ -761,6 +761,16 @@
         </xsd:complexContent>
     </xsd:complexType>
 
+    <xsd:complexType name="listener-invocation-not-null-response">
+        <xsd:annotation><xsd:documentation>
+            A type of invocation listener, which count not null responses.
+        </xsd:documentation></xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="listenerInvocationAbstract">
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
     <xsd:complexType name="listener-invocation-ref">
         <xsd:annotation><xsd:documentation>
             A reference to custom listener. Create Provider bean, which provides objects of InvocationListener type.
