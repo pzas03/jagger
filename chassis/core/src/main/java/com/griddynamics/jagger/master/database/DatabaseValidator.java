@@ -57,8 +57,11 @@ public class DatabaseValidator extends HibernateDaoSupport {
             }
 
             // if database already exist
-            if (!maxMetricId.isEmpty()){
-                Long lastIndex = maxMetricId.get(0);
+            if (maxMetricId!=null && !maxMetricId.isEmpty()){
+                Long lastIndex = maxMetricId.iterator().next();
+                if (lastIndex == null){
+                    return;
+                }
 
                 final long initialValue = ++lastIndex + MetricDetails.ALLOCATION_SIZE;
                 getHibernateTemplate().execute(new HibernateCallback<Void>() {

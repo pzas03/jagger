@@ -23,6 +23,8 @@
         <class>com.griddynamics.jagger.engine.e1.aggregator.workload.model.DiagnosticResultEntity</class>
         <class>com.griddynamics.jagger.engine.e1.aggregator.workload.model.MetricDetails</class>
 
+        <class>com.griddynamics.jagger.engine.e1.aggregator.session.model.TagEntity</class>
+
         <validation-mode>NONE</validation-mode>
 
         <properties>
