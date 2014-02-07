@@ -30,10 +30,12 @@ import com.griddynamics.jagger.coordinator.Coordinator;
 import com.griddynamics.jagger.coordinator.NodeContext;
 import com.griddynamics.jagger.coordinator.NodeId;
 import com.griddynamics.jagger.coordinator.NodeType;
+import com.griddynamics.jagger.engine.e1.Provider;
 import com.griddynamics.jagger.engine.e1.ProviderUtil;
 import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupInfo;
 import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupListener;
 import com.griddynamics.jagger.engine.e1.services.JaggerPlace;
+import com.griddynamics.jagger.engine.e1.sessioncomparation.TestGroupDecisionMakerListener;
 import com.griddynamics.jagger.util.Futures;
 import com.griddynamics.jagger.util.TimeUtils;
 import com.griddynamics.jagger.util.TimeoutsConfiguration;
@@ -99,10 +101,16 @@ public class CompositeTaskDistributor implements TaskDistributor<CompositeTask> 
                                                                                                                                 taskId,
                                                                                                                                 nodeContext,
                                                                                                                                 JaggerPlace.TEST_GROUP_LISTENER));
+//                TestGroupDecisionMakerListener decisionMakerListener = TestGroupDecisionMakerListener.Composer.compose(ProviderUtil.provideElement(task.getDecisionMakerListener(),
+//                                                                                                                               sessionId,
+//                                                                                                                               taskId,
+//                                                                                                                               nodeContext,
+//                                                                                                                               JaggerPlace.TEST_GROUP_DECISION_MAKER_LISTENER));
 
                 TestGroupInfo testGroupInfo = new TestGroupInfo(task, sessionId);
 
                 compositeTestGroupListener.onStart(testGroupInfo);
+
 
                 long startTime = System.currentTimeMillis();
 
@@ -127,6 +135,8 @@ public class CompositeTaskDistributor implements TaskDistributor<CompositeTask> 
 
                 testGroupInfo.setDuration(System.currentTimeMillis() - startTime);
                 compositeTestGroupListener.onStop(testGroupInfo);
+               // decisionMakerListener.onDecisionMaking(testGroupInfo);
+
             }
 
             private int activeLeadingTasks() {

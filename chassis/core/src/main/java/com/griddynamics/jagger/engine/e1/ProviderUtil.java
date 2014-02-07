@@ -3,6 +3,7 @@ package com.griddynamics.jagger.engine.e1;
 import com.griddynamics.jagger.coordinator.NodeContext;
 import com.griddynamics.jagger.engine.e1.services.JaggerPlace;
 import com.griddynamics.jagger.engine.e1.services.ServicesInitializable;
+import com.griddynamics.jagger.engine.e1.sessioncomparation.TestGroupDecisionMakerListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,4 +30,15 @@ public class ProviderUtil {
 
         return result;
     }
+
+    public static TestGroupDecisionMakerListener provideElement(Provider<TestGroupDecisionMakerListener> provider, String sessionId, String taskId, NodeContext context, JaggerPlace environment){
+            if (provider instanceof ServicesInitializable){
+                ServicesInitializable nodeSideInitializable = (ServicesInitializable)provider;
+                nodeSideInitializable.initServices(sessionId, taskId, context, environment);
+            }
+
+        return provider.provide();
+
+    }
+
 }

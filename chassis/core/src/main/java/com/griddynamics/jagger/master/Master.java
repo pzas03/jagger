@@ -26,11 +26,13 @@ import com.griddynamics.jagger.agent.model.ManageAgent;
 import com.griddynamics.jagger.coordinator.*;
 import com.griddynamics.jagger.engine.e1.aggregator.session.GeneralNodeInfoAggregator;
 import com.griddynamics.jagger.engine.e1.ProviderUtil;
+import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupInfo;
 import com.griddynamics.jagger.engine.e1.collector.testsuite.TestSuiteInfo;
 import com.griddynamics.jagger.engine.e1.collector.testsuite.TestSuiteListener;
 import com.griddynamics.jagger.engine.e1.process.Services;
 import com.griddynamics.jagger.engine.e1.services.JaggerPlace;
 import com.griddynamics.jagger.engine.e1.services.SessionMetaDataStorage;
+import com.griddynamics.jagger.engine.e1.sessioncomparation.TestGroupDecisionMakerListener;
 import com.griddynamics.jagger.master.configuration.*;
 import com.griddynamics.jagger.master.database.DatabaseValidator;
 import com.griddynamics.jagger.monitoring.reporting.DynamicPlotGroups;
@@ -343,6 +345,15 @@ public class Master implements Runnable {
             Futures.get(stop, timeoutConfiguration.getDistributionStopTime());
         }
 
+        if (task instanceof CompositeTask ){
+                TestGroupDecisionMakerListener decisionMakerListener = TestGroupDecisionMakerListener.Composer.compose(ProviderUtil.provideElement(((CompositeTask) task).getDecisionMakerListener(),
+                sessionIdProvider.getSessionId(),
+                taskId,
+                nodeContext,
+                JaggerPlace.TEST_GROUP_DECISION_MAKER_LISTENER));
+            TestGroupInfo testGroupInfo = new TestGroupInfo((CompositeTask)task, sessionIdProvider.getSessionId());
+            decisionMakerListener.onDecisionMaking(testGroupInfo);
+        }
     }
 
     private DistributionListener distributionListener() {
