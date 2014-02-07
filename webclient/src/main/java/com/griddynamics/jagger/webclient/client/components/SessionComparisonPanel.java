@@ -7,6 +7,7 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.*;
 import com.griddynamics.jagger.webclient.client.data.WebClientProperties;
 import com.griddynamics.jagger.webclient.client.dto.*;
+import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
 import com.sencha.gxt.core.client.ValueProvider;
 import com.sencha.gxt.data.shared.ModelKeyProvider;
 import com.sencha.gxt.data.shared.TreeStore;
@@ -328,7 +329,6 @@ public class SessionComparisonPanel extends VerticalPanel{
 
         String descriptionString = record.get(TEST_DESCRIPTION);
         String testNameString = record.get(TEST_NAME);
-        String metricName = record.get(NAME);
 
         if (descriptionString == null || testNameString == null)
             return;
@@ -532,7 +532,10 @@ public class SessionComparisonPanel extends VerticalPanel{
 
             if (webClientProperties.isUserCommentAvailable()) {
                 if (object.get(NAME).equals(USER_COMMENT) && !field.equals(NAME)) {
-                    return "<img src=\"http://docs.gimp.org/en/images/toolbox/stock-tool-pencil-22.png\" alt=\"Double click to edit\" height=\"15\" width=\"15\"><ins font-size='10px'>double click to edit</ins><br>" + object.get(field) + "";
+                    String toShow = object.get(field).replaceAll("\n", "<br>");
+                    return "<img src=\"" + JaggerResources.INSTANCE.getPencilImage().getSafeUri().asString() + "\" height=\"15\" width=\"15\">"
+                            + "<ins font-size='10px'>double click to edit</ins><br><br>"
+                            + toShow;
                 }
             }
             return object.get(field);

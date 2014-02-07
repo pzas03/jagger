@@ -3,6 +3,7 @@ package com.griddynamics.jagger.webclient.client.components;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
+import com.sencha.gxt.core.client.GXT;
 import com.sencha.gxt.core.client.util.Margins;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
@@ -40,9 +41,11 @@ public class UserCommentBox extends DialogBox {
         setPopupPosition(300, 100);
 
         HorizontalPanel remainCharsPanel = new HorizontalPanel();
+        remainCharsPanel.setWidth("100%");
+        remainCharsPanel.setHorizontalAlignment(HasAlignment.ALIGN_LEFT);
         remainCharsPanel.setSpacing(5);
-        remainCharsPanel.add(new HTML("You have "));
         remainingCharsLabel = new Label(String.valueOf(maxlength));
+        remainingCharsLabel.setHorizontalAlignment(HasAlignment.ALIGN_RIGHT);
         remainCharsPanel.add(remainingCharsLabel);
         remainCharsPanel.add(new HTML(" characters left."));
 
@@ -115,6 +118,16 @@ public class UserCommentBox extends DialogBox {
 
     private void onTextAreaContentChanged() {
         int counter = textArea.getText().length();
+
+        if (GXT.isChrome()) {
+            for (char c : textArea.getText().toCharArray()) {
+                if (c == '\n') {
+                    counter ++;
+                }
+            }
+            if (counter > maxlength)
+                counter = maxlength;
+        }
 
         int charsRemaining = maxlength - counter;
         remainingCharsLabel.setText("" + charsRemaining);
