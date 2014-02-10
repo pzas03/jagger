@@ -269,6 +269,7 @@
         <xsd:annotation><xsd:documentation>
             Test-group is a list of tests. All tests will run in parallel mode.
             You can turn on monitoring, if you would like to see monitoring results for this test-group.
+            Decision maker is available for test-groups.
             Note : don't forget to set id for this element. Id will be written in report.
         </xsd:documentation></xsd:annotation>
         <xsd:complexContent>
@@ -277,6 +278,7 @@
                     <xsd:choice>
                         <xsd:element name="test" type="testTypeIn" maxOccurs="unbounded"/>
                         <xsd:element name="listeners-test-group" type="listenersTestGroupType" maxOccurs="1"/>
+                        <xsd:element name="listeners-test-group-decision-maker" type="listenersTestGroupDecisionMakerType" maxOccurs="1"/>
                     </xsd:choice>
                 </xsd:sequence>
                 <xsd:attribute name="monitoringEnabled" type="xsd:string" default="${chassis.conditions.monitoring.enable}" use="optional"/>
@@ -389,12 +391,46 @@
         </xsd:complexContent>
     </xsd:complexType>
 
+    <xsd:complexType name="listenersTestGroupDecisionMakerType">
+        <xsd:annotation><xsd:documentation>
+            A list of listener-test-group  elements, which give you an ability to execute some actions before and after test-group.
+        </xsd:documentation></xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="identifiedType">
+                <xsd:choice minOccurs="1" maxOccurs="unbounded">
+                    <xsd:element name="listener-test-group-decision-maker" type="listenerTestGroupDecisionMakerAbstract" maxOccurs="unbounded"/>
+                </xsd:choice>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
     <xsd:complexType name="listenerTestGroupAbstract" abstract="true">
         <xsd:annotation><xsd:documentation>
             Abstract type for test-group listeners
         </xsd:documentation></xsd:annotation>
         <xsd:complexContent>
             <xsd:extension base="identifiedType">
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="listenerTestGroupDecisionMakerAbstract" abstract="true">
+        <xsd:annotation><xsd:documentation>
+            Abstract type for test-group-decision-maker listeners
+        </xsd:documentation></xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="identifiedType">
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="listener-test-group-decision-maker-ref">
+        <xsd:annotation><xsd:documentation>
+            A reference to listener-test-group-decision-maker element or TestGroupListenerDecisionMaker provider bean.
+        </xsd:documentation></xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="listenerTestGroupDecisionMakerAbstract">
+                <xsd:attribute name="ref" type="xsd:string"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>

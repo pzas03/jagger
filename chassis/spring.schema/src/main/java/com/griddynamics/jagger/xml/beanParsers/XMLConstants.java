@@ -93,6 +93,8 @@ public class XMLConstants {
     public static final String TEST_LISTENERS = "listeners-test";
     public static final String TEST_GROUP_LISTENERS = "listeners-test-group";
     public static final String TEST_SUITE_LISTENERS = "listeners-test-suite";
+    public static final String TEST_GROUP_DECISION_MAKER_LISTENERS = "listeners-test-group-decision-maker";
+    public static final String DECISION_MAKER_LISTENERS = "testGroupDecisionMakerListeners";
 
     //don't change the order!!! will not works
     public static final String STANDARD_COLLECTORS = "standardCollectors";
