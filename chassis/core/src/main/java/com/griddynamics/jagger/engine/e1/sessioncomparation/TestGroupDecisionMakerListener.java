@@ -7,17 +7,22 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mnovozhilov
- * Date: 2/6/14
- * Time: 11:08 AM
- * To change this template use File | Settings | File Templates.
- */
+/** Listener, executed on decision-making for a test-group
+    * @author Novozhilov Mark
+    * @n
+    * @par Details:
+    * @details
+    * @n
+    * @ingroup Main_Listeners_Base_group */
+
 public interface TestGroupDecisionMakerListener {
 
+    /** Executes after test-group information aggregates in the database.
+     * @param testInfo - describes test-group information */
     void onDecisionMaking(TestGroupInfo testInfo);
 
+    /** Class is used by Jagger for sequential execution of several listeners @n
+     *  Not required for custom test-group decision maker listeners */
     public static class Composer implements TestGroupDecisionMakerListener{
         private static Logger log = LoggerFactory.getLogger(Composer.class);
 
