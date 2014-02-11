@@ -35,10 +35,12 @@ public abstract class Scenario<Q, R, E> {
     private LoadInvocationListener<Q, R, E> listener = doNothing();
     private InvocationListener<Q, R, E> invocationListener = emptyListener();
 
+    @Deprecated
     protected LoadInvocationListener<Q, R, E> getListener() {
         return listener;
     }
 
+    @Deprecated
     public void setListener(LoadInvocationListener<Q, R, E> listener) {
         checkNotNull(listener);
         this.listener = Invokers.logErrors(listener);

@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -47,20 +48,20 @@ public class Invokers {
 
     }
 
-    public static <Q, R, E> Invoker<Q, Nothing, E> listenableInvoker(Invoker<Q, R, E> invoker, LoadInvocationListener<Q, R, E> listener, InvocationListener<Q, R, E> invocationListener, SystemClock clock) {
-        return new ListenableInvoker<Q, R, E>(invoker, listener, invocationListener, clock);
+    public static <Q, R, E> Invoker<Q, Nothing, E> listenableInvoker(Invoker<Q, R, E> invoker, InvocationListener<Q, R, E> invocationListener, SystemClock clock) {
+        return new ListenableInvoker<Q, R, E>(invoker, invocationListener, clock);
     }
 
-    public static <Q, R, E> CompositeLoadInvocationListener<Q, R, E> composeListeners(Iterable<? extends LoadInvocationListener<Q, R, E>> listeners) {
-        return new CompositeLoadInvocationListener(listeners);
+    public static <Q, R, E> CompositeLogLoadInvocationListener<Q, R, E> composeAndLogListeners(Iterable<? extends LoadInvocationListener<Q, R, E>> listeners) {
+        return new CompositeLogLoadInvocationListener(listeners);
     }
 
-    public static <Q, R, E> CompositeLoadInvocationListener<Q, R, E> composeListeners(LoadInvocationListener<Q, R, E>... listeners) {
-        return new CompositeLoadInvocationListener<Q, R, E>(newArrayList(listeners));
+    public static <Q, R, E> CompositeLogLoadInvocationListener<Q, R, E> composeListeners(LoadInvocationListener<Q, R, E>... listeners) {
+        return new CompositeLogLoadInvocationListener<Q, R, E>(newArrayList(listeners));
     }
 
-    public static <Q, R, E> ValidateLoadInvocationListener<Q, R, E> validateListener(Iterable<Validator> validators, Iterable<? extends LoadInvocationListener<Q, R, E>> listeners){
-        return new ValidateLoadInvocationListener<Q, R, E>(validators, listeners);
+    public static <Q, R, E> ValidateInvocationListener<Q, R, E> validateListener(Iterable<Validator> validators, Iterable<? extends LoadInvocationListener<Q, R, E>> metrics, List<InvocationListener<Q, R, E>> listeners){
+        return new ValidateInvocationListener<Q, R, E>(validators, metrics, listeners);
     }
 
     public static ImmutableList<Flushable> mergeFlushElements(Collection<? extends Flushable>... sources){
@@ -133,23 +134,19 @@ public class Invokers {
 
     private static class ListenableInvoker<Q, R, E> implements Invoker<Q, Nothing, E> {
         private final Invoker<Q, R, E> invoker;
-        private final LoadInvocationListener<Q, R, E> listener;
         private final SystemClock clock;
         private final InvocationListener invocationListener;
 
-        private ListenableInvoker(Invoker<Q, R, E> invoker, LoadInvocationListener<Q, R, E> listener, InvocationListener invocationListener, SystemClock clock) {
+        private ListenableInvoker(Invoker<Q, R, E> invoker, InvocationListener invocationListener, SystemClock clock) {
             this.invoker = Preconditions.checkNotNull(invoker);
-            this.listener = Preconditions.checkNotNull(listener);
             this.clock = Preconditions.checkNotNull(clock);
             this.invocationListener = Preconditions.checkNotNull(invocationListener);
         }
 
         @Override
         public Nothing invoke(Q query, E endpoint) throws InvocationException {
-            LoadInvocationListener<Q, R, E> listener = logErrors(composeListeners(this.listener, LoadInvocationLogger.<Q, R, E>create()));
             InvocationInfo<Q, R, E> invocationInfo = new InvocationInfo<Q, R, E>(query, endpoint);
 
-            listener.onStart(query, endpoint);
             invocationListener.onStart(invocationInfo);
             long before = clock.currentTimeMillis();
             try {
@@ -159,13 +156,10 @@ public class Invokers {
                 invocationInfo.setDuration(duration);
                 invocationInfo.setResult(result);
 
-                listener.onSuccess(query, endpoint, result, duration);
                 invocationListener.onSuccess(invocationInfo);
             } catch (InvocationException e) {
-                listener.onFail(query, endpoint, e);
                 invocationListener.onFail(invocationInfo, e);
             } catch (Throwable throwable) {
-                listener.onError(query, endpoint, throwable);
                 invocationListener.onError(invocationInfo, throwable);
             }
             return Nothing.INSTANCE;

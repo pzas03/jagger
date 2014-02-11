@@ -147,8 +147,7 @@ public abstract class WorkloadService extends AbstractExecutionThreadService {
             ImmutableList<Validator> validatorList = validators.build();
             ImmutableList<InvocationListener> listenersList = listeners.build();
 
-            scenario.setListener(Invokers.validateListener(validatorList, (Iterable) collectorsList));
-            scenario.setInvocationListener(InvocationListener.Composer.compose(listenersList));
+            scenario.setInvocationListener(Invokers.validateListener(validatorList, (Iterable) collectorsList, (List)listenersList));
             return new InfiniteWorkloadService(Invokers.mergeFlushElements(validatorList, collectorsList));
         }
 
@@ -157,8 +156,7 @@ public abstract class WorkloadService extends AbstractExecutionThreadService {
             ImmutableList<Validator> validatorList = validators.build();
             ImmutableList<InvocationListener> listenersList = listeners.build();
 
-            scenario.setListener(Invokers.validateListener(validatorList, (Iterable) collectorsList));
-            scenario.setInvocationListener(InvocationListener.Composer.compose(listenersList));
+            scenario.setInvocationListener(Invokers.validateListener(validatorList, (Iterable) collectorsList, (List)listenersList));
             return new PredefinedSamplesWorkloadService(Invokers.mergeFlushElements(validatorList, collectorsList), samples);
         }
 
@@ -167,8 +165,7 @@ public abstract class WorkloadService extends AbstractExecutionThreadService {
             ImmutableList<Validator> validatorList = validators.build();
             ImmutableList<InvocationListener> listenersList = listeners.build();
 
-            scenario.setListener(Invokers.validateListener(validatorList, (Iterable) collectorsList));
-            scenario.setInvocationListener(InvocationListener.Composer.compose(listenersList));
+            scenario.setInvocationListener(Invokers.validateListener(validatorList, (Iterable) collectorsList, (List)listenersList));
             return new SharedSamplesCountWorkloadService(Invokers.mergeFlushElements(validatorList, collectorsList), samples);
         }
 

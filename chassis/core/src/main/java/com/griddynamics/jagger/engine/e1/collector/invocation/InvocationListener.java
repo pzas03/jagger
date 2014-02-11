@@ -36,22 +36,22 @@ public interface InvocationListener<Q, R, E>  {
      * @param error - invocation error*/
     void onError(InvocationInfo<Q, R, E> invocationInfo, Throwable error);
 
-    public static class Composer implements InvocationListener{
+    public static class Composer<Q, R, E> implements InvocationListener<Q, R, E>{
         private static Logger log = LoggerFactory.getLogger(Composer.class);
 
-        private List<InvocationListener> listeners;
+        private List<InvocationListener<Q, R, E>> listeners;
 
-        public Composer(List<InvocationListener> listeners) {
+        public Composer(List<InvocationListener<Q, R, E>> listeners) {
             this.listeners = listeners;
         }
 
-        public static InvocationListener compose(List<InvocationListener> listeners){
-            return new Composer(listeners);
+        public static <Q, R, E>InvocationListener compose(List<InvocationListener<Q, R, E>> listeners){
+            return new Composer<Q, R, E>(listeners);
         }
 
         @Override
-        public void onStart(InvocationInfo invocationInfo) {
-            for (InvocationListener listener : listeners){
+        public void onStart(InvocationInfo<Q, R, E> invocationInfo) {
+            for (InvocationListener<Q, R, E> listener : listeners){
                 try{
                     listener.onStart(invocationInfo);
                 }catch (RuntimeException ex){
@@ -61,8 +61,8 @@ public interface InvocationListener<Q, R, E>  {
         }
 
         @Override
-        public void onSuccess(InvocationInfo invocationInfo) {
-            for (InvocationListener listener : listeners){
+        public void onSuccess(InvocationInfo<Q, R, E> invocationInfo) {
+            for (InvocationListener<Q, R, E> listener : listeners){
                 try{
                     listener.onSuccess(invocationInfo);
                 }catch (RuntimeException ex){
@@ -72,8 +72,8 @@ public interface InvocationListener<Q, R, E>  {
         }
 
         @Override
-        public void onFail(InvocationInfo invocationInfo, InvocationException e) {
-            for (InvocationListener listener : listeners){
+        public void onFail(InvocationInfo<Q, R, E> invocationInfo, InvocationException e) {
+            for (InvocationListener<Q, R, E> listener : listeners){
                 try{
                     listener.onFail(invocationInfo, e);
                 }catch (RuntimeException ex){
@@ -83,8 +83,8 @@ public interface InvocationListener<Q, R, E>  {
         }
 
         @Override
-        public void onError(InvocationInfo invocationInfo, Throwable error) {
-            for (InvocationListener listener : listeners){
+        public void onError(InvocationInfo<Q, R, E> invocationInfo, Throwable error) {
+            for (InvocationListener<Q, R, E> listener : listeners){
                 try{
                     listener.onError(invocationInfo, error);
                 }catch (RuntimeException ex){
