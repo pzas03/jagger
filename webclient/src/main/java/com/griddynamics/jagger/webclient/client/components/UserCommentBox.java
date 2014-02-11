@@ -1,6 +1,11 @@
 package com.griddynamics.jagger.webclient.client.components;
 
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.*;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
 import com.sencha.gxt.core.client.GXT;
@@ -27,6 +32,34 @@ public class UserCommentBox extends DialogBox {
 
     private Label remainingCharsLabel;
 
+
+    /**
+     * Extended TextArea class to customize onPaste event
+     */
+    private class FeaturedTextArea extends TextArea {
+        public FeaturedTextArea() {
+            super();
+            sinkEvents(Event.ONPASTE);
+        }
+
+        @Override
+        public void onBrowserEvent(Event event){
+            super.onBrowserEvent(event);
+            switch (event.getTypeInt()){
+                case Event.ONPASTE: {
+                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+
+                        @Override
+                        public void execute() {
+                            ValueChangeEvent.fire(FeaturedTextArea.this, getText());
+                        }
+                    });
+                    break;
+                }
+            }
+        }
+    }
+
     public UserCommentBox(int maxlength) {
 
         this.maxlength = maxlength;
@@ -34,7 +67,7 @@ public class UserCommentBox extends DialogBox {
 
         setTitle("User Comment");
         vp = new VerticalPanel();
-        textArea = new TextArea();
+        textArea = new FeaturedTextArea();
         textArea.setPixelSize(height, width);
         textArea.getElement().setAttribute("maxlength", String.valueOf(maxlength));
         setGlassEnabled(true);
@@ -45,9 +78,9 @@ public class UserCommentBox extends DialogBox {
         remainCharsPanel.setHorizontalAlignment(HasAlignment.ALIGN_LEFT);
         remainCharsPanel.setSpacing(5);
         remainingCharsLabel = new Label(String.valueOf(maxlength));
-        remainingCharsLabel.setHorizontalAlignment(HasAlignment.ALIGN_RIGHT);
+        remainingCharsLabel.getElement().getStyle().setFontSize(12, Style.Unit.PX);
+        remainingCharsLabel.setHorizontalAlignment(HasAlignment.ALIGN_LEFT);
         remainCharsPanel.add(remainingCharsLabel);
-        remainCharsPanel.add(new HTML(" characters left."));
 
         textArea.addKeyPressHandler(new KeyPressHandler()
         {
@@ -69,7 +102,12 @@ public class UserCommentBox extends DialogBox {
                 onTextAreaContentChanged();
             }
         });
-
+        textArea.addValueChangeHandler(new ValueChangeHandler<String>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<String> event) {
+                onTextAreaContentChanged();
+            }
+        });
 
         saveButton = new TextButton("Save");
         saveButton.addSelectHandler(new SelectEvent.SelectHandler() {
@@ -131,11 +169,6 @@ public class UserCommentBox extends DialogBox {
 
         int charsRemaining = maxlength - counter;
         remainingCharsLabel.setText("" + charsRemaining);
-        if (charsRemaining >= 0)
-        {
-            remainingCharsLabel.setStyleName("");
-        } else
-            remainingCharsLabel.setStyleName("");
     }
 
     private SessionComparisonPanel.TreeItem currentTreeItem;

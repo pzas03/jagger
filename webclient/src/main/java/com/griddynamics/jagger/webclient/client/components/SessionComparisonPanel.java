@@ -281,7 +281,8 @@ public class SessionComparisonPanel extends VerticalPanel{
         TreeItem comment = new TreeItem(USER_COMMENT);
         comment.put(NAME, USER_COMMENT);
         for (SessionDataDto session : chosenSessions) {
-            comment.put(SESSION_HEADER + session.getSessionId(), "Test String. Real user comment will appear is SessionDataDto");
+            // Add nothing for test. Later it will be taken from SessionDataDto.
+            comment.put(SESSION_HEADER + session.getSessionId(), "");
         }
         treeStore.add(parent, comment);
     }
