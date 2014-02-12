@@ -33,5 +33,11 @@ public interface MetricAggregator<C extends Number> {
 
     void reset();
 
-    String getName();  //name
+    /**
+     * !NOTE that getName() method returns display name of aggregator(not id).
+     * id of aggregator creates on display name base with discarding all reserved symbols.
+     * Reserved symbols = ";" | "/" | "?" | ":" | "@" | "&" | "=" | "+" | "$" | ","
+     * @return display name of aggregator
+     */
+    String getName();  //display name
 }

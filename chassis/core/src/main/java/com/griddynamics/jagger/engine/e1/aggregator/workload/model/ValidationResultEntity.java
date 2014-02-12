@@ -23,15 +23,28 @@ import javax.persistence.*;
 
 @Entity
 public class ValidationResultEntity {
-    private Long id;
-    private WorkloadData workloadData;
-    private String validator;
-    private Integer total;
-    private Integer failed;
 
     @Id
     // Identity strategy is not supported by Oracle DB from the box
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    private WorkloadData workloadData;
+
+    @Column
+    private String validator;
+
+    @Column
+    private Integer total;
+
+    @Column
+    private Integer failed;
+
+    @Column
+    private String displayName;
+
+
     public Long getId() {
         return id;
     }
@@ -40,7 +53,7 @@ public class ValidationResultEntity {
         this.id = id;
     }
 
-    @ManyToOne
+
     public WorkloadData getWorkloadData() {
         return workloadData;
     }
@@ -71,5 +84,18 @@ public class ValidationResultEntity {
 
     public void setFailed(Integer failed) {
         this.failed = failed;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getDisplay() {
+        return displayName == null ?
+                validator : displayName;
     }
 }

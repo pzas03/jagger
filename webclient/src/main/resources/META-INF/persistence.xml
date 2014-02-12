@@ -7,6 +7,7 @@
         <provider>org.hibernate.ejb.HibernatePersistence</provider>
 
         <class>com.griddynamics.jagger.engine.e1.aggregator.session.model.SessionData</class>
+        <class>com.griddynamics.jagger.engine.e1.aggregator.session.model.TagEntity</class>
         <class>com.griddynamics.jagger.engine.e1.aggregator.session.model.TaskData</class>
 
         <class>com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadData</class>
@@ -22,10 +23,12 @@
         <class>com.griddynamics.jagger.engine.e1.aggregator.workload.model.ValidationResultEntity</class>
         <class>com.griddynamics.jagger.engine.e1.aggregator.workload.model.DiagnosticResultEntity</class>
         <class>com.griddynamics.jagger.engine.e1.aggregator.workload.model.MetricDetails</class>
-        <class>com.griddynamics.jagger.engine.e1.aggregator.session.model.TagEntity</class>
+        <class>com.griddynamics.jagger.engine.e1.aggregator.workload.model.MetricPointEntity</class>
+        <class>com.griddynamics.jagger.engine.e1.aggregator.workload.model.MetricDescriptionEntity</class>
+        <class>com.griddynamics.jagger.engine.e1.aggregator.workload.model.MetricSummaryEntity</class>
+        
         <class>com.griddynamics.jagger.engine.e1.aggregator.workload.model.NodeInfoEntity</class>
         <class>com.griddynamics.jagger.engine.e1.aggregator.workload.model.NodePropertyEntity</class>
-
 
         <validation-mode>NONE</validation-mode>
 
