@@ -1,24 +1,19 @@
 package com.griddynamics.jagger.webclient.server;
 
 import com.griddynamics.jagger.engine.e1.aggregator.workload.model.NodeInfoEntity;
+import com.griddynamics.jagger.engine.e1.aggregator.workload.model.NodePropertyEntity;
 import com.griddynamics.jagger.webclient.client.NodeInfoService;
 import com.griddynamics.jagger.webclient.client.dto.NodeInfoDto;
+import com.griddynamics.jagger.webclient.client.dto.NodeInfoPerSessionDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import java.util.ArrayList;
-import java.util.List;
+import javax.persistence.PersistenceException;
+import java.util.*;
 
-/**
- * Created with IntelliJ IDEA.
- * User: kirilkadurilka
- * Date: 08.04.13
- * Time: 17:53
- * To change this template use File | Settings | File Templates.
- */
 public class NodeInfoServiceImpl implements NodeInfoService {
 
     private static final Logger log = LoggerFactory.getLogger(NodeInfoServiceImpl.class);
@@ -30,46 +25,66 @@ public class NodeInfoServiceImpl implements NodeInfoService {
     }
 
     @Override
-    public List<NodeInfoDto> getNodeInfo(String sessionId) {
+    public List<NodeInfoPerSessionDto> getNodeInfo(Set<String> sessionIds) {
 
         Long time = System.currentTimeMillis();
-        List<NodeInfoDto> nodeInfoDtoList = new ArrayList<NodeInfoDto>();
+        List<NodeInfoPerSessionDto> nodeInfoPerSessionDtoList = new ArrayList<NodeInfoPerSessionDto>();
 
         try {
             List<NodeInfoEntity> nodeInfoEntityList = (List<NodeInfoEntity>)
-                    entityManager.createQuery("select nie from NodeInfoEntity as nie where nie.sessionId = (:sessionId)").
-                            setParameter("sessionId", sessionId).
+                    entityManager.createQuery("select nie from NodeInfoEntity as nie where nie.sessionId in (:sessionIds)").
+                            setParameter("sessionIds", new ArrayList<String>(sessionIds)).
                             getResultList();
 
-            for (NodeInfoEntity nodeInfoEntity : nodeInfoEntityList) {
-                NodeInfoDto nodeInfoDto = new NodeInfoDto();
-                nodeInfoDto.setId(nodeInfoEntity.getId());
-                nodeInfoDto.setSessionId(nodeInfoEntity.getSessionId());
-                nodeInfoDto.setNodeId(nodeInfoEntity.getNodeId());
-                nodeInfoDto.setSystemTime(nodeInfoEntity.getSystemTime());
-                nodeInfoDto.setOsName(nodeInfoEntity.getOsName());
-                nodeInfoDto.setOsVersion(nodeInfoEntity.getOsVersion());
-                nodeInfoDto.setJaggerJavaVersion(nodeInfoEntity.getJaggerJavaVersion());
-                nodeInfoDto.setCpuModel(nodeInfoEntity.getCpuModel());
-                nodeInfoDto.setCpuMHz(nodeInfoEntity.getCpuMHz());
-                nodeInfoDto.setCpuTotalCores(nodeInfoEntity.getCpuTotalCores());
-                nodeInfoDto.setCpuTotalSockets(nodeInfoEntity.getCpuTotalSockets());
-                nodeInfoDto.setSystemRAM(nodeInfoEntity.getSystemRAM());
+            Map<String,List<NodeInfoDto>> sessions = new HashMap<String, List<NodeInfoDto>>();
 
-                nodeInfoDtoList.add(nodeInfoDto);
+            for (NodeInfoEntity nodeInfoEntity : nodeInfoEntityList) {
+                Map<String,String> parameters = new HashMap<String, String>();
+
+                parameters.put("CPU model",nodeInfoEntity.getCpuModel());
+                parameters.put("CPU frequency, MHz",String.valueOf(nodeInfoEntity.getCpuMHz()));
+                parameters.put("CPU number of cores",String.valueOf(nodeInfoEntity.getCpuTotalCores()));
+                parameters.put("CPU number of sockets",String.valueOf(nodeInfoEntity.getCpuTotalSockets()));
+                parameters.put("Jagger Java version", nodeInfoEntity.getJaggerJavaVersion());
+                parameters.put("OS name", nodeInfoEntity.getOsName());
+                parameters.put("OS version", nodeInfoEntity.getOsVersion());
+                parameters.put("System RAM, MB",String.valueOf(nodeInfoEntity.getSystemRAM()));
+
+                List<NodePropertyEntity> nodePropertyEntityList = nodeInfoEntity.getProperties();
+                for (NodePropertyEntity nodePropertyEntity : nodePropertyEntityList) {
+                    parameters.put("Property '" + nodePropertyEntity.getName() + "'",nodePropertyEntity.getValue());
+                }
+                NodeInfoDto nodeInfoDto = new NodeInfoDto(nodeInfoEntity.getNodeId(),parameters);
+
+                String sessionId = nodeInfoEntity.getSessionId();
+                if (sessions.containsKey(sessionId)) {
+                    sessions.get(sessionId).add(nodeInfoDto);
+                }
+                else {
+                    List <NodeInfoDto> node = new ArrayList<NodeInfoDto>();
+                    node.add(nodeInfoDto);
+                    sessions.put(sessionId, node);
+                }
             }
-            log.info("For session id " + sessionId + " was found " + nodeInfoDtoList.size() + " node info values in " + (System.currentTimeMillis() - time) + " ms");
+
+            for (Map.Entry<String,List<NodeInfoDto>> session : sessions.entrySet()) {
+                nodeInfoPerSessionDtoList.add(new NodeInfoPerSessionDto(session.getKey(),session.getValue()));
+            }
+
+            log.info("For session ids " + sessionIds + " were found node info values in " + (System.currentTimeMillis() - time) + " ms");
         }
         catch (NoResultException ex) {
-            log.info("No node info data was found for session ID=" + sessionId, ex);
-            return null;
+            log.info("No node info data was found for session id " + sessionIds, ex);
+        }
+        catch (PersistenceException ex) {
+            log.info("No node info data was found for session id " + sessionIds, ex);
         }
         catch (Exception ex) {
-            log.error("Error occurred during loading node info data for session id=" + sessionId, ex);
-            throw new RuntimeException(ex);
+            log.error("Error occurred during loading node info data for session ids " + sessionIds, ex);
+            throw new RuntimeException("Error occurred during loading node info data for session ids " + sessionIds,ex);
         }
 
-        return nodeInfoDtoList;
+        return nodeInfoPerSessionDtoList;
     }
 
 }

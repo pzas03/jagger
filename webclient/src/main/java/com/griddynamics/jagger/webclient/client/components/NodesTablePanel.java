@@ -10,7 +10,6 @@ import com.sencha.gxt.core.client.ValueProvider;
 import com.sencha.gxt.data.shared.ModelKeyProvider;
 import com.sencha.gxt.data.shared.TreeStore;
 import com.sencha.gxt.data.shared.event.StoreAddEvent;
-import com.sencha.gxt.widget.core.client.event.BeforeCollapseItemEvent;
 import com.sencha.gxt.widget.core.client.grid.ColumnConfig;
 import com.sencha.gxt.widget.core.client.grid.ColumnModel;
 import com.sencha.gxt.widget.core.client.treegrid.TreeGrid;
@@ -19,19 +18,9 @@ import java.util.*;
 
 public class NodesTablePanel extends VerticalPanel{
 
-    private final String CPU_MODEL = "CPU model";
-    private final String CPU_FREQ = "CPU frequency, MHz";
-    private final String CPU_CORES = "CPU number of cores";
-    private final String CPU_SOCKETS = "CPU number of sockets";
-    private final String JAGGER_JAVA = "Jagger Java version";
-    private final String OS_NAME = "OS name";
-    private final String OS_VERSION = "OS version";
-    private final String SYS_RAM = "System RAM, MB";
-
-
     private final String NAME = "name";
     private final String SESSION_INFO_ID = "sessionInfo";
-    private final int MIN_COLUMN_WIDTH = 200;
+    private final int MIN_COLUMN_WIDTH = 250;
     private final String ONE_HUNDRED_PERCENTS = "100%";
     private final double METRIC_COLUMN_WIDTH_FACTOR = 1.5;
     private final String WHITE_SPACE_NORMAL = "white-space: normal";
@@ -44,20 +33,12 @@ public class NodesTablePanel extends VerticalPanel{
         }
     });
 
-    private HashMap<MetricNameDto, MetricDto> cache = new HashMap<MetricNameDto, MetricDto>();
-
-    public HashMap<MetricNameDto, MetricDto> getCachedMetrics() {
-        return cache;
-    }
-
-    public NodesTablePanel(long sessionId, List<NodeInfoDto> nodeInfoDtoList, int width){
+    public NodesTablePanel(){
         setWidth(ONE_HUNDRED_PERCENTS);
         setHeight(ONE_HUNDRED_PERCENTS);
-        create(sessionId, nodeInfoDtoList);
     }
 
-
-    private void create(long sessionId, List<NodeInfoDto> nodeInfoDtoList){
+    public void createTable(String sessionId, List<NodeInfoDto> nodeInfoDtoList){
 
         int colWidth = MIN_COLUMN_WIDTH;
 
@@ -112,18 +93,10 @@ public class NodesTablePanel extends VerticalPanel{
 
         treeGrid = new NoIconsTreeGrid(treeStore, cm, nameColumn);
 
-        treeGrid.addBeforeCollapseHandler(new BeforeCollapseItemEvent.BeforeCollapseItemHandler<TreeItem>() {
-            @Override
-            public void onBeforeCollapse(BeforeCollapseItemEvent<TreeItem> event) {
-                event.setCancelled(true);
-            }
-        });
-
         treeGrid.setAutoExpand(true);
         treeGrid.getView().setStripeRows(true);
         treeGrid.setMinColumnWidth(MIN_COLUMN_WIDTH);
         treeGrid.setAllowTextSelection(true);
-        treeGrid.getView().setForceFit(true);
 
         treeStore.addStoreAddHandler(new StoreAddEvent.StoreAddHandler<TreeItem>() {
             @Override
@@ -142,60 +115,26 @@ public class NodesTablePanel extends VerticalPanel{
         sessionInfo.put(NAME, "Session " + sessionId);
         treeStore.insert(0, sessionInfo);
 
-        TreeItem date = new TreeItem(CPU_MODEL);
-        date.put(NAME, CPU_MODEL);
+        // Get all params
+        Set<String> param_names = new TreeSet<String>();
         for (NodeInfoDto node : sortedNodeInfoDtoList){
-            date.put(node.getNodeId(), node.getCpuModel());}
-        treeStore.add(sessionInfo, date);
+            param_names.addAll(node.getParameters().keySet());
+        }
 
-        date = new TreeItem(CPU_FREQ);
-        date.put(NAME, CPU_FREQ);
-        for (NodeInfoDto node : sortedNodeInfoDtoList){
-            date.put(node.getNodeId(), String.valueOf(node.getCpuMHz()));}
-        treeStore.add(sessionInfo, date);
-
-        date = new TreeItem(CPU_CORES);
-        date.put(NAME, CPU_CORES);
-        for (NodeInfoDto node : sortedNodeInfoDtoList){
-            date.put(node.getNodeId(), String.valueOf(node.getCpuTotalCores()));}
-        treeStore.add(sessionInfo, date);
-
-        date = new TreeItem(CPU_SOCKETS);
-        date.put(NAME, CPU_SOCKETS);
-        for (NodeInfoDto node : sortedNodeInfoDtoList){
-            date.put(node.getNodeId(), String.valueOf(node.getCpuTotalSockets()));}
-        treeStore.add(sessionInfo, date);
-
-        date = new TreeItem(JAGGER_JAVA);
-        date.put(NAME, JAGGER_JAVA);
-        for (NodeInfoDto node : sortedNodeInfoDtoList){
-            date.put(node.getNodeId(), node.getJaggerJavaVersion());}
-        treeStore.add(sessionInfo, date);
-
-        date = new TreeItem(OS_NAME);
-        date.put(NAME, OS_NAME);
-        for (NodeInfoDto node : sortedNodeInfoDtoList){
-            date.put(node.getNodeId(), node.getOsName());}
-        treeStore.add(sessionInfo, date);
-
-        date = new TreeItem(OS_VERSION);
-        date.put(NAME, OS_VERSION);
-        for (NodeInfoDto node : sortedNodeInfoDtoList){
-            date.put(node.getNodeId(), node.getOsVersion());}
-        treeStore.add(sessionInfo, date);
-
-        date = new TreeItem(SYS_RAM);
-        date.put(NAME, SYS_RAM);
-        for (NodeInfoDto node : sortedNodeInfoDtoList){
-            date.put(node.getNodeId(), String.valueOf(node.getSystemRAM()));}
-        treeStore.add(sessionInfo, date);
-
+        for (String param_name : param_names) {
+            TreeItem date = new TreeItem(param_name);
+            date.put(NAME, param_name);
+            for (NodeInfoDto node : sortedNodeInfoDtoList){
+                if (node.getParameters().containsKey(param_name)) {
+                    date.put(node.getNodeId(), node.getParameters().get(param_name));
+                }
+                else {
+                    date.put(node.getNodeId(), "");
+                }
+            }
+            treeStore.add(sessionInfo, date);
+        }
     }
-
-    public void refresh() {
-        treeGrid.getView().refresh(true);
-    }
-
 
     private class NoIconsTreeGrid extends TreeGrid<TreeItem> {
 

@@ -491,8 +491,9 @@ public class Trends extends DefaultActivity {
                         break;
                     case 2:
                         onMetricsTabSelected();
+                        break;
                     case 3:
-                        onBoxesTabSelected();
+                        onNodesTabSelected();
                     default:
                 }
             }
@@ -542,14 +543,9 @@ public class Trends extends DefaultActivity {
         }
     }
 
-    private boolean needRefreshBoxes = false;
-    private void onBoxesTabSelected() {
+    private void onNodesTabSelected() {
         mainTabPanel.forceLayout();
         controlTree.onSummaryTrendsTab();
-        if (needRefreshBoxes) {
-            nodesPanel.getBoxesTablePanel().refresh();
-            needRefreshBoxes = false;
-        }
     }
 
     private void chooseTab(String token) {
@@ -897,17 +893,9 @@ public class Trends extends DefaultActivity {
             chosenPlots.clear();
             summaryPanel.updateSessions(selected);
             needRefresh = mainTabPanel.getSelectedIndex() != 0;
-
-            // Update boxes info only when session was changed
-            NodesPanel.CheckUpdateResult needToUpdate = nodesPanel.doYouNeedToUpdate(selected);
-            if (needToUpdate.isNeedToUpdate() == true) {
-                if (needToUpdate.getSessionId() == -1)
-                    nodesPanel.cleanBoxes();
-                else {
-                    nodeInfoFetcher.fetchNodeInfo(needToUpdate.getSessionId());
-                    needRefreshBoxes = true;
-                }
-            }
+            // Reset node info and remember selected sessions
+            nodesPanel.clear();
+            nodesPanel.updateSetup(selected,place);
 
             CheckHandlerMap.setMetricFetcher(metricFetcher);
             CheckHandlerMap.setTestPlotFetcher(testPlotFetcher);
@@ -1527,26 +1515,5 @@ public class Trends extends DefaultActivity {
             return idSet;
         }
 
-    }
-
-    private NodeInfoFetcher nodeInfoFetcher = new NodeInfoFetcher();
-
-    public class NodeInfoFetcher
-    {
-        public void fetchNodeInfo(long sessionId) {
-            final long localSessionId = sessionId;
-            NodeInfoService.Async.getInstance().getNodeInfo(String.valueOf(localSessionId), new AsyncCallback<List<NodeInfoDto>>() {
-                @Override
-                public void onFailure(Throwable caught) {
-                    caught.printStackTrace();
-                    new ExceptionPanel(place, caught.getMessage());
-                }
-
-                @Override
-                public void onSuccess(List<NodeInfoDto> result) {
-                    nodesPanel.updateBoxes(localSessionId,result);
-                }
-            });
-        }
     }
 }
