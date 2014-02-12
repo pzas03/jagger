@@ -4,13 +4,16 @@ import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safecss.shared.SafeStyles;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
+import com.griddynamics.jagger.webclient.client.data.WebClientProperties;
 import com.griddynamics.jagger.webclient.client.dto.*;
+import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
 import com.sencha.gxt.core.client.ValueProvider;
 import com.sencha.gxt.data.shared.ModelKeyProvider;
 import com.sencha.gxt.data.shared.TreeStore;
 import com.sencha.gxt.data.shared.event.StoreAddEvent;
 import com.sencha.gxt.widget.core.client.event.BeforeCollapseItemEvent;
+import com.sencha.gxt.widget.core.client.event.CellDoubleClickEvent;
 import com.sencha.gxt.widget.core.client.grid.ColumnConfig;
 import com.sencha.gxt.widget.core.client.grid.ColumnModel;
 import com.sencha.gxt.widget.core.client.treegrid.TreeGrid;
@@ -30,10 +33,13 @@ public class SessionComparisonPanel extends VerticalPanel{
     private final String TEST_NAME = "testName";
     // property to render in Metric column
     private final String NAME = "name";
+    private final String METRIC = "Metric";
     private final String SESSION_HEADER = "Session ";
     private final String SESSION_INFO_ID = "sessionInfo";
     @SuppressWarnings("all")
     private final String COMMENT = "Comment";
+    @SuppressWarnings("all")
+    private final String USER_COMMENT = "User Comment";
     @SuppressWarnings("all")
     private final int MIN_COLUMN_WIDTH = 200;
     @SuppressWarnings("all")
@@ -51,6 +57,8 @@ public class SessionComparisonPanel extends VerticalPanel{
     private final String TEST_INFO = "Test Info";
     private final double METRIC_COLUMN_WIDTH_FACTOR = 1.5;
 
+    private final UserCommentBox userCommentBox;
+
     private Set<SessionDataDto> chosenSessions;
     private Collection<TaskDataDto> chosenTests;
 
@@ -66,16 +74,21 @@ public class SessionComparisonPanel extends VerticalPanel{
 
     private HashMap<MetricNameDto, MetricDto> cache = new HashMap<MetricNameDto, MetricDto>();
 
+    private WebClientProperties webClientProperties;
+
     public HashMap<MetricNameDto, MetricDto> getCachedMetrics() {
         return cache;
     }
 
-    public SessionComparisonPanel(Set<SessionDataDto> chosenSessions, int width){
+    public SessionComparisonPanel(Set<SessionDataDto> chosenSessions, int width, WebClientProperties webClientProperties){
         setWidth(ONE_HUNDRED_PERCENTS);
         setHeight(ONE_HUNDRED_PERCENTS);
         this.chosenSessions = chosenSessions;
         this.chosenTests = new ArrayList<TaskDataDto>();
+        this.webClientProperties = webClientProperties;
         init(chosenSessions, width);
+        userCommentBox = new UserCommentBox(webClientProperties.getUserCommentMaxLength());
+        userCommentBox.setTreeGrid(treeGrid);
     }
 
 
@@ -98,7 +111,7 @@ public class SessionComparisonPanel extends VerticalPanel{
 
         ColumnConfig<TreeItem, String> nameColumn =
                 new ColumnConfig<TreeItem, String>(new MapValueProvider(NAME), (int)(colWidth * METRIC_COLUMN_WIDTH_FACTOR));
-        nameColumn.setHeader("Metric");
+        nameColumn.setHeader(METRIC);
         nameColumn.setSortable(false);
         nameColumn.setMenuDisabled(true);
         columns.add(nameColumn);
@@ -160,11 +173,26 @@ public class SessionComparisonPanel extends VerticalPanel{
             }
         });
 
-        //not required
-        //addSessionInfo(chosenSessions);
+        if (webClientProperties.isUserCommentAvailable()) {
+            treeGrid.addCellDoubleClickHandler(new CellDoubleClickEvent.CellDoubleClickHandler() {
+                @Override
+                public void onCellClick(CellDoubleClickEvent event) {
+                    TreeItem item = treeGrid.findNode(treeGrid.getTreeView().getRow(event.getRowIndex())).getModel();
+                    if (item.getKey().equals(USER_COMMENT) && event.getCellIndex() > 0) {
+                        String sessionId = treeGrid.getColumnModel().getColumn(event.getCellIndex()).getHeader().asString();
+                        userCommentBox.popUp(
+                                sessionId,
+                                item.get(sessionId),
+                                item
+                            );
+                    }
+                }
+            });
+        }
 
         add(treeGrid);
     }
+
 
     /**
      * calculates width for columns
@@ -187,6 +215,7 @@ public class SessionComparisonPanel extends VerticalPanel{
         treeStore.insert(0, sessionInfo);
 
         addCommentRecord(chosenSessions, sessionInfo);
+        addUserCommentRecord(chosenSessions, sessionInfo);
         addStartEndTimeRecords(chosenSessions, sessionInfo);
         addAdditionalRecords(chosenSessions, sessionInfo);
     }
@@ -245,6 +274,17 @@ public class SessionComparisonPanel extends VerticalPanel{
         }
         treeStore.add(parent, comment);
 
+    }
+
+    private void addUserCommentRecord(Set<SessionDataDto> chosenSessions, TreeItem parent) {
+
+        TreeItem comment = new TreeItem(USER_COMMENT);
+        comment.put(NAME, USER_COMMENT);
+        for (SessionDataDto session : chosenSessions) {
+            // Add nothing for test. Later it will be taken from SessionDataDto.
+            comment.put(SESSION_HEADER + session.getSessionId(), "");
+        }
+        treeStore.add(parent, comment);
     }
 
 
@@ -490,6 +530,15 @@ public class SessionComparisonPanel extends VerticalPanel{
 
         @Override
         public String getValue(TreeItem object) {
+
+            if (webClientProperties.isUserCommentAvailable()) {
+                if (object.get(NAME).equals(USER_COMMENT) && !field.equals(NAME)) {
+                    String toShow = object.get(field).replaceAll("\n", "<br>");
+                    return "<img src=\"" + JaggerResources.INSTANCE.getPencilImage().getSafeUri().asString() + "\" height=\"15\" width=\"15\">"
+                            + "<ins font-size='10px'>double click to edit</ins><br><br>"
+                            + toShow;
+                }
+            }
             return object.get(field);
         }
 
