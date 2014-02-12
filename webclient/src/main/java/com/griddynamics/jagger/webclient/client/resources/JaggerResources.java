@@ -42,6 +42,9 @@ public interface JaggerResources extends ClientBundle {
     @Source("hyperlink.png")
     ImageResource getHyperlinkImage();
 
+    @Source("pencil.png")
+    ImageResource getPencilImage();
+
     @Source("JaggerWebClient.css")
     @CssResource.NotStrict
     JaggerStyle css();
@@ -88,5 +91,7 @@ public interface JaggerResources extends ClientBundle {
         String exceptionPanel();
 
         String controlFont();
+
+        String userCommentBox();
     }
 }

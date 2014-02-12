@@ -52,6 +52,7 @@
                 <entry key="/MetricDataService" value-ref="metricDataService"/>
                 <entry key="/ControlTreeCreatorService" value-ref="controlTreeCreatorService"/>
                 <entry key="/NodeInfoService" value-ref="nodeInfoService"/>
+                <entry key="/CommonDataService" value-ref="commonDataService"/>
             </map>
         </property>
     </bean>
@@ -88,6 +89,11 @@
 
 
     <bean id="sessionDataService" class="com.griddynamics.jagger.webclient.server.SessionDataServiceImpl"/>
+
+    <bean id="commonDataService" class="com.griddynamics.jagger.webclient.server.CommonDataServiceImpl">
+        <property name="userCommentAvailable" value="${user.comment.available}"/>
+        <property name="userCommentMaxLength" value="${user.comment.max.length}"/>
+    </bean>
 
     <!-- @deprecated another conception of control since jagger 1.2.2-m3
     <bean id="taskDataService" class="com.griddynamics.jagger.webclient.server.TaskDataServiceImpl"/>

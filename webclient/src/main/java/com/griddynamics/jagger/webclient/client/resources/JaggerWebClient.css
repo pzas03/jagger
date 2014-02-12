@@ -230,3 +230,13 @@ input[type="text"] {
 .exceptionPanel i {
     font-size: x-small;
 }
+
+.userCommentBox {
+    font-size: 14px;
+}
+
+.gwt-DialogBox .Caption {
+    padding: 4px 8px 4px 4px;
+    cursor: default;
+    font-size: 14px;
+}
