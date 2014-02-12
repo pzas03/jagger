@@ -185,13 +185,6 @@ public class PlotProviderServiceImpl implements PlotProviderService {
             plotDataProvider = customMetricPlotDataProvider;
         }
 
-// We changed the idea , this wont happen any more
-//        if (plotDataProvider == null){
-//            log.warn("getPlotData was invoked with unsupported plotName={}", plotName);
-//            throw new UnsupportedOperationException("Can not find data for plot \"" + plotName +
-//                    "\". \nProbably it is link problem");
-//        }
-
         return plotDataProvider;
     }
 }

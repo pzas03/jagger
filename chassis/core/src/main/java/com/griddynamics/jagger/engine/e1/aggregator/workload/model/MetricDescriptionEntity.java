@@ -15,7 +15,7 @@ public class MetricDescriptionEntity {
     @Column
     private String metricId;
 
-    @Column
+    @Column(length = 100)
     private String displayName;
 
     @ManyToOne
