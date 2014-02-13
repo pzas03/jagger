@@ -2,6 +2,7 @@ package com.griddynamics.jagger.webclient.server.plot;
 
 import com.griddynamics.jagger.engine.e1.aggregator.session.model.TaskData;
 import com.griddynamics.jagger.webclient.client.dto.PlotDatasetDto;
+import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
 import com.griddynamics.jagger.webclient.client.dto.PlotSeriesDto;
 import com.griddynamics.jagger.webclient.client.dto.PointDto;
 import com.griddynamics.jagger.webclient.server.ColorCodeGenerator;
@@ -36,7 +37,7 @@ public class TimeLatencyPercentilePlotDataProvider implements PlotDataProvider {
     }
 
     @Override
-    public List<PlotSeriesDto> getPlotData(long taskId, String plotName) {
+    public List<PlotSeriesDto> getPlotData(long taskId, PlotNameDto plotName) {
         checkArgument(taskId > 0, "taskId is not valid; it's lesser or equal 0");
         checkNotNull(plotName, "plotName is null");
 
@@ -49,13 +50,13 @@ public class TimeLatencyPercentilePlotDataProvider implements PlotDataProvider {
         TaskData taskData = entityManager.find(TaskData.class, taskId);
 
         List<PlotDatasetDto> plotDatasetDtoList = assemble(rawData, taskData.getSessionId(), false);
-        PlotSeriesDto plotSeriesDto = new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", legendProvider.generatePlotHeader(taskData, plotName));
+        PlotSeriesDto plotSeriesDto = new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", legendProvider.generatePlotHeader(taskData, plotName.getPlotName()));
 
         return Collections.singletonList(plotSeriesDto);
     }
 
     @Override
-    public List<PlotSeriesDto> getPlotData(Set<Long> taskIds, String plotName) {
+    public List<PlotSeriesDto> getPlotData(Set<Long> taskIds, PlotNameDto plotName) {
         checkNotNull(taskIds, "taskIds is null");
         checkArgument(!taskIds.isEmpty(), "taskIds is empty");
         checkNotNull(plotName, "plotName is null");
@@ -73,7 +74,7 @@ public class TimeLatencyPercentilePlotDataProvider implements PlotDataProvider {
             plotDatasetDtoList.addAll(assemble(rawData, taskData.getSessionId(), true));
         }
 
-        return Collections.singletonList(new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", legendProvider.getPlotHeader(taskIds, plotName)));
+        return Collections.singletonList(new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", legendProvider.getPlotHeader(taskIds, plotName.getPlotName())));
     }
 
     @SuppressWarnings("unchecked")

@@ -22,7 +22,7 @@ public interface CommonDataProvider {
 
     Map<TaskDataDto, List<MonitoringPlotNode>> getMonitoringPlotNodes(Set<String> sessionIds, List<TaskDataDto> task);
 
-    List<MonitoringSessionScopePlotNode> getMonitoringPlotNodesNew(Set<String> sessionIds);
+    List<MonitoringSessionScopePlotNode> getSessionScopeMonitoringPlotNodes(Set<String> sessionIds);
 
     Map<TaskDataDto,List<MetricNode>> getTestMetricsMap(List<TaskDataDto> tddos, ExecutorService threadPool);
 
