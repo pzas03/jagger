@@ -4,6 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.*;
+import com.griddynamics.jagger.webclient.client.data.WebClientProperties;
 import com.griddynamics.jagger.webclient.client.dto.MetricDto;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
 import com.griddynamics.jagger.webclient.client.dto.SessionDataDto;
@@ -44,11 +45,11 @@ public class SummaryPanel extends Composite {
         return sessionComparisonPanel;
     }
 
-    public void updateSessions(Set<SessionDataDto> chosenSessions){
+    public void updateSessions(Set<SessionDataDto> chosenSessions, WebClientProperties webClientProperties){
         if (chosenSessions.size() > 0){
             //show sessions comparison
             pane.clear();
-            sessionComparisonPanel = new SessionComparisonPanel(chosenSessions, pane.getOffsetWidth());
+            sessionComparisonPanel = new SessionComparisonPanel(chosenSessions, pane.getOffsetWidth(), webClientProperties);
             pane.add(sessionComparisonPanel);
         }else{
             pane.clear();

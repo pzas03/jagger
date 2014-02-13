@@ -15,11 +15,12 @@ import java.util.Set;
  * @since 5/30/12
  */
 public interface PlotProviderServiceAsync {
-    void getPlotData(long taskId, String plotType, AsyncCallback<List<PlotSeriesDto>> async);
 
     void getSessionScopePlotData(String sessionId, Collection<SessionPlotNameDto> plotType, AsyncCallback<Map<SessionPlotNameDto, List<PlotSeriesDto>>> async);
 
-    void getPlotData(Set<Long> taskId, String plotType, AsyncCallback<List<PlotSeriesDto>> async);
-
     void getPlotDatas(Set<PlotNameDto> plots, AsyncCallback<Map<PlotNameDto,List<PlotSeriesDto>>> async);
+
+    void getPlotData(Set<Long> taskId, PlotNameDto plotType, AsyncCallback<List<PlotSeriesDto>> async);
+
+    void getPlotData(long taskId, PlotNameDto plotType, AsyncCallback<List<PlotSeriesDto>> async);
 }

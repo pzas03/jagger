@@ -6,10 +6,7 @@ import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadData;
 import com.griddynamics.jagger.monitoring.model.MonitoringStatistics;
 import com.griddynamics.jagger.monitoring.model.PerformedMonitoring;
 import com.griddynamics.jagger.monitoring.reporting.GroupKey;
-import com.griddynamics.jagger.webclient.client.dto.MarkingDto;
-import com.griddynamics.jagger.webclient.client.dto.PlotDatasetDto;
-import com.griddynamics.jagger.webclient.client.dto.PlotSeriesDto;
-import com.griddynamics.jagger.webclient.client.dto.PointDto;
+import com.griddynamics.jagger.webclient.client.dto.*;
 import com.griddynamics.jagger.webclient.server.ColorCodeGenerator;
 import com.griddynamics.jagger.webclient.server.DataProcessingUtil;
 import com.griddynamics.jagger.webclient.server.LegendProvider;
@@ -72,7 +69,7 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
      * @see PlotSeriesDto
      */
     @Override
-    public List<PlotSeriesDto> getPlotData(long taskId, String plotName) {
+    public List<PlotSeriesDto> getPlotData(long taskId, PlotNameDto plotName) {
         Set<Long> taskIds = new HashSet<Long>();
         taskIds.add(taskId);
         return getPlotData(taskIds, plotName);
@@ -157,13 +154,14 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
     }
 
     @Override
-    public List<PlotSeriesDto> getPlotData(Set<Long> taskIds, String plotName) {
+    public List<PlotSeriesDto> getPlotData(Set<Long> taskIds, PlotNameDto plotName) {
         checkNotNull(taskIds, "taskIds is null");
         checkArgument(!taskIds.isEmpty(), "taskIds is empty");
         checkNotNull(plotName, "plotName is null");
 
-        String monitoringKey = plotName.substring(0, plotName.indexOf(AGENT_NAME_SEPARATOR));
-        String agentIdentifier = plotName.substring(plotName.indexOf(AGENT_NAME_SEPARATOR) + AGENT_NAME_SEPARATOR.length());
+        String metricId =  plotName.getPlotName();
+        String monitoringKey = metricId.substring(0, metricId.indexOf(AGENT_NAME_SEPARATOR));
+        String agentIdentifier = metricId.substring(metricId.indexOf(AGENT_NAME_SEPARATOR) + AGENT_NAME_SEPARATOR.length());
 
         DefaultMonitoringParameters[] defaultMonitoringParametersGroup = findDefaultMonitoringParameters(monitoringPlotGroups, monitoringKey);
         List<String> monitoringParametersList = assembleDefaultMonitoringParametersDescriptions(defaultMonitoringParametersGroup);
