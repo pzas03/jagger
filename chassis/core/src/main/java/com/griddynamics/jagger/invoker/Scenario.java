@@ -32,6 +32,8 @@ import static com.griddynamics.jagger.invoker.Invokers.emptyListener;
  * @author Mairbek Khadikov
  */
 public abstract class Scenario<Q, R, E> {
+
+    // strange program design - listeners look like foreign elements
     private LoadInvocationListener<Q, R, E> listener = doNothing();
     private InvocationListener<Q, R, E> invocationListener = emptyListener();
 
@@ -40,6 +42,7 @@ public abstract class Scenario<Q, R, E> {
         return listener;
     }
 
+    // from 1.2.4 all listeners are wrapped in loadInvocationListener
     @Deprecated
     public void setListener(LoadInvocationListener<Q, R, E> listener) {
         checkNotNull(listener);
