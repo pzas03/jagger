@@ -14,13 +14,21 @@ import com.griddynamics.jagger.engine.e1.sessioncomparation.TestGroupDecisionMak
  */
 
 public class ExampleDecisionMakerListener extends ServicesAware implements Provider<TestGroupDecisionMakerListener> {
+    int testValue = 15;
+
     @Override
     public TestGroupDecisionMakerListener provide() {
         return new TestGroupDecisionMakerListener() {
+
             @Override
             public void onDecisionMaking(DecisionMakerInfo decisionMakerInfo) {
 
             }
+
         };
     }
+    public int getTestValue() {
+        return testValue;
+    }
+
 }

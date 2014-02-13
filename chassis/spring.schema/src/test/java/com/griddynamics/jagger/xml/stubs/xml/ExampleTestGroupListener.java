@@ -12,6 +12,7 @@ import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupListener;
  * To change this template use File | Settings | File Templates.
  */
 public class ExampleTestGroupListener implements Provider<TestGroupListener> {
+    int testValue = 11;
     @Override
     public TestGroupListener provide() {
         return new TestGroupListener() {
@@ -25,5 +26,8 @@ public class ExampleTestGroupListener implements Provider<TestGroupListener> {
 
             }
         };
+    }
+    public int getTestValue() {
+        return testValue;
     }
 }

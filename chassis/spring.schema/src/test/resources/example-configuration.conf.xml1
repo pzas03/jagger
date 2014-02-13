@@ -63,17 +63,15 @@
     <beans:bean name="testListener1" class="com.griddynamics.jagger.xml.stubs.xml.ExampleTestListener"/>
     <beans:bean name="testGroupListener1" class="com.griddynamics.jagger.xml.stubs.xml.ExampleTestGroupListener"/>
     <beans:bean name="decisionMakerListener1" class="com.griddynamics.jagger.xml.stubs.xml.ExampleDecisionMakerListener"/>
+    <beans:bean name="decisionMakerListener2" class="com.griddynamics.jagger.xml.stubs.xml.ExampleDecisionMakerListener"/>
 
     <test-suite id="test-plan-1">
         <test-group id="group1">
+
             <listeners-test-group-decision-maker>
                 <listener-test-group-decision-maker xsi:type="listener-test-group-decision-maker-ref" ref="decisionMakerListener1"/>
+                <listener-test-group-decision-maker xsi:type="listener-test-group-decision-maker-ref" ref="decisionMakerListener2"/>
             </listeners-test-group-decision-maker>
-
-
-            <listeners-test-group>
-                <listener-test-group xsi:type="listener-test-group-ref" ref="testGroupListener1"/>
-            </listeners-test-group>
 
             <test id="tst1" testDescription="w1" >
                 <load xsi:type="load-tps" value="100"/>
@@ -102,7 +100,15 @@
                 </load>
                 <termination xsi:type="termination-iterations" iterations="100"/>
             </test>
+
+            <listeners-test-group>
+                <listener-test-group xsi:type="listener-test-group-ref" ref="testGroupListener1"/>
+
+            </listeners-test-group>
         </test-group>
+
+
+
     </test-suite>
 
     <metric id="metric1" xsi:type="metric-not-null-response"/>

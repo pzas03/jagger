@@ -4,16 +4,13 @@ import com.griddynamics.jagger.JaggerLauncher;
 import com.griddynamics.jagger.agent.model.JmxMetricGroup;
 import com.griddynamics.jagger.engine.e1.collector.MetricCollectorProvider;
 import com.griddynamics.jagger.engine.e1.collector.ValidatorProvider;
-import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupInfo;
-import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupListener;
 import com.griddynamics.jagger.engine.e1.scenario.WorkloadTask;
-import com.griddynamics.jagger.engine.e1.sessioncomparation.DecisionMakerInfo;
-import com.griddynamics.jagger.engine.e1.sessioncomparation.TestGroupDecisionMakerListener;
 import com.griddynamics.jagger.invoker.QueryPoolScenarioFactory;
 import com.griddynamics.jagger.invoker.ScenarioFactory;
 import com.griddynamics.jagger.master.CompositeTask;
 import com.griddynamics.jagger.master.configuration.Configuration;
 import com.griddynamics.jagger.reporting.ReportingService;
+import com.griddynamics.jagger.user.TestGroupConfiguration;
 import com.griddynamics.jagger.xml.stubs.xml.ExampleDecisionMakerListener;
 import com.griddynamics.jagger.xml.stubs.xml.ExampleTestGroupListener;
 import com.griddynamics.jagger.xml.stubs.xml.ExampleTestListener;
@@ -166,19 +163,27 @@ public class JaggerConfigurationTest {
 
     @Test
     public void testGroupListenerTest() {
-        ExampleTestGroupListener testGroupListener = new ExampleTestGroupListener();
-        TestGroupListener listener = testGroupListener.provide();
-        listener.onStart(new TestGroupInfo());
-        listener.onStop(new TestGroupInfo());
+        ArrayList<TestGroupConfiguration> suitConfiguration = (ArrayList)ctx.getBean("test-plan-1");
+       Assert.assertEquals(1, suitConfiguration.get(1).getListeners().size());
+        Assert.assertEquals(11,((ExampleTestGroupListener)suitConfiguration.
+                get(1).
+                getListeners().
+                get(0)).
+                getTestValue());
+
     }
 
     @Test
     public void decisionMakerListenerTest() {
-        ExampleDecisionMakerListener exampleDecisionMakerListener = new ExampleDecisionMakerListener();
-        TestGroupDecisionMakerListener decisionMakerListener1 = exampleDecisionMakerListener.provide();
-        decisionMakerListener1.onDecisionMaking(new DecisionMakerInfo());
-    }
+        ArrayList<TestGroupConfiguration> suitConfiguration = (ArrayList)ctx.getBean("test-plan-1");
+        Assert.assertEquals(2, suitConfiguration.get(0).getTestGroupDecisionMakerListeners().size());
+        Assert.assertEquals(15,((ExampleDecisionMakerListener)suitConfiguration.
+                get(0).
+                getTestGroupDecisionMakerListeners().
+                get(0)).
+                getTestValue());
 
+    }
     private void checkListOnNull(List list){
         for (Object o : list){
             Assert.assertNotNull(o);
