@@ -4,12 +4,19 @@ import com.griddynamics.jagger.JaggerLauncher;
 import com.griddynamics.jagger.agent.model.JmxMetricGroup;
 import com.griddynamics.jagger.engine.e1.collector.MetricCollectorProvider;
 import com.griddynamics.jagger.engine.e1.collector.ValidatorProvider;
+import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupInfo;
+import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupListener;
 import com.griddynamics.jagger.engine.e1.scenario.WorkloadTask;
+import com.griddynamics.jagger.engine.e1.sessioncomparation.DecisionMakerInfo;
+import com.griddynamics.jagger.engine.e1.sessioncomparation.TestGroupDecisionMakerListener;
 import com.griddynamics.jagger.invoker.QueryPoolScenarioFactory;
 import com.griddynamics.jagger.invoker.ScenarioFactory;
 import com.griddynamics.jagger.master.CompositeTask;
 import com.griddynamics.jagger.master.configuration.Configuration;
 import com.griddynamics.jagger.reporting.ReportingService;
+import com.griddynamics.jagger.xml.stubs.xml.ExampleDecisionMakerListener;
+import com.griddynamics.jagger.xml.stubs.xml.ExampleTestGroupListener;
+import com.griddynamics.jagger.xml.stubs.xml.ExampleTestListener;
 import junit.framework.Assert;
 import org.springframework.context.ApplicationContext;
 import org.testng.annotations.BeforeClass;
@@ -157,6 +164,20 @@ public class JaggerConfigurationTest {
         Assert.assertEquals("NOT_NULL_VALIDATOR", vp.getDisplayName());
     }
 
+    @Test
+    public void testGroupListenerTest() {
+        ExampleTestGroupListener testGroupListener = new ExampleTestGroupListener();
+        TestGroupListener listener = testGroupListener.provide();
+        listener.onStart(new TestGroupInfo());
+        listener.onStop(new TestGroupInfo());
+    }
+
+    @Test
+    public void decisionMakerListenerTest() {
+        ExampleDecisionMakerListener exampleDecisionMakerListener = new ExampleDecisionMakerListener();
+        TestGroupDecisionMakerListener decisionMakerListener1 = exampleDecisionMakerListener.provide();
+        decisionMakerListener1.onDecisionMaking(new DecisionMakerInfo());
+    }
 
     private void checkListOnNull(List list){
         for (Object o : list){

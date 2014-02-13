@@ -1,4 +1,4 @@
-package com.griddynamics.jagger.xml;
+package com.griddynamics.jagger.xml.stubs.xml;
 
 import com.griddynamics.jagger.engine.e1.Provider;
 import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupInfo;

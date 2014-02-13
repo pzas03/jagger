@@ -1,4 +1,4 @@
-package com.griddynamics.jagger.xml;
+package com.griddynamics.jagger.xml.stubs.xml;
 
 import com.griddynamics.jagger.coordinator.NodeId;
 import com.griddynamics.jagger.master.DistributionListener;
