@@ -751,11 +751,11 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         long timestamp = System.currentTimeMillis();
         List<Object[]> list = entityManager.createNativeQuery
                 (
-                        "select taskData.id, commonTests.name, commonTests.description, taskData.taskId , commonTests.clock, commonTests.clockValue, commonTests.termination" +
-                                " from "+
-                                "( "+
-                                "select test.name, test.description, test.version, test.sessionId, test.taskId, test.clock, test.clockValue, test.termination from " +
-                                "( "+
+                    "select taskData.id, commonTests.name, commonTests.description, taskData.taskId , commonTests.clock, commonTests.clockValue, commonTests.termination" +
+                        " from "+
+                        "( "+
+                            "select test.name, test.description, test.version, test.sessionId, test.taskId, test.clock, test.clockValue, test.termination from " +
+                            "( "+
                                 "select " +
                                 "l.*, s.name, s.description, s.version " +
                                 "from "+
@@ -763,38 +763,40 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                                 "left outer join "+
                                 "(select * from WorkloadDetails) as s "+
                                 "on l.scenario_id=s.id "+
-                                ") as test " +
-                                "inner join " +
-                                "( " +
+                            ") as test " +
+                            "inner join " +
+                            "( " +
                                 "select t.* from "+
                                 "( "+
-                                "select " +
-                                "l.*, s.name, s.description, s.version " +
-                                "from "+
-                                "(select * from WorkloadTaskData where sessionId in (:sessions)) as l "+
-                                "left outer join "+
-                                "(select * from WorkloadDetails) as s "+
-                                "on l.scenario_id=s.id " +
+                                    "select " +
+                                    "l.*, s.name, s.description, s.version " +
+                                    "from "+
+                                    "(select * from WorkloadTaskData where sessionId in (:sessions)) as l "+
+                                    "left outer join "+
+                                    "(select * from WorkloadDetails) as s "+
+                                    "on l.scenario_id=s.id " +
                                 ") as t "+
                                 "group by "+
                                 "t.termination, t.clock, t.clockValue, t.name, t.version "+
-                                "having count(t.id)>=:sessionCount" +
+     /*!!this is it*/              "having count(t.id)>=:sessionCount" +
 
-                                ") as testArch " +
-                                "on "+
-                                "test.clock=testArch.clock and "+
-                                "test.clockValue=testArch.clockValue and "+
-                                "test.termination=testArch.termination and "+
-                                "test.name=testArch.name and "+
-                                "test.version=testArch.version "+
-                                ") as commonTests "+
-                                "left outer join "+
-                                "(select * from TaskData where sessionId in (:sessions)) as taskData "+
-                                "on "+
-                                "commonTests.sessionId=taskData.sessionId and "+
-                                "commonTests.taskId=taskData.taskId "
-                ).setParameter("sessions", sessionIds)
-                .setParameter("sessionCount", (long) sessionIds.size()).getResultList();
+                            ") as testArch " +
+                            "on "+
+                            "test.clock=testArch.clock and "+
+                            "test.clockValue=testArch.clockValue and "+
+                            "test.termination=testArch.termination and "+
+                            "test.name=testArch.name and "+
+                            "test.version=testArch.version "+
+                        ") as commonTests "+
+                        "left outer join "+
+                        "(select * from TaskData where sessionId in (:sessions)) as taskData "+
+                        "on "+
+                        "commonTests.sessionId=taskData.sessionId and "+
+                        "commonTests.taskId=taskData.taskId "
+                )
+                .setParameter("sessions", sessionIds)
+                .setParameter("sessionCount", (long) sessionIds.size())
+                .getResultList();
 
         //group tests by description
         HashMap<String, TaskDataDto> map = new HashMap<String, TaskDataDto>(list.size());
