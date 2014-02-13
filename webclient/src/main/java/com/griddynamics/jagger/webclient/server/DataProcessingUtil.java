@@ -37,4 +37,12 @@ public class DataProcessingUtil {
     public static double round(double value) {
         return new BigDecimal(value).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
     }
+
+    public static String getMessageFromLastCause(Throwable th) {
+        if (th.getCause() != null)
+            return getMessageFromLastCause(th.getCause());
+
+        return th.getMessage();
+    }
 }
+
