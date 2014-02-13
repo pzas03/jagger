@@ -87,10 +87,13 @@
     </bean>
 
 
-    <bean id="sessionDataService" class="com.griddynamics.jagger.webclient.server.SessionDataServiceImpl"/>
+    <bean id="sessionDataService" class="com.griddynamics.jagger.webclient.server.SessionDataServiceImpl">
+        <property name="commonDataService" ref="commonDataService"/>
+    </bean>
 
     <bean id="commonDataService" class="com.griddynamics.jagger.webclient.server.CommonDataServiceImpl">
-        <property name="userCommentAvailable" value="${user.comment.available}"/>
+        <property name="commonDataProvider" ref="databaseFetcher"/>
+        <property name="userCommentEditAvailable" value="${user.comment.available}"/>
         <property name="userCommentMaxLength" value="${user.comment.max.length}"/>
     </bean>
 

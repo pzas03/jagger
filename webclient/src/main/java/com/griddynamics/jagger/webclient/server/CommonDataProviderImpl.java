@@ -395,6 +395,21 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         return result;
     }
 
+    @Override
+    public boolean checkIfUserCommentStorageAvailable() {
+
+        try {
+            entityManager.createQuery(
+                    "select count(sm) from SessionMetaDataEntity sm")
+                    .getSingleResult();
+            return true;
+        } catch (Exception e) {
+            log.warn("Could not access SessionMetaDataTable", e);
+        }
+
+        return false;
+    }
+
 
     private List<MonitoringSessionScopePlotNode> getMonitoringPlotNamesNew(Set<String> sessionIds) {
 
