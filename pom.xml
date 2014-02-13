@@ -62,10 +62,15 @@
     </issueManagement>
 
     <repositories>
+        <!--need for Sigar library. See monitoring POM-->
         <repository>
-            <id>project-repo</id>
-            <name>Local project repository</name>
-            <url>file://${user.dir}/lib</url>
+            <id>jboss-third-party</id>
+            <layout>default</layout>
+            <name>jboss thirdparty repo</name>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases</url>
         </repository>
     </repositories>
 
