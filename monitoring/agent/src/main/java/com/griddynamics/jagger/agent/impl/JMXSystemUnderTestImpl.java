@@ -54,7 +54,7 @@ public class JMXSystemUnderTestImpl implements SystemUnderTestService {
     private AgentContext context;
     private String jmxServices;
     private String name;
-    private String urlFormat;
+    private String urlFormat = "service:jmx:rmi:///jndi/rmi://%s/jmxrmi";
     private Map<String, MBeanServerConnection> connections = Maps.newHashMap();
 
     public void setJmxServices(String jmxServices) {
