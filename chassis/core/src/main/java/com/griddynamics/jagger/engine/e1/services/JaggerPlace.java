@@ -10,7 +10,8 @@ package com.griddynamics.jagger.engine.e1.services;
 public enum JaggerPlace {
     TEST_LISTENER("TestListener"),
     TEST_GROUP_LISTENER("TestGroupListener"),
-    TEST_SUITE_LISTENER("TestSuiteListener");
+    TEST_SUITE_LISTENER("TestSuiteListener"),
+    TEST_GROUP_DECISION_MAKER_LISTENER("TestGroupDecisionMakerListener");
 
     private String name;
 
