@@ -109,9 +109,6 @@ public class ExchangeClient {
                 log.warn("Connection lost! Waiting for the next exchange session!");
             }
             log.warn(e.toString());
-        } catch (IOException e) {
-            log.error("IOException during deserialization of this data ({})", str);
-            throw e;
         }
         return packResponse;
     }
@@ -133,9 +130,9 @@ public class ExchangeClient {
             log.error("URIException while building uri with: \nurlBase: " + urlBase +
                     "\nurl: " + url + "\nobj: " + obj.toString());
             throw Throwables.propagate(e);
-        } catch (Exception e) {
-            log.error("Exception during HTTP request execution");
-            throw Throwables.propagate(e);
+        } catch (IOException e) {
+            log.error("Exception during HTTP request execution "+Throwables.getStackTraceAsString(e));
+            throw e;
         } finally {
             try {
                 EntityUtils.consumeQuietly(entity);
