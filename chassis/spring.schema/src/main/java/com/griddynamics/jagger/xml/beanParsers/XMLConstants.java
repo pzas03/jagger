@@ -88,6 +88,7 @@ public class XMLConstants {
     public static final String INFORMATION_COLLECTOR = "informationCollector";
     public static final String DIAGNOSTIC_COLLECTOR = "diagnosticCollector";
     public static final String THREADS_AVG_COLLECTOR = "threadsAvg";
+    public static final String DISPLAY_NAME = "displayName";
 
     public static final String LISTENERS = "listeners";
     public static final String TEST_LISTENERS = "listeners-test";
