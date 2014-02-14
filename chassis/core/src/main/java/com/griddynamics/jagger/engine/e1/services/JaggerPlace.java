@@ -11,7 +11,8 @@ public enum JaggerPlace {
     INVOCATION_LISTENER("InvocationListener"),
     TEST_LISTENER("TestListener"),
     TEST_GROUP_LISTENER("TestGroupListener"),
-    TEST_SUITE_LISTENER("TestSuiteListener");
+    TEST_SUITE_LISTENER("TestSuiteListener"),
+    TEST_GROUP_DECISION_MAKER_LISTENER("TestGroupDecisionMakerListener");
 
     private String name;
 

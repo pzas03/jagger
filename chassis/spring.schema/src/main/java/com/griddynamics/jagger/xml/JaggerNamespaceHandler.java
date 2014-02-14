@@ -178,5 +178,8 @@ public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
 
         registerBeanDefinitionParser("listener-test-suite", findTypeParser);
         registerBeanDefinitionParser("listeners-test-suite", listCustomDefinitionParser);
+
+        registerBeanDefinitionParser("listener-test-group-decision-maker", findTypeParser);
+        registerBeanDefinitionParser("listeners-test-group-decision-maker", listCustomDefinitionParser);
     }
 }

@@ -2,17 +2,18 @@ package com.griddynamics.jagger.xml;
 
 import com.griddynamics.jagger.JaggerLauncher;
 import com.griddynamics.jagger.agent.model.JmxMetricGroup;
-import com.griddynamics.jagger.engine.e1.collector.AvgMetricAggregatorProvider;
-import com.griddynamics.jagger.engine.e1.collector.MetricAggregatorProvider;
 import com.griddynamics.jagger.engine.e1.collector.MetricCollectorProvider;
-import com.griddynamics.jagger.engine.e1.scenario.KernelSideObjectProvider;
-import com.griddynamics.jagger.engine.e1.scenario.ScenarioCollector;
+import com.griddynamics.jagger.engine.e1.collector.ValidatorProvider;
 import com.griddynamics.jagger.engine.e1.scenario.WorkloadTask;
 import com.griddynamics.jagger.invoker.QueryPoolScenarioFactory;
 import com.griddynamics.jagger.invoker.ScenarioFactory;
 import com.griddynamics.jagger.master.CompositeTask;
 import com.griddynamics.jagger.master.configuration.Configuration;
 import com.griddynamics.jagger.reporting.ReportingService;
+import com.griddynamics.jagger.user.TestGroupConfiguration;
+import com.griddynamics.jagger.xml.stubs.xml.ExampleDecisionMakerListener;
+import com.griddynamics.jagger.xml.stubs.xml.ExampleTestGroupListener;
+import com.griddynamics.jagger.xml.stubs.xml.ExampleTestListener;
 import junit.framework.Assert;
 import org.springframework.context.ApplicationContext;
 import org.testng.annotations.BeforeClass;
@@ -145,6 +146,44 @@ public class JaggerConfigurationTest {
         Assert.assertEquals("MaxFileDescriptorCount", metric.getAttributes()[0]);
     }
 
+    @Test
+    public void metricDisplayNameTest() throws Exception {
+        MetricCollectorProvider mcp = (MetricCollectorProvider) ctx.getBean("metric-with-display-name");
+        Assert.assertEquals("NOT_NULL_METRIC", mcp.getMetricDescriptions().getDisplayName());
+
+        mcp = (MetricCollectorProvider) ctx.getBean("metric1");
+        Assert.assertNull(mcp.getMetricDescriptions().getDisplayName());
+    }
+
+    @Test
+    public void validatorDisplayNameTest() throws Exception {
+        ValidatorProvider vp = (ValidatorProvider) ctx.getBean("validator-with-display-name");
+        Assert.assertEquals("NOT_NULL_VALIDATOR", vp.getDisplayName());
+    }
+
+    @Test
+    public void testGroupListenerTest() {
+        ArrayList<TestGroupConfiguration> suitConfiguration = (ArrayList)ctx.getBean("test-plan-1");
+       Assert.assertEquals(1, suitConfiguration.get(1).getListeners().size());
+        Assert.assertEquals(11,((ExampleTestGroupListener)suitConfiguration.
+                get(1).
+                getListeners().
+                get(0)).
+                getTestValue());
+
+    }
+
+    @Test
+    public void decisionMakerListenerTest() {
+        ArrayList<TestGroupConfiguration> suitConfiguration = (ArrayList)ctx.getBean("test-plan-1");
+        Assert.assertEquals(2, suitConfiguration.get(0).getTestGroupDecisionMakerListeners().size());
+        Assert.assertEquals(15,((ExampleDecisionMakerListener)suitConfiguration.
+                get(0).
+                getTestGroupDecisionMakerListeners().
+                get(0)).
+                getTestValue());
+
+    }
     private void checkListOnNull(List list){
         for (Object o : list){
             Assert.assertNotNull(o);

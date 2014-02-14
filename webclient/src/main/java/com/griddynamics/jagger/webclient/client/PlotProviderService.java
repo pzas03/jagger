@@ -19,9 +19,9 @@ import java.util.Set;
 @RemoteServiceRelativePath("rpc/PlotProviderService")
 public interface PlotProviderService extends RemoteService {
 
-    List<PlotSeriesDto> getPlotData(long taskId, String plotType) throws RuntimeException;
+    List<PlotSeriesDto> getPlotData(long taskId, PlotNameDto plotType) throws RuntimeException;
 
-    List<PlotSeriesDto> getPlotData(Set<Long> taskId, String plotType) throws RuntimeException;
+    List<PlotSeriesDto> getPlotData(Set<Long> taskId, PlotNameDto plotType) throws RuntimeException;
 
     Map<PlotNameDto, List<PlotSeriesDto>> getPlotDatas(Set<PlotNameDto> plots) throws RuntimeException;
 

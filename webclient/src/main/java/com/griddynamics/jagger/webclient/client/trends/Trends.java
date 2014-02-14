@@ -124,8 +124,6 @@ public class Trends extends DefaultActivity {
 
         Set<TaskDataDto> tests = controlTree.getSelectedTests();
 
-        Set<MetricNameDto> metrics = controlTree.getCheckedMetrics();
-
         Map<String, List<String>> trends = getTestTrendsMap(controlTree.getRootNode().getDetailsNode().getTests());
 
         HashSet<String> sessionsIds = new HashSet<String>();
@@ -333,6 +331,25 @@ public class Trends extends DefaultActivity {
             }
         });
         History.newItem(NameTokens.EMPTY);
+    }
+
+    WebClientProperties webClientProperties = new WebClientProperties();
+
+    public void getPropertiesUpdatePlace(final TrendsPlace place){
+
+        CommonDataService.Async.getInstance().getWebClientProperties(new AsyncCallback<WebClientProperties>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                new ExceptionPanel("Default properties will be used. Exception while properties retrieving: " + caught.getMessage());
+                updatePlace(place);
+            }
+
+            @Override
+            public void onSuccess(WebClientProperties result) {
+                webClientProperties = result;
+                updatePlace(place);
+            }
+        });
     }
 
     private void noSessionsFromLink() {
@@ -877,7 +894,7 @@ public class Trends extends DefaultActivity {
             //Refresh summary
             chosenMetrics.clear();
             chosenPlots.clear();
-            summaryPanel.updateSessions(selected);
+            summaryPanel.updateSessions(selected, webClientProperties);
             needRefresh = mainTabPanel.getSelectedIndex() != 0;
 
             CheckHandlerMap.setMetricFetcher(metricFetcher);
