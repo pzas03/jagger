@@ -214,7 +214,7 @@ public class Agent {
                     AgentStarter.resetAgent(Agent.this);
                 } catch (Throwable e) {
                     alive = false;
-                    log.error("Agent "+nodeContext.getId()+" got an exception from coordinator", e);
+                    log.error("Agent {} got an exception from coordinator", e);
                 }
 
                 log.debug("Pack exchange completed. Poll rate on agent {} is {} ms", nodeContext.getId(), pollRate);
