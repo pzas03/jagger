@@ -48,7 +48,7 @@ public class RemoteMultiThreadInfoProvider implements ThreadInfoProvider {
     private static final Logger log = LoggerFactory.getLogger(RemoteMultiThreadInfoProvider.class);
 
     private String jmxServices;
-    private String urlFormat = "service:jmx:rmi:///jndi/rmi://%s/jmxrmi";
+    private String urlFormat;
 
     private Map<String, JMXConnector> connector = Maps.newConcurrentMap();
     private Map<String, MBeanServerConnection> mbs = Maps.newConcurrentMap();
