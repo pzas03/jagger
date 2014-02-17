@@ -12,9 +12,6 @@ import com.griddynamics.jagger.webclient.client.dto.NodeInfoPerSessionDto;
 import com.griddynamics.jagger.webclient.client.dto.SessionDataDto;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
 import com.griddynamics.jagger.webclient.client.trends.TrendsPlace;
-import com.sencha.gxt.core.client.util.Margins;
-import com.sencha.gxt.widget.core.client.button.TextButton;
-import com.sencha.gxt.widget.core.client.event.SelectEvent;
 
 import java.util.*;
 
@@ -31,7 +28,8 @@ public class NodesPanel extends Composite {
     private NodesTablePanel nodesTablePanel;
     private Set<String > currentSessionIds = new HashSet<String>();
     private Label noDataLabel;
-    private TextButton createButton;
+    private boolean enableShowNodeInfo = false;
+    private boolean needToUpdateNodeInfo = true;
     private VerticalPanel tableBackgroundPanel;
     private HorizontalPanel controlBackgroundPanel;
     private Image loadIndicatorImage;
@@ -48,7 +46,8 @@ public class NodesPanel extends Composite {
 
     public void clear() {
         tableBackgroundPanel.clear();
-        createButton.disable();
+        enableShowNodeInfo = false;
+        needToUpdateNodeInfo = true;
 
         currentSessionIds.clear();
     }
@@ -58,8 +57,10 @@ public class NodesPanel extends Composite {
         for (SessionDataDto session : chosenSessions) {
             currentSessionIds.add(session.getSessionId());
         }
-        if (currentSessionIds.size() > 0)
-            createButton.enable();
+        if (currentSessionIds.size() > 0) {
+            needToUpdateNodeInfo = true;
+            enableShowNodeInfo = true;
+        }
 
         // Set place to handle exception window
         this.place = place;
@@ -72,17 +73,11 @@ public class NodesPanel extends Composite {
         noDataLabel.setHeight("100%");
     }
 
-    private void setCreateButton() {
-        createButton = new TextButton("Get node info");
-        createButton.setPixelSize(60, 22);
-        createButton.getElement().setMargins(new Margins(10, 10, 10, 10));
-        createButton.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                nodeInfoFetcher.fetchNodeInfo(currentSessionIds);
-            }
-        });
+    public void getNodeInfo() {
+        if ((enableShowNodeInfo) && (needToUpdateNodeInfo))
+            nodeInfoFetcher.fetchNodeInfo(currentSessionIds);
     }
+
     private void setLoadIndicatorImage() {
         ImageResource imageResource = JaggerResources.INSTANCE.getLoadIndicator();
         loadIndicatorImage = new Image(imageResource);
@@ -92,11 +87,8 @@ public class NodesPanel extends Composite {
         controlBackgroundPanel = new HorizontalPanel();
         controlBackgroundPanel.setWidth("100%");
 
-        setCreateButton();
         setLoadIndicatorImage();
 
-        controlBackgroundPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-        controlBackgroundPanel.add(createButton);
         controlBackgroundPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
         controlBackgroundPanel.add(loadIndicatorImage);
     }
@@ -136,12 +128,13 @@ public class NodesPanel extends Composite {
 
     private void displayBeforeLoad() {
         tableBackgroundPanel.clear();
-        createButton.disable();
+        enableShowNodeInfo = false;
         loadIndicatorImage.setVisible(true);
     }
     private void displayAfterLoad() {
         loadIndicatorImage.setVisible(false);
-        createButton.enable();
+        enableShowNodeInfo = true;
+        needToUpdateNodeInfo = false;
     }
 
     private NodeInfoFetcher nodeInfoFetcher = new NodeInfoFetcher();

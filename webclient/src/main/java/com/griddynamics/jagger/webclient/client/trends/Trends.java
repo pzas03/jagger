@@ -60,6 +60,11 @@ public class Trends extends DefaultActivity {
     interface TrendsUiBinder extends UiBinder<Widget, Trends> {
     }
 
+    private TabIdentifier tabSummary;
+    private TabIdentifier tabTrends;
+    private TabIdentifier tabMetrics;
+    private TabIdentifier tabNodes;
+
     private static TrendsUiBinder uiBinder = GWT.create(TrendsUiBinder.class);
 
     @UiField
@@ -159,8 +164,8 @@ public class Trends extends DefaultActivity {
         }
 
         TrendsPlace newPlace = new TrendsPlace(
-                mainTabPanel.getSelectedIndex() == 0 ? NameTokens.SUMMARY :
-                        mainTabPanel.getSelectedIndex() == 1 ? NameTokens.TRENDS : NameTokens.METRICS
+                mainTabPanel.getSelectedIndex() == tabSummary.getTabIndex() ? tabSummary.getTabName() :
+                        mainTabPanel.getSelectedIndex() == tabTrends.getTabIndex() ? tabTrends.getTabName() : tabMetrics.getTabName()
         );
 
         newPlace.setSelectedSessionIds(sessionsIds);
@@ -495,21 +500,31 @@ public class Trends extends DefaultActivity {
     }
 
     private void setupTabPanel(){
+        final int indexSummary = 0;
+        final int indexTrends = 1;
+        final int indexMetrics = 2;
+        final int indexNodes = 3;
+
+        tabSummary = new TabIdentifier(NameTokens.SUMMARY,indexSummary);
+        tabTrends = new TabIdentifier(NameTokens.TRENDS,indexTrends);
+        tabMetrics = new TabIdentifier(NameTokens.METRICS,indexMetrics);
+        tabNodes = new TabIdentifier(NameTokens.NODES,indexNodes);
+
         mainTabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
             @Override
             public void onSelection(SelectionEvent<Integer> event) {
                 int selected = event.getSelectedItem();
                 switch (selected) {
-                    case 0:
+                    case indexSummary:
                         onSummaryTabSelected();
                         break;
-                    case 1:
+                    case indexTrends:
                         onTrendsTabSelected();
                         break;
-                    case 2:
+                    case indexMetrics:
                         onMetricsTabSelected();
                         break;
-                    case 3:
+                    case indexNodes:
                         onNodesTabSelected();
                     default:
                 }
@@ -563,17 +578,20 @@ public class Trends extends DefaultActivity {
     private void onNodesTabSelected() {
         mainTabPanel.forceLayout();
         controlTree.onSummaryTrendsTab();
+        nodesPanel.getNodeInfo();
     }
 
     private void chooseTab(String token) {
-        if (NameTokens.SUMMARY.equals(token)) {
-            mainTabPanel.selectTab(0);
-        } else if (NameTokens.TRENDS.equals(token)) {
-            mainTabPanel.selectTab(1);
-        } else if (NameTokens.METRICS.equals(token)) {
-            mainTabPanel.selectTab(2);
+        if (tabSummary.getTabName().equals(token)) {
+            mainTabPanel.selectTab(tabSummary.getTabIndex());
+        } else if (tabTrends.getTabName().equals(token)) {
+            mainTabPanel.selectTab(tabTrends.getTabIndex());
+        } else if (tabMetrics.getTabName().equals(token)) {
+            mainTabPanel.selectTab(tabMetrics.getTabIndex());
+        } else if (tabNodes.getTabName().equals(token)){
+            mainTabPanel.selectTab(tabNodes.getTabIndex());
         } else {
-            mainTabPanel.selectTab(3);
+            new ExceptionPanel("Unknown tab with name " + token + " selected");
         }
     }
 
@@ -909,10 +927,13 @@ public class Trends extends DefaultActivity {
             chosenMetrics.clear();
             chosenPlots.clear();
             summaryPanel.updateSessions(selected, webClientProperties);
-            needRefresh = mainTabPanel.getSelectedIndex() != 0;
+            needRefresh = mainTabPanel.getSelectedIndex() != tabSummary.getTabIndex();
             // Reset node info and remember selected sessions
+            // Fetch info when on Nodes tab
             nodesPanel.clear();
             nodesPanel.updateSetup(selected,place);
+            if (mainTabPanel.getSelectedIndex() == tabNodes.getTabIndex())
+                nodesPanel.getNodeInfo();
 
             CheckHandlerMap.setMetricFetcher(metricFetcher);
             CheckHandlerMap.setTestPlotFetcher(testPlotFetcher);
@@ -969,7 +990,7 @@ public class Trends extends DefaultActivity {
                         controlTreePanel.clear();
                         controlTreePanel.add(controlTree);
 
-                        if (mainTabPanel.getSelectedIndex() != 2) {
+                        if (mainTabPanel.getSelectedIndex() != tabMetrics.getTabIndex()) {
                             controlTree.onSummaryTrendsTab();
                         } else {
                             controlTree.onMetricsTab();
@@ -1066,7 +1087,7 @@ public class Trends extends DefaultActivity {
             controlTree = tempTree;
             controlTree.setRootNode(result);
 
-            if (mainTabPanel.getSelectedIndex() == 2) {
+            if (mainTabPanel.getSelectedIndex() == tabMetrics.getTabIndex()) {
                 controlTree.onMetricsTab();
             } else {
                 controlTree.onSummaryTrendsTab();
@@ -1308,7 +1329,7 @@ public class Trends extends DefaultActivity {
                     chosenMetrics.put(id, metric);
                 }
             }
-            if (mainTabPanel.getSelectedIndex() == 1) {
+            if (mainTabPanel.getSelectedIndex() == tabTrends.getTabIndex()) {
                 onTrendsTabSelected();
             }
         }
@@ -1366,7 +1387,7 @@ public class Trends extends DefaultActivity {
                             chosenPlots.put(id, result.get(plotNameDto));
 
                         }
-                        if (mainTabPanel.getSelectedIndex() == 2) {
+                        if (mainTabPanel.getSelectedIndex() == tabMetrics.getTabIndex()) {
                             onMetricsTabSelected();
                         }
                         if (enableTree)
@@ -1469,7 +1490,7 @@ public class Trends extends DefaultActivity {
 
                                             chosenPlots.put(id, result.get(plotName));
                                         }
-                                        if (mainTabPanel.getSelectedIndex() == 2) {
+                                        if (mainTabPanel.getSelectedIndex() == tabMetrics.getTabIndex()) {
                                             onMetricsTabSelected();
                                         }
                                         if (enableTree)
@@ -1533,4 +1554,26 @@ public class Trends extends DefaultActivity {
         }
 
     }
+
+    // Tab index should be defined in single place
+    // to avoid problems during adding/deleting new tabs
+    private class TabIdentifier {
+
+        public TabIdentifier(String tabName, int tabIndex) {
+            this.tabName = tabName;
+            this.tabIndex = tabIndex;
+        }
+
+        public String getTabName() {
+            return tabName;
+        }
+
+        public int getTabIndex() {
+            return tabIndex;
+        }
+
+        private String tabName = "";
+        private int tabIndex = 0;
+    }
+
 }
