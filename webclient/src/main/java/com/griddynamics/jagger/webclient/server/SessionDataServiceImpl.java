@@ -140,17 +140,7 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
         List<SessionDataDto> sessionDataDtoList = new ArrayList<SessionDataDto>(sessionDataList.size());
 
         for (SessionData sessionData : sessionDataList) {
-            sessionDataDtoList.add(new SessionDataDto(
-                    sessionData.getId(),
-                    sessionData.getSessionId(),
-                    dateFormatter.format(sessionData.getStartTime()),
-                    dateFormatter.format(sessionData.getEndTime()),
-                    sessionData.getActiveKernels(),
-                    sessionData.getTaskExecuted(),
-                    sessionData.getTaskFailed(),
-                    HTMLFormatter.format(sessionData.getComment()),
-                    null)
-            );
+            sessionDataDtoList.add(createSessionDataDtoDto(sessionData, null));
         }
 
         return sessionDataDtoList;
@@ -158,7 +148,6 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
 
     private List<SessionDataDto> getAllWithMetaData(int start, int length) {
 
-        System.out.println(start + "  -  " + length);
         @SuppressWarnings("unchecked")
         List<SessionData> sessionDataList = (List<SessionData>)
                 entityManager.createQuery("select sd from SessionData as sd order by sd.startTime asc").setFirstResult(start).setMaxResults(length).getResultList();
@@ -184,17 +173,7 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
         List<SessionDataDto> sessionDataDtoList = new ArrayList<SessionDataDto>(sessionDataList.size());
 
         for (SessionData sessionData : sessionDataList) {
-            sessionDataDtoList.add(new SessionDataDto(
-                    sessionData.getId(),
-                    sessionData.getSessionId(),
-                    dateFormatter.format(sessionData.getStartTime()),
-                    dateFormatter.format(sessionData.getEndTime()),
-                    sessionData.getActiveKernels(),
-                    sessionData.getTaskExecuted(),
-                    sessionData.getTaskFailed(),
-                    HTMLFormatter.format(sessionData.getComment()),
-                    userCommentMap.get(sessionData.getId()))
-            );
+            sessionDataDtoList.add(createSessionDataDtoDto(sessionData, userCommentMap.get(sessionData.getId())));
         }
 
         return sessionDataDtoList;
@@ -225,18 +204,7 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
                 }
             }
 
-            DateFormat dateFormatter = new SimpleDateFormat(dateFormat);
-            sessionDataDto = new SessionDataDto(
-                    sessionData.getId(),
-                    sessionData.getSessionId(),
-                    dateFormatter.format(sessionData.getStartTime()),
-                    dateFormatter.format(sessionData.getEndTime()),
-                    sessionData.getActiveKernels(),
-                    sessionData.getTaskExecuted(),
-                    sessionData.getTaskFailed(),
-                    HTMLFormatter.format(sessionData.getComment()),
-                    userComment
-            );
+            sessionDataDto = createSessionDataDtoDto(sessionData, userComment);
             log.info("There was loaded session data with id {} for {} ms", sessionId, System.currentTimeMillis() - timestamp);
         } catch (NoResultException e) {
             log.info("No session data was found for session ID=" + sessionId, e);
@@ -295,19 +263,8 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
             }
 
             sessionDataDtoList = new ArrayList<SessionDataDto>(sessionDataList.size());
-            DateFormat dateFormatter = new SimpleDateFormat(dateFormat);
             for (SessionData sessionData : sessionDataList) {
-                sessionDataDtoList.add(new SessionDataDto(
-                        sessionData.getId(),
-                        sessionData.getSessionId(),
-                        dateFormatter.format(sessionData.getStartTime()),
-                        dateFormatter.format(sessionData.getEndTime()),
-                        sessionData.getActiveKernels(),
-                        sessionData.getTaskExecuted(),
-                        sessionData.getTaskFailed(),
-                        HTMLFormatter.format(sessionData.getComment()),
-                        userCommentMap.get(sessionData.getId()))
-                );
+                sessionDataDtoList.add(createSessionDataDtoDto(sessionData, userCommentMap.get(sessionData.getId())));
             }
 
             log.info("There was loaded {} sessions data from {} for {} ms", new Object[]{sessionDataDtoList.size(), totalSize, System.currentTimeMillis() - timestamp});
@@ -365,19 +322,8 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
             }
 
             sessionDataDtoList = new ArrayList<SessionDataDto>(sessionDataList.size());
-            DateFormat dateFormatter = new SimpleDateFormat(dateFormat);
             for (SessionData sessionData : sessionDataList) {
-                sessionDataDtoList.add(new SessionDataDto(
-                        sessionData.getId(),
-                        sessionData.getSessionId(),
-                        dateFormatter.format(sessionData.getStartTime()),
-                        dateFormatter.format(sessionData.getEndTime()),
-                        sessionData.getActiveKernels(),
-                        sessionData.getTaskExecuted(),
-                        sessionData.getTaskFailed(),
-                        HTMLFormatter.format(sessionData.getComment()),
-                        userCommentMap.get(sessionData.getId()))
-                );
+                sessionDataDtoList.add(createSessionDataDtoDto(sessionData, userCommentMap.get(sessionData.getId())));
             }
 
             log.info("There was loaded {} sessions data from {} for {} ms", new Object[]{sessionDataDtoList.size(), totalSize, System.currentTimeMillis() - timestamp});
@@ -387,5 +333,20 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
         }
 
         return new PagedSessionDataDto(sessionDataDtoList, (int) totalSize);
+    }
+
+
+
+    private SessionDataDto createSessionDataDtoDto(SessionData sessionData, String userComment) {
+        return new SessionDataDto(
+                sessionData.getId(),
+                sessionData.getSessionId(),
+                dateFormatter.format(sessionData.getStartTime()),
+                dateFormatter.format(sessionData.getEndTime()),
+                sessionData.getActiveKernels(),
+                sessionData.getTaskExecuted(),
+                sessionData.getTaskFailed(),
+                HTMLFormatter.format(sessionData.getComment()),
+                userComment);
     }
 }
