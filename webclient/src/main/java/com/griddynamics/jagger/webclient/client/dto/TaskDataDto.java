@@ -10,6 +10,7 @@ import java.util.Set;
  */
 public class TaskDataDto implements Serializable {
     private Set<Long> ids;
+    private Set<String> sessionIds;
     private String taskName;
     private String description;
     private String TerminationStrategy;
@@ -44,6 +45,14 @@ public class TaskDataDto implements Serializable {
 
     public String getTaskName() {
         return taskName;
+    }
+
+    public Set<String> getSessionIds() {
+        return sessionIds;
+    }
+
+    public void setSessionIds(Set<String> sessionIds) {
+        this.sessionIds = sessionIds;
     }
 
     @Override

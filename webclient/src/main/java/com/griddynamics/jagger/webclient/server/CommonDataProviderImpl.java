@@ -763,7 +763,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
 
         List<Object[]> list = entityManager.createNativeQuery
                 (
-                    "select taskData.id, commonTests.name, commonTests.description, taskData.taskId , commonTests.clock, commonTests.clockValue, commonTests.termination" +
+                        "select taskData.id, commonTests.name, commonTests.description, taskData.taskId , commonTests.clock, commonTests.clockValue, commonTests.termination, taskData.sessionId" +
                         " from "+
                         "( "+
                             "select test.name, test.description, test.version, test.sessionId, test.taskId, test.clock, test.clockValue, test.termination from " +
@@ -818,26 +818,25 @@ public class CommonDataProviderImpl implements CommonDataProvider {
             String taskId = (String)testData[3];
             String clock = testData[4] + " (" + testData[5] + ")";
             String termination = (String) testData[6];
-
+            String sessionId = (String) testData[7];
 
             int taskIdInt = Integer.parseInt(taskId.substring(5));
             // todo: it should be confirable in future task about matching strategy.
             String key = description+name+termination+clock;
             if (map.containsKey(key)){
                 map.get(key).getIds().add(id.longValue());
+                map.get(key).getSessionIds().add(sessionId);
 
                 Integer oldValue = mapIds.get(key);
                 mapIds.put(key, (oldValue==null ? 0 : oldValue)+taskIdInt);
             }else{
                 TaskDataDto taskDataDto = new TaskDataDto(id.longValue(), name, description);
+                Set<String> sessionIdList = new HashSet<String>();
+                sessionIdList.add(sessionId);
+                taskDataDto.setSessionIds(sessionIdList);
                 taskDataDto.setClock(clock);
                 taskDataDto.setTerminationStrategy(termination);
-                //merge
-                if (map.containsKey(name)){
-                    taskDataDto.getIds().addAll(map.get(name).getIds());
 
-                    taskIdInt = taskIdInt + mapIds.get(name);
-                }
                 map.put(key, taskDataDto);
                 mapIds.put(key, taskIdInt);
             }
