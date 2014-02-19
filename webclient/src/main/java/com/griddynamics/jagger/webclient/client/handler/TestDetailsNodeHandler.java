@@ -22,12 +22,12 @@ public class TestDetailsNodeHandler extends TreeAwareHandler<TestDetailsNode> {
         TestDetailsNode testNode = event.getItem();
         Set<PlotNameDto> dtos = new LinkedHashSet<PlotNameDto>();
         for (PlotNode plotNode : testNode.getPlots()) {
-            dtos.add(plotNode.getPlotName());
+            dtos.add(plotNode.getPlotNameDto());
         }
 
         for (MonitoringPlotNode monitoringPlotNode : testNode.getMonitoringPlots()) {
             for (PlotNode plot: monitoringPlotNode.getPlots()) {
-                dtos.add(plot.getPlotName());
+                dtos.add(plot.getPlotNameDto());
             }
         }
 

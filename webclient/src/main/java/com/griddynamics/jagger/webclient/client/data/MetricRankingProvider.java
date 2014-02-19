@@ -51,7 +51,7 @@ public class MetricRankingProvider {
         Collections.sort(list, new Comparator<MetricNode>() {
             @Override
             public int compare(MetricNode o, MetricNode o2) {
-                return MetricRankingProvider.compare(o.getMetricName().getDisplay(), o2.getMetricName().getDisplay());
+                return MetricRankingProvider.compare(o.getMetricNameDto().getDisplayName(), o2.getMetricNameDto().getDisplayName());
             }
         });
     }
@@ -69,7 +69,7 @@ public class MetricRankingProvider {
         Collections.sort(list, new Comparator<MetricDto>() {
             @Override
             public int compare(MetricDto metricDto, MetricDto metricDto2) {
-                return MetricRankingProvider.compare(metricDto.getMetricName().getDisplay(), metricDto2.getMetricName().getDisplay());
+                return MetricRankingProvider.compare(metricDto.getMetricName().getDisplayName(), metricDto2.getMetricName().getDisplayName());
             }
         });
     }

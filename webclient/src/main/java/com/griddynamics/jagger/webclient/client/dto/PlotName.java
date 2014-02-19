@@ -27,6 +27,7 @@ public class PlotName implements Serializable {
         this.displayName = displayName;
     }
 
+    //??? why
     public String getDisplay() {
         return displayName == null ? plotName : displayName;
     }

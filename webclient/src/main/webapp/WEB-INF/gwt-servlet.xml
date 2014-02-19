@@ -163,31 +163,31 @@
         <entry key="Throughput">
             <bean class="com.griddynamics.jagger.util.Pair">
                 <constructor-arg name="first" value="throughput"/>
-                <constructor-arg name="second" value="Throughput, tps"/>
+                <constructor-arg name="second" value="Jagger Throughput, tps"/>
             </bean>
         </entry>
         <entry key="Latency">
             <bean class="com.griddynamics.jagger.util.Pair">
                 <constructor-arg name="first" value="avgLatency"/>
-                <constructor-arg name="second" value="Latency, sec"/>
+                <constructor-arg name="second" value="Jagger Latency, sec"/>
             </bean>
         </entry>
         <entry key="Duration">
             <bean class="com.griddynamics.jagger.util.Pair">
                 <constructor-arg name="first" value="duration"/>
-                <constructor-arg name="second" value="Duration, sec"/>
+                <constructor-arg name="second" value="Jagger Duration, sec"/>
             </bean>
         </entry>
         <entry key="Success rate">
             <bean class="com.griddynamics.jagger.util.Pair">
                 <constructor-arg name="first" value="successRate"/>
-                <constructor-arg name="second" value="Success rate"/>
+                <constructor-arg name="second" value="Jagger Success rate"/>
             </bean>
         </entry>
         <entry key="Iterations">
             <bean class="com.griddynamics.jagger.util.Pair">
                 <constructor-arg name="first" value="samples"/>
-                <constructor-arg name="second" value="Iterations, samples"/>
+                <constructor-arg name="second" value="Jagger Iterations, samples"/>
             </bean>
         </entry>
     </util:map>

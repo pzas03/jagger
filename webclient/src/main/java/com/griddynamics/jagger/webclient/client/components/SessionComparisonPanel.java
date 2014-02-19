@@ -511,7 +511,7 @@ public class SessionComparisonPanel extends VerticalPanel{
 
             MetricNameDto metricName = metricDto.getMetricName();
             this.key = getItemKey(metricName);
-            put(NAME, metricName.getDisplay());
+            put(NAME, metricName.getDisplayName());
             put(TEST_DESCRIPTION, metricName.getTests().getDescription());
             put(TEST_NAME, metricName.getTests().getTaskName());
 

@@ -22,11 +22,11 @@ public class DetailsNodeHandler extends TreeAwareHandler<DetailsNode> {
         Set<PlotNameDto> testScopePlotNames = new HashSet<PlotNameDto>();
         for (TestDetailsNode test: detailsNode.getTests()) {
             for (PlotNode plotNode: test.getPlots()) {
-                testScopePlotNames.add(plotNode.getPlotName());
+                testScopePlotNames.add(plotNode.getPlotNameDto());
             }
             for (MonitoringPlotNode monitoringPlotNode: test.getMonitoringPlots()) {
                 for (PlotNode mPlotNode : monitoringPlotNode.getPlots()) {
-                    testScopePlotNames.add(mPlotNode.getPlotName());
+                    testScopePlotNames.add(mPlotNode.getPlotNameDto());
                 }
             }
         }

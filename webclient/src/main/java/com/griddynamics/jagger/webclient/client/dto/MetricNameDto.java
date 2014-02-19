@@ -53,15 +53,11 @@ public class MetricNameDto implements Serializable {
     }
 
     public String getDisplayName() {
-        return displayName;
+        return displayName == null ? name : displayName;
     }
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
-    }
-
-    public String getDisplay() {
-        return displayName == null ? name : displayName;
     }
 
     @Override

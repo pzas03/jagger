@@ -245,11 +245,7 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
 
         Set<MetricNameDto> resultSet = new HashSet<MetricNameDto>();
         for (TestNode test : rootNode.getSummary().getTests()) {
-            for (MetricNode metricNode : test.getMetrics()) {
-                if (isChecked(metricNode)) {
-                    resultSet.add(metricNode.getMetricName());
-                }
-            }
+            resultSet.addAll(getCheckedMetrics(test));
         }
         return resultSet;
     }
@@ -264,7 +260,7 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
         Set<MetricNameDto> resultSet = new HashSet<MetricNameDto>();
             for (MetricNode metricNode : testNode.getMetrics()) {
                 if (isChecked(metricNode)) {
-                    resultSet.add(metricNode.getMetricName());
+                    resultSet.add(metricNode.getMetricNameDto());
                 }
             }
         return resultSet;
@@ -293,13 +289,13 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
         for (TestDetailsNode test : rootNode.getDetailsNode().getTests()) {
             for (PlotNode plotNode : test.getPlots()) {
                 if (isChecked(plotNode)) {
-                    resultSet.add(plotNode.getPlotName());
+                    resultSet.add(plotNode.getPlotNameDto());
                 }
             }
             for (MonitoringPlotNode monitoringPlotNode : test.getMonitoringPlots()) {
                 for (PlotNode plotNode : monitoringPlotNode.getPlots()) {
                     if (isChecked(plotNode)) {
-                        resultSet.add(plotNode.getPlotName());
+                        resultSet.add(plotNode.getPlotNameDto());
                     }
                 }
             }

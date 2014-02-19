@@ -12,20 +12,20 @@ import java.util.List;
  */
 public class PlotNode extends AbstractIdentifyNode {
 
-    private PlotNameDto plotName;
+    private PlotNameDto plotNameDto;
 
     public PlotNode (PlotNameDto metricName) {
-        this.plotName = metricName;
+        this.plotNameDto = metricName;
     }
 
     public PlotNode() {}
 
-    public PlotNameDto getPlotName() {
-        return plotName;
+    public PlotNameDto getPlotNameDto() {
+        return plotNameDto;
     }
 
-    public void setPlotName(PlotNameDto plotName) {
-        this.plotName = plotName;
+    public void setPlotNameDto(PlotNameDto plotNameDto) {
+        this.plotNameDto = plotNameDto;
     }
 
     @Override
