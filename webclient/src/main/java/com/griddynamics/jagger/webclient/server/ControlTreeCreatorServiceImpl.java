@@ -8,12 +8,13 @@ import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 import com.griddynamics.jagger.webclient.client.mvp.NameTokens;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static com.griddynamics.jagger.webclient.client.mvp.NameTokens.*;
 
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+
+import static com.griddynamics.jagger.webclient.client.mvp.NameTokens.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -114,12 +115,11 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
 
             for (TaskDataDto tdd : map.keySet()) {
                 // rules to create test tree view
-                String rootId = SUMMARY_PREFIX + tdd.getTaskName();
+                String rootId = METRICS_PREFIX + tdd.getTaskName();
                 MetricGroupRule testNodeRule = TreeViewFilterRulesProvider.provide(rootId,rootId);
                 // tree with metrics distributed by groups
                 NameTokens.FilterOptions filterBy = NameTokens.FilterOptions.BY_DISPLAY_NAME;
-                //???
-//                MetricGroupNode<MetricNode> testNodeBase = testNodeRule.filter(filterBy,null,map.get(tdd));
+//                MetricGroupNode<PlotNode> testDetailsNodeBase = testNodeRule.filter(filterBy,null,map.get(tdd));
 //                // full test node with info data
 //                TestNode testNode = new TestNode(testNodeBase);
 //                testNode.setTaskDataDto(tdd);

@@ -10,22 +10,15 @@ import java.util.List;
  * User: amikryukov
  * Date: 12/2/13
  */
-public class PlotNode extends AbstractIdentifyNode {
-
-    private MetricNameDto metricNameDto;
+// Completely repeats MetricNode, but will be handled by different handler in tree
+public class PlotNode extends MetricNode {
 
     public PlotNode (MetricNameDto metricName) {
-        this.metricNameDto = metricName;
+        super(metricName);
     }
 
-    public PlotNode() {}
-
-    public MetricNameDto getMetricNameDto() {
-        return metricNameDto;
-    }
-
-    public void setMetricNameDto(MetricNameDto metricNameDto) {
-        this.metricNameDto = metricNameDto;
+    public PlotNode() {
+        super();
     }
 
     @Override
