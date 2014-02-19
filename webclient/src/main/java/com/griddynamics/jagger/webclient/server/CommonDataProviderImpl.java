@@ -535,7 +535,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                             result.put(tdd, new ArrayList<PlotNode>());
                         }
                         PlotNode pn = new PlotNode();
-                        pn.setPlotNameDto(pnd);
+                        pn.setMetricNameDto(pnd);
                         pn.setId(METRICS_PREFIX + tdd.getTaskName() + pnd.getMetricName());
                         pn.setDisplayName(pnd.getMetricDisplayName());
                         result.get(tdd).add(pn);
@@ -650,7 +650,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                     String identy = objects[0] == null ? objects[1].toString() : objects[0].toString();
 
                     PlotNode plotNode = new PlotNode();
-                    plotNode.setPlotNameDto(new MetricNameDto(tdd, monitoringKey + AGENT_NAME_SEPARATOR + identy));
+                    plotNode.setMetricNameDto(new MetricNameDto(tdd, monitoringKey + AGENT_NAME_SEPARATOR + identy));
                     plotNode.setDisplayName(identy);
                     String id = METRICS_PREFIX + tdd.getTaskName() + monitoringKey + identy;
                     plotNode.setId(id);

@@ -20,11 +20,11 @@ public class PlotNode extends AbstractIdentifyNode {
 
     public PlotNode() {}
 
-    public MetricNameDto getPlotNameDto() {
+    public MetricNameDto getMetricNameDto() {
         return metricNameDto;
     }
 
-    public void setPlotNameDto(MetricNameDto metricNameDto) {
+    public void setMetricNameDto(MetricNameDto metricNameDto) {
         this.metricNameDto = metricNameDto;
     }
 

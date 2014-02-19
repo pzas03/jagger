@@ -214,7 +214,7 @@ public class Trends extends DefaultActivity {
                 List<String> trends = new ArrayList<String>();
                 for (PlotNode plotNode : test.getPlots()) {
                     if (controlTree.isChecked(plotNode)) {
-                        trends.add(plotNode.getPlotNameDto().getMetricName());
+                        trends.add(plotNode.getMetricNameDto().getMetricName());
                     }
                 }
                 for (MonitoringPlotNode monitoringPlotNode : test.getMonitoringPlots()) {
@@ -223,7 +223,7 @@ public class Trends extends DefaultActivity {
                     } else if (controlTree.isChosen(monitoringPlotNode)) {
                         for (PlotNode plotNode : monitoringPlotNode.getPlots()) {
                             if (controlTree.isChecked(plotNode)) {
-                                trends.add(plotNode.getPlotNameDto().getMetricName());
+                                trends.add(plotNode.getMetricNameDto().getMetricName());
                             }
                         }
                     }
@@ -1030,7 +1030,7 @@ public class Trends extends DefaultActivity {
                     new ExceptionPanel("could not find Test with test name \'" + testsMetrics.getTestName() + "\' for details");
                 } else {
                     for (PlotNode plotNode : testDetailsNode.getPlots()) {
-                        if (testsMetrics.getTrends().contains(plotNode.getPlotNameDto().getMetricName())) {
+                        if (testsMetrics.getTrends().contains(plotNode.getMetricNameDto().getMetricName())) {
                             tempTree.setCheckedExpandedWithParent(plotNode);
                         }
                     }
@@ -1040,7 +1040,7 @@ public class Trends extends DefaultActivity {
                             tempTree.setExpanded(testDetailsNode, true, false);
                         } else {
                             for (PlotNode plotNode: monitoringPlotNode.getPlots()) {
-                                if (testsMetrics.getTrends().contains(plotNode.getPlotNameDto().getMetricName())) {
+                                if (testsMetrics.getTrends().contains(plotNode.getMetricNameDto().getMetricName())) {
                                     tempTree.setCheckedExpandedWithParent(plotNode);
                                 }
                             }

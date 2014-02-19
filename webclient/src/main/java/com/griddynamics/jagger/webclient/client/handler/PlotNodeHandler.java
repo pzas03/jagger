@@ -14,7 +14,7 @@ public class PlotNodeHandler extends TreeAwareHandler<PlotNode> {
     @Override
     public void onCheckChange(CheckChangeEvent<PlotNode> event) {
 
-        MetricNameDto plotName = event.getItem().getPlotNameDto();
+        MetricNameDto plotName = event.getItem().getMetricNameDto();
         if (Tree.CheckState.CHECKED.equals(event.getChecked())) {
             testPlotFetcher.fetchPlot(plotName, true);
         } else {

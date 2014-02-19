@@ -291,13 +291,13 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
         for (TestDetailsNode test : rootNode.getDetailsNode().getTests()) {
             for (PlotNode plotNode : test.getPlots()) {
                 if (isChecked(plotNode)) {
-                    resultSet.add(plotNode.getPlotNameDto());
+                    resultSet.add(plotNode.getMetricNameDto());
                 }
             }
             for (MonitoringPlotNode monitoringPlotNode : test.getMonitoringPlots()) {
                 for (PlotNode plotNode : monitoringPlotNode.getPlots()) {
                     if (isChecked(plotNode)) {
-                        resultSet.add(plotNode.getPlotNameDto());
+                        resultSet.add(plotNode.getMetricNameDto());
                     }
                 }
             }

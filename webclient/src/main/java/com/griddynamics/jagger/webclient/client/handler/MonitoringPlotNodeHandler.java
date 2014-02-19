@@ -20,7 +20,7 @@ public class MonitoringPlotNodeHandler extends TreeAwareHandler<MonitoringPlotNo
         Set<MetricNameDto> dtos = new LinkedHashSet<MetricNameDto>();
 
         for (PlotNode plot: event.getItem().getPlots()) {
-            dtos.add(plot.getPlotNameDto());
+            dtos.add(plot.getMetricNameDto());
         }
 
         if (Tree.CheckState.CHECKED.equals(event.getChecked())) {
