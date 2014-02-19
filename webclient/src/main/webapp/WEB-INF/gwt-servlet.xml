@@ -90,8 +90,8 @@
     <bean id="sessionDataService" class="com.griddynamics.jagger.webclient.server.SessionDataServiceImpl"/>
 
     <bean id="commonDataService" class="com.griddynamics.jagger.webclient.server.CommonDataServiceImpl">
-        <property name="userCommentAvailable" value="${user.comment.available}"/>
-        <property name="userCommentMaxLength" value="${user.comment.max.length}"/>
+        <property name="userCommentAvailable" value="${user.comment.available:false}"/>
+        <property name="userCommentMaxLength" value="${user.comment.max.length:1000}"/>
     </bean>
 
     <!-- @deprecated another conception of control since jagger 1.2.2-m3
