@@ -1,27 +1,26 @@
 package com.griddynamics.jagger.webclient.client.dto;
 
-import java.io.Serializable;
 import java.util.Set;
 
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
  * @since 5/29/12
  */
-public class PlotNameDto extends PlotName {
+public class PlotNameDto extends MetricName {
 
     private TaskDataDto test;
 
     public PlotNameDto(){}
 
-    public PlotNameDto(TaskDataDto test, String plotName) {
+    public PlotNameDto(TaskDataDto test, String metricName) {
         this.test = test;
-        this.plotName = plotName;
+        this.metricName = metricName;
     }
 
-    public PlotNameDto(TaskDataDto test, String plotName, String displayName) {
+    public PlotNameDto(TaskDataDto test, String metricName, String metricDisplayName) {
         this.test = test;
-        this.plotName = plotName;
-        this.displayName = displayName;
+        this.metricName = metricName;
+        this.metricDisplayName = metricDisplayName;
     }
 
     public long getTaskId() {
@@ -47,7 +46,7 @@ public class PlotNameDto extends PlotName {
     public String toString() {
         return "PlotNameDto{" +
                 (test != null ? "taskIds=" + test.getIds() : "") +
-                ", plotName='" + plotName + '\'' +
+                ", metricName='" + metricName + '\'' +
                 '}';
     }
 
@@ -58,7 +57,7 @@ public class PlotNameDto extends PlotName {
 
         PlotNameDto that = (PlotNameDto) o;
 
-        if (plotName != null ? !plotName.equals(that.plotName) : that.plotName != null) return false;
+        if (metricName != null ? !metricName.equals(that.metricName) : that.metricName != null) return false;
         if (test != null ? !test.equals(that.test) : that.test != null) return false;
 
         return true;
@@ -67,7 +66,7 @@ public class PlotNameDto extends PlotName {
     @Override
     public int hashCode() {
         int result = test != null ? test.hashCode() : 0;
-        result = 31 * result + (plotName != null ? plotName.hashCode() : 0);
+        result = 31 * result + (metricName != null ? metricName.hashCode() : 0);
         return result;
     }
 }

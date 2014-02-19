@@ -12,9 +12,13 @@ import com.griddynamics.jagger.webclient.server.LegendProvider;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
@@ -45,7 +49,7 @@ public class LatencyPlotDataProvider implements PlotDataProvider {
             return Collections.emptyList();
         }
 
-        PlotSeriesDto plotSeriesDto = new PlotSeriesDto(assemble(rawData, taskData.getSessionId(), false), "Time, sec", "", legendProvider.generatePlotHeader(taskData, plotName.getPlotName()));
+        PlotSeriesDto plotSeriesDto = new PlotSeriesDto(assemble(rawData, taskData.getSessionId(), false), "Time, sec", "", legendProvider.generatePlotHeader(taskData, plotName.getMetricName()));
 
         return Collections.singletonList(plotSeriesDto);
     }
@@ -69,7 +73,7 @@ public class LatencyPlotDataProvider implements PlotDataProvider {
             plotDatasetDtoList.addAll(assemble(rawData, taskData.getSessionId(), true));
         }
 
-        return Collections.singletonList(new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", legendProvider.getPlotHeader(taskIds, plotName.getPlotName())));
+        return Collections.singletonList(new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", legendProvider.getPlotHeader(taskIds, plotName.getMetricName())));
     }
 
     private List<PlotDatasetDto> assemble(List<Object[]> rawData, String sessionId, boolean addSessionPrefix) {

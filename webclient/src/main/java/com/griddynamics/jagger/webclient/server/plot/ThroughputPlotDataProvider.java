@@ -37,7 +37,7 @@ public class ThroughputPlotDataProvider implements PlotDataProvider {
     @Override
     public List<PlotSeriesDto> getPlotData(long taskId, PlotNameDto plotName) {
         checkArgument(taskId > 0, "taskId is not valid; it's lesser or equal 0");
-        checkNotNull(plotName, "plotName is null");
+        checkNotNull(plotName, "metricName is null");
 
         List<Object[]> rawData = findAllTimeInvocationStatisticsByTaskData(taskId);
 
@@ -49,7 +49,7 @@ public class ThroughputPlotDataProvider implements PlotDataProvider {
         Set<PlotDatasetDto> plotSeries = new HashSet<PlotDatasetDto>();
         plotSeries.add(assemble(rawData, taskData.getSessionId(), false));
 
-        PlotSeriesDto plotSeriesDto = new PlotSeriesDto(plotSeries, "Time, sec", "", legendProvider.generatePlotHeader(taskData, plotName.getPlotName()));
+        PlotSeriesDto plotSeriesDto = new PlotSeriesDto(plotSeries, "Time, sec", "", legendProvider.generatePlotHeader(taskData, plotName.getMetricName()));
 
         return Collections.singletonList(plotSeriesDto);
     }
@@ -58,7 +58,7 @@ public class ThroughputPlotDataProvider implements PlotDataProvider {
     public List<PlotSeriesDto> getPlotData(Set<Long> taskIds, PlotNameDto plotName) {
         checkNotNull(taskIds, "taskIds is null");
         checkArgument(!taskIds.isEmpty(), "taskIds is empty");
-        checkNotNull(plotName, "plotName is null");
+        checkNotNull(plotName, "metricName is null");
 
         List<PlotDatasetDto> plotDatasetDtoList = new ArrayList<PlotDatasetDto>(taskIds.size());
         for (long taskId : taskIds) {
@@ -72,7 +72,7 @@ public class ThroughputPlotDataProvider implements PlotDataProvider {
             plotDatasetDtoList.add(assemble(rawData, taskData.getSessionId(), true));
         }
 
-        return Collections.singletonList(new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", legendProvider.getPlotHeader(taskIds, plotName.getPlotName())));
+        return Collections.singletonList(new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", legendProvider.getPlotHeader(taskIds, plotName.getMetricName())));
     }
 
     @SuppressWarnings("unchecked")

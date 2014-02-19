@@ -20,7 +20,9 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import java.math.BigInteger;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 import static com.griddynamics.jagger.webclient.client.mvp.NameTokens.*;
 
@@ -535,8 +537,8 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                         }
                         PlotNode pn = new PlotNode();
                         pn.setPlotNameDto(pnd);
-                        pn.setId(METRICS_PREFIX + tdd.getTaskName() + pnd.getPlotName());
-                        pn.setDisplayName(pnd.getDisplay());
+                        pn.setId(METRICS_PREFIX + tdd.getTaskName() + pnd.getMetricName());
+                        pn.setDisplayName(pnd.getMetricDisplayName());
                         result.get(tdd).add(pn);
                         break;
                     }

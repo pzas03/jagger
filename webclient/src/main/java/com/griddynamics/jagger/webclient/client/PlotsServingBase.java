@@ -10,12 +10,12 @@ import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
 public abstract class PlotsServingBase {
 
     protected String generateTaskScopePlotId(PlotNameDto plotNameDto) {
-        return "" + plotNameDto.getTaskId() + "#task-scope-plot-" + plotNameDto.getPlotName().toLowerCase().replaceAll("\\s+", "-");
+        return "" + plotNameDto.getTaskId() + "#task-scope-plot-" + plotNameDto.getMetricName().toLowerCase().replaceAll("\\s+", "-");
     }
 
     protected String generateCrossSessionsTaskScopePlotId(PlotNameDto plotNameDto) {
         String ids = plotNameDto.getTaskIds().toString().replaceAll("\\s+", "");
-        return "" + ids + "#cross-sessions-task-scope-plot-" + plotNameDto.getPlotName().toLowerCase().replaceAll("\\s+", "-");
+        return "" + ids + "#cross-sessions-task-scope-plot-" + plotNameDto.getMetricName().toLowerCase().replaceAll("\\s+", "-");
     }
 
     protected boolean isTaskScopePlotId(String domId) {

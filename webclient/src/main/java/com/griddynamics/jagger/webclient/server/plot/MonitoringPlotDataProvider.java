@@ -19,8 +19,7 @@ import java.util.*;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-
-import static com.griddynamics.jagger.webclient.client.mvp.NameTokens.*;
+import static com.griddynamics.jagger.webclient.client.mvp.NameTokens.AGENT_NAME_SEPARATOR;
 
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
@@ -159,7 +158,7 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
         checkArgument(!taskIds.isEmpty(), "taskIds is empty");
         checkNotNull(plotName, "plotName is null");
 
-        String metricId =  plotName.getPlotName();
+        String metricId =  plotName.getMetricName();
         String monitoringKey = metricId.substring(0, metricId.indexOf(AGENT_NAME_SEPARATOR));
         String agentIdentifier = metricId.substring(metricId.indexOf(AGENT_NAME_SEPARATOR) + AGENT_NAME_SEPARATOR.length());
 

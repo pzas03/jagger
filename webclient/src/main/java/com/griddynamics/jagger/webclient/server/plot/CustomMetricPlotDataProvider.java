@@ -155,8 +155,8 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
     @Override
     public List<PlotSeriesDto> getPlotData(Set<Long> taskIds, PlotNameDto plotNameDto) {
 
-        String plotName = plotNameDto.getPlotName();
-        String displayName = plotNameDto.getDisplay();
+        String plotName = plotNameDto.getMetricName();
+        String displayName = plotNameDto.getMetricDisplayName();
 
         long temp = System.currentTimeMillis();
 
