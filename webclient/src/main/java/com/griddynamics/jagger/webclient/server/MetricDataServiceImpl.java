@@ -60,7 +60,7 @@ public class MetricDataServiceImpl implements MetricDataService {
                     "from WorkloadData as workload inner join (select taskId, sessionId from TaskData where id in (:ids)) as taskData "+
             "on workload.taskId=taskData.taskId and " +
                     "workload.sessionId=taskData.sessionId ")
-            .setParameter("ids", metricName.getTests().getIds()).getResultList();
+            .setParameter("ids", metricName.getTest().getIds()).getResultList();
 
             for (Object [] entry : result) {
                 MetricValueDto value = new MetricValueDto();
@@ -81,7 +81,7 @@ public class MetricDataServiceImpl implements MetricDataService {
                                                                     "inner join (select taskId, sessionId from TaskData where id in (:ids)) as taskData "+
                                                                     "on workload.taskId=taskData.taskId and " +
                                                                        "workload.sessionId=taskData.sessionId ")
-                                                                    .setParameter("ids", metricName.getTests().getIds()).getResultList();
+                                                                    .setParameter("ids", metricName.getTest().getIds()).getResultList();
 
             for (Object[] temp : result){
                 String metricValue = temp[0].toString();
@@ -101,7 +101,7 @@ public class MetricDataServiceImpl implements MetricDataService {
                                                                         "from  WorkloadProcessLatencyPercentile as s " +
                                                                    "where s.workloadProcessDescriptiveStatistics.taskData.id in (:taskIds) " +
                                                                           "and s.percentileKey=:latencyKey ")
-                        .setParameter("taskIds", metricName.getTests().getIds())
+                        .setParameter("taskIds", metricName.getTest().getIds())
                         .setParameter("latencyKey", latencyKey)
                         .getResultList();
                 for (Object[] temp : latency){
@@ -116,10 +116,10 @@ public class MetricDataServiceImpl implements MetricDataService {
 
 
                 //check old model (before jagger 1.2.4)
-                List<Object[]> metrics = getCustomMetricsDataOldModel(metricName.getTests().getIds(), metricName.getMetricName());
+                List<Object[]> metrics = getCustomMetricsDataOldModel(metricName.getTest().getIds(), metricName.getMetricName());
 
                 // check new model
-                metrics.addAll(getCustomMetricsDataNewModel(metricName.getTests().getIds(), metricName.getMetricName()));
+                metrics.addAll(getCustomMetricsDataNewModel(metricName.getTest().getIds(), metricName.getMetricName()));
 
                 if (!metrics.isEmpty()){
                     for (Object[] mas : metrics){
@@ -139,7 +139,7 @@ public class MetricDataServiceImpl implements MetricDataService {
                                     "      select td.taskId, td.sessionId from TaskData td where td.id in (:ids)" +
                                     "  ) as selected on wd.sessionId=selected.sessionId and wd.taskId=selected.taskId" +
                                     ") as selected on vr.workloadData_id=selected.id and vr.validator=:name")
-                            .setParameter("ids", metricName.getTests().getIds())
+                            .setParameter("ids", metricName.getTest().getIds())
                             .setParameter("name", metricName.getMetricName())
                             .getResultList();
                     for (Object[] mas : validators){
@@ -251,7 +251,7 @@ public class MetricDataServiceImpl implements MetricDataService {
         );
 
         StringBuilder headerBuilder = new StringBuilder();
-        headerBuilder.append(metricDto.getMetricName().getTests().getTaskName()).
+        headerBuilder.append(metricDto.getMetricName().getTest().getTaskName()).
                 append(", ").
                 append(metricDto.getMetricName().getMetricName());
 

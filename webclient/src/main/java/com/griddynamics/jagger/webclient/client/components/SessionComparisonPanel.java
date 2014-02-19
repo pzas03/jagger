@@ -353,8 +353,8 @@ public class SessionComparisonPanel extends VerticalPanel{
 
     private void removeRecord(MetricDto metric) {
 
-        String description = metric.getMetricName().getTests().getDescription();
-        String testName = metric.getMetricName().getTests().getTaskName();
+        String description = metric.getMetricName().getTest().getDescription();
+        String testName = metric.getMetricName().getTest().getTaskName();
         String key = getItemKey(metric.getMetricName());
 
         TreeItem testItem = getTestItem(description, testName);
@@ -367,7 +367,7 @@ public class SessionComparisonPanel extends VerticalPanel{
     }
 
     private String getItemKey(MetricNameDto metricName) {
-        return metricName.getTests().getDescription() + metricName.getTests().getTaskName() + metricName.getMetricName();
+        return metricName.getTest().getDescription() + metricName.getTest().getTaskName() + metricName.getMetricName();
     }
 
     private void removeWithParent(TreeItem toRemove) {
@@ -512,8 +512,8 @@ public class SessionComparisonPanel extends VerticalPanel{
             MetricNameDto metricName = metricDto.getMetricName();
             this.key = getItemKey(metricName);
             put(NAME, metricName.getMetricDisplayName());
-            put(TEST_DESCRIPTION, metricName.getTests().getDescription());
-            put(TEST_NAME, metricName.getTests().getTaskName());
+            put(TEST_DESCRIPTION, metricName.getTest().getDescription());
+            put(TEST_NAME, metricName.getTest().getTaskName());
 
             for (MetricValueDto metricValue : metricDto.getValues()) {
                 put(SESSION_HEADER + metricValue.getSessionId(), metricValue.getValueRepresentation());

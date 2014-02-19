@@ -13,14 +13,13 @@ public class PlotNameDto extends MetricName {
     public PlotNameDto(){}
 
     public PlotNameDto(TaskDataDto test, String metricName) {
+        super(metricName);
         this.test = test;
-        this.metricName = metricName;
     }
 
     public PlotNameDto(TaskDataDto test, String metricName, String metricDisplayName) {
+        super(metricName,metricDisplayName);
         this.test = test;
-        this.metricName = metricName;
-        this.metricDisplayName = metricDisplayName;
     }
 
     public long getTaskId() {

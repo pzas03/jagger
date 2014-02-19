@@ -132,7 +132,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
             for (TaskDataDto td : tests) {
                 if (td.getIds().contains(((BigInteger)name[1]).longValue())) {
                     MetricNameDto metric = new MetricNameDto();
-                    metric.setTests(td);
+                    metric.setTest(td);
                     metric.setMetricName((String) name[0]);
                     if (!metrics.contains(metric)) // if we already have same metric from new model
                         metrics.add(metric);
@@ -171,7 +171,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                 for (TaskDataDto td : tests) {
                     if (td.getIds().contains((Long) mde[2])) {
                         MetricNameDto metric = new MetricNameDto();
-                        metric.setTests(td);
+                        metric.setTest(td);
                         metric.setMetricName((String) mde[0]);
                         metric.setMetricDisplayName((String) mde[1]);
                         metrics.add(metric);
@@ -224,7 +224,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                 for (TaskDataDto td : tests) {
                     if (td.getIds().contains(((BigInteger)name[1]).longValue())) {
                         MetricNameDto metric = new MetricNameDto();
-                        metric.setTests(td);
+                        metric.setTest(td);
                         metric.setMetricName((String) name[0]);
                         validators.add(metric);
                         break;
@@ -267,7 +267,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                 for (TaskDataDto td : tests) {
                     if (td.getIds().contains(((BigInteger)name[1]).longValue())) {
                         MetricNameDto metric = new MetricNameDto();
-                        metric.setTests(td);
+                        metric.setTest(td);
                         metric.setMetricName((String) name[0]);
                         metric.setMetricDisplayName((String) name[2]);
                         validators.add(metric);
@@ -313,7 +313,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                         MetricNameDto dto = new MetricNameDto();
                         dto.setMetricName("Latency " + Double.toString(percentile.getPercentileKey()) + " %");
                         dto.setMetricDisplayName("Jagger Latency " + Double.toString(percentile.getPercentileKey()) + " %");
-                        dto.setTests(tdd);
+                        dto.setTest(tdd);
                         latencyNames.add(dto);
                         break;
                     }
@@ -438,7 +438,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                 MetricNameDto metric = new MetricNameDto();
                 metric.setMetricName(standardMetricName);
                 metric.setMetricDisplayName(standardMetrics.get(standardMetricName).getSecond());
-                metric.setTests(taskDataDto);
+                metric.setTest(taskDataDto);
                 list.add(metric);
             }
         }

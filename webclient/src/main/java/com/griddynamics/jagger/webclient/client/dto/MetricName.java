@@ -11,6 +11,15 @@ public class MetricName implements Serializable {
     protected String metricName;
     protected String metricDisplayName = null;
 
+    public MetricName() {}
+    public MetricName(String metricName) {
+        this.metricName = metricName;
+    }
+    public MetricName(String metricName, String metricDisplayName) {
+        this.metricName = metricName;
+        this.metricDisplayName = metricDisplayName;
+    }
+
     public String getMetricName() {
         return metricName;
     }
