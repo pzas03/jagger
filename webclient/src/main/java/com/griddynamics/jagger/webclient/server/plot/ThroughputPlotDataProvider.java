@@ -1,8 +1,8 @@
 package com.griddynamics.jagger.webclient.server.plot;
 
 import com.griddynamics.jagger.engine.e1.aggregator.session.model.TaskData;
+import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
 import com.griddynamics.jagger.webclient.client.dto.PlotDatasetDto;
-import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
 import com.griddynamics.jagger.webclient.client.dto.PlotSeriesDto;
 import com.griddynamics.jagger.webclient.client.dto.PointDto;
 import com.griddynamics.jagger.webclient.server.ColorCodeGenerator;
@@ -35,7 +35,7 @@ public class ThroughputPlotDataProvider implements PlotDataProvider {
     }
 
     @Override
-    public List<PlotSeriesDto> getPlotData(long taskId, PlotNameDto plotName) {
+    public List<PlotSeriesDto> getPlotData(long taskId, MetricNameDto plotName) {
         checkArgument(taskId > 0, "taskId is not valid; it's lesser or equal 0");
         checkNotNull(plotName, "metricName is null");
 
@@ -55,7 +55,7 @@ public class ThroughputPlotDataProvider implements PlotDataProvider {
     }
 
     @Override
-    public List<PlotSeriesDto> getPlotData(Set<Long> taskIds, PlotNameDto plotName) {
+    public List<PlotSeriesDto> getPlotData(Set<Long> taskIds, MetricNameDto plotName) {
         checkNotNull(taskIds, "taskIds is null");
         checkArgument(!taskIds.isEmpty(), "taskIds is empty");
         checkNotNull(plotName, "metricName is null");

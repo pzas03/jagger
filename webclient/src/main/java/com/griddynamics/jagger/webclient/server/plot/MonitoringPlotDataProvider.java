@@ -68,7 +68,7 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
      * @see PlotSeriesDto
      */
     @Override
-    public List<PlotSeriesDto> getPlotData(long taskId, PlotNameDto plotName) {
+    public List<PlotSeriesDto> getPlotData(long taskId, MetricNameDto plotName) {
         Set<Long> taskIds = new HashSet<Long>();
         taskIds.add(taskId);
         return getPlotData(taskIds, plotName);
@@ -153,7 +153,7 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
     }
 
     @Override
-    public List<PlotSeriesDto> getPlotData(Set<Long> taskIds, PlotNameDto plotName) {
+    public List<PlotSeriesDto> getPlotData(Set<Long> taskIds, MetricNameDto plotName) {
         checkNotNull(taskIds, "taskIds is null");
         checkArgument(!taskIds.isEmpty(), "taskIds is empty");
         checkNotNull(plotName, "plotName is null");

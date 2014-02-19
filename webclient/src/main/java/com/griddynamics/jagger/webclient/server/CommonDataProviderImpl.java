@@ -7,7 +7,6 @@ import com.griddynamics.jagger.util.Pair;
 import com.griddynamics.jagger.webclient.client.components.control.model.*;
 import com.griddynamics.jagger.webclient.client.data.MetricRankingProvider;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
-import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
 import com.griddynamics.jagger.webclient.client.dto.SessionPlotNameDto;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 import com.griddynamics.jagger.webclient.server.plot.CustomMetricPlotDataProvider;
@@ -511,25 +510,25 @@ public class CommonDataProviderImpl implements CommonDataProvider {
 
         Map<TaskDataDto, List<PlotNode>> result = new HashMap<TaskDataDto, List<PlotNode>>();
 
-        List<PlotNameDto> plotNameDtoSet = new ArrayList<PlotNameDto>();
+        List<MetricNameDto> plotNameDtoSet = new ArrayList<MetricNameDto>();
         try {
 
             Map<TaskDataDto, Boolean> isWorkloadMap = isWorkloadStatisticsAvailable(taskList);
             for (Map.Entry<TaskDataDto, Boolean> entry: isWorkloadMap.entrySet()) {
                 if (entry.getValue()) {
                     for (Map.Entry<GroupKey, DefaultWorkloadParameters[]> monitoringPlot : workloadPlotGroups.entrySet()) {
-                        plotNameDtoSet.add(new PlotNameDto(entry.getKey(), monitoringPlot.getKey().getUpperName()));
+                        plotNameDtoSet.add(new MetricNameDto(entry.getKey(), monitoringPlot.getKey().getUpperName()));
                     }
                 }
             }
 
-            Set<PlotNameDto> customMetrics = customMetricPlotDataProvider.getPlotNames(taskList);
+            Set<MetricNameDto> customMetrics = customMetricPlotDataProvider.getPlotNames(taskList);
 
             plotNameDtoSet.addAll(customMetrics);
 
             log.debug("For sessions {} are available these plots: {}", sessionIds, plotNameDtoSet);
 
-            for (PlotNameDto pnd : plotNameDtoSet) {
+            for (MetricNameDto pnd : plotNameDtoSet) {
                 for (TaskDataDto tdd : taskList) {
                     if (tdd.getIds().containsAll(pnd.getTaskIds())) {
                         if (!result.containsKey(tdd)) {
@@ -651,7 +650,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                     String identy = objects[0] == null ? objects[1].toString() : objects[0].toString();
 
                     PlotNode plotNode = new PlotNode();
-                    plotNode.setPlotNameDto(new PlotNameDto(tdd, monitoringKey + AGENT_NAME_SEPARATOR + identy));
+                    plotNode.setPlotNameDto(new MetricNameDto(tdd, monitoringKey + AGENT_NAME_SEPARATOR + identy));
                     plotNode.setDisplayName(identy);
                     String id = METRICS_PREFIX + tdd.getTaskName() + monitoringKey + identy;
                     plotNode.setId(id);

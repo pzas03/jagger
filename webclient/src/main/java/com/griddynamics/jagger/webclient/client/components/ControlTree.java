@@ -5,12 +5,14 @@ import com.google.gwt.uibinder.client.UiConstructor;
 import com.griddynamics.jagger.webclient.client.components.control.CheckHandlerMap;
 import com.griddynamics.jagger.webclient.client.components.control.model.*;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
-import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
 import com.griddynamics.jagger.webclient.client.dto.SessionPlotNameDto;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 import com.sencha.gxt.core.client.ValueProvider;
 import com.sencha.gxt.data.shared.TreeStore;
-import com.sencha.gxt.widget.core.client.event.*;
+import com.sencha.gxt.widget.core.client.event.BeforeCheckChangeEvent;
+import com.sencha.gxt.widget.core.client.event.BeforeCollapseItemEvent;
+import com.sencha.gxt.widget.core.client.event.BeforeExpandItemEvent;
+import com.sencha.gxt.widget.core.client.event.CheckChangeEvent;
 import com.sencha.gxt.widget.core.client.tree.Tree;
 
 import java.util.Collections;
@@ -281,11 +283,11 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
 
 
     /**
-     * @return checked PlotNameDto from all Tests
+     * @return checked MetricNameDto from all Tests
      */
-    public Set<PlotNameDto> getCheckedPlots() {
+    public Set<MetricNameDto> getCheckedPlots() {
 
-        Set<PlotNameDto> resultSet = new HashSet<PlotNameDto>();
+        Set<MetricNameDto> resultSet = new HashSet<MetricNameDto>();
         for (TestDetailsNode test : rootNode.getDetailsNode().getTests()) {
             for (PlotNode plotNode : test.getPlots()) {
                 if (isChecked(plotNode)) {
@@ -305,7 +307,7 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
 
 
     /**
-     * @return checked PlotNameDto for session scope plots
+     * @return checked MetricNameDto for session scope plots
      */
     public Set<SessionPlotNameDto> getCheckedSessionScopePlots() {
         if (rootNode.getDetailsNode().getSessionScopePlotsNode() == null) {

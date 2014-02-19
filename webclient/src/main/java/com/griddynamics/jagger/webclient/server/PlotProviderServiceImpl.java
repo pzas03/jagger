@@ -53,7 +53,7 @@ public class PlotProviderServiceImpl implements PlotProviderService {
     //===========================
 
     @Override
-    public List<PlotSeriesDto> getPlotData(long taskId, PlotNameDto plotName) {
+    public List<PlotSeriesDto> getPlotData(long taskId, MetricNameDto plotName) {
         long timestamp = System.currentTimeMillis();
         log.debug("getPlotData was invoked with taskId={} and metricName={}", taskId, plotName);
 
@@ -72,7 +72,7 @@ public class PlotProviderServiceImpl implements PlotProviderService {
     }
 
     @Override
-    public List<PlotSeriesDto> getPlotData(Set<Long> taskIds, PlotNameDto plotName) {
+    public List<PlotSeriesDto> getPlotData(Set<Long> taskIds, MetricNameDto plotName) {
         long timestamp = System.currentTimeMillis();
         log.debug("getPlotData was invoked with taskIds={} and metricName={}", taskIds, plotName);
 
@@ -91,10 +91,10 @@ public class PlotProviderServiceImpl implements PlotProviderService {
     }
 
     @Override
-    public Map<PlotNameDto, List<PlotSeriesDto>> getPlotDatas(Set<PlotNameDto> plots) throws IllegalArgumentException{
-        Map<PlotNameDto,List<PlotSeriesDto>> result = new LinkedHashMap<PlotNameDto, List<PlotSeriesDto>>(plots.size());
+    public Map<MetricNameDto, List<PlotSeriesDto>> getPlotDatas(Set<MetricNameDto> plots) throws IllegalArgumentException{
+        Map<MetricNameDto,List<PlotSeriesDto>> result = new LinkedHashMap<MetricNameDto, List<PlotSeriesDto>>(plots.size());
         // todo : fetch metrics  plots in one query
-        for (PlotNameDto plot : plots){
+        for (MetricNameDto plot : plots){
             result.put(plot, getPlotData(plot.getTaskIds(), plot));
         }
         return result;
