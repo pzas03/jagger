@@ -150,7 +150,7 @@ public class Trends extends DefaultActivity {
 
             if (metricsNames.size() < testNode.getMetrics().size()) {
                 for (MetricNameDto mnd : metricsNames) {
-                    testsMetrics.getMetrics().add(mnd.getName());
+                    testsMetrics.getMetrics().add(mnd.getMetricName());
                 }
             }
             testsMetricses.add(testsMetrics);
@@ -1014,7 +1014,7 @@ public class Trends extends DefaultActivity {
                     } else {
                         tempTree.setExpanded(testNode, true);
                         for (MetricNode metricNode : testNode.getMetrics()) {
-                            if (testsMetrics.getMetrics().contains(metricNode.getMetricNameDto().getName())) {
+                            if (testsMetrics.getMetrics().contains(metricNode.getMetricNameDto().getMetricName())) {
                                 tempTree.setCheckedWithParent(metricNode);
                                 needTestInfo = true;
                             }

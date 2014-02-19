@@ -13,15 +13,15 @@ import java.util.Set;
 public class MetricNameDto implements Serializable {
 
     private TaskDataDto tests;
-    private String name;
-    private String displayName;
+    private String metricName;
+    private String metricDisplayName;
 
     public MetricNameDto() {
     }
 
-    public MetricNameDto(TaskDataDto tests, String name) {
+    public MetricNameDto(TaskDataDto tests, String metricName) {
         this.tests = tests;
-        this.name = name;
+        this.metricName = metricName;
     }
 
     public long getTaskId() {
@@ -36,12 +36,12 @@ public class MetricNameDto implements Serializable {
     }
 
 
-    public String getName() {
-        return name;
+    public String getMetricName() {
+        return metricName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setMetricName(String metricName) {
+        this.metricName = metricName;
     }
 
     public TaskDataDto getTests() {
@@ -52,12 +52,12 @@ public class MetricNameDto implements Serializable {
         this.tests = tests;
     }
 
-    public String getDisplayName() {
-        return displayName == null ? name : displayName;
+    public String getMetricDisplayName() {
+        return metricDisplayName == null ? metricName : metricDisplayName;
     }
 
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
+    public void setMetricDisplayName(String metricDisplayName) {
+        this.metricDisplayName = metricDisplayName;
     }
 
     @Override
@@ -67,7 +67,7 @@ public class MetricNameDto implements Serializable {
 
         MetricNameDto that = (MetricNameDto) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (metricName != null ? !metricName.equals(that.metricName) : that.metricName != null) return false;
         if (tests != null ? !tests.equals(that.tests) : that.tests != null) return false;
 
         return true;
@@ -76,7 +76,7 @@ public class MetricNameDto implements Serializable {
     @Override
     public int hashCode() {
         int result = tests != null ? tests.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (metricName != null ? metricName.hashCode() : 0);
         return result;
     }
 
@@ -84,7 +84,7 @@ public class MetricNameDto implements Serializable {
     public String toString() {
         return "MetricNameDto{" +
                 "tests=" + tests +
-                ", name='" + name + '\'' +
+                ", metricName='" + metricName + '\'' +
                 '}';
     }
 }

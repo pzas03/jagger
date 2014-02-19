@@ -4,7 +4,7 @@ import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safecss.shared.SafeStyles;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.griddynamics.jagger.webclient.client.data.WebClientProperties;
 import com.griddynamics.jagger.webclient.client.dto.*;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
@@ -367,7 +367,7 @@ public class SessionComparisonPanel extends VerticalPanel{
     }
 
     private String getItemKey(MetricNameDto metricName) {
-        return metricName.getTests().getDescription() + metricName.getTests().getTaskName() + metricName.getName();
+        return metricName.getTests().getDescription() + metricName.getTests().getTaskName() + metricName.getMetricName();
     }
 
     private void removeWithParent(TreeItem toRemove) {
@@ -511,7 +511,7 @@ public class SessionComparisonPanel extends VerticalPanel{
 
             MetricNameDto metricName = metricDto.getMetricName();
             this.key = getItemKey(metricName);
-            put(NAME, metricName.getDisplayName());
+            put(NAME, metricName.getMetricDisplayName());
             put(TEST_DESCRIPTION, metricName.getTests().getDescription());
             put(TEST_NAME, metricName.getTests().getTaskName());
 

@@ -68,10 +68,10 @@ public class MetricGroupRule {
                 // match
                 String metric = "";
                 if (filterBy == NameTokens.FilterOptions.BY_DISPLAY_NAME) {
-                    metric = metricNode.getMetricNameDto().getDisplayName();
+                    metric = metricNode.getMetricNameDto().getMetricDisplayName();
                 }
                 else {
-                    metric = metricNode.getMetricNameDto().getName();
+                    metric = metricNode.getMetricNameDto().getMetricName();
                 }
                 if (metric.matches(rule)) {
                     metricsPerRule.add(metricNode);

@@ -133,7 +133,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                 if (td.getIds().contains(((BigInteger)name[1]).longValue())) {
                     MetricNameDto metric = new MetricNameDto();
                     metric.setTests(td);
-                    metric.setName((String)name[0]);
+                    metric.setMetricName((String) name[0]);
                     if (!metrics.contains(metric)) // if we already have same metric from new model
                         metrics.add(metric);
                     break;
@@ -172,8 +172,8 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                     if (td.getIds().contains((Long) mde[2])) {
                         MetricNameDto metric = new MetricNameDto();
                         metric.setTests(td);
-                        metric.setName((String)mde[0]);
-                        metric.setDisplayName((String)mde[1]);
+                        metric.setMetricName((String) mde[0]);
+                        metric.setMetricDisplayName((String) mde[1]);
                         metrics.add(metric);
                         break;
                     }
@@ -225,7 +225,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                     if (td.getIds().contains(((BigInteger)name[1]).longValue())) {
                         MetricNameDto metric = new MetricNameDto();
                         metric.setTests(td);
-                        metric.setName((String) name[0]);
+                        metric.setMetricName((String) name[0]);
                         validators.add(metric);
                         break;
                     }
@@ -268,8 +268,8 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                     if (td.getIds().contains(((BigInteger)name[1]).longValue())) {
                         MetricNameDto metric = new MetricNameDto();
                         metric.setTests(td);
-                        metric.setName((String)name[0]);
-                        metric.setDisplayName((String)name[2]);
+                        metric.setMetricName((String) name[0]);
+                        metric.setMetricDisplayName((String) name[2]);
                         validators.add(metric);
                         break;
                     }
@@ -311,8 +311,8 @@ public class CommonDataProviderImpl implements CommonDataProvider {
 
                     if (tdd.getIds().contains(percentile.getWorkloadProcessDescriptiveStatistics().getTaskData().getId())) {
                         MetricNameDto dto = new MetricNameDto();
-                        dto.setName("Latency "+Double.toString(percentile.getPercentileKey())+" %");
-                        dto.setDisplayName("Jagger Latency "+Double.toString(percentile.getPercentileKey())+" %");
+                        dto.setMetricName("Latency " + Double.toString(percentile.getPercentileKey()) + " %");
+                        dto.setMetricDisplayName("Jagger Latency " + Double.toString(percentile.getPercentileKey()) + " %");
                         dto.setTests(tdd);
                         latencyNames.add(dto);
                         break;
@@ -436,8 +436,8 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         for (TaskDataDto taskDataDto : tddos){
             for (String standardMetricName : standardMetrics.keySet()){
                 MetricNameDto metric = new MetricNameDto();
-                metric.setName(standardMetricName);
-                metric.setDisplayName(standardMetrics.get(standardMetricName).getSecond());
+                metric.setMetricName(standardMetricName);
+                metric.setMetricDisplayName(standardMetrics.get(standardMetricName).getSecond());
                 metric.setTests(taskDataDto);
                 list.add(metric);
             }
@@ -495,8 +495,8 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                     }
                     MetricNode mn = new MetricNode();
                     mn.setMetricNameDto(mnd);
-                    mn.setId(SUMMARY_PREFIX + tdd.getTaskName() + mnd.getName());
-                    mn.setDisplayName(mnd.getDisplayName());
+                    mn.setId(SUMMARY_PREFIX + tdd.getTaskName() + mnd.getMetricName());
+                    mn.setDisplayName(mnd.getMetricDisplayName());
                     result.get(tdd).add(mn);
                     break;
                 }

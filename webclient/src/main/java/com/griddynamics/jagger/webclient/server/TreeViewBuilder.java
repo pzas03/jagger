@@ -1,18 +1,11 @@
 package com.griddynamics.jagger.webclient.server;
 
-import com.griddynamics.jagger.webclient.client.components.control.model.MetricGroupNode;
 import com.griddynamics.jagger.webclient.client.components.control.model.MetricNode;
-import com.griddynamics.jagger.webclient.client.data.MetricGroupRule;
-import com.griddynamics.jagger.webclient.client.mvp.NameTokens;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 public class TreeViewBuilder<M extends MetricNode> {
 
 //    public MetricGroupNode<M> fillMetricGroupNode(MetricGroupRule metricGroupRule, NameTokens.FilterOptions filterBy, String parentId, List<M> metricNodeList) {
-//        MetricGroupNode result = new MetricGroupNode<M>(metricGroupRule.getDisplayName());
+//        MetricGroupNode result = new MetricGroupNode<M>(metricGroupRule.getMetricDisplayName());
 //        boolean returnResult = false;
 //
 //        // null is required only for root node
@@ -54,10 +47,10 @@ public class TreeViewBuilder<M extends MetricNode> {
 //                // match
 //                String metric = "";
 //                if (filterBy == NameTokens.FilterOptions.BY_DISPLAY_NAME) {
-//                    metric = metricNode.getMetricNameDto().getDisplayName();
+//                    metric = metricNode.getMetricNameDto().getMetricDisplayName();
 //                }
 //                else {
-//                    metric = metricNode.getMetricNameDto().getName();
+//                    metric = metricNode.getMetricNameDto().getMetricName();
 //                }
 //                if (metric.matches(rule)) {
 //                    metricsPerRule.add(metricNode);

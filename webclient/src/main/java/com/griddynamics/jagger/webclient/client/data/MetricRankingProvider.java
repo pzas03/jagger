@@ -5,7 +5,10 @@ import com.griddynamics.jagger.webclient.client.components.control.model.Abstrac
 import com.griddynamics.jagger.webclient.client.components.control.model.MetricNode;
 import com.griddynamics.jagger.webclient.client.dto.MetricDto;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -51,7 +54,7 @@ public class MetricRankingProvider {
         Collections.sort(list, new Comparator<MetricNode>() {
             @Override
             public int compare(MetricNode o, MetricNode o2) {
-                return MetricRankingProvider.compare(o.getMetricNameDto().getDisplayName(), o2.getMetricNameDto().getDisplayName());
+                return MetricRankingProvider.compare(o.getMetricNameDto().getMetricDisplayName(), o2.getMetricNameDto().getMetricDisplayName());
             }
         });
     }
@@ -69,7 +72,7 @@ public class MetricRankingProvider {
         Collections.sort(list, new Comparator<MetricDto>() {
             @Override
             public int compare(MetricDto metricDto, MetricDto metricDto2) {
-                return MetricRankingProvider.compare(metricDto.getMetricName().getDisplayName(), metricDto2.getMetricName().getDisplayName());
+                return MetricRankingProvider.compare(metricDto.getMetricName().getMetricDisplayName(), metricDto2.getMetricName().getMetricDisplayName());
             }
         });
     }
