@@ -19,7 +19,8 @@ public class MetricGroupNodeHandler extends TreeAwareHandler<MetricGroupNode> {
 
         if (size > 0) {
 
-            // Same not nice approach as in CheckhandlerMap
+            // todo
+            // Same not nice approach as in CheckHandlerMap
             // Point to change in future
             // MetricGroupNode should contain appropriate fetcher and just call it here
 

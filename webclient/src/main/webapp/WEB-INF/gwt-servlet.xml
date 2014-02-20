@@ -125,8 +125,8 @@
     <bean id="workloadPlotDataProviders" class="java.util.LinkedHashMap">
         <constructor-arg index="0">
             <map>
-                <entry key="Throughput" value-ref="throughputPlotDataProvider"/>
-                <entry key="Latency" value-ref="latencyPlotDataProvider"/>
+                <entry key="Throughput, tps" value-ref="throughputPlotDataProvider"/>
+                <entry key="Latency, sec" value-ref="latencyPlotDataProvider"/>
                 <entry key="Time Latency Percentile" value-ref="timeLatencyPercentilePlotDataProvider"/>
             </map>
         </constructor-arg>
@@ -163,31 +163,31 @@
         <entry key="Throughput">
             <bean class="com.griddynamics.jagger.util.Pair">
                 <constructor-arg name="first" value="throughput"/>
-                <constructor-arg name="second" value="Jagger Throughput, tps"/>
+                <constructor-arg name="second" value="Throughput, tps"/>
             </bean>
         </entry>
         <entry key="Latency">
             <bean class="com.griddynamics.jagger.util.Pair">
                 <constructor-arg name="first" value="avgLatency"/>
-                <constructor-arg name="second" value="Jagger Latency, sec"/>
+                <constructor-arg name="second" value="Latency, sec"/>
             </bean>
         </entry>
         <entry key="Duration">
             <bean class="com.griddynamics.jagger.util.Pair">
                 <constructor-arg name="first" value="duration"/>
-                <constructor-arg name="second" value="Jagger Duration, sec"/>
+                <constructor-arg name="second" value="Duration, sec"/>
             </bean>
         </entry>
         <entry key="Success rate">
             <bean class="com.griddynamics.jagger.util.Pair">
                 <constructor-arg name="first" value="successRate"/>
-                <constructor-arg name="second" value="Jagger Success rate"/>
+                <constructor-arg name="second" value="Success rate"/>
             </bean>
         </entry>
         <entry key="Iterations">
             <bean class="com.griddynamics.jagger.util.Pair">
                 <constructor-arg name="first" value="samples"/>
-                <constructor-arg name="second" value="Jagger Iterations, samples"/>
+                <constructor-arg name="second" value="Iterations, samples"/>
             </bean>
         </entry>
     </util:map>

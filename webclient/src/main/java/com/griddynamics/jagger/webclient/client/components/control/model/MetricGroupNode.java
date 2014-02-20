@@ -10,7 +10,7 @@ public class MetricGroupNode<M extends MetricNode> extends AbstractIdentifyNode 
     private List<M> metrics = null;
     private List<MetricGroupNode> metricGroupNodeList = null;
 
-    public MetricGroupNode(MetricGroupNode that) {
+    public MetricGroupNode(MetricGroupNode<M> that) {
         super(that);
         this.metrics = that.getMetricsWithoutChildren();
         this.metricGroupNodeList = that.getMetricGroupNodeList();
@@ -58,11 +58,11 @@ public class MetricGroupNode<M extends MetricNode> extends AbstractIdentifyNode 
     @Override
     public List<? extends AbstractIdentifyNode> getChildren() {
         ArrayList<AbstractIdentifyNode> result = new ArrayList<AbstractIdentifyNode>();
-        if (metrics != null) {
-            result.addAll(metrics);
-        }
         if (metricGroupNodeList != null) {
             result.addAll(metricGroupNodeList);
+        }
+        if (metrics != null) {
+            result.addAll(metrics);
         }
         return result;
     }

@@ -1,4 +1,4 @@
-package com.griddynamics.jagger.webclient.client.data;
+package com.griddynamics.jagger.webclient.server;
 
 import com.griddynamics.jagger.webclient.client.components.control.model.MetricGroupNode;
 import com.griddynamics.jagger.webclient.client.components.control.model.MetricNode;
@@ -6,23 +6,20 @@ import com.griddynamics.jagger.webclient.client.mvp.NameTokens;
 
 import java.util.*;
 
-public class MetricGroupRule {
+public class TreeViewGroupRule {
 
-    //??? should be on server not client side
-
-    //??? limitation for depth
-    public MetricGroupRule(String id, String displayName, String rule) {
+    public TreeViewGroupRule(String id, String displayName, String rule) {
         this.id = id;
         this.displayName = displayName;
         this.rule = rule;
     }
-    public MetricGroupRule(String id, String displayName, String rule, List<MetricGroupRule> children) {
+    public TreeViewGroupRule(String id, String displayName, String rule, List<TreeViewGroupRule> children) {
         this.id = id;
         this.displayName = displayName;
         this.rule = rule;
         this.children = sortByDisplayName(children);
     }
-    public MetricGroupRule(String id, String displayName, List<MetricGroupRule> children) {
+    public TreeViewGroupRule(String id, String displayName, List<TreeViewGroupRule> children) {
         this.id = id;
         this.displayName = displayName;
         this.children = sortByDisplayName(children);
@@ -34,11 +31,12 @@ public class MetricGroupRule {
 
         // null is required only for root node
         // when no parent available
-        String id = "";
+        String id;
         if (parentId == null) {
             id = this.id;
         }
         else {
+            // depth of tree is not limited => be careful with long id. They will concatenate
             id = parentId + "_" + this.id;
         }
 
@@ -48,7 +46,7 @@ public class MetricGroupRule {
         // first ask all children to filter
         List<MetricGroupNode> metricGroupNodeListFromChildren = new ArrayList<MetricGroupNode>();
         if (children != null) {
-            for (MetricGroupRule child : children) {
+            for (TreeViewGroupRule child : children) {
                 MetricGroupNode childResult = child.filter(filterBy,id,metricNodeList);
                 if (childResult != null) {
                     metricGroupNodeListFromChildren.add(childResult);
@@ -68,7 +66,7 @@ public class MetricGroupRule {
                 M metricNode = i.next();
 
                 // match
-                String metric = "";
+                String metric;
                 if (filterBy == NameTokens.FilterOptions.BY_DISPLAY_NAME) {
                     metric = metricNode.getMetricNameDto().getMetricDisplayName();
                 }
@@ -106,14 +104,14 @@ public class MetricGroupRule {
         return rule;
     }
 
-    public List<MetricGroupRule> getChildren() {
+    public List<TreeViewGroupRule> getChildren() {
         return children;
     }
 
-    private List<MetricGroupRule> sortByDisplayName(List<MetricGroupRule> metricGroupRuleList) {
-        Collections.sort(metricGroupRuleList, new Comparator<MetricGroupRule>() {
+    private List<TreeViewGroupRule> sortByDisplayName(List<TreeViewGroupRule> metricGroupRuleList) {
+        Collections.sort(metricGroupRuleList, new Comparator<TreeViewGroupRule>() {
             @Override
-            public int compare(MetricGroupRule o1, MetricGroupRule o2) {
+            public int compare(TreeViewGroupRule o1, TreeViewGroupRule o2) {
                 int res = String.CASE_INSENSITIVE_ORDER.compare(o1.getDisplayName(), o2.getDisplayName());
                 return (res != 0) ? res : o1.getDisplayName().compareTo(o2.getDisplayName());
             }
@@ -125,6 +123,6 @@ public class MetricGroupRule {
     private String id;
     private String displayName;
     private String rule = null;
-    private List<MetricGroupRule> children = null;
+    private List<TreeViewGroupRule> children = null;
 
 }

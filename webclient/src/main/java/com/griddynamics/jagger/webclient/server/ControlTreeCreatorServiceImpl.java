@@ -2,7 +2,6 @@ package com.griddynamics.jagger.webclient.server;
 
 import com.griddynamics.jagger.webclient.client.ControlTreeCreatorService;
 import com.griddynamics.jagger.webclient.client.components.control.model.*;
-import com.griddynamics.jagger.webclient.client.data.MetricGroupRule;
 import com.griddynamics.jagger.webclient.client.data.MetricRankingProvider;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 import com.griddynamics.jagger.webclient.client.mvp.NameTokens;
@@ -116,9 +115,8 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
             for (TaskDataDto tdd : map.keySet()) {
                 // rules to create test tree view
                 String rootId = METRICS_PREFIX + tdd.getTaskName();
-                MetricGroupRule testNodeRule = TreeViewFilterRulesProvider.provide(rootId,rootId);
+                TreeViewGroupRule testNodeRule = TreeViewGroupRuleProvider.provide(rootId, rootId);
                 // tree with metrics distributed by groups
-                //??? correct names for jagger default parameters
                 NameTokens.FilterOptions filterBy = NameTokens.FilterOptions.BY_DISPLAY_NAME;
                 MetricGroupNode<PlotNode> testDetailsNodeBase = testNodeRule.filter(filterBy,null,map.get(tdd));
                 // full test details node
@@ -158,7 +156,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
         for (TaskDataDto tdd : map.keySet()) {
             // rules to create test tree view
             String rootId = SUMMARY_PREFIX + tdd.getTaskName();
-            MetricGroupRule testNodeRule = TreeViewFilterRulesProvider.provide(rootId,rootId);
+            TreeViewGroupRule testNodeRule = TreeViewGroupRuleProvider.provide(rootId, rootId);
             // tree with metrics distributed by groups
             NameTokens.FilterOptions filterBy = NameTokens.FilterOptions.BY_DISPLAY_NAME;
             MetricGroupNode<MetricNode> testNodeBase = testNodeRule.filter(filterBy,null,map.get(tdd));

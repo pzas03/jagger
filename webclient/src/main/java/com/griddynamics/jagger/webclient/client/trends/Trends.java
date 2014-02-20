@@ -1095,8 +1095,7 @@ public class Trends extends DefaultActivity {
             return null;
         }
 
-        //??? not yet checked with metric groups
-        private void updateControlTree(RootNode result) {
+       private void updateControlTree(RootNode result) {
             ControlTree<String> tempTree = createControlTree(result);
 
             tempTree.disableEvents();

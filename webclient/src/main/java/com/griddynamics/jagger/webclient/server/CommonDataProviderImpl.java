@@ -311,7 +311,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                     if (tdd.getIds().contains(percentile.getWorkloadProcessDescriptiveStatistics().getTaskData().getId())) {
                         MetricNameDto dto = new MetricNameDto();
                         dto.setMetricName("Latency " + Double.toString(percentile.getPercentileKey()) + " %");
-                        dto.setMetricDisplayName("Jagger Latency " + Double.toString(percentile.getPercentileKey()) + " %");
+                        dto.setMetricDisplayName("Latency " + Double.toString(percentile.getPercentileKey()) + " %");
                         dto.setTest(tdd);
                         latencyNames.add(dto);
                         break;
