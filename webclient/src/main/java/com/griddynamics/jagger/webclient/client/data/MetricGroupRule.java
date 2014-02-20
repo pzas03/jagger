@@ -8,6 +8,8 @@ import java.util.*;
 
 public class MetricGroupRule {
 
+    //??? should be on server not client side
+
     //??? limitation for depth
     public MetricGroupRule(String id, String displayName, String rule) {
         this.id = id;

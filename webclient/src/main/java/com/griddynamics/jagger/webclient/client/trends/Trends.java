@@ -212,7 +212,7 @@ public class Trends extends DefaultActivity {
         for (TestDetailsNode test : tests) {
             if (controlTree.isChosen(test)) {
                 List<String> trends = new ArrayList<String>();
-                for (PlotNode plotNode : test.getPlots()) {
+                for (PlotNode plotNode : test.getMetrics()) {
                     if (controlTree.isChecked(plotNode)) {
                         trends.add(plotNode.getMetricNameDto().getMetricName());
                     }
@@ -1029,7 +1029,7 @@ public class Trends extends DefaultActivity {
                 if (testDetailsNode == null) { // have not find appropriate TestDetailNode
                     new ExceptionPanel("could not find Test with test name \'" + testsMetrics.getTestName() + "\' for details");
                 } else {
-                    for (PlotNode plotNode : testDetailsNode.getPlots()) {
+                    for (PlotNode plotNode : testDetailsNode.getMetrics()) {
                         if (testsMetrics.getTrends().contains(plotNode.getMetricNameDto().getMetricName())) {
                             tempTree.setCheckedExpandedWithParent(plotNode);
                         }

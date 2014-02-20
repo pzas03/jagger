@@ -289,7 +289,7 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
 
         Set<MetricNameDto> resultSet = new HashSet<MetricNameDto>();
         for (TestDetailsNode test : rootNode.getDetailsNode().getTests()) {
-            for (PlotNode plotNode : test.getPlots()) {
+            for (PlotNode plotNode : test.getMetrics()) {
                 if (isChecked(plotNode)) {
                     resultSet.add(plotNode.getMetricNameDto());
                 }

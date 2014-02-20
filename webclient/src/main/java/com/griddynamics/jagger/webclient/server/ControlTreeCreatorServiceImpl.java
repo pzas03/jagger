@@ -118,27 +118,12 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
                 String rootId = METRICS_PREFIX + tdd.getTaskName();
                 MetricGroupRule testNodeRule = TreeViewFilterRulesProvider.provide(rootId,rootId);
                 // tree with metrics distributed by groups
+                //??? correct names for jagger default parameters
                 NameTokens.FilterOptions filterBy = NameTokens.FilterOptions.BY_DISPLAY_NAME;
-//                MetricGroupNode<PlotNode> testDetailsNodeBase = testNodeRule.filter(filterBy,null,map.get(tdd));
-//                // full test node with info data
-//                TestNode testNode = new TestNode(testNodeBase);
-//                testNode.setTaskDataDto(tdd);
-//                TestInfoNode tin = new TestInfoNode(tdd.getTaskName() + TEST_INFO, TEST_INFO);
-//                tin.setTestInfoList(getTestInfoNamesList(tdd));
-//                testNode.setTestInfo(tin);
-
-
-
-                //??? old
-                //??? details node
-                TestDetailsNode testNode = new TestDetailsNode();
-                testNode.setId(METRICS_PREFIX + tdd.getTaskName());
+                MetricGroupNode<PlotNode> testDetailsNodeBase = testNodeRule.filter(filterBy,null,map.get(tdd));
+                // full test details node
+                TestDetailsNode testNode = new TestDetailsNode(testDetailsNodeBase);
                 testNode.setTaskDataDto(tdd);
-
-                List<PlotNode> plotList = map.get(tdd);
-                MetricRankingProvider.sortPlotNodes(plotList);
-                testNode.setPlots(plotList);
-
                 if (!monitoringMap.isEmpty()) {
                     List<MonitoringPlotNode> monitoringPlotNodeList = monitoringMap.get(tdd);
                     MetricRankingProvider.sortPlotNodes(monitoringPlotNodeList);
