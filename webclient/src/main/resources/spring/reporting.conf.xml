@@ -31,7 +31,7 @@
                 <entry>
                     <key>
                         <bean class="com.griddynamics.jagger.monitoring.reporting.GroupKey">
-                            <constructor-arg index="0" value="Throughput, tps"/>
+                            <constructor-arg index="0" value="Throughput"/>
                         </bean>
                     </key>
                     <list value-type="com.griddynamics.jagger.webclient.server.DefaultWorkloadParameters">
@@ -42,7 +42,7 @@
                 <entry>
                     <key>
                         <bean class="com.griddynamics.jagger.monitoring.reporting.GroupKey">
-                            <constructor-arg index="0" value="Latency, sec"/>
+                            <constructor-arg index="0" value="Latency"/>
                         </bean>
                     </key>
                     <list value-type="com.griddynamics.jagger.webclient.server.DefaultWorkloadParameters">

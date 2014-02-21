@@ -17,7 +17,8 @@ public class TreeViewGroupRuleProvider {
 
         // Filter for Jagger main metrics
         TreeViewGroupRule MainParams_FirstLevelFilter = new TreeViewGroupRule("main","Main parameters",
-                "(^Throughput, tps.*|^Latency, sec.*|^Iterations, samples|^Success rate|^Duration, sec|^Latency\\s\\S+\\s%|^Time Latency Percentile)");
+                "(^Throughput, tps$|^Throughput$|^Latency, sec$|^Latency$" +
+                "|^Iterations, samples$|^Success rate$|^Duration, sec$|^Latency\\s\\S+\\s%$|^Time Latency Percentile$)");
 
         List<TreeViewGroupRule> FirstLevelFilters = new ArrayList<TreeViewGroupRule>();
         FirstLevelFilters.add(MainParams_FirstLevelFilter);
