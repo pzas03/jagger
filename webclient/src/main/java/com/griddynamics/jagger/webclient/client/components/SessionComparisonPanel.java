@@ -27,6 +27,7 @@ import java.util.*;
  * Time: 12:30
  * Panel that contains table of metrics in comparison mod (multiple session selected)
  */
+
 public class SessionComparisonPanel extends VerticalPanel{
 
     private final String TEST_DESCRIPTION = "testDescription";
@@ -97,7 +98,7 @@ public class SessionComparisonPanel extends VerticalPanel{
         userCommentBox.setTreeGrid(treeGrid);
         tagBox = new TagBox();
         tagBox.setTreeGrid(treeGrid);
-        allSessionTags();
+        allTags();
     }
 
 
@@ -187,7 +188,7 @@ public class SessionComparisonPanel extends VerticalPanel{
                 @Override
                 public void onCellClick(CellDoubleClickEvent event) {
                     TreeItem item = treeGrid.findNode(treeGrid.getTreeView().getRow(event.getRowIndex())).getModel();
-                    if ((item.getKey().equals(USER_COMMENT) && event.getCellIndex() > 0)) {
+                    if (item.getKey().equals(USER_COMMENT) && event.getCellIndex() > 0) {
                         String sessionId = treeGrid.getColumnModel().getColumn(event.getCellIndex()).getHeader().asString();
                         userCommentBox.popUp(
                                 sessionId,
@@ -326,38 +327,9 @@ public class SessionComparisonPanel extends VerticalPanel{
         treeStore.add(parent, tags);
     }
 
-    //hard code
-    private void allSessionTags() {
+    private void allTags() {
         sessionTags = new HashMap<String,ArrayList<TagDto>>();
         allTags = new ArrayList<TagDto>();
-        TagDto tagDto = new TagDto("Tag", "TagDescription");
-        TagDto tagDto1 = new TagDto("Tag1", "TagDescription1");
-        TagDto tagDto2 = new TagDto("Tag2", "TagDescription2");
-        TagDto tagDto3 = new TagDto("Tag3", "TagDescription3");
-        TagDto tagDto4 = new TagDto("Tag4", "TagDescription4");
-        TagDto tagDto5 = new TagDto("Tag5", "TagDescription5");
-        TagDto tagDto6 = new TagDto("Tag6", "TagDescription6");
-        TagDto tagDto7 = new TagDto("Tag7", "TagDescription7");
-        TagDto tagDto8 = new TagDto("Tag8", "TagDescription8");
-        TagDto tagDto9 = new TagDto("Tag9", "TagDescription9");
-        TagDto tagDto10 = new TagDto("Tag10", "TagDescription10");
-        TagDto tagDto11 = new TagDto("Tag11", "TagDescription11");
-        TagDto tagDto12 = new TagDto("Tag12", "TagDescription12");
-        TagDto tagDto13 = new TagDto("Tag13", "TagDescription13");
-        allTags.add(tagDto);
-        allTags.add(tagDto1);
-        allTags.add(tagDto2);
-        allTags.add(tagDto3);
-        allTags.add(tagDto4);
-        allTags.add(tagDto5);
-        allTags.add(tagDto6);
-        allTags.add(tagDto7);
-        allTags.add(tagDto8);
-        allTags.add(tagDto9);
-        allTags.add(tagDto10);
-        allTags.add(tagDto11);
-        allTags.add(tagDto12);
-        allTags.add(tagDto13);
     }
 
 
@@ -603,13 +575,19 @@ public class SessionComparisonPanel extends VerticalPanel{
 
         @Override
         public String getValue(TreeItem object) {
-
+            String penImageResource = "<img src=\"" + JaggerResources.INSTANCE.getPencilImage().getSafeUri().asString() + "\" height=\"15\" width=\"15\">"
+                    + "<ins font-size='10px'>double click to edit</ins><br><br>";
+            String toShow;
             if (webClientProperties.isUserCommentAvailable()) {
-                if ((object.get(NAME).equals(USER_COMMENT)||object.get(NAME).equals(SESSION_TAGS)) && !field.equals(NAME)) {
-                    String toShow = object.get(field).replaceAll("\n", "<br>");
-                    return "<img src=\"" + JaggerResources.INSTANCE.getPencilImage().getSafeUri().asString() + "\" height=\"15\" width=\"15\">"
-                            + "<ins font-size='10px'>double click to edit</ins><br><br>"
-                            + toShow;
+                if (object.get(NAME).equals(USER_COMMENT) && !field.equals(NAME)) {
+                    toShow = object.get(field).replaceAll("\n", "<br>");
+                    return penImageResource+toShow;
+                }
+            }
+            if (webClientProperties.isTagsAvailable()) {
+                if (object.get(NAME).equals(SESSION_TAGS) && !field.equals(NAME)) {
+                    toShow = object.get(field).replaceAll("\n", "<br>");
+                    return penImageResource+toShow;
                 }
             }
             return object.get(field);

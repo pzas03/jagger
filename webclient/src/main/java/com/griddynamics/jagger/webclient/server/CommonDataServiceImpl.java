@@ -6,32 +6,14 @@ import org.springframework.beans.factory.annotation.Required;
 
 public class CommonDataServiceImpl implements CommonDataService {
 
-    private boolean userCommentAvailable;
-    private boolean tagsAvailable;
-    private int userCommentMaxLength;
+    WebClientProperties webClientProperties;
 
-    @Required
-    public void setUserCommentAvailable(boolean userCommentAvailable) {
-        this.userCommentAvailable = userCommentAvailable;
-    }
-
-    @Required
-    public void setUserCommentMaxLength(int userCommentMaxLength) {
-        this.userCommentMaxLength = userCommentMaxLength;
-    }
-
-    @Required
-    public void setTagsAvailable(boolean tagsAvailable){
-        this.tagsAvailable=tagsAvailable;
+    public void setWebClientProperties(WebClientProperties webClientProperties) {
+        this.webClientProperties = webClientProperties;
     }
 
     @Override
     public WebClientProperties getWebClientProperties() {
-        WebClientProperties webClientProperties = new WebClientProperties();
-
-        webClientProperties.setUserCommentAvailable(userCommentAvailable);
-        webClientProperties.setUserCommentMaxLength(userCommentMaxLength);
-        webClientProperties.setTagsAvailable(tagsAvailable);
         return webClientProperties;
     }
 }
