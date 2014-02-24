@@ -19,4 +19,6 @@ public interface SessionDataServiceAsync {
     void getByDatePeriod(int start, int length, Date from, Date to, AsyncCallback<PagedSessionDataDto> async);
 
     void getBySessionIds(int start, int length, Set<String> sessionIds, AsyncCallback<PagedSessionDataDto> async);
+
+    void saveUserComment(Long sessionData_id, String userComment, AsyncCallback<Void> async);
 }

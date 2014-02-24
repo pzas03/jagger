@@ -4,15 +4,18 @@ import java.io.Serializable;
 
 public class WebClientProperties implements Serializable {
 
-    private boolean userCommentAvailable = false;
+    private boolean userCommentEditAvailable = false;
+
+    private boolean userCommentStoreAvailable = false;
+
     private int userCommentMaxLength = 1000;
 
-    public boolean isUserCommentAvailable() {
-        return userCommentAvailable;
+    public boolean isUserCommentEditAvailable() {
+        return userCommentEditAvailable;
     }
 
-    public void setUserCommentAvailable(boolean userCommentAvailable) {
-        this.userCommentAvailable = userCommentAvailable;
+    public void setUserCommentEditAvailable(boolean userCommentEditAvailable) {
+        this.userCommentEditAvailable = userCommentEditAvailable;
     }
 
     public int getUserCommentMaxLength() {
@@ -21,5 +24,13 @@ public class WebClientProperties implements Serializable {
 
     public void setUserCommentMaxLength(int userCommentMaxLength) {
         this.userCommentMaxLength = userCommentMaxLength;
+    }
+
+    public boolean isUserCommentStoreAvailable() {
+        return userCommentStoreAvailable;
+    }
+
+    public void setUserCommentStoreAvailable(boolean userCommentStoreAvailable) {
+        this.userCommentStoreAvailable = userCommentStoreAvailable;
     }
 }
