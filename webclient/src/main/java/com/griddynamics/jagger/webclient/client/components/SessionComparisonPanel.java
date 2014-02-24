@@ -27,6 +27,7 @@ import java.util.*;
  * Time: 12:30
  * Panel that contains table of metrics in comparison mod (multiple session selected)
  */
+
 public class SessionComparisonPanel extends VerticalPanel{
 
     private final String TEST_DESCRIPTION = "testDescription";
@@ -40,6 +41,8 @@ public class SessionComparisonPanel extends VerticalPanel{
     private final String COMMENT = "Comment";
     @SuppressWarnings("all")
     private final String USER_COMMENT = "User Comment";
+    @SuppressWarnings("all")
+    private final String SESSION_TAGS = "Tags";
     @SuppressWarnings("all")
     private final int MIN_COLUMN_WIDTH = 200;
     @SuppressWarnings("all")
@@ -58,6 +61,7 @@ public class SessionComparisonPanel extends VerticalPanel{
     private final double METRIC_COLUMN_WIDTH_FACTOR = 1.5;
 
     private final UserCommentBox userCommentBox;
+    private final TagBox tagBox;
 
     private Set<SessionDataDto> chosenSessions;
     private Collection<TaskDataDto> chosenTests;
@@ -76,6 +80,9 @@ public class SessionComparisonPanel extends VerticalPanel{
 
     private WebClientProperties webClientProperties;
 
+    private List<TagDto> allTags;
+    private HashMap<String,ArrayList<TagDto>> sessionTags;
+
     public HashMap<MetricNameDto, MetricDto> getCachedMetrics() {
         return cache;
     }
@@ -89,6 +96,9 @@ public class SessionComparisonPanel extends VerticalPanel{
         init(chosenSessions, width);
         userCommentBox = new UserCommentBox(webClientProperties.getUserCommentMaxLength());
         userCommentBox.setTreeGrid(treeGrid);
+        tagBox = new TagBox();
+        tagBox.setTreeGrid(treeGrid);
+        allTags();
     }
 
 
@@ -186,9 +196,28 @@ public class SessionComparisonPanel extends VerticalPanel{
                                 item
                             );
                     }
+
                 }
             });
         }
+
+        if (webClientProperties.isTagsAvailable()) {
+            treeGrid.addCellDoubleClickHandler(new CellDoubleClickEvent.CellDoubleClickHandler() {
+                @Override
+                public void onCellClick(CellDoubleClickEvent event) {
+                    TreeItem item = treeGrid.findNode(treeGrid.getTreeView().getRow(event.getRowIndex())).getModel();
+
+                    if (item.getKey().equals(SESSION_TAGS) && event.getCellIndex() > 0) {
+                        String sessionId = treeGrid.getColumnModel().getColumn(event.getCellIndex()).getHeader().asString();
+                        if (sessionTags.get(sessionId)==null)
+                            sessionTags.put(sessionId,new ArrayList<TagDto>());
+                        tagBox.popUp(sessionId,
+                                item,allTags, sessionTags.get(sessionId));
+                    }
+                }
+            });
+        }
+
 
         add(treeGrid);
     }
@@ -216,6 +245,7 @@ public class SessionComparisonPanel extends VerticalPanel{
 
         addCommentRecord(chosenSessions, sessionInfo);
         addUserCommentRecord(chosenSessions, sessionInfo);
+        addTagsRecord(chosenSessions, sessionInfo);
         addStartEndTimeRecords(chosenSessions, sessionInfo);
         addAdditionalRecords(chosenSessions, sessionInfo);
     }
@@ -285,6 +315,21 @@ public class SessionComparisonPanel extends VerticalPanel{
             comment.put(SESSION_HEADER + session.getSessionId(), "");
         }
         treeStore.add(parent, comment);
+    }
+
+    private void addTagsRecord(Set<SessionDataDto> chosenSessions, TreeItem parent){
+        TreeItem tags = new TreeItem(SESSION_TAGS);
+        tags.put(NAME, SESSION_TAGS);
+        for (SessionDataDto session : chosenSessions) {
+            // Add nothing for test. Later it will be taken from SessionDataDto.
+            tags.put(SESSION_HEADER + session.getSessionId(), "");
+        }
+        treeStore.add(parent, tags);
+    }
+
+    private void allTags() {
+        sessionTags = new HashMap<String,ArrayList<TagDto>>();
+        allTags = new ArrayList<TagDto>();
     }
 
 
@@ -530,13 +575,19 @@ public class SessionComparisonPanel extends VerticalPanel{
 
         @Override
         public String getValue(TreeItem object) {
-
+            String penImageResource = "<img src=\"" + JaggerResources.INSTANCE.getPencilImage().getSafeUri().asString() + "\" height=\"15\" width=\"15\">"
+                    + "<ins font-size='10px'>double click to edit</ins><br><br>";
+            String toShow;
             if (webClientProperties.isUserCommentAvailable()) {
                 if (object.get(NAME).equals(USER_COMMENT) && !field.equals(NAME)) {
-                    String toShow = object.get(field).replaceAll("\n", "<br>");
-                    return "<img src=\"" + JaggerResources.INSTANCE.getPencilImage().getSafeUri().asString() + "\" height=\"15\" width=\"15\">"
-                            + "<ins font-size='10px'>double click to edit</ins><br><br>"
-                            + toShow;
+                    toShow = object.get(field).replaceAll("\n", "<br>");
+                    return penImageResource+toShow;
+                }
+            }
+            if (webClientProperties.isTagsAvailable()) {
+                if (object.get(NAME).equals(SESSION_TAGS) && !field.equals(NAME)) {
+                    toShow = object.get(field).replaceAll("\n", "<br>");
+                    return penImageResource+toShow;
                 }
             }
             return object.get(field);
