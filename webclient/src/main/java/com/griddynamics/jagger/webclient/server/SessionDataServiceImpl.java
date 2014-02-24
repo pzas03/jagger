@@ -140,7 +140,7 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
         List<SessionDataDto> sessionDataDtoList = new ArrayList<SessionDataDto>(sessionDataList.size());
 
         for (SessionData sessionData : sessionDataList) {
-            sessionDataDtoList.add(createSessionDataDtoDto(sessionData, null));
+            sessionDataDtoList.add(createSessionDataDto(sessionData, null));
         }
 
         return sessionDataDtoList;
@@ -173,7 +173,7 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
         List<SessionDataDto> sessionDataDtoList = new ArrayList<SessionDataDto>(sessionDataList.size());
 
         for (SessionData sessionData : sessionDataList) {
-            sessionDataDtoList.add(createSessionDataDtoDto(sessionData, userCommentMap.get(sessionData.getId())));
+            sessionDataDtoList.add(createSessionDataDto(sessionData, userCommentMap.get(sessionData.getId())));
         }
 
         return sessionDataDtoList;
@@ -204,7 +204,7 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
                 }
             }
 
-            sessionDataDto = createSessionDataDtoDto(sessionData, userComment);
+            sessionDataDto = createSessionDataDto(sessionData, userComment);
             log.info("There was loaded session data with id {} for {} ms", sessionId, System.currentTimeMillis() - timestamp);
         } catch (NoResultException e) {
             log.info("No session data was found for session ID=" + sessionId, e);
@@ -264,7 +264,7 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
 
             sessionDataDtoList = new ArrayList<SessionDataDto>(sessionDataList.size());
             for (SessionData sessionData : sessionDataList) {
-                sessionDataDtoList.add(createSessionDataDtoDto(sessionData, userCommentMap.get(sessionData.getId())));
+                sessionDataDtoList.add(createSessionDataDto(sessionData, userCommentMap.get(sessionData.getId())));
             }
 
             log.info("There was loaded {} sessions data from {} for {} ms", new Object[]{sessionDataDtoList.size(), totalSize, System.currentTimeMillis() - timestamp});
@@ -323,7 +323,7 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
 
             sessionDataDtoList = new ArrayList<SessionDataDto>(sessionDataList.size());
             for (SessionData sessionData : sessionDataList) {
-                sessionDataDtoList.add(createSessionDataDtoDto(sessionData, userCommentMap.get(sessionData.getId())));
+                sessionDataDtoList.add(createSessionDataDto(sessionData, userCommentMap.get(sessionData.getId())));
             }
 
             log.info("There was loaded {} sessions data from {} for {} ms", new Object[]{sessionDataDtoList.size(), totalSize, System.currentTimeMillis() - timestamp});
@@ -337,7 +337,7 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
 
 
 
-    private SessionDataDto createSessionDataDtoDto(SessionData sessionData, String userComment) {
+    private SessionDataDto createSessionDataDto(SessionData sessionData, String userComment) {
         return new SessionDataDto(
                 sessionData.getId(),
                 sessionData.getSessionId(),
