@@ -322,14 +322,13 @@ public class Master implements Runnable {
 
         @SuppressWarnings("unchecked")
         TaskDistributor<Task> taskDistributor = (TaskDistributor<Task>) distributorRegistry.getTaskDistributor(task.getClass());
-
         Map<NodeId, RemoteExecutor> remotes = Maps.newHashMap();
 
         log.debug("Distributed task will be executed on {} nodes", remotes.size());
 
         String taskId = taskIdProvider.getTaskId();
 
-        Service distribute = taskDistributor.distribute(executor, sessionIdProvider.getSessionId(), taskId, allNodes, coordinator, task, distributionListener(), nodeContext);
+        Service distribute = taskDistributor.distribute(executor, sessionIdProvider.getSessionId(), taskId, allNodes, coordinator, task, distributionListener(nodeContext), nodeContext);
         try{
             Future<Service.State> start;
             synchronized (terminateConfigurationLock) {
@@ -345,10 +344,12 @@ public class Master implements Runnable {
 
     }
 
-    private DistributionListener distributionListener() {
+    private DistributionListener distributionListener(NodeContext nodeContext) {
+        DistributionListener decisionMakerListener = new DecisionMakerDistributionListener(nodeContext);
+        configuration.getDistributionListeners().add(decisionMakerListener);
         return CompositeDistributionListener.of(Iterables.concat(Arrays.asList(createFlushListener()),
-                                                                 configuration.getDistributionListeners()
-                                                                ));
+                configuration.getDistributionListeners()
+        ));
     }
 
     // provide listener, which will flush temporary data in LogStorage

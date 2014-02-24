@@ -46,6 +46,17 @@ public abstract class ServicesAware implements ServicesInitializable {
             metricService       = new EmptyMetricService(JaggerPlace.TEST_SUITE_LISTENER);      /* NOT AVAILABLE */
             sessionInfoService  = new DefaultSessionInfoService(context);                       /* Available */
         }
+        /* Services available for decision maker listener */
+        if (environment.equals(JaggerPlace.TEST_GROUP_DECISION_MAKER_LISTENER)){
+            metricService       = new EmptyMetricService(JaggerPlace.TEST_GROUP_DECISION_MAKER_LISTENER);        /* NOT AVAILABLE */
+            sessionInfoService  = new DefaultSessionInfoService(context);                                        /* Available */
+        }
+
+        /* Services available for invocation listener */
+        if (environment.equals(JaggerPlace.INVOCATION_LISTENER)){
+            metricService       = new DefaultMetricService(sessionId, taskId, context);         /* Available */
+            sessionInfoService  = new EmptySessionInfoService(JaggerPlace.INVOCATION_LISTENER); /* NOT AVAILABLE */
+        }
 
         /* end: following section is used for docu generation - listeners to services relation */
 

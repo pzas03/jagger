@@ -89,6 +89,10 @@ public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
         registerBeanDefinitionParser("metric-custom", new CustomMetricDefinitionParser());
         registerBeanDefinitionParser("metric-success-rate", new SuccessRateCollectorDefinitionParser());
 
+        //listener
+        registerBeanDefinitionParser("listener-invocation", findTypeParser);
+        registerBeanDefinitionParser("listener-invocation-not-null-response", new NotNullInvocationListenerDefinitionParser());
+
         //scenario
         registerBeanDefinitionParser("scenario",  findTypeParser);
 
@@ -174,5 +178,8 @@ public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
 
         registerBeanDefinitionParser("listener-test-suite", findTypeParser);
         registerBeanDefinitionParser("listeners-test-suite", listCustomDefinitionParser);
+
+        registerBeanDefinitionParser("listener-test-group-decision-maker", findTypeParser);
+        registerBeanDefinitionParser("listeners-test-group-decision-maker", listCustomDefinitionParser);
     }
 }

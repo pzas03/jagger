@@ -23,6 +23,7 @@ package com.griddynamics.jagger.master;
 import com.google.common.collect.ImmutableList;
 import com.griddynamics.jagger.engine.e1.Provider;
 import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupListener;
+import com.griddynamics.jagger.engine.e1.sessioncomparation.TestGroupDecisionMakerListener;
 import com.griddynamics.jagger.master.configuration.Task;
 
 import java.util.List;
@@ -36,6 +37,7 @@ public class CompositeTask implements Task {
     private List<CompositableTask> leading;
     private List<CompositableTask> attendant = ImmutableList.of();
     private List<Provider<TestGroupListener>> listeners = ImmutableList.of();
+    private List<Provider<TestGroupDecisionMakerListener>> decisionMakerListeners = ImmutableList.of();
     private int number;
 
     public List<CompositableTask> getLeading() {
@@ -48,6 +50,14 @@ public class CompositeTask implements Task {
 
     public void setListeners(List<Provider<TestGroupListener>> listeners) {
         this.listeners = listeners;
+    }
+
+    public List<Provider<TestGroupDecisionMakerListener>> getDecisionMakerListeners() {
+        return decisionMakerListeners;
+    }
+
+    public void setDecisionMakerListeners(List<Provider<TestGroupDecisionMakerListener>> decisionMakerListeners) {
+        this.decisionMakerListeners = decisionMakerListeners;
     }
 
     public void setLeading(List<CompositableTask> leading) {
