@@ -6,12 +6,14 @@ import org.springframework.beans.factory.annotation.Required;
 
 public class CommonDataServiceImpl implements CommonDataService {
 
-    private boolean userCommentAvailable;
+    private CommonDataProvider commonDataProvider;
+    private boolean userCommentEditAvailable;
+    private boolean userCommentStoreAvailable;
     private int userCommentMaxLength;
 
     @Required
-    public void setUserCommentAvailable(boolean userCommentAvailable) {
-        this.userCommentAvailable = userCommentAvailable;
+    public void setUserCommentEditAvailable(boolean userCommentEditAvailable) {
+        this.userCommentEditAvailable = userCommentEditAvailable;
     }
 
     @Required
@@ -19,12 +21,35 @@ public class CommonDataServiceImpl implements CommonDataService {
         this.userCommentMaxLength = userCommentMaxLength;
     }
 
+    @Required
+    public void setCommonDataProvider(CommonDataProvider commonDataProvider) {
+        this.commonDataProvider = commonDataProvider;
+        checkIfUserCommentAvailable();
+    }
+
+    public boolean isUserCommentEditAvailable() {
+        return userCommentEditAvailable;
+    }
+
+    public int getUserCommentMaxLength() {
+        return userCommentMaxLength;
+    }
+
+    public boolean isUserCommentStoreAvailable() {
+        return userCommentStoreAvailable;
+    }
+
     @Override
     public WebClientProperties getWebClientProperties() {
         WebClientProperties webClientProperties = new WebClientProperties();
 
-        webClientProperties.setUserCommentAvailable(userCommentAvailable);
+        webClientProperties.setUserCommentEditAvailable(userCommentEditAvailable);
         webClientProperties.setUserCommentMaxLength(userCommentMaxLength);
+        webClientProperties.setUserCommentStoreAvailable(userCommentStoreAvailable);
         return webClientProperties;
+    }
+
+    private void checkIfUserCommentAvailable() {
+        userCommentStoreAvailable = commonDataProvider.checkIfUserCommentStorageAvailable();
     }
 }

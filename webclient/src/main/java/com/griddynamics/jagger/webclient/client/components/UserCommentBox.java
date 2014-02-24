@@ -6,7 +6,10 @@ import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import com.griddynamics.jagger.webclient.client.SessionDataService;
+import com.griddynamics.jagger.webclient.client.dto.SessionDataDto;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
 import com.sencha.gxt.core.client.GXT;
 import com.sencha.gxt.core.client.util.Margins;
@@ -113,10 +116,24 @@ public class UserCommentBox extends DialogBox {
         saveButton.addSelectHandler(new SelectEvent.SelectHandler() {
             @Override
             public void onSelect(SelectEvent event) {
-                // ask some service to save comment
-                currentTreeItem.put(getText(), textArea.getText());
-                treeGrid.getTreeView().refresh(false);
-                hide();
+                final String resultComment = textArea.getText().trim();
+
+                SessionDataService.Async.getInstance().saveUserComment(currentSessionDataDto.getId(), resultComment, new AsyncCallback<Void>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        new ExceptionPanel("Fail to save data : " + caught.getMessage());
+                        hide();
+                    }
+
+                    @Override
+                    public void onSuccess(Void result) {
+
+                        currentSessionDataDto.setUserComment(resultComment);
+                        currentTreeItem.put(getText(), resultComment);
+                        treeGrid.getTreeView().refresh(false);
+                        hide();
+                    }
+                });
             }
         });
         saveButton.setPixelSize(60, 22);
@@ -125,7 +142,7 @@ public class UserCommentBox extends DialogBox {
         cancelButton.addSelectHandler(new SelectEvent.SelectHandler() {
             @Override
             public void onSelect(SelectEvent event) {
-                // ask some service to save comment
+                // do nothing
                 hide();
             }
         });
@@ -172,10 +189,12 @@ public class UserCommentBox extends DialogBox {
     }
 
     private SessionComparisonPanel.TreeItem currentTreeItem;
+    private SessionDataDto currentSessionDataDto;
 
-    public void popUp(String sessionId, String userComment, SessionComparisonPanel.TreeItem item) {
+    public void popUp(SessionDataDto sessionDataDto, String userComment, SessionComparisonPanel.TreeItem item) {
         currentTreeItem = item;
-        setText(sessionId);
+        currentSessionDataDto = sessionDataDto;
+        setText("Session " + sessionDataDto.getSessionId());
         textArea.setText(userComment);
         onTextAreaContentChanged();
         show();

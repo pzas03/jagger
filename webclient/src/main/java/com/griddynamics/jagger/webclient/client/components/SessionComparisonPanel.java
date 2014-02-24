@@ -85,7 +85,7 @@ public class SessionComparisonPanel extends VerticalPanel{
         setHeight(ONE_HUNDRED_PERCENTS);
         this.chosenSessions = chosenSessions;
         this.webClientProperties = webClientProperties;
-        init(chosenSessions, width);
+        init(this.chosenSessions, width);
         userCommentBox = new UserCommentBox(webClientProperties.getUserCommentMaxLength());
         userCommentBox.setTreeGrid(treeGrid);
     }
@@ -172,15 +172,24 @@ public class SessionComparisonPanel extends VerticalPanel{
             }
         });
 
-        if (webClientProperties.isUserCommentAvailable()) {
+        if (webClientProperties.isUserCommentEditAvailable()) {
             treeGrid.addCellDoubleClickHandler(new CellDoubleClickEvent.CellDoubleClickHandler() {
                 @Override
                 public void onCellClick(CellDoubleClickEvent event) {
                     TreeItem item = treeGrid.findNode(treeGrid.getTreeView().getRow(event.getRowIndex())).getModel();
                     if (item.getKey().equals(USER_COMMENT) && event.getCellIndex() > 0) {
                         String sessionId = treeGrid.getColumnModel().getColumn(event.getCellIndex()).getHeader().asString();
+                        String sessionData_id = sessionId.substring(sessionId.indexOf(' ') + 1);
+                        SessionDataDto currentSession = null;
+                        for (SessionDataDto sessionDataDto : SessionComparisonPanel.this.chosenSessions){
+                            if (sessionDataDto.getSessionId().equals(sessionData_id)) {
+                                currentSession = sessionDataDto;
+                                break;
+                            }
+                        }
+
                         userCommentBox.popUp(
-                                sessionId,
+                                currentSession,
                                 item.get(sessionId),
                                 item
                             );
@@ -214,7 +223,9 @@ public class SessionComparisonPanel extends VerticalPanel{
         treeStore.insert(0, sessionInfo);
 
         addCommentRecord(chosenSessions, sessionInfo);
-        addUserCommentRecord(chosenSessions, sessionInfo);
+        if (webClientProperties.isUserCommentStoreAvailable()) {
+            addUserCommentRecord(chosenSessions, sessionInfo);
+        }
         addStartEndTimeRecords(chosenSessions, sessionInfo);
         addAdditionalRecords(chosenSessions, sessionInfo);
     }
@@ -280,8 +291,8 @@ public class SessionComparisonPanel extends VerticalPanel{
         TreeItem comment = new TreeItem(USER_COMMENT);
         comment.put(NAME, USER_COMMENT);
         for (SessionDataDto session : chosenSessions) {
-            // Add nothing for test. Later it will be taken from SessionDataDto.
-            comment.put(SESSION_HEADER + session.getSessionId(), "");
+            String userComment = session.getUserComment() == null ? "" : session.getUserComment();
+            comment.put(SESSION_HEADER + session.getSessionId(), userComment);
         }
         treeStore.add(parent, comment);
     }
@@ -526,7 +537,7 @@ public class SessionComparisonPanel extends VerticalPanel{
         @Override
         public String getValue(TreeItem object) {
 
-            if (webClientProperties.isUserCommentAvailable()) {
+            if (webClientProperties.isUserCommentEditAvailable()) {
                 if (object.get(NAME).equals(USER_COMMENT) && !field.equals(NAME)) {
                     String toShow = object.get(field).replaceAll("\n", "<br>");
                     return "<img src=\"" + JaggerResources.INSTANCE.getPencilImage().getSafeUri().asString() + "\" height=\"15\" width=\"15\">"

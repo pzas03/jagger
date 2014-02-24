@@ -24,6 +24,7 @@ public interface SessionDataService extends RemoteService {
     PagedSessionDataDto getBySessionIds(int start, int length, Set<String> sessionIds) throws RuntimeException;
     SessionDataDto getBySessionId(String sessionId) throws RuntimeException;
     Map<String, TestInfoDto> getTestInfo(TaskDataDto taskDataDto) throws RuntimeException;
+    void saveUserComment(Long sessionData_id, String userComment);
 
     public static class Async {
         private static final SessionDataServiceAsync ourInstance = (SessionDataServiceAsync) GWT.create(SessionDataService.class);
