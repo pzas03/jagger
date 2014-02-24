@@ -13,8 +13,6 @@ public class TaskDataDto implements Serializable {
     private Set<String> sessionIds;
     private String taskName;
     private String description;
-    private String TerminationStrategy;
-    private String Clock;
 
     public TaskDataDto() {
     }
@@ -62,9 +60,6 @@ public class TaskDataDto implements Serializable {
 
         TaskDataDto that = (TaskDataDto) o;
 
-        if (Clock != null ? !Clock.equals(that.Clock) : that.Clock != null) return false;
-        if (TerminationStrategy != null ? !TerminationStrategy.equals(that.TerminationStrategy) : that.TerminationStrategy != null)
-            return false;
         if (description != null ? !description.equals(that.description) : that.description != null) return false;
         if (taskName != null ? !taskName.equals(that.taskName) : that.taskName != null) return false;
 
@@ -75,8 +70,6 @@ public class TaskDataDto implements Serializable {
     public int hashCode() {
         int result = taskName != null ? taskName.hashCode() : 0;
         result = 31 * result + (description != null ? description.hashCode() : 0);
-        result = 31 * result + (TerminationStrategy != null ? TerminationStrategy.hashCode() : 0);
-        result = 31 * result + (Clock != null ? Clock.hashCode() : 0);
         return result;
     }
 
@@ -94,21 +87,5 @@ public class TaskDataDto implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public String getTerminationStrategy() {
-        return TerminationStrategy;
-    }
-
-    public void setTerminationStrategy(String terminationStrategy) {
-        TerminationStrategy = terminationStrategy;
-    }
-
-    public String getClock() {
-        return Clock;
-    }
-
-    public void setClock(String clock) {
-        Clock = clock;
     }
 }

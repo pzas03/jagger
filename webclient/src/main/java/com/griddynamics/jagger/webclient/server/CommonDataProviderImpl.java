@@ -816,13 +816,18 @@ public class CommonDataProviderImpl implements CommonDataProvider {
             String name = (String) testData[1];
             String description = (String) testData[2];
             String taskId = (String)testData[3];
-            String clock = testData[4] + " (" + testData[5] + ")";
+
+            // we need clock , and termination here is tool of matching test.
+            String clock = (String)testData[4];
+            Integer clockValue = (Integer)testData[5];
             String termination = (String) testData[6];
+
             String sessionId = (String) testData[7];
 
             int taskIdInt = Integer.parseInt(taskId.substring(5));
-            // todo: it should be confirable in future task about matching strategy.
-            String key = description+name+termination+clock;
+
+            // todo: it should be configurable in future (task about matching strategy).
+            String key = description+name+termination+clock+clockValue;
             if (map.containsKey(key)){
                 map.get(key).getIds().add(id.longValue());
                 map.get(key).getSessionIds().add(sessionId);
@@ -834,8 +839,6 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                 Set<String> sessionIdList = new HashSet<String>();
                 sessionIdList.add(sessionId);
                 taskDataDto.setSessionIds(sessionIdList);
-                taskDataDto.setClock(clock);
-                taskDataDto.setTerminationStrategy(termination);
 
                 map.put(key, taskDataDto);
                 mapIds.put(key, taskIdInt);
