@@ -32,7 +32,7 @@ public class MetricGroupNodeHandler extends TreeAwareHandler<MetricGroupNode> {
                 MetricGroupNode<PlotNode> testNode = event.getItem();
                 Set<MetricNameDto> dtos = new LinkedHashSet<MetricNameDto>();
                 for (PlotNode plotNode : testNode.getMetrics()) {
-                    dtos.add(plotNode.getMetricNameDto());
+                    dtos.addAll(plotNode.getMetricNameDtoList());
                 }
 
                 if (Tree.CheckState.CHECKED.equals(event.getChecked())) {

@@ -6,26 +6,29 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Corresponds to summary/trends metrics
+ * Node represents single end-node (without children nodes) in control tree in WebUI
+ * By default node contains description of one Metric (in MetricNameDto)
+ * But it is possible to group several metrics under single node
+ * In this case one node in tree, but several rows in Summary table, several lines in the plot
  * User: amikryukov
  * Date: 11/26/13
  */
 public class MetricNode extends AbstractIdentifyNode {
 
-    private MetricNameDto metricNameDto;
+    private List<MetricNameDto> metricNameDtoList;
 
-    public MetricNode (MetricNameDto metricNameDto) {
-        this.metricNameDto = metricNameDto;
+    public MetricNode (List<MetricNameDto> metricNameDtoList) {
+        this.metricNameDtoList = metricNameDtoList;
     }
 
     public MetricNode() {}
 
-    public MetricNameDto getMetricNameDto() {
-        return metricNameDto;
+    public List<MetricNameDto> getMetricNameDtoList() {
+        return metricNameDtoList;
     }
 
-    public void setMetricNameDto(MetricNameDto metricNameDto) {
-        this.metricNameDto = metricNameDto;
+    public void setMetricNameDtoList(List<MetricNameDto> metricNameDtoList) {
+        this.metricNameDtoList = metricNameDtoList;
     }
 
     @Override

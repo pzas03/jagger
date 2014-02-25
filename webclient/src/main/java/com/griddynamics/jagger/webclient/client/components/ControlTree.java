@@ -262,7 +262,7 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
         Set<MetricNameDto> resultSet = new HashSet<MetricNameDto>();
             for (MetricNode metricNode : testNode.getMetrics()) {
                 if (isChecked(metricNode)) {
-                    resultSet.add(metricNode.getMetricNameDto());
+                    resultSet.addAll(metricNode.getMetricNameDtoList());
                 }
             }
         return resultSet;
@@ -291,13 +291,13 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
         for (TestDetailsNode test : rootNode.getDetailsNode().getTests()) {
             for (PlotNode plotNode : test.getMetrics()) {
                 if (isChecked(plotNode)) {
-                    resultSet.add(plotNode.getMetricNameDto());
+                    resultSet.addAll(plotNode.getMetricNameDtoList());
                 }
             }
             for (MonitoringPlotNode monitoringPlotNode : test.getMonitoringPlots()) {
                 for (PlotNode plotNode : monitoringPlotNode.getPlots()) {
                     if (isChecked(plotNode)) {
-                        resultSet.add(plotNode.getMetricNameDto());
+                        resultSet.addAll(plotNode.getMetricNameDtoList());
                     }
                 }
             }

@@ -13,8 +13,8 @@ import java.util.List;
 // Completely repeats MetricNode, but will be handled by different handler in tree
 public class PlotNode extends MetricNode {
 
-    public PlotNode (MetricNameDto metricName) {
-        super(metricName);
+    public PlotNode (List<MetricNameDto> metricNameDtoList) {
+        super(metricNameDtoList);
     }
 
     public PlotNode() {

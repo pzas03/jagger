@@ -493,7 +493,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                         result.put(tdd, new ArrayList<MetricNode>());
                     }
                     MetricNode mn = new MetricNode();
-                    mn.setMetricNameDto(mnd);
+                    mn.setMetricNameDtoList(Arrays.asList(mnd));
                     mn.setId(SUMMARY_PREFIX + tdd.getTaskName() + mnd.getMetricName());
                     mn.setDisplayName(mnd.getMetricDisplayName());
                     result.get(tdd).add(mn);
@@ -535,7 +535,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                             result.put(tdd, new ArrayList<PlotNode>());
                         }
                         PlotNode pn = new PlotNode();
-                        pn.setMetricNameDto(pnd);
+                        pn.setMetricNameDtoList(Arrays.asList(pnd));
                         pn.setId(METRICS_PREFIX + tdd.getTaskName() + pnd.getMetricName());
                         pn.setDisplayName(pnd.getMetricDisplayName());
                         result.get(tdd).add(pn);
@@ -650,7 +650,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                     String identy = objects[0] == null ? objects[1].toString() : objects[0].toString();
 
                     PlotNode plotNode = new PlotNode();
-                    plotNode.setMetricNameDto(new MetricNameDto(tdd, monitoringKey + AGENT_NAME_SEPARATOR + identy));
+                    plotNode.setMetricNameDtoList(Arrays.asList(new MetricNameDto(tdd, monitoringKey + AGENT_NAME_SEPARATOR + identy)));
                     plotNode.setDisplayName(identy);
                     String id = METRICS_PREFIX + tdd.getTaskName() + monitoringKey + identy;
                     plotNode.setId(id);

@@ -2,6 +2,7 @@ package com.griddynamics.jagger.webclient.server;
 
 import com.griddynamics.jagger.webclient.client.components.control.model.MetricGroupNode;
 import com.griddynamics.jagger.webclient.client.components.control.model.MetricNode;
+import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
 import com.griddynamics.jagger.webclient.client.mvp.NameTokens;
 
 import java.util.*;
@@ -67,15 +68,20 @@ public class TreeViewGroupRule {
 
                 // match
                 String metric;
-                if (filterBy == NameTokens.FilterOptions.BY_DISPLAY_NAME) {
-                    metric = metricNode.getMetricNameDto().getMetricDisplayName();
-                }
-                else {
-                    metric = metricNode.getMetricNameDto().getMetricName();
-                }
-                if (metric.matches(rule)) {
-                    metricsPerRule.add(metricNode);
-                    i.remove();
+                // node can contain more than single metric
+                // current strategy: if at least one metric match => add node to group
+                for (MetricNameDto metricNameDto : metricNode.getMetricNameDtoList()) {
+                    if (filterBy == NameTokens.FilterOptions.BY_DISPLAY_NAME) {
+                        metric = metricNameDto.getMetricDisplayName();
+                    }
+                    else {
+                        metric = metricNameDto.getMetricName();
+                    }
+                    if (metric.matches(rule)) {
+                        metricsPerRule.add(metricNode);
+                        i.remove();
+                        break;
+                    }
                 }
             }
             if (metricsPerRule.size() > 0) {

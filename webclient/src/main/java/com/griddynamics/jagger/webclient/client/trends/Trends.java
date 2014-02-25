@@ -223,7 +223,9 @@ public class Trends extends DefaultActivity {
                 List<String> trends = new ArrayList<String>();
                 for (PlotNode plotNode : test.getMetrics()) {
                     if (controlTree.isChecked(plotNode)) {
-                        trends.add(plotNode.getMetricNameDto().getMetricName());
+                        for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
+                            trends.add(metricNameDto.getMetricName());
+                        }
                     }
                 }
                 for (MonitoringPlotNode monitoringPlotNode : test.getMonitoringPlots()) {
@@ -232,7 +234,9 @@ public class Trends extends DefaultActivity {
                     } else if (controlTree.isChosen(monitoringPlotNode)) {
                         for (PlotNode plotNode : monitoringPlotNode.getPlots()) {
                             if (controlTree.isChecked(plotNode)) {
-                                trends.add(plotNode.getMetricNameDto().getMetricName());
+                                for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
+                                    trends.add(metricNameDto.getMetricName());
+                                }
                             }
                         }
                     }
@@ -1052,9 +1056,11 @@ public class Trends extends DefaultActivity {
                     } else {
                         tempTree.setExpanded(testNode, true);
                         for (MetricNode metricNode : testNode.getMetrics()) {
-                            if (testsMetrics.getMetrics().contains(metricNode.getMetricNameDto().getMetricName())) {
-                                tempTree.setCheckedWithParent(metricNode);
-                                needTestInfo = true;
+                            for (MetricNameDto metricNameDto : metricNode.getMetricNameDtoList()) {
+                                if (testsMetrics.getMetrics().contains(metricNameDto.getMetricName())) {
+                                    tempTree.setCheckedExpandedWithParent(metricNode);
+                                    needTestInfo = true;
+                                }
                             }
                         }
                         if (needTestInfo) {
@@ -1068,8 +1074,10 @@ public class Trends extends DefaultActivity {
                     new ExceptionPanel("could not find Test with test name \'" + testsMetrics.getTestName() + "\' for details");
                 } else {
                     for (PlotNode plotNode : testDetailsNode.getMetrics()) {
-                        if (testsMetrics.getTrends().contains(plotNode.getMetricNameDto().getMetricName())) {
-                            tempTree.setCheckedExpandedWithParent(plotNode);
+                        for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
+                            if (testsMetrics.getTrends().contains(metricNameDto.getMetricName())) {
+                                tempTree.setCheckedExpandedWithParent(plotNode);
+                            }
                         }
                     }
                     for (MonitoringPlotNode monitoringPlotNode : testDetailsNode.getMonitoringPlots()) {
@@ -1078,8 +1086,10 @@ public class Trends extends DefaultActivity {
                             tempTree.setExpanded(testDetailsNode, true, false);
                         } else {
                             for (PlotNode plotNode: monitoringPlotNode.getPlots()) {
-                                if (testsMetrics.getTrends().contains(plotNode.getMetricNameDto().getMetricName())) {
-                                    tempTree.setCheckedExpandedWithParent(plotNode);
+                                for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
+                                    if (testsMetrics.getTrends().contains(metricNameDto.getMetricName())) {
+                                        tempTree.setCheckedExpandedWithParent(plotNode);
+                                    }
                                 }
                             }
                         }

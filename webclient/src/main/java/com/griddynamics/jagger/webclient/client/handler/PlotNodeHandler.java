@@ -5,6 +5,9 @@ import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
 import com.sencha.gxt.widget.core.client.event.CheckChangeEvent;
 import com.sencha.gxt.widget.core.client.tree.Tree;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Created with IntelliJ IDEA.
  * User: amikryukov
@@ -14,11 +17,12 @@ public class PlotNodeHandler extends TreeAwareHandler<PlotNode> {
     @Override
     public void onCheckChange(CheckChangeEvent<PlotNode> event) {
 
-        MetricNameDto plotName = event.getItem().getMetricNameDto();
+        Set<MetricNameDto> metricNameDtos = new HashSet<MetricNameDto>();
+        metricNameDtos.addAll(event.getItem().getMetricNameDtoList());
         if (Tree.CheckState.CHECKED.equals(event.getChecked())) {
-            testPlotFetcher.fetchPlot(plotName, true);
+            testPlotFetcher.fetchPlots(metricNameDtos, true);
         } else {
-            testPlotFetcher.removePlot(plotName);
+            testPlotFetcher.removePlots(metricNameDtos);
         }
     }
 }
