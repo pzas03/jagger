@@ -24,11 +24,7 @@ public class UserCommentBox extends AbstractWindow {
 
     private int maxlength = 250;
 
-    private final int PIXELS_BETWEEN_BUTTONS = 10;
-
     private VerticalPanel vp;
-    private TextButton saveButton;
-    private TextButton cancelButton;
     private TextArea textArea;
 
     private TreeGrid<SessionComparisonPanel.TreeItem> treeGrid;
@@ -65,6 +61,7 @@ public class UserCommentBox extends AbstractWindow {
 
     public UserCommentBox(int maxlength) {
         super();
+        defaultButtonInitialization();
         this.maxlength = maxlength;
         setTitle("User Comment");
 
@@ -112,7 +109,6 @@ public class UserCommentBox extends AbstractWindow {
                 onTextAreaContentChanged();
             }
         });
-        saveButton = new TextButton("Save");
         saveButton.addSelectHandler(new SelectEvent.SelectHandler() {
             @Override
             public void onSelect(SelectEvent event) {
@@ -136,9 +132,7 @@ public class UserCommentBox extends AbstractWindow {
                 });
             }
         });
-        saveButton.setPixelSize(60, 22);
-        saveButton.getElement().setMargins(new Margins(0, 0, 0, 0));
-        cancelButton = new TextButton("Cancel");
+
         cancelButton.addSelectHandler(new SelectEvent.SelectHandler() {
             @Override
             public void onSelect(SelectEvent event) {
@@ -146,8 +140,6 @@ public class UserCommentBox extends AbstractWindow {
                 hide();
             }
         });
-        cancelButton.setPixelSize(60, 22);
-        cancelButton.getElement().setMargins(new Margins(0, 0, 0, PIXELS_BETWEEN_BUTTONS));
         vp.add(textArea);
         DockPanel dp = new DockPanel();
         dp.setPixelSize(width,60);

@@ -11,6 +11,7 @@ public class CommonDataServiceImpl implements CommonDataService {
 
     public void setWebClientProperties(WebClientProperties webClientProperties) {
         this.webClientProperties = webClientProperties;
+        checkIfUserCommentAvailable();
     }
 
     @Override

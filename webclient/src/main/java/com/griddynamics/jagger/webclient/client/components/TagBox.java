@@ -12,7 +12,6 @@ import com.google.gwt.user.client.ui.*;
 import com.griddynamics.jagger.webclient.client.dto.TagDto;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
 import com.sencha.gxt.core.client.ValueProvider;
-import com.sencha.gxt.core.client.util.Margins;
 import com.sencha.gxt.data.shared.*;
 import com.sencha.gxt.dnd.core.client.DndDropEvent;
 import com.sencha.gxt.dnd.core.client.GridDragSource;
@@ -41,13 +40,11 @@ public class TagBox extends AbstractWindow implements IsWidget {
 
     private List<TagDto> sessionTagsDB;
 
-    private final int PIXELS_BETWEEN_BUTTONS = 10;
     private final boolean ADD_NEW = true;
 
     private final String DEFAULT_TITLE = "Click on any row...";
 
-    private TextButton saveButton;
-    private TextButton cancelButton;
+
     private TextButton allRight, right, left, allLeft;
 
     private TreeGrid<SessionComparisonPanel.TreeItem> treeGrid;
@@ -65,7 +62,7 @@ public class TagBox extends AbstractWindow implements IsWidget {
     public TagBox() {
         super();
         buttonInitialization();
-
+        defaultButtonInitialization();
 
         TagDtoProperties props = GWT.create(TagDtoProperties.class);
         storeFrom = new ListStore<TagDto>(props.name());
@@ -93,25 +90,25 @@ public class TagBox extends AbstractWindow implements IsWidget {
         allRight.addSelectHandler(new SelectEvent.SelectHandler() {
             @Override
             public void onSelect(SelectEvent event) {
-                onButtonAll(!ADD_NEW);
+                onButtonAll(ADD_NEW);
             }
         });
         right.addSelectHandler(new SelectHandler() {
             @Override
             public void onSelect(SelectEvent event) {
-                onButtonOne(!ADD_NEW);
+                onButtonOne(ADD_NEW);
             }
         });
         left.addSelectHandler(new SelectHandler() {
             @Override
             public void onSelect(SelectEvent event) {
-                onButtonOne(ADD_NEW);
+                onButtonOne(!ADD_NEW);
             }
         });
         allLeft.addSelectHandler(new SelectHandler() {
             @Override
             public void onSelect(SelectEvent event) {
-                onButtonAll(ADD_NEW);
+                onButtonAll(!ADD_NEW);
             }
         });
 
@@ -219,10 +216,7 @@ public class TagBox extends AbstractWindow implements IsWidget {
         addCloseHandler(new CloseHandler<PopupPanel>() {
             @Override
             public void onClose(CloseEvent<PopupPanel> popupPanelCloseEvent) {
-                gridStorageL.getStore().clear();
-                gridStorageR.getStore().clear();
-                descriptionPanel.setText(DEFAULT_TITLE);
-                hide();
+                atClose();
             }
         });
         add(mainPanel);
@@ -263,59 +257,48 @@ public class TagBox extends AbstractWindow implements IsWidget {
         treeGrid.getTreeView().refresh(false);
         descriptionPanel.setText(DEFAULT_TITLE);
         saveTagToDataBase();
-        gridStorageL.getStore().clear();
-        gridStorageR.getStore().clear();
-        hide();
+        atClose();
     }
 
     private void onCancel() {
-        gridStorageL.getStore().clear();
-        gridStorageR.getStore().clear();
-        descriptionPanel.setText(DEFAULT_TITLE);
-        hide();
-
+        atClose();
     }
 
     private void onButtonOne(boolean action) {
-        List<TagDto> selectedList;
         if (action) {
-            selectedList = gridStorageR.getSelectionModel().getSelectedItems();
-            gridStorageR.getSelectionModel().selectNext(false);
-            descriptionPanel.setText(gridStorageR.getSelectionModel().getSelectedItem().getDescription());
-
-            gridStorageL.getSelectionModel().deselectAll();
-            gridStorageL.getStore().addAll(selectedList);
-
-            for (int i = 0; i < selectedList.size(); i++) {
-                gridStorageR.getStore().remove(selectedList.get(i));
-            }
+            move(gridStorageL,gridStorageR);
         } else {
-            selectedList = gridStorageL.getSelectionModel().getSelectedItems();
-            gridStorageL.getSelectionModel().selectNext(false);
-            descriptionPanel.setText(gridStorageL.getSelectionModel().getSelectedItem().getDescription());
-
-            gridStorageR.getSelectionModel().deselectAll();
-            gridStorageR.getStore().addAll(selectedList);
-
-            for (int i = 0; i < selectedList.size(); i++) {
-                gridStorageL.getStore().remove(selectedList.get(i));
-            }
+            move(gridStorageR,gridStorageL);
         }
+    }
+
+    private void move(Grid<TagDto> gridFrom, Grid<TagDto> gridTo){
+        List<TagDto> selectedList = gridFrom.getSelectionModel().getSelectedItems();
+        gridFrom.getSelectionModel().selectNext(false);
+        descriptionPanel.setText(gridFrom.getSelectionModel().getSelectedItem().getDescription());
+
+        gridTo.getSelectionModel().deselectAll();
+        gridTo.getStore().addAll(selectedList);
+
+        for(int i = 0; i < selectedList.size(); i++) {
+            gridFrom.getStore().remove(selectedList.get(i));
+        }
+    }
+    private void moveAll(Grid<TagDto> gridFrom, Grid<TagDto> gridTo){
+        gridTo.getStore().addAll(gridFrom.getStore().getAll());
+        gridFrom.getStore().clear();
+        descriptionPanel.setText(DEFAULT_TITLE);
     }
 
     private void onButtonAll(boolean action) {
         if (action) {
-            gridStorageL.getStore().addAll(gridStorageR.getStore().getAll());
-            gridStorageR.getStore().clear();
+            moveAll(gridStorageL,gridStorageR);
         } else {
-            gridStorageR.getStore().addAll(gridStorageL.getStore().getAll());
-            gridStorageL.getStore().clear();
+            moveAll(gridStorageR,gridStorageL);
         }
-        descriptionPanel.setText(DEFAULT_TITLE);
     }
 
     public void setGrids(List<TagDto> allTags, List<TagDto> sessionTags) {
-
         gridStorageL.getStore().addAll(allTags);
         gridStorageR.getStore().addAll(sessionTags);
         sessionTagsDB = sessionTags;
@@ -330,15 +313,6 @@ public class TagBox extends AbstractWindow implements IsWidget {
     }
 
     private void buttonInitialization() {
-        saveButton = new TextButton("Save");
-        saveButton.setPixelSize(60, 22);
-        saveButton.getElement().setMargins(new Margins(0, 0, 0, 0));
-
-
-        cancelButton = new TextButton("Cancel");
-        cancelButton.setPixelSize(60, 22);
-        cancelButton.getElement().setMargins(new Margins(0, 0, 0, PIXELS_BETWEEN_BUTTONS));
-
         allRight = new TextButton(">>>");
         allRight.setPixelSize(40, 15);
 
@@ -352,6 +326,13 @@ public class TagBox extends AbstractWindow implements IsWidget {
 
         allLeft = new TextButton("<<<");
         allLeft.setPixelSize(40, 15);
+    }
+
+    private void atClose(){
+        gridStorageL.getStore().clear();
+        gridStorageR.getStore().clear();
+        descriptionPanel.setText(DEFAULT_TITLE);
+        hide();
     }
 }
 

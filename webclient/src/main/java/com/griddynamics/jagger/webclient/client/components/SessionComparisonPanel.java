@@ -249,93 +249,58 @@ public class SessionComparisonPanel extends VerticalPanel{
     public void addSessionInfo() {
         TreeItem sessionInfo = new TreeItem(SESSION_INFO_ID);
         sessionInfo.put(NAME, "Session Info");
-        // sessionInfo always on top
         treeStore.insert(0, sessionInfo);
 
-        addCommentRecord(chosenSessions, sessionInfo);
-        addTagsRecord(chosenSessions, sessionInfo);
-        if (webClientProperties.isUserCommentStoreAvailable()) {
-            addUserCommentRecord(chosenSessions, sessionInfo);
+        TreeItem itemActiveKernels = new TreeItem(ACTIVE_KERNELS);
+        TreeItem itemTaskExecuted = new TreeItem(TASKS_EXECUTED);
+        TreeItem itemTaskFailed = new TreeItem(TASKS_FAILED);
+        TreeItem itemDateStart = new TreeItem(START_DATE);
+        TreeItem itemDateEnd = new TreeItem(END_DATE);
+        TreeItem itemComment = new TreeItem(COMMENT);
+        TreeItem itemUserComment = new TreeItem(USER_COMMENT);
+        TreeItem itemTags = new TreeItem(SESSION_TAGS);
+
+        itemActiveKernels.put(NAME, ACTIVE_KERNELS);
+        itemTaskExecuted.put(NAME, TASKS_EXECUTED);
+        itemTaskFailed.put(NAME, TASKS_FAILED);
+        itemDateStart.put(NAME, START_DATE);
+        itemDateEnd.put(NAME, END_DATE);
+        itemComment.put(NAME, COMMENT);
+        if (webClientProperties.isUserCommentStoreAvailable())
+            itemUserComment.put(NAME, USER_COMMENT);
+        itemTags.put(NAME, SESSION_TAGS);
+
+        for (SessionDataDto session : chosenSessions) {
+            itemActiveKernels.put(SESSION_HEADER + session.getSessionId(), session.getActiveKernelsCount() + "");
+            itemTaskExecuted.put(SESSION_HEADER + session.getSessionId(), session.getTasksExecuted() + "");
+            itemTaskFailed.put(SESSION_HEADER + session.getSessionId(), session.getTasksFailed() + "");
+            itemDateStart.put(SESSION_HEADER + session.getSessionId(), session.getStartDate());
+            itemDateEnd.put(SESSION_HEADER + session.getSessionId(), session.getEndDate());
+            itemComment.put(SESSION_HEADER + session.getSessionId(), session.getComment());
+            if (webClientProperties.isUserCommentStoreAvailable()){
+                String userComment = session.getUserComment() == null ? "" : session.getUserComment();
+                itemUserComment.put(SESSION_HEADER + session.getSessionId(), userComment);
+            }
+            // Add nothing for test. Later it will be taken from SessionDataDto.
+            itemTags.put(SESSION_HEADER + session.getSessionId(), "");
         }
-        addStartEndTimeRecords(chosenSessions, sessionInfo);
-        addAdditionalRecords(chosenSessions, sessionInfo);
+        treeStore.add(sessionInfo,itemComment);
+        if (webClientProperties.isUserCommentStoreAvailable())
+            treeStore.add(sessionInfo,itemUserComment);
+        treeStore.add(sessionInfo,itemTags);
+        treeStore.add(sessionInfo,itemDateStart);
+        treeStore.add(sessionInfo,itemDateEnd);
+
+        treeStore.add(sessionInfo,itemActiveKernels);
+        treeStore.add(sessionInfo,itemTaskExecuted);
+        treeStore.add(sessionInfo,itemTaskFailed);
+
     }
 
     public void removeSessionInfo() {
         TreeItem sessionInfo = treeStore.findModelWithKey(SESSION_INFO_ID);
         if (sessionInfo != null)
             treeStore.remove(sessionInfo);
-    }
-
-    private void addAdditionalRecords(Set<SessionDataDto> chosenSessions, TreeItem parent) {
-        TreeItem item = new TreeItem(ACTIVE_KERNELS);
-        item.put(NAME, ACTIVE_KERNELS);
-        for (SessionDataDto session : chosenSessions) {
-            item.put(SESSION_HEADER + session.getSessionId(), session.getActiveKernelsCount() + "");
-        }
-        treeStore.add(parent, item);
-
-        item = new TreeItem(TASKS_EXECUTED);
-        item.put(NAME, TASKS_EXECUTED);
-        for (SessionDataDto session : chosenSessions) {
-            item.put(SESSION_HEADER + session.getSessionId(), session.getTasksExecuted() + "");
-        }
-        treeStore.add(parent, item);
-
-        item = new TreeItem(TASKS_FAILED);
-        item.put(NAME, TASKS_FAILED);
-        for (SessionDataDto session : chosenSessions) {
-            item.put(SESSION_HEADER + session.getSessionId(), session.getTasksFailed() + "");
-        }
-        treeStore.add(parent, item);
-    }
-
-    private void addStartEndTimeRecords(Set<SessionDataDto> chosenSessions, TreeItem parent) {
-        TreeItem date = new TreeItem(START_DATE);
-        date.put(NAME, START_DATE);
-        for (SessionDataDto session : chosenSessions) {
-            date.put(SESSION_HEADER + session.getSessionId(), session.getStartDate());
-        }
-        treeStore.add(parent, date);
-
-        date = new TreeItem(END_DATE);
-        date.put(NAME, END_DATE);
-        for (SessionDataDto session : chosenSessions) {
-            date.put(SESSION_HEADER + session.getSessionId(), session.getEndDate());
-        }
-        treeStore.add(parent, date);
-    }
-
-    private void addCommentRecord(Set<SessionDataDto> chosenSessions, TreeItem parent) {
-
-        TreeItem comment = new TreeItem(COMMENT);
-        comment.put(NAME, COMMENT);
-        for (SessionDataDto session : chosenSessions) {
-            comment.put(SESSION_HEADER + session.getSessionId(), session.getComment());
-        }
-        treeStore.add(parent, comment);
-
-    }
-
-    private void addUserCommentRecord(Set<SessionDataDto> chosenSessions, TreeItem parent) {
-
-        TreeItem comment = new TreeItem(USER_COMMENT);
-        comment.put(NAME, USER_COMMENT);
-        for (SessionDataDto session : chosenSessions) {
-            String userComment = session.getUserComment() == null ? "" : session.getUserComment();
-            comment.put(SESSION_HEADER + session.getSessionId(), userComment);
-        }
-        treeStore.add(parent, comment);
-    }
-
-    private void addTagsRecord(Set<SessionDataDto> chosenSessions, TreeItem parent){
-        TreeItem tags = new TreeItem(SESSION_TAGS);
-        tags.put(NAME, SESSION_TAGS);
-        for (SessionDataDto session : chosenSessions) {
-            // Add nothing for test. Later it will be taken from SessionDataDto.
-            tags.put(SESSION_HEADER + session.getSessionId(), "");
-        }
-        treeStore.add(parent, tags);
     }
 
     private void allTags() {
