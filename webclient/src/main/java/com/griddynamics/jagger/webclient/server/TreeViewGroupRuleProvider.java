@@ -6,13 +6,15 @@ import java.util.List;
 public class TreeViewGroupRuleProvider {
 
     public static TreeViewGroupRule provide (String rootId, String rootName) {
+        //??? check unique ids for rules
 
 //        Left here as examples
-//        List<TreeViewGroupRule> MySQL_SecondLevelFilters = new ArrayList<TreeViewGroupRule>();
-//        MySQL_SecondLevelFilters.add(new TreeViewGroupRule("innodb", "InnoDB", "^MySQL InnoDB .*"));
-//        MySQL_SecondLevelFilters.add(new TreeViewGroupRule("bytes", "Bytes", "^MySQL Bytes .*"));
-//        MySQL_SecondLevelFilters.add(new TreeViewGroupRule("quest", "Questions", "^MySQL Questions .*"));
-//        TreeViewGroupRule MySQL_FirstLevelFilter = new TreeViewGroupRule("mysql","MySQL","^MySQL .*",MySQL_SecondLevelFilters);
+        //???
+        List<TreeViewGroupRule> MySQL_SecondLevelFilters = new ArrayList<TreeViewGroupRule>();
+        MySQL_SecondLevelFilters.add(new TreeViewGroupRule("innodb", "InnoDB", "^MySQL InnoDB .*"));
+        MySQL_SecondLevelFilters.add(new TreeViewGroupRule("bytes", "Bytes", "^MySQL Bytes .*"));
+        MySQL_SecondLevelFilters.add(new TreeViewGroupRule("quest", "Questions", "^MySQL Questions .*"));
+        TreeViewGroupRule MySQL_FirstLevelFilter = new TreeViewGroupRule("mysql","MySQL","^MySQL .*",MySQL_SecondLevelFilters);
 //        TreeViewGroupRule JMX_FirstLevelFilter = new TreeViewGroupRule("jmx","JMX","^JMX .*");
 
         // Filter for Jagger main metrics
@@ -22,6 +24,10 @@ public class TreeViewGroupRuleProvider {
 
         List<TreeViewGroupRule> FirstLevelFilters = new ArrayList<TreeViewGroupRule>();
         FirstLevelFilters.add(MainParams_FirstLevelFilter);
+
+        FirstLevelFilters.add(MySQL_FirstLevelFilter);//???
+
+
         // Root filter - will match all metrics
         return new TreeViewGroupRule(rootId,rootName,".*",FirstLevelFilters);
     }

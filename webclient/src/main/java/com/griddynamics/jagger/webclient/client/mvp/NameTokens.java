@@ -44,7 +44,7 @@ public class NameTokens {
         return TRENDS;
     }
 
-    public static enum FilterOptions {
+    public static enum Filter {
         BY_ID,
         BY_DISPLAY_NAME
     }

@@ -4,7 +4,6 @@ import com.griddynamics.jagger.webclient.client.ControlTreeCreatorService;
 import com.griddynamics.jagger.webclient.client.components.control.model.*;
 import com.griddynamics.jagger.webclient.client.data.MetricRankingProvider;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
-import com.griddynamics.jagger.webclient.client.mvp.NameTokens;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,12 +112,25 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
             Map<TaskDataDto, List<MonitoringPlotNode>> monitoringMap = monitoringPlotsMapFuture.get();
 
             for (TaskDataDto tdd : map.keySet()) {
-                // rules to create test tree view
+                List<PlotNode> metricNodeList = map.get(tdd);
                 String rootId = METRICS_PREFIX + tdd.getTaskName();
+
+                // rules to unite metrics in single plot
+                //??? review ids
+                TreeViewGroupMetricsToNodeRule testNodeUniteMetricsRule = TreeViewGroupMetricsToNodeRuleProvider.provide();
+                // unite metrics and add result to original list
+                Filter filterBy = Filter.BY_ID;
+                //??? parent id
+                List<PlotNode> unitedMetrics = testNodeUniteMetricsRule.filter(filterBy,rootId,metricNodeList);
+                if (unitedMetrics != null) {
+                    metricNodeList.addAll(unitedMetrics);
+                }
+
+                // rules to create test tree view
                 TreeViewGroupRule testNodeRule = TreeViewGroupRuleProvider.provide(rootId, rootId);
                 // tree with metrics distributed by groups
-                NameTokens.FilterOptions filterBy = NameTokens.FilterOptions.BY_DISPLAY_NAME;
-                MetricGroupNode<PlotNode> testDetailsNodeBase = testNodeRule.filter(filterBy,null,map.get(tdd));
+                filterBy = Filter.BY_DISPLAY_NAME;
+                MetricGroupNode<PlotNode> testDetailsNodeBase = testNodeRule.filter(filterBy,null,metricNodeList);
                 // full test details node
                 TestDetailsNode testNode = new TestDetailsNode(testDetailsNodeBase);
                 testNode.setTaskDataDto(tdd);
@@ -154,12 +166,29 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
 
         Map<TaskDataDto, List<MetricNode>> map = getTestMetricsMap(tasks);
         for (TaskDataDto tdd : map.keySet()) {
-            // rules to create test tree view
+            List<MetricNode> metricNodeList = map.get(tdd);
             String rootId = SUMMARY_PREFIX + tdd.getTaskName();
-            TreeViewGroupRule testNodeRule = TreeViewGroupRuleProvider.provide(rootId, rootId);
+
+            //???
+            //exception with already existing node name - handle it and show to user
+
+            // rules to unite metrics in single plot
+            //??? review ids
+            TreeViewGroupMetricsToNodeRule testNodeUniteMetricsRule = TreeViewGroupMetricsToNodeRuleProvider.provide();
+            // unite metrics and add result to original list
+            Filter filterBy = Filter.BY_ID;
+            //??? parent id
+            List<MetricNode> unitedMetrics = testNodeUniteMetricsRule.filter(filterBy,rootId,metricNodeList);
+            if (unitedMetrics != null) {
+                metricNodeList.addAll(unitedMetrics);
+            }
+
+            // rules to create test tree view
+            TreeViewGroupRule testNodeGroupNodesRule = TreeViewGroupRuleProvider.provide(rootId, rootId);
             // tree with metrics distributed by groups
-            NameTokens.FilterOptions filterBy = NameTokens.FilterOptions.BY_DISPLAY_NAME;
-            MetricGroupNode<MetricNode> testNodeBase = testNodeRule.filter(filterBy,null,map.get(tdd));
+            filterBy = Filter.BY_DISPLAY_NAME;
+            MetricGroupNode<MetricNode> testNodeBase = testNodeGroupNodesRule.filter(filterBy,null,metricNodeList);
+
             // full test node with info data
             TestNode testNode = new TestNode(testNodeBase);
             testNode.setTaskDataDto(tdd);

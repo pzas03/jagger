@@ -17,10 +17,6 @@ public class MetricNode extends AbstractIdentifyNode {
 
     private List<MetricNameDto> metricNameDtoList;
 
-    public MetricNode (List<MetricNameDto> metricNameDtoList) {
-        this.metricNameDtoList = metricNameDtoList;
-    }
-
     public MetricNode() {}
 
     public List<MetricNameDto> getMetricNameDtoList() {
@@ -28,6 +24,13 @@ public class MetricNode extends AbstractIdentifyNode {
     }
 
     public void setMetricNameDtoList(List<MetricNameDto> metricNameDtoList) {
+        this.metricNameDtoList = metricNameDtoList;
+    }
+
+    // preferable way to set parameters
+    public void init(String id, String displayName, List<MetricNameDto> metricNameDtoList) {
+        this.id = id;
+        this.displayName = displayName;
         this.metricNameDtoList = metricNameDtoList;
     }
 

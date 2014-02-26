@@ -26,7 +26,7 @@ public class TreeViewGroupRule {
         this.children = sortByDisplayName(children);
     }
 
-    public <M extends MetricNode> MetricGroupNode<M> filter(NameTokens.FilterOptions filterBy, String parentId, List<M> metricNodeList) {
+    public <M extends MetricNode> MetricGroupNode<M> filter(NameTokens.Filter filterBy, String parentId, List<M> metricNodeList) {
         MetricGroupNode<M> result = new MetricGroupNode<M>(displayName);
         boolean returnResult = false;
 
@@ -38,7 +38,8 @@ public class TreeViewGroupRule {
         }
         else {
             // depth of tree is not limited => be careful with long id. They will concatenate
-            id = parentId + "_" + this.id;
+            // G goes for group
+            id = parentId + "G_" + this.id;
         }
 
         // unique Id for metric group
@@ -71,7 +72,7 @@ public class TreeViewGroupRule {
                 // node can contain more than single metric
                 // current strategy: if at least one metric match => add node to group
                 for (MetricNameDto metricNameDto : metricNode.getMetricNameDtoList()) {
-                    if (filterBy == NameTokens.FilterOptions.BY_DISPLAY_NAME) {
+                    if (filterBy == NameTokens.Filter.BY_DISPLAY_NAME) {
                         metric = metricNameDto.getMetricDisplayName();
                     }
                     else {

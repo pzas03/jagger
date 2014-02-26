@@ -493,9 +493,8 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                         result.put(tdd, new ArrayList<MetricNode>());
                     }
                     MetricNode mn = new MetricNode();
-                    mn.setMetricNameDtoList(Arrays.asList(mnd));
-                    mn.setId(SUMMARY_PREFIX + tdd.getTaskName() + mnd.getMetricName());
-                    mn.setDisplayName(mnd.getMetricDisplayName());
+                    String id = SUMMARY_PREFIX + tdd.getTaskName() + mnd.getMetricName();
+                    mn.init(id, mnd.getMetricDisplayName(), Arrays.asList(mnd));
                     result.get(tdd).add(mn);
                     break;
                 }
@@ -535,9 +534,8 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                             result.put(tdd, new ArrayList<PlotNode>());
                         }
                         PlotNode pn = new PlotNode();
-                        pn.setMetricNameDtoList(Arrays.asList(pnd));
-                        pn.setId(METRICS_PREFIX + tdd.getTaskName() + pnd.getMetricName());
-                        pn.setDisplayName(pnd.getMetricDisplayName());
+                        String id = METRICS_PREFIX + tdd.getTaskName() + pnd.getMetricName();
+                        pn.init(id, pnd.getMetricDisplayName(), Arrays.asList(pnd));
                         result.get(tdd).add(pn);
                         break;
                     }
@@ -650,10 +648,8 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                     String identy = objects[0] == null ? objects[1].toString() : objects[0].toString();
 
                     PlotNode plotNode = new PlotNode();
-                    plotNode.setMetricNameDtoList(Arrays.asList(new MetricNameDto(tdd, monitoringKey + AGENT_NAME_SEPARATOR + identy)));
-                    plotNode.setDisplayName(identy);
                     String id = METRICS_PREFIX + tdd.getTaskName() + monitoringKey + identy;
-                    plotNode.setId(id);
+                    plotNode.init(id, identy, Arrays.asList(new MetricNameDto(tdd, monitoringKey + AGENT_NAME_SEPARATOR + identy)));
 
                     boolean present = false;
                     for (MonitoringPlotNode mpn : mpnList) {
