@@ -47,6 +47,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Aggregates monitoring information.
@@ -120,7 +121,7 @@ public class MonitoringAggregator extends LogProcessor implements DistributionLi
             }
 
             long currentInterval = aggregationInfo.getMinTime() + intervalSize;
-            ExtendedIntervalAggregator extendedInterval = new ExtendedIntervalAggregator(intervalSize);
+            AtomicLong extendedInterval = new AtomicLong(intervalSize);
 
             final Map<NodeId, Map<MonitoringParameter, Double>> sumByIntervalAgent = Maps.newHashMap();
             final Map<NodeId, Map<MonitoringParameter, Long>> countByIntervalAgent = Maps.newHashMap();
@@ -145,9 +146,9 @@ public class MonitoringAggregator extends LogProcessor implements DistributionLi
 
             fileReader.close();
 
-            finalizeIntervalSysInfo(sessionId, taskData, currentInterval - aggregationInfo.getMinTime() - extendedInterval.getValue() / 2,
+            finalizeIntervalSysInfo(sessionId, taskData, currentInterval - aggregationInfo.getMinTime() - extendedInterval.get() / 2,
                     sumByIntervalAgent, countByIntervalAgent, avgStatisticsByAgent);
-            finalizeIntervalSysUT(sessionId, taskData, currentInterval - aggregationInfo.getMinTime() - extendedInterval.getValue() / 2,
+            finalizeIntervalSysUT(sessionId, taskData, currentInterval - aggregationInfo.getMinTime() - extendedInterval.get() / 2,
                     sumByIntervalSuT, countByIntervalSuT, avgStatisticsBySuT);
 
             differentiateRelativeParameters(avgStatisticsByAgent);
@@ -218,11 +219,11 @@ public class MonitoringAggregator extends LogProcessor implements DistributionLi
                                  Map<String, Map<MonitoringParameter, Long>> countByIntervalSuT,
                                  ListMultimap<MonitoringStream, MonitoringStatistics> avgStatisticsByAgent,
                                  ListMultimap<MonitoringStream, MonitoringStatistics> avgStatisticsBySuT,
-                                 MonitoringLogEntry logEntry, ExtendedIntervalAggregator extendedInterval) {
+                                 MonitoringLogEntry logEntry, AtomicLong extendedInterval) {
         while (logEntry.getTime() > currentInterval) {
             if (!countByIntervalAgent.isEmpty() || !countByIntervalSuT.isEmpty()) {
 
-                long time = currentInterval - aggregationInfo.getMinTime() + extendedInterval.getValue() / 2;
+                long time = currentInterval - aggregationInfo.getMinTime() + extendedInterval.get() / 2;
                 finalizeIntervalSysInfo(sessionId, taskData,
                         time,
                         sumByIntervalAgent, countByIntervalAgent, avgStatisticsByAgent);
@@ -233,10 +234,10 @@ public class MonitoringAggregator extends LogProcessor implements DistributionLi
                 countByIntervalAgent.clear();
                 sumByIntervalSuT.clear();
                 countByIntervalSuT.clear();
-                extendedInterval.reset();
+                extendedInterval.set(0);
             }
             currentInterval += intervalSize;
-            extendedInterval.add(intervalSize);
+            extendedInterval.addAndGet(intervalSize);
         }
         Map<String, SystemUnderTestInfo> sysUnderTest = logEntry.getSystemInfo().getSysUnderTest();
         if (sysUnderTest != null) {
@@ -400,25 +401,4 @@ public class MonitoringAggregator extends LogProcessor implements DistributionLi
         }
     }
 
-
-    private class ExtendedIntervalAggregator {
-
-        private long value;
-
-        private ExtendedIntervalAggregator(long value) {
-            this.value = value;
-        }
-
-        private void add(long add) {
-            this.value += add;
-        }
-
-        private long getValue() {
-            return value;
-        }
-
-        private void reset() {
-            value = 0;
-        }
-    }
 }
