@@ -125,17 +125,12 @@ public class TagBox extends AbstractWindow implements IsWidget {
         arrowsButtonBar.add(left);
         arrowsButtonBar.add(allLeft);
 
-        HorizontalPanel saveAndCancelButtonBar = new HorizontalPanel();
-        saveAndCancelButtonBar.setSpacing(5);
-        saveAndCancelButtonBar.add(saveButton);
-        saveAndCancelButtonBar.add(cancelButton);
-
         DockPanel dockSaveAndCancel = new DockPanel();
         dockSaveAndCancel.setPixelSize(width, 50);
         dockSaveAndCancel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
         dockSaveAndCancel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
         dockSaveAndCancel.setSpacing(5);
-        dockSaveAndCancel.add(saveAndCancelButtonBar, DockPanel.EAST);
+        dockSaveAndCancel.add(getDefaultButtonBar(), DockPanel.EAST);
         dockSaveAndCancel.add(new Label(""), DockPanel.CENTER);
 
 
@@ -247,7 +242,8 @@ public class TagBox extends AbstractWindow implements IsWidget {
         return new ColumnModel<TagDto>(l);
     }
 
-    private void onSave() {
+    @Override
+    protected void onSave() {
         String tags = "";
         for (int i = 0; i < storeTo.size(); i++) {
             tags += storeTo.get(i).getName() + " ";
@@ -255,12 +251,12 @@ public class TagBox extends AbstractWindow implements IsWidget {
         }
         currentTreeItem.put(getText(), tags);
         treeGrid.getTreeView().refresh(false);
-        descriptionPanel.setText(DEFAULT_TITLE);
         saveTagToDataBase();
         atClose();
     }
 
-    private void onCancel() {
+    @Override
+    protected void onCancel() {
         atClose();
     }
 

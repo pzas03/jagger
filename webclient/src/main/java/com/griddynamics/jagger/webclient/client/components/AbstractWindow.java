@@ -1,6 +1,7 @@
 package com.griddynamics.jagger.webclient.client.components;
 
 import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
 import com.sencha.gxt.core.client.util.Margins;
 import com.sencha.gxt.widget.core.client.button.TextButton;
@@ -40,5 +41,19 @@ public abstract class AbstractWindow extends DialogBox {
         cancelButton.setPixelSize(60, 22);
         cancelButton.getElement().setMargins(new Margins(0, 0, 0, PIXELS_BETWEEN_BUTTONS));
     }
+
+    protected HorizontalPanel getDefaultButtonBar(){
+        HorizontalPanel saveAndCancelButtonBar = new HorizontalPanel();
+        saveAndCancelButtonBar.setSpacing(5);
+        saveAndCancelButtonBar.add(saveButton);
+        saveAndCancelButtonBar.add(cancelButton);
+        return saveAndCancelButtonBar;
+    }
+
+    protected abstract void onSave();
+    protected abstract void onCancel();
+
+
+
 
 }

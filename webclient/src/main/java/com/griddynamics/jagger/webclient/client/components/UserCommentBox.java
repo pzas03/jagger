@@ -112,32 +112,13 @@ public class UserCommentBox extends AbstractWindow {
         saveButton.addSelectHandler(new SelectEvent.SelectHandler() {
             @Override
             public void onSelect(SelectEvent event) {
-                final String resultComment = textArea.getText().trim();
-
-                SessionDataService.Async.getInstance().saveUserComment(currentSessionDataDto.getId(), resultComment, new AsyncCallback<Void>() {
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        new ExceptionPanel("Fail to save data : " + caught.getMessage());
-                        hide();
-                    }
-
-                    @Override
-                    public void onSuccess(Void result) {
-
-                        currentSessionDataDto.setUserComment(resultComment);
-                        currentTreeItem.put(getText(), resultComment);
-                        treeGrid.getTreeView().refresh(false);
-                        hide();
-                    }
-                });
+                onSave();
             }
         });
-
         cancelButton.addSelectHandler(new SelectEvent.SelectHandler() {
             @Override
             public void onSelect(SelectEvent event) {
-                // do nothing
-                hide();
+                onCancel();
             }
         });
         vp.add(textArea);
@@ -146,11 +127,7 @@ public class UserCommentBox extends AbstractWindow {
         dp.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
         dp.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 
-        HorizontalPanel buttonPanel = new HorizontalPanel();
-        buttonPanel.add(saveButton);
-        buttonPanel.add(cancelButton);
-
-        dp.add(buttonPanel, DockPanel.EAST);
+        dp.add(getDefaultButtonBar(), DockPanel.EAST);
         dp.add(new Label(""), DockPanel.CENTER);
         dp.add(remainCharsPanel, DockPanel.WEST);
 
@@ -158,6 +135,32 @@ public class UserCommentBox extends AbstractWindow {
         setAutoHideEnabled(true);
 
         add(vp);
+    }
+
+    @Override
+    protected void onCancel(){
+        hide();
+    }
+
+    @Override
+    protected void onSave(){
+        final String resultComment = textArea.getText().trim();
+        SessionDataService.Async.getInstance().saveUserComment(currentSessionDataDto.getId(), resultComment, new AsyncCallback<Void>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                new ExceptionPanel("Fail to save data : " + caught.getMessage());
+                hide();
+            }
+
+            @Override
+            public void onSuccess(Void result) {
+
+                currentSessionDataDto.setUserComment(resultComment);
+                currentTreeItem.put(getText(), resultComment);
+                treeGrid.getTreeView().refresh(false);
+                hide();
+            }
+        });
     }
 
     public void setTreeGrid(TreeGrid<SessionComparisonPanel.TreeItem> treeGrid) {
