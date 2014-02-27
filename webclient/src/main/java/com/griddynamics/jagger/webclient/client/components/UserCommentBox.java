@@ -142,7 +142,6 @@ public class UserCommentBox extends AbstractWindow {
 
             @Override
             public void onSuccess(Void result) {
-
                 currentSessionDataDto.setUserComment(resultComment);
                 currentTreeItem.put(getText(), resultComment);
                 treeGrid.getTreeView().refresh(false);
