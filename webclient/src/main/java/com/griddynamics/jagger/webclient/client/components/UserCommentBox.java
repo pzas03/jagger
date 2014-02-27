@@ -109,18 +109,6 @@ public class UserCommentBox extends AbstractWindow {
                 onTextAreaContentChanged();
             }
         });
-        saveButton.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                onSave();
-            }
-        });
-        cancelButton.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                onCancel();
-            }
-        });
         vp.add(textArea);
         DockPanel dp = new DockPanel();
         dp.setPixelSize(width,60);
@@ -138,12 +126,12 @@ public class UserCommentBox extends AbstractWindow {
     }
 
     @Override
-    protected void onCancel(){
+    protected void onCancelButtonClick(){
         hide();
     }
 
     @Override
-    protected void onSave(){
+    protected void onSaveButtonClick(){
         final String resultComment = textArea.getText().trim();
         SessionDataService.Async.getInstance().saveUserComment(currentSessionDataDto.getId(), resultComment, new AsyncCallback<Void>() {
             @Override

@@ -5,6 +5,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
 import com.sencha.gxt.core.client.util.Margins;
 import com.sencha.gxt.widget.core.client.button.TextButton;
+import com.sencha.gxt.widget.core.client.event.SelectEvent;
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,8 +17,8 @@ import com.sencha.gxt.widget.core.client.button.TextButton;
 public abstract class AbstractWindow extends DialogBox {
     protected int width = 600;
     protected int height = 500;
-    protected TextButton saveButton;
-    protected TextButton cancelButton;
+    private TextButton saveButton;
+    private TextButton cancelButton;
     private final int PIXELS_BETWEEN_BUTTONS = 10;
 
 
@@ -35,11 +36,24 @@ public abstract class AbstractWindow extends DialogBox {
         saveButton = new TextButton("Save");
         saveButton.setPixelSize(60, 22);
         saveButton.getElement().setMargins(new Margins(0, 0, 0, 0));
+        saveButton.addSelectHandler(new SelectEvent.SelectHandler() {
+            @Override
+            public void onSelect(SelectEvent selectEvent) {
+                onSaveButtonClick();
+            }
+        });
 
 
         cancelButton = new TextButton("Cancel");
         cancelButton.setPixelSize(60, 22);
         cancelButton.getElement().setMargins(new Margins(0, 0, 0, PIXELS_BETWEEN_BUTTONS));
+        cancelButton.addSelectHandler(new SelectEvent.SelectHandler() {
+            @Override
+            public void onSelect(SelectEvent selectEvent) {
+                onCancelButtonClick();
+            }
+        });
+
     }
 
     protected HorizontalPanel getDefaultButtonBar(){
@@ -50,8 +64,8 @@ public abstract class AbstractWindow extends DialogBox {
         return saveAndCancelButtonBar;
     }
 
-    protected abstract void onSave();
-    protected abstract void onCancel();
+    protected abstract void onSaveButtonClick();
+    protected abstract void onCancelButtonClick();
 
 
 
