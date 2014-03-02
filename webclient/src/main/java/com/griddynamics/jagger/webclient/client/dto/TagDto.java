@@ -36,4 +36,9 @@ public class TagDto implements Serializable {
     public void setDescription(String tagDescription) {
         this.description = tagDescription;
     }
+
+    public boolean equals(TagDto tagDto) {
+       return (tagDto.getName().equals(name) &&
+               tagDto.getDescription().equals(description));
+    }
 }

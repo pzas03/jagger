@@ -4,7 +4,9 @@ import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safecss.shared.SafeStyles;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import com.griddynamics.jagger.webclient.client.SessionDataService;
 import com.griddynamics.jagger.webclient.client.data.WebClientProperties;
 import com.griddynamics.jagger.webclient.client.dto.*;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
@@ -88,6 +90,7 @@ public class SessionComparisonPanel extends VerticalPanel{
     }
 
     public SessionComparisonPanel(Set<SessionDataDto> chosenSessions, int width, WebClientProperties webClientProperties){
+        sessionTags = new HashMap<String, ArrayList<TagDto>>();
         setWidth(ONE_HUNDRED_PERCENTS);
         setHeight(ONE_HUNDRED_PERCENTS);
         this.chosenSessions = chosenSessions;
@@ -218,10 +221,18 @@ public class SessionComparisonPanel extends VerticalPanel{
 
                     if (item.getKey().equals(SESSION_TAGS) && event.getCellIndex() > 0) {
                         String sessionId = treeGrid.getColumnModel().getColumn(event.getCellIndex()).getHeader().asString();
+                        String sessionData_id = sessionId.substring(sessionId.indexOf(' ') + 1);
+                        SessionDataDto currentSession = null;
+                        for (SessionDataDto sessionDataDto : SessionComparisonPanel.this.chosenSessions){
+                            if (sessionDataDto.getSessionId().equals(sessionData_id)) {
+                                currentSession = sessionDataDto;
+                                break;
+                            }
+                        }
                         if (sessionTags.get(sessionId)==null)
                             sessionTags.put(sessionId,new ArrayList<TagDto>());
-                        tagBox.popUp(sessionId,
-                                item,allTags, sessionTags.get(sessionId));
+                        tagBox.popUp(currentSession,
+                                item,allTags, currentSession.getTags());
                     }
                 }
             });
@@ -251,6 +262,7 @@ public class SessionComparisonPanel extends VerticalPanel{
         sessionInfo.put(NAME, "Session Info");
         treeStore.insert(0, sessionInfo);
 
+        String tagsStr = "";
         TreeItem itemActiveKernels = new TreeItem(ACTIVE_KERNELS);
         TreeItem itemTaskExecuted = new TreeItem(TASKS_EXECUTED);
         TreeItem itemTaskFailed = new TreeItem(TASKS_FAILED);
@@ -281,19 +293,25 @@ public class SessionComparisonPanel extends VerticalPanel{
                 String userComment = session.getUserComment() == null ? "" : session.getUserComment();
                 itemUserComment.put(SESSION_HEADER + session.getSessionId(), userComment);
             }
-            // Add nothing for test. Later it will be taken from SessionDataDto.
-            itemTags.put(SESSION_HEADER + session.getSessionId(), "");
+            if (session.getTags()==null){
+                session.setTags(new ArrayList<TagDto>());
+            }
+            for (int i=0; i<session.getTags().size(); i++)
+                tagsStr+=session.getTags().get(i).getName()+" ";
+            sessionTags.put(SESSION_HEADER+session.getSessionId(), (ArrayList<TagDto>) session.getTags());
+            itemTags.put(SESSION_HEADER + session.getSessionId(), tagsStr);
+            tagsStr="";
         }
-        treeStore.add(sessionInfo,itemComment);
+        treeStore.add(sessionInfo, itemComment);
         if (webClientProperties.isUserCommentStoreAvailable())
-            treeStore.add(sessionInfo,itemUserComment);
-        treeStore.add(sessionInfo,itemTags);
-        treeStore.add(sessionInfo,itemDateStart);
-        treeStore.add(sessionInfo,itemDateEnd);
+            treeStore.add(sessionInfo, itemUserComment);
+        treeStore.add(sessionInfo, itemTags);
+        treeStore.add(sessionInfo, itemDateStart);
+        treeStore.add(sessionInfo, itemDateEnd);
 
-        treeStore.add(sessionInfo,itemActiveKernels);
-        treeStore.add(sessionInfo,itemTaskExecuted);
-        treeStore.add(sessionInfo,itemTaskFailed);
+        treeStore.add(sessionInfo, itemActiveKernels);
+        treeStore.add(sessionInfo, itemTaskExecuted);
+        treeStore.add(sessionInfo, itemTaskFailed);
 
     }
 
@@ -304,8 +322,19 @@ public class SessionComparisonPanel extends VerticalPanel{
     }
 
     private void allTags() {
-        sessionTags = new HashMap<String,ArrayList<TagDto>>();
         allTags = new ArrayList<TagDto>();
+        SessionDataService.Async.getInstance().getAllTags(new AsyncCallback<List<TagDto>>() {
+            @Override
+            public void onFailure(Throwable throwable) {
+                new ExceptionPanel("Fail to save data: " + throwable.getMessage());
+            }
+
+            @Override
+            public void onSuccess(List<TagDto> tagDtos) {
+               allTags.addAll(tagDtos);
+
+            }
+        });
     }
 
 
