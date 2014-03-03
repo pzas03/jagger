@@ -1414,6 +1414,58 @@ public class Trends extends DefaultActivity {
             }
         }
 
+//        public void fetchPlots(Set<? extends MetricNode> selectedNodes) {
+//
+//            //??? to avoid collapse of two fetchPlots methods
+//            final boolean enableTree = true;
+//
+//            if (selectedNodes.isEmpty()) {
+//                if (enableTree)
+//                    enableControl();
+//            } else {
+//                disableControl();
+//                PlotProviderService.Async.getInstance().getPlotDatas(selectedNodes, new AsyncCallback<Map<MetricNameDto, List<PlotSeriesDto>>>() {
+//
+//                    @Override
+//                    public void onFailure(Throwable caught) {
+//
+//                        caught.printStackTrace();
+//                        new ExceptionPanel(place, caught.toString());
+//                        if (enableTree)
+//                            enableControl();
+//                    }
+//
+//                    @Override
+//                    public void onSuccess(Map<MetricNameDto, List<PlotSeriesDto>> result) {
+//                        for (MetricNameDto metricNameDto : result.keySet()){
+//                            final String id;
+//                            // Generate DOM id for plot
+//                            if (metricNameDto.getTest() == null) {
+//                                id = generateSessionScopePlotId(chosenSessions.get(0), metricNameDto.getMetricName());
+//                            } else if (chosenSessions.size() == 1) {
+//                                id = generateTaskScopePlotId(metricNameDto);
+//                            } else {
+//                                id = generateCrossSessionsTaskScopePlotId(metricNameDto);
+//                            }
+//
+//                            // If plot has already displayed, then pass it
+//                            if (chosenPlots.containsKey(id)) {
+//                                continue;
+//                            }
+//
+//                            chosenPlots.put(id, result.get(metricNameDto));
+//
+//                        }
+//                        if (mainTabPanel.getSelectedIndex() == tabMetrics.getTabIndex()) {
+//                            onMetricsTabSelected();
+//                        }
+//                        if (enableTree)
+//                            enableControl();
+//                    }
+//                });
+//            }
+//        }
+
         /**
          * Removes plots
          * @param plotNames plotNames to remove

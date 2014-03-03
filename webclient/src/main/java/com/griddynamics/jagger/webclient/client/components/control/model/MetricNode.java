@@ -39,4 +39,16 @@ public class MetricNode extends AbstractIdentifyNode {
         return Collections.EMPTY_LIST;
     }
 
+    @Override
+    public String toString() {
+        String result = "";
+
+        result += "MetricNode{\n";
+        for (MetricNameDto metricNameDto : metricNameDtoList) {
+            result += metricNameDto.toString();
+        }
+        result += "\n}";
+
+        return result;
+    }
 }

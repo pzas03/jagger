@@ -10,25 +10,25 @@ public class TreeViewGroupRuleProvider {
 
 //        Left here as examples
         //???
-        List<TreeViewGroupRule> MySQL_SecondLevelFilters = new ArrayList<TreeViewGroupRule>();
-        MySQL_SecondLevelFilters.add(new TreeViewGroupRule("innodb", "InnoDB", "^MySQL InnoDB .*"));
-        MySQL_SecondLevelFilters.add(new TreeViewGroupRule("bytes", "Bytes", "^MySQL Bytes .*"));
-        MySQL_SecondLevelFilters.add(new TreeViewGroupRule("quest", "Questions", "^MySQL Questions .*"));
-        TreeViewGroupRule MySQL_FirstLevelFilter = new TreeViewGroupRule("mysql","MySQL","^MySQL .*",MySQL_SecondLevelFilters);
+        List<TreeViewGroupRule> mySQL_SecondLevelFilters = new ArrayList<TreeViewGroupRule>();
+        mySQL_SecondLevelFilters.add(new TreeViewGroupRule("innodb", "InnoDB", "^MySQL InnoDB .*"));
+        mySQL_SecondLevelFilters.add(new TreeViewGroupRule("bytes", "Bytes", "^MySQL Bytes .*"));
+        mySQL_SecondLevelFilters.add(new TreeViewGroupRule("quest", "Questions", "^MySQL Questions .*"));
+        TreeViewGroupRule mySQL_FirstLevelFilter = new TreeViewGroupRule("mysql","MySQL","^MySQL .*",mySQL_SecondLevelFilters);
 //        TreeViewGroupRule JMX_FirstLevelFilter = new TreeViewGroupRule("jmx","JMX","^JMX .*");
 
         // Filter for Jagger main metrics
-        TreeViewGroupRule MainParams_FirstLevelFilter = new TreeViewGroupRule("main","Main parameters",
+        TreeViewGroupRule mainParams_FirstLevelFilter = new TreeViewGroupRule("main","Main parameters",
                 "(^Throughput, tps$|^Throughput$|^Latency, sec$|^Latency$" +
                 "|^Iterations, samples$|^Success rate$|^Duration, sec$|^Latency\\s\\S+\\s%$|^Time Latency Percentile$)");
 
-        List<TreeViewGroupRule> FirstLevelFilters = new ArrayList<TreeViewGroupRule>();
-        FirstLevelFilters.add(MainParams_FirstLevelFilter);
+        List<TreeViewGroupRule> firstLevelFilters = new ArrayList<TreeViewGroupRule>();
+        firstLevelFilters.add(mainParams_FirstLevelFilter);
 
-        FirstLevelFilters.add(MySQL_FirstLevelFilter);//???
+        firstLevelFilters.add(mySQL_FirstLevelFilter);//???
 
 
         // Root filter - will match all metrics
-        return new TreeViewGroupRule(rootId,rootName,".*",FirstLevelFilters);
+        return new TreeViewGroupRule(rootId,rootName,".*",firstLevelFilters);
     }
 }

@@ -30,14 +30,24 @@ public class MetricGroupNodeHandler extends TreeAwareHandler<MetricGroupNode> {
 
             if (event.getItem().getMetrics().get(0).getClass() == PlotNode.class) {
                 MetricGroupNode<PlotNode> testNode = event.getItem();
+
+                //??? temp here
                 Set<MetricNameDto> dtos = new LinkedHashSet<MetricNameDto>();
+
+                Set<PlotNode> nodes = new LinkedHashSet<PlotNode>();
                 for (PlotNode plotNode : testNode.getMetrics()) {
+                    nodes.add(plotNode);
+                    //??? temp here
                     dtos.addAll(plotNode.getMetricNameDtoList());
                 }
 
                 if (Tree.CheckState.CHECKED.equals(event.getChecked())) {
+                    //??? old way
                     testPlotFetcher.fetchPlots(dtos, true);
+
+
                 } else {
+                    // ??? temp here. should be by nodes
                     testPlotFetcher.removePlots(dtos);
                 }
             }

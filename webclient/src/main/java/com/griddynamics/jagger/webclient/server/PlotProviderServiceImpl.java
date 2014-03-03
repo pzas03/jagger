@@ -1,6 +1,7 @@
 package com.griddynamics.jagger.webclient.server;
 
 import com.griddynamics.jagger.webclient.client.PlotProviderService;
+import com.griddynamics.jagger.webclient.client.components.control.model.MetricNode;
 import com.griddynamics.jagger.webclient.client.dto.*;
 import com.griddynamics.jagger.webclient.server.plot.CustomMetricPlotDataProvider;
 import com.griddynamics.jagger.webclient.server.plot.DataPointCompressingProcessor;
@@ -52,8 +53,8 @@ public class PlotProviderServiceImpl implements PlotProviderService {
     //===========Contract Methods
     //===========================
 
-    @Override
-    public List<PlotSeriesDto> getPlotData(long taskId, MetricNameDto plotName) {
+    //??? not used @Override
+    private List<PlotSeriesDto> getPlotData(long taskId, MetricNameDto plotName) {
         long timestamp = System.currentTimeMillis();
         log.debug("getPlotData was invoked with taskId={} and metricName={}", taskId, plotName);
 
@@ -71,8 +72,8 @@ public class PlotProviderServiceImpl implements PlotProviderService {
         return plotSeriesDto;
     }
 
-    @Override
-    public List<PlotSeriesDto> getPlotData(Set<Long> taskIds, MetricNameDto plotName) {
+    //??? not used    @Override
+    private List<PlotSeriesDto> getPlotData(Set<Long> taskIds, MetricNameDto plotName) {
         long timestamp = System.currentTimeMillis();
         log.debug("getPlotData was invoked with taskIds={} and metricName={}", taskIds, plotName);
 
@@ -98,6 +99,56 @@ public class PlotProviderServiceImpl implements PlotProviderService {
             result.put(plot, getPlotData(plot.getTaskIds(), plot));
         }
         return result;
+    }
+
+    //??? dummy
+    @Override
+    public Map<MetricNameDto, List<PlotSeriesDto>> getPlotDatas(Set<MetricNode> plots, boolean dummy) throws IllegalArgumentException{
+//        Map<MetricNameDto,List<PlotSeriesDto>> result = new LinkedHashMap<MetricNameDto, List<PlotSeriesDto>>(plots.size());
+//
+//        long timestamp = System.currentTimeMillis();
+//        log.debug("getPlotData was invoked with metricNode={}", plots);
+//
+//        //??? only for custom metrics
+//        PlotDataProvider plotDataProvider = customMetricPlotDataProvider;
+//        List<PlotSeriesDto> plotSeriesDtoList;
+//
+//        for (MetricNode plot : plots) {
+//            try {
+//                //???
+//                plotSeriesDtoList = plotDataProvider.getPlotData(taskIds, plotName);
+//                log.info("getPlotData(): {}", getFormattedLogMessage(plotSeriesDtoList, "" + taskIds, plotName.getMetricName(), System.currentTimeMillis() - timestamp));
+//            } catch (Exception e) {
+//                log.error("Error is occurred during plot data loading for taskIds=" + taskIds + ", metricName=" + plotName, e);
+//                throw new RuntimeException(e);
+//            }
+//        }
+//
+//        ???
+//
+//        //???
+//        // todo : fetch metrics  plots in one query
+//        for (MetricNameDto plot : plots){
+//            result.put(plot, getPlotData(plot.getTaskIds(), plot));
+//        }
+//
+//
+//
+//
+//
+//        return plotSeriesDtoList;
+//
+//
+//        //???
+////        Map<MetricNameDto,List<PlotSeriesDto>> result = new LinkedHashMap<MetricNameDto, List<PlotSeriesDto>>(plots.size());
+////        // todo : fetch metrics  plots in one query
+////        for (MetricNameDto plot : plots){
+////            result.put(plot, getPlotData(plot.getTaskIds(), plot));
+////        }
+////        return result;
+//
+//        //???
+        return null;
     }
 
 
