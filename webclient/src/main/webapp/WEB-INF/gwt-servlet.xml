@@ -85,6 +85,7 @@
         <property name="monitoringPlotGroups" ref="monitoringPlotGroups"/>
         <property name="workloadPlotGroups" ref="workloadPlotGroups"/>
         <property name="standardMetrics" ref="standardMetrics"/>
+        <property name="showOnlyMatchedTests" value="${webui.show.matched.tests.only:true}"/>
     </bean>
 
 
