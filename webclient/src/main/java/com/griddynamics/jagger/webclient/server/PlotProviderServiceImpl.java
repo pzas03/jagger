@@ -53,38 +53,38 @@ public class PlotProviderServiceImpl implements PlotProviderService {
     //===========Contract Methods
     //===========================
 
-    //??? not used @Override
-    private List<PlotSeriesDto> getPlotData(long taskId, MetricNameDto plotName) {
-        long timestamp = System.currentTimeMillis();
-        log.debug("getPlotData was invoked with taskId={} and metricName={}", taskId, plotName);
-
-        PlotDataProvider plotDataProvider = findPlotDataProvider(plotName);
-
-        List<PlotSeriesDto> plotSeriesDto;
-        try {
-            plotSeriesDto = plotDataProvider.getPlotData(taskId, plotName);
-            log.info("getPlotData(): {}", getFormattedLogMessage(plotSeriesDto, "" + taskId, plotName.getMetricName(), System.currentTimeMillis() - timestamp));
-        } catch (Exception e) {
-            log.error("Error is occurred during plot data loading for taskId=" + taskId + ", metricName=" + plotName, e);
-            throw new RuntimeException(e);
-        }
-
-        return plotSeriesDto;
-    }
+//    //??? not used @Override
+//    private List<PlotSeriesDto> getPlotData(long taskId, MetricNameDto plotName) {
+//        long timestamp = System.currentTimeMillis();
+//        log.debug("getPlotData was invoked with taskId={} and metricName={}", taskId, plotName);
+//
+//        PlotDataProvider plotDataProvider = findPlotDataProvider(plotName);
+//
+//        List<PlotSeriesDto> plotSeriesDto;
+//        try {
+//            plotSeriesDto = plotDataProvider.getPlotData(taskId, plotName);
+//            log.info("getPlotData(): {}", getFormattedLogMessage(plotSeriesDto, "" + taskId, plotName.getMetricName(), System.currentTimeMillis() - timestamp));
+//        } catch (Exception e) {
+//            log.error("Error is occurred during plot data loading for taskId=" + taskId + ", metricName=" + plotName, e);
+//            throw new RuntimeException(e);
+//        }
+//
+//        return plotSeriesDto;
+//    }
 
     //??? not used    @Override
-    private List<PlotSeriesDto> getPlotData(Set<Long> taskIds, MetricNameDto plotName) {
+    private List<PlotSeriesDto> getPlotData(MetricNameDto metricNameDto) {
         long timestamp = System.currentTimeMillis();
-        log.debug("getPlotData was invoked with taskIds={} and metricName={}", taskIds, plotName);
+        log.debug("getPlotData was invoked with taskIds={} and metricNameDto={}", metricNameDto.getTaskIds(), metricNameDto);
 
-        PlotDataProvider plotDataProvider = findPlotDataProvider(plotName);
+        PlotDataProvider plotDataProvider = findPlotDataProvider(metricNameDto);
 
         List<PlotSeriesDto> plotSeriesDtoList;
         try {
-            plotSeriesDtoList = plotDataProvider.getPlotData(taskIds, plotName);
-            log.info("getPlotData(): {}", getFormattedLogMessage(plotSeriesDtoList, "" + taskIds, plotName.getMetricName(), System.currentTimeMillis() - timestamp));
+            plotSeriesDtoList = plotDataProvider.getPlotData(metricNameDto);
+            log.info("getPlotData(): {}", getFormattedLogMessage(plotSeriesDtoList, "" + metricNameDto.getTaskIds(), metricNameDto.getMetricName(), System.currentTimeMillis() - timestamp));
         } catch (Exception e) {
-            log.error("Error is occurred during plot data loading for taskIds=" + taskIds + ", metricName=" + plotName, e);
+            log.error("Error is occurred during plot data loading for taskIds=" + metricNameDto.getTaskIds() + ", metricNameDto=" + metricNameDto, e);
             throw new RuntimeException(e);
         }
 
@@ -96,7 +96,7 @@ public class PlotProviderServiceImpl implements PlotProviderService {
         Map<MetricNameDto,List<PlotSeriesDto>> result = new LinkedHashMap<MetricNameDto, List<PlotSeriesDto>>(plots.size());
         // todo : fetch metrics  plots in one query
         for (MetricNameDto plot : plots){
-            result.put(plot, getPlotData(plot.getTaskIds(), plot));
+            result.put(plot, getPlotData(plot));
         }
         return result;
     }

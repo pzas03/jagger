@@ -148,30 +148,24 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
     }
 
     @Override
-    public List<PlotSeriesDto> getPlotData(long taskId, MetricNameDto plotName) {
-        return getPlotData(new HashSet<Long>(Arrays.asList(taskId)), plotName);
-    }
+    public List<PlotSeriesDto> getPlotData(MetricNameDto metricNameDto) {
 
-    @Override
-    public List<PlotSeriesDto> getPlotData(Set<Long> taskIds, MetricNameDto metricNameDto) {
-
-        String plotName = metricNameDto.getMetricName();
         String displayName = metricNameDto.getMetricDisplayName();
 
         long temp = System.currentTimeMillis();
 
         // check new way
-        List<Object[]> metricValues = getPlotDataNewModel(taskIds, plotName);
+        List<Object[]> metricValues = getPlotDataNewModel(metricNameDto);
 
         // check old way
-        metricValues.addAll(getPlotDataOldModel(taskIds, plotName));
+        metricValues.addAll(getPlotDataOldModel(metricNameDto));
 
         log.debug("Fetch metric plots in count of {} in: {}", metricValues.size(), (System.currentTimeMillis() - temp));
 
         if (metricValues.isEmpty())
             return Collections.emptyList();
 
-        Multimap<Long, Object[]> metrics = ArrayListMultimap.create(taskIds.size(), metricValues.size());
+        Multimap<Long, Object[]> metrics = ArrayListMultimap.create(metricNameDto.getTaskIds().size(), metricValues.size());
         List<PlotDatasetDto> plots = new ArrayList<PlotDatasetDto>();
 
         for (Object[] metricDetails : metricValues){
@@ -194,7 +188,7 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
             plots.add(plotDatasetDto);
         }
 
-        PlotSeriesDto plotSeriesDto = new PlotSeriesDto(plots, "Time, sec", "", legendProvider.getPlotHeader(taskIds, displayName));
+        PlotSeriesDto plotSeriesDto = new PlotSeriesDto(plots, "Time, sec", "", legendProvider.getPlotHeader(metricNameDto.getTaskIds(), displayName));
 
         return Arrays.asList(plotSeriesDto);
     }
@@ -250,17 +244,16 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
 
     /**
      *
-     * @param taskIds ids of all taskDatas.
-     * @param metricId identifier of metric.
+     * @param metricNameDto identifier of metric.
      * @return List of objects (taskData.id, time, value, sessionId)
      */
-    public List<Object[]> getPlotDataNewModel(Set<Long> taskIds, String metricId) {
+    public List<Object[]> getPlotDataNewModel(MetricNameDto metricNameDto) {
         try {
             return entityManager.createQuery(
                 "select mpe.metricDescription.taskData.id, mpe.time, mpe.value, mpe.metricDescription.taskData.sessionId from MetricPointEntity as mpe " +
                         "where mpe.metricDescription.taskData.id in (:taskIds) and mpe.metricDescription.metricId=:metricId")
-                .setParameter("taskIds", taskIds)
-                .setParameter("metricId", metricId)
+                .setParameter("taskIds", metricNameDto.getTaskIds())
+                .setParameter("metricId", metricNameDto.getMetricName())
                 .getResultList();
         } catch (Exception e) {
             log.debug("Could not fetch metric plots from MetricPointEntity: {}", DataProcessingUtil.getMessageFromLastCause(e));
@@ -271,16 +264,15 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
 
     /**
      *
-     * @param taskIds ids of all taskDatas.
-     * @param metricId identifier of metric.
+     * @param metricNameDto identifier of metric.
      * @return List of objects (taskData.id, time, value, sessionId)
      */
-    public List<Object[]> getPlotDataOldModel(Set<Long> taskIds, String metricId) {
+    public List<Object[]> getPlotDataOldModel(MetricNameDto metricNameDto) {
         return entityManager.createQuery(
                 "select metrics.taskData.id, metrics.time, metrics.value, metrics.taskData.sessionId from MetricDetails metrics " +
                         "where metrics.metric=:plotName and metrics.taskData.id in (:taskIds)")
-                .setParameter("taskIds", taskIds)
-                .setParameter("plotName", metricId)
+                .setParameter("taskIds", metricNameDto.getTaskIds())
+                .setParameter("plotName", metricNameDto.getMetricName())
                 .getResultList();
 
     }
