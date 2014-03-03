@@ -85,7 +85,7 @@
         <property name="monitoringPlotGroups" ref="monitoringPlotGroups"/>
         <property name="workloadPlotGroups" ref="workloadPlotGroups"/>
         <property name="standardMetrics" ref="standardMetrics"/>
-        <property name="showOnlyMatchedTests" value="${webui.show.matched.tests.only:true}"/>
+        <property name="webClientProperties" ref="webClientProperties"/>
     </bean>
 
 
@@ -102,6 +102,7 @@
         <property name="userCommentEditAvailable" value="${webui.user.comment.available}"/>
         <property name="userCommentMaxLength" value="${webui.user.comment.max.length}"/>
         <property name="tagsAvailable" value="${webui.tags.available}"/>
+        <property name="showOnlyMatchedTests" value="${webui.show.matched.tests.only:true}"/>
     </bean>
 
 
