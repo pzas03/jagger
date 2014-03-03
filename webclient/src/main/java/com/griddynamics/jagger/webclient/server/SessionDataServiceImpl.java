@@ -55,15 +55,14 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
     @Override
     public synchronized void saveTags(Long sessionData_id, List<TagDto> tags) {
         List<String> tagNames = new ArrayList<String>();
-
-        System.out.println("Size = " + tags.size());
         for (TagDto tagDto : tags) {
             tagNames.add(tagDto.getName());
         }
         try {
             entityManager.getTransaction().begin();
             if (tagNames.isEmpty())
-                entityManager.createNativeQuery("delete from SessionTagEntity")
+                entityManager.createNativeQuery("delete from SessionTagEntity where sessions_id=:sessionData_id")
+                        .setParameter("sessionData_id", sessionData_id)
                         .executeUpdate();
             else {
                 entityManager.createNativeQuery("delete from SessionTagEntity where sessions_id=:sessionData_id and tags_name not in (:tagNames)")

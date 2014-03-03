@@ -83,14 +83,13 @@ public class SessionComparisonPanel extends VerticalPanel{
     private WebClientProperties webClientProperties;
 
     private List<TagDto> allTags;
-    private HashMap<String,ArrayList<TagDto>> sessionTags;
 
+    private boolean allTagsLoadComplete = false;
     public HashMap<MetricNameDto, MetricDto> getCachedMetrics() {
         return cache;
     }
 
     public SessionComparisonPanel(Set<SessionDataDto> chosenSessions, int width, WebClientProperties webClientProperties){
-        sessionTags = new HashMap<String, ArrayList<TagDto>>();
         setWidth(ONE_HUNDRED_PERCENTS);
         setHeight(ONE_HUNDRED_PERCENTS);
         this.chosenSessions = chosenSessions;
@@ -229,9 +228,8 @@ public class SessionComparisonPanel extends VerticalPanel{
                                 break;
                             }
                         }
-                        if (sessionTags.get(sessionId)==null)
-                            sessionTags.put(sessionId,new ArrayList<TagDto>());
-                        tagBox.popUp(currentSession,
+                        if (allTagsLoadComplete)
+                            tagBox.popUp(currentSession,
                                 item,allTags, currentSession.getTags());
                     }
                 }
@@ -298,7 +296,6 @@ public class SessionComparisonPanel extends VerticalPanel{
             }
             for (int i=0; i<session.getTags().size(); i++)
                 tagsStr+=session.getTags().get(i).getName()+" ";
-            sessionTags.put(SESSION_HEADER+session.getSessionId(), (ArrayList<TagDto>) session.getTags());
             itemTags.put(SESSION_HEADER + session.getSessionId(), tagsStr);
             tagsStr="";
         }
@@ -332,7 +329,7 @@ public class SessionComparisonPanel extends VerticalPanel{
             @Override
             public void onSuccess(List<TagDto> tagDtos) {
                allTags.addAll(tagDtos);
-
+               allTagsLoadComplete = true;
             }
         });
     }
