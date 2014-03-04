@@ -114,7 +114,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
 
             for (TaskDataDto tdd : map.keySet()) {
                 // rules to create test tree view
-                String rootId = METRICS_PREFIX + tdd.getTaskName();
+                String rootId = METRICS_PREFIX + tdd.hashCode();
                 TreeViewGroupRule testNodeRule = TreeViewGroupRuleProvider.provide(rootId, rootId);
                 // tree with metrics distributed by groups
                 NameTokens.FilterOptions filterBy = NameTokens.FilterOptions.BY_DISPLAY_NAME;
@@ -155,7 +155,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
         Map<TaskDataDto, List<MetricNode>> map = getTestMetricsMap(tasks);
         for (TaskDataDto tdd : map.keySet()) {
             // rules to create test tree view
-            String rootId = SUMMARY_PREFIX + tdd.getTaskName();
+            String rootId = SUMMARY_PREFIX + tdd.hashCode();
             TreeViewGroupRule testNodeRule = TreeViewGroupRuleProvider.provide(rootId, rootId);
             // tree with metrics distributed by groups
             NameTokens.FilterOptions filterBy = NameTokens.FilterOptions.BY_DISPLAY_NAME;
@@ -163,7 +163,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
             // full test node with info data
             TestNode testNode = new TestNode(testNodeBase);
             testNode.setTaskDataDto(tdd);
-            TestInfoNode tin = new TestInfoNode(tdd.getTaskName() + TEST_INFO, TEST_INFO);
+            TestInfoNode tin = new TestInfoNode(TEST_INFO + testNode.getId(), TEST_INFO);
             tin.setTestInfoList(getTestInfoNamesList(tdd));
             testNode.setTestInfo(tin);
 
