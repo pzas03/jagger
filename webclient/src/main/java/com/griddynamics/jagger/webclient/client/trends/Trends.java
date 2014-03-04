@@ -1109,7 +1109,7 @@ public class Trends extends DefaultActivity {
                             tempTree.setExpanded(testNode, true);
                             for (MetricNode metricNode : testNode.getMetrics()) {
                                 if (testsMetrics.getMetrics().contains(metricNode.getMetricNameDto().getMetricName())) {
-                                    tempTree.setCheckedWithParent(metricNode);
+                                    tempTree.setCheckedExpandedWithParent(metricNode);
                                     needTestInfo = true;
                                 }
                             }
