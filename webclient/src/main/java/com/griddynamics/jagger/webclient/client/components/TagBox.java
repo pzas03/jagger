@@ -311,7 +311,7 @@ public class TagBox extends AbstractWindow implements IsWidget {
 
             @Override
             public void onFailure(Throwable caught) {
-                new ExceptionPanel("Fail to save data : " + caught.getMessage());
+                new ExceptionPanel("Fail to save into DB session's tags : " + caught.getMessage());
             }
 
             @Override
@@ -320,8 +320,8 @@ public class TagBox extends AbstractWindow implements IsWidget {
                 currentSession.setTags(list);
 
                 String tags = "";
-                for (int i = 0; i < currentSession.getTags().size(); i++) {
-                    tags += currentSession.getTags().get(i).getName() + " ";
+                for (TagDto tagDto: currentSession.getTags()) {
+                    tags += tagDto.getName() + " ";
 
                 }
                 currentTreeItem.put(getText(), tags);

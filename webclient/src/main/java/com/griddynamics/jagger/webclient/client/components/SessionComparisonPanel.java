@@ -30,7 +30,7 @@ import java.util.*;
  * Panel that contains table of metrics in comparison mod (multiple session selected)
  */
 
-public class SessionComparisonPanel extends VerticalPanel{
+public class SessionComparisonPanel extends VerticalPanel {
 
     private final String TEST_DESCRIPTION = "testDescription";
     private final String TEST_NAME = "testName";
@@ -85,11 +85,12 @@ public class SessionComparisonPanel extends VerticalPanel{
     private List<TagDto> allTags;
 
     private boolean allTagsLoadComplete = false;
+
     public HashMap<MetricNameDto, MetricDto> getCachedMetrics() {
         return cache;
     }
 
-    public SessionComparisonPanel(Set<SessionDataDto> chosenSessions, int width, WebClientProperties webClientProperties){
+    public SessionComparisonPanel(Set<SessionDataDto> chosenSessions, int width, WebClientProperties webClientProperties) {
         setWidth(ONE_HUNDRED_PERCENTS);
         setHeight(ONE_HUNDRED_PERCENTS);
         this.chosenSessions = chosenSessions;
@@ -104,7 +105,7 @@ public class SessionComparisonPanel extends VerticalPanel{
     }
 
 
-    private void init(Set<SessionDataDto> chosenSessions, int width){
+    private void init(Set<SessionDataDto> chosenSessions, int width) {
 
         int colWidth = calculateWidth(chosenSessions.size(), width);
 
@@ -122,13 +123,13 @@ public class SessionComparisonPanel extends VerticalPanel{
         sortedSet.addAll(chosenSessions);
 
         ColumnConfig<TreeItem, String> nameColumn =
-                new ColumnConfig<TreeItem, String>(new MapValueProvider(NAME), (int)(colWidth * METRIC_COLUMN_WIDTH_FACTOR));
+                new ColumnConfig<TreeItem, String>(new MapValueProvider(NAME), (int) (colWidth * METRIC_COLUMN_WIDTH_FACTOR));
         nameColumn.setHeader(METRIC);
         nameColumn.setSortable(false);
         nameColumn.setMenuDisabled(true);
         columns.add(nameColumn);
 
-        for (SessionDataDto session: sortedSet) {
+        for (SessionDataDto session : sortedSet) {
             ColumnConfig<TreeItem, String> column = new ColumnConfig<TreeItem, String>(
                     new MapValueProvider(SESSION_HEADER + session.getSessionId())
             );
@@ -157,8 +158,6 @@ public class SessionComparisonPanel extends VerticalPanel{
 
 
         ColumnModel<TreeItem> cm = new ColumnModel<TreeItem>(columns);
-
-
 
 
         treeGrid = new NoIconsTreeGrid(treeStore, cm, nameColumn);
@@ -191,21 +190,11 @@ public class SessionComparisonPanel extends VerticalPanel{
                 public void onCellClick(CellDoubleClickEvent event) {
                     TreeItem item = treeGrid.findNode(treeGrid.getTreeView().getRow(event.getRowIndex())).getModel();
                     if (item.getKey().equals(USER_COMMENT) && event.getCellIndex() > 0) {
-                        String sessionId = treeGrid.getColumnModel().getColumn(event.getCellIndex()).getHeader().asString();
-                        String sessionData_id = sessionId.substring(sessionId.indexOf(' ') + 1);
-                        SessionDataDto currentSession = null;
-                        for (SessionDataDto sessionDataDto : SessionComparisonPanel.this.chosenSessions){
-                            if (sessionDataDto.getSessionId().equals(sessionData_id)) {
-                                currentSession = sessionDataDto;
-                                break;
-                            }
-                        }
-
-                        userCommentBox.popUp(
-                                currentSession,
-                                item.get(sessionId),
+                        SessionDataDto currentSession = defineCurrentSession(event);
+                        userCommentBox.popUp(currentSession,
+                                item.get(currentSession.getSessionId()),
                                 item
-                            );
+                        );
                     }
 
                 }
@@ -217,20 +206,11 @@ public class SessionComparisonPanel extends VerticalPanel{
                 @Override
                 public void onCellClick(CellDoubleClickEvent event) {
                     TreeItem item = treeGrid.findNode(treeGrid.getTreeView().getRow(event.getRowIndex())).getModel();
-
                     if (item.getKey().equals(SESSION_TAGS) && event.getCellIndex() > 0) {
-                        String sessionId = treeGrid.getColumnModel().getColumn(event.getCellIndex()).getHeader().asString();
-                        String sessionData_id = sessionId.substring(sessionId.indexOf(' ') + 1);
-                        SessionDataDto currentSession = null;
-                        for (SessionDataDto sessionDataDto : SessionComparisonPanel.this.chosenSessions){
-                            if (sessionDataDto.getSessionId().equals(sessionData_id)) {
-                                currentSession = sessionDataDto;
-                                break;
-                            }
-                        }
+                        SessionDataDto currentSession = defineCurrentSession(event);
                         if (allTagsLoadComplete)
                             tagBox.popUp(currentSession,
-                                item,allTags, currentSession.getTags());
+                                    item, allTags, currentSession.getTags());
                     }
                 }
             });
@@ -240,15 +220,28 @@ public class SessionComparisonPanel extends VerticalPanel{
         add(treeGrid);
     }
 
+    private SessionDataDto defineCurrentSession(CellDoubleClickEvent event) {
+        String sessionId = treeGrid.getColumnModel().getColumn(event.getCellIndex()).getHeader().asString();
+        String sessionData_id = sessionId.substring(sessionId.indexOf(' ') + 1);
+        SessionDataDto currentSession = null;
+        for (SessionDataDto sessionDataDto : SessionComparisonPanel.this.chosenSessions) {
+            if (sessionDataDto.getSessionId().equals(sessionData_id)) {
+                currentSession = sessionDataDto;
+                break;
+            }
+        }
+        return currentSession;
+    }
 
     /**
      * calculates width for columns
-     * @param size number of chosen sessions
+     *
+     * @param size  number of chosen sessions
      * @param width is offset width of parent container
      * @return width of Session * column
      */
     private int calculateWidth(int size, int width) {
-        int colWidth = (int)(width / (size + METRIC_COLUMN_WIDTH_FACTOR));
+        int colWidth = (int) (width / (size + METRIC_COLUMN_WIDTH_FACTOR));
         if (colWidth < MIN_COLUMN_WIDTH)
             colWidth = MIN_COLUMN_WIDTH;
 
@@ -287,17 +280,17 @@ public class SessionComparisonPanel extends VerticalPanel{
             itemDateStart.put(SESSION_HEADER + session.getSessionId(), session.getStartDate());
             itemDateEnd.put(SESSION_HEADER + session.getSessionId(), session.getEndDate());
             itemComment.put(SESSION_HEADER + session.getSessionId(), session.getComment());
-            if (webClientProperties.isUserCommentStoreAvailable()){
+            if (webClientProperties.isUserCommentStoreAvailable()) {
                 String userComment = session.getUserComment() == null ? "" : session.getUserComment();
                 itemUserComment.put(SESSION_HEADER + session.getSessionId(), userComment);
             }
-            if (session.getTags()==null){
+            if (session.getTags() == null) {
                 session.setTags(new ArrayList<TagDto>());
             }
-            for (int i=0; i<session.getTags().size(); i++)
-                tagsStr+=session.getTags().get(i).getName()+" ";
+            for (TagDto tagDto :session.getTags())
+                tagsStr += tagDto.getName() + " ";
             itemTags.put(SESSION_HEADER + session.getSessionId(), tagsStr);
-            tagsStr="";
+            tagsStr = "";
         }
         treeStore.add(sessionInfo, itemComment);
         if (webClientProperties.isUserCommentStoreAvailable())
@@ -323,13 +316,13 @@ public class SessionComparisonPanel extends VerticalPanel{
         SessionDataService.Async.getInstance().getAllTags(new AsyncCallback<List<TagDto>>() {
             @Override
             public void onFailure(Throwable throwable) {
-                new ExceptionPanel("Fail to save data: " + throwable.getMessage());
+                new ExceptionPanel("Fail to fetch all tags from the database: " + throwable.getMessage());
             }
 
             @Override
             public void onSuccess(List<TagDto> tagDtos) {
-               allTags.addAll(tagDtos);
-               allTagsLoadComplete = true;
+                allTags.addAll(tagDtos);
+                allTagsLoadComplete = true;
             }
         });
     }
@@ -465,7 +458,7 @@ public class SessionComparisonPanel extends VerticalPanel{
         testInfo.put(NAME, TEST_INFO);
         testInfo.put(TEST_DESCRIPTION, test.getDescription());
         testInfo.put(TEST_NAME, test.getTaskName());
-        treeStore.insert(testItem, 0 , testInfo);
+        treeStore.insert(testItem, 0, testInfo);
 
         TreeItem clock = new TreeItem(testItem.getKey() + "Clock");
         clock.put(NAME, "Clock");
@@ -548,7 +541,8 @@ public class SessionComparisonPanel extends VerticalPanel{
         }
 
         @SuppressWarnings("unused")
-        public TreeItem() {}
+        public TreeItem() {
+        }
 
         public TreeItem(String key) {
             this.key = key;
@@ -583,13 +577,13 @@ public class SessionComparisonPanel extends VerticalPanel{
             if (webClientProperties.isUserCommentEditAvailable()) {
                 if (object.get(NAME).equals(USER_COMMENT) && !field.equals(NAME)) {
                     toShow = object.get(field).replaceAll("\n", "<br>");
-                    return penImageResource+toShow;
+                    return penImageResource + toShow;
                 }
             }
             if (webClientProperties.isTagsAvailable()) {
                 if (object.get(NAME).equals(SESSION_TAGS) && !field.equals(NAME)) {
                     toShow = object.get(field).replaceAll("\n", "<br>");
-                    return penImageResource+toShow;
+                    return penImageResource + toShow;
                 }
             }
             return object.get(field);

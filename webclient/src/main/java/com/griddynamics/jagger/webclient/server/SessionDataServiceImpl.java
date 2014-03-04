@@ -69,8 +69,6 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
                         .setParameter("sessionData_id", sessionData_id)
                         .setParameter("tagNames", tagNames)
                         .executeUpdate();
-            }
-            if (!tagNames.isEmpty()) {
                 for (String tagStr : tagNames) {
                     entityManager.createNativeQuery(
                             "insert into SessionTagEntity(sessions_id,tags_name) " +
