@@ -61,7 +61,6 @@ public class TaskDataDto implements Serializable {
         TaskDataDto that = (TaskDataDto) o;
 
         if (description != null ? !description.equals(that.description) : that.description != null) return false;
-        if (sessionIds != null ? !sessionIds.equals(that.sessionIds) : that.sessionIds != null) return false;
         if (taskName != null ? !taskName.equals(that.taskName) : that.taskName != null) return false;
 
         return true;
@@ -69,8 +68,7 @@ public class TaskDataDto implements Serializable {
 
     @Override
     public int hashCode() {
-        int result = sessionIds != null ? sessionIds.hashCode() : 0;
-        result = 31 * result + (taskName != null ? taskName.hashCode() : 0);
+        int result = taskName != null ? taskName.hashCode() : 0;
         result = 31 * result + (description != null ? description.hashCode() : 0);
         return result;
     }
