@@ -3,7 +3,6 @@ package com.griddynamics.jagger.webclient.server;
 import com.griddynamics.jagger.agent.model.DefaultMonitoringParameters;
 import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadProcessLatencyPercentile;
 import com.griddynamics.jagger.monitoring.reporting.GroupKey;
-import com.griddynamics.jagger.util.Pair;
 import com.griddynamics.jagger.webclient.client.components.control.model.*;
 import com.griddynamics.jagger.webclient.client.data.MetricRankingProvider;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
@@ -69,11 +68,11 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         this.customMetricPlotDataProvider = customMetricPlotDataProvider;
     }
 
-    private HashMap<String, Pair<String, String>> standardMetrics;
+    private List<MetricNameDto> standardMetricNameDtoList;
 
     @Required
-    public void setStandardMetrics(HashMap<String, Pair<String, String>> standardMetrics) {
-        this.standardMetrics = standardMetrics;
+    public void setStandardMetricNameDtoList(List<MetricNameDto> standardMetricNameDtoList) {
+        this.standardMetricNameDtoList = standardMetricNameDtoList;
     }
 
 
@@ -133,6 +132,9 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                     MetricNameDto metric = new MetricNameDto();
                     metric.setTest(td);
                     metric.setMetricName((String) name[0]);
+                    metric.setOrigin(MetricNameDto.Origin.METRIC_OLD_MODEL);
+
+                    //??? strange situation - possible when many sessions selected
                     if (!metrics.contains(metric)) // if we already have same metric from new model
                         metrics.add(metric);
                     break;
@@ -173,6 +175,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                         metric.setTest(td);
                         metric.setMetricName((String) mde[0]);
                         metric.setMetricDisplayName((String) mde[1]);
+                        metric.setOrigin(MetricNameDto.Origin.METRIC_NEW_MODEL);
                         metrics.add(metric);
                         break;
                     }
@@ -225,6 +228,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                         MetricNameDto metric = new MetricNameDto();
                         metric.setTest(td);
                         metric.setMetricName((String) name[0]);
+                        metric.setOrigin(MetricNameDto.Origin.VALIDATOR_OLD_MODEL);
                         validators.add(metric);
                         break;
                     }
@@ -269,6 +273,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                         metric.setTest(td);
                         metric.setMetricName((String) name[0]);
                         metric.setMetricDisplayName((String) name[2]);
+                        metric.setOrigin(MetricNameDto.Origin.VALIDATOR_NEW_MODEL);
                         validators.add(metric);
                         break;
                     }
@@ -313,6 +318,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                         dto.setMetricName("Latency " + Double.toString(percentile.getPercentileKey()) + " %");
                         dto.setMetricDisplayName("Latency " + Double.toString(percentile.getPercentileKey()) + " %");
                         dto.setTest(tdd);
+                        dto.setOrigin(MetricNameDto.Origin.LATENCY_PERCENTILE);
                         latencyNames.add(dto);
                         break;
                     }
@@ -433,10 +439,8 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         Long time = System.currentTimeMillis();
         List<MetricNameDto> list = new ArrayList<MetricNameDto>();
         for (TaskDataDto taskDataDto : tddos){
-            for (String standardMetricName : standardMetrics.keySet()){
-                MetricNameDto metric = new MetricNameDto();
-                metric.setMetricName(standardMetricName);
-                metric.setMetricDisplayName(standardMetrics.get(standardMetricName).getSecond());
+            for (MetricNameDto metricNameDto : standardMetricNameDtoList) {
+                MetricNameDto metric = metricNameDto;
                 metric.setTest(taskDataDto);
                 list.add(metric);
             }
@@ -509,25 +513,27 @@ public class CommonDataProviderImpl implements CommonDataProvider {
 
         Map<TaskDataDto, List<PlotNode>> result = new HashMap<TaskDataDto, List<PlotNode>>();
 
-        List<MetricNameDto> plotNameDtoSet = new ArrayList<MetricNameDto>();
+        List<MetricNameDto> metricNameDtoList = new ArrayList<MetricNameDto>();
         try {
 
             Map<TaskDataDto, Boolean> isWorkloadMap = isWorkloadStatisticsAvailable(taskList);
             for (Map.Entry<TaskDataDto, Boolean> entry: isWorkloadMap.entrySet()) {
                 if (entry.getValue()) {
                     for (Map.Entry<GroupKey, DefaultWorkloadParameters[]> monitoringPlot : workloadPlotGroups.entrySet()) {
-                        plotNameDtoSet.add(new MetricNameDto(entry.getKey(), monitoringPlot.getKey().getUpperName()));
+                        MetricNameDto metricNameDto = new MetricNameDto(entry.getKey(), monitoringPlot.getKey().getUpperName());
+                        metricNameDto.setOrigin(monitoringPlot.getValue()[0].getOrigin());
+                        metricNameDtoList.add(metricNameDto);
                     }
                 }
             }
 
             Set<MetricNameDto> customMetrics = customMetricPlotDataProvider.getPlotNames(taskList);
 
-            plotNameDtoSet.addAll(customMetrics);
+            metricNameDtoList.addAll(customMetrics);
 
-            log.debug("For sessions {} are available these plots: {}", sessionIds, plotNameDtoSet);
+            log.debug("For sessions {} are available these plots: {}", sessionIds, metricNameDtoList);
 
-            for (MetricNameDto pnd : plotNameDtoSet) {
+            for (MetricNameDto pnd : metricNameDtoList) {
                 for (TaskDataDto tdd : taskList) {
                     if (tdd.getIds().containsAll(pnd.getTaskIds())) {
                         if (!result.containsKey(tdd)) {
@@ -649,7 +655,9 @@ public class CommonDataProviderImpl implements CommonDataProvider {
 
                     PlotNode plotNode = new PlotNode();
                     String id = METRICS_PREFIX + tdd.getTaskName() + monitoringKey + identy;
-                    plotNode.init(id, identy, Arrays.asList(new MetricNameDto(tdd, monitoringKey + AGENT_NAME_SEPARATOR + identy)));
+                    MetricNameDto metricNameDto = new MetricNameDto(tdd, monitoringKey + AGENT_NAME_SEPARATOR + identy);
+                    metricNameDto.setOrigin(MetricNameDto.Origin.MONITORING);
+                    plotNode.init(id, identy, Arrays.asList(metricNameDto));
 
                     boolean present = false;
                     for (MonitoringPlotNode mpn : mpnList) {

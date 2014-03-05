@@ -3,17 +3,12 @@ package com.griddynamics.jagger.webclient.server;
 import com.griddynamics.jagger.webclient.client.PlotProviderService;
 import com.griddynamics.jagger.webclient.client.components.control.model.MetricNode;
 import com.griddynamics.jagger.webclient.client.dto.*;
-import com.griddynamics.jagger.webclient.server.plot.CustomMetricPlotDataProvider;
-import com.griddynamics.jagger.webclient.server.plot.DataPointCompressingProcessor;
-import com.griddynamics.jagger.webclient.server.plot.PlotDataProvider;
-import com.griddynamics.jagger.webclient.server.plot.SessionScopePlotDataProvider;
+import com.griddynamics.jagger.webclient.server.plot.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.util.*;
-
-import static com.griddynamics.jagger.webclient.client.mvp.NameTokens.AGENT_NAME_SEPARATOR;
 
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
@@ -23,8 +18,10 @@ public class PlotProviderServiceImpl implements PlotProviderService {
     private static final Logger log = LoggerFactory.getLogger(PlotProviderServiceImpl.class);
 
     private DataPointCompressingProcessor compressingProcessor;
-    private Map<String, PlotDataProvider> workloadPlotDataProviders;
-    private Map<String, PlotDataProvider> monitoringPlotDataProviders;
+    private ThroughputPlotDataProvider throughputPlotDataProvider;
+    private LatencyPlotDataProvider latencyPlotDataProvider;
+    private TimeLatencyPercentilePlotDataProvider timeLatencyPercentilePlotDataProvider;
+    private MonitoringPlotDataProvider monitoringPlotDataProvider;
     private CustomMetricPlotDataProvider customMetricPlotDataProvider;
 
     //==========Setters
@@ -35,18 +32,28 @@ public class PlotProviderServiceImpl implements PlotProviderService {
     }
 
     @Required
-    public void setWorkloadPlotDataProviders(Map<String, PlotDataProvider> workloadPlotDataProviders) {
-        this.workloadPlotDataProviders = workloadPlotDataProviders;
-    }
-
-    @Required
-    public void setMonitoringPlotDataProviders(Map<String, PlotDataProvider> monitoringPlotDataProviders) {
-        this.monitoringPlotDataProviders = monitoringPlotDataProviders;
-    }
-
-    @Required
     public void setCustomMetricPlotDataProvider(CustomMetricPlotDataProvider customMetricPlotDataProvider) {
         this.customMetricPlotDataProvider = customMetricPlotDataProvider;
+    }
+
+    @Required
+    public void setThroughputPlotDataProvider(ThroughputPlotDataProvider throughputPlotDataProvider) {
+        this.throughputPlotDataProvider = throughputPlotDataProvider;
+    }
+
+    @Required
+    public void setLatencyPlotDataProvider(LatencyPlotDataProvider latencyPlotDataProvider) {
+        this.latencyPlotDataProvider = latencyPlotDataProvider;
+    }
+
+    @Required
+    public void setTimeLatencyPercentilePlotDataProvider(TimeLatencyPercentilePlotDataProvider timeLatencyPercentilePlotDataProvider) {
+        this.timeLatencyPercentilePlotDataProvider = timeLatencyPercentilePlotDataProvider;
+    }
+
+    @Required
+    public void setMonitoringPlotDataProvider(MonitoringPlotDataProvider monitoringPlotDataProvider) {
+        this.monitoringPlotDataProvider = monitoringPlotDataProvider;
     }
 
     //===========================
@@ -157,16 +164,11 @@ public class PlotProviderServiceImpl implements PlotProviderService {
         long timestamp = System.currentTimeMillis();
         Map<SessionPlotNameDto, List<PlotSeriesDto>> resultMap = new HashMap<SessionPlotNameDto, List<PlotSeriesDto>>();
 
+        SessionScopePlotDataProvider plotDataProvider = monitoringPlotDataProvider;
+
         for(SessionPlotNameDto plotName : plotNames) {
             log.debug("getPlotData was invoked with sessionId={} and metricName={}", sessionId, plotName);
             List<PlotSeriesDto> plotSeriesDtoList;
-
-            SessionScopePlotDataProvider plotDataProvider = (SessionScopePlotDataProvider) findPlotDataProvider(plotName);
-            if (plotDataProvider == null) {
-                log.warn("getPlotData was invoked with unsupported metricName={}", plotName);
-                throw new UnsupportedOperationException("Plot type " + plotName + " doesn't supported");
-            }
-
 
             try {
                 plotSeriesDtoList = plotDataProvider.getPlotData(sessionId, plotName.getMetricName());
@@ -222,18 +224,34 @@ public class PlotProviderServiceImpl implements PlotProviderService {
         return logBuilder.toString();
     }
 
-    private PlotDataProvider findPlotDataProvider(MetricName plotName) {
-        PlotDataProvider plotDataProvider = workloadPlotDataProviders.get(plotName.getMetricName());
-        if (plotDataProvider == null) {
-            // any ideas ?
-            if (plotName.getMetricName().contains(AGENT_NAME_SEPARATOR)) {
-                String temp = plotName.getMetricName().substring(0, plotName.getMetricName().indexOf(AGENT_NAME_SEPARATOR));
-                plotDataProvider = monitoringPlotDataProviders.get(temp);
-            }
-        }
-        if (plotDataProvider == null) {
-            // we already checked if plot is available on tree creating step
-            plotDataProvider = customMetricPlotDataProvider;
+    private PlotDataProvider findPlotDataProvider(MetricNameDto metricNameDto) {
+        PlotDataProvider plotDataProvider = null;
+        switch (metricNameDto.getOrigin()) {
+            case UNKNOWN:
+            case STANDARD_METRICS:
+            case VALIDATOR_NEW_MODEL:
+            case VALIDATOR_OLD_MODEL:
+            case DURATION:
+
+                //??? exception here
+
+                break;
+            case METRIC_NEW_MODEL:
+            case METRIC_OLD_MODEL:
+                plotDataProvider = customMetricPlotDataProvider;
+                break;
+            case LATENCY:
+                plotDataProvider = latencyPlotDataProvider;
+                break;
+            case THROUGHPUT:
+                plotDataProvider = throughputPlotDataProvider;
+                break;
+            case LATENCY_PERCENTILE:
+                plotDataProvider = timeLatencyPercentilePlotDataProvider;
+                break;
+            case MONITORING:
+                plotDataProvider = monitoringPlotDataProvider;
+                break;
         }
 
         return plotDataProvider;
