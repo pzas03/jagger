@@ -3,14 +3,13 @@ package com.griddynamics.jagger.webclient.server.plot;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.griddynamics.jagger.webclient.client.dto.*;
+import com.griddynamics.jagger.webclient.server.AbstractDataProvider;
 import com.griddynamics.jagger.webclient.server.ColorCodeGenerator;
 import com.griddynamics.jagger.webclient.server.DataProcessingUtil;
 import com.griddynamics.jagger.webclient.server.LegendProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import java.math.BigInteger;
 import java.util.*;
@@ -22,22 +21,15 @@ import java.util.*;
  * Time: 1:45 PM
  * To change this template use File | Settings | File Templates.
  */
-public class CustomMetricPlotDataProvider implements PlotDataProvider{
+public class CustomMetricPlotDataProvider extends AbstractDataProvider implements PlotDataProvider{
 
     Logger log = LoggerFactory.getLogger(CustomMetricPlotDataProvider.class);
 
     private LegendProvider legendProvider;
-    private EntityManager entityManager;
 
     public void setLegendProvider(LegendProvider legendProvider) {
         this.legendProvider = legendProvider;
     }
-
-    @PersistenceContext
-    public void setEntityManager(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
-
 
     public List<MetricNameDto> getPlotNames(TaskDataDto taskDataDto){
         List<String> plotNames = entityManager.createNativeQuery("select metricDetails.metric from MetricDetails metricDetails " +
@@ -109,42 +101,23 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
 
 
     public Set<MetricNameDto> getPlotNamesNewModel(List<TaskDataDto> taskDataDtos){
-
         try {
-            Set<Long> testIds = new HashSet<Long>();
-            for (TaskDataDto tdd : taskDataDtos) {
-                testIds.addAll(tdd.getIds());
-            }
-
-            // check new model
-            List<Object[]> plotNamesNew = entityManager.createQuery(
-                    "select mpe.metricDescription.metricId, mpe.metricDescription.displayName, mpe.metricDescription.taskData.id " +
-                            "from MetricPointEntity as mpe where mpe.metricDescription.taskData.id in (:taskIds) group by mpe.metricDescription.id")
-                    .setParameter("taskIds", testIds)
-                    .getResultList();
-
-            if (plotNamesNew.isEmpty()) {
-                return Collections.EMPTY_SET;
-            }
-
-            Set<MetricNameDto> result = new HashSet<MetricNameDto>(plotNamesNew.size());
-
-            for (Object[] plotName : plotNamesNew){
-                if (plotName != null) {
-                    for (TaskDataDto tdd : taskDataDtos) {
-                        if (tdd.getIds().contains((Long)plotName[2])) {
-                            result.add(new MetricNameDto(tdd, (String)plotName[0], (String)plotName[1]));
-                        }
-                    }
-                }
-            }
-
-            return result;
+            return getMetricNames(taskDataDtos);
         } catch (PersistenceException e) {
             log.debug("Could not fetch metric plot names from MetricPointEntity: {}", DataProcessingUtil.getMessageFromLastCause(e));
             return Collections.EMPTY_SET;
         }
+    }
 
+    protected List<Object[]> getMetricDescriptions(Set<Long> ids){
+        if (ids.isEmpty()){
+            return Collections.EMPTY_LIST;
+        }
+        return entityManager.createQuery(
+                "select mpe.metricDescription.metricId, mpe.metricDescription.displayName, mpe.metricDescription.taskData.id " +
+                        "from MetricPointEntity as mpe where mpe.metricDescription.taskData.id in (:taskIds) group by mpe.metricDescription.id")
+                .setParameter("taskIds", ids)
+                .getResultList();
     }
 
     @Override

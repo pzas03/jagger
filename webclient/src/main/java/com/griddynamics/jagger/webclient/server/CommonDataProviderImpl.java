@@ -15,8 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import java.math.BigInteger;
 import java.util.*;
@@ -31,18 +29,11 @@ import static com.griddynamics.jagger.webclient.client.mvp.NameTokens.*;
  * User: amikryukov
  * Date: 11/27/13
  */
-public class CommonDataProviderImpl implements CommonDataProvider {
-
-    private EntityManager entityManager;
+public class CommonDataProviderImpl extends AbstractDataProvider implements CommonDataProvider{
 
     private Logger log = LoggerFactory.getLogger(this.getClass());
 
     private WebClientProperties webClientProperties;
-
-    @PersistenceContext
-    public void setEntityManager(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
 
     private CustomMetricPlotDataProvider customMetricPlotDataProvider;
     private Map<GroupKey, DefaultWorkloadParameters[]> workloadPlotGroups;
@@ -147,49 +138,26 @@ public class CommonDataProviderImpl implements CommonDataProvider {
 
     }
 
-
     public Set<MetricNameDto> getCustomMetricsNamesNewModel(List<TaskDataDto> tests) {
-
         try {
-
-            Set<Long> taskIds = new HashSet<Long>();
-            for (TaskDataDto tdd : tests) {
-                taskIds.addAll(tdd.getIds());
-            }
-
-            List<Object[]> metricDescriptionEntities = entityManager.createQuery(
-                    "select mse.metricDescription.metricId, mse.metricDescription.displayName, mse.metricDescription.taskData.id " +
-                            "from MetricSummaryEntity as mse where mse.metricDescription.taskData.id in (:taskIds)")
-                    .setParameter("taskIds", taskIds)
-                    .getResultList();
-
-            if (metricDescriptionEntities.isEmpty()) {
-                return Collections.EMPTY_SET;
-            }
-
-            Set<MetricNameDto>  metrics = new HashSet<MetricNameDto>(metricDescriptionEntities.size());
-
-            for (Object[] mde : metricDescriptionEntities) {
-                for (TaskDataDto td : tests) {
-                    if (td.getIds().contains((Long) mde[2])) {
-                        MetricNameDto metric = new MetricNameDto();
-                        metric.setTest(td);
-                        metric.setMetricName((String) mde[0]);
-                        metric.setMetricDisplayName((String) mde[1]);
-                        metrics.add(metric);
-                        break;
-                    }
-                }
-            }
-
-            return metrics;
-
+            return getMetricNames(tests);
         } catch (PersistenceException e) {
             log.debug("Could not fetch data from MetricSummaryEntity: {}", DataProcessingUtil.getMessageFromLastCause(e));
             return Collections.EMPTY_SET;
         }
     }
 
+    protected List<Object[]> getMetricDescriptions(Set<Long> ids){
+        if (ids.isEmpty()){
+            return Collections.EMPTY_LIST;
+        }
+
+        return entityManager.createQuery(
+                "select mse.metricDescription.metricId, mse.metricDescription.displayName, mse.metricDescription.taskData.id " +
+                        "from MetricSummaryEntity as mse where mse.metricDescription.taskData.id in (:taskIds)")
+                .setParameter("taskIds", ids)
+                .getResultList();
+    }
 
     /**
      * Fetch validators names from database
@@ -268,11 +236,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                 if (name == null || name[0] == null) continue;
                 for (TaskDataDto td : tests) {
                     if (td.getIds().contains(((BigInteger)name[1]).longValue())) {
-                        MetricNameDto metric = new MetricNameDto();
-                        metric.setTest(td);
-                        metric.setMetricName((String) name[0]);
-                        metric.setMetricDisplayName((String) name[2]);
-                        validators.add(metric);
+                        validators.add(new MetricNameDto(td, (String)name[0], (String)name[2]));
                         break;
                     }
                 }
