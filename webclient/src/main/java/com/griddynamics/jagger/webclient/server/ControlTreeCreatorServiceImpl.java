@@ -112,7 +112,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
             Map<TaskDataDto, List<PlotNode>> map = metricsPlotsMapFuture.get();
             Map<TaskDataDto, List<MonitoringPlotNode>> monitoringMap = monitoringPlotsMapFuture.get();
 
-            for (TaskDataDto tdd : map.keySet()) {
+            for (TaskDataDto tdd : taskList) {
                 // rules to create test tree view
                 String rootId = METRICS_PREFIX + tdd.hashCode();
                 TreeViewGroupRule testNodeRule = TreeViewGroupRuleProvider.provide(rootId, rootId);
@@ -124,8 +124,10 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
                 testNode.setTaskDataDto(tdd);
                 if (!monitoringMap.isEmpty()) {
                     List<MonitoringPlotNode> monitoringPlotNodeList = monitoringMap.get(tdd);
-                    MetricRankingProvider.sortPlotNodes(monitoringPlotNodeList);
-                    testNode.setMonitoringPlots(monitoringPlotNodeList);
+                    if (monitoringPlotNodeList != null) { // it is possible to have two tests with and without monitoring
+                        MetricRankingProvider.sortPlotNodes(monitoringPlotNodeList);
+                        testNode.setMonitoringPlots(monitoringPlotNodeList);
+                    }
                 }
 
                 taskDataDtoList.add(testNode);
