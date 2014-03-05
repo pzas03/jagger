@@ -249,7 +249,6 @@ public class TagBox extends AbstractWindow implements IsWidget {
 
     @Override
     protected void onSave() {
-
         saveTagToDataBase();
         atClose();
     }
@@ -326,6 +325,7 @@ public class TagBox extends AbstractWindow implements IsWidget {
                 }
                 currentTreeItem.put(getText(), tags);
                 treeGrid.getTreeView().refresh(false);
+                atClose();
             }
         });
     }

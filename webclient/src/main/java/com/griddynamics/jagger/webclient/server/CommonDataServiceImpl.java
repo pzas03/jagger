@@ -12,6 +12,7 @@ public class CommonDataServiceImpl implements CommonDataService {
     public void setWebClientProperties(WebClientProperties webClientProperties) {
         this.webClientProperties = webClientProperties;
         checkIfUserCommentAvailable();
+        checkIfTagsAvailable();
     }
 
     @Override
@@ -21,6 +22,10 @@ public class CommonDataServiceImpl implements CommonDataService {
 
     private void checkIfUserCommentAvailable() {
         webClientProperties.setUserCommentStoreAvailable(commonDataProvider.checkIfUserCommentStorageAvailable());
+    }
+
+    private void checkIfTagsAvailable() {
+        webClientProperties.setTagsStoreAvailable(commonDataProvider.checkIfTagsStorageAvailable());
     }
 
     public CommonDataProvider getCommonDataProvider() {

@@ -44,7 +44,6 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
         List<TagEntity> tags = (List<TagEntity>) (entityManager.createQuery("select te from TagEntity as te")).getResultList();
         List<TagDto> allTags = new ArrayList<TagDto>();
         if (!tags.isEmpty()) {
-            allTags = new ArrayList<TagDto>();
             for (TagEntity tagEntity : tags) {
                 allTags.add(new TagDto(tagEntity.getName(), tagEntity.getDescription()));
             }
@@ -156,11 +155,7 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
         totalSize = (Long) entityManager.createQuery("select count(sessionData.id) from SessionData as sessionData").getSingleResult();
 
         try {
-            if (commonDataService.getWebClientProperties().isUserCommentStoreAvailable() || commonDataService.getWebClientProperties().isTagsAvailable()) {
                 sessionDataDtoList = getAllWithMetaData(start, length);
-            } else {
-                sessionDataDtoList = getAllNoMetaData(start, length);
-            }
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -175,33 +170,13 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
         return new PagedSessionDataDto(sessionDataDtoList, (int) totalSize);
     }
 
-
-    private List<SessionDataDto> getAllNoMetaData(int start, int length) {
-
-        @SuppressWarnings("unchecked")
-        List<SessionData> sessionDataList = (List<SessionData>)
-                entityManager.createQuery("select sd from SessionData as sd order by sd.startTime asc").setFirstResult(start).setMaxResults(length).getResultList();
-
-        if (sessionDataList == null || sessionDataList.isEmpty()) {
-            return Collections.EMPTY_LIST;
-        }
-
-        List<SessionDataDto> sessionDataDtoList = new ArrayList<SessionDataDto>(sessionDataList.size());
-
-        for (SessionData sessionData : sessionDataList) {
-            sessionDataDtoList.add(createSessionDataDto(sessionData, null, null));
-        }
-
-        return sessionDataDtoList;
-    }
-
     private List<SessionDataDto> getAllWithMetaData(int start, int length) {
 
         @SuppressWarnings("unchecked")
         List<SessionData> sessionDataList = (List<SessionData>)
                 entityManager.createQuery("select sd from SessionData as sd order by sd.startTime asc").setFirstResult(start).setMaxResults(length).getResultList();
 
-        if (sessionDataList.isEmpty()) {
+        if (sessionDataList == null||sessionDataList.isEmpty()) {
             return Collections.EMPTY_LIST;
         }
         List<Long> sessionIds = new ArrayList<Long>();
@@ -225,7 +200,7 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
 
         }
         Map<Long, ArrayList<TagDto>> tagMap = Collections.EMPTY_MAP;
-        if (commonDataService.getWebClientProperties().isTagsAvailable()) {
+        if (commonDataService.getWebClientProperties().isTagsStoreAvailable()) {
             List<Object[]> sessionTags = entityManager.createNativeQuery("select a.sessions_id, a.tags_name, te.description " +
                     "from  TagEntity as te, (select distinct ste.sessions_id, ste.tags_name from SessionTagEntity as ste where ste.sessions_id in (:sessionIds)) as a " +
                     "where a.tags_name=te.name")
@@ -275,7 +250,7 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
                     log.warn("Could not fetch data from SessionMetaDataEntity", e);
                 }
             }
-            if (commonDataService.getWebClientProperties().isTagsAvailable()) {
+            if (commonDataService.getWebClientProperties().isTagsStoreAvailable()) {
                 List<TagEntity> sessionTags = entityManager.createQuery("select a.tags_name, te.description " +
                         "from (select distinct ste.tags_name from SessionTagEntity as ste where ste.sessions_id=:sessionId) as a, TagEntity te" +
                         " where a.tags_name=te.name").setParameter("sessionId", sessionId).getResultList();
@@ -349,7 +324,7 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
             }
             Map<Long, ArrayList<TagDto>> tagMap = Collections.EMPTY_MAP;
 
-            if (commonDataService.getWebClientProperties().isTagsAvailable()) {
+            if (commonDataService.getWebClientProperties().isTagsStoreAvailable()) {
                 List<Object[]> sessionTags = entityManager.createNativeQuery("select a.sessions_id, a.tags_name, te.description " +
                         "from  TagEntity as te, (select distinct ste.sessions_id, ste.tags_name from SessionTagEntity as ste where ste.sessions_id in (:sessionIds)) as a " +
                         "where a.tags_name=te.name")
@@ -424,7 +399,7 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
             }
             Map<Long, ArrayList<TagDto>> tagMap = Collections.EMPTY_MAP;
 
-            if (commonDataService.getWebClientProperties().isTagsAvailable()) {
+            if (commonDataService.getWebClientProperties().isTagsStoreAvailable()) {
                 List<Object[]> sessionTags = entityManager.createNativeQuery("select a.sessions_id, a.tags_name, te.description " +
                         "from  TagEntity as te, (select distinct ste.sessions_id, ste.tags_name from SessionTagEntity as ste where ste.sessions_id in (:sessionIds)) as a " +
                         "where a.tags_name=te.name")

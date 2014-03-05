@@ -101,9 +101,9 @@ public class SessionComparisonPanel extends VerticalPanel {
         userCommentBox.setTreeGrid(treeGrid);
         tagBox = new TagBox();
         tagBox.setTreeGrid(treeGrid);
-        allTags();
+        if (webClientProperties.isTagsStoreAvailable())
+            allTags();
     }
-
 
     private void init(Set<SessionDataDto> chosenSessions, int width) {
 
@@ -192,7 +192,7 @@ public class SessionComparisonPanel extends VerticalPanel {
                     if (item.getKey().equals(USER_COMMENT) && event.getCellIndex() > 0) {
                         SessionDataDto currentSession = defineCurrentSession(event);
                         userCommentBox.popUp(currentSession,
-                                item.get(currentSession.getSessionId()),
+                                item.get(SESSION_HEADER + currentSession.getSessionId()),
                                 item
                         );
                     }
@@ -271,7 +271,8 @@ public class SessionComparisonPanel extends VerticalPanel {
         itemComment.put(NAME, COMMENT);
         if (webClientProperties.isUserCommentStoreAvailable())
             itemUserComment.put(NAME, USER_COMMENT);
-        itemTags.put(NAME, SESSION_TAGS);
+        if (webClientProperties.isTagsStoreAvailable())
+            itemTags.put(NAME, SESSION_TAGS);
 
         for (SessionDataDto session : chosenSessions) {
             itemActiveKernels.put(SESSION_HEADER + session.getSessionId(), session.getActiveKernelsCount() + "");
@@ -284,18 +285,21 @@ public class SessionComparisonPanel extends VerticalPanel {
                 String userComment = session.getUserComment() == null ? "" : session.getUserComment();
                 itemUserComment.put(SESSION_HEADER + session.getSessionId(), userComment);
             }
-            if (session.getTags() == null) {
-                session.setTags(new ArrayList<TagDto>());
+            if (webClientProperties.isTagsStoreAvailable()) {
+                if (session.getTags() == null) {
+                    session.setTags(new ArrayList<TagDto>());
+                }
+                for (TagDto tagDto : session.getTags())
+                    tagsStr += tagDto.getName() + " ";
+                itemTags.put(SESSION_HEADER + session.getSessionId(), tagsStr);
+                tagsStr = "";
             }
-            for (TagDto tagDto :session.getTags())
-                tagsStr += tagDto.getName() + " ";
-            itemTags.put(SESSION_HEADER + session.getSessionId(), tagsStr);
-            tagsStr = "";
         }
         treeStore.add(sessionInfo, itemComment);
         if (webClientProperties.isUserCommentStoreAvailable())
             treeStore.add(sessionInfo, itemUserComment);
-        treeStore.add(sessionInfo, itemTags);
+        if (webClientProperties.isTagsStoreAvailable())
+            treeStore.add(sessionInfo, itemTags);
         treeStore.add(sessionInfo, itemDateStart);
         treeStore.add(sessionInfo, itemDateEnd);
 
