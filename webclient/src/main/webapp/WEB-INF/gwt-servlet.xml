@@ -53,6 +53,7 @@
                 <entry key="/ControlTreeCreatorService" value-ref="controlTreeCreatorService"/>
                 <entry key="/NodeInfoService" value-ref="nodeInfoService"/>
                 <entry key="/CommonDataService" value-ref="commonDataService"/>
+                <entry key="/TestInfoService" value-ref="testInfoService"/>
             </map>
         </property>
     </bean>
@@ -92,6 +93,8 @@
     <bean id="sessionDataService" class="com.griddynamics.jagger.webclient.server.SessionDataServiceImpl">
         <property name="commonDataService" ref="commonDataService"/>
     </bean>
+
+    <bean id="testInfoService" class="com.griddynamics.jagger.webclient.server.TestInfoServiceImpl"/>
 
     <bean id="commonDataService" class="com.griddynamics.jagger.webclient.server.CommonDataServiceImpl">
         <property name="commonDataProvider" ref="databaseFetcher"/>

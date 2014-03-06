@@ -36,10 +36,7 @@ import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.gwt.view.client.*;
 import com.griddynamics.jagger.webclient.client.*;
-import com.griddynamics.jagger.webclient.client.components.ControlTree;
-import com.griddynamics.jagger.webclient.client.components.ExceptionPanel;
-import com.griddynamics.jagger.webclient.client.components.NodesPanel;
-import com.griddynamics.jagger.webclient.client.components.SummaryPanel;
+import com.griddynamics.jagger.webclient.client.components.*;
 import com.griddynamics.jagger.webclient.client.components.control.CheckHandlerMap;
 import com.griddynamics.jagger.webclient.client.components.control.SimpleNodeValueProvider;
 import com.griddynamics.jagger.webclient.client.components.control.model.*;
@@ -1253,11 +1250,15 @@ public class Trends extends DefaultActivity {
         }
 
         private void fetchMetricsForTests(List<TestNode> testNodes) {
+
+            List<TaskDataDto> taskDataDtos = new ArrayList<TaskDataDto>();
             for (TestNode testNode : testNodes) {
                 if (controlTree.isChecked(testNode.getTestInfo())) {
-                    testInfoFetcher.fetchTestInfo(testNode.getTaskDataDto(), false);
+                    taskDataDtos.add(testNode.getTaskDataDto());
                 }
             }
+
+            testInfoFetcher.fetchTestInfo(taskDataDtos, false);
             metricFetcher.fetchMetrics(controlTree.getCheckedMetrics(), false);
         }
 
@@ -1306,7 +1307,7 @@ public class Trends extends DefaultActivity {
     public class TestInfoFetcher {
         public void fetchTestInfo(final TaskDataDto taskDataDto, final boolean enableTree) {
 
-            SessionDataService.Async.getInstance().getTestInfo(taskDataDto, new AsyncCallback<Map<String, TestInfoDto>>() {
+            TestInfoService.Async.getInstance().getTestInfo(taskDataDto, new AsyncCallback<Map<String, TestInfoDto>>() {
                 @Override
                 public void onFailure(Throwable caught) {
                     caught.printStackTrace();
@@ -1320,6 +1321,27 @@ public class Trends extends DefaultActivity {
                     summaryPanel.getSessionComparisonPanel().addTestInfo(taskDataDto, result);
                     if (enableTree)
                         enableControl();
+                }
+            });
+        }
+
+        public void fetchTestInfo(final Collection<TaskDataDto> taskDataDtos, final boolean enableTree) {
+
+            TestInfoService.Async.getInstance().getTestInfos(taskDataDtos, new AsyncCallback<Map<TaskDataDto, Map<String, TestInfoDto>>>() {
+                @Override
+                public void onFailure(Throwable caught) {
+                    caught.printStackTrace();
+                    new ExceptionPanel(place, caught.getMessage());
+                    if (enableTree)
+                        enableControl();
+                }
+
+                @Override
+                public void onSuccess(Map<TaskDataDto, Map<String, TestInfoDto>> result) {
+                    SessionComparisonPanel scp =  summaryPanel.getSessionComparisonPanel();
+                    for (TaskDataDto td : result.keySet()) {
+                        scp.addTestInfo(td, result.get(td));
+                    }
                 }
             });
         }
