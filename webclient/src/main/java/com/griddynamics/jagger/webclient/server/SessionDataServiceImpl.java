@@ -40,7 +40,7 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
     }
 
     @Override
-    public synchronized List<TagDto> getAllTags() {
+    public List<TagDto> getAllTags() {
         List<TagEntity> tags = (List<TagEntity>) (entityManager.createQuery("select te from TagEntity as te")).getResultList();
         List<TagDto> allTags = new ArrayList<TagDto>();
         if (!tags.isEmpty()) {
@@ -53,35 +53,24 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
 
     @Override
     public synchronized void saveTags(Long sessionData_id, List<TagDto> tags) {
-        List<String> tagNames = new ArrayList<String>();
+        Set<TagEntity> tagEntities = new HashSet<TagEntity>();
+        SessionData sessionData;
         for (TagDto tagDto : tags) {
-            tagNames.add(tagDto.getName());
+            tagEntities.add(new TagEntity(tagDto.getName(), tagDto.getDescription()));
         }
         try {
             entityManager.getTransaction().begin();
-            if (tagNames.isEmpty())
-                entityManager.createNativeQuery("delete from SessionTagEntity where sessions_id=:sessionData_id")
-                        .setParameter("sessionData_id", sessionData_id)
-                        .executeUpdate();
-            else {
-                entityManager.createNativeQuery("delete from SessionTagEntity where sessions_id=:sessionData_id and tags_name not in (:tagNames)")
-                        .setParameter("sessionData_id", sessionData_id)
-                        .setParameter("tagNames", tagNames)
-                        .executeUpdate();
-                for (String tagStr : tagNames) {
-                    entityManager.createNativeQuery(
-                            "insert into SessionTagEntity(sessions_id,tags_name) " +
-                                    "values (:sessionData_id,:tagStr)" +
-                                    "ON DUPLICATE KEY UPDATE tags_name=:tagStr")
-                            .setParameter("sessionData_id", sessionData_id)
-                            .setParameter("tagStr", tagStr)
-                            .executeUpdate();
-                }
+            sessionData = (SessionData) entityManager.createQuery("select sd from SessionData as sd where sd.id  = (:sessionData_id)")
+                    .setParameter("sessionData_id", sessionData_id)
+                    .getSingleResult();
+            if (sessionData != null) {
+                sessionData.setTags(tagEntities);
+                entityManager.merge(sessionData);
+                entityManager.flush();
             }
         } finally {
             entityManager.getTransaction().commit();
         }
-
     }
 
     @Override
@@ -155,7 +144,7 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
         totalSize = (Long) entityManager.createQuery("select count(sessionData.id) from SessionData as sessionData").getSingleResult();
 
         try {
-                sessionDataDtoList = getAllWithMetaData(start, length);
+            sessionDataDtoList = getAllWithMetaData(start, length);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -176,7 +165,7 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
         List<SessionData> sessionDataList = (List<SessionData>)
                 entityManager.createQuery("select sd from SessionData as sd order by sd.startTime asc").setFirstResult(start).setMaxResults(length).getResultList();
 
-        if (sessionDataList == null||sessionDataList.isEmpty()) {
+        if (sessionDataList == null || sessionDataList.isEmpty()) {
             return Collections.EMPTY_LIST;
         }
         List<Long> sessionIds = new ArrayList<Long>();
