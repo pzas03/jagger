@@ -115,9 +115,9 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
             Map<TaskDataDto, List<PlotNode>> map = metricsPlotsMapFuture.get();
             Map<TaskDataDto, List<MonitoringPlotNode>> monitoringMap = monitoringPlotsMapFuture.get();
 
-            for (TaskDataDto tdd : map.keySet()) {
+            for (TaskDataDto tdd : taskList) {
                 List<PlotNode> metricNodeList = map.get(tdd);
-                String rootId = METRICS_PREFIX + tdd.getTaskName();
+                String rootId = METRICS_PREFIX + tdd.hashCode();
 
                 // rules to unite metrics in single plot
                 //??? review ids
@@ -131,17 +131,19 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
                 }
 
                 // rules to create test tree view
-                TreeViewGroupRule testNodeRule = TreeViewGroupRuleProvider.provide(rootId, rootId);
+                TreeViewGroupRule testNodeGroupNodesRule = TreeViewGroupRuleProvider.provide(rootId, rootId);
                 // tree with metrics distributed by groups
                 filterBy = Filter.BY_DISPLAY_NAME;
-                MetricGroupNode<PlotNode> testDetailsNodeBase = testNodeRule.filter(filterBy,null,metricNodeList);
+                MetricGroupNode<PlotNode> testDetailsNodeBase = testNodeGroupNodesRule.filter(filterBy,null,metricNodeList);
                 // full test details node
                 TestDetailsNode testNode = new TestDetailsNode(testDetailsNodeBase);
                 testNode.setTaskDataDto(tdd);
                 if (!monitoringMap.isEmpty()) {
                     List<MonitoringPlotNode> monitoringPlotNodeList = monitoringMap.get(tdd);
-                    MetricRankingProvider.sortPlotNodes(monitoringPlotNodeList);
-                    testNode.setMonitoringPlots(monitoringPlotNodeList);
+                    if (monitoringPlotNodeList != null) { // it is possible to have two tests with and without monitoring
+                        MetricRankingProvider.sortPlotNodes(monitoringPlotNodeList);
+                        testNode.setMonitoringPlots(monitoringPlotNodeList);
+                    }
                 }
 
                 taskDataDtoList.add(testNode);
@@ -171,7 +173,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
         Map<TaskDataDto, List<MetricNode>> map = getTestMetricsMap(tasks);
         for (TaskDataDto tdd : map.keySet()) {
             List<MetricNode> metricNodeList = map.get(tdd);
-            String rootId = SUMMARY_PREFIX + tdd.getTaskName();
+            String rootId = SUMMARY_PREFIX + tdd.hashCode();
 
             //???
             //exception with already existing node name - handle it and show to user
@@ -196,7 +198,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
             // full test node with info data
             TestNode testNode = new TestNode(testNodeBase);
             testNode.setTaskDataDto(tdd);
-            TestInfoNode tin = new TestInfoNode(tdd.getTaskName() + TEST_INFO, TEST_INFO);
+            TestInfoNode tin = new TestInfoNode(TEST_INFO + testNode.getId(), TEST_INFO);
             tin.setTestInfoList(getTestInfoNamesList(tdd));
             testNode.setTestInfo(tin);
 
