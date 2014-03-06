@@ -4,6 +4,10 @@ import com.griddynamics.jagger.webclient.client.ControlTreeCreatorService;
 import com.griddynamics.jagger.webclient.client.components.control.model.*;
 import com.griddynamics.jagger.webclient.client.data.MetricRankingProvider;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
+import com.griddynamics.jagger.webclient.server.rules.TreeViewGroupMetricsToNodeRule;
+import com.griddynamics.jagger.webclient.server.rules.TreeViewGroupMetricsToNodeRuleProvider;
+import com.griddynamics.jagger.webclient.server.rules.TreeViewGroupRule;
+import com.griddynamics.jagger.webclient.server.rules.TreeViewGroupRuleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

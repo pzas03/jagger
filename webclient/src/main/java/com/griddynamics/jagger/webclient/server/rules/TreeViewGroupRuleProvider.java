@@ -1,4 +1,4 @@
-package com.griddynamics.jagger.webclient.server;
+package com.griddynamics.jagger.webclient.server.rules;
 
 import java.util.ArrayList;
 import java.util.List;

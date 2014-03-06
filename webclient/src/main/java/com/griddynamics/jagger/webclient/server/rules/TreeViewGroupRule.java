@@ -1,4 +1,4 @@
-package com.griddynamics.jagger.webclient.server;
+package com.griddynamics.jagger.webclient.server.rules;
 
 import com.griddynamics.jagger.webclient.client.components.control.model.MetricGroupNode;
 import com.griddynamics.jagger.webclient.client.components.control.model.MetricNode;
@@ -7,22 +7,13 @@ import com.griddynamics.jagger.webclient.client.mvp.NameTokens;
 
 import java.util.*;
 
-public class TreeViewGroupRule {
+public class TreeViewGroupRule extends Rule{
 
     public TreeViewGroupRule(String id, String displayName, String rule) {
-        this.id = id;
-        this.displayName = displayName;
-        this.rule = rule;
+        super(id,displayName,rule);
     }
     public TreeViewGroupRule(String id, String displayName, String rule, List<TreeViewGroupRule> children) {
-        this.id = id;
-        this.displayName = displayName;
-        this.rule = rule;
-        this.children = sortByDisplayName(children);
-    }
-    public TreeViewGroupRule(String id, String displayName, List<TreeViewGroupRule> children) {
-        this.id = id;
-        this.displayName = displayName;
+        super(id,displayName,rule);
         this.children = sortByDisplayName(children);
     }
 
@@ -99,22 +90,11 @@ public class TreeViewGroupRule {
         }
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public String getRule() {
-        return rule;
-    }
-
     public List<TreeViewGroupRule> getChildren() {
         return children;
     }
 
+    //??? move to util
     private List<TreeViewGroupRule> sortByDisplayName(List<TreeViewGroupRule> metricGroupRuleList) {
         Collections.sort(metricGroupRuleList, new Comparator<TreeViewGroupRule>() {
             @Override
@@ -127,9 +107,6 @@ public class TreeViewGroupRule {
         return metricGroupRuleList;
     }
 
-    private String id;
-    private String displayName;
-    private String rule = null;
     private List<TreeViewGroupRule> children = null;
 
 }

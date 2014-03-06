@@ -1196,7 +1196,6 @@ public class Trends extends DefaultActivity {
         }
 
         private void fetchPlotsForTests() {
-            //testPlotFetcher.fetchPlots(controlTree.getCheckedPlots(), true);
             testPlotFetcher.fetchPlots(controlTree.getCheckedPlots());
         }
 

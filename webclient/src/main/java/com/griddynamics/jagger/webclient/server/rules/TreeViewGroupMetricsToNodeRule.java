@@ -1,4 +1,4 @@
-package com.griddynamics.jagger.webclient.server;
+package com.griddynamics.jagger.webclient.server.rules;
 
 import com.griddynamics.jagger.webclient.client.components.control.model.MetricNode;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
@@ -6,13 +6,11 @@ import com.griddynamics.jagger.webclient.client.mvp.NameTokens;
 
 import java.util.*;
 
-public class TreeViewGroupMetricsToNodeRule {
+public class TreeViewGroupMetricsToNodeRule extends Rule {
 
     public TreeViewGroupMetricsToNodeRule() {}
     public TreeViewGroupMetricsToNodeRule(String id, String displayName, String rule) {
-        this.id = id;
-        this.displayName = displayName;
-        this.rule = rule;
+        super(id,displayName,rule);
     }
 
     public <M extends MetricNode> List<M> filter(NameTokens.Filter filterBy, String parentId, List<M> metricNodeList) {
@@ -60,18 +58,6 @@ public class TreeViewGroupMetricsToNodeRule {
         }
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public String getRule() {
-        return rule;
-    }
-
     public static class Composer extends TreeViewGroupMetricsToNodeRule {
         private List<TreeViewGroupMetricsToNodeRule> treeViewGroupMetricsToNodeRules;
 
@@ -104,6 +90,7 @@ public class TreeViewGroupMetricsToNodeRule {
         }
     }
 
+    //???
     protected List<TreeViewGroupMetricsToNodeRule> sortByDisplayName(List<TreeViewGroupMetricsToNodeRule> metricGroupRuleList) {
         Collections.sort(metricGroupRuleList, new Comparator<TreeViewGroupMetricsToNodeRule>() {
             @Override
@@ -115,8 +102,4 @@ public class TreeViewGroupMetricsToNodeRule {
 
         return metricGroupRuleList;
     }
-
-    private String id;
-    private String displayName;
-    private String rule = null;
 }
