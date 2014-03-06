@@ -67,68 +67,19 @@ public class PlotProviderServiceImpl implements PlotProviderService {
     //===========Contract Methods
     //===========================
 
-//    //??? not used @Override
-//    private List<PlotSeriesDto> getPlotData(long taskId, MetricNameDto plotName) {
-//        long timestamp = System.currentTimeMillis();
-//        log.debug("getPlotData was invoked with taskId={} and metricName={}", taskId, plotName);
-//
-//        PlotDataProvider plotDataProvider = findPlotDataProvider(plotName);
-//
-//        List<PlotSeriesDto> plotSeriesDto;
-//        try {
-//            plotSeriesDto = plotDataProvider.getPlotData(taskId, plotName);
-//            log.info("getPlotData(): {}", getFormattedLogMessage(plotSeriesDto, "" + taskId, plotName.getMetricName(), System.currentTimeMillis() - timestamp));
-//        } catch (Exception e) {
-//            log.error("Error is occurred during plot data loading for taskId=" + taskId + ", metricName=" + plotName, e);
-//            throw new RuntimeException(e);
-//        }
-//
-//        return plotSeriesDto;
-//    }
-
-    //??? not used    @Override
-    private List<PlotSeriesDto> getPlotData(MetricNameDto metricNameDto) {
-        long timestamp = System.currentTimeMillis();
-        log.debug("getPlotData was invoked with taskIds={} and metricNameDto={}", metricNameDto.getTaskIds(), metricNameDto);
-
-        PlotDataProvider plotDataProvider = findPlotDataProvider(metricNameDto);
-
-        List<PlotSeriesDto> plotSeriesDtoList;
-        try {
-            plotSeriesDtoList = plotDataProvider.getPlotData(metricNameDto);
-            log.info("getPlotData(): {}", getFormattedLogMessage(plotSeriesDtoList, "" + metricNameDto.getTaskIds(), metricNameDto.getMetricName(), System.currentTimeMillis() - timestamp));
-        } catch (Exception e) {
-            log.error("Error is occurred during plot data loading for taskIds=" + metricNameDto.getTaskIds() + ", metricNameDto=" + metricNameDto, e);
-            throw new RuntimeException(e);
-        }
-
-        return plotSeriesDtoList;
-    }
-
     @Override
-    public Map<MetricNameDto, List<PlotSeriesDto>> getPlotDatas(Set<MetricNameDto> plots) throws IllegalArgumentException{
-        Map<MetricNameDto,List<PlotSeriesDto>> result = new LinkedHashMap<MetricNameDto, List<PlotSeriesDto>>(plots.size());
-        // todo : fetch metrics  plots in one query
-        for (MetricNameDto plot : plots){
-            result.put(plot, getPlotData(plot));
-        }
-        return result;
-    }
-
-    @Override
-    public Map<MetricNode, PlotSeriesDto> getPlotDatas(Set<MetricNode> plots, boolean dummy) throws IllegalArgumentException{
+    public Map<MetricNode, PlotSeriesDto> getPlotData(Set<MetricNode> plots) throws IllegalArgumentException{
         PlotDataProvider plotDataProvider;
         Map<MetricNode, PlotSeriesDto> result = new HashMap<MetricNode, PlotSeriesDto>();
         List<PlotSeriesDto> plotSeriesDtoList = null;
-        List<PlotDatasetDto> plotDatasetDtoList = new ArrayList<PlotDatasetDto>();
 
         //??? slow approach
         // necessary to group metrics by origin, get lines and reorder lines to plots
 
 
         for (MetricNode metricNode : plots) {
-            // reset
-            plotDatasetDtoList.clear();
+
+            List<PlotDatasetDto> plotDatasetDtoList = new ArrayList<PlotDatasetDto>();
 
             for (MetricNameDto metricNameDto : metricNode.getMetricNameDtoList()) {
                 plotDataProvider = findPlotDataProvider(metricNameDto);

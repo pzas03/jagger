@@ -285,19 +285,19 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
     /**
      * @return checked MetricNameDto from all Tests
      */
-    public Set<MetricNameDto> getCheckedPlots() {
+    public Set<MetricNode> getCheckedPlots() {
 
-        Set<MetricNameDto> resultSet = new HashSet<MetricNameDto>();
+        Set<MetricNode> resultSet = new HashSet<MetricNode>();
         for (TestDetailsNode test : rootNode.getDetailsNode().getTests()) {
             for (PlotNode plotNode : test.getMetrics()) {
                 if (isChecked(plotNode)) {
-                    resultSet.addAll(plotNode.getMetricNameDtoList());
+                    resultSet.add(plotNode);
                 }
             }
             for (MonitoringPlotNode monitoringPlotNode : test.getMonitoringPlots()) {
                 for (PlotNode plotNode : monitoringPlotNode.getPlots()) {
                     if (isChecked(plotNode)) {
-                        resultSet.addAll(plotNode.getMetricNameDtoList());
+                        resultSet.add(plotNode);
                     }
                 }
             }

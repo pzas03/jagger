@@ -3,7 +3,6 @@ package com.griddynamics.jagger.webclient.client.handler;
 import com.griddynamics.jagger.webclient.client.components.control.model.MetricGroupNode;
 import com.griddynamics.jagger.webclient.client.components.control.model.MetricNode;
 import com.griddynamics.jagger.webclient.client.components.control.model.PlotNode;
-import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
 import com.sencha.gxt.widget.core.client.event.CheckChangeEvent;
 import com.sencha.gxt.widget.core.client.tree.Tree;
 
@@ -31,24 +30,13 @@ public class MetricGroupNodeHandler extends TreeAwareHandler<MetricGroupNode> {
             if (event.getItem().getMetrics().get(0).getClass() == PlotNode.class) {
                 MetricGroupNode<PlotNode> testNode = event.getItem();
 
-                //??? temp here
-                Set<MetricNameDto> dtos = new LinkedHashSet<MetricNameDto>();
-
-                Set<PlotNode> nodes = new LinkedHashSet<PlotNode>();
-                for (PlotNode plotNode : testNode.getMetrics()) {
-                    nodes.add(plotNode);
-                    //??? temp here
-                    dtos.addAll(plotNode.getMetricNameDtoList());
-                }
+                Set<MetricNode> nodes = new LinkedHashSet<MetricNode>();
+                nodes.addAll(testNode.getMetrics());
 
                 if (Tree.CheckState.CHECKED.equals(event.getChecked())) {
-                    //??? old way
-                    testPlotFetcher.fetchPlots(dtos, true);
-
-
+                    testPlotFetcher.fetchPlots(nodes);
                 } else {
-                    // ??? temp here. should be by nodes
-                    testPlotFetcher.removePlots(dtos);
+                    testPlotFetcher.removePlots(nodes);
                 }
             }
 

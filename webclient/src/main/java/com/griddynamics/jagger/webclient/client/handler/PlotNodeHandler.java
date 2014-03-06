@@ -17,21 +17,13 @@ public class PlotNodeHandler extends TreeAwareHandler<PlotNode> {
     @Override
     public void onCheckChange(CheckChangeEvent<PlotNode> event) {
 
-        //???
-        //Set<MetricNameDto> metricNameDtos = new HashSet<MetricNameDto>();
-        //metricNameDtos.addAll(event.getItem().getMetricNameDtoList());
-
         Set<MetricNode> metricNodeSet = new HashSet<MetricNode>();
         metricNodeSet.add(event.getItem());
 
         if (Tree.CheckState.CHECKED.equals(event.getChecked())) {
-            //???testPlotFetcher.fetchPlots(metricNameDtos, true);
             testPlotFetcher.fetchPlots(metricNodeSet);
         } else {
-            //???testPlotFetcher.removePlots(metricNameDtos);
-            //??? dummy to avoid methods signature collapse
-            boolean dummy = true;
-            testPlotFetcher.removePlots(metricNodeSet,dummy);
+            testPlotFetcher.removePlots(metricNodeSet);
         }
     }
 }

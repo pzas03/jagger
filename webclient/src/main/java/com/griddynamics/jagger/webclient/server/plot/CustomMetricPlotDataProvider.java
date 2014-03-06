@@ -38,26 +38,6 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
         this.entityManager = entityManager;
     }
 
-    //??? not used
-//    public List<MetricNameDto> getPlotNames(TaskDataDto taskDataDto){
-//        List<String> plotNames = entityManager.createNativeQuery("select metricDetails.metric from MetricDetails metricDetails " +
-//                                                                 "where taskData_id in (:ids) " +
-//                                                                 "group by metricDetails.metric")
-//                                    .setParameter("ids", taskDataDto.getIds())
-//                                    .getResultList();
-//        if (plotNames.isEmpty())
-//            return Collections.emptyList();
-//
-//        ArrayList<MetricNameDto> result = new ArrayList<MetricNameDto>(plotNames.size());
-//
-//        for (String plotName : plotNames){
-//            if (plotName != null)
-//            result.add(new MetricNameDto(taskDataDto, plotName));
-//        }
-//
-//        return result;
-//    }
-
     public Set<MetricNameDto> getPlotNames(List<TaskDataDto> taskDataDtos){
 
         long temp = System.currentTimeMillis();
@@ -196,55 +176,6 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
 
         return Arrays.asList(plotSeriesDto);
     }
-
-//    //???
-//    public List<PlotSeriesDto> getPlotData(Set<Long> taskIds, MetricNode metricNode) {
-//
-//        String plotName = metricNode.getId();
-//        String displayName = metricNode.getDisplayName();
-//
-//        long temp = System.currentTimeMillis();
-//
-//        ???
-//
-//        // check new way
-//        List<Object[]> metricValues = getPlotDataNewModel(taskIds, plotName);
-//
-//        // check old way
-//        metricValues.addAll(getPlotDataOldModel(taskIds, plotName));
-//
-//        log.debug("Fetch metric plots in count of {} in: {}", metricValues.size(), (System.currentTimeMillis() - temp));
-//
-//        if (metricValues.isEmpty())
-//            return Collections.emptyList();
-//
-//        Multimap<Long, Object[]> metrics = ArrayListMultimap.create(taskIds.size(), metricValues.size());
-//        List<PlotDatasetDto> plots = new ArrayList<PlotDatasetDto>();
-//
-//        for (Object[] metricDetails : metricValues){
-//            metrics.put((Long)metricDetails[0], metricDetails);
-//        }
-//
-//        for (Long id : metrics.keySet()){
-//            Collection<Object[]> taskMetrics = metrics.get(id);
-//            List<PointDto> points = new ArrayList<PointDto>(taskMetrics.size());
-//            String sessionId = null;
-//            //TaskData taskData = null;
-//
-//            for (Object[] metricDetails : taskMetrics){
-//                //if (taskData == null) taskData = metricDetails.getTaskData();
-//                if (sessionId == null) sessionId = (String)metricDetails[3];
-//                points.add(new PointDto((Long)metricDetails[1] / 1000D, Double.parseDouble(metricDetails[2].toString())));
-//            }
-//
-//            PlotDatasetDto plotDatasetDto = new PlotDatasetDto(points, legendProvider.generatePlotLegend(sessionId, displayName, true), ColorCodeGenerator.getHexColorCode());
-//            plots.add(plotDatasetDto);
-//        }
-//
-//        PlotSeriesDto plotSeriesDto = new PlotSeriesDto(plots, "Time, sec", "", legendProvider.getPlotHeader(taskIds, displayName));
-//
-//        return Arrays.asList(plotSeriesDto);
-//    }
 
     /**
      *
