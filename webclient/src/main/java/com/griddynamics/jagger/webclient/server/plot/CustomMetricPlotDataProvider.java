@@ -79,7 +79,7 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
                 for (TaskDataDto tdd : taskDataDtos) {
                     if (tdd.getIds().contains(((BigInteger)plotName[1]).longValue())) {
                         MetricNameDto metricNameDto = new MetricNameDto(tdd, (String)plotName[0]);
-                        metricNameDto.setOrigin(MetricNameDto.Origin.METRIC_OLD_MODEL);
+                        metricNameDto.setOrigin(MetricNameDto.Origin.METRIC);
                         result.add(metricNameDto);
                     }
                 }
@@ -115,7 +115,7 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
                 if (plotName != null) {
                     for (TaskDataDto tdd : taskDataDtos) {
                         if (tdd.getIds().contains((Long)plotName[2])) {
-                            result.add(new MetricNameDto(tdd, (String)plotName[0], (String)plotName[1], MetricNameDto.Origin.METRIC_NEW_MODEL));
+                            result.add(new MetricNameDto(tdd, (String)plotName[0], (String)plotName[1], MetricNameDto.Origin.METRIC));
                         }
                     }
                 }
@@ -135,8 +135,6 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
         String displayName = metricNameDto.getMetricDisplayName();
 
         long temp = System.currentTimeMillis();
-
-        //??? now it is possible to decide which method to call. MND knows it's origin
 
         // check new way
         List<Object[]> metricValues = getPlotDataNewModel(metricNameDto);

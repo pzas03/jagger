@@ -52,9 +52,9 @@ public class MetricDataServiceImpl implements MetricDataService {
             case THROUGHPUT:
             case MONITORING:
 
-            //??? exception here
+                throw new RuntimeException("Unable to get summary data for metric " + metricNameDto.getMetricName() +
+                " with origin: " + metricNameDto.getOrigin());
 
-                break;
             case DURATION:
             {
                 List<Object[]> result = entityManager.createNativeQuery("select workload.sessionId, workload.endTime, workload.startTime " +
@@ -119,11 +119,8 @@ public class MetricDataServiceImpl implements MetricDataService {
 
             }
             break;
-            case METRIC_NEW_MODEL:
-            case METRIC_OLD_MODEL:
+            case METRIC:
             {
-                //??? separate old and new
-
                 //custom metric
 
                 //check old model (before jagger 1.2.4)
@@ -146,8 +143,7 @@ public class MetricDataServiceImpl implements MetricDataService {
                 }
             }
                 break;
-            case VALIDATOR_NEW_MODEL:
-            case VALIDATOR_OLD_MODEL:
+            case VALIDATOR:
             {
                 List<Object[]> validators = entityManager.createNativeQuery(
                         "select vr.total, vr.failed, selected.sessionId from ValidationResultEntity vr join (" +

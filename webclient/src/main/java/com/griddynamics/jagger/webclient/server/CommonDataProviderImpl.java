@@ -132,11 +132,8 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                     MetricNameDto metric = new MetricNameDto();
                     metric.setTest(td);
                     metric.setMetricName((String) name[0]);
-                    metric.setOrigin(MetricNameDto.Origin.METRIC_OLD_MODEL);
-
-                    //??? strange situation - possible when many sessions selected
-                    if (!metrics.contains(metric)) // if we already have same metric from new model
-                        metrics.add(metric);
+                    metric.setOrigin(MetricNameDto.Origin.METRIC);
+                    metrics.add(metric);
                     break;
                 }
             }
@@ -175,7 +172,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                         metric.setTest(td);
                         metric.setMetricName((String) mde[0]);
                         metric.setMetricDisplayName((String) mde[1]);
-                        metric.setOrigin(MetricNameDto.Origin.METRIC_NEW_MODEL);
+                        metric.setOrigin(MetricNameDto.Origin.METRIC);
                         metrics.add(metric);
                         break;
                     }
@@ -228,7 +225,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                         MetricNameDto metric = new MetricNameDto();
                         metric.setTest(td);
                         metric.setMetricName((String) name[0]);
-                        metric.setOrigin(MetricNameDto.Origin.VALIDATOR_OLD_MODEL);
+                        metric.setOrigin(MetricNameDto.Origin.VALIDATOR);
                         validators.add(metric);
                         break;
                     }
@@ -273,7 +270,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                         metric.setTest(td);
                         metric.setMetricName((String) name[0]);
                         metric.setMetricDisplayName((String) name[2]);
-                        metric.setOrigin(MetricNameDto.Origin.VALIDATOR_NEW_MODEL);
+                        metric.setOrigin(MetricNameDto.Origin.VALIDATOR);
                         validators.add(metric);
                         break;
                     }

@@ -71,11 +71,9 @@ public class PlotProviderServiceImpl implements PlotProviderService {
     public Map<MetricNode, PlotSeriesDto> getPlotData(Set<MetricNode> plots) throws IllegalArgumentException{
         PlotDataProvider plotDataProvider;
         Map<MetricNode, PlotSeriesDto> result = new HashMap<MetricNode, PlotSeriesDto>();
-        List<PlotSeriesDto> plotSeriesDtoList = null;
+        List<PlotSeriesDto> plotSeriesDtoList;
 
-        //??? slow approach
-        // necessary to group metrics by origin, get lines and reorder lines to plots
-
+        //todo currently - slow approach. best way to group metrics by origin, get lines and reorder lines to plots
 
         for (MetricNode metricNode : plots) {
 
@@ -94,7 +92,7 @@ public class PlotProviderServiceImpl implements PlotProviderService {
                 }
             }
 
-            //??? getTaskIds may ne incorrect here
+            // at the moment all MetricNameDtos in MetricNode have same taskIds => it is valid to use first one
             result.put(metricNode, new PlotSeriesDto(plotDatasetDtoList,"Time, sec", "",legendProvider.getPlotHeader(metricNode.getMetricNameDtoList().get(0).getTaskIds(), metricNode.getDisplayName())));
 
         }
@@ -173,15 +171,13 @@ public class PlotProviderServiceImpl implements PlotProviderService {
         switch (metricNameDto.getOrigin()) {
             case UNKNOWN:
             case STANDARD_METRICS:
-            case VALIDATOR_NEW_MODEL:
-            case VALIDATOR_OLD_MODEL:
+            case VALIDATOR:
             case DURATION:
 
-                //??? exception here
+                throw new RuntimeException("Unable to get plot data for metric " + metricNameDto.getMetricName() +
+                        " with origin: " + metricNameDto.getOrigin());
 
-                break;
-            case METRIC_NEW_MODEL:
-            case METRIC_OLD_MODEL:
+            case METRIC:
                 plotDataProvider = customMetricPlotDataProvider;
                 break;
             case LATENCY:

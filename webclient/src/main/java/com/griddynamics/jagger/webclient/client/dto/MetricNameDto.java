@@ -84,15 +84,13 @@ public class MetricNameDto extends MetricName {
 
     public static enum Origin {
         UNKNOWN,                      /* default value - will produce errors during fetching */
-        METRIC_NEW_MODEL,             /* new model of metric storage - from version 1.2.4 */
-        METRIC_OLD_MODEL,             /* old model of metric storage - before version 1.2.4 */
+        METRIC,                       /* custom metric */
         LATENCY,
         THROUGHPUT,
         LATENCY_PERCENTILE,
         DURATION,
         STANDARD_METRICS,             /* success rate, iterations, etc */
         MONITORING,                    /* monitoring parameters saved in separate DB table */
-        VALIDATOR_NEW_MODEL,          /* ??? do we need separate origin? may be it is equal to metrics */
-        VALIDATOR_OLD_MODEL           /* ??? do we need separate origin? may be it is equal to metrics */
+        VALIDATOR
     }
 }
