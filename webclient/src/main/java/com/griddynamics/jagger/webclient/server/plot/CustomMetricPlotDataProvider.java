@@ -156,6 +156,8 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
 
         long temp = System.currentTimeMillis();
 
+        //??? now it is possible to decide which method to call. MND knows it's origin
+
         // check new way
         List<Object[]> metricValues = getPlotDataNewModel(metricNameDto);
 

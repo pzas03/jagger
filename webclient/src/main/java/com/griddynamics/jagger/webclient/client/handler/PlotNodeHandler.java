@@ -1,7 +1,7 @@
 package com.griddynamics.jagger.webclient.client.handler;
 
+import com.griddynamics.jagger.webclient.client.components.control.model.MetricNode;
 import com.griddynamics.jagger.webclient.client.components.control.model.PlotNode;
-import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
 import com.sencha.gxt.widget.core.client.event.CheckChangeEvent;
 import com.sencha.gxt.widget.core.client.tree.Tree;
 
@@ -17,12 +17,21 @@ public class PlotNodeHandler extends TreeAwareHandler<PlotNode> {
     @Override
     public void onCheckChange(CheckChangeEvent<PlotNode> event) {
 
-        Set<MetricNameDto> metricNameDtos = new HashSet<MetricNameDto>();
-        metricNameDtos.addAll(event.getItem().getMetricNameDtoList());
+        //???
+        //Set<MetricNameDto> metricNameDtos = new HashSet<MetricNameDto>();
+        //metricNameDtos.addAll(event.getItem().getMetricNameDtoList());
+
+        Set<MetricNode> metricNodeSet = new HashSet<MetricNode>();
+        metricNodeSet.add(event.getItem());
+
         if (Tree.CheckState.CHECKED.equals(event.getChecked())) {
-            testPlotFetcher.fetchPlots(metricNameDtos, true);
+            //???testPlotFetcher.fetchPlots(metricNameDtos, true);
+            testPlotFetcher.fetchPlots(metricNodeSet);
         } else {
-            testPlotFetcher.removePlots(metricNameDtos);
+            //???testPlotFetcher.removePlots(metricNameDtos);
+            //??? dummy to avoid methods signature collapse
+            boolean dummy = true;
+            testPlotFetcher.removePlots(metricNodeSet,dummy);
         }
     }
 }

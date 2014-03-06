@@ -24,6 +24,8 @@ public class PlotProviderServiceImpl implements PlotProviderService {
     private MonitoringPlotDataProvider monitoringPlotDataProvider;
     private CustomMetricPlotDataProvider customMetricPlotDataProvider;
 
+    private LegendProvider legendProvider;
+
     //==========Setters
 
     @Required
@@ -54,6 +56,11 @@ public class PlotProviderServiceImpl implements PlotProviderService {
     @Required
     public void setMonitoringPlotDataProvider(MonitoringPlotDataProvider monitoringPlotDataProvider) {
         this.monitoringPlotDataProvider = monitoringPlotDataProvider;
+    }
+
+    @Required
+    public void setLegendProvider(LegendProvider legendProvider) {
+        this.legendProvider = legendProvider;
     }
 
     //===========================
@@ -108,54 +115,40 @@ public class PlotProviderServiceImpl implements PlotProviderService {
         return result;
     }
 
-    //??? dummy
     @Override
-    public Map<MetricNameDto, List<PlotSeriesDto>> getPlotDatas(Set<MetricNode> plots, boolean dummy) throws IllegalArgumentException{
-//        Map<MetricNameDto,List<PlotSeriesDto>> result = new LinkedHashMap<MetricNameDto, List<PlotSeriesDto>>(plots.size());
-//
-//        long timestamp = System.currentTimeMillis();
-//        log.debug("getPlotData was invoked with metricNode={}", plots);
-//
-//        //??? only for custom metrics
-//        PlotDataProvider plotDataProvider = customMetricPlotDataProvider;
-//        List<PlotSeriesDto> plotSeriesDtoList;
-//
-//        for (MetricNode plot : plots) {
-//            try {
-//                //???
-//                plotSeriesDtoList = plotDataProvider.getPlotData(taskIds, plotName);
-//                log.info("getPlotData(): {}", getFormattedLogMessage(plotSeriesDtoList, "" + taskIds, plotName.getMetricName(), System.currentTimeMillis() - timestamp));
-//            } catch (Exception e) {
-//                log.error("Error is occurred during plot data loading for taskIds=" + taskIds + ", metricName=" + plotName, e);
-//                throw new RuntimeException(e);
-//            }
-//        }
-//
-//        ???
-//
-//        //???
-//        // todo : fetch metrics  plots in one query
-//        for (MetricNameDto plot : plots){
-//            result.put(plot, getPlotData(plot.getTaskIds(), plot));
-//        }
-//
-//
-//
-//
-//
-//        return plotSeriesDtoList;
-//
-//
-//        //???
-////        Map<MetricNameDto,List<PlotSeriesDto>> result = new LinkedHashMap<MetricNameDto, List<PlotSeriesDto>>(plots.size());
-////        // todo : fetch metrics  plots in one query
-////        for (MetricNameDto plot : plots){
-////            result.put(plot, getPlotData(plot.getTaskIds(), plot));
-////        }
-////        return result;
-//
-//        //???
-        return null;
+    public Map<MetricNode, PlotSeriesDto> getPlotDatas(Set<MetricNode> plots, boolean dummy) throws IllegalArgumentException{
+        PlotDataProvider plotDataProvider;
+        Map<MetricNode, PlotSeriesDto> result = new HashMap<MetricNode, PlotSeriesDto>();
+        List<PlotSeriesDto> plotSeriesDtoList = null;
+        List<PlotDatasetDto> plotDatasetDtoList = new ArrayList<PlotDatasetDto>();
+
+        //??? slow approach
+        // necessary to group metrics by origin, get lines and reorder lines to plots
+
+
+        for (MetricNode metricNode : plots) {
+            // reset
+            plotDatasetDtoList.clear();
+
+            for (MetricNameDto metricNameDto : metricNode.getMetricNameDtoList()) {
+                plotDataProvider = findPlotDataProvider(metricNameDto);
+                if (plotDataProvider != null) {
+                    // returns plot
+                    plotSeriesDtoList = plotDataProvider.getPlotData(metricNameDto);
+
+                    // we don't need plot, we need lines
+                    for (PlotSeriesDto plotSeriesDto : plotSeriesDtoList) {
+                        plotDatasetDtoList.addAll(plotSeriesDto.getPlotSeries());
+                    }
+                }
+            }
+
+            //??? getTaskIds may ne incorrect here
+            result.put(metricNode, new PlotSeriesDto(plotDatasetDtoList,"Time, sec", "",legendProvider.getPlotHeader(metricNode.getMetricNameDtoList().get(0).getTaskIds(), metricNode.getDisplayName())));
+
+        }
+
+        return result;
     }
 
 

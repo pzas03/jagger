@@ -1414,57 +1414,65 @@ public class Trends extends DefaultActivity {
             }
         }
 
-//        public void fetchPlots(Set<? extends MetricNode> selectedNodes) {
-//
-//            //??? to avoid collapse of two fetchPlots methods
-//            final boolean enableTree = true;
-//
-//            if (selectedNodes.isEmpty()) {
-//                if (enableTree)
-//                    enableControl();
-//            } else {
-//                disableControl();
-//                PlotProviderService.Async.getInstance().getPlotDatas(selectedNodes, new AsyncCallback<Map<MetricNameDto, List<PlotSeriesDto>>>() {
-//
-//                    @Override
-//                    public void onFailure(Throwable caught) {
-//
-//                        caught.printStackTrace();
-//                        new ExceptionPanel(place, caught.toString());
-//                        if (enableTree)
-//                            enableControl();
-//                    }
-//
-//                    @Override
-//                    public void onSuccess(Map<MetricNameDto, List<PlotSeriesDto>> result) {
-//                        for (MetricNameDto metricNameDto : result.keySet()){
-//                            final String id;
-//                            // Generate DOM id for plot
-//                            if (metricNameDto.getTest() == null) {
-//                                id = generateSessionScopePlotId(chosenSessions.get(0), metricNameDto.getMetricName());
-//                            } else if (chosenSessions.size() == 1) {
-//                                id = generateTaskScopePlotId(metricNameDto);
-//                            } else {
-//                                id = generateCrossSessionsTaskScopePlotId(metricNameDto);
-//                            }
-//
-//                            // If plot has already displayed, then pass it
-//                            if (chosenPlots.containsKey(id)) {
-//                                continue;
-//                            }
-//
-//                            chosenPlots.put(id, result.get(metricNameDto));
-//
-//                        }
-//                        if (mainTabPanel.getSelectedIndex() == tabMetrics.getTabIndex()) {
-//                            onMetricsTabSelected();
-//                        }
-//                        if (enableTree)
-//                            enableControl();
-//                    }
-//                });
-//            }
-//        }
+        public void fetchPlots(Set<MetricNode> selectedNodes) {
+
+            //??? to avoid collapse of two fetchPlots methods
+            final boolean enableTree = true;
+
+            if (selectedNodes.isEmpty()) {
+                if (enableTree)
+                    enableControl();
+            } else {
+                disableControl();
+
+                //??? to avoid method collapse
+                boolean dummy = false;
+
+                PlotProviderService.Async.getInstance().getPlotDatas(selectedNodes, dummy, new AsyncCallback<Map<MetricNode, PlotSeriesDto>>() {
+
+                    @Override
+                    public void onFailure(Throwable caught) {
+
+                        caught.printStackTrace();
+                        new ExceptionPanel(place, caught.toString());
+                        if (enableTree)
+                            enableControl();
+                    }
+
+                    @Override
+                    public void onSuccess(Map<MetricNode, PlotSeriesDto> result) {
+                        for (MetricNode metricNode : result.keySet()){
+                            final String id;
+                            // Generate DOM id for plot
+
+                            //??? unclear at the moment
+//                            if (metricNode.getTest() == null) {
+//                                id = generateSessionScopePlotId(chosenSessions.get(0), metricNode.getMetricName());
+
+                            if (chosenSessions.size() == 1) {
+                                id = generateTaskScopePlotId(metricNode);
+                            }
+                            else {
+                                id = generateCrossSessionsTaskScopePlotId(metricNode);
+                            }
+
+                            // If plot has already displayed, then pass it
+                            if (chosenPlots.containsKey(id)) {
+                                continue;
+                            }
+
+                            chosenPlots.put(id, Arrays.asList(result.get(metricNode)));
+
+                        }
+                        if (mainTabPanel.getSelectedIndex() == tabMetrics.getTabIndex()) {
+                            onMetricsTabSelected();
+                        }
+                        if (enableTree)
+                            enableControl();
+                    }
+                });
+            }
+        }
 
         /**
          * Removes plots
@@ -1490,16 +1498,25 @@ public class Trends extends DefaultActivity {
             }
         }
 
-        public void fetchPlot(MetricNameDto selected, final boolean enableTree) {
-            Set<MetricNameDto> selectedSet = new HashSet<MetricNameDto>();
-            selectedSet.add(selected);
-            fetchPlots(selectedSet, enableTree);
-        }
+        //??? dummy to avoid method signature collapse
+        public void removePlots(Set<MetricNode> metricNodes, boolean dummy) {
 
-        public void removePlot(MetricNameDto metricNameDto) {
-            Set<MetricNameDto> setToRemove = new HashSet<MetricNameDto>();
-            setToRemove.add(metricNameDto);
-            removePlots(setToRemove);
+            if (metricNodes.isEmpty()) {
+                return;
+            }
+
+            List<Widget> toRemove = new ArrayList<Widget>();
+            Set<String> widgetIds = generateTaskPlotIds(metricNodes, chosenSessions.size(),dummy);
+            for (int i = 0; i < plotPanel.getWidgetCount(); i++) {
+                Widget widget = plotPanel.getWidget(i);
+                String widgetId = widget.getElement().getId();
+                if (widgetIds.contains(widgetId))
+                    toRemove.add(widget);
+            }
+            for (Widget w : toRemove) {
+                plotPanel.remove(w);
+                chosenPlots.remove(w.getElement().getId());
+            }
         }
 
         private Set<String> generateTaskPlotIds(Set<MetricNameDto> selected, int size) {
@@ -1509,6 +1526,19 @@ public class Trends extends DefaultActivity {
                     idSet.add(generateTaskScopePlotId(plotName));
                 } else {
                     idSet.add(generateCrossSessionsTaskScopePlotId(plotName));
+                }
+            }
+            return idSet;
+        }
+
+        //??? dummy to avoid method signature collapse
+        private Set<String> generateTaskPlotIds(Set<MetricNode> selected, int size, boolean dummy) {
+            HashSet<String> idSet = new HashSet<String>();
+            for (MetricNode metricNode : selected) {
+                if (size == 1) {
+                    idSet.add(generateTaskScopePlotId(metricNode));
+                } else {
+                    idSet.add(generateCrossSessionsTaskScopePlotId(metricNode));
                 }
             }
             return idSet;

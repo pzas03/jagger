@@ -28,5 +28,7 @@ public class MonitoringPlotNodeHandler extends TreeAwareHandler<MonitoringPlotNo
         } else {
             testPlotFetcher.removePlots(dtos);
         }
+
+        //??? add fetch by metricNode here
     }
 }

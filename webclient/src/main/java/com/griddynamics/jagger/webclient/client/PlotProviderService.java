@@ -26,9 +26,8 @@ public interface PlotProviderService extends RemoteService {
 
     Map<MetricNameDto, List<PlotSeriesDto>> getPlotDatas(Set<MetricNameDto> plots) throws RuntimeException;
 
-    //??? map<metricnamedto?
     //??? dummy parameter to avoid method signature overlap
-    Map<MetricNameDto, List<PlotSeriesDto>> getPlotDatas(Set<MetricNode> plots, boolean dummy) throws RuntimeException;
+    Map<MetricNode, PlotSeriesDto> getPlotDatas(Set<MetricNode> plots, boolean dummy) throws RuntimeException;
 
     Map<SessionPlotNameDto, List<PlotSeriesDto>> getSessionScopePlotData(String sessionId, Collection<SessionPlotNameDto> plotType) throws RuntimeException;
 

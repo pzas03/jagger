@@ -20,7 +20,7 @@ public interface PlotProviderServiceAsync {
     void getSessionScopePlotData(String sessionId, Collection<SessionPlotNameDto> plotType, AsyncCallback<Map<SessionPlotNameDto, List<PlotSeriesDto>>> async);
 
     //??? dummy parameter to avoid method signature overlap
-    void getPlotDatas(Set<MetricNode> plots, boolean dummy, AsyncCallback<Map<MetricNameDto,List<PlotSeriesDto>>> async);
+    void getPlotDatas(Set<MetricNode> plots, boolean dummy, AsyncCallback<Map<MetricNode,PlotSeriesDto>> async);
 
     void getPlotDatas(Set<MetricNameDto> plots, AsyncCallback<Map<MetricNameDto,List<PlotSeriesDto>>> async);
 
