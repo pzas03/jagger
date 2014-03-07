@@ -54,6 +54,10 @@ public class TestInfoServiceImpl implements TestInfoService {
     @Override
     public Map<TaskDataDto, Map<String, TestInfoDto>> getTestInfos(Collection<TaskDataDto> taskDataDtos) throws RuntimeException {
 
+        if (taskDataDtos.isEmpty()) {
+            return Collections.EMPTY_MAP;
+        }
+
         List<Long> taskDataIds = new ArrayList<Long>();
         for (TaskDataDto taskDataDto : taskDataDtos) {
             taskDataIds.addAll(taskDataDto.getIds());
