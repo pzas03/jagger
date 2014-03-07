@@ -567,6 +567,21 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         return false;
     }
 
+    @Override
+    public boolean checkIfTagsStorageAvailable() {
+
+        try {
+            entityManager.createQuery(
+                    "select count(te) from TagEntity te")
+                    .getSingleResult();
+            return true;
+        } catch (Exception e) {
+            log.warn("Could not access TagEntity table", e);
+        }
+
+        return false;
+    }
+
 
     private List<MonitoringSessionScopePlotNode> getMonitoringPlotNamesNew(Set<String> sessionIds) {
 
