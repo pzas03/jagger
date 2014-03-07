@@ -267,6 +267,8 @@ public class TagBox extends AbstractWindow implements IsWidget {
     }
 
     private void move(Grid<TagDto> gridFrom, Grid<TagDto> gridTo){
+        if (gridFrom.getSelectionModel().getSelectedItems().isEmpty())
+            return;
         List<TagDto> selectedList = gridFrom.getSelectionModel().getSelectedItems();
         gridFrom.getSelectionModel().selectNext(false);
         descriptionPanel.setText(gridFrom.getSelectionModel().getSelectedItem().getDescription());

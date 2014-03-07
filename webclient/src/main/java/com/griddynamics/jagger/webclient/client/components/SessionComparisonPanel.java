@@ -286,11 +286,10 @@ public class SessionComparisonPanel extends VerticalPanel {
                 itemUserComment.put(SESSION_HEADER + session.getSessionId(), userComment);
             }
             if (webClientProperties.isTagsStoreAvailable()) {
-                if (session.getTags() == null) {
-                    session.setTags(new ArrayList<TagDto>());
+                if (session.getTags() != null) {
+                    for (TagDto tagDto : session.getTags())
+                        tagsStr += tagDto.getName() + " ";
                 }
-                for (TagDto tagDto : session.getTags())
-                    tagsStr += tagDto.getName() + " ";
                 itemTags.put(SESSION_HEADER + session.getSessionId(), tagsStr);
                 tagsStr = "";
             }
