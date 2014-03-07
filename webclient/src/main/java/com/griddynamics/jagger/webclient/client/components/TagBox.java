@@ -79,18 +79,7 @@ public class TagBox extends AbstractWindow implements IsWidget {
         descriptionPanel.setPixelSize(width, 70);
 
 
-        saveButton.addSelectHandler(new SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                onSave();
-            }
-        });
-        cancelButton.addSelectHandler(new SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                onCancel();
-            }
-        });
+
         allRight.addSelectHandler(new SelectEvent.SelectHandler() {
             @Override
             public void onSelect(SelectEvent event) {
@@ -248,13 +237,20 @@ public class TagBox extends AbstractWindow implements IsWidget {
     }
 
     @Override
-    protected void onSave() {
+    protected void onSaveButtonClick() {
+        String tags = "";
+        for (int i = 0; i < storeTo.size(); i++) {
+            tags += storeTo.get(i).getName() + " ";
+
+        }
+        currentTreeItem.put(getText(), tags);
+        treeGrid.getTreeView().refresh(false);
         saveTagToDataBase();
         atClose();
     }
 
     @Override
-    protected void onCancel() {
+    protected void onCancelButtonClick() {
         atClose();
     }
 

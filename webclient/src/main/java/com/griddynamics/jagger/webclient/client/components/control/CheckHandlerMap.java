@@ -28,6 +28,7 @@ public class CheckHandlerMap {
                 put(TestInfoNode.class, new TestInfoNodeHandler());
                 put(TestInfoLeaf.class, new TestInfoLeafHandler());
                 put(MetricNode.class, new MetricNodeHandler());
+                put(MetricGroupNode.class, new MetricGroupNodeHandler());
 
                 put(DetailsNode.class, new DetailsNodeHandler());
                 put(SessionScopePlotsNode.class, new SessionScopePlotsNodeHandler());
@@ -41,6 +42,12 @@ public class CheckHandlerMap {
 
     }
 
+
+    public static void setTestInfoFetcher(Trends.TestInfoFetcher testInfoFetcher) {
+        for (TreeAwareHandler tah : handlers.values()) {
+            tah.setTestInfoFetcher(testInfoFetcher);
+        }
+    }
 
     public static void setMetricFetcher(Trends.MetricFetcher metricFetcher) {
         for (TreeAwareHandler tah : handlers.values()) {

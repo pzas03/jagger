@@ -6,8 +6,8 @@ import com.griddynamics.jagger.monitoring.reporting.GroupKey;
 import com.griddynamics.jagger.util.Pair;
 import com.griddynamics.jagger.webclient.client.components.control.model.*;
 import com.griddynamics.jagger.webclient.client.data.MetricRankingProvider;
+import com.griddynamics.jagger.webclient.client.data.WebClientProperties;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
-import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
 import com.griddynamics.jagger.webclient.client.dto.SessionPlotNameDto;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 import com.griddynamics.jagger.webclient.server.plot.CustomMetricPlotDataProvider;
@@ -20,7 +20,9 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import java.math.BigInteger;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 import static com.griddynamics.jagger.webclient.client.mvp.NameTokens.*;
 
@@ -34,6 +36,8 @@ public class CommonDataProviderImpl implements CommonDataProvider {
     private EntityManager entityManager;
 
     private Logger log = LoggerFactory.getLogger(this.getClass());
+
+    private WebClientProperties webClientProperties;
 
     @PersistenceContext
     public void setEntityManager(EntityManager entityManager) {
@@ -130,8 +134,8 @@ public class CommonDataProviderImpl implements CommonDataProvider {
             for (TaskDataDto td : tests) {
                 if (td.getIds().contains(((BigInteger)name[1]).longValue())) {
                     MetricNameDto metric = new MetricNameDto();
-                    metric.setTests(td);
-                    metric.setName((String)name[0]);
+                    metric.setTest(td);
+                    metric.setMetricName((String) name[0]);
                     if (!metrics.contains(metric)) // if we already have same metric from new model
                         metrics.add(metric);
                     break;
@@ -169,9 +173,9 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                 for (TaskDataDto td : tests) {
                     if (td.getIds().contains((Long) mde[2])) {
                         MetricNameDto metric = new MetricNameDto();
-                        metric.setTests(td);
-                        metric.setName((String)mde[0]);
-                        metric.setDisplayName((String)mde[1]);
+                        metric.setTest(td);
+                        metric.setMetricName((String) mde[0]);
+                        metric.setMetricDisplayName((String) mde[1]);
                         metrics.add(metric);
                         break;
                     }
@@ -222,8 +226,8 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                 for (TaskDataDto td : tests) {
                     if (td.getIds().contains(((BigInteger)name[1]).longValue())) {
                         MetricNameDto metric = new MetricNameDto();
-                        metric.setTests(td);
-                        metric.setName((String) name[0]);
+                        metric.setTest(td);
+                        metric.setMetricName((String) name[0]);
                         validators.add(metric);
                         break;
                     }
@@ -265,9 +269,9 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                 for (TaskDataDto td : tests) {
                     if (td.getIds().contains(((BigInteger)name[1]).longValue())) {
                         MetricNameDto metric = new MetricNameDto();
-                        metric.setTests(td);
-                        metric.setName((String)name[0]);
-                        metric.setDisplayName((String)name[2]);
+                        metric.setTest(td);
+                        metric.setMetricName((String) name[0]);
+                        metric.setMetricDisplayName((String) name[2]);
                         validators.add(metric);
                         break;
                     }
@@ -309,8 +313,9 @@ public class CommonDataProviderImpl implements CommonDataProvider {
 
                     if (tdd.getIds().contains(percentile.getWorkloadProcessDescriptiveStatistics().getTaskData().getId())) {
                         MetricNameDto dto = new MetricNameDto();
-                        dto.setName("Latency "+Double.toString(percentile.getPercentileKey())+" %");
-                        dto.setTests(tdd);
+                        dto.setMetricName("Latency " + Double.toString(percentile.getPercentileKey()) + " %");
+                        dto.setMetricDisplayName("Latency " + Double.toString(percentile.getPercentileKey()) + " %");
+                        dto.setTest(tdd);
                         latencyNames.add(dto);
                         break;
                     }
@@ -433,8 +438,9 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         for (TaskDataDto taskDataDto : tddos){
             for (String standardMetricName : standardMetrics.keySet()){
                 MetricNameDto metric = new MetricNameDto();
-                metric.setName(standardMetricName);
-                metric.setTests(taskDataDto);
+                metric.setMetricName(standardMetricName);
+                metric.setMetricDisplayName(standardMetrics.get(standardMetricName).getSecond());
+                metric.setTest(taskDataDto);
                 list.add(metric);
             }
         }
@@ -490,9 +496,9 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                         result.put(tdd, new ArrayList<MetricNode>());
                     }
                     MetricNode mn = new MetricNode();
-                    mn.setMetricName(mnd);
-                    mn.setId(SUMMARY_PREFIX + tdd.getTaskName() + mnd.getName());
-                    mn.setDisplayName(mnd.getDisplay());
+                    mn.setMetricNameDto(mnd);
+                    mn.setId(SUMMARY_PREFIX + tdd.hashCode() + mnd.getMetricName());
+                    mn.setDisplayName(mnd.getMetricDisplayName());
                     result.get(tdd).add(mn);
                     break;
                 }
@@ -507,34 +513,34 @@ public class CommonDataProviderImpl implements CommonDataProvider {
 
         Map<TaskDataDto, List<PlotNode>> result = new HashMap<TaskDataDto, List<PlotNode>>();
 
-        List<PlotNameDto> plotNameDtoSet = new ArrayList<PlotNameDto>();
+        List<MetricNameDto> plotNameDtoSet = new ArrayList<MetricNameDto>();
         try {
 
             Map<TaskDataDto, Boolean> isWorkloadMap = isWorkloadStatisticsAvailable(taskList);
             for (Map.Entry<TaskDataDto, Boolean> entry: isWorkloadMap.entrySet()) {
                 if (entry.getValue()) {
                     for (Map.Entry<GroupKey, DefaultWorkloadParameters[]> monitoringPlot : workloadPlotGroups.entrySet()) {
-                        plotNameDtoSet.add(new PlotNameDto(entry.getKey(), monitoringPlot.getKey().getUpperName()));
+                        plotNameDtoSet.add(new MetricNameDto(entry.getKey(), monitoringPlot.getKey().getUpperName()));
                     }
                 }
             }
 
-            Set<PlotNameDto> customMetrics = customMetricPlotDataProvider.getPlotNames(taskList);
+            Set<MetricNameDto> customMetrics = customMetricPlotDataProvider.getPlotNames(taskList);
 
             plotNameDtoSet.addAll(customMetrics);
 
             log.debug("For sessions {} are available these plots: {}", sessionIds, plotNameDtoSet);
 
-            for (PlotNameDto pnd : plotNameDtoSet) {
+            for (MetricNameDto pnd : plotNameDtoSet) {
                 for (TaskDataDto tdd : taskList) {
                     if (tdd.getIds().containsAll(pnd.getTaskIds())) {
                         if (!result.containsKey(tdd)) {
                             result.put(tdd, new ArrayList<PlotNode>());
                         }
                         PlotNode pn = new PlotNode();
-                        pn.setPlotName(pnd);
-                        pn.setId(METRICS_PREFIX + tdd.getTaskName() + pnd.getPlotName());
-                        pn.setDisplayName(pnd.getDisplay());
+                        pn.setMetricNameDto(pnd);
+                        pn.setId(METRICS_PREFIX + tdd.hashCode() + pnd.getMetricName());
+                        pn.setDisplayName(pnd.getMetricDisplayName());
                         result.get(tdd).add(pn);
                         break;
                     }
@@ -677,9 +683,9 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                     String identy = objects[0] == null ? objects[1].toString() : objects[0].toString();
 
                     PlotNode plotNode = new PlotNode();
-                    plotNode.setPlotName(new PlotNameDto(tdd, monitoringKey + AGENT_NAME_SEPARATOR + identy));
+                    plotNode.setMetricNameDto(new MetricNameDto(tdd, monitoringKey + AGENT_NAME_SEPARATOR + identy));
                     plotNode.setDisplayName(identy);
-                    String id = METRICS_PREFIX + tdd.getTaskName() + monitoringKey + identy;
+                    String id = METRICS_PREFIX + tdd.hashCode() + monitoringKey + identy;
                     plotNode.setId(id);
 
                     boolean present = false;
@@ -694,7 +700,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
 
                     if (!present) {
                         MonitoringPlotNode monitoringPlotNode = new MonitoringPlotNode();
-                        monitoringPlotNode.setId(MONITORING_PREFIX + tdd.getTaskName() + monitoringKey);
+                        monitoringPlotNode.setId(MONITORING_PREFIX + tdd.hashCode() + monitoringKey);
                         monitoringPlotNode.setDisplayName(monitoringKey);
                         resultMap.get(tdd).add(monitoringPlotNode);
                         monitoringPlotNode.setPlots(new ArrayList<PlotNode>());
@@ -779,52 +785,58 @@ public class CommonDataProviderImpl implements CommonDataProvider {
     public List<TaskDataDto> getTaskDataForSessions(Set<String> sessionIds) {
 
         long timestamp = System.currentTimeMillis();
+
+        int havingCount = 0;
+        if (webClientProperties.isShowOnlyMatchedTests()) {
+            havingCount = sessionIds.size();
+        }
+
         List<Object[]> list = entityManager.createNativeQuery
                 (
-                        "select taskData.id, commonTests.name, commonTests.description, taskData.taskId , commonTests.clock, commonTests.clockValue, commonTests.termination" +
-                                " from "+
-                                "( "+
+                        "select taskData.id, commonTests.name, commonTests.description, taskData.taskId , commonTests.clock, commonTests.clockValue, commonTests.termination, taskData.sessionId" +
+                                " from " +
+                                "( " +
                                 "select test.name, test.description, test.version, test.sessionId, test.taskId, test.clock, test.clockValue, test.termination from " +
-                                "( "+
+                                "( " +
                                 "select " +
                                 "l.*, s.name, s.description, s.version " +
-                                "from "+
-                                "(select * from WorkloadTaskData where sessionId in (:sessions)) as l "+
-                                "left outer join "+
-                                "(select * from WorkloadDetails) as s "+
-                                "on l.scenario_id=s.id "+
+                                "from " +
+                                "(select * from WorkloadTaskData where sessionId in (:sessions)) as l " +
+                                "left outer join " +
+                                "(select * from WorkloadDetails) as s " +
+                                "on l.scenario_id=s.id " +
                                 ") as test " +
                                 "inner join " +
                                 "( " +
-                                "select t.* from "+
-                                "( "+
+                                "select t.* from " +
+                                "( " +
                                 "select " +
                                 "l.*, s.name, s.description, s.version " +
-                                "from "+
-                                "(select * from WorkloadTaskData where sessionId in (:sessions)) as l "+
-                                "left outer join "+
-                                "(select * from WorkloadDetails) as s "+
+                                "from " +
+                                "(select * from WorkloadTaskData where sessionId in (:sessions)) as l " +
+                                "left outer join " +
+                                "(select * from WorkloadDetails) as s " +
                                 "on l.scenario_id=s.id " +
-                                ") as t "+
-                                "group by "+
-                                "t.termination, t.clock, t.clockValue, t.name, t.version "+
-                                "having count(t.id)>=:sessionCount" +
-
+                                ") as t " +
+                                "group by " +
+                                "t.termination, t.clock, t.clockValue, t.name, t.description, t.version " +
+                                "having count(t.id)>=" + havingCount +
                                 ") as testArch " +
-                                "on "+
-                                "test.clock=testArch.clock and "+
-                                "test.clockValue=testArch.clockValue and "+
-                                "test.termination=testArch.termination and "+
-                                "test.name=testArch.name and "+
-                                "test.version=testArch.version "+
-                                ") as commonTests "+
-                                "left outer join "+
-                                "(select * from TaskData where sessionId in (:sessions)) as taskData "+
-                                "on "+
-                                "commonTests.sessionId=taskData.sessionId and "+
+                                "on " +
+                                "test.clock=testArch.clock and " +
+                                "test.clockValue=testArch.clockValue and " +
+                                "test.termination=testArch.termination and " +
+                                "test.name=testArch.name and " +
+                                "test.version=testArch.version " +
+                                ") as commonTests " +
+                                "left outer join " +
+                                "(select * from TaskData where sessionId in (:sessions)) as taskData " +
+                                "on " +
+                                "commonTests.sessionId=taskData.sessionId and " +
                                 "commonTests.taskId=taskData.taskId "
-                ).setParameter("sessions", sessionIds)
-                .setParameter("sessionCount", (long) sessionIds.size()).getResultList();
+                )
+                .setParameter("sessions", sessionIds)
+                .getResultList();
 
         //group tests by description
         HashMap<String, TaskDataDto> map = new HashMap<String, TaskDataDto>(list.size());
@@ -834,27 +846,30 @@ public class CommonDataProviderImpl implements CommonDataProvider {
             String name = (String) testData[1];
             String description = (String) testData[2];
             String taskId = (String)testData[3];
-            String clock = testData[4] + " (" + testData[5] + ")";
+
+            // we need clock , and termination here is tool of matching test.
+            String clock = (String)testData[4];
+            Integer clockValue = (Integer)testData[5];
             String termination = (String) testData[6];
 
+            String sessionId = (String) testData[7];
 
             int taskIdInt = Integer.parseInt(taskId.substring(5));
-            String key = description+name;
+
+            // todo: it should be configurable in future (task about matching strategy).
+            String key = description+name+termination+clock+clockValue;
             if (map.containsKey(key)){
                 map.get(key).getIds().add(id.longValue());
+                map.get(key).getSessionIds().add(sessionId);
 
                 Integer oldValue = mapIds.get(key);
                 mapIds.put(key, (oldValue==null ? 0 : oldValue)+taskIdInt);
             }else{
                 TaskDataDto taskDataDto = new TaskDataDto(id.longValue(), name, description);
-                taskDataDto.setClock(clock);
-                taskDataDto.setTerminationStrategy(termination);
-                //merge
-                if (map.containsKey(name)){
-                    taskDataDto.getIds().addAll(map.get(name).getIds());
+                Set<String> sessionIdList = new HashSet<String>();
+                sessionIdList.add(sessionId);
+                taskDataDto.setSessionIds(sessionIdList);
 
-                    taskIdInt = taskIdInt + mapIds.get(name);
-                }
                 map.put(key, taskDataDto);
                 mapIds.put(key, taskIdInt);
             }
@@ -873,9 +888,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
 
         for (String key : map.keySet()){
             TaskDataDto taskDataDto = map.get(key);
-            if (taskDataDto.getIds().size() == sessionIds.size()){
-                priorityQueue.add(new Object[]{mapIds.get(key), taskDataDto});
-            }
+            priorityQueue.add(new Object[]{mapIds.get(key), taskDataDto});
         }
 
         ArrayList<TaskDataDto> result = new ArrayList<TaskDataDto>(priorityQueue.size());
@@ -885,5 +898,13 @@ public class CommonDataProviderImpl implements CommonDataProvider {
 
         log.info("For sessions {} was loaded {} tasks for {} ms", new Object[]{sessionIds, result.size(), System.currentTimeMillis() - timestamp});
         return result;
+    }
+
+    public WebClientProperties getWebClientProperties() {
+        return webClientProperties;
+    }
+
+    public void setWebClientProperties(WebClientProperties webClientProperties) {
+        this.webClientProperties = webClientProperties;
     }
 }

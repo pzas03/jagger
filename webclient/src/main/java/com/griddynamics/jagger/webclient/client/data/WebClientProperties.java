@@ -8,6 +8,7 @@ public class WebClientProperties implements Serializable {
     private boolean tagsStoreAvailable = false;
     private boolean userCommentEditAvailable = false;
     private boolean userCommentStoreAvailable = false;
+    private boolean showOnlyMatchedTests = true;
     private int userCommentMaxLength = 1000;
 
     public boolean isTagsAvailable() {
@@ -48,5 +49,13 @@ public class WebClientProperties implements Serializable {
 
     public void setTagsStoreAvailable(boolean tagsStoreAvailable) {
         this.tagsStoreAvailable = tagsStoreAvailable;
+    }
+
+    public boolean isShowOnlyMatchedTests() {
+        return showOnlyMatchedTests;
+    }
+
+    public void setShowOnlyMatchedTests(boolean showOnlyMatchedTests) {
+        this.showOnlyMatchedTests = showOnlyMatchedTests;
     }
 }
