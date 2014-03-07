@@ -9,7 +9,7 @@ import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
 public abstract class PlotsServingBase {
 
     protected String generateTaskScopePlotId(MetricNameDto metricNameDto) {
-        return "" + metricNameDto.getTaskId() + "#task-scope-plot-" + metricNameDto.getMetricName().toLowerCase().replaceAll("\\s+", "-");
+        return "" + metricNameDto.getTaskIds() + "#task-scope-plot-" + metricNameDto.getMetricName().toLowerCase().replaceAll("\\s+", "-");
     }
 
     protected String generateCrossSessionsTaskScopePlotId(MetricNameDto metricNameDto) {

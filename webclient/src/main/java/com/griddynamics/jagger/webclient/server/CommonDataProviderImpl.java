@@ -10,6 +10,7 @@ import com.griddynamics.jagger.webclient.client.data.WebClientProperties;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
 import com.griddynamics.jagger.webclient.client.dto.SessionPlotNameDto;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
+import com.griddynamics.jagger.webclient.server.fetch.MetricNameUtil;
 import com.griddynamics.jagger.webclient.server.plot.CustomMetricPlotDataProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -313,8 +314,8 @@ public class CommonDataProviderImpl implements CommonDataProvider {
 
                     if (tdd.getIds().contains(percentile.getWorkloadProcessDescriptiveStatistics().getTaskData().getId())) {
                         MetricNameDto dto = new MetricNameDto();
-                        dto.setMetricName("Latency " + Double.toString(percentile.getPercentileKey()) + " %");
-                        dto.setMetricDisplayName("Latency " + Double.toString(percentile.getPercentileKey()) + " %");
+                        dto.setMetricName(MetricNameUtil.getLatencyMetricName(percentile.getPercentileKey()));
+                        dto.setMetricDisplayName(MetricNameUtil.getLatencyMetricName(percentile.getPercentileKey()));
                         dto.setTest(tdd);
                         latencyNames.add(dto);
                         break;

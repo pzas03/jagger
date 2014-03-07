@@ -4,6 +4,10 @@ import com.griddynamics.jagger.util.Pair;
 import com.griddynamics.jagger.util.TimeUtils;
 import com.griddynamics.jagger.webclient.client.MetricDataService;
 import com.griddynamics.jagger.webclient.client.dto.*;
+import com.griddynamics.jagger.webclient.server.fetch.implementation.CustomMetricSummaryFetcher;
+import com.griddynamics.jagger.webclient.server.fetch.implementation.LatencyMetricSummaryFetcher;
+import com.griddynamics.jagger.webclient.server.fetch.implementation.StandardMetricSummaryFetcher;
+import com.griddynamics.jagger.webclient.server.fetch.implementation.ValidatorSummaryFetcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -27,6 +31,27 @@ public class MetricDataServiceImpl implements MetricDataService {
     private static final Logger log = LoggerFactory.getLogger(MetricDataServiceImpl.class);
     private EntityManager entityManager;
 
+    private StandardMetricSummaryFetcher standardMetricSummaryFetcher;
+    private LatencyMetricSummaryFetcher latencyMetricDataFetcher;
+    private CustomMetricSummaryFetcher customMetricSummaryFetcher;
+    private ValidatorSummaryFetcher validatorSummaryFetcher;
+
+    public void setStandardMetricSummaryFetcher(StandardMetricSummaryFetcher standardMetricSummaryFetcher) {
+        this.standardMetricSummaryFetcher = standardMetricSummaryFetcher;
+    }
+
+    public void setLatencyMetricDataFetcher(LatencyMetricSummaryFetcher latencyMetricDataFetcher) {
+        this.latencyMetricDataFetcher = latencyMetricDataFetcher;
+    }
+
+    public void setCustomMetricSummaryFetcher(CustomMetricSummaryFetcher customMetricSummaryFetcher) {
+        this.customMetricSummaryFetcher = customMetricSummaryFetcher;
+    }
+
+    public void setValidatorSummaryFetcher(ValidatorSummaryFetcher validatorSummaryFetcher) {
+        this.validatorSummaryFetcher = validatorSummaryFetcher;
+    }
+
     @PersistenceContext
     public void setEntityManager(EntityManager entityManager) {
         this.entityManager = entityManager;
@@ -41,10 +66,35 @@ public class MetricDataServiceImpl implements MetricDataService {
 
     @Override
     public List<MetricDto> getMetrics(List<MetricNameDto> metricNames) {
+
         List<MetricDto> result = new ArrayList<MetricDto>(metricNames.size());
+
+        standardMetricSummaryFetcher.reset();
+        latencyMetricDataFetcher.reset();
+        customMetricSummaryFetcher.reset();
+        validatorSummaryFetcher.reset();
+
         for (MetricNameDto metricName : metricNames){
-            result.add(getMetric(metricName));
+            switch (metricName.getOrigin()) {
+                case STANDARD_METRICS:
+                    standardMetricSummaryFetcher.addMetricName(metricName);
+                    break;
+                case LATENCY_PERCENTILE:
+                    latencyMetricDataFetcher.addMetricName(metricName);
+                    break;
+                case METRIC:
+                    customMetricSummaryFetcher.addMetricName(metricName);
+                    break;
+                case VALIDATOR:
+                    validatorSummaryFetcher.addMetricName(metricName);
+                    break;
+            }
         }
+
+        result.addAll(standardMetricSummaryFetcher.getResult());
+        result.addAll(latencyMetricDataFetcher.getResult());
+        result.addAll(customMetricSummaryFetcher.getResult());
+        result.addAll(validatorSummaryFetcher.getResult());
         return result;
     }
 
