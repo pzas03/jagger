@@ -1301,7 +1301,14 @@ public class Trends extends DefaultActivity {
         private void addToStore(TreeStore<AbstractIdentifyNode> store, AbstractIdentifyNode node, AbstractIdentifyNode parent) {
             store.add(parent, node);
             for (AbstractIdentifyNode child : node.getChildren()) {
-                addToStore(store, child, node);
+
+                try {
+                    addToStore(store, child, node);
+                }
+                catch (AssertionError e) {
+                    new ExceptionPanel(place, "Was not able to insert node with id '" + child.getId() + "' and name '"
+                            + child.getDisplayName() + "' into control tree. Id is already in use. Error message:\n" + e.getMessage());
+                }
             }
         }
     }
@@ -1469,7 +1476,7 @@ public class Trends extends DefaultActivity {
 
                     @Override
                     public void onSuccess(Map<MetricNode, PlotSeriesDto> result) {
-                        for (MetricNode metricNode : result.keySet()){
+                        for (MetricNode metricNode : result.keySet()) {
                             final String id;
                             // Generate DOM id for plot
                             // metricNode.Id - is unique key

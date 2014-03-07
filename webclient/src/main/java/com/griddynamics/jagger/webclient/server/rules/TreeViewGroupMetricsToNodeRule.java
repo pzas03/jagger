@@ -2,9 +2,10 @@ package com.griddynamics.jagger.webclient.server.rules;
 
 import com.griddynamics.jagger.webclient.client.components.control.model.MetricNode;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
-import com.griddynamics.jagger.webclient.client.mvp.NameTokens;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class TreeViewGroupMetricsToNodeRule extends Rule {
 
@@ -13,7 +14,7 @@ public class TreeViewGroupMetricsToNodeRule extends Rule {
         super(id,displayName,rule);
     }
 
-    public <M extends MetricNode> List<M> filter(NameTokens.Filter filterBy, String parentId, List<M> metricNodeList) {
+    public <M extends MetricNode> List<M> filter(By by, String parentId, List<M> metricNodeList) {
 
         List<M> result = new ArrayList<M>();
         M resultMetricNode = null;
@@ -28,7 +29,7 @@ public class TreeViewGroupMetricsToNodeRule extends Rule {
             // node can contain more than single metric
             // current strategy: if at least one metric match => take it
             for (MetricNameDto metricNameDto : metricNode.getMetricNameDtoList()) {
-                if (filterBy == NameTokens.Filter.BY_DISPLAY_NAME) {
+                if (by == By.DISPLAY_NAME) {
                     metric = metricNameDto.getMetricDisplayName();
                 }
                 else {
@@ -62,7 +63,9 @@ public class TreeViewGroupMetricsToNodeRule extends Rule {
         private List<TreeViewGroupMetricsToNodeRule> treeViewGroupMetricsToNodeRules;
 
         public Composer(List<TreeViewGroupMetricsToNodeRule> treeViewGroupMetricsToNodeRules) {
-            this.treeViewGroupMetricsToNodeRules = sortByDisplayName(treeViewGroupMetricsToNodeRules);
+            // remove duplicates and sort
+            List<TreeViewGroupMetricsToNodeRule> temp = removeDuplicates(By.ID,treeViewGroupMetricsToNodeRules);
+            this.treeViewGroupMetricsToNodeRules = sort(By.DISPLAY_NAME,temp);
         }
 
         public static TreeViewGroupMetricsToNodeRule compose(List<TreeViewGroupMetricsToNodeRule> treeViewGroupMetricsToNodeRules){
@@ -70,12 +73,12 @@ public class TreeViewGroupMetricsToNodeRule extends Rule {
         }
 
         @Override
-        public <M extends MetricNode> List<M> filter(NameTokens.Filter filterBy, String parentId, List<M> metricNodeList) {
+        public <M extends MetricNode> List<M> filter(By by, String parentId, List<M> metricNodeList) {
             List<M> result = new ArrayList<M>();
 
-            List<M> tempResult = null;
+            List<M> tempResult;
             for (TreeViewGroupMetricsToNodeRule rule : treeViewGroupMetricsToNodeRules) {
-                tempResult = rule.filter(filterBy,parentId,metricNodeList);
+                tempResult = rule.filter(by,parentId,metricNodeList);
                 if (tempResult != null) {
                     result.addAll(tempResult);
                 }
@@ -88,18 +91,5 @@ public class TreeViewGroupMetricsToNodeRule extends Rule {
                 return null;
             }
         }
-    }
-
-    //???
-    protected List<TreeViewGroupMetricsToNodeRule> sortByDisplayName(List<TreeViewGroupMetricsToNodeRule> metricGroupRuleList) {
-        Collections.sort(metricGroupRuleList, new Comparator<TreeViewGroupMetricsToNodeRule>() {
-            @Override
-            public int compare(TreeViewGroupMetricsToNodeRule o1, TreeViewGroupMetricsToNodeRule o2) {
-                int res = String.CASE_INSENSITIVE_ORDER.compare(o1.getDisplayName(), o2.getDisplayName());
-                return (res != 0) ? res : o1.getDisplayName().compareTo(o2.getDisplayName());
-            }
-        });
-
-        return metricGroupRuleList;
     }
 }

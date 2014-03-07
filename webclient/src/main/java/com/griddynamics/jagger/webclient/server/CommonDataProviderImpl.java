@@ -440,7 +440,10 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         List<MetricNameDto> list = new ArrayList<MetricNameDto>();
         for (TaskDataDto taskDataDto : tddos){
             for (MetricNameDto metricNameDto : standardMetricNameDtoList) {
-                MetricNameDto metric = metricNameDto;
+                MetricNameDto metric = new MetricNameDto();
+                metric.setMetricName(metricNameDto.getMetricName());
+                metric.setMetricDisplayName(metricNameDto.getMetricDisplayName());
+                metric.setOrigin(metricNameDto.getOrigin());
                 metric.setTest(taskDataDto);
                 list.add(metric);
             }

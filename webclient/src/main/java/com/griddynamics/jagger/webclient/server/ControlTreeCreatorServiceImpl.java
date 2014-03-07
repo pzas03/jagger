@@ -4,10 +4,7 @@ import com.griddynamics.jagger.webclient.client.ControlTreeCreatorService;
 import com.griddynamics.jagger.webclient.client.components.control.model.*;
 import com.griddynamics.jagger.webclient.client.data.MetricRankingProvider;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
-import com.griddynamics.jagger.webclient.server.rules.TreeViewGroupMetricsToNodeRule;
-import com.griddynamics.jagger.webclient.server.rules.TreeViewGroupMetricsToNodeRuleProvider;
-import com.griddynamics.jagger.webclient.server.rules.TreeViewGroupRule;
-import com.griddynamics.jagger.webclient.server.rules.TreeViewGroupRuleProvider;
+import com.griddynamics.jagger.webclient.server.rules.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -120,12 +117,9 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
                 String rootId = METRICS_PREFIX + tdd.hashCode();
 
                 // rules to unite metrics in single plot
-                //??? review ids
                 TreeViewGroupMetricsToNodeRule testNodeUniteMetricsRule = TreeViewGroupMetricsToNodeRuleProvider.provide();
                 // unite metrics and add result to original list
-                Filter filterBy = Filter.BY_ID;
-                //??? parent id
-                List<PlotNode> unitedMetrics = testNodeUniteMetricsRule.filter(filterBy,rootId,metricNodeList);
+                List<PlotNode> unitedMetrics = testNodeUniteMetricsRule.filter(Rule.By.ID,rootId,metricNodeList);
                 if (unitedMetrics != null) {
                     metricNodeList.addAll(unitedMetrics);
                 }
@@ -133,8 +127,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
                 // rules to create test tree view
                 TreeViewGroupRule testNodeGroupNodesRule = TreeViewGroupRuleProvider.provide(rootId, rootId);
                 // tree with metrics distributed by groups
-                filterBy = Filter.BY_DISPLAY_NAME;
-                MetricGroupNode<PlotNode> testDetailsNodeBase = testNodeGroupNodesRule.filter(filterBy,null,metricNodeList);
+                MetricGroupNode<PlotNode> testDetailsNodeBase = testNodeGroupNodesRule.filter(Rule.By.DISPLAY_NAME,null,metricNodeList);
                 // full test details node
                 TestDetailsNode testNode = new TestDetailsNode(testDetailsNodeBase);
                 testNode.setTaskDataDto(tdd);
@@ -175,16 +168,10 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
             List<MetricNode> metricNodeList = map.get(tdd);
             String rootId = SUMMARY_PREFIX + tdd.hashCode();
 
-            //???
-            //exception with already existing node name - handle it and show to user
-
             // rules to unite metrics in single plot
-            //??? review ids
             TreeViewGroupMetricsToNodeRule testNodeUniteMetricsRule = TreeViewGroupMetricsToNodeRuleProvider.provide();
             // unite metrics and add result to original list
-            Filter filterBy = Filter.BY_ID;
-            //??? parent id
-            List<MetricNode> unitedMetrics = testNodeUniteMetricsRule.filter(filterBy,rootId,metricNodeList);
+            List<MetricNode> unitedMetrics = testNodeUniteMetricsRule.filter(Rule.By.ID,rootId,metricNodeList);
             if (unitedMetrics != null) {
                 metricNodeList.addAll(unitedMetrics);
             }
@@ -192,8 +179,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
             // rules to create test tree view
             TreeViewGroupRule testNodeGroupNodesRule = TreeViewGroupRuleProvider.provide(rootId, rootId);
             // tree with metrics distributed by groups
-            filterBy = Filter.BY_DISPLAY_NAME;
-            MetricGroupNode<MetricNode> testNodeBase = testNodeGroupNodesRule.filter(filterBy,null,metricNodeList);
+            MetricGroupNode<MetricNode> testNodeBase = testNodeGroupNodesRule.filter(Rule.By.DISPLAY_NAME,null,metricNodeList);
 
             // full test node with info data
             TestNode testNode = new TestNode(testNodeBase);

@@ -3,9 +3,10 @@ package com.griddynamics.jagger.webclient.server.rules;
 import com.griddynamics.jagger.webclient.client.components.control.model.MetricGroupNode;
 import com.griddynamics.jagger.webclient.client.components.control.model.MetricNode;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
-import com.griddynamics.jagger.webclient.client.mvp.NameTokens;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class TreeViewGroupRule extends Rule{
 
@@ -14,10 +15,13 @@ public class TreeViewGroupRule extends Rule{
     }
     public TreeViewGroupRule(String id, String displayName, String rule, List<TreeViewGroupRule> children) {
         super(id,displayName,rule);
-        this.children = sortByDisplayName(children);
+
+        // remove duplicates and sort
+        List<TreeViewGroupRule> temp = removeDuplicates(By.ID,children);
+        this.children = sort(By.DISPLAY_NAME, temp);
     }
 
-    public <M extends MetricNode> MetricGroupNode<M> filter(NameTokens.Filter filterBy, String parentId, List<M> metricNodeList) {
+    public <M extends MetricNode> MetricGroupNode<M> filter(By by, String parentId, List<M> metricNodeList) {
         MetricGroupNode<M> result = new MetricGroupNode<M>(displayName);
         boolean returnResult = false;
 
@@ -40,7 +44,7 @@ public class TreeViewGroupRule extends Rule{
         List<MetricGroupNode> metricGroupNodeListFromChildren = new ArrayList<MetricGroupNode>();
         if (children != null) {
             for (TreeViewGroupRule child : children) {
-                MetricGroupNode childResult = child.filter(filterBy,id,metricNodeList);
+                MetricGroupNode childResult = child.filter(by,id,metricNodeList);
                 if (childResult != null) {
                     metricGroupNodeListFromChildren.add(childResult);
                 }
@@ -63,7 +67,7 @@ public class TreeViewGroupRule extends Rule{
                 // node can contain more than single metric
                 // current strategy: if at least one metric match => add node to group
                 for (MetricNameDto metricNameDto : metricNode.getMetricNameDtoList()) {
-                    if (filterBy == NameTokens.Filter.BY_DISPLAY_NAME) {
+                    if (by == By.DISPLAY_NAME) {
                         metric = metricNameDto.getMetricDisplayName();
                     }
                     else {
@@ -92,19 +96,6 @@ public class TreeViewGroupRule extends Rule{
 
     public List<TreeViewGroupRule> getChildren() {
         return children;
-    }
-
-    //??? move to util
-    private List<TreeViewGroupRule> sortByDisplayName(List<TreeViewGroupRule> metricGroupRuleList) {
-        Collections.sort(metricGroupRuleList, new Comparator<TreeViewGroupRule>() {
-            @Override
-            public int compare(TreeViewGroupRule o1, TreeViewGroupRule o2) {
-                int res = String.CASE_INSENSITIVE_ORDER.compare(o1.getDisplayName(), o2.getDisplayName());
-                return (res != 0) ? res : o1.getDisplayName().compareTo(o2.getDisplayName());
-            }
-        });
-
-        return metricGroupRuleList;
     }
 
     private List<TreeViewGroupRule> children = null;

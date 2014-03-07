@@ -88,6 +88,7 @@
         <property name="monitoringPlotGroups" ref="monitoringPlotGroups"/>
         <property name="workloadPlotGroups" ref="workloadPlotGroups"/>
         <property name="standardMetricNameDtoList" ref="standardMetricNameDtoList"/>
+        <property name="webClientProperties" ref="webClientProperties"/>
     </bean>
 
 
