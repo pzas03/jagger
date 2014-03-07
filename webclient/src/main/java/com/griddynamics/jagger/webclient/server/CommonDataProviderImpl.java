@@ -3,6 +3,7 @@ package com.griddynamics.jagger.webclient.server;
 import com.griddynamics.jagger.agent.model.DefaultMonitoringParameters;
 import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadProcessLatencyPercentile;
 import com.griddynamics.jagger.monitoring.reporting.GroupKey;
+import com.griddynamics.jagger.util.AgentUtils;
 import com.griddynamics.jagger.util.Pair;
 import com.griddynamics.jagger.webclient.client.components.control.model.*;
 import com.griddynamics.jagger.webclient.client.data.MetricRankingProvider;
@@ -574,7 +575,7 @@ public class CommonDataProviderImpl extends AbstractDataProvider implements Comm
 
             SessionPlotNode plotNode = new SessionPlotNode();
             String agentIdenty = objects[0] == null ? objects[1].toString() : objects[0].toString();
-            plotNode.setPlotNameDto(new SessionPlotNameDto(sessionIds, groupKey + AGENT_NAME_SEPARATOR + agentIdenty));
+            plotNode.setPlotNameDto(new SessionPlotNameDto(sessionIds, AgentUtils.getMonitoringMetricId(groupKey, agentIdenty)));
             plotNode.setDisplayName(agentIdenty);
             String id = METRICS_PREFIX + groupKey + agentIdenty;
             plotNode.setId(id);
@@ -632,7 +633,7 @@ public class CommonDataProviderImpl extends AbstractDataProvider implements Comm
                     String identy = objects[0] == null ? objects[1].toString() : objects[0].toString();
 
                     PlotNode plotNode = new PlotNode();
-                    plotNode.setMetricNameDto(new MetricNameDto(tdd, monitoringKey + AGENT_NAME_SEPARATOR + identy));
+                    plotNode.setMetricNameDto(new MetricNameDto(tdd, AgentUtils.getMonitoringMetricId(monitoringKey, identy)));
                     plotNode.setDisplayName(identy);
                     String id = METRICS_PREFIX + tdd.hashCode() + monitoringKey + identy;
                     plotNode.setId(id);
