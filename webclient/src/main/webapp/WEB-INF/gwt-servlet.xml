@@ -99,9 +99,9 @@
     </bean>
 
     <bean id="webClientProperties" class="com.griddynamics.jagger.webclient.client.data.WebClientProperties">
-        <property name="userCommentEditAvailable" value="${webui.user.comment.available:false}"/>
+        <property name="userCommentEditAvailable" value="${webui.user.comment.available:true}"/>
         <property name="userCommentMaxLength" value="${webui.user.comment.max.length:1000}"/>
-        <property name="tagsAvailable" value="${webui.tags.available:false}"/>
+        <property name="tagsAvailable" value="${webui.tags.available:true}"/>
         <property name="showOnlyMatchedTests" value="${webui.show.matched.tests.only:true}"/>
     </bean>
 

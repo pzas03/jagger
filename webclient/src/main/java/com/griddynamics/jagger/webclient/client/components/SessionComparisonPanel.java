@@ -83,6 +83,7 @@ public class SessionComparisonPanel extends VerticalPanel {
     private WebClientProperties webClientProperties;
 
     private List<TagDto> allTags;
+    private HashMap<String,ArrayList<TagDto>> sessionTags;
 
     private boolean allTagsLoadComplete = false;
 
@@ -375,7 +376,7 @@ public class SessionComparisonPanel extends VerticalPanel {
 
     private void addItemToStore(TreeItem record, MetricDto metricDto) {
 
-        TreeItem taskItem = getTestItem(metricDto.getMetricName().getTests());
+        TreeItem taskItem = getTestItem(metricDto.getMetricName().getTest());
         for (TreeItem rec : treeStore.getChildren(taskItem)) {
             if (rec.getKey().equals(record.getKey())) {
                 return;
@@ -394,8 +395,8 @@ public class SessionComparisonPanel extends VerticalPanel {
 
     private void removeRecord(MetricDto metric) {
 
-        TreeItem testItem = getTestItem(metric.getMetricName().getTests());
-        String key = testItem.getKey() + metric.getMetricName().getName();
+        TreeItem testItem = getTestItem(metric.getMetricName().getTest());
+        String key = testItem.getKey() + metric.getMetricName().getMetricName();
 
         for (TreeItem item : treeStore.getChildren(testItem)) {
             if (item.getKey().equals(key)) {
@@ -406,7 +407,7 @@ public class SessionComparisonPanel extends VerticalPanel {
     }
 
     private String getItemKey(MetricNameDto metricName) {
-        return metricName.getTests().getDescription() + metricName.getTests().getTaskName() + metricName.getName();
+        return metricName.getTest().getDescription() + metricName.getTest().getTaskName() + metricName.getMetricName();
     }
 
     private void removeWithParent(TreeItem toRemove) {
@@ -553,9 +554,9 @@ public class SessionComparisonPanel extends VerticalPanel {
         public TreeItem(MetricDto metricDto) {
 
             MetricNameDto metricName = metricDto.getMetricName();
-            this.key =   getTestItemId(metricDto.getMetricName().getTests()) + metricDto.getMetricName().getName();
-            put(NAME, metricName.getDisplay());
-            put(TEST_DESCRIPTION, metricName.getTests().getDescription());
+            this.key =   getTestItemId(metricDto.getMetricName().getTest()) + metricDto.getMetricName().getMetricName();
+            put(NAME, metricName.getMetricDisplayName());
+            put(TEST_DESCRIPTION, metricName.getTest().getDescription());
             put(TEST_NAME, getItemKey(metricName));
 
             for (MetricValueDto metricValue : metricDto.getValues()) {
@@ -579,13 +580,13 @@ public class SessionComparisonPanel extends VerticalPanel {
             if (webClientProperties.isUserCommentEditAvailable()) {
                 if (object.get(NAME).equals(USER_COMMENT) && !field.equals(NAME)) {
                     toShow = object.get(field).replaceAll("\n", "<br>");
-                    return penImageResource + toShow;
+                    return penImageResource+toShow;
                 }
             }
             if (webClientProperties.isTagsAvailable()) {
                 if (object.get(NAME).equals(SESSION_TAGS) && !field.equals(NAME)) {
                     toShow = object.get(field).replaceAll("\n", "<br>");
-                    return penImageResource + toShow;
+                    return penImageResource+toShow;
                 }
             }
             return object.get(field);

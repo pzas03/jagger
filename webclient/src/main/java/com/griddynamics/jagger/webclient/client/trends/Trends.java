@@ -28,8 +28,6 @@ import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.gwt.view.client.*;
 import com.griddynamics.jagger.webclient.client.*;
 import com.griddynamics.jagger.webclient.client.components.*;
-import com.griddynamics.jagger.webclient.client.components.ControlTree;
-import com.griddynamics.jagger.webclient.client.components.NodesPanel;
 import com.griddynamics.jagger.webclient.client.components.control.CheckHandlerMap;
 import com.griddynamics.jagger.webclient.client.components.control.SimpleNodeValueProvider;
 import com.griddynamics.jagger.webclient.client.components.control.model.*;
@@ -142,7 +140,7 @@ public class Trends extends DefaultActivity {
 
     @UiHandler("clearSessionFiltersButton")
     void handleClearSessionFiltersButtonClick(ClickEvent e) {
-        setNullWidgetsValue(sessionsTo,sessionsFrom,sessionIdsTextBox,sessionTagsTextBox);
+        setNullWidgetsValue(sessionsTo, sessionsFrom, sessionIdsTextBox, sessionTagsTextBox);
         stopTypingSessionIdsTimer.schedule(10);
     }
 
@@ -224,7 +222,7 @@ public class Trends extends DefaultActivity {
 
                 if (metricsNames.size() < testNode.getMetrics().size()) {
                     for (MetricNameDto mnd : metricsNames) {
-                        testsMetrics.getMetrics().add(mnd.getName());
+                        testsMetrics.getMetrics().add(mnd.getMetricName());
                     }
                 }
                 testsMetricses.add(testsMetrics);
@@ -287,9 +285,9 @@ public class Trends extends DefaultActivity {
                 if (taskDataDtos.contains(test.getTaskDataDto())) {
 
                     List<String> trends = new ArrayList<String>();
-                    for (PlotNode plotNode : test.getPlots()) {
+                    for (PlotNode plotNode : test.getMetrics()) {
                         if (controlTree.isChecked(plotNode)) {
-                            trends.add(plotNode.getPlotName().getPlotName());
+                            trends.add(plotNode.getMetricNameDto().getMetricName());
                         }
                     }
                     for (MonitoringPlotNode monitoringPlotNode : test.getMonitoringPlots()) {
@@ -298,7 +296,7 @@ public class Trends extends DefaultActivity {
                         } else if (controlTree.isChosen(monitoringPlotNode)) {
                             for (PlotNode plotNode : monitoringPlotNode.getPlots()) {
                                 if (controlTree.isChecked(plotNode)) {
-                                    trends.add(plotNode.getPlotName().getPlotName());
+                                    trends.add(plotNode.getMetricNameDto().getMetricName());
                                 }
                             }
                         }
@@ -323,7 +321,7 @@ public class Trends extends DefaultActivity {
             } else if (controlTree.isChosen(monitoringSessionScopePlotNode)) {
                 for (SessionPlotNode spn : monitoringSessionScopePlotNode.getPlots()) {
                     if (controlTree.isChecked(spn)) {
-                        result.add(spn.getPlotNameDto().getPlotName());
+                        result.add(spn.getPlotNameDto().getMetricName());
                     }
                 }
             }
@@ -875,7 +873,7 @@ public class Trends extends DefaultActivity {
         sessionTagsTextBox.addKeyUpHandler(new KeyUpHandler() {
             @Override
             public void onKeyUp(KeyUpEvent event) {
-                setNullWidgetsValue(sessionsTo,sessionsFrom,sessionIdsTextBox);
+                setNullWidgetsValue(sessionsTo, sessionsFrom, sessionIdsTextBox);
                 tagNames.clear();
                 stopTypingSessionTagsTimer.schedule(500);
             }
@@ -883,7 +881,7 @@ public class Trends extends DefaultActivity {
         filterBox.addCloseHandler(new CloseHandler<PopupPanel>() {
             @Override
             public void onClose(CloseEvent<PopupPanel> popupPanelCloseEvent) {
-                setNullWidgetsValue(sessionsFrom,sessionsTo,sessionIdsTextBox);
+                setNullWidgetsValue(sessionsFrom, sessionsTo, sessionIdsTextBox);
                 if (!tagNames.isEmpty())
                     sessionTagsTextBox.setValue(toParsableString(tagNames));
                 tagNames.clear();
@@ -1155,7 +1153,7 @@ public class Trends extends DefaultActivity {
                         tempTree.setExpanded(sessionScopePlotsNode, true, false);
                     } else {
                         for (SessionPlotNode plotNode: monitoringSessionScopePlotNode.getPlots()) {
-                            if (place.getSessionTrends().contains(plotNode.getPlotNameDto().getPlotName())) {
+                            if (place.getSessionTrends().contains(plotNode.getPlotNameDto().getMetricName())) {
                                 tempTree.setCheckedExpandedWithParent(plotNode);
                             }
                         }
@@ -1179,8 +1177,8 @@ public class Trends extends DefaultActivity {
                         } else {
                             tempTree.setExpanded(testNode, true);
                             for (MetricNode metricNode : testNode.getMetrics()) {
-                                if (testsMetrics.getMetrics().contains(metricNode.getMetricName().getName())) {
-                                    tempTree.setCheckedWithParent(metricNode);
+                                if (testsMetrics.getMetrics().contains(metricNode.getMetricNameDto().getMetricName())) {
+                                    tempTree.setCheckedExpandedWithParent(metricNode);
                                     needTestInfo = true;
                                 }
                             }
@@ -1194,8 +1192,8 @@ public class Trends extends DefaultActivity {
                     if (testDetailsNode == null) { // have not find appropriate TestDetailNode
                         new ExceptionPanel("could not find Test with test name \'" + testsMetrics.getTestName() + "\' for details");
                     } else {
-                        for (PlotNode plotNode : testDetailsNode.getPlots()) {
-                            if (testsMetrics.getTrends().contains(plotNode.getPlotName().getPlotName())) {
+                        for (PlotNode plotNode : testDetailsNode.getMetrics()) {
+                            if (testsMetrics.getTrends().contains(plotNode.getMetricNameDto().getMetricName())) {
                                 tempTree.setCheckedExpandedWithParent(plotNode);
                             }
                         }
@@ -1205,7 +1203,7 @@ public class Trends extends DefaultActivity {
                                 tempTree.setExpanded(testDetailsNode, true, false);
                             } else {
                                 for (PlotNode plotNode: monitoringPlotNode.getPlots()) {
-                                    if (testsMetrics.getTrends().contains(plotNode.getPlotName().getPlotName())) {
+                                    if (testsMetrics.getTrends().contains(plotNode.getMetricNameDto().getMetricName())) {
                                         tempTree.setCheckedExpandedWithParent(plotNode);
                                     }
                                 }
@@ -1267,7 +1265,7 @@ public class Trends extends DefaultActivity {
             return null;
         }
 
-        private void updateControlTree(RootNode result) {
+       private void updateControlTree(RootNode result) {
             ControlTree<String> tempTree = createControlTree(result);
 
             tempTree.disableEvents();
@@ -1431,8 +1429,8 @@ public class Trends extends DefaultActivity {
 
                 //Generate all id of plots which should be displayed
                 Set<String> selectedMetricsIds = new HashSet<String>();
-                for (MetricNameDto plotNameDto : metrics) {
-                    selectedMetricsIds.add(generateMetricPlotId(plotNameDto));
+                for (MetricNameDto metricNameDto : metrics) {
+                    selectedMetricsIds.add(generateMetricPlotId(metricNameDto));
                 }
 
                 List<MetricDto> toRemoveFromTable = new ArrayList<MetricDto>();
@@ -1518,14 +1516,14 @@ public class Trends extends DefaultActivity {
          * @param selected plotNames to fetch and render
          * @param enableTree tells return control or not
          */
-        public void fetchPlots(Set<PlotNameDto> selected, final boolean enableTree) {
+        public void fetchPlots(Set<MetricNameDto> selected, final boolean enableTree) {
 
             if (selected.isEmpty()) {
                 if (enableTree)
                     enableControl();
             } else {
                 disableControl();
-                PlotProviderService.Async.getInstance().getPlotDatas(selected, new AsyncCallback<Map<PlotNameDto, List<PlotSeriesDto>>>() {
+                PlotProviderService.Async.getInstance().getPlotDatas(selected, new AsyncCallback<Map<MetricNameDto, List<PlotSeriesDto>>>() {
 
                     @Override
                     public void onFailure(Throwable caught) {
@@ -1537,16 +1535,16 @@ public class Trends extends DefaultActivity {
                     }
 
                     @Override
-                    public void onSuccess(Map<PlotNameDto, List<PlotSeriesDto>> result) {
-                        for (PlotNameDto plotNameDto : result.keySet()){
+                    public void onSuccess(Map<MetricNameDto, List<PlotSeriesDto>> result) {
+                        for (MetricNameDto metricNameDto : result.keySet()){
                             final String id;
                             // Generate DOM id for plot
-                            if (plotNameDto.getTest() == null) {
-                                id = generateSessionScopePlotId(chosenSessions.get(0), plotNameDto.getPlotName());
+                            if (metricNameDto.getTest() == null) {
+                                id = generateSessionScopePlotId(chosenSessions.get(0), metricNameDto.getMetricName());
                             } else if (chosenSessions.size() == 1) {
-                                id = generateTaskScopePlotId(plotNameDto);
+                                id = generateTaskScopePlotId(metricNameDto);
                             } else {
-                                id = generateCrossSessionsTaskScopePlotId(plotNameDto);
+                                id = generateCrossSessionsTaskScopePlotId(metricNameDto);
                             }
 
                             // If plot has already displayed, then pass it
@@ -1554,7 +1552,7 @@ public class Trends extends DefaultActivity {
                                 continue;
                             }
 
-                            chosenPlots.put(id, result.get(plotNameDto));
+                            chosenPlots.put(id, result.get(metricNameDto));
 
                         }
                         if (mainTabPanel.getSelectedIndex() == tabMetrics.getTabIndex()) {
@@ -1571,7 +1569,7 @@ public class Trends extends DefaultActivity {
          * Removes plots
          * @param plotNames plotNames to remove
          */
-        public void removePlots(Set<PlotNameDto> plotNames) {
+        public void removePlots(Set<MetricNameDto> plotNames) {
 
             if (plotNames.isEmpty()) {
                 return;
@@ -1591,21 +1589,21 @@ public class Trends extends DefaultActivity {
             }
         }
 
-        public void fetchPlot(PlotNameDto selected, final boolean enableTree) {
-            Set<PlotNameDto> selectedSet = new HashSet<PlotNameDto>();
+        public void fetchPlot(MetricNameDto selected, final boolean enableTree) {
+            Set<MetricNameDto> selectedSet = new HashSet<MetricNameDto>();
             selectedSet.add(selected);
             fetchPlots(selectedSet, enableTree);
         }
 
-        public void removePlot(PlotNameDto plotNameDto) {
-            Set<PlotNameDto> setToRemove = new HashSet<PlotNameDto>();
-            setToRemove.add(plotNameDto);
+        public void removePlot(MetricNameDto metricNameDto) {
+            Set<MetricNameDto> setToRemove = new HashSet<MetricNameDto>();
+            setToRemove.add(metricNameDto);
             removePlots(setToRemove);
         }
 
-        private Set<String> generateTaskPlotIds(Set<PlotNameDto> selected, int size) {
+        private Set<String> generateTaskPlotIds(Set<MetricNameDto> selected, int size) {
             HashSet<String> idSet = new HashSet<String>();
-            for (PlotNameDto plotName : selected) {
+            for (MetricNameDto plotName : selected) {
                 if (size == 1) {
                     idSet.add(generateTaskScopePlotId(plotName));
                 } else {
@@ -1651,7 +1649,7 @@ public class Trends extends DefaultActivity {
                                     @Override
                                     public void onSuccess(Map<SessionPlotNameDto, List<PlotSeriesDto>> result) {
                                         for (SessionPlotNameDto plotName : result.keySet()) {
-                                            final String id = generateSessionScopePlotId(chosenSessions.get(0), plotName.getPlotName());
+                                            final String id = generateSessionScopePlotId(chosenSessions.get(0), plotName.getMetricName());
 
                                             // If plot has already displayed, then pass it
                                             if (chosenPlots.containsKey(id)) {
@@ -1683,7 +1681,7 @@ public class Trends extends DefaultActivity {
          * Removes plots
          * @param plotNames plotNames to remove
          */
-        public void removePlots(Set<? extends PlotName> plotNames) {
+        public void removePlots(Set<? extends MetricName> plotNames) {
 
             if (plotNames.isEmpty()) {
                 return;
@@ -1708,17 +1706,17 @@ public class Trends extends DefaultActivity {
             }
         }
 
-        public void removePlot(PlotName plotNameDto) {
-            Set<PlotName> set = new HashSet<PlotName>();
-            set.add(plotNameDto);
+        public void removePlot(MetricName metricNameDto) {
+            Set<MetricName> set = new HashSet<MetricName>();
+            set.add(metricNameDto);
             removePlots(set);
         }
 
 
-        private Set<String> generateSessionPlotIds(Set<? extends PlotName> selected) {
+        private Set<String> generateSessionPlotIds(Set<? extends MetricName> selected) {
             HashSet<String> idSet = new HashSet<String>();
-            for (PlotName plotName : selected) {
-                idSet.add(generateSessionScopePlotId(chosenSessions.get(0), plotName.getPlotName()));
+            for (MetricName plotName : selected) {
+                idSet.add(generateSessionScopePlotId(chosenSessions.get(0), plotName.getMetricName()));
             }
             return idSet;
         }
