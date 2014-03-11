@@ -4,14 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.editor.client.Editor;
 import com.google.gwt.editor.client.Editor.Path;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
-import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.*;
-import com.griddynamics.jagger.webclient.client.SessionDataService;
-import com.griddynamics.jagger.webclient.client.dto.SessionDataDto;
 import com.griddynamics.jagger.webclient.client.dto.TagDto;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
 import com.sencha.gxt.core.client.ValueProvider;
@@ -28,11 +27,17 @@ import com.sencha.gxt.widget.core.client.grid.ColumnConfig;
 import com.sencha.gxt.widget.core.client.grid.ColumnModel;
 import com.sencha.gxt.widget.core.client.grid.Grid;
 import com.sencha.gxt.widget.core.client.treegrid.TreeGrid;
+import java.util.Set;
 
+/**
+* Created with IntelliJ IDEA.
+* User: mnovozhilov
+* Date: 3/6/14
+* Time: 7:42 PM
+* To change this template use File | Settings | File Templates.
+*/
+public class FilterBox extends AbstractWindow implements IsWidget {
 
-public class TagBox extends AbstractWindow implements IsWidget {
-
-    private SessionComparisonPanel.TreeItem currentTreeItem;
 
     private TextArea descriptionPanel;
     private Grid<TagDto> gridStorageL;
@@ -41,6 +46,9 @@ public class TagBox extends AbstractWindow implements IsWidget {
     private ListStore<TagDto> storeFrom;
     private ListStore<TagDto> storeTo;
 
+    private List<String> sessionTags;
+    private Set<String> tagNamesSet;
+
     private final boolean ADD_NEW = true;
 
     private final String DEFAULT_TITLE = "Click on any row...";
@@ -48,20 +56,18 @@ public class TagBox extends AbstractWindow implements IsWidget {
 
     private TextButton allRight, right, left, allLeft;
 
-    private TreeGrid<SessionComparisonPanel.TreeItem> treeGrid;
 
-    private SessionDataDto currentSession;
 
     interface TagDtoProperties extends PropertyAccess<TagDto> {
-        @Path("name")
+        @Editor.Path("name")
         ModelKeyProvider<TagDto> name();
 
-        @Path("name")
+        @Editor.Path("name")
         ValueProvider<TagDto, String> descriptionProp();
 
     }
 
-    public TagBox() {
+    public FilterBox() {
         super();
         buttonInitialization();
         defaultButtonInitialization();
@@ -70,7 +76,7 @@ public class TagBox extends AbstractWindow implements IsWidget {
         storeFrom = new ListStore<TagDto>(props.name());
         storeTo = new ListStore<TagDto>(props.name());
 
-
+        setSaveButtonText("Apply");
         descriptionPanel = new TextArea();
         descriptionPanel.setReadOnly(true);
         descriptionPanel.setStyleName(JaggerResources.INSTANCE.css().descriptionPanel());
@@ -84,19 +90,19 @@ public class TagBox extends AbstractWindow implements IsWidget {
                 onButtonAll(ADD_NEW);
             }
         });
-        right.addSelectHandler(new SelectHandler() {
+        right.addSelectHandler(new SelectEvent.SelectHandler() {
             @Override
             public void onSelect(SelectEvent event) {
                 onButtonOne(ADD_NEW);
             }
         });
-        left.addSelectHandler(new SelectHandler() {
+        left.addSelectHandler(new SelectEvent.SelectHandler() {
             @Override
             public void onSelect(SelectEvent event) {
                 onButtonOne(!ADD_NEW);
             }
         });
-        allLeft.addSelectHandler(new SelectHandler() {
+        allLeft.addSelectHandler(new SelectEvent.SelectHandler() {
             @Override
             public void onSelect(SelectEvent event) {
                 onButtonAll(!ADD_NEW);
@@ -130,7 +136,7 @@ public class TagBox extends AbstractWindow implements IsWidget {
         gridStorageL.getView().setForceFit(true);
 
 
-        gridStorageR = new Grid<TagDto>(storeTo, createColumnList(props, "Session's tags"));
+        gridStorageR = new Grid<TagDto>(storeTo, createColumnList(props, "Filter tags"));
         gridStorageR.setBorders(true);
         gridStorageR.getView().setForceFit(true);
 
@@ -206,20 +212,14 @@ public class TagBox extends AbstractWindow implements IsWidget {
             }
         });
         add(mainPanel);
-
     }
 
-
-    public void setTreeGrid(TreeGrid<SessionComparisonPanel.TreeItem> treeGrid) {
-        this.treeGrid = treeGrid;
-    }
-
-
-    void popUp(SessionDataDto currentSession, SessionComparisonPanel.TreeItem item, List<TagDto> allTags, List<TagDto> sessionTags) {
-        this.currentSession=currentSession;
-        setText("Session " +currentSession.getSessionId());
-        setGrids(allTags, currentSession.getTags());
-        currentTreeItem = item;
+    String sessionStr;
+    public void popUp(List<TagDto> allTags, Set<String> sessionTags, String sessionStr) {
+        tagNamesSet=sessionTags;
+        this.sessionStr=sessionStr;
+        setText("Session filter by tags");
+        setGrids(allTags, new ArrayList<String>(tagNamesSet));
         show();
     }
 
@@ -236,16 +236,13 @@ public class TagBox extends AbstractWindow implements IsWidget {
 
     @Override
     protected void onSaveButtonClick() {
-        String tags = "";
+        sessionTags.clear();
+        tagNamesSet.clear();
         for (int i = 0; i < storeTo.size(); i++) {
-            if (i==storeTo.size()-1)
-                tags += storeTo.get(i).getName();
-            else
-                tags += storeTo.get(i).getName() + ", ";
+            tagNamesSet.add(storeTo.get(i).getName());
         }
-        currentTreeItem.put(getText(), tags);
-        treeGrid.getTreeView().refresh(false);
-        saveTagToDataBase();
+        sessionStr=null;
+        atClose();
     }
 
     @Override
@@ -287,39 +284,17 @@ public class TagBox extends AbstractWindow implements IsWidget {
         }
     }
 
-    public void setGrids(List<TagDto> allTags, List<TagDto> sessionTags) {
+    public void setGrids(List<TagDto> allTags, List<String> sessionTags) {
+        this.sessionTags=sessionTags;
         gridStorageL.getStore().addAll(allTags);
-        gridStorageR.getStore().addAll(sessionTags);
-        for(TagDto tag : allTags) {
-            for (int i=0; i<gridStorageR.getStore().size();i++){
-                if(gridStorageR.getStore().get(i).equals(tag))
-                    gridStorageL.getStore().remove(tag);
+        for (int i = 0; i < gridStorageL.getStore().size(); i++) {
+            if(sessionTags.contains(gridStorageL.getStore().get(i).getName())){
+                gridStorageR.getStore().add(gridStorageL.getStore().get(i));
+                gridStorageL.getStore().remove(gridStorageR.getStore().get(i));
             }
         }
     }
 
-    private void saveTagToDataBase() {
-       final List <TagDto> list = new ArrayList<TagDto>();
-        list.addAll(gridStorageR.getStore().getAll());
-        SessionDataService.Async.getInstance().saveTags(currentSession.getId(), list, new AsyncCallback<Void>() {
-
-            @Override
-            public void onFailure(Throwable caught) {
-                atClose();
-                new ExceptionPanel("Fail to save into DB session's tags : " + caught.getMessage());
-            }
-
-            @Override
-            public void onSuccess(Void result) {
-                currentSession.getTags().clear();
-                currentSession.setTags(list);
-
-
-                treeGrid.getTreeView().refresh(false);
-                atClose();
-            }
-        });
-    }
 
     private void buttonInitialization() {
         allRight = new TextButton(">>>");
@@ -343,5 +318,8 @@ public class TagBox extends AbstractWindow implements IsWidget {
         descriptionPanel.setText(DEFAULT_TITLE);
         hide();
     }
+
+
 }
+
 

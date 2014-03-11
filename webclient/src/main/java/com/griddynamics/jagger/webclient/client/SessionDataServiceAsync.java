@@ -17,6 +17,7 @@ import java.util.Set;
  * @since 5/29/12
  */
 public interface SessionDataServiceAsync {
+
     void getAll(int start, int length, AsyncCallback<PagedSessionDataDto> async);
 
     void getBySessionId(String sessionId, AsyncCallback<SessionDataDto> async);
@@ -25,11 +26,13 @@ public interface SessionDataServiceAsync {
 
     void getBySessionIds(int start, int length, Set<String> sessionIds, AsyncCallback<PagedSessionDataDto> async);
 
+    void getBySessionTagsName(int start, int length, Set<String> sessionTagNames, AsyncCallback<PagedSessionDataDto> async);
+
     void getTestInfo(TaskDataDto taskDataDto, AsyncCallback<Map<String, TestInfoDto>> async);
+
+    void getAllTags(AsyncCallback<List<TagDto>> async);
 
     void saveUserComment(Long sessionData_id, String userComment, AsyncCallback<Void> async);
 
     void saveTags(Long sessionData_id, List<TagDto> tags, AsyncCallback<Void> async);
-
-    void getAllTags(AsyncCallback<List<TagDto>> async);
 }

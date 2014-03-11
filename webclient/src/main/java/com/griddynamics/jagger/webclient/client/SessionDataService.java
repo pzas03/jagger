@@ -24,11 +24,14 @@ public interface SessionDataService extends RemoteService {
     PagedSessionDataDto getAll(int start, int length) throws RuntimeException;
     PagedSessionDataDto getByDatePeriod(int start, int length, Date from, Date to) throws RuntimeException;
     PagedSessionDataDto getBySessionIds(int start, int length, Set<String> sessionIds) throws RuntimeException;
+    PagedSessionDataDto getBySessionTagsName (int start, int length, Set<String> sessionTagNames) throws RuntimeException;
+
     SessionDataDto getBySessionId(String sessionId) throws RuntimeException;
     Map<String, TestInfoDto> getTestInfo(TaskDataDto taskDataDto) throws RuntimeException;
+    List<TagDto> getAllTags();
+
     void saveUserComment(Long sessionData_id, String userComment);
     void saveTags(Long sessionData_id, List<TagDto> tags);
-    List<TagDto> getAllTags();
 
     public static class Async {
         private static final SessionDataServiceAsync ourInstance = (SessionDataServiceAsync) GWT.create(SessionDataService.class);

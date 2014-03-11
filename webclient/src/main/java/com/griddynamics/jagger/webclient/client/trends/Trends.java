@@ -9,10 +9,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
-import com.google.gwt.event.logical.shared.SelectionEvent;
-import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.event.logical.shared.*;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.HasDirection;
@@ -65,7 +62,17 @@ public class Trends extends DefaultActivity {
     private TabIdentifier tabMetrics;
     private TabIdentifier tabNodes;
 
+    private FilterBox filterBox;
+
+    private List<TagDto> allTags;
+    private boolean allTagsLoadComplete = true;
+    private Set<String> tagNames = new HashSet<String>();
+
+
     private static TrendsUiBinder uiBinder = GWT.create(TrendsUiBinder.class);
+
+    @UiField
+    TabLayoutPanel searchTabPanel;
 
     @UiField
     TabLayoutPanel mainTabPanel;
@@ -94,16 +101,32 @@ public class Trends extends DefaultActivity {
     @UiField
     NodesPanel nodesPanel;
 
+    TextBox sessionIdsTextBox = new TextBox();
+
+    TextBox sessionTagsTextBox = new TextBox();
+
+    DateBox sessionsFrom = new DateBox();
+
+    DateBox sessionsTo = new DateBox();
+
     @UiField
-    TextBox sessionIdsTextBox;
+    HorizontalPanel tagsPanel;
+
+    @UiField
+    HorizontalPanel idsPanel;
+
+    @UiField
+    HorizontalPanel datesPanel;
+
+
+    private Button tagButton;
 
     private Timer stopTypingSessionIdsTimer;
+    private Timer stopTypingSessionTagsTimer;
 
-    @UiField
-    DateBox sessionsFrom;
 
-    @UiField
-    DateBox sessionsTo;
+
+
 
     @UiHandler("uncheckSessionsButton")
     void handleUncheckSessionsButtonClick(ClickEvent e) {
@@ -119,9 +142,7 @@ public class Trends extends DefaultActivity {
 
     @UiHandler("clearSessionFiltersButton")
     void handleClearSessionFiltersButtonClick(ClickEvent e) {
-        sessionsTo.setValue(null, true);
-        sessionsFrom.setValue(null, true);
-        sessionIdsTextBox.setText(null);
+        setNullWidgetsValue(sessionsTo,sessionsFrom,sessionIdsTextBox,sessionTagsTextBox);
         stopTypingSessionIdsTimer.schedule(10);
     }
 
@@ -317,6 +338,8 @@ public class Trends extends DefaultActivity {
     private final SessionDataAsyncDataProvider sessionDataProvider = new SessionDataAsyncDataProvider();
     private final SessionDataForSessionIdsAsyncProvider sessionDataForSessionIdsAsyncProvider = new SessionDataForSessionIdsAsyncProvider();
     private final SessionDataForDatePeriodAsyncProvider sessionDataForDatePeriodAsyncProvider = new SessionDataForDatePeriodAsyncProvider();
+    private final SessionDataForSessionTagsAsyncProvider sessionDataForSessionTagsAsyncProvider = new SessionDataForSessionTagsAsyncProvider();
+
 
     @UiField
     Widget widget;
@@ -454,7 +477,9 @@ public class Trends extends DefaultActivity {
         uiBinder.createAndBindUi(this);
 
         setupTabPanel();
+        setupSearchTabPanel();
         setupSessionNumberTextBox();
+        setupSessionTagsTextBox();
         setupSessionsDateRange();
         setupControlTree();
     }
@@ -764,6 +789,7 @@ public class Trends extends DefaultActivity {
 
                 sessionDataProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
                 sessionDataForDatePeriodAsyncProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
+                sessionDataForSessionTagsAsyncProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
                 sessionDataForSessionIdsAsyncProvider.addDataDisplayIfNotExists(sessionsDataGrid);
             }
         };
@@ -771,8 +797,7 @@ public class Trends extends DefaultActivity {
         sessionIdsTextBox.addKeyUpHandler(new KeyUpHandler() {
             @Override
             public void onKeyUp(KeyUpEvent event) {
-                sessionsFrom.setValue(null);
-                sessionsTo.setValue(null);
+                setNullWidgetsValue(sessionsFrom, sessionsTo, sessionTagsTextBox);
                 stopTypingSessionIdsTimer.schedule(500);
             }
         });
@@ -791,7 +816,8 @@ public class Trends extends DefaultActivity {
 
             @Override
             public void onValueChange(ValueChangeEvent<Date> dateValueChangeEvent) {
-                sessionIdsTextBox.setValue(null);
+
+                setNullWidgetsValue(sessionIdsTextBox, sessionTagsTextBox);
                 Date fromDate = sessionsFrom.getValue();
                 Date toDate = sessionsTo.getValue();
 
@@ -806,12 +832,64 @@ public class Trends extends DefaultActivity {
 
                 sessionDataProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
                 sessionDataForSessionIdsAsyncProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
+                sessionDataForSessionTagsAsyncProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
                 sessionDataForDatePeriodAsyncProvider.addDataDisplayIfNotExists(sessionsDataGrid);
             }
         };
 
         sessionsTo.addValueChangeHandler(valueChangeHandler);
         sessionsFrom.addValueChangeHandler(valueChangeHandler);
+    }
+
+
+    private void setupSessionTagsTextBox() {
+
+        stopTypingSessionTagsTimer = new Timer() {
+
+            @Override
+            public void run() {
+
+                String generalContent = sessionTagsTextBox.getText().trim();
+
+                // If session ID text box is empty then load all sessions
+                if (generalContent.isEmpty()) {
+                    sessionDataProvider.addDataDisplayIfNotExists(sessionsDataGrid);
+                    sessionDataForSessionTagsAsyncProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
+                    return;
+                }
+
+                if (generalContent.contains(",") || generalContent.contains(";") || generalContent.contains("/")) {
+                    tagNames.addAll(Arrays.asList(generalContent.split("\\s*[,;/]\\s*")));
+                } else {
+                    tagNames.add(generalContent);
+                }
+
+                sessionDataForSessionTagsAsyncProvider.setTagNames(tagNames);
+                sessionDataProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
+                sessionDataForDatePeriodAsyncProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
+                sessionDataForSessionIdsAsyncProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
+                sessionDataForSessionTagsAsyncProvider.addDataDisplayIfNotExists(sessionsDataGrid);
+            }
+        };
+
+        sessionTagsTextBox.addKeyUpHandler(new KeyUpHandler() {
+            @Override
+            public void onKeyUp(KeyUpEvent event) {
+                setNullWidgetsValue(sessionsTo,sessionsFrom,sessionIdsTextBox);
+                tagNames.clear();
+                stopTypingSessionTagsTimer.schedule(500);
+            }
+        });
+        filterBox.addCloseHandler(new CloseHandler<PopupPanel>() {
+            @Override
+            public void onClose(CloseEvent<PopupPanel> popupPanelCloseEvent) {
+                setNullWidgetsValue(sessionsFrom,sessionsTo,sessionIdsTextBox);
+                if (!tagNames.isEmpty())
+                    sessionTagsTextBox.setValue(toParsableString(tagNames));
+                tagNames.clear();
+                stopTypingSessionTagsTimer.schedule(500);
+            }
+        });
     }
 
     private void renderPlots(HTMLPanel panel, List<PlotSeriesDto> plotSeriesDtoList, String id) {
@@ -1647,8 +1725,106 @@ public class Trends extends DefaultActivity {
 
     }
 
-    // Tab index should be defined in single place
-    // to avoid problems during adding/deleting new tabs
+    private void allTags() {
+
+        allTags = new ArrayList<TagDto>();
+        SessionDataService.Async.getInstance().getAllTags(new AsyncCallback<List<TagDto>>() {
+            @Override
+            public void onFailure(Throwable throwable) {
+                new ExceptionPanel("Fail to fetch all tags from the database: " + throwable.getMessage());
+            }
+
+            @Override
+            public void onSuccess(List<TagDto> tagDtos) {
+                allTags.addAll(tagDtos);
+                allTagsLoadComplete = true;
+            }
+        });
+    }
+
+    void setupSearchTabPanel() {
+
+        final int indexDate = 0;
+        final int indexId = 1;
+        final int indexTag = 2;
+        allTags();
+        filterBox = new FilterBox();
+        tagButton = new Button("All");
+
+        tagButton.setSize("30px","25px");
+        tagButton.setEnabled(allTagsLoadComplete);
+        tagButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                tagNames.clear();
+                filterBox.popUp(allTags,tagNames,sessionTagsTextBox.getText().trim());
+            }
+        });
+
+
+        Label from = new Label("From ");
+        Label to = new Label(" to ");
+        from.setStyleName(JaggerResources.INSTANCE.css().searchTabPanel());
+        to.setStyleName(JaggerResources.INSTANCE.css().searchTabPanel());
+
+        setPanel(datesPanel, from, sessionsFrom, to, sessionsTo);
+        setPanel(tagsPanel, sessionTagsTextBox, tagButton);
+        setPanel(idsPanel, sessionIdsTextBox);
+
+        searchTabPanel.selectTab(0);
+
+        searchTabPanel.setTitle("Search by ids, dates or tags");
+
+        searchTabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
+            @Override
+            public void onSelection(SelectionEvent<Integer> event) {
+                int selected = event.getSelectedItem();
+                switch (selected) {
+                    case indexDate:
+                        onDateSearchTabSelected();
+                        break;
+                    case indexId:
+                        onIdSearchTabSelected();
+                        break;
+                    case indexTag:
+                        onTagSearchTabSelected();
+                        break;
+                    default:
+                }
+            }
+        });
+
+    }
+    private void onDateSearchTabSelected() {
+        searchTabPanel.forceLayout();
+    }
+
+    private void onIdSearchTabSelected() {
+        searchTabPanel.forceLayout();
+    }
+
+    private void onTagSearchTabSelected() {
+        searchTabPanel.forceLayout();
+
+    }
+
+    private void setPanel(HorizontalPanel panel, Widget... widgets){
+        panel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+        panel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+        for (Widget widget:widgets){
+            panel.add(widget);
+            if (widget instanceof DateBox){
+                widget.setSize("95%","20px");
+            }
+            else if (widget instanceof TextBox)
+                widget.setSize("98%","20px");
+        }
+        panel.setSize("100%","20px");
+
+
+    }
+//    Tab index should be defined in single place
+//    to avoid problems during adding/deleting new tabs
     private class TabIdentifier {
 
         public TabIdentifier(String tabName, int tabIndex) {
@@ -1668,4 +1844,20 @@ public class Trends extends DefaultActivity {
         private int tabIndex = 0;
     }
 
+    private String toParsableString(Collection T){
+        String str="";
+        for(Object t:T){
+            str+=t.toString()+'/';
+        }
+        return str;
+    }
+
+    private void setNullWidgetsValue(Widget... widgets){
+        for(Widget widget :widgets){
+            if (widget instanceof TextBox)
+                ((TextBox)widget).setText(null);
+            else if (widget instanceof  DateBox)
+                ((DateBox)widget).setValue(null,true);
+        }
+    }
 }

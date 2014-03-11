@@ -288,8 +288,12 @@ public class SessionComparisonPanel extends VerticalPanel {
                 if (session.getTags() == null) {
                     session.setTags(new ArrayList<TagDto>());
                 }
-                for (TagDto tagDto : session.getTags())
-                    tagsStr += tagDto.getName() + " ";
+                for (int i = 0; i < session.getTags().size(); i++) {
+                    if (i==session.getTags().size()-1)
+                        tagsStr += session.getTags().get(i).getName();
+                    else
+                        tagsStr += session.getTags().get(i).getName()+", ";
+                }
                 itemTags.put(SESSION_HEADER + session.getSessionId(), tagsStr);
                 tagsStr = "";
             }

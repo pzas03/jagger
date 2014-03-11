@@ -43,11 +43,14 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
 
     @Override
     public List<TagDto> getAllTags() {
-        List<TagEntity> tags = (List<TagEntity>) (entityManager.createQuery("select te from TagEntity as te")).getResultList();
         List<TagDto> allTags = new ArrayList<TagDto>();
-        if (!tags.isEmpty()) {
-            for (TagEntity tagEntity : tags) {
-                allTags.add(new TagDto(tagEntity.getName(), tagEntity.getDescription()));
+        if (commonDataService.getWebClientProperties().isTagsStoreAvailable()) {
+            List<TagEntity> tags = (List<TagEntity>) (entityManager.createQuery("select te from TagEntity as te")).getResultList();
+
+            if (!tags.isEmpty()) {
+                for (TagEntity tagEntity : tags) {
+                    allTags.add(new TagDto(tagEntity.getName(), tagEntity.getDescription()));
+                }
             }
         }
         return allTags;
@@ -412,6 +415,95 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
             log.info("There was loaded {} sessions data from {} for {} ms", new Object[]{sessionDataDtoList.size(), totalSize, System.currentTimeMillis() - timestamp});
         } catch (Exception e) {
             log.error("Error was occurred during session data fetching for session Ids " + sessionIds + "; start " + start + ", length " + length, e);
+            throw new RuntimeException(e);
+        }
+
+        return new PagedSessionDataDto(sessionDataDtoList, (int) totalSize);
+    }
+
+    @Override
+    public PagedSessionDataDto getBySessionTagsName(int start, int length, Set<String> sessionTagNames) {
+        checkArgument(start >= 0, "start is negative");
+        checkArgument(length >= 0, "length is negative");
+        checkNotNull(sessionTagNames, "sessionTagNames is null");
+
+        long timestamp = System.currentTimeMillis();
+
+        long totalSize;
+        List<SessionDataDto> sessionDataDtoList;
+        List<Long> sessionIds = new ArrayList<Long>();
+        List<BigInteger> ids;
+
+        try {
+            totalSize = ((BigInteger)entityManager.createNativeQuery("select count(distinct ste.sessions_id) from SessionTagEntity as ste where ste.tags_name in (:sessionTagNames)")
+                    .setParameter("sessionTagNames", new ArrayList<String>(sessionTagNames))
+                    .getSingleResult()).longValue();
+                     if (totalSize==0) {
+                return new PagedSessionDataDto(Collections.<SessionDataDto>emptyList(), 0);
+            }
+
+            ids = (ArrayList<BigInteger>) entityManager.createNativeQuery("select distinct sd.sessions_id from SessionTagEntity as sd where sd.tags_name in (:sessionTagNames)")
+                    .setParameter("sessionTagNames", new ArrayList<String>(sessionTagNames)).getResultList();
+
+            for (BigInteger id: ids){
+                sessionIds.add(id.longValue());
+            }
+
+            @SuppressWarnings("unchecked")
+            List<SessionData> sessionDataList = (List<SessionData>) entityManager.createQuery("SELECT sd from SessionData as sd where sd.id in (:sessionIds)")
+                            .setParameter("sessionIds", sessionIds)
+                            .setFirstResult(start)
+                            .setMaxResults(length)
+                            .getResultList();
+
+            if (sessionDataList.isEmpty()) {
+                return new PagedSessionDataDto(Collections.<SessionDataDto>emptyList(), 0);
+            }
+
+            Map<Long, String> userCommentMap = Collections.EMPTY_MAP;
+
+            if (commonDataService.getWebClientProperties().isUserCommentStoreAvailable()) {
+
+                List<Object[]> userComments = entityManager.createQuery(
+                        "select smd.sessionData.id, smd.userComment from SessionMetaDataEntity as smd where smd.sessionData in (:sessionDataList)")
+                        .setParameter("sessionDataList", sessionDataList)
+                        .getResultList();
+
+                if (!userComments.isEmpty()) {
+                    userCommentMap = new HashMap<Long, String>(userComments.size());
+                    for (Object[] objects : userComments) {
+                        userCommentMap.put((Long) objects[0], (String) objects[1]);
+                    }
+                }
+            }
+            Map<Long, ArrayList<TagDto>> tagMap = Collections.EMPTY_MAP;
+
+            if (commonDataService.getWebClientProperties().isTagsStoreAvailable()) {
+                List<Object[]> sessionTags = entityManager.createNativeQuery("select a.sessions_id, a.tags_name, te.description " +
+                        "from  TagEntity as te, (select distinct ste.sessions_id, ste.tags_name from SessionTagEntity as ste where ste.sessions_id in (:sessionIds)) as a " +
+                        "where a.tags_name=te.name")
+                        .setParameter("sessionIds", sessionIds)
+                        .getResultList();
+                tagMap = new HashMap<Long, ArrayList<TagDto>>();
+                for (Object[] tags : sessionTags) {
+                    if (!tagMap.containsKey(((BigInteger) tags[0]).longValue())) {
+                        tagMap.put(((BigInteger) tags[0]).longValue(), new ArrayList<TagDto>());
+                    }
+                    tagMap.get(((BigInteger) tags[0]).longValue()).add(new TagDto((String) tags[1], (String) tags[2]));
+                }
+
+            }
+
+            sessionDataDtoList = new ArrayList<SessionDataDto>(sessionDataList.size());
+            for (SessionData sessionData : sessionDataList) {
+                sessionDataDtoList.add(createSessionDataDto(sessionData, userCommentMap.get(sessionData.getId()), tagMap.get(sessionData.getId())));
+            }
+
+            log.info("There was loaded {} sessions data from {} for {} ms", new Object[]{sessionDataDtoList.size(), totalSize, System.currentTimeMillis() - timestamp});
+        } catch (Exception e) {
+            System.out.println(e);
+            e.printStackTrace();
+            log.error("Error was occurred during session data fetching for session tags " + sessionTagNames + "; start " + start + ", length " + length, e);
             throw new RuntimeException(e);
         }
 

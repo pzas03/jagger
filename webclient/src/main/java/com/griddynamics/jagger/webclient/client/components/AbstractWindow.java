@@ -64,6 +64,14 @@ public abstract class AbstractWindow extends DialogBox {
         return saveAndCancelButtonBar;
     }
 
+    protected final void setSaveButtonText(String newText){
+        saveButton.setText(newText);
+    }
+
+    protected final void setCancelButtonText(String newText){
+        cancelButton.setText(newText);
+    }
+
     protected abstract void onSaveButtonClick();
     protected abstract void onCancelButtonClick();
 
