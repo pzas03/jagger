@@ -6,24 +6,15 @@ import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.math.BigInteger;
 import java.util.*;
 
 /**
  * Created by kgribov on 3/5/14.
  */
-public abstract class AbstractDataProvider{
+public class MetricNameProvider {
 
-    protected EntityManager entityManager;
-
-    @PersistenceContext
-    public void setEntityManager(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
-
-
-    protected Set<MetricNameDto> getMetricNames(List<TaskDataDto> tests){
+    public static Set<MetricNameDto> getMetricNames(EntityManager entityManager, List<TaskDataDto> tests, MetricDescriptionFetcher metricDescriptionFetcher){
         Set<Long> taskIds = new HashSet<Long>();
         for (TaskDataDto tdd : tests) {
             taskIds.addAll(tdd.getIds());
@@ -49,8 +40,8 @@ public abstract class AbstractDataProvider{
             groupIds.add(((BigInteger) testGroup[0]).longValue());
         }
 
-        List<Object[]> metricDescriptions = getMetricDescriptions(taskIds);
-        List<Object[]> groupsMetricDescriptions = getMetricDescriptions(groupIds);
+        List<Object[]> metricDescriptions = metricDescriptionFetcher.getTestsMetricDescriptions(taskIds);
+        List<Object[]> groupsMetricDescriptions = metricDescriptionFetcher.getTestGroupsMetricDescriptions(groupIds);
 
         if (metricDescriptions.isEmpty() && groupsMetricDescriptions.isEmpty()) {
             return Collections.EMPTY_SET;
@@ -58,20 +49,17 @@ public abstract class AbstractDataProvider{
 
         Set<MetricNameDto> metrics = new HashSet<MetricNameDto>(metricDescriptions.size()+groupsMetricDescriptions.size());
 
+        // add test metric names
         for (Object[] mde : metricDescriptions) {
             for (TaskDataDto td : tests) {
                 if (td.getIds().contains((Long) mde[2])) {
                     metrics.add(new MetricNameDto(td, (String)mde[0], (String)mde[1]));
-                    MetricNameDto metric = new MetricNameDto();
-                    metric.setTest(td);
-                    metric.setMetricName((String) mde[0]);
-                    metric.setMetricDisplayName((String) mde[1]);
-                    metrics.add(metric);
                     break;
                 }
             }
         }
 
+        // add test-group metric names
         for (Object[] mde : groupsMetricDescriptions){
             for (TaskDataDto td : tests){
                 Collection<Long> allTestsInGroup = testGroupMap.get(mde[2]);
@@ -84,9 +72,7 @@ public abstract class AbstractDataProvider{
         return metrics;
     }
 
-    protected abstract List<Object[]> getMetricDescriptions(Set<Long> ids);
-
-    protected Multimap getTestsInTestGroup(List<Object[]> parents, List<Object[]> groups){
+    private static Multimap getTestsInTestGroup(List<Object[]> parents, List<Object[]> groups){
         Multimap testMap = ArrayListMultimap.create();
         for (Object[] test : parents){
             String key = (String)test[1] + (String)test[2];
@@ -102,7 +88,7 @@ public abstract class AbstractDataProvider{
         return testsByGroupId;
     }
 
-    protected boolean containsAtLeastOne(Collection origin, Collection elements){
+    private static boolean containsAtLeastOne(Collection origin, Collection elements){
         boolean result = false;
         for (Object element : elements){
             if (origin.contains(element)){

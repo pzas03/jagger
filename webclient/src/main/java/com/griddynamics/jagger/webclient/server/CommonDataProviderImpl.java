@@ -16,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import java.math.BigInteger;
 import java.util.*;
@@ -30,11 +32,18 @@ import static com.griddynamics.jagger.webclient.client.mvp.NameTokens.*;
  * User: amikryukov
  * Date: 11/27/13
  */
-public class CommonDataProviderImpl extends AbstractDataProvider implements CommonDataProvider{
+public class CommonDataProviderImpl implements CommonDataProvider {
+
+    private EntityManager entityManager;
 
     private Logger log = LoggerFactory.getLogger(this.getClass());
 
     private WebClientProperties webClientProperties;
+
+    @PersistenceContext
+    public void setEntityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
 
     private CustomMetricPlotDataProvider customMetricPlotDataProvider;
     private Map<GroupKey, DefaultWorkloadParameters[]> workloadPlotGroups;
@@ -139,25 +148,33 @@ public class CommonDataProviderImpl extends AbstractDataProvider implements Comm
 
     }
 
+
     public Set<MetricNameDto> getCustomMetricsNamesNewModel(List<TaskDataDto> tests) {
+
         try {
-            return getMetricNames(tests);
+            return MetricNameProvider.getMetricNames(entityManager, tests, new MetricDescriptionFetcher() {
+                @Override
+                public List<Object[]> getTestsMetricDescriptions(Set<Long> ids) {
+                    return fetchDescriptions(ids);
+                }
+
+                @Override
+                public List<Object[]> getTestGroupsMetricDescriptions(Set<Long> ids) {
+                    return fetchDescriptions(ids);
+                }
+
+                private List<Object[]> fetchDescriptions(Set<Long> taskIds){
+                    return entityManager.createQuery(
+                            "select mse.metricDescription.metricId, mse.metricDescription.displayName, mse.metricDescription.taskData.id " +
+                                    "from MetricSummaryEntity as mse where mse.metricDescription.taskData.id in (:taskIds)")
+                            .setParameter("taskIds", taskIds)
+                            .getResultList();
+                }
+            });
         } catch (PersistenceException e) {
             log.debug("Could not fetch data from MetricSummaryEntity: {}", DataProcessingUtil.getMessageFromLastCause(e));
             return Collections.EMPTY_SET;
         }
-    }
-
-    protected List<Object[]> getMetricDescriptions(Set<Long> ids){
-        if (ids.isEmpty()){
-            return Collections.EMPTY_LIST;
-        }
-
-        return entityManager.createQuery(
-                "select mse.metricDescription.metricId, mse.metricDescription.displayName, mse.metricDescription.taskData.id " +
-                        "from MetricSummaryEntity as mse where mse.metricDescription.taskData.id in (:taskIds)")
-                .setParameter("taskIds", ids)
-                .getResultList();
     }
 
     /**

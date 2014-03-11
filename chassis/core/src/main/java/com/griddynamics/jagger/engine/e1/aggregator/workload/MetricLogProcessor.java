@@ -336,32 +336,5 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
             String regexp = "[\\;/\\?\\:@\\&=\\+\\$\\,]";
             return name.replaceAll(regexp, "");
         }
-
-        @SuppressWarnings("unchecked")
-        private MetricSummaryEntity getMetricSummaryEntity(final MetricDescriptionEntity md) {
-            return getHibernateTemplate().execute(new HibernateCallback<MetricSummaryEntity>() {
-                @Override
-                public MetricSummaryEntity doInHibernate(Session session) throws HibernateException, SQLException {
-                    return (MetricSummaryEntity) session
-                            .createQuery("select t from MetricSummaryEntity t where t.metricDescription=?")
-                            .setParameter(0, md)
-                            .uniqueResult();
-                }
-            });
-        }
-
-        @SuppressWarnings("unchecked")
-        private WorkloadData getWorkloadData(final String sessionId, final String taskId) {
-            return getHibernateTemplate().execute(new HibernateCallback<WorkloadData>() {
-                @Override
-                public WorkloadData doInHibernate(Session session) throws HibernateException, SQLException {
-                    return (WorkloadData) session
-                            .createQuery("select t from WorkloadData t where sessionId=? and taskId=?")
-                            .setParameter(0, sessionId)
-                            .setParameter(1, taskId)
-                            .uniqueResult();
-                }
-            });
-        }
     }
 }

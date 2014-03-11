@@ -22,6 +22,7 @@ package com.griddynamics.jagger.monitoring;
 
 import com.griddynamics.jagger.agent.model.MonitoringParameter;
 import com.griddynamics.jagger.agent.model.SystemInfo;
+import com.griddynamics.jagger.agent.model.SystemUnderTestInfo;
 import com.griddynamics.jagger.coordinator.NodeContext;
 import com.griddynamics.jagger.coordinator.NodeId;
 import com.griddynamics.jagger.engine.e1.collector.*;
@@ -48,16 +49,26 @@ public class LoggingMonitoringProcessor implements MonitoringProcessor {
     @Override
     public void process(String sessionId, String taskId, NodeId agentId, NodeContext nodeContext, SystemInfo systemInfo) {
         String serviceId = getKey(sessionId, taskId);
-
-        // get or create metric service
-        MetricService service = metricServiceMap.get(serviceId);
-        if (service == null){
-            service = new DefaultMetricService(sessionId, taskId, nodeContext);
-            metricServiceMap.put(serviceId, service);
+        if (metricServiceMap.get(serviceId) == null){
+            metricServiceMap.put(serviceId, new DefaultMetricService(sessionId, taskId, nodeContext));
             createdMetrics.put(serviceId, new HashMap<String, Boolean>());
         }
 
-        for (Map.Entry<MonitoringParameter, Double> entry : systemInfo.getSysInfo().entrySet()){
+        // save sigar metrics
+        saveMonitoringValues(serviceId, agentId.getIdentifier(), systemInfo.getSysInfo());
+
+        // save jmx metrics
+        for (Map.Entry<String, SystemUnderTestInfo> entry : systemInfo.getSysUnderTest().entrySet()){
+            saveMonitoringValues(serviceId, entry.getKey(), entry.getValue().getSysUTInfo());
+        }
+
+        log.trace("System info {} received from agent {} and has been written to FileStorage", systemInfo, agentId);
+    }
+
+    private void saveMonitoringValues(String serviceId, String agentId, Map<MonitoringParameter, Double> values){
+        MetricService service = metricServiceMap.get(serviceId);
+
+        for (Map.Entry<MonitoringParameter, Double> entry : values.entrySet()){
             MonitoringParameter monitoringParameter = entry.getKey();
             Double value = entry.getValue();
 
@@ -65,13 +76,11 @@ public class LoggingMonitoringProcessor implements MonitoringProcessor {
             String metricId = getMetricId(serviceId, monitoringParameter, agentId);
             service.saveValue(metricId, value);
         }
-
-        log.trace("System info {} received from agent {} and has been written to FileStorage", systemInfo, agentId);
     }
 
     // return metric id for current monitoring parameter
-    private String getMetricId(String serviceId, MonitoringParameter monitoringParameter, NodeId agentId){
-        String metricId = AgentUtils.getMonitoringMetricId(monitoringParameter.getDescription(), agentId.getIdentifier());
+    private String getMetricId(String serviceId, MonitoringParameter monitoringParameter, String agentId){
+        String metricId = AgentUtils.getMonitoringMetricId(monitoringParameter.getDescription(), agentId);
 
         // register metric aggregators
         if (createdMetrics.get(serviceId).get(metricId) == null){
@@ -79,6 +88,7 @@ public class LoggingMonitoringProcessor implements MonitoringProcessor {
             if (!monitoringParameter.isCumulativeCounter()){
                 aggregator = new AvgMetricAggregatorProvider();
             }else{
+                // todo : set correct aggregator
                 aggregator = new SumMetricAggregatorProvider();
             }
 
