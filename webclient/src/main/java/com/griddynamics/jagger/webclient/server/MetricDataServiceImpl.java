@@ -1,12 +1,10 @@
 package com.griddynamics.jagger.webclient.server;
 
-import com.griddynamics.jagger.util.Pair;
 import com.griddynamics.jagger.util.TimeUtils;
 import com.griddynamics.jagger.webclient.client.MetricDataService;
 import com.griddynamics.jagger.webclient.client.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Required;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -32,13 +30,6 @@ public class MetricDataServiceImpl implements MetricDataService {
         this.entityManager = entityManager;
     }
 
-    private HashMap<String, Pair<String, String>> standardMetrics;
-
-    @Required
-    public void setStandardMetrics(HashMap<String, Pair<String, String>> standardMetrics) {
-        this.standardMetrics = standardMetrics;
-    }
-
     @Override
     public List<MetricDto> getMetrics(List<MetricNameDto> metricNames) {
         List<MetricDto> result = new ArrayList<MetricDto>(metricNames.size());
@@ -49,59 +40,73 @@ public class MetricDataServiceImpl implements MetricDataService {
     }
 
     @Override
-    public MetricDto getMetric(MetricNameDto metricName) {
+    public MetricDto getMetric(MetricNameDto metricNameDto) {
         Long time = System.currentTimeMillis();
         MetricDto dto = new MetricDto();
         dto.setValues(new HashSet<MetricValueDto>());
-        dto.setMetricName(metricName);
+        dto.setMetricName(metricNameDto);
 
-        if ("Duration".equals(metricName.getMetricName())) {
-            List<Object[]> result = entityManager.createNativeQuery("select workload.sessionId, workload.endTime, workload.startTime " +
-                    "from WorkloadData as workload inner join (select taskId, sessionId from TaskData where id in (:ids)) as taskData "+
-            "on workload.taskId=taskData.taskId and " +
-                    "workload.sessionId=taskData.sessionId ")
-            .setParameter("ids", metricName.getTest().getIds()).getResultList();
+        switch (metricNameDto.getOrigin()) {
+            case UNKNOWN:
+            case LATENCY:
+            case THROUGHPUT:
+            case MONITORING:
 
-            for (Object [] entry : result) {
-                MetricValueDto value = new MetricValueDto();
-                Date [] date = new Date[2];
-                date[0] = (Date)entry [1];
-                date[1] = (Date)entry [2];
-                value.setValueRepresentation(TimeUtils.formatDuration(date[0].getTime() - date[1].getTime()));
-                value.setValue(String.valueOf( (date[0].getTime() - date[1].getTime()) / 1000));
-                value.setSessionId(Long.parseLong(String.valueOf(entry[0])));
+                throw new RuntimeException("Unable to get summary data for metric " + metricNameDto.getMetricName() +
+                " with origin: " + metricNameDto.getOrigin());
 
-                dto.getValues().add(value);
+            case DURATION:
+            {
+                List<Object[]> result = entityManager.createNativeQuery("select workload.sessionId, workload.endTime, workload.startTime " +
+                        "from WorkloadData as workload inner join (select taskId, sessionId from TaskData where id in (:ids)) as taskData "+
+                        "on workload.taskId=taskData.taskId and " +
+                        "workload.sessionId=taskData.sessionId ")
+                        .setParameter("ids", metricNameDto.getTest().getIds()).getResultList();
+
+                for (Object [] entry : result) {
+                    MetricValueDto value = new MetricValueDto();
+                    Date [] date = new Date[2];
+                    date[0] = (Date)entry [1];
+                    date[1] = (Date)entry [2];
+                    value.setValueRepresentation(TimeUtils.formatDuration(date[0].getTime() - date[1].getTime()));
+                    value.setValue(String.valueOf( (date[0].getTime() - date[1].getTime()) / 1000));
+                    value.setSessionId(Long.parseLong(String.valueOf(entry[0])));
+
+                    dto.getValues().add(value);
+                }
             }
-        }
-        else if (standardMetrics.containsKey(metricName.getMetricName())){
-            //it is a standard metric
-            List<Object[]> result = entityManager.createNativeQuery("select workload."+standardMetrics.get(metricName.getMetricName()).getFirst()+", workload.sessionId "+
-                                                                    "from WorkloadTaskData as workload " +
-                                                                    "inner join (select taskId, sessionId from TaskData where id in (:ids)) as taskData "+
-                                                                    "on workload.taskId=taskData.taskId and " +
-                                                                       "workload.sessionId=taskData.sessionId ")
-                                                                    .setParameter("ids", metricName.getTest().getIds()).getResultList();
+                break;
+            case STANDARD_METRICS:
+            {
+                //it is a standard metric
+                List<Object[]> result = entityManager.createNativeQuery("select workload." + metricNameDto.getMetricName() + ", workload.sessionId "+
+                        "from WorkloadTaskData as workload " +
+                        "inner join (select taskId, sessionId from TaskData where id in (:ids)) as taskData "+
+                        "on workload.taskId=taskData.taskId and " +
+                        "workload.sessionId=taskData.sessionId ")
+                        .setParameter("ids", metricNameDto.getTest().getIds()).getResultList();
 
-            for (Object[] temp : result){
-                String metricValue = temp[0].toString();
-                long sessionId = Long.parseLong(temp[1].toString());
+                for (Object[] temp : result){
+                    String metricValue = temp[0].toString();
+                    long sessionId = Long.parseLong(temp[1].toString());
 
-                MetricValueDto value = new MetricValueDto();
-                value.setValue(metricValue);
-                value.setSessionId(sessionId);
+                    MetricValueDto value = new MetricValueDto();
+                    value.setValue(metricValue);
+                    value.setSessionId(sessionId);
 
-                dto.getValues().add(value);
+                    dto.getValues().add(value);
+                }
             }
-        }else{
-            if (metricName.getMetricName().matches("Latency .+ %")){
+                break;
+            case LATENCY_PERCENTILE:
+            {
                 //it is a latency metric
-                Double latencyKey = Double.parseDouble(metricName.getMetricName().split(" ")[1]);
+                Double latencyKey = Double.parseDouble(metricNameDto.getMetricName().split(" ")[1]);
                 List<Object[]> latency = entityManager.createQuery("select s.percentileValue, s.workloadProcessDescriptiveStatistics.taskData.id, s.workloadProcessDescriptiveStatistics.taskData.sessionId " +
-                                                                        "from  WorkloadProcessLatencyPercentile as s " +
-                                                                   "where s.workloadProcessDescriptiveStatistics.taskData.id in (:taskIds) " +
-                                                                          "and s.percentileKey=:latencyKey ")
-                        .setParameter("taskIds", metricName.getTest().getIds())
+                        "from  WorkloadProcessLatencyPercentile as s " +
+                        "where s.workloadProcessDescriptiveStatistics.taskData.id in (:taskIds) " +
+                        "and s.percentileKey=:latencyKey ")
+                        .setParameter("taskIds", metricNameDto.getTest().getIds())
                         .setParameter("latencyKey", latencyKey)
                         .getResultList();
                 for (Object[] temp : latency){
@@ -111,15 +116,18 @@ public class MetricDataServiceImpl implements MetricDataService {
                     value.setSessionId(Long.parseLong(temp[2].toString()));
                     dto.getValues().add(value);
                 }
-            }else{
+
+            }
+            break;
+            case METRIC:
+            {
                 //custom metric
 
-
                 //check old model (before jagger 1.2.4)
-                List<Object[]> metrics = getCustomMetricsDataOldModel(metricName.getTest().getIds(), metricName.getMetricName());
+                List<Object[]> metrics = getCustomMetricsDataOldModel(metricNameDto.getTest().getIds(), metricNameDto.getMetricName());
 
                 // check new model
-                metrics.addAll(getCustomMetricsDataNewModel(metricName.getTest().getIds(), metricName.getMetricName()));
+                metrics.addAll(getCustomMetricsDataNewModel(metricNameDto.getTest().getIds(), metricNameDto.getMetricName()));
 
                 if (!metrics.isEmpty()){
                     for (Object[] mas : metrics){
@@ -132,41 +140,46 @@ public class MetricDataServiceImpl implements MetricDataService {
                         value.setSessionId(Long.parseLong((String)mas[1]));
                         dto.getValues().add(value);
                     }
-                }else{
-                    List<Object[]> validators = entityManager.createNativeQuery(
-                            "select vr.total, vr.failed, selected.sessionId from ValidationResultEntity vr join (" +
-                                    "  select wd.id, wd.sessionId from WorkloadData wd join (\n" +
-                                    "      select td.taskId, td.sessionId from TaskData td where td.id in (:ids)" +
-                                    "  ) as selected on wd.sessionId=selected.sessionId and wd.taskId=selected.taskId" +
-                                    ") as selected on vr.workloadData_id=selected.id and vr.validator=:name")
-                            .setParameter("ids", metricName.getTest().getIds())
-                            .setParameter("name", metricName.getMetricName())
-                            .getResultList();
-                    for (Object[] mas : validators){
-
-                        Integer total = (Integer)mas[0];
-                        Integer failed = (Integer)mas[1];
-                        if (total == null || failed == null) continue;
-                        MetricValueDto value = new MetricValueDto();
-
-                        BigDecimal percentage = BigDecimal.ZERO;
-
-                        if (total != 0) {
-                            percentage = new BigDecimal(total - failed)
-                                    .divide(new BigDecimal(total), 3, BigDecimal.ROUND_HALF_UP);
-                        }
-
-                        value.setValue(percentage.toString());
-
-                        value.setSessionId(Long.parseLong((String)mas[2]));
-                        dto.getValues().add(value);
-                    }
                 }
             }
+                break;
+            case VALIDATOR:
+            {
+                List<Object[]> validators = entityManager.createNativeQuery(
+                        "select vr.total, vr.failed, selected.sessionId from ValidationResultEntity vr join (" +
+                                "  select wd.id, wd.sessionId from WorkloadData wd join (\n" +
+                                "      select td.taskId, td.sessionId from TaskData td where td.id in (:ids)" +
+                                "  ) as selected on wd.sessionId=selected.sessionId and wd.taskId=selected.taskId" +
+                                ") as selected on vr.workloadData_id=selected.id and vr.validator=:name")
+                        .setParameter("ids", metricNameDto.getTest().getIds())
+                        .setParameter("name", metricNameDto.getMetricName())
+                        .getResultList();
+                for (Object[] mas : validators){
+
+                    Integer total = (Integer)mas[0];
+                    Integer failed = (Integer)mas[1];
+                    if (total == null || failed == null) continue;
+                    MetricValueDto value = new MetricValueDto();
+
+                    BigDecimal percentage = BigDecimal.ZERO;
+
+                    if (total != 0) {
+                        percentage = new BigDecimal(total - failed)
+                                .divide(new BigDecimal(total), 3, BigDecimal.ROUND_HALF_UP);
+                    }
+
+                    value.setValue(percentage.toString());
+
+                    value.setSessionId(Long.parseLong((String)mas[2]));
+                    dto.getValues().add(value);
+                }
+            }
+            break;
         }
+
         dto.setPlotSeriesDtos(generatePlotSeriesDto(dto));
 
-        log.info("For metric name {} was found metric value for {} ms", new Object[]{metricName, System.currentTimeMillis() - time});
+        log.info("For metric name {} was found metric value for {} ms", new Object[]{metricNameDto, System.currentTimeMillis() - time});
         return dto;
     }
 
@@ -176,7 +189,7 @@ public class MetricDataServiceImpl implements MetricDataService {
      * @param metricId identifier of metric
      * @return list of object[] (value, sessionId)
      */
-    List<Object[]> getCustomMetricsDataOldModel(Set<Long> taskIds, String metricId) {
+    private List<Object[]> getCustomMetricsDataOldModel(Set<Long> taskIds, String metricId) {
         return entityManager.createQuery(
                 "select metric.total, metric.workloadData.sessionId " +
                         "from DiagnosticResultEntity as metric " +
@@ -194,7 +207,7 @@ public class MetricDataServiceImpl implements MetricDataService {
      * @param metricId identifier of metric
      * @return list of object[] (value, sessionId)
      */
-    List<Object[]> getCustomMetricsDataNewModel(Set<Long> taskIds, String metricId) {
+    private List<Object[]> getCustomMetricsDataNewModel(Set<Long> taskIds, String metricId) {
         try {
             return entityManager.createQuery(
                 "select summary.total, summary.metricDescription.taskData.sessionId " +
@@ -240,10 +253,7 @@ public class MetricDataServiceImpl implements MetricDataService {
                 yMinimum = temp;
         }
 
-        String legend = metricDto.getMetricName().getMetricName();
-        if (standardMetrics.containsKey(legend)) {
-            legend = standardMetrics.get(legend).getSecond();
-        }
+        String legend = metricDto.getMetricName().getMetricDisplayName();
         PlotDatasetDto pdd = new PlotDatasetDto(
                 list,
                 legend,
