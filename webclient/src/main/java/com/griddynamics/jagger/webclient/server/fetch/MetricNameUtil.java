@@ -1,9 +1,6 @@
 package com.griddynamics.jagger.webclient.server.fetch;
 
-import com.griddynamics.jagger.webclient.client.dto.MetricDto;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
-import com.griddynamics.jagger.webclient.client.dto.MetricValueDto;
-
 import java.util.*;
 
 public class MetricNameUtil {
@@ -13,20 +10,17 @@ public class MetricNameUtil {
      * @param metricNameDtos collection of MetricNameDto to be mapped
      * @return Map <TaskDataDto.id, Map<metricName, MetricDto>>
      */
-    public static Map<Long, Map<String, MetricDto>> getMappedMetricDtos(Collection<MetricNameDto> metricNameDtos) {
-        Map<Long, Map<String, MetricDto>> taskIdMap = new HashMap<Long, Map<String, MetricDto>>();
+    public static Map<Long, Map<String, MetricNameDto>> getMappedMetricDtos(Collection<MetricNameDto> metricNameDtos) {
+        Map<Long, Map<String, MetricNameDto>> taskIdMap = new HashMap<Long, Map<String, MetricNameDto>>();
         for (MetricNameDto metricName : metricNameDtos) {
             Set<Long> ids = metricName.getTaskIds();
             for (Long id : ids) {
                 if (taskIdMap.get(id) == null) {
-                    taskIdMap.put(id, new HashMap<String, MetricDto>());
+                    taskIdMap.put(id, new HashMap<String, MetricNameDto>());
                 }
-                Map<String, MetricDto> metricIdMap = taskIdMap.get(id);
+                Map<String, MetricNameDto> metricIdMap = taskIdMap.get(id);
                 if (metricIdMap.get(metricName.getMetricName()) == null) {
-                    MetricDto metricDto = new MetricDto();
-                    metricDto.setMetricName(metricName);
-                    metricDto.setValues(new HashSet<MetricValueDto>());
-                    metricIdMap.put(metricName.getMetricName(), metricDto);
+                    metricIdMap.put(metricName.getMetricName(), metricName);
                 } else {
                     throw new IllegalStateException(metricName.toString() + " already in Map");
                 }

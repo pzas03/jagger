@@ -1,14 +1,11 @@
 package com.griddynamics.jagger.webclient.server.fetch.implementation;
 
 import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadTaskData;
-import com.griddynamics.jagger.util.TimeUtils;
 import com.griddynamics.jagger.webclient.client.dto.MetricDto;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
 import com.griddynamics.jagger.webclient.client.dto.MetricValueDto;
-import com.griddynamics.jagger.webclient.server.fetch.MetricNameUtil;
 import com.griddynamics.jagger.webclient.server.fetch.SummaryDbMetricDataFetcher;
 
-import java.math.BigInteger;
 import java.util.*;
 
 public class StandardMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
@@ -16,22 +13,9 @@ public class StandardMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
     @Override
     protected Set<MetricDto> fetchData(List<MetricNameDto> standardMetricNames) {
 
-        List<MetricNameDto> durationMetricNames = new ArrayList<MetricNameDto>();
-        List<MetricNameDto> restMetricNames = new ArrayList<MetricNameDto>();
-
-        for (MetricNameDto metricName : metricNames) {
-            if (StandardMetrics.DURATION.getMetricName().equals(metricName.getMetricName())) {
-                durationMetricNames.add(metricName);
-            } else {
-                restMetricNames.add(metricName);
-            }
-        }
-
         Set<MetricDto> resultSet = new HashSet<MetricDto>();
 
-        resultSet.addAll(getDurationMetrics(durationMetricNames));
-
-        resultSet.addAll(getRestMetrics(restMetricNames));
+        resultSet.addAll(getRestMetrics(standardMetricNames));
 
         return resultSet;
     }
@@ -42,14 +26,14 @@ public class StandardMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
             return Collections.EMPTY_LIST;
         }
 
-        List<Long> taskIds = new ArrayList<Long>();
+        Set<Long> taskIds = new HashSet<Long>();
         for (MetricNameDto metricName : restMetricNames) {
             taskIds.addAll(metricName.getTaskIds());
         }
 
-        List<WorkloadTaskData> workloadTaskDatas = (List<WorkloadTaskData>)entityManager.createNativeQuery("select * "+
-                "from WorkloadTaskData as workload where (workload.taskId, workload.sessionId) in " +
-                "(select taskId, sessionId from TaskData where id in (:ids))", WorkloadTaskData.class)
+        List<WorkloadTaskData> workloadTaskDatas = (List<WorkloadTaskData>)entityManager.createNativeQuery("select * " +
+                "        from WorkloadTaskData as wtd join TaskData as td on td.id in (:ids)" +
+                "         and wtd.taskId=td.taskId and wtd.sessionId=td.sessionId", WorkloadTaskData.class)
                 .setParameter("ids", taskIds)
                 .getResultList();
 
@@ -88,72 +72,10 @@ public class StandardMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
         return resultSet;
     }
 
-    private Collection<? extends MetricDto> getDurationMetrics(List<MetricNameDto> durationMetricNames) {
-
-        if (durationMetricNames.isEmpty()) {
-            return Collections.EMPTY_LIST;
-        }
-
-        List<Long> taskIds = new ArrayList<Long>();
-
-        for (MetricNameDto metricName : durationMetricNames) {
-            taskIds.addAll(metricName.getTaskIds());
-        }
-
-        List<Object[]> result = entityManager.createNativeQuery("select workload.sessionId, workload.endTime, workload.startTime, taskData.id " +
-                "from WorkloadData as workload inner join (select taskId, sessionId, id from TaskData where id in (:ids)) as taskData "+
-                "on workload.taskId=taskData.taskId and workload.sessionId=taskData.sessionId ")
-                .setParameter("ids", taskIds)
-                .getResultList();
-
-
-        if (result.isEmpty()) {
-            log.warn("Could not find data for {}", durationMetricNames);
-            return Collections.EMPTY_LIST;
-        }
-
-        return processDurationDataFromDatabase(result, durationMetricNames);
-    }
-
-    private Set<MetricDto> processDurationDataFromDatabase(List<Object[]> rawData, List<MetricNameDto> durationMetricNames) {
-
-        Map<Long, Map<String, MetricDto>> mappedMetricDtos = MetricNameUtil.getMappedMetricDtos(durationMetricNames);
-
-        Set<MetricDto> resultSet = new HashSet<MetricDto>();
-
-        for (Object[] entry : rawData) {
-            BigInteger taskId = (BigInteger) entry[3];
-            Map<String, MetricDto> metricIdMap = mappedMetricDtos.get(taskId.longValue());
-            if (metricIdMap == null) {
-                throw new IllegalArgumentException("unknown task id in mapped metrics : " + taskId.longValue());
-            }
-            MetricDto metricDto = metricIdMap.get(StandardMetrics.DURATION.getMetricName());
-            if (metricDto == null) {
-                throw new IllegalArgumentException("could not find appropriate MetricDto : " + taskId.longValue());
-            }
-            resultSet.add(metricDto);
-
-            MetricValueDto value = new MetricValueDto();
-            Date[] date = new Date[2];
-            date[0] = (Date)entry [1];
-            date[1] = (Date)entry [2];
-            value.setValueRepresentation(TimeUtils.formatDuration(date[0].getTime() - date[1].getTime()));
-            value.setValue(String.valueOf( (date[0].getTime() - date[1].getTime()) / 1000));
-            value.setSessionId(Long.parseLong(String.valueOf(entry[0])));
-            metricDto.getValues().add(value);
-        }
-
-        for (MetricDto md : resultSet) {
-            md.setPlotSeriesDtos(generatePlotSeriesDto(md));
-        }
-
-        return resultSet;
-    }
-
-    private enum StandardMetrics {
+    public enum StandardMetrics {
 
         THROUGHPUT("throughput"),
-        DURATION("Duration"),
+        DURATION("duration"),
         AVG_LATENCY("avgLatency"),
         SUCCESS_RATE("successRate"),
         SAMPLES("samples");

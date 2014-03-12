@@ -81,7 +81,7 @@
     <bean id="executorService" class="java.util.concurrent.Executors"
           factory-method="newFixedThreadPool"
           destroy-method="shutdownNow">
-        <constructor-arg value="10"/>
+        <constructor-arg value="15"/>
     </bean>
 
     <bean id="databaseFetcher" class="com.griddynamics.jagger.webclient.server.CommonDataProviderImpl">
@@ -124,14 +124,20 @@
 
     <bean id="metricDataService" class="com.griddynamics.jagger.webclient.server.MetricDataServiceImpl">
         <property name="standardMetricSummaryFetcher" ref="standardMetricSummaryFetcher"/>
+        <property name="durationMetricSummaryFetcher" ref="durationMetricSummaryFetcher"/>
         <property name="customMetricSummaryFetcher" ref="customMetricSummaryFetcher"/>
         <property name="latencyMetricDataFetcher" ref="latencyMetricSummaryFetcher"/>
         <property name="validatorSummaryFetcher" ref="validatorSummaryFetcher"/>
+        <property name="threadPool" ref="executorService"/>
     </bean>
 
     <bean id="standardMetricSummaryFetcher" class="com.griddynamics.jagger.webclient.server.fetch.implementation.StandardMetricSummaryFetcher">
         <property name="threadPool" ref="executorService"/>
-        <property name="maxSizeOfBatch" value="100"/> <!-- optional. default value = 100 -->
+        <property name="maxSizeOfBatch" value="10000"/> <!-- optional. default value = 10000 -->
+    </bean>
+
+    <bean id="durationMetricSummaryFetcher" class="com.griddynamics.jagger.webclient.server.fetch.implementation.DurationMetricSummaryFetcher">
+        <property name="threadPool" ref="executorService"/>
     </bean>
 
     <bean id="latencyMetricSummaryFetcher" class="com.griddynamics.jagger.webclient.server.fetch.implementation.LatencyMetricSummaryFetcher">

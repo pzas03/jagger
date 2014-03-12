@@ -36,25 +36,32 @@ public class LatencyMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
             return Collections.EMPTY_SET;
         }
 
-        Map<Long, Map<String, MetricDto>> mappedMetricNames = MetricNameUtil.getMappedMetricDtos(metricNames);
+        Map<Long, Map<String, MetricNameDto>> mappedMetricNames = MetricNameUtil.getMappedMetricDtos(metricNames);
 
-        Set<MetricDto> resultSet = new HashSet<MetricDto>();
+        Map<MetricNameDto, MetricDto> resultMap = new HashMap<MetricNameDto, MetricDto>();
 
         for (Object[] temp : latency){
 
             Long taskId = (Long)temp[1];
 
-            Map<String, MetricDto> metricIdMap = mappedMetricNames.get(taskId);
+            Map<String, MetricNameDto> metricIdMap = mappedMetricNames.get(taskId);
             if (metricIdMap == null) {
-                throw new IllegalArgumentException("unknown task id in mapped metrics : " + taskId);
+                continue;
             }
-            String metricId = MetricNameUtil.getLatencyMetricName((Long)temp[3]);
-            MetricDto metricDto = metricIdMap.get(metricId);
-            if (metricDto == null) {
-                throw new IllegalArgumentException("could not find appropriate MetricDto : " + taskId);
+            String metricId = MetricNameUtil.getLatencyMetricName((Double)temp[3]);
+            MetricNameDto metricNameDto = metricIdMap.get(metricId);
+            if (metricNameDto == null) {
+                continue;
             }
 
-            resultSet.add(metricDto);
+            if (!resultMap.containsKey(metricNameDto)) {
+                MetricDto metricDto = new MetricDto();
+                metricDto.setMetricName(metricNameDto);
+                metricDto.setValues(new HashSet<MetricValueDto>());
+                resultMap.put(metricNameDto, metricDto);
+            }
+
+            MetricDto metricDto = resultMap.get(metricNameDto);
 
             MetricValueDto value = new MetricValueDto();
             value.setValue(String.format("%.3f", (Double)temp[0] / 1000));
@@ -63,10 +70,10 @@ public class LatencyMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
             metricDto.getValues().add(value);
         }
 
-        for (MetricDto md : resultSet) {
+        for (MetricDto md : resultMap.values()) {
             md.setPlotSeriesDtos(generatePlotSeriesDto(md));
         }
 
-        return resultSet;
+        return new HashSet<MetricDto>(resultMap.values());
     }
 }

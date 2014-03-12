@@ -5,10 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -16,14 +13,14 @@ import java.util.concurrent.Future;
 
 public abstract class ConcurrentMetricDataFetcher<R> extends MetricDataFetcher<R> {
 
-    protected int maxSizeOfBatsh = 100;
+    protected int maxSizeOfBatch = 10000;
 
     protected Logger log = LoggerFactory.getLogger(this.getClass());
 
     protected ExecutorService threadPool;
 
     public void setMaxSizeOfBatch(int maxSizeOfBatsh) {
-        this.maxSizeOfBatsh = maxSizeOfBatsh;
+        this.maxSizeOfBatch = maxSizeOfBatsh;
     }
 
     @Required
@@ -39,25 +36,23 @@ public abstract class ConcurrentMetricDataFetcher<R> extends MetricDataFetcher<R
         int fromIndex = 0;
 
         while (fromIndex < metricNames.size()) {
-            int toIndex = fromIndex + maxSizeOfBatsh;
+            int toIndex = fromIndex + maxSizeOfBatch;
             if (toIndex > metricNames.size()) {
                 toIndex = metricNames.size();
             }
 
             futureList.add(threadPool.submit(new MetricDtoCallable(metricNames.subList(fromIndex, toIndex))));
 
-            fromIndex += maxSizeOfBatsh;
+            fromIndex += maxSizeOfBatch;
         }
 
         Set<R> result = new HashSet<R>();
 
         try {
-
             for (Future<Set<R>> future : futureList) {
                 result.addAll(future.get());
             }
         } catch (Exception e) {
-            System.out.println("exception\n " + e.getMessage());
             log.error("Exception while fetching data", e);
             throw new RuntimeException("Exception while getting data from future" , e);
         }

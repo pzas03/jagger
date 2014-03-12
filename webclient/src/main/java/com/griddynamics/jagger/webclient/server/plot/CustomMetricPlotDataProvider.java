@@ -137,7 +137,9 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
         long temp = System.currentTimeMillis();
 
         // check new way
-        List<Object[]> metricValues = getPlotDataNewModel(metricNameDto);
+        List<Object[]> metricValues = new ArrayList<Object[]>();
+
+        metricValues.addAll(getPlotDataNewModel(metricNameDto));
 
         // check old way
         metricValues.addAll(getPlotDataOldModel(metricNameDto));
