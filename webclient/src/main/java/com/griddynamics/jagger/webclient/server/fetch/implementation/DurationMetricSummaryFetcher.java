@@ -39,6 +39,8 @@ public class DurationMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
         return processDurationDataFromDatabase(result, durationMetricNames);
     }
 
+    private static final String DURATION_METRIC_ID = "duration";
+
     private Set<MetricDto> processDurationDataFromDatabase(List<Object[]> rawData, List<MetricNameDto> durationMetricNames) {
 
         Map<Long, Map<String, MetricNameDto>> mappedMetricDtos = MetricNameUtil.getMappedMetricDtos(durationMetricNames);
@@ -51,7 +53,7 @@ public class DurationMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
             if (metricIdMap == null) {
                 throw new IllegalArgumentException("unknown task id in mapped metrics : " + taskId.longValue());
             }
-            MetricNameDto metricNameDto = metricIdMap.get(StandardMetricSummaryFetcher.StandardMetrics.DURATION.getMetricName());
+            MetricNameDto metricNameDto = metricIdMap.get(DURATION_METRIC_ID);
             if (metricNameDto == null) {
                 throw new IllegalArgumentException("could not find appropriate MetricDto : " + taskId.longValue());
             }

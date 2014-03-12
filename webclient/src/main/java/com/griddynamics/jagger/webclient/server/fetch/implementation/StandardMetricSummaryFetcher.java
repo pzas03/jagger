@@ -10,6 +10,11 @@ import java.util.*;
 
 public class StandardMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
 
+    private static final String THROUGHPUT = "throughput";
+    private static final String AVG_LATENCY = "avgLatency";
+    private static final String SUCCESS_RATE = "successRate";
+    private static final String SAMPLES = "samples";
+
     @Override
     protected Set<MetricDto> fetchData(List<MetricNameDto> standardMetricNames) {
 
@@ -44,50 +49,41 @@ public class StandardMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
 
         Set<MetricDto> resultSet = new HashSet<MetricDto>();
         for (MetricNameDto metricName : restMetricNames) {
+
             MetricDto metricDto = new MetricDto();
             resultSet.add(metricDto);
             metricDto.setMetricName(metricName);
             metricDto.setValues(new HashSet<MetricValueDto>());
             for (WorkloadTaskData workloadTaskData : workloadTaskDatas) {
+
+                // check if this WorkloadTaskData suit to given MetricNameDto
                 if (metricName.getTest().getTaskName().equals(workloadTaskData.getScenario().getName())
                         && metricName.getTest().getSessionIds().contains(workloadTaskData.getSessionId())) {
 
                     MetricValueDto mvd = new MetricValueDto();
                     mvd.setSessionId(Long.parseLong(workloadTaskData.getSessionId()));
-                    if (metricName.getMetricName().equals(StandardMetrics.AVG_LATENCY.getMetricName())) {
-                        mvd.setValue(workloadTaskData.getAvgLatency().toString());
-                    } else if (metricName.getMetricName().equals(StandardMetrics.SAMPLES.getMetricName())) {
-                        mvd.setValue(workloadTaskData.getSamples().toString());
-                    } else if (metricName.getMetricName().equals(StandardMetrics.SUCCESS_RATE.getMetricName())) {
-                        mvd.setValue(workloadTaskData.getSuccessRate().toString());
-                    } else if (metricName.getMetricName().equals(StandardMetrics.THROUGHPUT.getMetricName())) {
-                        mvd.setValue(workloadTaskData.getThroughput().toString());
+                    String metricId = metricName.getMetricName();
+
+                    String value = null;
+                    if (AVG_LATENCY.equals(metricId)) {
+                        value = workloadTaskData.getAvgLatency().toString();
+                    } else if (SAMPLES.equals(metricId)) {
+                        value = workloadTaskData.getSamples().toString();
+                    } else if (SUCCESS_RATE.equals(metricId)) {
+                        value = workloadTaskData.getSuccessRate().toString();
+                    } else if (THROUGHPUT.equals(metricId)) {
+                        value = workloadTaskData.getThroughput().toString();
                     }
-                    metricDto.getValues().add(mvd);
+
+                    if (value != null)  {
+                        mvd.setValue(value);
+                        metricDto.getValues().add(mvd);
+                    }
                 }
             }
             metricDto.setPlotSeriesDtos(generatePlotSeriesDto(metricDto));
         }
 
         return resultSet;
-    }
-
-    public enum StandardMetrics {
-
-        THROUGHPUT("throughput"),
-        DURATION("duration"),
-        AVG_LATENCY("avgLatency"),
-        SUCCESS_RATE("successRate"),
-        SAMPLES("samples");
-
-        private String metricName;
-
-        private StandardMetrics(String metricName) {
-            this.metricName = metricName;
-        }
-
-        String getMetricName() {
-            return metricName;
-        }
     }
 }

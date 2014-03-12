@@ -40,8 +40,22 @@ public abstract class ConcurrentMetricDataFetcher<R> extends MetricDataFetcher<R
             if (toIndex > metricNames.size()) {
                 toIndex = metricNames.size();
             }
+            futureList.add(threadPool.submit(
+                    new Callable<Set<R>>() {
 
-            futureList.add(threadPool.submit(new MetricDtoCallable(metricNames.subList(fromIndex, toIndex))));
+                        private List<MetricNameDto> metricsToFetch;
+
+                        private Callable<Set<R>> init (List<MetricNameDto> metricsToFetch) {
+                            this.metricsToFetch = metricsToFetch;
+                            return this;
+                        }
+
+                        @Override
+                        public Set<R> call() throws Exception {
+                            return fetchData(this.metricsToFetch);
+                        }
+                    }.init(metricNames.subList(fromIndex, toIndex))
+            ));
 
             fromIndex += maxSizeOfBatch;
         }
@@ -58,20 +72,6 @@ public abstract class ConcurrentMetricDataFetcher<R> extends MetricDataFetcher<R
         }
 
         return result;
-    }
-
-    private class MetricDtoCallable implements Callable<Set<R>> {
-
-        private List<MetricNameDto> metricNames;
-
-        private MetricDtoCallable(List<MetricNameDto> metricNames) {
-            this.metricNames = metricNames;
-        }
-
-        @Override
-        public Set<R> call() throws Exception {
-            return fetchData(metricNames);
-        }
     }
 
     /**

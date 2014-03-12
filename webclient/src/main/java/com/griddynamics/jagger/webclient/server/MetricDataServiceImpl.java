@@ -83,6 +83,9 @@ public class MetricDataServiceImpl implements MetricDataService {
                 case VALIDATOR:
                     validatorSummaryFetcher.addMetricName(metricName);
                     break;
+                default:  // if anything else
+                    log.warn("MetricNameDto with origin : {} appears in metric name list for summary retrieving ({})", metricName.getOrigin(), metricName);
+                    break;
             }
         }
 

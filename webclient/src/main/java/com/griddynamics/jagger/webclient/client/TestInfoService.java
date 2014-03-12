@@ -12,8 +12,6 @@ import java.util.Map;
 @RemoteServiceRelativePath("rpc/TestInfoService")
 public interface TestInfoService extends RemoteService {
 
-    Map<String, TestInfoDto> getTestInfo(TaskDataDto taskDataDto) throws RuntimeException;
-
     Map<TaskDataDto, Map<String, TestInfoDto>> getTestInfos(Collection<TaskDataDto> taskDataDtos) throws RuntimeException;
 
     public static class Async {

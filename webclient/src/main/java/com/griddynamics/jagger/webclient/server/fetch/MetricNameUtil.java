@@ -15,11 +15,11 @@ public class MetricNameUtil {
         for (MetricNameDto metricName : metricNameDtos) {
             Set<Long> ids = metricName.getTaskIds();
             for (Long id : ids) {
-                if (taskIdMap.get(id) == null) {
+                if (!taskIdMap.containsKey(id)) {
                     taskIdMap.put(id, new HashMap<String, MetricNameDto>());
                 }
                 Map<String, MetricNameDto> metricIdMap = taskIdMap.get(id);
-                if (metricIdMap.get(metricName.getMetricName()) == null) {
+                if (!metricIdMap.containsKey(metricName.getMetricName())) {
                     metricIdMap.put(metricName.getMetricName(), metricName);
                 } else {
                     throw new IllegalStateException(metricName.toString() + " already in Map");

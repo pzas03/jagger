@@ -1322,26 +1322,6 @@ public class Trends extends DefaultActivity {
 
 
     public class TestInfoFetcher {
-        public void fetchTestInfo(final TaskDataDto taskDataDto, final boolean enableTree) {
-
-            TestInfoService.Async.getInstance().getTestInfo(taskDataDto, new AsyncCallback<Map<String, TestInfoDto>>() {
-                @Override
-                public void onFailure(Throwable caught) {
-                    caught.printStackTrace();
-                    new ExceptionPanel(place, caught.getMessage());
-                    if (enableTree)
-                        enableControl();
-                }
-
-                @Override
-                public void onSuccess(Map<String, TestInfoDto> result) {
-                    summaryPanel.getSessionComparisonPanel().addTestInfo(taskDataDto, result);
-                    if (enableTree)
-                        enableControl();
-                }
-            });
-        }
-
         public void fetchTestInfo(final Collection<TaskDataDto> taskDataDtos, final boolean enableTree) {
 
             TestInfoService.Async.getInstance().getTestInfos(taskDataDtos, new AsyncCallback<Map<TaskDataDto, Map<String, TestInfoDto>>>() {
@@ -1359,6 +1339,8 @@ public class Trends extends DefaultActivity {
                     for (TaskDataDto td : result.keySet()) {
                         scp.addTestInfo(td, result.get(td));
                     }
+                    if (enableTree)
+                        enableControl();
                 }
             });
         }

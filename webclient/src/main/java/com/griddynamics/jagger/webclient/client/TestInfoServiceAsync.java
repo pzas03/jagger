@@ -9,7 +9,5 @@ import java.util.Map;
 
 public interface TestInfoServiceAsync {
 
-    void getTestInfo(TaskDataDto taskDataDto, AsyncCallback<Map<String, TestInfoDto>> async);
-
     void getTestInfos(Collection<TaskDataDto> taskDataDtos, AsyncCallback<Map<TaskDataDto, Map<String, TestInfoDto>>> async);
 }
