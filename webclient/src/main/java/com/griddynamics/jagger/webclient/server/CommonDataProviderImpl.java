@@ -396,17 +396,28 @@ public class CommonDataProviderImpl implements CommonDataProvider {
 
         long temp = System.currentTimeMillis();
         List<Object[]> monitoringTaskIds = entityManager.createNativeQuery(
-                "select distinct test.id, some.testId from TaskData as test inner join" +
+                "select test.id, some.taskDataId from " +
+                        "  ( " +
+                        "    select test.id, test.sessionId, test.taskId from TaskData as test where test.sessionId in (:sessionIds)" +
+                        "  ) as test join " +
                         "  (" +
-                        "   select distinct some.id as testId, some.parentId, pm.monitoringId from PerformedMonitoring as pm join " +
-                        "            (" +
-                        "                select distinct td2.id, wd.parentId from WorkloadData as wd join TaskData as td2" +
-                        "                      on td2.id in (:ids) and wd.sessionId in (:sessionIds) " +
-                        "                           and wd.taskId=td2.taskId" +
-                        "            ) as some on pm.sessionId in (:sessionIds) and pm.parentId=some.parentId" +
-                        "  ) as some  on test.sessionId in (:sessionIds) and test.taskId=some.monitoringId"
+                        "    select some.parentId, pm.monitoringId, some.taskDataId, pm.sessionId from" +
+                        "      (" +
+                        "        select pm.monitoringId, pm.sessionId, pm.parentId from PerformedMonitoring as pm where pm.sessionId in (:sessionIds) " +
+                        "      ) as pm join " +
+                        "      (" +
+                        "        select td2.sessionId, td2.id as taskDataId, wd.parentId from" +
+                        "          ( " +
+                        "            select wd.parentId, wd.sessionId, wd.taskId from WorkloadData as wd where wd.sessionId in (:sessionIds)" +
+                        "          ) as wd join " +
+                        "            TaskData as td2" +
+                        "            on td2.id in (:taskIds)" +
+                        "            and wd.sessionId = td2.sessionId" +
+                        "            and wd.taskId=td2.taskId" +
+                        "      ) as some on pm.sessionId = some.sessionId and pm.parentId=some.parentId" +
+                        "  ) as some on test.sessionId = some.sessionId and test.taskId=some.monitoringId"
         )
-                .setParameter("ids", taskIds)
+                .setParameter("taskIds", taskIds)
                 .setParameter("sessionIds", sessionIds)
                 .getResultList();
         log.debug("db call to fetch all monitoring tasks ids in {} ms (size : {})", System.currentTimeMillis() - temp, monitoringTaskIds.size());
