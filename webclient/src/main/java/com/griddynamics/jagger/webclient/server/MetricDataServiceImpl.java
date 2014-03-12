@@ -1,5 +1,7 @@
 package com.griddynamics.jagger.webclient.server;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.griddynamics.jagger.webclient.client.MetricDataService;
 import com.griddynamics.jagger.webclient.client.dto.*;
 import com.griddynamics.jagger.webclient.server.fetch.MetricDataFetcher;
@@ -60,28 +62,24 @@ public class MetricDataServiceImpl implements MetricDataService {
         long temp = System.currentTimeMillis();
         List<MetricDto> result = new ArrayList<MetricDto>(metricNames.size());
 
-        standardMetricSummaryFetcher.reset();
-        durationMetricSummaryFetcher.reset();
-        latencyMetricDataFetcher.reset();
-        customMetricSummaryFetcher.reset();
-        validatorSummaryFetcher.reset();
+        final Multimap<MetricDataFetcher<MetricDto>, MetricNameDto> fetchMap = ArrayListMultimap.create();
 
         for (MetricNameDto metricName : metricNames){
             switch (metricName.getOrigin()) {
                 case STANDARD_METRICS:
-                    standardMetricSummaryFetcher.addMetricName(metricName);
+                    fetchMap.put(standardMetricSummaryFetcher, metricName);
                     break;
                 case DURATION:
-                    durationMetricSummaryFetcher.addMetricName(metricName);
+                    fetchMap.put(durationMetricSummaryFetcher, metricName);
                     break;
                 case LATENCY_PERCENTILE:
-                    latencyMetricDataFetcher.addMetricName(metricName);
+                    fetchMap.put(latencyMetricDataFetcher, metricName);
                     break;
                 case METRIC:
-                    customMetricSummaryFetcher.addMetricName(metricName);
+                    fetchMap.put(customMetricSummaryFetcher, metricName);
                     break;
                 case VALIDATOR:
-                    validatorSummaryFetcher.addMetricName(metricName);
+                    fetchMap.put(validatorSummaryFetcher, metricName);
                     break;
                 default:  // if anything else
                     log.warn("MetricNameDto with origin : {} appears in metric name list for summary retrieving ({})", metricName.getOrigin(), metricName);
@@ -89,21 +87,16 @@ public class MetricDataServiceImpl implements MetricDataService {
             }
         }
 
-        List<MetricDataFetcher<MetricDto>> fetcherList = new ArrayList<MetricDataFetcher<MetricDto>>();
-        fetcherList.add(standardMetricSummaryFetcher);
-        fetcherList.add(durationMetricSummaryFetcher);
-        fetcherList.add(latencyMetricDataFetcher);
-        fetcherList.add(customMetricSummaryFetcher);
-        fetcherList.add(validatorSummaryFetcher);
+        Set<MetricDataFetcher<MetricDto>> fetcherSet = fetchMap.keySet();
 
         List<Future<Set<MetricDto>>> futures = new ArrayList<Future<Set<MetricDto>>>();
 
-        for (final MetricDataFetcher<MetricDto> fetcher : fetcherList) {
+        for (final MetricDataFetcher<MetricDto> fetcher : fetcherSet) {
             futures.add(threadPool.submit(new Callable<Set<MetricDto>>() {
 
                 @Override
                 public Set<MetricDto> call() throws Exception {
-                    return fetcher.getResult();
+                    return fetcher.getResult(new ArrayList<MetricNameDto>(fetchMap.get(fetcher)));
                 }
             }));
         }

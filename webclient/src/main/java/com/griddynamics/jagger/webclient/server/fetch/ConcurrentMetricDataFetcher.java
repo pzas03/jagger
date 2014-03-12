@@ -29,7 +29,7 @@ public abstract class ConcurrentMetricDataFetcher<R> extends MetricDataFetcher<R
     }
 
     @Override
-    public Set<R> getResult() {
+    public Set<R> getResult(List<MetricNameDto> metricNames) {
 
         List<Future<Set<R>>> futureList = new ArrayList<Future<Set<R>>>();
 

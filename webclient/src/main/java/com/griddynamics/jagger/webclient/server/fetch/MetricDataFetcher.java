@@ -13,15 +13,5 @@ import java.util.Set;
  */
 public abstract class MetricDataFetcher<R> {
 
-    protected List<MetricNameDto> metricNames = new ArrayList<MetricNameDto>();
-
-    public void addMetricName(MetricNameDto metricName) {
-        metricNames.add(metricName);
-    }
-
-    public void reset() {
-        metricNames.clear();
-    }
-
-    public abstract Set<R> getResult();
+    public abstract Set<R> getResult(List<MetricNameDto> metricNames);
 }
