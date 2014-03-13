@@ -77,6 +77,10 @@ public class MonitoringParameterImpl implements MonitoringParameter, Serializabl
         this.cumulativeCounter = cumulativeCounter;
     }
 
+    public String getId() {
+        return description;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
