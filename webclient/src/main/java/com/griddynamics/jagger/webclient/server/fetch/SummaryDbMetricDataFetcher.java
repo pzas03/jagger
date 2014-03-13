@@ -22,11 +22,7 @@ public abstract class SummaryDbMetricDataFetcher extends DbMetricDataFetcher<Met
 
             @Override
             public int compare(MetricValueDto o1, MetricValueDto o2) {
-                if (o2.getSessionId() < o1.getSessionId()) {
-                    return 1;
-                } else {
-                    return -1;
-                }
+                return  o2.getSessionId() < o1.getSessionId() ? 1 : -1;
             }
         });
 

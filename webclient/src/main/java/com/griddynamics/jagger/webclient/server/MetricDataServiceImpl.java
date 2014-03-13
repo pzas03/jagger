@@ -82,8 +82,9 @@ public class MetricDataServiceImpl implements MetricDataService {
                     fetchMap.put(validatorSummaryFetcher, metricName);
                     break;
                 default:  // if anything else
-                    log.warn("MetricNameDto with origin : {} appears in metric name list for summary retrieving ({})", metricName.getOrigin(), metricName);
-                    break;
+                    log.error("MetricNameDto with origin : {} appears in metric name list for summary retrieving ({})", metricName.getOrigin(), metricName);
+                    throw new RuntimeException("Unable to get summary data for metric " + metricName.getMetricName() +
+                            " with origin: " + metricName.getOrigin());
             }
         }
 
