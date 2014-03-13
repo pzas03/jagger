@@ -60,7 +60,7 @@ public class Trends extends DefaultActivity {
     private TabIdentifier tabMetrics;
     private TabIdentifier tabNodes;
 
-    private FilterBox filterBox;
+    private TagBox tagFilterBox;
 
     private List<TagDto> allTags;
     private boolean allTagsLoadComplete = true;
@@ -140,7 +140,10 @@ public class Trends extends DefaultActivity {
 
     @UiHandler("clearSessionFiltersButton")
     void handleClearSessionFiltersButtonClick(ClickEvent e) {
-        setNullWidgetsValue(sessionsTo, sessionsFrom, sessionIdsTextBox, sessionTagsTextBox);
+        sessionsTo.setValue(null, true);
+        sessionsFrom.setValue(null, true);
+        sessionTagsTextBox.setValue(null,true);
+        sessionIdsTextBox.setValue(null, true);
         stopTypingSessionIdsTimer.schedule(10);
     }
 
@@ -444,8 +447,9 @@ public class Trends extends DefaultActivity {
     private void filterSessions(Set<SessionDataDto> sessionDataDtoSet) {
         if (sessionDataDtoSet == null || sessionDataDtoSet.isEmpty()) {
             sessionIdsTextBox.setText(null);
+            sessionTagsTextBox.setText(null);
             stopTypingSessionIdsTimer.schedule(10);
-
+            stopTypingSessionTagsTimer.schedule(10);
             return;
         }
 
@@ -795,7 +799,9 @@ public class Trends extends DefaultActivity {
         sessionIdsTextBox.addKeyUpHandler(new KeyUpHandler() {
             @Override
             public void onKeyUp(KeyUpEvent event) {
-                setNullWidgetsValue(sessionsFrom, sessionsTo, sessionTagsTextBox);
+                sessionsFrom.setValue(null, true);
+                sessionsTo.setValue(null, true);
+                sessionTagsTextBox.setValue(null, true);
                 stopTypingSessionIdsTimer.schedule(500);
             }
         });
@@ -815,7 +821,8 @@ public class Trends extends DefaultActivity {
             @Override
             public void onValueChange(ValueChangeEvent<Date> dateValueChangeEvent) {
 
-                setNullWidgetsValue(sessionIdsTextBox, sessionTagsTextBox);
+                sessionTagsTextBox.setValue(null, true);
+                sessionIdsTextBox.setValue(null, true);
                 Date fromDate = sessionsFrom.getValue();
                 Date toDate = sessionsTo.getValue();
 
@@ -873,15 +880,19 @@ public class Trends extends DefaultActivity {
         sessionTagsTextBox.addKeyUpHandler(new KeyUpHandler() {
             @Override
             public void onKeyUp(KeyUpEvent event) {
-                setNullWidgetsValue(sessionsTo, sessionsFrom, sessionIdsTextBox);
+                sessionsTo.setValue(null, true);
+                sessionsFrom.setValue(null,true);
+                sessionIdsTextBox.setValue(null, true);
                 tagNames.clear();
                 stopTypingSessionTagsTimer.schedule(500);
             }
         });
-        filterBox.addCloseHandler(new CloseHandler<PopupPanel>() {
+        tagFilterBox.addCloseHandler(new CloseHandler<PopupPanel>() {
             @Override
             public void onClose(CloseEvent<PopupPanel> popupPanelCloseEvent) {
-                setNullWidgetsValue(sessionsFrom, sessionsTo, sessionIdsTextBox);
+                sessionsTo.setValue(null, true);
+                sessionsFrom.setValue(null, true);
+                sessionIdsTextBox.setValue(null, true);
                 if (!tagNames.isEmpty())
                     sessionTagsTextBox.setValue(toParsableString(tagNames));
                 tagNames.clear();
@@ -1746,8 +1757,8 @@ public class Trends extends DefaultActivity {
         final int indexId = 1;
         final int indexTag = 2;
         allTags();
-        filterBox = new FilterBox();
-        tagButton = new Button("All");
+        tagFilterBox = new TagBox();
+        tagButton = new Button("...");
 
         tagButton.setSize("30px","25px");
         tagButton.setEnabled(allTagsLoadComplete);
@@ -1755,23 +1766,34 @@ public class Trends extends DefaultActivity {
             @Override
             public void onClick(ClickEvent clickEvent) {
                 tagNames.clear();
-                filterBox.popUp(allTags,tagNames,sessionTagsTextBox.getText().trim());
+                tagFilterBox.popUpForFilter(allTags, tagNames);
             }
         });
 
 
         Label from = new Label("From ");
         Label to = new Label(" to ");
-        from.setStyleName(JaggerResources.INSTANCE.css().searchTabPanel());
-        to.setStyleName(JaggerResources.INSTANCE.css().searchTabPanel());
 
         setPanel(datesPanel, from, sessionsFrom, to, sessionsTo);
+        datesPanel.setBorderWidth(0);
+        sessionsFrom.setSize("95%","20px");
+        sessionsTo.setSize("95%","20px");
+
         setPanel(tagsPanel, sessionTagsTextBox, tagButton);
+        idsPanel.setBorderWidth(0);
+        sessionTagsTextBox.setSize("98%","20px");
+
         setPanel(idsPanel, sessionIdsTextBox);
+        tagsPanel.setBorderWidth(0);
+        sessionIdsTextBox.setSize("98%", "20px");
 
         searchTabPanel.selectTab(0);
 
-        searchTabPanel.setTitle("Search by ids, dates or tags");
+        searchTabPanel.getTabWidget(0).setTitle("Search by an session's id");
+        searchTabPanel.getTabWidget(1).setTitle("Search by a date of sessions");
+        searchTabPanel.getTabWidget(2).setTitle("Search by session's tags");
+
+        searchTabPanel.setTitle("A search bar");
 
         searchTabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
             @Override
@@ -1811,11 +1833,6 @@ public class Trends extends DefaultActivity {
         panel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
         for (Widget widget:widgets){
             panel.add(widget);
-            if (widget instanceof DateBox){
-                widget.setSize("95%","20px");
-            }
-            else if (widget instanceof TextBox)
-                widget.setSize("98%","20px");
         }
         panel.setSize("100%","20px");
 
@@ -1850,12 +1867,4 @@ public class Trends extends DefaultActivity {
         return str;
     }
 
-    private void setNullWidgetsValue(Widget... widgets){
-        for(Widget widget :widgets){
-            if (widget instanceof TextBox)
-                ((TextBox)widget).setText(null);
-            else if (widget instanceof  DateBox)
-                ((DateBox)widget).setValue(null,true);
-        }
-    }
 }

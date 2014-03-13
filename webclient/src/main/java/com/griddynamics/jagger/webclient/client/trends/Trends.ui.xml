@@ -36,14 +36,14 @@
 
                             <g:south size="60">
                                 <g:TabLayoutPanel barHeight="1.5" barUnit="EM"
-                                                  ui:field="searchTabPanel" addStyleNames="{res.css.searchTabPanel}">
+                                                  ui:field="searchTabPanel" addStyleNames="{res.css.searchTabPanel}" >
 
                                     <g:tab>
                                         <g:header>
                                             <b>Session number</b>
                                         </g:header>
                                         <g:HorizontalPanel addStyleNames="{res.css.searchPanel}"
-                                                           ui:field="idsPanel"/>
+                                                           ui:field="idsPanel" borderWidth="0"/>
 
                                     </g:tab>
                                     <g:tab>
@@ -51,7 +51,7 @@
                                             <b>Date range</b>
                                         </g:header>
                                         <g:HorizontalPanel addStyleNames="{res.css.searchPanel}"
-                                                           ui:field="datesPanel"/>
+                                                           ui:field="datesPanel" borderWidth="0"/>
 
                                     </g:tab>
                                     <g:tab>
@@ -59,7 +59,7 @@
                                             <b>Tags</b>
                                         </g:header>
                                         <g:HorizontalPanel addStyleNames="{res.css.searchPanel}"
-                                                           ui:field="tagsPanel"/>
+                                                           ui:field="tagsPanel" borderWidth="0"/>
 
                                     </g:tab>
                                 </g:TabLayoutPanel>

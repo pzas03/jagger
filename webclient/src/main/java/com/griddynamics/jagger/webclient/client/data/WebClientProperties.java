@@ -9,10 +9,6 @@ public class WebClientProperties implements Serializable {
     private boolean userCommentEditAvailable = false;
     private boolean userCommentStoreAvailable = false;
     private boolean showOnlyMatchedTests = true;
-
-
-
-
     private int userCommentMaxLength = 1000;
 
     public boolean isTagsAvailable() {

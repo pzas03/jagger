@@ -2,6 +2,7 @@ package com.griddynamics.jagger.webclient.client.components;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.editor.client.Editor.Path;
@@ -209,17 +210,27 @@ public class TagBox extends AbstractWindow implements IsWidget {
 
     }
 
-
     public void setTreeGrid(TreeGrid<SessionComparisonPanel.TreeItem> treeGrid) {
         this.treeGrid = treeGrid;
     }
 
 
-    void popUp(SessionDataDto currentSession, SessionComparisonPanel.TreeItem item, List<TagDto> allTags, List<TagDto> sessionTags) {
+    public void popUpForEdit(SessionDataDto currentSession, SessionComparisonPanel.TreeItem item, List<TagDto> allTags) {
+        getApplyButton().removeFromParent();
         this.currentSession=currentSession;
         setText("Session " +currentSession.getSessionId());
         setGrids(allTags, currentSession.getTags());
         currentTreeItem = item;
+        show();
+    }
+
+    private Set<String> tagNamesSet;
+
+    public void popUpForFilter(List<TagDto> allTags, Set<String> sessionTags) {
+        getSaveButton().removeFromParent();
+        tagNamesSet=sessionTags;
+        setText("Session filter by tags");
+        setGrids(allTags);
         show();
     }
 
@@ -249,6 +260,15 @@ public class TagBox extends AbstractWindow implements IsWidget {
     }
 
     @Override
+    protected void onApplyButtonClick() {
+        tagNamesSet.clear();
+        for (int i = 0; i < storeTo.size(); i++) {
+            tagNamesSet.add(storeTo.get(i).getName());
+        }
+        atClose();
+    }
+
+    @Override
     protected void onCancelButtonClick() {
         atClose();
     }
@@ -261,16 +281,18 @@ public class TagBox extends AbstractWindow implements IsWidget {
         }
     }
 
-    private void move(Grid<TagDto> gridFrom, Grid<TagDto> gridTo){
+    private void move(Grid<TagDto> gridFrom, Grid<TagDto> gridTo) {
         List<TagDto> selectedList = gridFrom.getSelectionModel().getSelectedItems();
         gridFrom.getSelectionModel().selectNext(false);
-        descriptionPanel.setText(gridFrom.getSelectionModel().getSelectedItem().getDescription());
+        if (!gridFrom.getSelectionModel().getSelectedItems().isEmpty()) {
+            descriptionPanel.setText(gridFrom.getSelectionModel().getSelectedItem().getDescription());
 
-        gridTo.getSelectionModel().deselectAll();
-        gridTo.getStore().addAll(selectedList);
+            gridTo.getSelectionModel().deselectAll();
+            gridTo.getStore().addAll(selectedList);
 
-        for(int i = 0; i < selectedList.size(); i++) {
-            gridFrom.getStore().remove(selectedList.get(i));
+            for (int i = 0; i < selectedList.size(); i++) {
+                gridFrom.getStore().remove(selectedList.get(i));
+            }
         }
     }
     private void moveAll(Grid<TagDto> gridFrom, Grid<TagDto> gridTo){
@@ -298,6 +320,10 @@ public class TagBox extends AbstractWindow implements IsWidget {
         }
     }
 
+    public void setGrids(List<TagDto> allTags) {
+        gridStorageL.getStore().addAll(allTags);
+    }
+
     private void saveTagToDataBase() {
        final List <TagDto> list = new ArrayList<TagDto>();
         list.addAll(gridStorageR.getStore().getAll());
@@ -311,7 +337,6 @@ public class TagBox extends AbstractWindow implements IsWidget {
 
             @Override
             public void onSuccess(Void result) {
-                currentSession.getTags().clear();
                 currentSession.setTags(list);
 
 

@@ -2,6 +2,7 @@ package com.griddynamics.jagger.webclient.client.dto;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.ArrayList;
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
  * @since 5/29/12
@@ -16,7 +17,7 @@ public class SessionDataDto implements Serializable {
     private int tasksExecuted;
     private int tasksFailed;
     private Long id;
-    private List<TagDto> tags;
+    private List<TagDto> tags = new ArrayList<TagDto>();
 
     public SessionDataDto() {
     }
@@ -49,7 +50,10 @@ public class SessionDataDto implements Serializable {
     }
 
     public List<TagDto> getTags() {
-        return tags;
+        if (tags != null)
+            return tags;
+        else
+            return new ArrayList<TagDto>();
     }
 
     public void setTags(List<TagDto> tags) {

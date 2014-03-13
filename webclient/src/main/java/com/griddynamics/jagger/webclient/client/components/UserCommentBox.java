@@ -131,6 +131,9 @@ public class UserCommentBox extends AbstractWindow {
     }
 
     @Override
+    protected void onApplyButtonClick() {}
+
+    @Override
     protected void onSaveButtonClick(){
         final String resultComment = textArea.getText().trim();
         SessionDataService.Async.getInstance().saveUserComment(currentSessionDataDto.getId(), resultComment, new AsyncCallback<Void>() {
@@ -176,6 +179,7 @@ public class UserCommentBox extends AbstractWindow {
     private SessionDataDto currentSessionDataDto;
 
     public void popUp(SessionDataDto sessionDataDto, String userComment, SessionComparisonPanel.TreeItem item) {
+        getApplyButton().removeFromParent();
         currentTreeItem = item;
         currentSessionDataDto = sessionDataDto;
         setText("Session " + sessionDataDto.getSessionId());

@@ -202,7 +202,6 @@ input[type="text"] {
 }
 
 .toolBar {
-    margin: 0 0 2px 0;
     padding: 0;
     background-color: #F6F6F6;
     border-bottom: 1px dotted #E8E6E5;
@@ -221,9 +220,12 @@ input[type="text"] {
 
 .searchTabPanel{
     font: normal 11px arial;
+    border-spacing: 0;
+
+    color : black;
     background-color: #F6F6F6;
-    min-height: 20px;
-    border: 0;
+    vertical-align: middle;
+
 }
 
 .searchPanel{
