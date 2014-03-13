@@ -239,8 +239,11 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
 
     private DefaultMonitoringParameters[] findDefaultMonitoringParameters(Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups, String plotName) {
         for (Map.Entry<GroupKey, DefaultMonitoringParameters[]> entry : monitoringPlotGroups.entrySet()) {
-            if (entry.getKey().getUpperName().equalsIgnoreCase(plotName)) {
-                return entry.getValue();
+            for (DefaultMonitoringParameters defaultMonitoringParameters : entry.getValue()) {
+                if (plotName.equals(defaultMonitoringParameters.getId())) {
+                    DefaultMonitoringParameters[] result = {defaultMonitoringParameters};
+                    return result;
+                }
             }
         }
 

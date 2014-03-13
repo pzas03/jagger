@@ -3,10 +3,14 @@ package com.griddynamics.jagger.webclient.server;
 import com.griddynamics.jagger.agent.model.DefaultMonitoringParameters;
 import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadProcessLatencyPercentile;
 import com.griddynamics.jagger.monitoring.reporting.GroupKey;
-import com.griddynamics.jagger.webclient.client.components.control.model.*;
+import com.griddynamics.jagger.webclient.client.components.control.model.MetricNode;
+import com.griddynamics.jagger.webclient.client.components.control.model.MonitoringSessionScopePlotNode;
+import com.griddynamics.jagger.webclient.client.components.control.model.PlotNode;
+import com.griddynamics.jagger.webclient.client.components.control.model.SessionPlotNode;
 import com.griddynamics.jagger.webclient.client.data.MetricRankingProvider;
 import com.griddynamics.jagger.webclient.client.data.WebClientProperties;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
+import com.griddynamics.jagger.webclient.client.dto.MonitoringSupportDto;
 import com.griddynamics.jagger.webclient.client.dto.SessionPlotNameDto;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 import com.griddynamics.jagger.webclient.server.plot.CustomMetricPlotDataProvider;
@@ -329,26 +333,22 @@ public class CommonDataProviderImpl implements CommonDataProvider {
     }
 
 
-    /**
-     * one db call method
-     * @param sessionIds
-     * @param taskDataDtos
-     * @return
-     */
     @Override
-    public Map<TaskDataDto, List<MonitoringPlotNode>> getMonitoringPlotNodes(Set<String> sessionIds, List<TaskDataDto> taskDataDtos) {
+    public MonitoringSupportDto getMonitoringPlotNodes(Set<String> sessionIds, List<TaskDataDto> taskDataDtos) {
+
+        MonitoringSupportDto empty_result = new MonitoringSupportDto();
+        empty_result.init(Collections.EMPTY_MAP,Collections.EMPTY_MAP);
+
         try {
             Map<TaskDataDto, List<BigInteger>>  monitoringIds = getMonitoringIds(sessionIds, taskDataDtos);
             if (monitoringIds.isEmpty()) {
-                return Collections.EMPTY_MAP;
+                return empty_result;
             }
 
+            MonitoringSupportDto result = getMonitoringPlotNames(monitoringPlotGroups.entrySet(), monitoringIds);
 
-
-            Map<TaskDataDto, List<MonitoringPlotNode>> result = getMonitoringPlotNames(sessionIds, monitoringPlotGroups.entrySet(), monitoringIds);
-
-            if (result.isEmpty()) {
-                return Collections.EMPTY_MAP;
+            if (result.getMonitoringPlotNodes().isEmpty()) {
+                return empty_result;
             }
 
             log.debug("For sessions {} are available these plots: {}", sessionIds, result);
@@ -634,8 +634,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
     }
 
 
-    private Map<TaskDataDto, List<MonitoringPlotNode>> getMonitoringPlotNames(Set<String> sessionIds, Set<Map.Entry<GroupKey, DefaultMonitoringParameters[]>> monitoringParameters, Map<TaskDataDto, List<BigInteger>> monitoringIdsMap) {
-
+    private MonitoringSupportDto getMonitoringPlotNames(Set<Map.Entry<GroupKey, DefaultMonitoringParameters[]>> monitoringParameters, Map<TaskDataDto, List<BigInteger>> monitoringIdsMap) {
         List<BigInteger> monitoringIds = new ArrayList<BigInteger>();
         for (List<BigInteger> mIds : monitoringIdsMap.values()) {
             monitoringIds.addAll(mIds);
@@ -651,7 +650,10 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                         .getResultList();
         log.debug("db call to fetch all MonitoringPlotNames for tests in {} ms (size: {})", System.currentTimeMillis() - temp, agentIdentifierObjects.size());
 
-        Map<TaskDataDto, List<MonitoringPlotNode>> resultMap = new HashMap<TaskDataDto, List<MonitoringPlotNode>>();
+        Map<TaskDataDto, List<PlotNode>> resultMap = new HashMap<TaskDataDto, List<PlotNode>>();
+
+        // create relation: monitoring param - agents, where it was collected
+        Map<String,Set<String>> agentNames = new HashMap<String, Set<String>>();
 
         Set<TaskDataDto> taskSet = monitoringIdsMap.keySet();
 
@@ -660,61 +662,56 @@ public class CommonDataProviderImpl implements CommonDataProvider {
             for (TaskDataDto tdd : taskSet) {
                 if (monitoringIdsMap.get(tdd).contains(testId)) {
                     if (!resultMap.containsKey(tdd)) {
-                        resultMap.put(tdd, new ArrayList<MonitoringPlotNode>());
+                        resultMap.put(tdd, new ArrayList<PlotNode>());
                     }
 
-                    List<MonitoringPlotNode> mpnList = resultMap.get(tdd);
-                    String monitoringKey = findMonitoringKey((String)objects[3], monitoringParameters);
-                    if (monitoringKey == null) {
-                        log.warn("Could not find monitoing key for description: '{}' and monitoing task id: '{}'", objects[3], objects[2]);
-                        break;
-                    }
-                    String identy = objects[0] == null ? objects[1].toString() : objects[0].toString();
-
-                    PlotNode plotNode = new PlotNode();
-                    String id = METRICS_PREFIX + tdd.hashCode() + monitoringKey + identy;
-                    MetricNameDto metricNameDto = new MetricNameDto(tdd, monitoringKey + AGENT_NAME_SEPARATOR + identy);
-                    metricNameDto.setOrigin(MetricNameDto.Origin.MONITORING);
-                    plotNode.init(id, identy, Arrays.asList(metricNameDto));
-
-                    boolean present = false;
-                    for (MonitoringPlotNode mpn : mpnList) {
-                        if (mpn.getDisplayName().equals(monitoringKey)) {
-                            if (!mpn.getPlots().contains(plotNode))
-                                mpn.getPlots().add(plotNode);
-                            present = true;
-                            break;
+                    String monitoringId = null;     // Id of particular metric
+                    String monitoringKey = null;    // Key, corresponding to metric in monitoringParameters
+                    for (Map.Entry<GroupKey, DefaultMonitoringParameters[]> entry : monitoringParameters) {
+                        for (DefaultMonitoringParameters dmp : entry.getValue()) {
+                            if (dmp.getDescription().equals((String) objects[3])) {
+                                monitoringId = dmp.getId();
+                                monitoringKey = entry.getKey().getUpperName();
+                            }
                         }
                     }
 
-                    if (!present) {
-                        MonitoringPlotNode monitoringPlotNode = new MonitoringPlotNode();
-                        monitoringPlotNode.setId(MONITORING_PREFIX + tdd.hashCode() + monitoringKey);
-                        monitoringPlotNode.setDisplayName(monitoringKey);
-                        resultMap.get(tdd).add(monitoringPlotNode);
-                        monitoringPlotNode.setPlots(new ArrayList<PlotNode>());
-                        if (!monitoringPlotNode.getPlots().contains(plotNode))
-                            monitoringPlotNode.getPlots().add(plotNode);
+                    if (monitoringId == null) {
+                        log.warn("Could not find monitoring key for description: '{}' and monitoing task id: '{}'", objects[3], objects[2]);
+                        break;
                     }
+
+                    String agentId = objects[0] == null ? objects[1].toString() : objects[0].toString();
+
+                    // remember agentIds. They will be later used to filter metrics during control tree creation
+                    if (!agentNames.containsKey(monitoringKey)) {
+                        agentNames.put(monitoringKey,new HashSet<String>());
+                    }
+                    agentNames.get(monitoringKey).add(agentId);
+
+
+                    PlotNode plotNode = new PlotNode();
+
+                    //??? Id should be created according to rules from Kirill
+                    //??? check that monitoring metrics will not match exactly to new metrics from Kirill
+
+                    String id = METRICS_PREFIX + tdd.hashCode() + "_" + monitoringId + "_" + agentId;
+                    // important! Id of metric is used in rules for control tree creation. Don't change id without reason
+                    MetricNameDto metricNameDto = new MetricNameDto(tdd, monitoringId + AGENT_NAME_SEPARATOR + agentId);
+                    metricNameDto.setOrigin(MetricNameDto.Origin.MONITORING);
+                    plotNode.init(id, id, Arrays.asList(metricNameDto));
+
+                    resultMap.get(tdd).add(plotNode);
                     break;
                 }
             }
         }
 
+        // return parameter just combines two independent elements
+        MonitoringSupportDto monitoringSupportDto = new MonitoringSupportDto();
+        monitoringSupportDto.init(resultMap,agentNames);
 
-        // sorting
-        for (TaskDataDto tdd : taskSet) {
-            List<MonitoringPlotNode> mpnList = resultMap.get(tdd);
-            if (mpnList == null) {
-                resultMap.put(tdd, Collections.EMPTY_LIST);
-                continue;
-            }
-            MetricRankingProvider.sortPlotNodes(mpnList);
-            for (MonitoringPlotNode mpn : mpnList) {
-                MetricRankingProvider.sortPlotNodes(mpn.getPlots());
-            }
-        }
-        return resultMap;
+        return monitoringSupportDto;
     }
 
     private String findMonitoringKey(String description, Set<Map.Entry<GroupKey, DefaultMonitoringParameters[]>> monitoringParameters) {
@@ -727,7 +724,6 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         }
         return null;
     }
-
 
     private Map<TaskDataDto, Boolean> isWorkloadStatisticsAvailable(List<TaskDataDto> tests) {
 

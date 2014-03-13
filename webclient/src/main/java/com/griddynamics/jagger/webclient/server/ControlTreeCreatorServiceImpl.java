@@ -3,10 +3,12 @@ package com.griddynamics.jagger.webclient.server;
 import com.griddynamics.jagger.webclient.client.ControlTreeCreatorService;
 import com.griddynamics.jagger.webclient.client.components.control.model.*;
 import com.griddynamics.jagger.webclient.client.data.MetricRankingProvider;
+import com.griddynamics.jagger.webclient.client.dto.MonitoringSupportDto;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 import com.griddynamics.jagger.webclient.server.rules.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Required;
 
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -29,6 +31,18 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
     // todo: implement same idea for fetching plots/summary data
     // to implement parallel fetching data for control tree
     private ExecutorService threadPool;
+    private TreeViewGroupRuleProvider treeViewGroupRuleProvider;
+    private TreeViewGroupMetricsToNodeRuleProvider treeViewGroupMetricsToNodeRuleProvider;
+
+    @Required
+    public void setTreeViewGroupRuleProvider(TreeViewGroupRuleProvider treeViewGroupRuleProvider) {
+        this.treeViewGroupRuleProvider = treeViewGroupRuleProvider;
+    }
+
+    @Required
+    public void setTreeViewGroupMetricsToNodeRuleProvider(TreeViewGroupMetricsToNodeRuleProvider treeViewGroupMetricsToNodeRuleProvider) {
+        this.treeViewGroupMetricsToNodeRuleProvider = treeViewGroupMetricsToNodeRuleProvider;
+    }
 
     public void setDatabaseFetcher(CommonDataProvider databaseFetcher) {
         this.databaseFetcher = databaseFetcher;
@@ -100,44 +114,34 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
                 }
             );
 
-            Future<Map<TaskDataDto, List<MonitoringPlotNode>>> monitoringPlotsMapFuture = threadPool.submit(
-                    new Callable<Map<TaskDataDto, List<MonitoringPlotNode>>>() {
+            Future<MonitoringSupportDto> monitoringNewPlotsMapFuture = threadPool.submit(
+                    new Callable<MonitoringSupportDto>() {
                         @Override
-                        public Map<TaskDataDto, List<MonitoringPlotNode>> call() throws Exception {
+                        public MonitoringSupportDto call() throws Exception {
                             return getMonitoringPlots(sessionIds, taskList);
                         }
                     }
             );
 
             Map<TaskDataDto, List<PlotNode>> map = metricsPlotsMapFuture.get();
-            Map<TaskDataDto, List<MonitoringPlotNode>> monitoringMap = monitoringPlotsMapFuture.get();
+            MonitoringSupportDto monitoringSupportDto = monitoringNewPlotsMapFuture.get();
+            Map<TaskDataDto, List<PlotNode>> monitoringMapNew = monitoringSupportDto.getMonitoringPlotNodes();
+            Map<String,Set<String>> agentNames = monitoringSupportDto.getMonitoringAgentNames();
 
             for (TaskDataDto tdd : taskList) {
                 List<PlotNode> metricNodeList = map.get(tdd);
-                String rootId = METRICS_PREFIX + tdd.hashCode();
-
-                // rules to unite metrics in single plot
-                TreeViewGroupMetricsToNodeRule testNodeUniteMetricsRule = TreeViewGroupMetricsToNodeRuleProvider.provide();
-                // unite metrics and add result to original list
-                List<PlotNode> unitedMetrics = testNodeUniteMetricsRule.filter(Rule.By.ID,rootId,metricNodeList);
-                if (unitedMetrics != null) {
-                    metricNodeList.addAll(unitedMetrics);
+                if (!monitoringMapNew.isEmpty()) {
+                    metricNodeList.addAll(monitoringMapNew.get(tdd));
                 }
 
-                // rules to create test tree view
-                TreeViewGroupRule testNodeGroupNodesRule = TreeViewGroupRuleProvider.provide(rootId, rootId);
-                // tree with metrics distributed by groups
-                MetricGroupNode<PlotNode> testDetailsNodeBase = testNodeGroupNodesRule.filter(Rule.By.DISPLAY_NAME,null,metricNodeList);
+                String rootId = METRICS_PREFIX + tdd.hashCode();
+
+                // apply rules how to build tree
+                MetricGroupNode<PlotNode> testDetailsNodeBase = BuildTreeAccordingToRules(rootId,agentNames,metricNodeList);
+
                 // full test details node
                 TestDetailsNode testNode = new TestDetailsNode(testDetailsNodeBase);
                 testNode.setTaskDataDto(tdd);
-                if (!monitoringMap.isEmpty()) {
-                    List<MonitoringPlotNode> monitoringPlotNodeList = monitoringMap.get(tdd);
-                    if (monitoringPlotNodeList != null) { // it is possible to have two tests with and without monitoring
-                        MetricRankingProvider.sortPlotNodes(monitoringPlotNodeList);
-                        testNode.setMonitoringPlots(monitoringPlotNodeList);
-                    }
-                }
 
                 taskDataDtoList.add(testNode);
             }
@@ -168,18 +172,8 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
             List<MetricNode> metricNodeList = map.get(tdd);
             String rootId = SUMMARY_PREFIX + tdd.hashCode();
 
-            // rules to unite metrics in single plot
-            TreeViewGroupMetricsToNodeRule testNodeUniteMetricsRule = TreeViewGroupMetricsToNodeRuleProvider.provide();
-            // unite metrics and add result to original list
-            List<MetricNode> unitedMetrics = testNodeUniteMetricsRule.filter(Rule.By.ID,rootId,metricNodeList);
-            if (unitedMetrics != null) {
-                metricNodeList.addAll(unitedMetrics);
-            }
-
-            // rules to create test tree view
-            TreeViewGroupRule testNodeGroupNodesRule = TreeViewGroupRuleProvider.provide(rootId, rootId);
-            // tree with metrics distributed by groups
-            MetricGroupNode<MetricNode> testNodeBase = testNodeGroupNodesRule.filter(Rule.By.DISPLAY_NAME,null,metricNodeList);
+            // apply rules how to build tree
+            MetricGroupNode<MetricNode> testNodeBase = BuildTreeAccordingToRules(rootId,null,metricNodeList);
 
             // full test node with info data
             TestNode testNode = new TestNode(testNodeBase);
@@ -205,8 +199,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
     }
 
 
-    private Map<TaskDataDto, List<MonitoringPlotNode>> getMonitoringPlots(Set<String> sessionIds, List<TaskDataDto> tdds) {
-
+    private MonitoringSupportDto getMonitoringPlots(Set<String> sessionIds, List<TaskDataDto> tdds) {
         return databaseFetcher.getMonitoringPlotNodes(sessionIds, tdds);
     }
 
@@ -274,6 +267,24 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
             }
             return null;
         }
+    }
+
+    private <M extends MetricNode> MetricGroupNode<M> BuildTreeAccordingToRules(String rootId, Map<String,Set<String>> agentNames, List<M> metricNodeList)
+    {
+        // rules to unite metrics in single plot
+        TreeViewGroupMetricsToNodeRule unitedMetricsRule= treeViewGroupMetricsToNodeRuleProvider.provide(agentNames);
+        // unite metrics and add result to original list
+        List<M> unitedMetrics = unitedMetricsRule.filter(Rule.By.ID, rootId, metricNodeList);
+        if (unitedMetrics != null) {
+            metricNodeList.addAll(unitedMetrics);
+        }
+
+        // rules to create test tree view
+        TreeViewGroupRule groupedNodesRule = treeViewGroupRuleProvider.provide(rootId, rootId);
+        // tree with metrics distributed by groups
+        MetricGroupNode<M> testNodeBase = groupedNodesRule.filter(Rule.By.DISPLAY_NAME,null,metricNodeList);
+
+        return testNodeBase;
     }
 
 }

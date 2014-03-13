@@ -1,9 +1,9 @@
 package com.griddynamics.jagger.webclient.server;
 
 import com.griddynamics.jagger.webclient.client.components.control.model.MetricNode;
-import com.griddynamics.jagger.webclient.client.components.control.model.MonitoringPlotNode;
 import com.griddynamics.jagger.webclient.client.components.control.model.MonitoringSessionScopePlotNode;
 import com.griddynamics.jagger.webclient.client.components.control.model.PlotNode;
+import com.griddynamics.jagger.webclient.client.dto.MonitoringSupportDto;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 
 import java.util.List;
@@ -20,7 +20,7 @@ public interface CommonDataProvider {
 
     List<TaskDataDto> getTaskDataForSessions(Set<String> sessionIds);
 
-    Map<TaskDataDto, List<MonitoringPlotNode>> getMonitoringPlotNodes(Set<String> sessionIds, List<TaskDataDto> task);
+    MonitoringSupportDto getMonitoringPlotNodes(Set<String> sessionIds, List<TaskDataDto> task);
 
     List<MonitoringSessionScopePlotNode> getSessionScopeMonitoringPlotNodes(Set<String> sessionIds);
 
