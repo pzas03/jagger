@@ -280,19 +280,6 @@ public class Trends extends DefaultActivity {
                             }
                         }
                     }
-                    for (MonitoringPlotNode monitoringPlotNode : test.getMonitoringPlots()) {
-                        if (controlTree.isChecked(monitoringPlotNode)) {
-                            trends.add(monitoringPlotNode.getDisplayName());
-                        } else if (controlTree.isChosen(monitoringPlotNode)) {
-                            for (PlotNode plotNode : monitoringPlotNode.getPlots()) {
-                                if (controlTree.isChecked(plotNode)) {
-                                    for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
-                                        trends.add(metricNameDto.getMetricName());
-                                    }
-                                }
-                            }
-                        }
-                    }
                     resultMap.put(test.getTaskDataDto().getTaskName(), trends);
                 }
             }
@@ -406,7 +393,7 @@ public class Trends extends DefaultActivity {
         History.newItem(NameTokens.EMPTY);
     }
 
-    WebClientProperties webClientProperties = new WebClientProperties();
+    private WebClientProperties webClientProperties = new WebClientProperties();
 
     public void getPropertiesUpdatePlace(final TrendsPlace place){
 
@@ -421,6 +408,24 @@ public class Trends extends DefaultActivity {
             public void onSuccess(WebClientProperties result) {
                 webClientProperties = result;
                 updatePlace(place);
+            }
+        });
+    }
+
+    private Map<String,List<String>> defaultMonitoringParameters;
+
+    public void getDefaultMonitoringParameters(){
+
+        CommonDataService.Async.getInstance().getDefaultMonitoringParameters(new AsyncCallback<Map<String, List<String>>>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                new ExceptionPanel("Failed to get description of default monitoring parameters. Exception while description fetching: " + caught.getMessage());
+                updatePlace(place);
+            }
+
+            @Override
+            public void onSuccess(Map<String, List<String>> result) {
+                defaultMonitoringParameters = result;
             }
         });
     }
@@ -1129,24 +1134,45 @@ public class Trends extends DefaultActivity {
                     if (testDetailsNode == null) { // have not find appropriate TestDetailNode
                         new ExceptionPanel("could not find Test with test name \'" + testsMetrics.getTestName() + "\' for details");
                     } else {
+
+                        // To be compatible with old hyperlinks with monitoring parameters
+                        // Replace old monitoring parameters Ids with new metricNameDto ids
+                        Set<String> newTrends = new HashSet<String>();
+                        Iterator<String> iterator = testsMetrics.getTrends().iterator();
+                        while (iterator.hasNext()) {
+                            String id = iterator.next();
+                            for (String defaultMonitoringParam : defaultMonitoringParameters.keySet()) {
+                                if (id.matches("^" + defaultMonitoringParam + ".*")) {
+                                    if (id.equals(defaultMonitoringParam)) {
+                                        // select all
+                                        for (String metricId : defaultMonitoringParameters.get(defaultMonitoringParam)) {
+                                            for (PlotNode plotNode : testDetailsNode.getMetrics()) {
+                                                for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
+                                                    if (metricNameDto.getMetricName().matches("^" + metricId + ".*")) {
+                                                        newTrends.add(metricNameDto.getMetricName());
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else {
+                                        // selection per agent node
+                                        for (String metricId : defaultMonitoringParameters.get(defaultMonitoringParam)) {
+                                            newTrends.add(id.replace(defaultMonitoringParam,metricId));
+                                        }
+                                    }
+                                    // old monitoring id was replaced with new metricNameDto ids
+                                    iterator.remove();
+                                    break;
+                                }
+                            }
+                        }
+                        testsMetrics.getTrends().addAll(newTrends);
+
                         for (PlotNode plotNode : testDetailsNode.getMetrics()) {
                             for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
                                 if (testsMetrics.getTrends().contains(metricNameDto.getMetricName())) {
                                     tempTree.setCheckedExpandedWithParent(plotNode);
-                                }
-                            }
-                        }
-                        for (MonitoringPlotNode monitoringPlotNode : testDetailsNode.getMonitoringPlots()) {
-                            if (testsMetrics.getTrends().contains(monitoringPlotNode.getDisplayName())) {
-                                tempTree.setCheckedWithParent(monitoringPlotNode);
-                                tempTree.setExpanded(testDetailsNode, true, false);
-                            } else {
-                                for (PlotNode plotNode: monitoringPlotNode.getPlots()) {
-                                    for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
-                                        if (testsMetrics.getTrends().contains(metricNameDto.getMetricName())) {
-                                            tempTree.setCheckedExpandedWithParent(plotNode);
-                                        }
-                                    }
                                 }
                             }
                         }

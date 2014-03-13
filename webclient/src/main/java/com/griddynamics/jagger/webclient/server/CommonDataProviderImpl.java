@@ -55,6 +55,28 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         return monitoringPlotGroups;
     }
 
+    @Override
+    public Map<String,List<String>> getDefaultMonitoringParameters() {
+        // relation of old monitoring names from Groupkey (were used in hyperlinks) to
+        // new monitoring metric ids from DefaultMonitoringParameters
+        // necessary to process old hyperlinks by new client
+        Map<String,List<String>> result = new HashMap<String, List<String>>();
+
+        for(Map.Entry<GroupKey,DefaultMonitoringParameters[]> groupKeyEntry : monitoringPlotGroups.entrySet()) {
+            String key = groupKeyEntry.getKey().getUpperName();
+            if (!result.containsKey(key)) {
+                result.put(key,new ArrayList<String>());
+            }
+
+            for (DefaultMonitoringParameters defaultMonitoringParameters : groupKeyEntry.getValue()) {
+                result.get(key).add(defaultMonitoringParameters.getId());
+            }
+        }
+
+        return result;
+    }
+
+    @Required
     public void setMonitoringPlotGroups(Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups) {
         this.monitoringPlotGroups = monitoringPlotGroups;
     }
@@ -63,6 +85,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         return workloadPlotGroups;
     }
 
+    @Required
     public void setWorkloadPlotGroups(Map<GroupKey, DefaultWorkloadParameters[]> workloadPlotGroups) {
         this.workloadPlotGroups = workloadPlotGroups;
     }
@@ -71,6 +94,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         return customMetricPlotDataProvider;
     }
 
+    @Required
     public void setCustomMetricPlotDataProvider(CustomMetricPlotDataProvider customMetricPlotDataProvider) {
         this.customMetricPlotDataProvider = customMetricPlotDataProvider;
     }
@@ -559,21 +583,6 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         return result;
     }
 
-    @Override
-    public boolean checkIfUserCommentStorageAvailable() {
-
-        try {
-            entityManager.createQuery(
-                    "select count(sm) from SessionMetaDataEntity sm")
-                    .getSingleResult();
-            return true;
-        } catch (Exception e) {
-            log.warn("Could not access SessionMetaDataTable", e);
-        }
-
-        return false;
-    }
-
 
     private List<MonitoringSessionScopePlotNode> getMonitoringPlotNamesNew(Set<String> sessionIds) {
 
@@ -692,11 +701,11 @@ public class CommonDataProviderImpl implements CommonDataProvider {
 
                     PlotNode plotNode = new PlotNode();
 
-                    //??? Id should be created according to rules from Kirill
                     //??? check that monitoring metrics will not match exactly to new metrics from Kirill
 
                     String id = METRICS_PREFIX + tdd.hashCode() + "_" + monitoringId + "_" + agentId;
-                    // important! Id of metric is used in rules for control tree creation. Don't change id without reason
+                    // important! Id of metric (aka metricName) is used in rules for control tree creation, in plot provider to fetch data, in trends to process hyperlinks.
+                    // Don't change id without reason
                     MetricNameDto metricNameDto = new MetricNameDto(tdd, monitoringId + AGENT_NAME_SEPARATOR + agentId);
                     metricNameDto.setOrigin(MetricNameDto.Origin.MONITORING);
                     plotNode.init(id, id, Arrays.asList(metricNameDto));
@@ -885,11 +894,27 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         return result;
     }
 
+    @Override
     public WebClientProperties getWebClientProperties() {
         return webClientProperties;
     }
 
     public void setWebClientProperties(WebClientProperties webClientProperties) {
         this.webClientProperties = webClientProperties;
+        this.webClientProperties.setUserCommentStoreAvailable(checkIfUserCommentStorageAvailable());
+    }
+
+    private boolean checkIfUserCommentStorageAvailable() {
+
+        try {
+            entityManager.createQuery(
+                    "select count(sm) from SessionMetaDataEntity sm")
+                    .getSingleResult();
+            return true;
+        } catch (Exception e) {
+            log.warn("Could not access SessionMetaDataTable", e);
+        }
+
+        return false;
     }
 }

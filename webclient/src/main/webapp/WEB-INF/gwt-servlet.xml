@@ -100,7 +100,6 @@
 
     <bean id="commonDataService" class="com.griddynamics.jagger.webclient.server.CommonDataServiceImpl">
         <property name="commonDataProvider" ref="databaseFetcher"/>
-        <property name="webClientProperties" ref="webClientProperties"/>
     </bean>
 
     <bean id="webClientProperties" class="com.griddynamics.jagger.webclient.client.data.WebClientProperties">

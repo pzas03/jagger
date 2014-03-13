@@ -3,6 +3,7 @@ package com.griddynamics.jagger.webclient.server;
 import com.griddynamics.jagger.webclient.client.components.control.model.MetricNode;
 import com.griddynamics.jagger.webclient.client.components.control.model.MonitoringSessionScopePlotNode;
 import com.griddynamics.jagger.webclient.client.components.control.model.PlotNode;
+import com.griddynamics.jagger.webclient.client.data.WebClientProperties;
 import com.griddynamics.jagger.webclient.client.dto.MonitoringSupportDto;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 
@@ -28,5 +29,8 @@ public interface CommonDataProvider {
 
     Map<TaskDataDto,List<PlotNode>> getTestPlotsMap(Set<String> sessionIds, List<TaskDataDto> taskList);
 
-    boolean checkIfUserCommentStorageAvailable();
+    WebClientProperties getWebClientProperties();
+
+    Map<String,List<String>> getDefaultMonitoringParameters();
+
 }
