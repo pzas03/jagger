@@ -77,7 +77,9 @@ public class MonitoringParameterImpl implements MonitoringParameter, Serializabl
         this.cumulativeCounter = cumulativeCounter;
     }
 
+    @Override
     public String getId() {
+        // in current implementation there is no way to set id for custom jmx metrics
         return description;
     }
 
