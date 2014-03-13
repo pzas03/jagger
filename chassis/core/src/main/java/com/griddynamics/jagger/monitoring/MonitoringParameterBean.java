@@ -73,6 +73,7 @@ public class MonitoringParameterBean implements MonitoringParameter {
 
     @Override
     public String getId() {
+        // in current implementation there is no way to set id for custom jmx metrics
         return description;
     }
 
