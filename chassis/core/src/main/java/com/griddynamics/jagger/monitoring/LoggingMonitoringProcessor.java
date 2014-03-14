@@ -20,6 +20,8 @@
 
 package com.griddynamics.jagger.monitoring;
 
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import com.griddynamics.jagger.agent.model.MonitoringParameter;
 import com.griddynamics.jagger.agent.model.SystemInfo;
 import com.griddynamics.jagger.agent.model.SystemUnderTestInfo;
@@ -44,14 +46,13 @@ public class LoggingMonitoringProcessor implements MonitoringProcessor {
     public static final String MONITORING_MARKER = "MONITORING";
 
     private Map<String, MetricService> metricServiceMap = new HashMap<String, MetricService>();
-    private Map<String, Map<String, Boolean>> createdMetrics = new HashMap<String, Map<String, Boolean>>();
+    private Table<String, String, Boolean> createdMetrics = HashBasedTable.create();
 
     @Override
     public void process(String sessionId, String taskId, NodeId agentId, NodeContext nodeContext, SystemInfo systemInfo) {
         String serviceId = getKey(sessionId, taskId);
-        if (metricServiceMap.get(serviceId) == null){
+        if (!metricServiceMap.containsKey(serviceId)){
             metricServiceMap.put(serviceId, new DefaultMetricService(sessionId, taskId, nodeContext));
-            createdMetrics.put(serviceId, new HashMap<String, Boolean>());
         }
 
         // save sigar metrics
@@ -80,10 +81,10 @@ public class LoggingMonitoringProcessor implements MonitoringProcessor {
 
     // return metric id for current monitoring parameter
     private String getMetricId(String serviceId, MonitoringParameter monitoringParameter, String agentId){
-        String metricId = AgentUtils.getMonitoringMetricId(monitoringParameter.getDescription(), agentId);
+        String metricId = AgentUtils.getMonitoringMetricId(monitoringParameter.getId(), agentId);
 
         // register metric aggregators
-        if (createdMetrics.get(serviceId).get(metricId) == null){
+        if (!createdMetrics.contains(serviceId, metricId)){
             MetricAggregatorProvider aggregator;
             if (!monitoringParameter.isCumulativeCounter()){
                 aggregator = new AvgMetricAggregatorProvider();
@@ -97,7 +98,7 @@ public class LoggingMonitoringProcessor implements MonitoringProcessor {
                                                                 .showSummary(false)
                                                                 .plotData(true).addAggregator(aggregator));
 
-            createdMetrics.get(serviceId).put(metricId, true);
+            createdMetrics.put(serviceId, metricId, true);
         }
 
         return metricId;
