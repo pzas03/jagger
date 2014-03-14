@@ -90,18 +90,9 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
 
     public Set<MetricNameDto> getPlotNamesNewModel(List<TaskDataDto> taskDataDtos){
         try {
-            return MetricNameProvider.getMetricNames(entityManager, taskDataDtos, new MetricDescriptionFetcher() {
+            return CustomMetricDataProvider.getMetricNames(entityManager, taskDataDtos, new MetricDescriptionLoader() {
                 @Override
-                public List<Object[]> getTestsMetricDescriptions(Set<Long> ids) {
-                    return fetchDescriptions(ids);
-                }
-
-                @Override
-                public List<Object[]> getTestGroupsMetricDescriptions(Set<Long> ids) {
-                    return fetchDescriptions(ids);
-                }
-
-                private List<Object[]> fetchDescriptions(Set<Long> ids){
+                public List<Object[]> loadTestsMetricDescriptions(Set<Long> ids) {
                     return entityManager.createQuery(
                             "select mpe.metricDescription.metricId, mpe.metricDescription.displayName, mpe.metricDescription.taskData.id " +
                                     "from MetricPointEntity as mpe where mpe.metricDescription.taskData.id in (:taskIds) group by mpe.metricDescription.id")

@@ -4,7 +4,6 @@ import com.griddynamics.jagger.agent.model.DefaultMonitoringParameters;
 import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadProcessLatencyPercentile;
 import com.griddynamics.jagger.monitoring.reporting.GroupKey;
 import com.griddynamics.jagger.util.AgentUtils;
-import com.griddynamics.jagger.util.Pair;
 import com.griddynamics.jagger.webclient.client.components.control.model.*;
 import com.griddynamics.jagger.webclient.client.data.MetricRankingProvider;
 import com.griddynamics.jagger.webclient.client.data.WebClientProperties;
@@ -157,24 +156,14 @@ public class CommonDataProviderImpl implements CommonDataProvider {
 
 
     public Set<MetricNameDto> getCustomMetricsNamesNewModel(List<TaskDataDto> tests) {
-
         try {
-            return MetricNameProvider.getMetricNames(entityManager, tests, new MetricDescriptionFetcher() {
+            return CustomMetricDataProvider.getMetricNames(entityManager, tests, new MetricDescriptionLoader() {
                 @Override
-                public List<Object[]> getTestsMetricDescriptions(Set<Long> ids) {
-                    return fetchDescriptions(ids);
-                }
-
-                @Override
-                public List<Object[]> getTestGroupsMetricDescriptions(Set<Long> ids) {
-                    return fetchDescriptions(ids);
-                }
-
-                private List<Object[]> fetchDescriptions(Set<Long> taskIds){
+                public List<Object[]> loadTestsMetricDescriptions(Set<Long> ids) {
                     return entityManager.createQuery(
                             "select mse.metricDescription.metricId, mse.metricDescription.displayName, mse.metricDescription.taskData.id " +
                                     "from MetricSummaryEntity as mse where mse.metricDescription.taskData.id in (:taskIds)")
-                            .setParameter("taskIds", taskIds)
+                            .setParameter("taskIds", ids)
                             .getResultList();
                 }
             });
