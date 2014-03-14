@@ -1747,8 +1747,7 @@ public class Trends extends DefaultActivity {
         allTags();
         tagFilterBox = new TagBox();
         tagButton = new Button("...");
-
-        tagButton.setSize("30px","25px");
+        tagButton.setSize("30px","22px");
         tagButton.setEnabled(allTagsLoadComplete);
         tagButton.addClickHandler(new ClickHandler() {
             @Override
@@ -1761,19 +1760,21 @@ public class Trends extends DefaultActivity {
 
         Label from = new Label("From ");
         Label to = new Label(" to ");
+        from.setStyleName(JaggerResources.INSTANCE.css().searchPanel());
+        to.setStyleName(JaggerResources.INSTANCE.css().searchPanel());
 
         setPanel(datesPanel, from, sessionsFrom, to, sessionsTo);
         datesPanel.setBorderWidth(0);
-        sessionsFrom.setSize("95%","20px");
-        sessionsTo.setSize("95%","20px");
+        sessionsFrom.setSize("95%","18px");
+        sessionsTo.setSize("95%","18px");
 
         setPanel(tagsPanel, sessionTagsTextBox, tagButton);
         idsPanel.setBorderWidth(0);
-        sessionTagsTextBox.setSize("98%","20px");
+        sessionTagsTextBox.setSize("98%","18px");
 
         setPanel(idsPanel, sessionIdsTextBox);
         tagsPanel.setBorderWidth(0);
-        sessionIdsTextBox.setSize("98%", "20px");
+        sessionIdsTextBox.setSize("98%", "18px");
 
         searchTabPanel.selectTab(0);
 

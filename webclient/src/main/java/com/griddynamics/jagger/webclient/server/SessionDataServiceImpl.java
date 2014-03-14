@@ -64,85 +64,11 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
 
     @Override
     public void saveTags(Long sessionData_id, List<TagDto> tags) {
-//        Set<TagEntity> tagEntities = new HashSet<TagEntity>();
-//        SessionData sessionData;
-//        for (TagDto tagDto : tags) {
-//            tagEntities.add(new TagEntity(tagDto.getName(), tagDto.getDescription()));
-//        }
-//        try {
-//            entityManager.getTransaction().begin();
-//            sessionData = (SessionData) entityManager.createQuery("select sd from SessionData as sd where sd.id  = (:sessionData_id)")
-//                    .setParameter("sessionData_id", sessionData_id)
-//                    .getSingleResult();
-//            if (sessionData != null) {
-//                sessionData.setTags(tagEntities);
-//                entityManager.merge(sessionData);
-//                entityManager.flush();
-//            }
-//        } finally {
-//            entityManager.getTransaction().commit();
-//        }
         dataSaverService.saveTags(sessionData_id,tags);
     }
 
     @Override
     public void saveUserComment(Long sessionData_id, String userComment) throws RuntimeException {
-
-//        Number number = (Number) entityManager.createQuery(
-//                "select count(*) from SessionMetaDataEntity as sm where sm.sessionData.id=:sessionData_id")
-//                .setParameter("sessionData_id", sessionData_id)
-//                .getSingleResult();
-//
-//        if (number.intValue() == 0) {
-//            // create new SessionMetaInfo
-//
-//            // do not save empty comments
-//            if (userComment.isEmpty()) {
-//                return;
-//            }
-//
-//            try {
-//                entityManager.getTransaction().begin();
-//                entityManager.createNativeQuery(
-//                        "insert into SessionMetaDataEntity (userComment, sessionData_id) " +
-//                                "values (:userComment, :sessionData_id)")
-//                        .setParameter("userComment", userComment)
-//                        .setParameter("sessionData_id", sessionData_id)
-//                        .executeUpdate();
-//
-//            } finally {
-//                entityManager.getTransaction().commit();
-//            }
-//        } else {
-//            // update/delete
-//
-//            if (userComment.isEmpty()) {
-//                // delete
-//                try {
-//                    entityManager.getTransaction().begin();
-//                    entityManager.createQuery(
-//                            "delete SessionMetaDataEntity where sessionData.id=:sessionData_id")
-//                            .setParameter("sessionData_id", sessionData_id)
-//                            .executeUpdate();
-//                } finally {
-//                    entityManager.getTransaction().commit();
-//                }
-//            } else {
-//
-//                // update
-//                try {
-//                    entityManager.getTransaction().begin();
-//                    entityManager.createNativeQuery(
-//                            "update SessionMetaDataEntity smd set smd.userComment=:userComment " +
-//                                    "where smd.sessionData_id=:sessionData_id")
-//                            .setParameter("userComment", userComment)
-//                            .setParameter("sessionData_id", sessionData_id)
-//                            .executeUpdate();
-//                } finally {
-//                    entityManager.getTransaction().commit();
-//                }
-//            }
-//        }
         dataSaverService.saveUserComment(sessionData_id,userComment);
     }
 

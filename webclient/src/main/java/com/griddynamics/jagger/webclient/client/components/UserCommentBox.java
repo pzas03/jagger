@@ -174,6 +174,9 @@ public class UserCommentBox extends AbstractWindow {
     private SessionDataDto currentSessionDataDto;
 
     public void popUp(SessionDataDto sessionDataDto, String userComment, SessionComparisonPanel.TreeItem item) {
+        if (sessionDataDto==null){
+            new ExceptionPanel("The session data has a value null. The session's id is wrong.");
+        }
         getApplyButton().removeFromParent();
         currentTreeItem = item;
         currentSessionDataDto = sessionDataDto;

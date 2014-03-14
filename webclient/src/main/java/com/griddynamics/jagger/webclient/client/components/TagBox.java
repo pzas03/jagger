@@ -15,6 +15,7 @@ import com.griddynamics.jagger.webclient.client.SessionDataService;
 import com.griddynamics.jagger.webclient.client.dto.SessionDataDto;
 import com.griddynamics.jagger.webclient.client.dto.TagDto;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
+import com.griddynamics.jagger.webclient.client.trends.TrendsPlace;
 import com.sencha.gxt.core.client.ValueProvider;
 import com.sencha.gxt.data.shared.*;
 import com.sencha.gxt.dnd.core.client.DndDropEvent;
@@ -215,9 +216,12 @@ public class TagBox extends AbstractWindow implements IsWidget {
 
 
     public void popUpForEdit(SessionDataDto currentSession, SessionComparisonPanel.TreeItem item, List<TagDto> allTags) {
+        if (currentSession==null){
+            new ExceptionPanel("The session data has a value null. The session's id is wrong.");
+        }
         getApplyButton().removeFromParent();
         this.currentSession=currentSession;
-        setText("Session " +currentSession.getSessionId());
+        setText("Session " + currentSession.getSessionId());
         setGrids(allTags, currentSession.getTags());
         currentTreeItem = item;
         show();
