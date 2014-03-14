@@ -116,7 +116,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                 " (" +
                 "  select wd.workloaddataID, td.id from " +
                 "    (" +
-                "     select distinct wd.id as workloaddataID, wd.sessionId, wd.taskId from WorkloadData wd where wd.sessionId in (:sessionIds)" +
+                "     select wd.id as workloaddataID, wd.sessionId, wd.taskId from WorkloadData wd where wd.sessionId in (:sessionIds)" +
                 "    ) as wd join   " +
                 "    ( " +
                 "     select td.taskId, td.sessionId, td.id from TaskData td where td.id in (:taskIds)" +
