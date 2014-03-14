@@ -14,7 +14,7 @@ import java.util.Set;
  * @since 5/29/12
  */
 public interface SessionDataServiceAsync {
-
+    
     void getAll(int start, int length, AsyncCallback<PagedSessionDataDto> async);
 
     void getBySessionId(String sessionId, AsyncCallback<SessionDataDto> async);

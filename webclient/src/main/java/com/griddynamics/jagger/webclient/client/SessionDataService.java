@@ -26,6 +26,7 @@ public interface SessionDataService extends RemoteService {
     List<TagDto> getAllTags();
     void saveUserComment(Long sessionData_id, String userComment);
     void saveTags(Long sessionData_id, List<TagDto> tags);
+    List<TagDto> getAllTags();
 
     public static class Async {
         private static final SessionDataServiceAsync ourInstance = (SessionDataServiceAsync) GWT.create(SessionDataService.class);
