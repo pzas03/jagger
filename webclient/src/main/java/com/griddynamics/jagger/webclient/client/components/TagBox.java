@@ -16,7 +16,9 @@ import com.griddynamics.jagger.webclient.client.dto.SessionDataDto;
 import com.griddynamics.jagger.webclient.client.dto.TagDto;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
 import com.sencha.gxt.core.client.ValueProvider;
-import com.sencha.gxt.data.shared.*;
+import com.sencha.gxt.data.shared.ListStore;
+import com.sencha.gxt.data.shared.ModelKeyProvider;
+import com.sencha.gxt.data.shared.PropertyAccess;
 import com.sencha.gxt.dnd.core.client.DndDropEvent;
 import com.sencha.gxt.dnd.core.client.GridDragSource;
 import com.sencha.gxt.dnd.core.client.GridDropTarget;
@@ -24,7 +26,6 @@ import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.event.RowMouseDownEvent;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
 import com.sencha.gxt.widget.core.client.event.SelectEvent.SelectHandler;
-
 import com.sencha.gxt.widget.core.client.grid.ColumnConfig;
 import com.sencha.gxt.widget.core.client.grid.ColumnModel;
 import com.sencha.gxt.widget.core.client.grid.Grid;
@@ -247,14 +248,6 @@ public class TagBox extends AbstractWindow implements IsWidget {
 
     @Override
     protected void onSaveButtonClick() {
-        String tags = "";
-        for (int i = 0; i < storeTo.size(); i++) {
-            if (i==storeTo.size()-1)
-                tags += storeTo.get(i).getName();
-            else
-                tags += storeTo.get(i).getName() + ", ";
-        }
-        currentTreeItem.put(getText(), tags);
         treeGrid.getTreeView().refresh(false);
         saveTagToDataBase();
     }
@@ -281,10 +274,11 @@ public class TagBox extends AbstractWindow implements IsWidget {
         }
     }
 
-    private void move(Grid<TagDto> gridFrom, Grid<TagDto> gridTo) {
+    private void move(Grid<TagDto> gridFrom, Grid<TagDto> gridTo){
+        if (gridFrom.getSelectionModel().getSelectedItems().isEmpty())
+            return;
         List<TagDto> selectedList = gridFrom.getSelectionModel().getSelectedItems();
         gridFrom.getSelectionModel().selectNext(false);
-        if (!gridFrom.getSelectionModel().getSelectedItems().isEmpty()) {
             descriptionPanel.setText(gridFrom.getSelectionModel().getSelectedItem().getDescription());
 
             gridTo.getSelectionModel().deselectAll();
@@ -293,7 +287,7 @@ public class TagBox extends AbstractWindow implements IsWidget {
             for (int i = 0; i < selectedList.size(); i++) {
                 gridFrom.getStore().remove(selectedList.get(i));
             }
-        }
+     
     }
     private void moveAll(Grid<TagDto> gridFrom, Grid<TagDto> gridTo){
         gridTo.getStore().addAll(gridFrom.getStore().getAll());
@@ -331,15 +325,21 @@ public class TagBox extends AbstractWindow implements IsWidget {
 
             @Override
             public void onFailure(Throwable caught) {
-                atClose();
                 new ExceptionPanel("Fail to save into DB session's tags : " + caught.getMessage());
+                atClose();
             }
 
             @Override
             public void onSuccess(Void result) {
+                String tags = "";
+                for (int i = 0; i < storeTo.size(); i++) {
+                    if (i==storeTo.size()-1)
+                        tags += storeTo.get(i).getName();
+                    else
+                        tags += storeTo.get(i).getName() + ", ";
+                }
+                currentTreeItem.put(getText(), tags);
                 currentSession.setTags(list);
-
-
                 treeGrid.getTreeView().refresh(false);
                 atClose();
             }
