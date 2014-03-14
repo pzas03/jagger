@@ -5,7 +5,6 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safecss.shared.SafeStyles;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
 import com.griddynamics.jagger.webclient.client.SessionDataService;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.griddynamics.jagger.webclient.client.data.WebClientProperties;
@@ -430,8 +429,6 @@ public class SessionComparisonPanel extends VerticalPanel {
         testInfo.put(NAME, TEST_INFO);
         testInfo.put(TEST_DESCRIPTION, test.getDescription());
         testInfo.put(TEST_NAME, testItemName);
-        treeStore.insert(testItem, 0 , testInfo);
-        testInfo.put(TEST_NAME, test.getTaskName());
         treeStore.insert(testItem, 0, testInfo);
 
         TreeItem clock = new TreeItem(testItem.getKey() + "Clock");
