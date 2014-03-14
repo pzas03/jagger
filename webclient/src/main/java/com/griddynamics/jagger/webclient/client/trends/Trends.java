@@ -860,7 +860,7 @@ public class Trends extends DefaultActivity {
 
                 String generalContent = sessionTagsTextBox.getText().trim();
 
-                // If session ID text box is empty then load all sessions
+                // If session tags text box is empty then load all sessions
                 if (generalContent.isEmpty()) {
                     sessionDataProvider.addDataDisplayIfNotExists(sessionsDataGrid);
                     sessionDataForSessionTagsAsyncProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
