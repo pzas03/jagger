@@ -576,13 +576,13 @@ public class SessionComparisonPanel extends VerticalPanel {
             if (webClientProperties.isUserCommentEditAvailable()) {
                 if (object.get(NAME).equals(USER_COMMENT) && !field.equals(NAME)) {
                     toShow = object.get(field).replaceAll("\n", "<br>");
-                    return penImageResource+toShow;
+                    return penImageResource + toShow;
                 }
             }
             if (webClientProperties.isTagsAvailable()) {
                 if (object.get(NAME).equals(SESSION_TAGS) && !field.equals(NAME)) {
                     toShow = object.get(field).replaceAll("\n", "<br>");
-                    return penImageResource+toShow;
+                    return penImageResource + toShow;
                 }
             }
             return object.get(field);

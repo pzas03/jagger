@@ -24,7 +24,6 @@ import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.event.RowMouseDownEvent;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
 import com.sencha.gxt.widget.core.client.event.SelectEvent.SelectHandler;
-
 import com.sencha.gxt.widget.core.client.grid.ColumnConfig;
 import com.sencha.gxt.widget.core.client.grid.ColumnModel;
 import com.sencha.gxt.widget.core.client.grid.Grid;
@@ -338,8 +337,6 @@ public class TagBox extends AbstractWindow implements IsWidget {
             @Override
             public void onSuccess(Void result) {
                 currentSession.setTags(list);
-
-
                 treeGrid.getTreeView().refresh(false);
                 atClose();
             }

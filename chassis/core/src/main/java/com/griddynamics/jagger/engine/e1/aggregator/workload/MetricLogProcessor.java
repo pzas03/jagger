@@ -21,15 +21,17 @@ package com.griddynamics.jagger.engine.e1.aggregator.workload;
 
 import com.griddynamics.jagger.coordinator.NodeId;
 import com.griddynamics.jagger.engine.e1.aggregator.session.model.TaskData;
-import com.griddynamics.jagger.engine.e1.aggregator.workload.model.*;
-import com.griddynamics.jagger.reporting.interval.IntervalSizeProvider;
+import com.griddynamics.jagger.engine.e1.aggregator.workload.model.MetricDescriptionEntity;
+import com.griddynamics.jagger.engine.e1.aggregator.workload.model.MetricPointEntity;
+import com.griddynamics.jagger.engine.e1.aggregator.workload.model.MetricSummaryEntity;
+import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadData;
 import com.griddynamics.jagger.engine.e1.collector.*;
 import com.griddynamics.jagger.engine.e1.scenario.WorkloadTask;
 import com.griddynamics.jagger.master.DistributionListener;
 import com.griddynamics.jagger.master.Master;
 import com.griddynamics.jagger.master.SessionIdProvider;
 import com.griddynamics.jagger.master.configuration.Task;
-import com.griddynamics.jagger.engine.e1.collector.MetricDescription;
+import com.griddynamics.jagger.reporting.interval.IntervalSizeProvider;
 import com.griddynamics.jagger.storage.FileStorage;
 import com.griddynamics.jagger.storage.KeyValueStorage;
 import com.griddynamics.jagger.storage.Namespace;
@@ -44,7 +46,10 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Set;
 
 
 /**
