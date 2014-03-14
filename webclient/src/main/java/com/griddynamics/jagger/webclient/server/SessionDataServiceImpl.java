@@ -29,19 +29,25 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
 
     private CommonDataServiceImpl commonDataService;
     private EntityManager entityManager;
+    private DataSaverServiceImpl dataSaverService;
 
     @PersistenceContext
     public void setEntityManager(EntityManager entityManager) {
         // have it's own Entity manager to store data.
-        this.entityManager = entityManager.getEntityManagerFactory().createEntityManager();
+        this.entityManager = entityManager;
+
     }
 
     public void setCommonDataService(CommonDataServiceImpl commonDataService) {
         this.commonDataService = commonDataService;
     }
 
+    public void setDataSaverService(DataSaverServiceImpl dataSaverService) {
+        this.dataSaverService = dataSaverService;
+    }
+
     @Override
-    public synchronized List<TagDto> getAllTags() {
+    public List<TagDto> getAllTags() {
 
         List<TagDto> allTags = new ArrayList<TagDto>();
         if (commonDataService.getWebClientProperties().isTagsStoreAvailable()) {
@@ -57,89 +63,91 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
     }
 
     @Override
-    public synchronized void saveTags(Long sessionData_id, List<TagDto> tags) {
-        Set<TagEntity> tagEntities = new HashSet<TagEntity>();
-        SessionData sessionData;
-        for (TagDto tagDto : tags) {
-            tagEntities.add(new TagEntity(tagDto.getName(), tagDto.getDescription()));
-        }
-        try {
-            entityManager.getTransaction().begin();
-            sessionData = (SessionData) entityManager.createQuery("select sd from SessionData as sd where sd.id  = (:sessionData_id)")
-                    .setParameter("sessionData_id", sessionData_id)
-                    .getSingleResult();
-            if (sessionData != null) {
-                sessionData.setTags(tagEntities);
-                entityManager.merge(sessionData);
-                entityManager.flush();
-            }
-        } finally {
-            entityManager.getTransaction().commit();
-        }
+    public void saveTags(Long sessionData_id, List<TagDto> tags) {
+//        Set<TagEntity> tagEntities = new HashSet<TagEntity>();
+//        SessionData sessionData;
+//        for (TagDto tagDto : tags) {
+//            tagEntities.add(new TagEntity(tagDto.getName(), tagDto.getDescription()));
+//        }
+//        try {
+//            entityManager.getTransaction().begin();
+//            sessionData = (SessionData) entityManager.createQuery("select sd from SessionData as sd where sd.id  = (:sessionData_id)")
+//                    .setParameter("sessionData_id", sessionData_id)
+//                    .getSingleResult();
+//            if (sessionData != null) {
+//                sessionData.setTags(tagEntities);
+//                entityManager.merge(sessionData);
+//                entityManager.flush();
+//            }
+//        } finally {
+//            entityManager.getTransaction().commit();
+//        }
+        dataSaverService.saveTags(sessionData_id,tags);
     }
 
     @Override
-    public synchronized void saveUserComment(Long sessionData_id, String userComment) throws RuntimeException {
+    public void saveUserComment(Long sessionData_id, String userComment) throws RuntimeException {
 
-        Number number = (Number) entityManager.createQuery(
-                "select count(*) from SessionMetaDataEntity as sm where sm.sessionData.id=:sessionData_id")
-                .setParameter("sessionData_id", sessionData_id)
-                .getSingleResult();
-
-        if (number.intValue() == 0) {
-            // create new SessionMetaInfo
-
-            // do not save empty comments
-            if (userComment.isEmpty()) {
-                return;
-            }
-
-            try {
-                entityManager.getTransaction().begin();
-                entityManager.createNativeQuery(
-                        "insert into SessionMetaDataEntity (userComment, sessionData_id) " +
-                                "values (:userComment, :sessionData_id)")
-                        .setParameter("userComment", userComment)
-                        .setParameter("sessionData_id", sessionData_id)
-                        .executeUpdate();
-
-            } finally {
-                entityManager.getTransaction().commit();
-            }
-        } else {
-            // update/delete
-
-            if (userComment.isEmpty()) {
-                // delete
-                try {
-                    entityManager.getTransaction().begin();
-                    entityManager.createQuery(
-                            "delete SessionMetaDataEntity where sessionData.id=:sessionData_id")
-                            .setParameter("sessionData_id", sessionData_id)
-                            .executeUpdate();
-                } finally {
-                    entityManager.getTransaction().commit();
-                }
-            } else {
-
-                // update
-                try {
-                    entityManager.getTransaction().begin();
-                    entityManager.createNativeQuery(
-                            "update SessionMetaDataEntity smd set smd.userComment=:userComment " +
-                                    "where smd.sessionData_id=:sessionData_id")
-                            .setParameter("userComment", userComment)
-                            .setParameter("sessionData_id", sessionData_id)
-                            .executeUpdate();
-                } finally {
-                    entityManager.getTransaction().commit();
-                }
-            }
-        }
+//        Number number = (Number) entityManager.createQuery(
+//                "select count(*) from SessionMetaDataEntity as sm where sm.sessionData.id=:sessionData_id")
+//                .setParameter("sessionData_id", sessionData_id)
+//                .getSingleResult();
+//
+//        if (number.intValue() == 0) {
+//            // create new SessionMetaInfo
+//
+//            // do not save empty comments
+//            if (userComment.isEmpty()) {
+//                return;
+//            }
+//
+//            try {
+//                entityManager.getTransaction().begin();
+//                entityManager.createNativeQuery(
+//                        "insert into SessionMetaDataEntity (userComment, sessionData_id) " +
+//                                "values (:userComment, :sessionData_id)")
+//                        .setParameter("userComment", userComment)
+//                        .setParameter("sessionData_id", sessionData_id)
+//                        .executeUpdate();
+//
+//            } finally {
+//                entityManager.getTransaction().commit();
+//            }
+//        } else {
+//            // update/delete
+//
+//            if (userComment.isEmpty()) {
+//                // delete
+//                try {
+//                    entityManager.getTransaction().begin();
+//                    entityManager.createQuery(
+//                            "delete SessionMetaDataEntity where sessionData.id=:sessionData_id")
+//                            .setParameter("sessionData_id", sessionData_id)
+//                            .executeUpdate();
+//                } finally {
+//                    entityManager.getTransaction().commit();
+//                }
+//            } else {
+//
+//                // update
+//                try {
+//                    entityManager.getTransaction().begin();
+//                    entityManager.createNativeQuery(
+//                            "update SessionMetaDataEntity smd set smd.userComment=:userComment " +
+//                                    "where smd.sessionData_id=:sessionData_id")
+//                            .setParameter("userComment", userComment)
+//                            .setParameter("sessionData_id", sessionData_id)
+//                            .executeUpdate();
+//                } finally {
+//                    entityManager.getTransaction().commit();
+//                }
+//            }
+//        }
+        dataSaverService.saveUserComment(sessionData_id,userComment);
     }
 
     @Override
-    public synchronized PagedSessionDataDto getAll(int start, int length) {
+    public PagedSessionDataDto getAll(int start, int length) {
         checkArgument(start >= 0, "start is negative");
         checkArgument(length >= 0, "length is negative");
 
@@ -164,7 +172,7 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
         return new PagedSessionDataDto(sessionDataDtoList, (int) totalSize);
     }
 
-    private synchronized List<SessionDataDto> getAllWithMetaData(int start, int length) {
+    private List<SessionDataDto> getAllWithMetaData(int start, int length) {
 
         @SuppressWarnings("unchecked")
         List<SessionData> sessionDataList = (List<SessionData>)
@@ -216,7 +224,7 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
     }
 
     @Override
-    public synchronized SessionDataDto getBySessionId(String sessionId) {
+    public  SessionDataDto getBySessionId(String sessionId) {
         checkNotNull(sessionId, "sessionId is null");
 
         long timestamp = System.currentTimeMillis();
@@ -268,7 +276,7 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
     }
 
     @Override
-    public synchronized PagedSessionDataDto getByDatePeriod(int start, int length, Date from, Date to) {
+    public PagedSessionDataDto getByDatePeriod(int start, int length, Date from, Date to) {
         checkArgument(start >= 0, "start is negative");
         checkArgument(length >= 0, "length is negative");
         checkNotNull(from, "from is null");
@@ -345,7 +353,7 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
     }
 
     @Override
-    public synchronized PagedSessionDataDto getBySessionIds(int start, int length, Set<String> sessionIds) {
+    public PagedSessionDataDto getBySessionIds(int start, int length, Set<String> sessionIds) {
         checkArgument(start >= 0, "start is negative");
         checkArgument(length >= 0, "length is negative");
         checkNotNull(sessionIds, "sessionIds is null");
@@ -422,7 +430,7 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
     }
 
     @Override
-    public synchronized PagedSessionDataDto getBySessionTagsName(int start, int length, Set<String> sessionTagNames) {
+    public PagedSessionDataDto getBySessionTagsName(int start, int length, Set<String> sessionTagNames) {
         checkArgument(start >= 0, "start is negative");
         checkArgument(length >= 0, "length is negative");
         checkNotNull(sessionTagNames, "sessionTagNames is null");
