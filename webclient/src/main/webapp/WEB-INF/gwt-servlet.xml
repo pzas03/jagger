@@ -53,6 +53,7 @@
                 <entry key="/ControlTreeCreatorService" value-ref="controlTreeCreatorService"/>
                 <entry key="/NodeInfoService" value-ref="nodeInfoService"/>
                 <entry key="/CommonDataService" value-ref="commonDataService"/>
+                <entry key="/TestInfoService" value-ref="testInfoService"/>
             </map>
         </property>
     </bean>
@@ -82,7 +83,7 @@
     <bean id="executorService" class="java.util.concurrent.Executors"
           factory-method="newFixedThreadPool"
           destroy-method="shutdownNow">
-        <constructor-arg value="10"/>
+        <constructor-arg value="15"/>
     </bean>
 
     <bean id="databaseFetcher" class="com.griddynamics.jagger.webclient.server.CommonDataProviderImpl">
@@ -97,6 +98,8 @@
     <bean id="sessionDataService" class="com.griddynamics.jagger.webclient.server.SessionDataServiceImpl">
         <property name="commonDataService" ref="commonDataService"/>
     </bean>
+
+    <bean id="testInfoService" class="com.griddynamics.jagger.webclient.server.TestInfoServiceImpl"/>
 
     <bean id="commonDataService" class="com.griddynamics.jagger.webclient.server.CommonDataServiceImpl">
         <property name="commonDataProvider" ref="databaseFetcher"/>
@@ -124,7 +127,40 @@
     <bean id="workloadDataService" class="com.griddynamics.jagger.webclient.server.WorkloadServiceImpl"/>
     <bean id="workloadTaskDataService" class="com.griddynamics.jagger.webclient.server.WorkloadTaskDataServiceImpl"/>
     -->
-    <bean id="metricDataService" class="com.griddynamics.jagger.webclient.server.MetricDataServiceImpl"/>
+
+    <!--=======Fetching data for Summary table=========-->
+
+    <bean id="metricDataService" class="com.griddynamics.jagger.webclient.server.MetricDataServiceImpl">
+        <property name="standardMetricSummaryFetcher" ref="standardMetricSummaryFetcher"/>
+        <property name="durationMetricSummaryFetcher" ref="durationMetricSummaryFetcher"/>
+        <property name="customMetricSummaryFetcher" ref="customMetricSummaryFetcher"/>
+        <property name="latencyMetricDataFetcher" ref="latencyMetricSummaryFetcher"/>
+        <property name="validatorSummaryFetcher" ref="validatorSummaryFetcher"/>
+        <property name="threadPool" ref="executorService"/>
+    </bean>
+
+    <bean id="standardMetricSummaryFetcher" class="com.griddynamics.jagger.webclient.server.fetch.implementation.StandardMetricSummaryFetcher">
+        <property name="threadPool" ref="executorService"/>
+        <property name="maxSizeOfBatch" value="10000"/> <!-- optional. default value = 10000 -->
+    </bean>
+
+    <bean id="durationMetricSummaryFetcher" class="com.griddynamics.jagger.webclient.server.fetch.implementation.DurationMetricSummaryFetcher">
+        <property name="threadPool" ref="executorService"/>
+    </bean>
+
+    <bean id="latencyMetricSummaryFetcher" class="com.griddynamics.jagger.webclient.server.fetch.implementation.LatencyMetricSummaryFetcher">
+        <property name="threadPool" ref="executorService"/>
+    </bean>
+
+    <bean id="customMetricSummaryFetcher" class="com.griddynamics.jagger.webclient.server.fetch.implementation.CustomMetricSummaryFetcher">
+        <property name="threadPool" ref="executorService"/>
+    </bean>
+
+    <bean id="validatorSummaryFetcher" class="com.griddynamics.jagger.webclient.server.fetch.implementation.ValidatorSummaryFetcher">
+        <property name="threadPool" ref="executorService"/>
+    </bean>
+
+
 
     <!--==========Legend Provider==========-->
     <bean id="legendProvider" class="com.griddynamics.jagger.webclient.server.LegendProvider"/>
