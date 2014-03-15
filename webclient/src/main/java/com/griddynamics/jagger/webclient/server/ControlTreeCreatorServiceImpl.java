@@ -73,13 +73,14 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
 
             Future<SummaryNode> summaryFuture = threadPool.submit(new SummaryNodeFetcherTread(sessionIds, taskList));
             Future<DetailsNode> detailsNodeFuture = threadPool.submit(new DetailsNodeFetcherTread(sessionIds, taskList));
-            Future<SessionScopePlotsNode> sessionScopePlotsNodeFuture = threadPool.submit(new SessionScopePlotsNodeFetcherThread(sessionIds));
+            //Future<SessionScopePlotsNode> sessionScopePlotsNodeFuture = threadPool.submit(new SessionScopePlotsNodeFetcherThread(sessionIds));
 
             SummaryNode summaryNode = summaryFuture.get();
             DetailsNode detailsNode = detailsNodeFuture.get();
-            SessionScopePlotsNode sessionScopePlotsNode = sessionScopePlotsNodeFuture.get();
+            //SessionScopePlotsNode sessionScopePlotsNode = sessionScopePlotsNodeFuture.get();
 
-            detailsNode.setSessionScopePlotsNode(sessionScopePlotsNode);
+            //??? temporary disabled session scope plots while transfering monitoring to metrics
+            //detailsNode.setSessionScopePlotsNode(sessionScopePlotsNode);
 
             rootNode.setSummary(summaryNode);
             rootNode.setDetailsNode(detailsNode);
@@ -193,7 +194,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
         return databaseFetcher.getTestMetricsMap(tddos, threadPool);
     }
 
-
+    //??? what is the goal of this function
     private List<TestInfoLeaf> getTestInfoNamesList(TaskDataDto task) {
         return Collections.EMPTY_LIST;
     }
@@ -203,7 +204,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
         return databaseFetcher.getMonitoringPlotNodes(sessionIds, tdds);
     }
 
-
+    //??? what is the goal of this function
     private List<SessionInfoLeaf> getSessionInfoLeafList(Set<String> sessionIds) {
         return Collections.EMPTY_LIST;
     }

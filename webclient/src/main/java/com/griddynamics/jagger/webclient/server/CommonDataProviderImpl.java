@@ -659,7 +659,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                         .getResultList();
         log.debug("db call to fetch all MonitoringPlotNames for tests in {} ms (size: {})", System.currentTimeMillis() - temp, agentIdentifierObjects.size());
 
-        Map<TaskDataDto, List<PlotNode>> resultMap = new HashMap<TaskDataDto, List<PlotNode>>();
+        Map<TaskDataDto, Set<PlotNode>> resultMap = new HashMap<TaskDataDto, Set<PlotNode>>();
 
         // create relation: monitoring param - agents, where it was collected
         Map<String,Set<String>> agentNames = new HashMap<String, Set<String>>();
@@ -671,7 +671,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
             for (TaskDataDto tdd : taskSet) {
                 if (monitoringIdsMap.get(tdd).contains(testId)) {
                     if (!resultMap.containsKey(tdd)) {
-                        resultMap.put(tdd, new ArrayList<PlotNode>());
+                        resultMap.put(tdd, new HashSet<PlotNode>());
                     }
 
                     String monitoringId = null;     // Id of particular metric
@@ -716,9 +716,14 @@ public class CommonDataProviderImpl implements CommonDataProvider {
             }
         }
 
+        // set to list
+        Map<TaskDataDto, List<PlotNode>> newResultMap = new HashMap<TaskDataDto, List<PlotNode>>();
+        for (TaskDataDto taskDataDto: resultMap.keySet()) {
+            newResultMap.put(taskDataDto,new ArrayList<PlotNode>(resultMap.get(taskDataDto)));
+        }
         // return parameter just combines two independent elements
         MonitoringSupportDto monitoringSupportDto = new MonitoringSupportDto();
-        monitoringSupportDto.init(resultMap,agentNames);
+        monitoringSupportDto.init(newResultMap, agentNames);
 
         return monitoringSupportDto;
     }
