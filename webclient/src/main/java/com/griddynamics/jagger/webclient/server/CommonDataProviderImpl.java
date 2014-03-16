@@ -7,6 +7,7 @@ import com.griddynamics.jagger.webclient.client.components.control.model.MetricN
 import com.griddynamics.jagger.webclient.client.components.control.model.MonitoringSessionScopePlotNode;
 import com.griddynamics.jagger.webclient.client.components.control.model.PlotNode;
 import com.griddynamics.jagger.webclient.client.components.control.model.SessionPlotNode;
+import com.griddynamics.jagger.util.AgentUtils;
 import com.griddynamics.jagger.webclient.client.data.MetricRankingProvider;
 import com.griddynamics.jagger.webclient.client.data.WebClientProperties;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
@@ -183,41 +184,17 @@ public class CommonDataProviderImpl implements CommonDataProvider {
 
 
     public Set<MetricNameDto> getCustomMetricsNamesNewModel(List<TaskDataDto> tests) {
-
         try {
-            Set<Long> taskIds = new HashSet<Long>();
-            for (TaskDataDto tdd : tests) {
-                taskIds.addAll(tdd.getIds());
-            }
-
-            List<Object[]> metricDescriptionEntities = entityManager.createQuery(
-                    "select mse.metricDescription.metricId, mse.metricDescription.displayName, mse.metricDescription.taskData.id " +
-                            "from MetricSummaryEntity as mse where mse.metricDescription.taskData.id in (:taskIds)")
-                    .setParameter("taskIds", taskIds)
-                    .getResultList();
-
-            if (metricDescriptionEntities.isEmpty()) {
-                return Collections.EMPTY_SET;
-            }
-
-            Set<MetricNameDto>  metrics = new HashSet<MetricNameDto>(metricDescriptionEntities.size());
-
-            for (Object[] mde : metricDescriptionEntities) {
-                for (TaskDataDto td : tests) {
-                    if (td.getIds().contains((Long) mde[2])) {
-                        MetricNameDto metric = new MetricNameDto();
-                        metric.setTest(td);
-                        metric.setMetricName((String) mde[0]);
-                        metric.setMetricDisplayName((String) mde[1]);
-                        metric.setOrigin(MetricNameDto.Origin.METRIC);
-                        metrics.add(metric);
-                        break;
-                    }
+            return CustomMetricDataProvider.getMetricNames(entityManager, tests, new MetricDescriptionLoader() {
+                @Override
+                public List<Object[]> loadTestsMetricDescriptions(Set<Long> ids) {
+                    return entityManager.createQuery(
+                            "select mse.metricDescription.metricId, mse.metricDescription.displayName, mse.metricDescription.taskData.id " +
+                                    "from MetricSummaryEntity as mse where mse.metricDescription.taskData.id in (:taskIds)")
+                            .setParameter("taskIds", ids)
+                            .getResultList();
                 }
-            }
-
-            return metrics;
-
+            });
         } catch (PersistenceException e) {
             log.debug("Could not fetch data from MetricSummaryEntity: {}", DataProcessingUtil.getMessageFromLastCause(e));
             return Collections.EMPTY_SET;
@@ -654,7 +631,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
 
             SessionPlotNode plotNode = new SessionPlotNode();
             String agentIdenty = objects[0] == null ? objects[1].toString() : objects[0].toString();
-            plotNode.setPlotNameDto(new SessionPlotNameDto(sessionIds, groupKey + AGENT_NAME_SEPARATOR + agentIdenty));
+            plotNode.setPlotNameDto(new SessionPlotNameDto(sessionIds, AgentUtils.getMonitoringMetricId(groupKey, agentIdenty)));
             plotNode.setDisplayName(agentIdenty);
             String id = METRICS_PREFIX + groupKey + agentIdenty;
             plotNode.setId(id);
@@ -737,7 +714,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                     String id = METRICS_PREFIX + tdd.hashCode() + "_" + monitoringId + "_" + agentId;
                     // important! Id of metric (aka metricName) is used in rules for control tree creation, in plot provider to fetch data, in trends to process hyperlinks.
                     // Don't change id without reason
-                    MetricNameDto metricNameDto = new MetricNameDto(tdd, monitoringId + AGENT_NAME_SEPARATOR + agentId);
+                    MetricNameDto metricNameDto = new MetricNameDto(tdd, AgentUtils.getMonitoringMetricId(monitoringId,agentId));
                     metricNameDto.setOrigin(MetricNameDto.Origin.MONITORING);
                     plotNode.init(id, id, Arrays.asList(metricNameDto));
 
