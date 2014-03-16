@@ -4,7 +4,6 @@ import com.griddynamics.jagger.webclient.client.components.control.model.MetricN
 import com.griddynamics.jagger.webclient.client.components.control.model.MonitoringSessionScopePlotNode;
 import com.griddynamics.jagger.webclient.client.components.control.model.PlotNode;
 import com.griddynamics.jagger.webclient.client.data.WebClientProperties;
-import com.griddynamics.jagger.webclient.client.dto.MonitoringSupportDto;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 
 import java.util.List;
@@ -21,7 +20,7 @@ public interface CommonDataProvider {
 
     List<TaskDataDto> getTaskDataForSessions(Set<String> sessionIds);
 
-    MonitoringSupportDto getMonitoringPlotNodes(Set<String> sessionIds, List<TaskDataDto> task);
+    Map<TaskDataDto, List<PlotNode>> getMonitoringPlotNodes(Set<String> sessionIds, List<TaskDataDto> task);
 
     List<MonitoringSessionScopePlotNode> getSessionScopeMonitoringPlotNodes(Set<String> sessionIds);
 
@@ -31,6 +30,6 @@ public interface CommonDataProvider {
 
     WebClientProperties getWebClientProperties();
 
-    Map<String,List<String>> getDefaultMonitoringParameters();
+    Map<String,Set<String>> getDefaultMonitoringParameters();
 
 }

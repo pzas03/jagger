@@ -97,7 +97,7 @@ public class CustomMetricDataProvider {
      * @return list of object[] (taskdata id, parent id, session id)
      */
     private static List<Object[]> getParents(EntityManager entityManager, Set<Long> taskIds){
-        return entityManager.createNativeQuery("select taskdata.id, workloadData.parentId, taskData.sessionId from TaskData taskData inner join " +
+        return entityManager.createNativeQuery("select taskData.id, workloadData.parentId, taskData.sessionId from TaskData taskData inner join " +
                 "WorkloadData workloadData on taskData.taskId = workloadData.taskId " +
                 " and taskData.sessionId = workloadData.sessionId where taskData.id in (:ids);").setParameter("ids", taskIds).getResultList();
     }
@@ -107,7 +107,7 @@ public class CustomMetricDataProvider {
      */
     private static List<Object[]> getTestGroups(EntityManager entityManager, Set<Long> taskIds){
         return entityManager.createNativeQuery("select task.id, task.taskId, task.sessionId from TaskData task inner join " +
-                "(select taskdata.id, taskData.taskId, workloadData.parentId, taskData.sessionId from TaskData taskData " +
+                "(select taskData.id, taskData.taskId, workloadData.parentId, taskData.sessionId from TaskData taskData " +
                 "inner join WorkloadData workloadData on  taskData.taskId=workloadData.taskId " +
                 "and taskData.sessionId=workloadData.sessionId  where taskData.id in (:ids)) parents " +
                 "on task.taskId=parents.parentId and task.sessionId=parents.sessionId;").setParameter("ids", taskIds).getResultList();

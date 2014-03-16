@@ -3,8 +3,8 @@ package com.griddynamics.jagger.webclient.server;
 import com.griddynamics.jagger.webclient.client.CommonDataService;
 import com.griddynamics.jagger.webclient.client.data.WebClientProperties;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class CommonDataServiceImpl implements CommonDataService {
 
@@ -16,7 +16,7 @@ public class CommonDataServiceImpl implements CommonDataService {
     }
 
     @Override
-    public Map<String,List<String>> getDefaultMonitoringParameters() {
+    public Map<String,Set<String>> getDefaultMonitoringParameters() {
         return commonDataProvider.getDefaultMonitoringParameters();
     }
 

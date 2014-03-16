@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.util.*;
 
@@ -160,24 +161,30 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
 
             WorkloadData workloadData = findWorkloadDataBySessionIdAndTaskId(workloadTaskData.getSessionId(), workloadTaskData.getTaskId());
 
-            TaskData monitoringTaskData = findMonitoringTaskDataBySessionIdAndParentId(workloadData.getSessionId(), workloadData.getParentId());
+            //??? metricNameDto contains taskId even for tasks, where there is already no monitoring data avalable
+            try {
+                TaskData monitoringTaskData = findMonitoringTaskDataBySessionIdAndParentId(workloadData.getSessionId(), workloadData.getParentId());
 
-            // todo here we fetching all MonitoringStatistic entity with TaskData in it. may be it could be simplified.
-            List<MonitoringStatistics> monitoringStatisticsList = findAllMonitoringStatisticsByMonitoringTaskDataAndDescriptionInList(monitoringTaskData, monitoringParametersList, agentIdentifier);
+                // todo here we fetching all MonitoringStatistic entity with TaskData in it. may be it could be simplified.
+                List<MonitoringStatistics> monitoringStatisticsList = findAllMonitoringStatisticsByMonitoringTaskDataAndDescriptionInList(monitoringTaskData, monitoringParametersList, agentIdentifier);
 
-            Map<String, Map<String, List<MonitoringStatistics>>> composedMap = composeByBoxIdentifierAndDescription(monitoringStatisticsList, true);
+                Map<String, Map<String, List<MonitoringStatistics>>> composedMap = composeByBoxIdentifierAndDescription(monitoringStatisticsList, true);
 
-            for (Map.Entry<String, Map<String, List<MonitoringStatistics>>> boxEntry : composedMap.entrySet()) {
-                if (!finalComposedMap.containsKey(boxEntry.getKey())) {
-                    finalComposedMap.put(boxEntry.getKey(), new HashMap<String, List<MonitoringStatistics>>());
-                }
-
-                for (Map.Entry<String, List<MonitoringStatistics>> descrEntry : boxEntry.getValue().entrySet()) {
-                    if (!finalComposedMap.get(boxEntry.getKey()).containsKey(descrEntry.getKey())) {
-                        finalComposedMap.get(boxEntry.getKey()).put(descrEntry.getKey(), new ArrayList<MonitoringStatistics>());
+                for (Map.Entry<String, Map<String, List<MonitoringStatistics>>> boxEntry : composedMap.entrySet()) {
+                    if (!finalComposedMap.containsKey(boxEntry.getKey())) {
+                        finalComposedMap.put(boxEntry.getKey(), new HashMap<String, List<MonitoringStatistics>>());
                     }
-                    finalComposedMap.get(boxEntry.getKey()).get(descrEntry.getKey()).addAll(descrEntry.getValue());
+
+                    for (Map.Entry<String, List<MonitoringStatistics>> descrEntry : boxEntry.getValue().entrySet()) {
+                        if (!finalComposedMap.get(boxEntry.getKey()).containsKey(descrEntry.getKey())) {
+                            finalComposedMap.get(boxEntry.getKey()).put(descrEntry.getKey(), new ArrayList<MonitoringStatistics>());
+                        }
+                        finalComposedMap.get(boxEntry.getKey()).get(descrEntry.getKey()).addAll(descrEntry.getValue());
+                    }
                 }
+            }
+            catch (NoResultException ex) {
+                log.error("Not able to fetch monitoring data for session id: " + workloadData.getSessionId() + " task id: " + taskId, ex);
             }
         }
 

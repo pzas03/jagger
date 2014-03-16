@@ -81,7 +81,14 @@ public class AgentUtils {
         return services.split(JMX_SERVICE_SEPARATOR);
     }
 
-    public static String getMonitoringMetricId(String monitoringName, String nodeId){
-        return monitoringName + AGENT_NAME_SEPARATOR + nodeId;
+    // keep functionality of following functions dependent
+    // direct
+    public static String getMonitoringMetricId(String monitoringName, String agentName){
+        return monitoringName + AGENT_NAME_SEPARATOR + agentName; //??? may be additional ANS after agent name
     }
+    // backwards
+    public static String[] splitMonitoringMetricId(String monitoringMetricId) {
+        return monitoringMetricId.split("\\" + AGENT_NAME_SEPARATOR); // escape special char for regex
+    }
+
 }

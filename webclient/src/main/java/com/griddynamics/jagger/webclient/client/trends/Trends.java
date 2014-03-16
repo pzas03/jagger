@@ -409,11 +409,11 @@ public class Trends extends DefaultActivity {
         });
     }
 
-    private Map<String,List<String>> defaultMonitoringParameters;
+    private Map<String,Set<String>> defaultMonitoringParameters;
 
     public void getDefaultMonitoringParameters(){
 
-        CommonDataService.Async.getInstance().getDefaultMonitoringParameters(new AsyncCallback<Map<String, List<String>>>() {
+        CommonDataService.Async.getInstance().getDefaultMonitoringParameters(new AsyncCallback<Map<String, Set<String>>>() {
             @Override
             public void onFailure(Throwable caught) {
                 new ExceptionPanel("Failed to get description of default monitoring parameters. Exception while description fetching: " + caught.getMessage());
@@ -421,7 +421,7 @@ public class Trends extends DefaultActivity {
             }
 
             @Override
-            public void onSuccess(Map<String, List<String>> result) {
+            public void onSuccess(Map<String, Set<String>> result) {
                 defaultMonitoringParameters = result;
             }
         });

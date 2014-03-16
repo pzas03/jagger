@@ -27,7 +27,10 @@ import com.griddynamics.jagger.agent.model.SystemInfo;
 import com.griddynamics.jagger.agent.model.SystemUnderTestInfo;
 import com.griddynamics.jagger.coordinator.NodeContext;
 import com.griddynamics.jagger.coordinator.NodeId;
-import com.griddynamics.jagger.engine.e1.collector.*;
+import com.griddynamics.jagger.engine.e1.collector.AvgMetricAggregatorProvider;
+import com.griddynamics.jagger.engine.e1.collector.MetricAggregatorProvider;
+import com.griddynamics.jagger.engine.e1.collector.MetricDescription;
+import com.griddynamics.jagger.engine.e1.collector.SumMetricAggregatorProvider;
 import com.griddynamics.jagger.engine.e1.services.DefaultMetricService;
 import com.griddynamics.jagger.engine.e1.services.MetricService;
 import com.griddynamics.jagger.util.AgentUtils;
@@ -43,6 +46,7 @@ import java.util.Map;
 public class LoggingMonitoringProcessor implements MonitoringProcessor {
     private Logger log = LoggerFactory.getLogger(LoggingMonitoringProcessor.class);
 
+    //??? do we still need it
     public static final String MONITORING_MARKER = "MONITORING";
 
     private Map<String, MetricService> metricServiceMap = new HashMap<String, MetricService>();
@@ -59,8 +63,10 @@ public class LoggingMonitoringProcessor implements MonitoringProcessor {
         saveMonitoringValues(serviceId, agentId.getIdentifier(), systemInfo.getSysInfo());
 
         // save jmx metrics
-        for (Map.Entry<String, SystemUnderTestInfo> entry : systemInfo.getSysUnderTest().entrySet()){
-            saveMonitoringValues(serviceId, entry.getKey(), entry.getValue().getSysUTInfo());
+        if (systemInfo.getSysUnderTest() != null) {
+            for (Map.Entry<String, SystemUnderTestInfo> entry : systemInfo.getSysUnderTest().entrySet()){
+                saveMonitoringValues(serviceId, entry.getKey(), entry.getValue().getSysUTInfo());
+            }
         }
 
         log.trace("System info {} received from agent {} and has been written to FileStorage", systemInfo, agentId);

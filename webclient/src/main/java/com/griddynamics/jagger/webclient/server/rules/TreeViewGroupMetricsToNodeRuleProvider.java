@@ -23,7 +23,7 @@ public class TreeViewGroupMetricsToNodeRuleProvider {
         List<TreeViewGroupMetricsToNodeRule> result = new ArrayList<TreeViewGroupMetricsToNodeRule>();
 
         // Create rules to combine default monitor parameters
-        if (agentNames != null) {
+        if ((agentNames != null) && (agentNames.size() > 0)) {
             for(Map.Entry<GroupKey,DefaultMonitoringParameters[]> groupKeyEntry : monitoringPlotGroups.entrySet()) {
                 String metricDisplayName = groupKeyEntry.getKey().getUpperName();
 
