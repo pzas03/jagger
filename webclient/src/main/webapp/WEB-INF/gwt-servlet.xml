@@ -63,15 +63,6 @@
         <constructor-arg index="1" value="${plot.data.compressing.minCountForProcessing}"/>
     </bean>
 
-    <bean id="plotProviderService" class="com.griddynamics.jagger.webclient.server.PlotProviderServiceImpl">
-        <property name="compressingProcessor" ref="dataPointCompressingProcessor"/>
-        <property name="monitoringPlotDataProvider" ref="monitoringPlotDataProvider"/>
-        <property name="throughputPlotDataProvider" ref="throughputPlotDataProvider"/>
-        <property name="latencyPlotDataProvider" ref="latencyPlotDataProvider"/>
-        <property name="timeLatencyPercentilePlotDataProvider" ref="timeLatencyPercentilePlotDataProvider"/>
-        <property name="customMetricPlotDataProvider" ref="customMetricPlotDataProvider"/>
-        <property name="legendProvider" ref="legendProvider"/>
-    </bean>
 
     <bean id="controlTreeCreatorService" class="com.griddynamics.jagger.webclient.server.ControlTreeCreatorServiceImpl" >
         <property name="databaseFetcher" ref="databaseFetcher" />
@@ -79,13 +70,14 @@
     </bean>
 
     <bean id="executorService" class="java.util.concurrent.Executors"
-          factory-method="newFixedThreadPool"
+          factory-method="newCachedThreadPool"
           destroy-method="shutdownNow">
-        <constructor-arg value="15"/>
     </bean>
 
+    <bean id="fetchUtil" class="com.griddynamics.jagger.webclient.server.fetch.FetchUtil"/>
+
     <bean id="databaseFetcher" class="com.griddynamics.jagger.webclient.server.CommonDataProviderImpl">
-        <property name="customMetricPlotDataProvider" ref="customMetricPlotDataProvider"/>
+        <property name="customMetricPlotNameProvider" ref="customMetricPlotNameProvider"/>
         <property name="monitoringPlotGroups" ref="monitoringPlotGroups"/>
         <property name="workloadPlotGroups" ref="workloadPlotGroups"/>
         <property name="standardMetricNameDtoList" ref="standardMetricNameDtoList"/>
@@ -120,6 +112,51 @@
     <bean id="workloadDataService" class="com.griddynamics.jagger.webclient.server.WorkloadServiceImpl"/>
     <bean id="workloadTaskDataService" class="com.griddynamics.jagger.webclient.server.WorkloadTaskDataServiceImpl"/>
     -->
+
+    <!--=======Fetching plots=========-->
+
+    <bean id="plotProviderService" class="com.griddynamics.jagger.webclient.server.PlotProviderServiceImpl">
+        <property name="compressingProcessor" ref="dataPointCompressingProcessor"/>
+        <property name="monitoringPlotDataProvider" ref="monitoringPlotDataProvider"/>
+
+        <property name="legendProvider" ref="legendProvider"/>
+
+        <property name="throughputMetricPlotFetcher" ref="throughputMetricPlotFetcher"/>
+        <property name="latencyMetricPlotFetcher" ref="latencyMetricPlotFetcher"/>
+        <property name="timeLatencyPercentileMetricPlotFetcher" ref="timeLatencyPersentileMetricPlotFetcher"/>
+        <property name="customMetricPlotFetcher" ref="customMetricPlotFetcher"/>
+        <property name="monitoringMetricPlotFetcher" ref="monitoringMetricPlotFetcher"/>
+
+        <property name="threadPool" ref="executorService"/>
+    </bean>
+
+    <bean id="throughputMetricPlotFetcher" class="com.griddynamics.jagger.webclient.server.fetch.implementation.ThroughputMetricPlotFetcher">
+        <property name="legendProvider" ref="legendProvider"/>
+        <property name="threadPool" ref="executorService"/>
+    </bean>
+
+    <bean id="latencyMetricPlotFetcher" class="com.griddynamics.jagger.webclient.server.fetch.implementation.LatencyMetricPlotFetcher">
+        <property name="legendProvider" ref="legendProvider"/>
+        <property name="threadPool" ref="executorService"/>
+    </bean>
+
+    <bean id="timeLatencyPersentileMetricPlotFetcher" class="com.griddynamics.jagger.webclient.server.fetch.implementation.TimeLatencyPercentileMetricPlotFetcher">
+        <property name="legendProvider" ref="legendProvider"/>
+        <property name="threadPool" ref="executorService"/>
+    </bean>
+
+    <bean id="customMetricPlotFetcher" class="com.griddynamics.jagger.webclient.server.fetch.implementation.CustomMetricPlotFetcher">
+        <property name="legendProvider" ref="legendProvider"/>
+        <property name="threadPool" ref="executorService"/>
+    </bean>
+
+    <bean id="monitoringMetricPlotFetcher" class="com.griddynamics.jagger.webclient.server.fetch.implementation.MonitoringMetricPlotFetcher">
+        <property name="legendProvider" ref="legendProvider"/>
+        <property name="threadPool" ref="executorService"/>
+        <property name="monitoringPlotGroups" ref="monitoringPlotGroups"/>
+    </bean>
+
+
 
     <!--=======Fetching data for Summary table=========-->
 
@@ -159,24 +196,14 @@
         <property name="threadPool" ref="executorService"/>
     </bean>
 
-    <bean id="fetchUtil" class="com.griddynamics.jagger.webclient.server.fetch.FetchUtil"/>
+
 
     <!--==========Legend Provider==========-->
     <bean id="legendProvider" class="com.griddynamics.jagger.webclient.server.LegendProvider"/>
 
     <!--==========Workload Plot Data Providers-->
-    <bean id="throughputPlotDataProvider" class="com.griddynamics.jagger.webclient.server.plot.ThroughputPlotDataProvider">
-        <property name="legendProvider" ref="legendProvider"/>
-    </bean>
-    <bean id="latencyPlotDataProvider" class="com.griddynamics.jagger.webclient.server.plot.LatencyPlotDataProvider">
-        <property name="legendProvider" ref="legendProvider"/>
-    </bean>
-    <bean id="timeLatencyPercentilePlotDataProvider" class="com.griddynamics.jagger.webclient.server.plot.TimeLatencyPercentilePlotDataProvider">
-        <property name="legendProvider" ref="legendProvider"/>
-    </bean>
 
-    <bean id="customMetricPlotDataProvider" class="com.griddynamics.jagger.webclient.server.plot.CustomMetricPlotDataProvider">
-        <property name="legendProvider" ref="legendProvider"/>
+    <bean id="customMetricPlotNameProvider" class="com.griddynamics.jagger.webclient.server.plot.CustomMetricPlotNameProvider">
         <property name="fetchUtil" ref="fetchUtil"/>
         <property name="monitoringPlotGroups" ref="monitoringPlotGroups"/>
     </bean>

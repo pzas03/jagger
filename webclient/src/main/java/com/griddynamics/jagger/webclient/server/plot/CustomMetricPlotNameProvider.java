@@ -1,12 +1,12 @@
 package com.griddynamics.jagger.webclient.server.plot;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.griddynamics.jagger.agent.model.DefaultMonitoringParameters;
 import com.griddynamics.jagger.monitoring.reporting.GroupKey;
 import com.griddynamics.jagger.util.AgentUtils;
 import com.griddynamics.jagger.webclient.client.dto.*;
-import com.griddynamics.jagger.webclient.server.*;
+import com.griddynamics.jagger.webclient.server.CommonUtils;
+import com.griddynamics.jagger.webclient.server.DataProcessingUtil;
 import com.griddynamics.jagger.webclient.server.fetch.FetchUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,20 +24,14 @@ import java.util.*;
  * Time: 1:45 PM
  * To change this template use File | Settings | File Templates.
  */
-public class CustomMetricPlotDataProvider implements PlotDataProvider{
+public class CustomMetricPlotNameProvider {
 
-    Logger log = LoggerFactory.getLogger(CustomMetricPlotDataProvider.class);
+    Logger log = LoggerFactory.getLogger(CustomMetricPlotNameProvider.class);
 
-    private LegendProvider legendProvider;
     private FetchUtil fetchUtil;
     private Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups;
 
-
     private EntityManager entityManager;
-
-    public void setLegendProvider(LegendProvider legendProvider) {
-        this.legendProvider = legendProvider;
-    }
 
     @PersistenceContext
     public void setEntityManager(EntityManager entityManager) {
@@ -85,7 +79,7 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
 
 
         if (plotNames.isEmpty()) {
-            return Collections.EMPTY_SET;
+            return Collections.emptySet();
         }
 
         Set<MetricNameDto> result = new HashSet<MetricNameDto>(plotNames.size());
@@ -168,7 +162,6 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
             log.debug("Could not fetch test-group metric plot names from MetricPointEntity: {}", DataProcessingUtil.getMessageFromLastCause(e));
             return Collections.EMPTY_SET;
         }
-
     }
 
     private List<Object[]> getMetricNames(Set<Long> testIds){
@@ -217,87 +210,4 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
         return origin;
     }
 
-
-    @Override
-    public List<PlotSeriesDto> getPlotData(MetricNameDto metricNameDto) {
-
-        String displayName = metricNameDto.getMetricDisplayName();
-
-        long temp = System.currentTimeMillis();
-
-        // check new way
-        List<Object[]> metricValues = new ArrayList<Object[]>();
-
-        metricValues.addAll(getPlotDataNewModel(metricNameDto));
-
-        // check old way
-        metricValues.addAll(getPlotDataOldModel(metricNameDto));
-
-        log.debug("Fetch metric plots in count of {} in: {}", metricValues.size(), (System.currentTimeMillis() - temp));
-
-        if (metricValues.isEmpty())
-            return Collections.emptyList();
-
-        Multimap<Long, Object[]> metrics = ArrayListMultimap.create(metricNameDto.getTaskIds().size(), metricValues.size());
-        List<PlotDatasetDto> plots = new ArrayList<PlotDatasetDto>();
-
-        for (Object[] metricDetails : metricValues){
-            metrics.put((Long)metricDetails[0], metricDetails);
-        }
-
-        for (Long id : metrics.keySet()){
-            Collection<Object[]> taskMetrics = metrics.get(id);
-            List<PointDto> points = new ArrayList<PointDto>(taskMetrics.size());
-            String sessionId = null;
-            //TaskData taskData = null;
-
-            for (Object[] metricDetails : taskMetrics){
-                //if (taskData == null) taskData = metricDetails.getTaskData();
-                if (sessionId == null) sessionId = (String)metricDetails[3];
-                points.add(new PointDto((Long)metricDetails[1] / 1000D, Double.parseDouble(metricDetails[2].toString())));
-            }
-
-            PlotDatasetDto plotDatasetDto = new PlotDatasetDto(points, legendProvider.generatePlotLegend(sessionId, displayName, true), ColorCodeGenerator.getHexColorCode());
-            plots.add(plotDatasetDto);
-        }
-
-        PlotSeriesDto plotSeriesDto = new PlotSeriesDto(plots, "Time, sec", "", legendProvider.getPlotHeader(metricNameDto.getTaskIds(), displayName));
-
-        return Arrays.asList(plotSeriesDto);
-    }
-
-    /**
-     *
-     * @param metricNameDto identifier of metric.
-     * @return List of objects (taskData.id, time, value, sessionId)
-     */
-    public List<Object[]> getPlotDataNewModel(MetricNameDto metricNameDto) {
-        try {
-            return entityManager.createQuery(
-                "select mpe.metricDescription.taskData.id, mpe.time, mpe.value, mpe.metricDescription.taskData.sessionId from MetricPointEntity as mpe " +
-                        "where mpe.metricDescription.taskData.id in (:taskIds) and mpe.metricDescription.metricId=:metricId")
-                .setParameter("taskIds", metricNameDto.getTaskIds())
-                .setParameter("metricId", metricNameDto.getMetricName())
-                .getResultList();
-        } catch (Exception e) {
-            log.debug("Could not fetch metric plots from MetricPointEntity: {}", DataProcessingUtil.getMessageFromLastCause(e));
-            return Collections.EMPTY_LIST;
-        }
-
-    }
-
-    /**
-     *
-     * @param metricNameDto identifier of metric.
-     * @return List of objects (taskData.id, time, value, sessionId)
-     */
-    public List<Object[]> getPlotDataOldModel(MetricNameDto metricNameDto) {
-        return entityManager.createQuery(
-                "select metrics.taskData.id, metrics.time, metrics.value, metrics.taskData.sessionId from MetricDetails metrics " +
-                        "where metrics.metric=:plotName and metrics.taskData.id in (:taskIds)")
-                .setParameter("taskIds", metricNameDto.getTaskIds())
-                .setParameter("plotName", metricNameDto.getMetricName())
-                .getResultList();
-
-    }
 }

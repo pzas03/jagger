@@ -13,7 +13,7 @@ import com.griddynamics.jagger.webclient.client.dto.SessionPlotNameDto;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 import com.griddynamics.jagger.webclient.server.fetch.FetchUtil;
 import com.griddynamics.jagger.webclient.server.fetch.MetricNameUtil;
-import com.griddynamics.jagger.webclient.server.plot.CustomMetricPlotDataProvider;
+import com.griddynamics.jagger.webclient.server.plot.CustomMetricPlotNameProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -48,7 +48,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         this.entityManager = entityManager;
     }
 
-    private CustomMetricPlotDataProvider customMetricPlotDataProvider;
+    private CustomMetricPlotNameProvider customMetricPlotNameProvider;
     private Map<GroupKey, DefaultWorkloadParameters[]> workloadPlotGroups;
     private Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups;
 
@@ -68,12 +68,12 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         this.workloadPlotGroups = workloadPlotGroups;
     }
 
-    public CustomMetricPlotDataProvider getCustomMetricPlotDataProvider() {
-        return customMetricPlotDataProvider;
+    public CustomMetricPlotNameProvider getCustomMetricPlotNameProvider() {
+        return customMetricPlotNameProvider;
     }
 
-    public void setCustomMetricPlotDataProvider(CustomMetricPlotDataProvider customMetricPlotDataProvider) {
-        this.customMetricPlotDataProvider = customMetricPlotDataProvider;
+    public void setCustomMetricPlotNameProvider(CustomMetricPlotNameProvider customMetricPlotNameProvider) {
+        this.customMetricPlotNameProvider = customMetricPlotNameProvider;
     }
 
     private List<MetricNameDto> standardMetricNameDtoList;
@@ -594,7 +594,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                 }
             }
 
-            Set<MetricNameDto> customMetrics = customMetricPlotDataProvider.getPlotNames(taskList);
+            Set<MetricNameDto> customMetrics = customMetricPlotNameProvider.getPlotNames(taskList);
 
             metricNameDtoList.addAll(customMetrics);
 

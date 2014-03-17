@@ -8,7 +8,6 @@ import com.griddynamics.jagger.webclient.server.fetch.MetricNameUtil;
 import com.griddynamics.jagger.webclient.server.fetch.SummaryDbMetricDataFetcher;
 
 import javax.persistence.PersistenceException;
-import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.util.*;
 
@@ -42,7 +41,7 @@ public class CustomMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
 
         for (Object[] mas : metrics){
 
-            BigInteger taskDataId = (BigInteger)mas[3];
+            Number taskDataId = (Number)mas[3];
             String metricId = (String)mas[2];
 
             MetricNameDto metricNameDto;
