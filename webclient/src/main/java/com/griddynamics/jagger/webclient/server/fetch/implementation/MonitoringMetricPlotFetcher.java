@@ -34,7 +34,6 @@ public class MonitoringMetricPlotFetcher extends PlotsDbMetricDataFetcher {
     @Override
     protected Set<Pair<MetricNameDto, List<PlotDatasetDto>>> fetchData(List<MetricNameDto> metricNames) {
 
-        try {
         if (metricNames.isEmpty()) {
             return Collections.emptySet();
         }
@@ -92,10 +91,6 @@ public class MonitoringMetricPlotFetcher extends PlotsDbMetricDataFetcher {
             resultSet.add(Pair.of(metricNameDto, plotDatasetDtoList));
         }
         return resultSet;
-        } catch (Throwable th) {
-            th.printStackTrace();
-            throw new RuntimeException(th);
-        }
     }
 
     //============================

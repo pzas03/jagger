@@ -31,10 +31,10 @@ public class CustomMetricPlotFetcher extends PlotsDbMetricDataFetcher {
         List<Object[]> rawAllData = getAllRawData(taskIds, metricIds);
 
         if (rawAllData.isEmpty()) {
-            throw new RuntimeException("Could not find Throughput data for " + metricNames);
+            throw new RuntimeException("Could not find plot data for " + metricNames);
         }
 
-        Map<Long, Multimap<String, Object[]>> taskIdMetricIdRawMap = getMappedPlotDatasets(metricNames);
+        Map<Long, Multimap<String, Object[]>> taskIdMetricIdRawMap = createMappedPlotDatasets(metricNames);
         for (Object[] rawData : rawAllData) {
             Long taskDataId = (Long) rawData[0];
             String metricId = (String) rawData[4];
@@ -117,9 +117,7 @@ public class CustomMetricPlotFetcher extends PlotsDbMetricDataFetcher {
                     .setParameter("metricIds", metricIds)
                     .getResultList();
         } catch (Exception e) {
-            e.printStackTrace();
-            log.debug("Could not fetch metric plots from MetricPointEntity: {}", DataProcessingUtil.getMessageFromLastCause(e));
-            System.err.println("custom metric new model - exception");
+            log.debug("Could not fetch metric plots from MetricPointEntity: ", DataProcessingUtil.getMessageFromLastCause(e));
             return Collections.emptyList();
         }
     }
@@ -131,7 +129,7 @@ public class CustomMetricPlotFetcher extends PlotsDbMetricDataFetcher {
      * @param metricNameDtos collection of MetricNameDto to be mapped
      * @return Map <TaskDataDto.id, Multimap<metricName, Object[]>>
      */
-    private Map<Long, Multimap<String, Object[]>> getMappedPlotDatasets(Collection<MetricNameDto> metricNameDtos) {
+    private Map<Long, Multimap<String, Object[]>> createMappedPlotDatasets(Collection<MetricNameDto> metricNameDtos) {
         Map<Long, Multimap<String, Object[]>> taskIdMap = new HashMap<Long, Multimap<String, Object[]>>();
         for (MetricNameDto metricName : metricNameDtos) {
             Set<Long> ids = metricName.getTaskIds();

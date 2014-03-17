@@ -1,106 +1,85 @@
 package com.griddynamics.jagger.webclient.server.fetch.implementation;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-import com.griddynamics.jagger.util.Pair;
-import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
 import com.griddynamics.jagger.webclient.client.dto.PlotDatasetDto;
 import com.griddynamics.jagger.webclient.client.dto.PointDto;
 import com.griddynamics.jagger.webclient.server.ColorCodeGenerator;
-import com.griddynamics.jagger.webclient.server.DataProcessingUtil;
 import com.griddynamics.jagger.webclient.server.DefaultWorkloadParameters;
-import com.griddynamics.jagger.webclient.server.fetch.MetricNameUtil;
-import com.griddynamics.jagger.webclient.server.fetch.PlotsDbMetricDataFetcher;
 
 import java.util.*;
 
+import static com.griddynamics.jagger.webclient.server.DataProcessingUtil.round;
 
-public class ThroughputMetricPlotFetcher extends PlotsDbMetricDataFetcher {
-
-    // from reporting.conf.xml
-    private static final String THROUGHPUT_METRIC_PLOT_ID = "Throughput";
+public class ThroughputMetricPlotFetcher extends StandardMetricPlotFetcher<ThroughputMetricPlotFetcher.ThroughputRawData> {
 
     @Override
-    protected Set<Pair<MetricNameDto, List<PlotDatasetDto>>> fetchData(List<MetricNameDto> metricNames) {
+    protected Iterable<? extends PlotDatasetDto> assemble(Collection<ThroughputRawData> rawData) {
+        List<PointDto> pointDtoList = new ArrayList<PointDto>(rawData.size());
 
-        if (metricNames.isEmpty()) {
-            return Collections.emptySet();
+        String sessionId = rawData.iterator().next().getSessionId();
+
+        for (ThroughputRawData raw : rawData) {
+            double x = round(raw.getTime() / 1000.0D);
+            double y = round(raw.getThroughput());
+            pointDtoList.add(new PointDto(x, y));
         }
 
-
-        Set<Pair<MetricNameDto, List<PlotDatasetDto>>> resultSet = new HashSet<Pair<MetricNameDto, List<PlotDatasetDto>>>(metricNames.size());
-        Set<Long> taskIds = new HashSet<Long>();
-        for (MetricNameDto metricNameDto : metricNames) {
-            taskIds.addAll(metricNameDto.getTaskIds());
-        }
-
-        List<Object[]> rawAllData = findAllTimeInvocationStatisticsByTaskDataIds(taskIds);
-
-        if (rawAllData.isEmpty()) {
-            throw new RuntimeException("Could not find Throughput data for " + metricNames);
-        }
-
-        Multimap<Long, Object[]> taskIdRawMap = ArrayListMultimap.create();
-        for (Object[] rawData : rawAllData) {
-            Long taskDataId = (Long)rawData[2];
-            taskIdRawMap.put(taskDataId, rawData);
-        }
-
-        Multimap<MetricNameDto, PlotDatasetDto> metricNamePlotMap = ArrayListMultimap.create();
-
-        Map <Long, Map<String, MetricNameDto>> mappedMetricNames = MetricNameUtil.getMappedMetricDtos(metricNames);
-
-        for (Long taskDataId : taskIdRawMap.keySet()) {
-
-            MetricNameDto metricName;
-            try {
-                metricName = mappedMetricNames.get(taskDataId).get(THROUGHPUT_METRIC_PLOT_ID);
-            } catch (NullPointerException e) {
-                throw new RuntimeException("cant find metric name dto in MetricNameUtil.getMappedMetricDtos(metricNames) " + metricNames);
-            }
-
-            Collection<Object[]> rawData =  taskIdRawMap.get(taskDataId);
-            if (rawData.isEmpty()) {
-                throw new RuntimeException("no Throughput data found for TaskDataId : " + taskDataId);
-            }
-            metricNamePlotMap.put(metricName, assemble(rawData, true));
-        }
-
-        for (MetricNameDto metricName : metricNamePlotMap.keySet()) {
-            List<PlotDatasetDto> plotDatasetDtoList = new ArrayList<PlotDatasetDto>(metricNamePlotMap.get(metricName));
-            resultSet.add(
-                    Pair.of(
-                            metricName,
-                            plotDatasetDtoList
-                    ));
-        }
-
-        return resultSet;
+        String legend = legendProvider.generatePlotLegend(sessionId, DefaultWorkloadParameters.THROUGHPUT.getDescription(), true);
+        return Arrays.asList(new PlotDatasetDto(pointDtoList, legend, ColorCodeGenerator.getHexColorCode()));
     }
 
-    /**
-     * @param taskIds ids of TaskData table
-     * @return Objects {time, throughput, TaskData.id, sessionId}
-     */
-    @SuppressWarnings("unchecked")
-    private List<Object[]> findAllTimeInvocationStatisticsByTaskDataIds(Set<Long> taskIds) {
-        return entityManager.createQuery(
-            "select tis.time, tis.throughput, tis.taskData.id, tis.taskData.sessionId from TimeInvocationStatistics as tis " +
-                    "where tis.taskData.id in (:taskIds)")
-            .setParameter("taskIds", taskIds)
-            .getResultList();
+    @Override
+    protected List<ThroughputRawData> findRawDataByTaskData(Set<Long> taskIds) {
+        @SuppressWarnings("all")
+        List<Object[]> rawDataList = entityManager.createQuery(
+                "select tis.time, tis.throughput, tis.taskData.id, tis.taskData.sessionId from TimeInvocationStatistics as tis " +
+                        "where tis.taskData.id in (:taskIds)")
+                .setParameter("taskIds", taskIds)
+                .getResultList();
+
+        List<ThroughputRawData> resultList = new ArrayList<ThroughputRawData>(rawDataList.size());
+
+        for (Object[] objects : rawDataList) {
+
+            String sessionId = (String) objects[3];
+            Long taskDataId = (Long) objects[2];
+            Long time = (Long) objects[0];
+            Double throughput = (Double) objects[1];
+
+            resultList.add(new ThroughputRawData(sessionId, taskDataId, time, throughput));
+        }
+
+        return resultList;
     }
 
-    /**
-     * @param rawData Objects {time, throughput, TaskData.id, sessionId}
-     * @return list of curves for concrete metricName
-     */
-    private PlotDatasetDto assemble(Collection<Object[]> rawData, boolean addSessionPrefix) {
+    public static class ThroughputRawData implements StandardMetricPlotFetcher.StandardMetricRawData {
 
-        List<PointDto> pointDtoList = DataProcessingUtil.convertFromRawDataToPointDto(rawData, 0, 1);
+        private String sessionId;
+        private Long taskDataId;
+        private Long time;
+        private Double throughput;
 
-        String sessionId = (String)rawData.iterator().next()[3]; // get sessionId
-        String legend = legendProvider.generatePlotLegend(sessionId, DefaultWorkloadParameters.THROUGHPUT.getDescription(), addSessionPrefix);
-        return new PlotDatasetDto(pointDtoList, legend, ColorCodeGenerator.getHexColorCode());
+        public ThroughputRawData(String sessionId, Long taskDataId, Long time, Double throughput) {
+            this.sessionId = sessionId;
+            this.taskDataId = taskDataId;
+            this.time = time;
+            this.throughput = throughput;
+        }
+
+        @Override
+        public Long getTaskDataId() {
+            return taskDataId;
+        }
+
+        public String getSessionId() {
+            return sessionId;
+        }
+
+        public Long getTime() {
+            return time;
+        }
+
+        public Double getThroughput() {
+            return throughput;
+        }
     }
 }

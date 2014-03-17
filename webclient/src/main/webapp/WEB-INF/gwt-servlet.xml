@@ -70,9 +70,8 @@
     </bean>
 
     <bean id="executorService" class="java.util.concurrent.Executors"
-          factory-method="newFixedThreadPool"
+          factory-method="newCachedThreadPool"
           destroy-method="shutdownNow">
-        <constructor-arg value="15"/>
     </bean>
 
     <bean id="databaseFetcher" class="com.griddynamics.jagger.webclient.server.CommonDataProviderImpl">
