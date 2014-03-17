@@ -203,13 +203,6 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
         setDisabled(false);
     }
 
-    //???
-//    public void enable(boolean enableTree) {
-//        if (enableTree) {
-//            enable();
-//        }
-//    }
-//
     public void enableTree() {
         this.enable();
         this.enableEvents();

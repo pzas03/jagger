@@ -6,6 +6,7 @@ import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadData;
 import com.griddynamics.jagger.monitoring.model.MonitoringStatistics;
 import com.griddynamics.jagger.monitoring.model.PerformedMonitoring;
 import com.griddynamics.jagger.monitoring.reporting.GroupKey;
+import com.griddynamics.jagger.util.AgentUtils;
 import com.griddynamics.jagger.webclient.client.dto.*;
 import com.griddynamics.jagger.webclient.server.ColorCodeGenerator;
 import com.griddynamics.jagger.webclient.server.DataProcessingUtil;
@@ -20,7 +21,6 @@ import java.util.*;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.griddynamics.jagger.util.AgentUtils.AGENT_NAME_SEPARATOR;
 
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
@@ -70,9 +70,19 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
      */
     @Override
     public List<PlotSeriesDto> getPlotData(String sessionId, String plotName) {
+        //??? function is used only for session scope plots
 
-        String monitoringKey = plotName.substring(0, plotName.indexOf(AGENT_NAME_SEPARATOR));
-        String agentIdentifier = plotName.substring(plotName.indexOf(AGENT_NAME_SEPARATOR) + AGENT_NAME_SEPARATOR.length());
+        String monitoringKey;
+        String agentIdentifier;
+        String[] splitName = AgentUtils.splitMonitoringMetricId(plotName);
+        if (splitName.length > 1) {
+            monitoringKey = splitName[0];
+            agentIdentifier = splitName[1];
+        }
+        else {
+            log.error("Unable to split name '" + plotName + "' to monitoringKey and agentIdentifier");
+            throw new RuntimeException("Unable to split name '" + plotName + "' to monitoringKey and agentIdentifier");
+        }
 
         List<WorkloadData> workloadDataList = findAllWorkloadDataBySessionId(sessionId);
         Map<String, WorkloadData> workloadDataMap = createIndexParentId2WorkloadData(workloadDataList);
@@ -146,9 +156,18 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
         checkArgument(!taskIds.isEmpty(), "taskIds is empty");
         checkNotNull(metricNameDto, "metricNameDto is null");
 
+        String monitoringKey;
+        String agentIdentifier;
         String metricId =  metricNameDto.getMetricName();
-        String monitoringKey = metricId.substring(0, metricId.indexOf(AGENT_NAME_SEPARATOR));
-        String agentIdentifier = metricId.substring(metricId.indexOf(AGENT_NAME_SEPARATOR) + AGENT_NAME_SEPARATOR.length());
+        String[] splitName = AgentUtils.splitMonitoringMetricId(metricId);
+        if (splitName.length > 1) {
+            monitoringKey = splitName[0];
+            agentIdentifier = splitName[1];
+        }
+        else {
+            log.error("Unable to split name '" + metricId + "' to monitoringKey and agentIdentifier");
+            throw new RuntimeException("Unable to split name '" + metricId + "' to monitoringKey and agentIdentifier");
+        }
 
         DefaultMonitoringParameters[] defaultMonitoringParametersGroup = findDefaultMonitoringParameters(monitoringPlotGroups, monitoringKey);
         List<String> monitoringParametersList = assembleDefaultMonitoringParametersDescriptions(defaultMonitoringParametersGroup);

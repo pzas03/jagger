@@ -39,7 +39,7 @@ public class AgentUtils {
      * used to separate monitoring plot name and agent id in MetricNameDto.metricName/SessionNameDto.metricName
      * note: '|' == '%7C' in while link processing
      */
-    public static final String AGENT_NAME_SEPARATOR = "|";
+    private static final String AGENT_NAME_SEPARATOR = "|";
 
     private static final String JMX_SERVICE_SEPARATOR = ",";
 
@@ -84,7 +84,7 @@ public class AgentUtils {
     // keep functionality of following functions dependent
     // direct
     public static String getMonitoringMetricId(String monitoringName, String agentName){
-        return monitoringName + AGENT_NAME_SEPARATOR + agentName; //??? may be additional ANS after agent name
+        return monitoringName + AGENT_NAME_SEPARATOR + agentName + AGENT_NAME_SEPARATOR;
     }
     // backwards
     public static String[] splitMonitoringMetricId(String monitoringMetricId) {
