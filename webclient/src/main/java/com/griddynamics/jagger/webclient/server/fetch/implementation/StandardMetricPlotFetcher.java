@@ -51,7 +51,7 @@ public abstract class StandardMetricPlotFetcher<T extends StandardMetricPlotFetc
 
             Collection<T> rawData =  taskIdRawMap.get(taskDataId);
             if (rawData.isEmpty()) {
-                throw new RuntimeException("no Throughput data found for TaskDataId : " + taskDataId);
+                throw new RuntimeException("no plot data found for TaskDataId : " + taskDataId);
             }
             metricNamePlotMap.putAll(metricName, assemble(rawData));
         }
@@ -78,7 +78,6 @@ public abstract class StandardMetricPlotFetcher<T extends StandardMetricPlotFetc
 
     /**
      * @param taskIds ids of TaskData
-     * @return as contract of this method, first Object of Object[] should contain TaskData id of given data
      */
     protected abstract List<T> findRawDataByTaskData(Set<Long> taskIds);
 

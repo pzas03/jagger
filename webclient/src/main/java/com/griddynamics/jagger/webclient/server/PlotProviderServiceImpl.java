@@ -163,6 +163,7 @@ public class PlotProviderServiceImpl implements PlotProviderService {
         Map<MetricNode, PlotSeriesDto> result = new HashMap<MetricNode, PlotSeriesDto>();
 
         for (MetricNode metricNode : plots) {
+            // at the moment all MetricNameDtos in MetricNode have same taskIds => it is valid to use first one
             result.put(metricNode, new PlotSeriesDto(new ArrayList<PlotDatasetDto>(tempMultiMap.get(metricNode)),"Time, sec", "",legendProvider.getPlotHeader(metricNode.getMetricNameDtoList().get(0).getTaskIds(), metricNode.getDisplayName())));
         }
 

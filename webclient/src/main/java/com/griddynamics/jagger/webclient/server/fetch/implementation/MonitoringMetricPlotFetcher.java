@@ -56,7 +56,7 @@ public class MonitoringMetricPlotFetcher extends PlotsDbMetricDataFetcher {
             log.debug("For plot {} there are exist {} monitoring parameters", metricNameDto, defaultMonitoringParametersGroup);
 
             Map<String, Map<String, List<MonitoringStatistics>>> finalComposedMap = new HashMap<String, Map<String, List<MonitoringStatistics>>>();
-            for (long taskId : taskIds) {
+            for (Long taskId : taskIds) {
                 // todo get all TaskData entities in one step.time safe.
                 TaskData workloadTaskData = entityManager.find(TaskData.class, taskId);
 

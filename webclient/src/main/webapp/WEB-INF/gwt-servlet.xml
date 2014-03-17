@@ -75,7 +75,7 @@
     </bean>
 
     <bean id="databaseFetcher" class="com.griddynamics.jagger.webclient.server.CommonDataProviderImpl">
-        <property name="customMetricPlotDataProvider" ref="customMetricPlotDataProvider"/>
+        <property name="customMetricPlotNameProvider" ref="customMetricPlotNameProvider"/>
         <property name="monitoringPlotGroups" ref="monitoringPlotGroups"/>
         <property name="workloadPlotGroups" ref="workloadPlotGroups"/>
         <property name="standardMetricNameDtoList" ref="standardMetricNameDtoList"/>
@@ -193,18 +193,8 @@
     <bean id="legendProvider" class="com.griddynamics.jagger.webclient.server.LegendProvider"/>
 
     <!--==========Workload Plot Data Providers-->
-    <bean id="throughputPlotDataProvider" class="com.griddynamics.jagger.webclient.server.plot.ThroughputPlotDataProvider">
-        <property name="legendProvider" ref="legendProvider"/>
-    </bean>
-    <bean id="latencyPlotDataProvider" class="com.griddynamics.jagger.webclient.server.plot.LatencyPlotDataProvider">
-        <property name="legendProvider" ref="legendProvider"/>
-    </bean>
-    <bean id="timeLatencyPercentilePlotDataProvider" class="com.griddynamics.jagger.webclient.server.plot.TimeLatencyPercentilePlotDataProvider">
-        <property name="legendProvider" ref="legendProvider"/>
-    </bean>
 
-    <bean id="customMetricPlotDataProvider" class="com.griddynamics.jagger.webclient.server.plot.CustomMetricPlotDataProvider">
-        <property name="legendProvider" ref="legendProvider"/>
+    <bean id="customMetricPlotNameProvider" class="com.griddynamics.jagger.webclient.server.plot.CustomMetricPlotNameProvider">
     </bean>
 
     <!--===========Monitoring Plot Data Providers===========-->
