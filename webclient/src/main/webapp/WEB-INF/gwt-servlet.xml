@@ -90,6 +90,7 @@
         <property name="workloadPlotGroups" ref="workloadPlotGroups"/>
         <property name="standardMetricNameDtoList" ref="standardMetricNameDtoList"/>
         <property name="webClientProperties" ref="webClientProperties"/>
+        <property name="fetchUtil" ref="fetchUtil"/>
     </bean>
 
 
@@ -126,6 +127,7 @@
         <property name="standardMetricSummaryFetcher" ref="standardMetricSummaryFetcher"/>
         <property name="durationMetricSummaryFetcher" ref="durationMetricSummaryFetcher"/>
         <property name="customMetricSummaryFetcher" ref="customMetricSummaryFetcher"/>
+        <property name="customTestGroupMetricSummaryFetcher" ref="customTestGroupMetricSummaryFetcher"/>
         <property name="latencyMetricDataFetcher" ref="latencyMetricSummaryFetcher"/>
         <property name="validatorSummaryFetcher" ref="validatorSummaryFetcher"/>
         <property name="threadPool" ref="executorService"/>
@@ -148,11 +150,16 @@
         <property name="threadPool" ref="executorService"/>
     </bean>
 
+    <bean id="customTestGroupMetricSummaryFetcher" class="com.griddynamics.jagger.webclient.server.fetch.implementation.CustomTestGroupMetricSummaryFetcher">
+        <property name="threadPool" ref="executorService"/>
+        <property name="fetchUtil" ref="fetchUtil"/>
+    </bean>
+
     <bean id="validatorSummaryFetcher" class="com.griddynamics.jagger.webclient.server.fetch.implementation.ValidatorSummaryFetcher">
         <property name="threadPool" ref="executorService"/>
     </bean>
 
-
+    <bean id="fetchUtil" class="com.griddynamics.jagger.webclient.server.fetch.FetchUtil"/>
 
     <!--==========Legend Provider==========-->
     <bean id="legendProvider" class="com.griddynamics.jagger.webclient.server.LegendProvider"/>
@@ -170,6 +177,7 @@
 
     <bean id="customMetricPlotDataProvider" class="com.griddynamics.jagger.webclient.server.plot.CustomMetricPlotDataProvider">
         <property name="legendProvider" ref="legendProvider"/>
+        <property name="fetchUtil" ref="fetchUtil"/>
     </bean>
 
     <!--===========Monitoring Plot Data Providers===========-->

@@ -4,6 +4,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.griddynamics.jagger.webclient.client.dto.*;
 import com.griddynamics.jagger.webclient.server.*;
+import com.griddynamics.jagger.webclient.server.fetch.FetchUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +26,7 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
     Logger log = LoggerFactory.getLogger(CustomMetricPlotDataProvider.class);
 
     private LegendProvider legendProvider;
+    private FetchUtil fetchUtil;
     private EntityManager entityManager;
 
     public void setLegendProvider(LegendProvider legendProvider) {
@@ -36,12 +38,18 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
         this.entityManager = entityManager;
     }
 
+    public void setFetchUtil(FetchUtil fetchUtil) {
+        this.fetchUtil = fetchUtil;
+    }
+
     public Set<MetricNameDto> getPlotNames(List<TaskDataDto> taskDataDtos){
 
         long temp = System.currentTimeMillis();
         Set<MetricNameDto> result = new HashSet<MetricNameDto>();
 
         result.addAll(getPlotNamesNewModel(taskDataDtos));
+
+        result.addAll(getTestGroupPlotNamesNewModel(taskDataDtos));
 
         result.addAll(getPlotNamesOldModel(taskDataDtos));
 
@@ -89,23 +97,76 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
 
 
     public Set<MetricNameDto> getPlotNamesNewModel(List<TaskDataDto> taskDataDtos){
+
         try {
-            return CustomMetricDataProvider.getMetricNames(entityManager, taskDataDtos, new MetricDescriptionLoader() {
-                @Override
-                public List<Object[]> loadTestsMetricDescriptions(Set<Long> ids) {
-                    return entityManager.createQuery(
-                            "select mpe.metricDescription.metricId, mpe.metricDescription.displayName, mpe.metricDescription.taskData.id " +
-                                    "from MetricPointEntity as mpe where mpe.metricDescription.taskData.id in (:taskIds) group by mpe.metricDescription.id")
-                            .setParameter("taskIds", ids)
-                            .getResultList();
+            Set<Long> testIds = CommonUtils.getTestsIds(taskDataDtos);
+
+            List<Object[]> plotNamesNew = getMetricNames(testIds);
+
+            if (plotNamesNew.isEmpty()) {
+                return Collections.EMPTY_SET;
+            }
+
+            Set<MetricNameDto> result = new HashSet<MetricNameDto>(plotNamesNew.size());
+
+            for (Object[] plotName : plotNamesNew){
+                if (plotName != null) {
+                    for (TaskDataDto tdd : taskDataDtos) {
+                        if (tdd.getIds().contains((Long)plotName[2])) {
+                            result.add(new MetricNameDto(tdd, (String)plotName[0], (String)plotName[1], MetricNameDto.Origin.METRIC));
+                        }
+                    }
                 }
-            });
+            }
+
+            return result;
         } catch (PersistenceException e) {
             log.debug("Could not fetch metric plot names from MetricPointEntity: {}", DataProcessingUtil.getMessageFromLastCause(e));
             return Collections.EMPTY_SET;
         }
 
     }
+
+    public Set<MetricNameDto> getTestGroupPlotNamesNewModel(List<TaskDataDto> tests){
+
+        try {
+            Set<Long> testIds = CommonUtils.getTestsIds(tests);
+
+            Multimap<Long, Long> testGroupMap = fetchUtil.getTestsInTestGroup(testIds);
+
+            List<Object[]> plotNamesNew = getMetricNames(testGroupMap.keySet());
+
+            if (plotNamesNew.isEmpty()) {
+                return Collections.EMPTY_SET;
+            }
+
+            Set<MetricNameDto> result = new HashSet<MetricNameDto>(plotNamesNew.size());
+
+            for (Object[] mde : plotNamesNew){
+                for (TaskDataDto td : tests){
+                    Collection<Long> allTestsInGroup = testGroupMap.get((Long)mde[2]);
+                    if (CommonUtils.containsAtLeastOne(td.getIds(), allTestsInGroup)){
+                        result.add(new MetricNameDto(td, (String)mde[0], (String)mde[1], MetricNameDto.Origin.METRIC_GROUP));
+                    }
+                }
+            }
+
+            return result;
+        } catch (PersistenceException e) {
+            log.debug("Could not fetch test-group metric plot names from MetricPointEntity: {}", DataProcessingUtil.getMessageFromLastCause(e));
+            return Collections.EMPTY_SET;
+        }
+
+    }
+
+    private List<Object[]> getMetricNames(Set<Long> testIds){
+        return entityManager.createQuery(
+                "select mpe.metricDescription.metricId, mpe.metricDescription.displayName, mpe.metricDescription.taskData.id " +
+                        "from MetricPointEntity as mpe where mpe.metricDescription.taskData.id in (:taskIds) group by mpe.metricDescription.id")
+                .setParameter("taskIds", testIds)
+                .getResultList();
+    }
+
 
     @Override
     public List<PlotSeriesDto> getPlotData(MetricNameDto metricNameDto) {
