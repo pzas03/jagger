@@ -21,6 +21,8 @@ public class CustomMetricDataProvider {
         }
 
         List<Object[]> parents = getParents(entityManager, taskIds);
+        //???
+        // un db session #35 testGroup is empty => groupIds empty => loadTestsMetricDescriptions fails
         List<Object[]> testGroups = getTestGroups(entityManager, taskIds);
 
         Multimap<Long, Long> testGroupMap = getTestsInTestGroup(parents, testGroups);

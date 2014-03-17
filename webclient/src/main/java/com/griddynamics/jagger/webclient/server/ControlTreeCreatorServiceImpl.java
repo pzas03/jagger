@@ -156,14 +156,16 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
 
                 String rootId = METRICS_PREFIX + tdd.hashCode();
 
-                // apply rules how to build tree
-                MetricGroupNode<PlotNode> testDetailsNodeBase = BuildTreeAccordingToRules(rootId,agentNames,metricNodeList);
+                if (metricNodeList.size() > 0) {
+                    // apply rules how to build tree
+                    MetricGroupNode<PlotNode> testDetailsNodeBase = BuildTreeAccordingToRules(rootId,agentNames,metricNodeList);
 
-                // full test details node
-                TestDetailsNode testNode = new TestDetailsNode(testDetailsNodeBase);
-                testNode.setTaskDataDto(tdd);
+                    // full test details node
+                    TestDetailsNode testNode = new TestDetailsNode(testDetailsNodeBase);
+                    testNode.setTaskDataDto(tdd);
 
-                taskDataDtoList.add(testNode);
+                    taskDataDtoList.add(testNode);
+                }
             }
 
             MetricRankingProvider.sortPlotNodes(taskDataDtoList);
@@ -192,16 +194,18 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
             List<MetricNode> metricNodeList = map.get(tdd);
             String rootId = SUMMARY_PREFIX + tdd.hashCode();
 
-            // apply rules how to build tree
-            MetricGroupNode<MetricNode> testNodeBase = BuildTreeAccordingToRules(rootId,null,metricNodeList);
+            if (metricNodeList.size() > 0) {
+                // apply rules how to build tree
+                MetricGroupNode<MetricNode> testNodeBase = BuildTreeAccordingToRules(rootId,null,metricNodeList);
 
-            // full test node with info data
-            TestNode testNode = new TestNode(testNodeBase);
-            testNode.setTaskDataDto(tdd);
-            TestInfoNode tin = new TestInfoNode(TEST_INFO + testNode.getId(), TEST_INFO);
-            testNode.setTestInfo(tin);
+                // full test node with info data
+                TestNode testNode = new TestNode(testNodeBase);
+                testNode.setTaskDataDto(tdd);
+                TestInfoNode tin = new TestInfoNode(TEST_INFO + testNode.getId(), TEST_INFO);
+                testNode.setTestInfo(tin);
 
-            taskDataDtoList.add(testNode);
+                taskDataDtoList.add(testNode);
+            }
         }
 
         MetricRankingProvider.sortPlotNodes(taskDataDtoList);

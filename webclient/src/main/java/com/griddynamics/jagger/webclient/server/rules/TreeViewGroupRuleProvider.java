@@ -22,6 +22,7 @@ public class TreeViewGroupRuleProvider {
 
         List<TreeViewGroupRule> firstLevelFilters = new ArrayList<TreeViewGroupRule>();
 
+        //??? delete hardcoded params
         // Filter for Jagger main metrics. Space in display name will help to keep main parameters in the
         // top of alphabetic sorting
         TreeViewGroupRule mainParams_FirstLevelFilter = new TreeViewGroupRule("main"," Main parameters",
