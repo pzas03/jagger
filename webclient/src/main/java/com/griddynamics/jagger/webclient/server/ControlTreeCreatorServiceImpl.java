@@ -199,7 +199,6 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
             TestNode testNode = new TestNode(testNodeBase);
             testNode.setTaskDataDto(tdd);
             TestInfoNode tin = new TestInfoNode(TEST_INFO + testNode.getId(), TEST_INFO);
-            tin.setTestInfoList(getTestInfoNamesList(tdd));
             testNode.setTestInfo(tin);
 
             taskDataDtoList.add(testNode);
@@ -213,19 +212,8 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
         return databaseFetcher.getTestMetricsMap(tddos, threadPool);
     }
 
-    //??? what is the goal of this function
-    private List<TestInfoLeaf> getTestInfoNamesList(TaskDataDto task) {
-        return Collections.EMPTY_LIST;
-    }
-
-
     private Map<TaskDataDto, List<PlotNode>> getMonitoringPlots(Set<String> sessionIds, List<TaskDataDto> tdds) {
         return databaseFetcher.getMonitoringPlotNodes(sessionIds, tdds);
-    }
-
-    //??? what is the goal of this function
-    private List<SessionInfoLeaf> getSessionInfoLeafList(Set<String> sessionIds) {
-        return Collections.EMPTY_LIST;
     }
 
     public class SummaryNodeFetcherTread
@@ -240,7 +228,6 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
         public SummaryNode call() {
             SummaryNode sn = new SummaryNode(CONTROL_SUMMARY_TRENDS, CONTROL_SUMMARY_TRENDS);
             SessionInfoNode sin = new SessionInfoNode(SESSION_INFO, SESSION_INFO);
-            sin.setSessionInfoList(getSessionInfoLeafList(sessionIds));
             sn.setSessionInfo(sin);
             if (!taskList.isEmpty()) {
                 sn.setTests(getSummaryTaskNodeList(taskList));
