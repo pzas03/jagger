@@ -84,7 +84,7 @@ public class CustomMetricPlotFetcher extends PlotsDbMetricDataFetcher {
     /**
      * @return collection of objects {Task Data id, time, value, sessionId, metricId}
      */
-    private List<Object[]> getAllRawData(Set<Long> taskIds, Set<String> metricIds) {
+    protected List<Object[]> getAllRawData(Set<Long> taskIds, Set<String> metricIds) {
 
         List<Object[]> resultList = new ArrayList<Object[]>();
 
@@ -108,7 +108,7 @@ public class CustomMetricPlotFetcher extends PlotsDbMetricDataFetcher {
     /**
      * @return collection of objects {Task Data id, time, value, sessionId, metricId}
      */
-    private Collection<? extends Object[]> getPlotDataNewModel(Set<Long> taskIds, Set<String> metricIds) {
+    protected Collection<? extends Object[]> getPlotDataNewModel(Set<Long> taskIds, Set<String> metricIds) {
         try {
             return entityManager.createQuery(
                     "select mpe.metricDescription.taskData.id, mpe.time, mpe.value, mpe.metricDescription.taskData.sessionId, mpe.metricDescription.metricId from MetricPointEntity as mpe " +

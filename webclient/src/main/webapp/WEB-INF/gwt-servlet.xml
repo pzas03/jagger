@@ -125,6 +125,7 @@
         <property name="latencyMetricPlotFetcher" ref="latencyMetricPlotFetcher"/>
         <property name="timeLatencyPercentileMetricPlotFetcher" ref="timeLatencyPersentileMetricPlotFetcher"/>
         <property name="customMetricPlotFetcher" ref="customMetricPlotFetcher"/>
+        <property name="customTestGroupMetricPlotFetcher" ref="customTestGroupMetricPlotFetcher"/>
         <property name="monitoringMetricPlotFetcher" ref="monitoringMetricPlotFetcher"/>
 
         <property name="threadPool" ref="executorService"/>
@@ -148,6 +149,12 @@
     <bean id="customMetricPlotFetcher" class="com.griddynamics.jagger.webclient.server.fetch.implementation.CustomMetricPlotFetcher">
         <property name="legendProvider" ref="legendProvider"/>
         <property name="threadPool" ref="executorService"/>
+    </bean>
+
+    <bean id="customTestGroupMetricPlotFetcher" class="com.griddynamics.jagger.webclient.server.fetch.implementation.CustomTestGroupMetricPlotFetcher">
+        <property name="legendProvider" ref="legendProvider"/>
+        <property name="threadPool" ref="executorService"/>
+        <property name="fetchUtil" ref="fetchUtil"/>
     </bean>
 
     <bean id="monitoringMetricPlotFetcher" class="com.griddynamics.jagger.webclient.server.fetch.implementation.MonitoringMetricPlotFetcher">
