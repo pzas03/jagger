@@ -163,7 +163,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         try {
             Set<Long> taskIds = CommonUtils.getTestsIds(tests);
 
-            List<Object[]> metricDescriptionEntities = getMetricDescriptions(taskIds);
+            List<Object[]> metricDescriptionEntities = getMetricNames(taskIds);
 
             if (metricDescriptionEntities.isEmpty()) {
                 return Collections.EMPTY_SET;
@@ -193,7 +193,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
 
             Multimap<Long, Long> testGroupMap = fetchUtil.getTestsInTestGroup(taskIds);
 
-            List<Object[]> metricDescriptionEntities = getMetricDescriptions(testGroupMap.keySet());
+            List<Object[]> metricDescriptionEntities = getMetricNames(testGroupMap.keySet());
 
             if (metricDescriptionEntities.isEmpty()) {
                 return Collections.EMPTY_SET;
@@ -218,7 +218,10 @@ public class CommonDataProviderImpl implements CommonDataProvider {
         }
     }
 
-    private List<Object[]> getMetricDescriptions(Set<Long> taskIds){
+    private List<Object[]> getMetricNames(Set<Long> taskIds){
+        if (taskIds.isEmpty()){
+            return Collections.EMPTY_LIST;
+        }
         return entityManager.createQuery(
                 "select mse.metricDescription.metricId, mse.metricDescription.displayName, mse.metricDescription.taskData.id " +
                         "from MetricSummaryEntity as mse where mse.metricDescription.taskData.id in (:taskIds)")

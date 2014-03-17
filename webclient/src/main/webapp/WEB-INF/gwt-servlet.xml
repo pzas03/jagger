@@ -178,6 +178,7 @@
     <bean id="customMetricPlotDataProvider" class="com.griddynamics.jagger.webclient.server.plot.CustomMetricPlotDataProvider">
         <property name="legendProvider" ref="legendProvider"/>
         <property name="fetchUtil" ref="fetchUtil"/>
+        <property name="monitoringPlotGroups" ref="monitoringPlotGroups"/>
     </bean>
 
     <!--===========Monitoring Plot Data Providers===========-->

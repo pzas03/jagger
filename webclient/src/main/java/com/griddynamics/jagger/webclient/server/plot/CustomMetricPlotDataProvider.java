@@ -2,6 +2,9 @@ package com.griddynamics.jagger.webclient.server.plot;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import com.griddynamics.jagger.agent.model.DefaultMonitoringParameters;
+import com.griddynamics.jagger.monitoring.reporting.GroupKey;
+import com.griddynamics.jagger.util.AgentUtils;
 import com.griddynamics.jagger.webclient.client.dto.*;
 import com.griddynamics.jagger.webclient.server.*;
 import com.griddynamics.jagger.webclient.server.fetch.FetchUtil;
@@ -27,6 +30,9 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
 
     private LegendProvider legendProvider;
     private FetchUtil fetchUtil;
+    private Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups;
+
+
     private EntityManager entityManager;
 
     public void setLegendProvider(LegendProvider legendProvider) {
@@ -40,6 +46,10 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
 
     public void setFetchUtil(FetchUtil fetchUtil) {
         this.fetchUtil = fetchUtil;
+    }
+
+    public void setMonitoringPlotGroups(Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups) {
+        this.monitoringPlotGroups = monitoringPlotGroups;
     }
 
     public Set<MetricNameDto> getPlotNames(List<TaskDataDto> taskDataDtos){
@@ -136,6 +146,8 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
 
             List<Object[]> plotNamesNew = getMetricNames(testGroupMap.keySet());
 
+            plotNamesNew = filterMonitoring(plotNamesNew);
+
             if (plotNamesNew.isEmpty()) {
                 return Collections.EMPTY_SET;
             }
@@ -165,6 +177,44 @@ public class CustomMetricPlotDataProvider implements PlotDataProvider{
                         "from MetricPointEntity as mpe where mpe.metricDescription.taskData.id in (:taskIds) group by mpe.metricDescription.id")
                 .setParameter("taskIds", testIds)
                 .getResultList();
+    }
+
+    private List<Object[]> filterMonitoring(List<Object[]> origin){
+        List<Object[]> result = new ArrayList<Object[]>(origin.size());
+
+        // monitoring ids in reporting
+        Set<String> reportingMonitoring = new HashSet<String>();
+        for (DefaultMonitoringParameters[] value : monitoringPlotGroups.values()){
+            for (DefaultMonitoringParameters parameter : value){
+                reportingMonitoring.add(parameter.getId());
+            }
+        }
+
+        // all monitoring ids
+        Set<String> allMonitoring = new HashSet<String>();
+        for (DefaultMonitoringParameters parameter : DefaultMonitoringParameters.values()){
+            allMonitoring.add(parameter.getId());
+        }
+
+        for (Object[] row : origin){
+            String metricId = getMonitoringId((String)row[0]);
+            if (allMonitoring.contains(metricId) && !reportingMonitoring.contains(metricId)){
+                // ignore this metrics
+                continue;
+            }
+            result.add(row);
+        }
+
+        return result;
+    }
+
+    private String getMonitoringId(String origin){
+        int splitIndex = origin.indexOf(AgentUtils.AGENT_NAME_SEPARATOR);
+        if (splitIndex != -1){
+            return origin.substring(0, splitIndex);
+        }
+
+        return origin;
     }
 
 

@@ -106,6 +106,10 @@ public class CustomMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
      */
     protected List<Object[]> getCustomMetricsDataNewModel(Set<Long> taskIds, Set<String> metricId) {
         try {
+            if (taskIds.isEmpty() || metricId.isEmpty()){
+                return Collections.EMPTY_LIST;
+            }
+
             return entityManager.createQuery(
                     "select summary.total, summary.metricDescription.taskData.sessionId, summary.metricDescription.metricId, summary.metricDescription.taskData.id" +
                             " from MetricSummaryEntity as summary" +
