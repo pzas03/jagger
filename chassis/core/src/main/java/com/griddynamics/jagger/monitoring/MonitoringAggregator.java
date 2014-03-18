@@ -109,7 +109,7 @@ public class MonitoringAggregator extends LogProcessor implements DistributionLi
                 return;
             }
 
-            int intervalSize = intervalSizeProvider.getIntervalSize(aggregationInfo.getMaxTime(), aggregationInfo.getMinTime());
+            int intervalSize = intervalSizeProvider.getIntervalSize(aggregationInfo.getMinTime(),aggregationInfo.getMaxTime());
             if (intervalSize < 1) {
                 intervalSize = 1;
             }

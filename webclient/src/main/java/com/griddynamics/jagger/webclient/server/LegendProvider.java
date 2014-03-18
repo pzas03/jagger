@@ -22,6 +22,7 @@ public class LegendProvider {
         this.entityManager = entityManager;
     }
 
+    //??? access to db is not required, we can get info from MetricNameDto, or may be not
     public String getPlotHeader(Set<Long> taskIds, String plotName) {
         @SuppressWarnings("unchecked")
         List<String> sessionList = (List<String>) entityManager.createQuery("select distinct td.sessionId from TaskData as td where td.id in (:taskIds)").

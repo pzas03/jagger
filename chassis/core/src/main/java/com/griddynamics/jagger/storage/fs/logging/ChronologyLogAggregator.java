@@ -50,6 +50,7 @@ public class ChronologyLogAggregator implements LogAggregator {
         this.logWriter = logWriter;
     }
 
+    //??? still executed for monitoring, while it is already not necessary!!!
     @Override
     public AggregationInfo chronology(String dir, String targetFile) throws IOException {
         log.info("Aggregate {}", targetFile);
