@@ -25,8 +25,10 @@ public class CustomMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
             metricIds.add(metricName.getMetricName());
         }
 
+        List<Object[]> metrics = new ArrayList<Object[]>();
+
         // check old model
-        List<Object[]> metrics = getCustomMetricsDataOldModel(taskIds, metricIds);
+        metrics.addAll(getCustomMetricsDataOldModel(taskIds, metricIds));
 
         // check new model
         metrics.addAll(getCustomMetricsDataNewModel(taskIds, metricIds));
