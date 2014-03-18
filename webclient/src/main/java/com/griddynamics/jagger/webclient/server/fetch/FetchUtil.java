@@ -46,20 +46,27 @@ public class FetchUtil {
      * @return list of object[] (taskdata id, parent id, session id)
      */
     public List<Object[]> getParents(Set<Long> taskIds){
-        return entityManager.createNativeQuery("select taskData.id, workloadData.parentId, taskData.sessionId from TaskData taskData inner join " +
-                                                "WorkloadData workloadData on taskData.taskId = workloadData.taskId " +
-                                                " and taskData.sessionId = workloadData.sessionId where taskData.id in (:ids);").setParameter("ids", taskIds).getResultList();
+        return entityManager.createNativeQuery("select taskData.id, workloadData.parentId, taskData.sessionId from TaskData taskData " +
+                                               "inner join " +
+                                                    "WorkloadData workloadData on taskData.taskId = workloadData.taskId " +
+                                                                             " and taskData.sessionId = workloadData.sessionId " +
+                                               "where taskData.id in (:ids);")
+                                               .setParameter("ids", taskIds).getResultList();
         }
 
     /**
      * @return list of object[] (taskdata id, taskId, session id)
      */
     public List<Object[]> getTestGroups(Set<Long> taskIds){
-        return entityManager.createNativeQuery("select task.id, task.taskId, task.sessionId from TaskData task inner join " +
-                "(select taskData.id, taskData.taskId, workloadData.parentId, taskData.sessionId from TaskData taskData " +
-                "inner join WorkloadData workloadData on  taskData.taskId=workloadData.taskId " +
-                "and taskData.sessionId=workloadData.sessionId  where taskData.id in (:ids)) parents " +
-                "on task.taskId=parents.parentId and task.sessionId=parents.sessionId;").setParameter("ids", taskIds).getResultList();
+        return entityManager.createNativeQuery("select task.id, task.taskId, task.sessionId from TaskData task " +
+                                               "inner join " +
+                                                    "(select taskData.id, taskData.taskId, workloadData.parentId, taskData.sessionId from TaskData taskData " +
+                                                     "inner join WorkloadData workloadData on  taskData.taskId=workloadData.taskId " +
+                                                                                          "and taskData.sessionId=workloadData.sessionId  " +
+                                                     "where taskData.id in (:ids)) parents " +
+                                               "on task.taskId=parents.parentId " +
+                                               "and task.sessionId=parents.sessionId;")
+                                               .setParameter("ids", taskIds).getResultList();
     }
 
 

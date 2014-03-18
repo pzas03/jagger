@@ -110,7 +110,7 @@ public class PlotProviderServiceImpl implements PlotProviderService {
                     case METRIC:
                         fetchMap.put(customMetricPlotFetcher, metricNameDto);
                         break;
-                    case METRIC_GROUP:
+                    case TEST_GROUP_METRIC:
                         fetchMap.put(customTestGroupMetricPlotFetcher, metricNameDto);
                         break;
                     case MONITORING:

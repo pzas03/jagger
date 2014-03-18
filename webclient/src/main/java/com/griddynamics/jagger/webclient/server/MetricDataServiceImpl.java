@@ -83,7 +83,7 @@ public class MetricDataServiceImpl implements MetricDataService {
                 case METRIC:
                     fetchMap.put(customMetricSummaryFetcher, metricName);
                     break;
-                case METRIC_GROUP:
+                case TEST_GROUP_METRIC:
                     fetchMap.put(customTestGroupMetricSummaryFetcher, metricName);
                     break;
                 case VALIDATOR:

@@ -225,6 +225,8 @@ public class CommonDataProviderImpl implements CommonDataProvider {
 
             List<Object[]> metricDescriptionEntities = getMetricNames(testGroupMap.keySet());
 
+            metricDescriptionEntities = CommonUtils.filterMonitoring(metricDescriptionEntities, monitoringPlotGroups);
+
             if (metricDescriptionEntities.isEmpty()) {
                 return Collections.EMPTY_SET;
             }
@@ -236,7 +238,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                 for (TaskDataDto td : tests){
                     Collection<Long> allTestsInGroup = testGroupMap.get((Long)mde[2]);
                     if (CommonUtils.containsAtLeastOne(td.getIds(), allTestsInGroup)){
-                        metrics.add(new MetricNameDto(td, (String)mde[0], (String)mde[1], MetricNameDto.Origin.METRIC_GROUP));
+                        metrics.add(new MetricNameDto(td, (String)mde[0], (String)mde[1], MetricNameDto.Origin.TEST_GROUP_METRIC));
                     }
                 }
             }

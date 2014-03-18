@@ -25,8 +25,10 @@ public class CustomMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
             metricIds.add(metricName.getMetricName());
         }
 
+        List<Object[]> metrics = new ArrayList<Object[]>();
+
         // check old model
-        List<Object[]> metrics = getCustomMetricsDataOldModel(taskIds, metricIds);
+        metrics.addAll(getCustomMetricsDataOldModel(taskIds, metricIds));
 
         // check new model
         metrics.addAll(getCustomMetricsDataNewModel(taskIds, metricIds));
@@ -83,7 +85,7 @@ public class CustomMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
      * @param metricIds identifiers of metric
      * @return list of object[] (value, sessionId, metricId, taskDataId)
      */
-    private List<Object[]> getCustomMetricsDataOldModel(Set<Long> taskIds, Set<String> metricIds) {
+    protected List<Object[]> getCustomMetricsDataOldModel(Set<Long> taskIds, Set<String> metricIds) {
         return entityManager.createNativeQuery(
                 "select metric.total, taskData.sessionId, metric.name, taskData.taskDataId from DiagnosticResultEntity as metric join " +
                         "  (" +

@@ -288,7 +288,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
             for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
                 // old monitoring or new monitoring as metrics
                 if ((metricNameDto.getOrigin() == MetricNameDto.Origin.MONITORING) ||
-                        (metricNameDto.getOrigin() == MetricNameDto.Origin.METRIC_GROUP)) {
+                        (metricNameDto.getOrigin() == MetricNameDto.Origin.TEST_GROUP_METRIC)) {
 
                     // if looks like monitoring parameter
                     String[] splitResult = AgentUtils.splitMonitoringMetricId(metricNameDto.getMetricName());
