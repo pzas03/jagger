@@ -140,7 +140,7 @@ public class CustomMetricPlotNameProvider {
 
             List<Object[]> plotNamesNew = getMetricNames(testGroupMap.keySet());
 
-            plotNamesNew = filterMonitoring(plotNamesNew);
+            plotNamesNew = CommonUtils.filterMonitoring(plotNamesNew, monitoringPlotGroups);
 
             if (plotNamesNew.isEmpty()) {
                 return Collections.EMPTY_SET;
@@ -152,7 +152,7 @@ public class CustomMetricPlotNameProvider {
                 for (TaskDataDto td : tests){
                     Collection<Long> allTestsInGroup = testGroupMap.get((Long)mde[2]);
                     if (CommonUtils.containsAtLeastOne(td.getIds(), allTestsInGroup)){
-                        result.add(new MetricNameDto(td, (String)mde[0], (String)mde[1], MetricNameDto.Origin.METRIC_GROUP));
+                        result.add(new MetricNameDto(td, (String)mde[0], (String)mde[1], MetricNameDto.Origin.TEST_GROUP_METRIC));
                     }
                 }
             }
@@ -165,6 +165,9 @@ public class CustomMetricPlotNameProvider {
     }
 
     private List<Object[]> getMetricNames(Set<Long> testIds){
+        if (testIds.isEmpty()){
+            return Collections.EMPTY_LIST;
+        }
         return entityManager.createQuery(
                 "select mpe.metricDescription.metricId, mpe.metricDescription.displayName, mpe.metricDescription.taskData.id " +
                         "from MetricPointEntity as mpe where mpe.metricDescription.taskData.id in (:taskIds) group by mpe.metricDescription.id")
@@ -172,42 +175,6 @@ public class CustomMetricPlotNameProvider {
                 .getResultList();
     }
 
-    private List<Object[]> filterMonitoring(List<Object[]> origin){
-        List<Object[]> result = new ArrayList<Object[]>(origin.size());
 
-        // monitoring ids in reporting
-        Set<String> reportingMonitoring = new HashSet<String>();
-        for (DefaultMonitoringParameters[] value : monitoringPlotGroups.values()){
-            for (DefaultMonitoringParameters parameter : value){
-                reportingMonitoring.add(parameter.getId());
-            }
-        }
-
-        // all monitoring ids
-        Set<String> allMonitoring = new HashSet<String>();
-        for (DefaultMonitoringParameters parameter : DefaultMonitoringParameters.values()){
-            allMonitoring.add(parameter.getId());
-        }
-
-        for (Object[] row : origin){
-            String metricId = getMonitoringId((String)row[0]);
-            if (allMonitoring.contains(metricId) && !reportingMonitoring.contains(metricId)){
-                // ignore this metrics
-                continue;
-            }
-            result.add(row);
-        }
-
-        return result;
-    }
-
-    private String getMonitoringId(String origin){
-        int splitIndex = origin.indexOf(AgentUtils.AGENT_NAME_SEPARATOR);
-        if (splitIndex != -1){
-            return origin.substring(0, splitIndex);
-        }
-
-        return origin;
-    }
 
 }

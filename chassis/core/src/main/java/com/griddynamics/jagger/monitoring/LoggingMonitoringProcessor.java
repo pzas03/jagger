@@ -59,11 +59,10 @@ public class LoggingMonitoringProcessor implements MonitoringProcessor {
         saveMonitoringValues(serviceId, agentId.getIdentifier(), systemInfo.getSysInfo());
 
         // save jmx metrics
-        if (systemInfo.getSysUnderTest() == null){
-            return;
-        }
-        for (Map.Entry<String, SystemUnderTestInfo> entry : systemInfo.getSysUnderTest().entrySet()){
-            saveMonitoringValues(serviceId, entry.getKey(), entry.getValue().getSysUTInfo());
+        if (systemInfo.getSysUnderTest() != null){
+            for (Map.Entry<String, SystemUnderTestInfo> entry : systemInfo.getSysUnderTest().entrySet()){
+                saveMonitoringValues(serviceId, entry.getKey(), entry.getValue().getSysUTInfo());
+            }
         }
 
         log.trace("System info {} received from agent {} and has been written to FileStorage", systemInfo, agentId);

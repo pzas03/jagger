@@ -5,6 +5,7 @@ import com.griddynamics.jagger.webclient.server.fetch.FetchUtil;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -17,6 +18,11 @@ public class CustomTestGroupMetricSummaryFetcher extends CustomMetricSummaryFetc
 
     public void setFetchUtil(FetchUtil fetchUtil) {
         this.fetchUtil = fetchUtil;
+    }
+
+    @Override
+    protected List<Object[]> getCustomMetricsDataOldModel(Set<Long> taskIds, Set<String> metricIds) {
+        return Collections.EMPTY_LIST;
     }
 
     @Override

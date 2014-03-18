@@ -83,7 +83,7 @@ public class CustomMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
      * @param metricIds identifiers of metric
      * @return list of object[] (value, sessionId, metricId, taskDataId)
      */
-    private List<Object[]> getCustomMetricsDataOldModel(Set<Long> taskIds, Set<String> metricIds) {
+    protected List<Object[]> getCustomMetricsDataOldModel(Set<Long> taskIds, Set<String> metricIds) {
         return entityManager.createNativeQuery(
                 "select metric.total, taskData.sessionId, metric.name, taskData.taskDataId from DiagnosticResultEntity as metric join " +
                         "  (" +
