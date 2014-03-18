@@ -8,7 +8,10 @@ import com.griddynamics.jagger.webclient.client.components.control.model.*;
 import com.griddynamics.jagger.webclient.client.data.MetricRankingProvider;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
-import com.griddynamics.jagger.webclient.server.rules.*;
+import com.griddynamics.jagger.webclient.server.rules.TreeViewGroupMetricsToNodeRule;
+import com.griddynamics.jagger.webclient.server.rules.TreeViewGroupMetricsToNodeRuleProvider;
+import com.griddynamics.jagger.webclient.server.rules.TreeViewGroupRule;
+import com.griddynamics.jagger.webclient.server.rules.TreeViewGroupRuleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -89,7 +92,8 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
             DetailsNode detailsNode = detailsNodeFuture.get();
             //SessionScopePlotsNode sessionScopePlotsNode = sessionScopePlotsNodeFuture.get();
 
-            //??? temporary disabled session scope plots while transfering monitoring to metrics
+            // todo restore session scope plots for test group metrics JFG_667
+            // temporary disabled session scope plots while transferring monitoring to metrics
             //detailsNode.setSessionScopePlotsNode(sessionScopePlotsNode);
 
             rootNode.setSummary(summaryNode);
@@ -134,16 +138,13 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
                     }
             );
 
-            //??? delete monitoring metrics, not available int DefaultMonitoringParameters
             Map<TaskDataDto, List<PlotNode>> map = metricsPlotsMapFuture.get();
             Map<TaskDataDto, List<PlotNode>> monitoringMap = monitoringNewPlotsMapFuture.get();
 
             // get agent names
-            //??? later only monitoring and TG_metrics should come here
             Set<PlotNode> plotNodeList = new HashSet<PlotNode>();
             if (!monitoringMap.isEmpty()) {
                 for (TaskDataDto taskDataDto : monitoringMap.keySet()) { plotNodeList.addAll(monitoringMap.get(taskDataDto));}}
-            //??? replace map with map of TG_metrics
             for (TaskDataDto taskDataDto : map.keySet()) { plotNodeList.addAll(map.get(taskDataDto));}
             Map<String,Set<String>> agentNames = GerAgentNamesForMonitoringParameters(plotNodeList);
 
@@ -285,16 +286,21 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
 
         for (PlotNode plotNode : plotNodeList) {
             for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
-                // if looks like monitoring parameter
-                String[] splitResult = AgentUtils.splitMonitoringMetricId(metricNameDto.getMetricName());
-                if (splitResult.length > 1) {
-                    // if available in default monitoring parameters
-                    for (String key : defaultMonitoringParams.keySet()) {
-                        if (defaultMonitoringParams.get(key).contains(splitResult[0])) {
-                            if (!agentNames.containsKey(key)) {
-                                agentNames.put(key,new HashSet<String>());
+                // old monitoring or new monitoring as metrics
+                if ((metricNameDto.getOrigin() == MetricNameDto.Origin.MONITORING) ||
+                        (metricNameDto.getOrigin() == MetricNameDto.Origin.METRIC_GROUP)) {
+
+                    // if looks like monitoring parameter
+                    String[] splitResult = AgentUtils.splitMonitoringMetricId(metricNameDto.getMetricName());
+                    if (splitResult.length > 1) {
+                        // if available in default monitoring parameters
+                        for (String key : defaultMonitoringParams.keySet()) {
+                            if (defaultMonitoringParams.get(key).contains(splitResult[0])) {
+                                if (!agentNames.containsKey(key)) {
+                                    agentNames.put(key,new HashSet<String>());
+                                }
+                                agentNames.get(key).add(splitResult[1]);
                             }
-                            agentNames.get(key).add(splitResult[1]);
                         }
                     }
                 }
@@ -309,7 +315,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
         // rules to unite metrics in single plot
         TreeViewGroupMetricsToNodeRule unitedMetricsRule= treeViewGroupMetricsToNodeRuleProvider.provide(agentNames);
         // unite metrics and add result to original list
-        List<M> unitedMetrics = unitedMetricsRule.filter(Rule.By.ID, rootId, metricNodeList);
+        List<M> unitedMetrics = unitedMetricsRule.filter(rootId, metricNodeList);
         if (unitedMetrics != null) {
             metricNodeList.addAll(unitedMetrics);
         }
@@ -317,7 +323,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
         // rules to create test tree view
         TreeViewGroupRule groupedNodesRule = treeViewGroupRuleProvider.provide(rootId, rootId);
         // tree with metrics distributed by groups
-        MetricGroupNode<M> testNodeBase = groupedNodesRule.filter(Rule.By.ID,null,metricNodeList);
+        MetricGroupNode<M> testNodeBase = groupedNodesRule.filter(null,metricNodeList);
 
         return testNodeBase;
     }

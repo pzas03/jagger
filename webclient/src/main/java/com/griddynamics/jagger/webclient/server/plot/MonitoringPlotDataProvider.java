@@ -70,8 +70,6 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
      */
     @Override
     public List<PlotSeriesDto> getPlotData(String sessionId, String plotName) {
-        //??? function is used only for session scope plots
-
         String monitoringKey;
         String agentIdentifier;
         String[] splitName = AgentUtils.splitMonitoringMetricId(plotName);
@@ -180,7 +178,7 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
 
             WorkloadData workloadData = findWorkloadDataBySessionIdAndTaskId(workloadTaskData.getSessionId(), workloadTaskData.getTaskId());
 
-            //??? metricNameDto contains taskId even for tasks, where there is already no monitoring data avalable
+            // metricNameDto can contain taskId for tasks without monitoring data available => ignore
             try {
                 TaskData monitoringTaskData = findMonitoringTaskDataBySessionIdAndParentId(workloadData.getSessionId(), workloadData.getParentId());
 

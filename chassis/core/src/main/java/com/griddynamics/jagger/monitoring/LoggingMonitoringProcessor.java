@@ -46,7 +46,6 @@ import java.util.Map;
 public class LoggingMonitoringProcessor implements MonitoringProcessor {
     private Logger log = LoggerFactory.getLogger(LoggingMonitoringProcessor.class);
 
-    //??? do we still need it
     public static final String MONITORING_MARKER = "MONITORING";
 
     private Map<String, MetricService> metricServiceMap = new HashMap<String, MetricService>();

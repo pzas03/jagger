@@ -50,6 +50,11 @@ public class CustomMetricPlotFetcher extends PlotsDbMetricDataFetcher {
 
                 try {
                     rawData = taskIdMetricIdRawMap.get(taskId).get(metricName.getMetricName());
+
+                    if (rawData.isEmpty()) {
+                        // no data was saved for given task Id and metric Id
+                        continue;
+                    }
                 } catch (NullPointerException e) {
                     // we did not find metric with given TaskDataId
                     // it could happen if we got 2 sessions, with different sets of custom metrics

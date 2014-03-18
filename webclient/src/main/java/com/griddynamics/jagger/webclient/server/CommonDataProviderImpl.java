@@ -734,12 +734,10 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                     }
 
                     String monitoringId = null;     // Id of particular metric
-//???                    String monitoringKey = null;    // Key, corresponding to metric in monitoringParameters
                     for (Map.Entry<GroupKey, DefaultMonitoringParameters[]> entry : monitoringParameters) {
                         for (DefaultMonitoringParameters dmp : entry.getValue()) {
                             if (dmp.getDescription().equals((String) objects[3])) {
                                 monitoringId = dmp.getId();
-//???                                monitoringKey = entry.getKey().getUpperName();
                             }
                         }
                     }

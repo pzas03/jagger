@@ -72,7 +72,7 @@ public class MonitoringMetricPlotFetcher extends PlotsDbMetricDataFetcher {
 
                 WorkloadData workloadData = findWorkloadDataBySessionIdAndTaskId(workloadTaskData.getSessionId(), workloadTaskData.getTaskId());
 
-                //??? metricNameDto contains taskId even for tasks, where there is already no monitoring data avalable
+                // metricNameDto can contain taskId for tasks without monitoring data available => ignore
                 try {
                     TaskData monitoringTaskData = findMonitoringTaskDataBySessionIdAndParentId(workloadData.getSessionId(), workloadData.getParentId());
 

@@ -4,7 +4,8 @@ import com.google.common.collect.Multimap;
 import com.griddynamics.jagger.agent.model.DefaultMonitoringParameters;
 import com.griddynamics.jagger.monitoring.reporting.GroupKey;
 import com.griddynamics.jagger.util.AgentUtils;
-import com.griddynamics.jagger.webclient.client.dto.*;
+import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
+import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 import com.griddynamics.jagger.webclient.server.CommonUtils;
 import com.griddynamics.jagger.webclient.server.DataProcessingUtil;
 import com.griddynamics.jagger.webclient.server.fetch.FetchUtil;
@@ -131,9 +132,6 @@ public class CustomMetricPlotNameProvider {
 
     }
 
-    //???
-    // un db session #35 testGroup is empty => groupIds empty => loadTestsMetricDescriptions fails
-    //??? left before merging
     public Set<MetricNameDto> getTestGroupPlotNamesNewModel(List<TaskDataDto> tests){
 
         try {
@@ -168,7 +166,6 @@ public class CustomMetricPlotNameProvider {
     }
 
     private List<Object[]> getMetricNames(Set<Long> testIds){
-        //??? can come empty list
         if (testIds.size() > 0) {
             return entityManager.createQuery(
                     "select mpe.metricDescription.metricId, mpe.metricDescription.displayName, mpe.metricDescription.taskData.id " +

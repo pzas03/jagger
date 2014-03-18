@@ -28,22 +28,24 @@ public class TreeViewGroupMetricsToNodeRuleProvider {
                 String metricDisplayName = groupKeyEntry.getKey().getUpperName();
 
                 // group metrics to nodes by DefaultMonitoringParameters and AgentIds
-                for (String agentId : agentNames.get(metricDisplayName)) {
-                    String regex = "";
-                    for (DefaultMonitoringParameters defaultMonitoringParameters : groupKeyEntry.getValue()) {
-                        // not first / first time
-                        if (regex.length() != 0) {
-                            regex += "|";
+                if (agentNames.containsKey(metricDisplayName)) {
+                    for (String agentId : agentNames.get(metricDisplayName)) {
+                        String regex = "";
+                        for (DefaultMonitoringParameters defaultMonitoringParameters : groupKeyEntry.getValue()) {
+                            // not first / first time
+                            if (regex.length() != 0) {
+                                regex += "|";
+                            }
+                            else {
+                                regex += "^.*(";
+                            }
+                            regex += defaultMonitoringParameters.getId();
                         }
-                        else {
-                            regex += "^.*(";
-                        }
-                        regex += defaultMonitoringParameters.getId();
-                    }
-                    String safeAgentId = agentId.replace("[","\\[").replace("]","\\]");
-                    regex += ").*" + safeAgentId + ".*";
+                        String safeAgentId = agentId.replace("[","\\[").replace("]","\\]").replace("(", "\\(").replace(")","\\)");
+                        regex += ").*" + safeAgentId + ".*";
 
-                    result.add(new TreeViewGroupMetricsToNodeRule(metricDisplayName + "_" + agentId,agentId,regex));
+                        result.add(new TreeViewGroupMetricsToNodeRule(Rule.By.ID, metricDisplayName + "_" + agentId,agentId,regex));
+                    }
                 }
             }
         }
