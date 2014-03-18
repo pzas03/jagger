@@ -36,22 +36,17 @@ public class CumulativeMetricAggregatorProvider implements MetricAggregatorProvi
         // max value in current interval
         private Double currentValue = null;
 
-        // max value in previous interval
+        // max value in previous interval or very first value if it is in first interval
         private Double previousValue = null;
-
-        // very first value that appended to aggregator, to calculate value in first interval
-        private Double veryFirstValue = null;
-
-        // flag to determine whether getAggregated() method calls in first interval
-        private boolean firstInterval = true;
 
         @Override
         public void append(Number calculated) {
             log.debug("append({})", calculated);
 
-            if (veryFirstValue == null) {
+            // if true then it is first interval
+            if (previousValue == null) {
                 // remember very first value
-                veryFirstValue = calculated.doubleValue();
+                previousValue = calculated.doubleValue();
             }
 
             if (currentValue == null) {
@@ -68,15 +63,7 @@ public class CumulativeMetricAggregatorProvider implements MetricAggregatorProvi
                 return null;
             }
 
-            Number result;
-            if (firstInterval) {
-                // return true difference of max and min values in first interval
-                result = currentValue - veryFirstValue;
-            } else {
-                result = currentValue - previousValue;
-            }
-
-            previousValue = currentValue;
+            Number result = currentValue - previousValue;
 
             log.debug("getAggregated() = {}", result);
             return result;
@@ -85,7 +72,7 @@ public class CumulativeMetricAggregatorProvider implements MetricAggregatorProvi
         @Override
         public void reset() {
             // that means that next 'append()' will be called for next interval
-            firstInterval = false;
+            previousValue = currentValue;
             currentValue = null;
 
             log.debug("reset()");
@@ -101,8 +88,6 @@ public class CumulativeMetricAggregatorProvider implements MetricAggregatorProvi
             return "CumulativeMetricAggregator{" +
                     "currentValue=" + currentValue +
                     ", previousValue=" + previousValue +
-                    ", veryFirstValue=" + veryFirstValue +
-                    ", firstInterval=" + firstInterval +
                     '}';
         }
     }
