@@ -21,10 +21,9 @@ package com.griddynamics.jagger.engine.e1.aggregator.workload;
 
 import com.griddynamics.jagger.coordinator.NodeId;
 import com.griddynamics.jagger.engine.e1.aggregator.session.model.TaskData;
-import com.griddynamics.jagger.engine.e1.aggregator.workload.model.MetricDescriptionEntity;
-import com.griddynamics.jagger.engine.e1.aggregator.workload.model.MetricPointEntity;
-import com.griddynamics.jagger.engine.e1.aggregator.workload.model.MetricSummaryEntity;
-import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadData;
+import com.griddynamics.jagger.engine.e1.aggregator.workload.model.*;
+import com.griddynamics.jagger.master.CompositeTask;
+import com.griddynamics.jagger.reporting.interval.IntervalSizeProvider;
 import com.griddynamics.jagger.engine.e1.collector.*;
 import com.griddynamics.jagger.engine.e1.scenario.WorkloadTask;
 import com.griddynamics.jagger.master.DistributionListener;
@@ -114,7 +113,7 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
 
     @Override
     public void onTaskDistributionCompleted(String sessionId, String taskId, Task task) {
-        if (task instanceof WorkloadTask) {
+        if (task instanceof WorkloadTask || task instanceof CompositeTask) {
             processLog(sessionIdProvider.getSessionId(), taskId);
         }
     }
@@ -322,22 +321,7 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
         }
 
         private void persistAggregatedMetricValue(Number value, MetricDescriptionEntity md) {
-
-            WorkloadData workloadData = getWorkloadData(taskData.getSessionId(), taskData.getTaskId());
-            if(workloadData == null) {
-                log.warn("WorkloadData is not collected for task: '{}' terminating write metric: '{}' with value: '{}'",
-                        new Object[] {taskData.getTaskId(), md.getMetricId(), value});
-                return;
-            }
-            MetricSummaryEntity entity = getMetricSummaryEntity(md);
-            if (entity != null) {
-                log.info("DiagnosticResultEntity with name: '{}', for task: '{}' is  already exists. " +
-                        "Skipping write (please, disable DiagnosticCollector for this metric)",
-                        md.getMetricId(), workloadData.getTaskId());
-                return;
-            }
-
-            entity = new MetricSummaryEntity();
+            MetricSummaryEntity entity = new MetricSummaryEntity();
             entity.setTotal(value.doubleValue());
             entity.setMetricDescription(md);
 
@@ -365,32 +349,6 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
         private String createAggregatorDisplayNameSuffix(String name) {
             return " [" + name + ']';
         }
-
-        @SuppressWarnings("unchecked")
-        private MetricSummaryEntity getMetricSummaryEntity(final MetricDescriptionEntity md) {
-            return getHibernateTemplate().execute(new HibernateCallback<MetricSummaryEntity>() {
-                @Override
-                public MetricSummaryEntity doInHibernate(Session session) throws HibernateException, SQLException {
-                    return (MetricSummaryEntity) session
-                            .createQuery("select t from MetricSummaryEntity t where t.metricDescription=?")
-                            .setParameter(0, md)
-                            .uniqueResult();
-                }
-            });
-        }
-
-        @SuppressWarnings("unchecked")
-        private WorkloadData getWorkloadData(final String sessionId, final String taskId) {
-            return getHibernateTemplate().execute(new HibernateCallback<WorkloadData>() {
-                @Override
-                public WorkloadData doInHibernate(Session session) throws HibernateException, SQLException {
-                    return (WorkloadData) session
-                            .createQuery("select t from WorkloadData t where sessionId=? and taskId=?")
-                            .setParameter(0, sessionId)
-                            .setParameter(1, taskId)
-                            .uniqueResult();
-                }
-            });
-        }
+        
     }
 }

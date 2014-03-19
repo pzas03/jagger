@@ -18,6 +18,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
  * @since 5/30/12
@@ -34,6 +35,7 @@ public class PlotProviderServiceImpl implements PlotProviderService {
     private LatencyMetricPlotFetcher latencyMetricPlotFetcher;
     private TimeLatencyPercentileMetricPlotFetcher timeLatencyPercentileMetricPlotFetcher;
     private CustomMetricPlotFetcher customMetricPlotFetcher;
+    private CustomTestGroupMetricPlotFetcher customTestGroupMetricPlotFetcher;
     private MonitoringMetricPlotFetcher monitoringMetricPlotFetcher;
 
 
@@ -82,6 +84,10 @@ public class PlotProviderServiceImpl implements PlotProviderService {
         this.customMetricPlotFetcher = customMetricPlotFetcher;
     }
 
+    public void setCustomTestGroupMetricPlotFetcher(CustomTestGroupMetricPlotFetcher customTestGroupMetricPlotFetcher) {
+        this.customTestGroupMetricPlotFetcher = customTestGroupMetricPlotFetcher;
+    }
+
     @Required
     public void setMonitoringMetricPlotFetcher(MonitoringMetricPlotFetcher monitoringMetricPlotFetcher) {
         this.monitoringMetricPlotFetcher = monitoringMetricPlotFetcher;
@@ -103,6 +109,9 @@ public class PlotProviderServiceImpl implements PlotProviderService {
                 switch (metricNameDto.getOrigin()) {
                     case METRIC:
                         fetchMap.put(customMetricPlotFetcher, metricNameDto);
+                        break;
+                    case TEST_GROUP_METRIC:
+                        fetchMap.put(customTestGroupMetricPlotFetcher, metricNameDto);
                         break;
                     case MONITORING:
                         fetchMap.put(monitoringMetricPlotFetcher, metricNameDto);

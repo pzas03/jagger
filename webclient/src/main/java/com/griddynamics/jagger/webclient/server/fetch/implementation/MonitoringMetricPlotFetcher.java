@@ -20,7 +20,7 @@ import java.util.*;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.griddynamics.jagger.webclient.client.mvp.NameTokens.AGENT_NAME_SEPARATOR;
+import static com.griddynamics.jagger.util.AgentUtils.AGENT_NAME_SEPARATOR;
 
 public class MonitoringMetricPlotFetcher extends PlotsDbMetricDataFetcher {
 
