@@ -55,20 +55,22 @@ public class LoggingMonitoringProcessor implements MonitoringProcessor {
             metricServiceMap.put(serviceId, new DefaultMetricService(sessionId, taskId, nodeContext));
         }
 
+        long timeStamp = systemInfo.getTime();
+
         // save sigar metrics
-        saveMonitoringValues(serviceId, agentId.getIdentifier(), systemInfo.getSysInfo());
+        saveMonitoringValues(serviceId, agentId.getIdentifier(), systemInfo.getSysInfo(), timeStamp);
 
         // save jmx metrics
         if (systemInfo.getSysUnderTest() != null){
             for (Map.Entry<String, SystemUnderTestInfo> entry : systemInfo.getSysUnderTest().entrySet()){
-                saveMonitoringValues(serviceId, entry.getKey(), entry.getValue().getSysUTInfo());
+                saveMonitoringValues(serviceId, entry.getKey(), entry.getValue().getSysUTInfo(), timeStamp);
             }
         }
 
         log.trace("System info {} received from agent {} and has been written to FileStorage", systemInfo, agentId);
     }
 
-    private void saveMonitoringValues(String serviceId, String agentId, Map<MonitoringParameter, Double> values){
+    private void saveMonitoringValues(String serviceId, String agentId, Map<MonitoringParameter, Double> values, long time){
         if (values == null){
             return;
         }
@@ -81,7 +83,7 @@ public class LoggingMonitoringProcessor implements MonitoringProcessor {
 
             // save value
             String metricId = getMetricId(serviceId, monitoringParameter, agentId);
-            service.saveValue(metricId, value);
+            service.saveValue(metricId, value, time);
         }
     }
 
@@ -95,8 +97,7 @@ public class LoggingMonitoringProcessor implements MonitoringProcessor {
             if (!monitoringParameter.isCumulativeCounter()){
                 aggregator = new AvgMetricAggregatorProvider();
             }else{
-                // todo : set correct aggregator
-                aggregator = new SumMetricAggregatorProvider();
+                aggregator = new CumulativeMetricAggregatorProvider();
             }
 
             metricServiceMap.get(serviceId).createMetric(new MetricDescription(metricId)
