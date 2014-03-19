@@ -35,6 +35,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.gwt.view.client.*;
+import com.griddynamics.jagger.util.AgentUtils;
 import com.griddynamics.jagger.webclient.client.*;
 import com.griddynamics.jagger.webclient.client.components.*;
 import com.griddynamics.jagger.webclient.client.components.control.CheckHandlerMap;
@@ -1154,8 +1155,11 @@ public class Trends extends DefaultActivity {
                                     }
                                     else {
                                         // selection per agent node
-                                        for (String metricId : defaultMonitoringParameters.get(defaultMonitoringParam)) {
-                                            newTrends.add(id.replace(defaultMonitoringParam,metricId));
+                                        String[] splitString = AgentUtils.splitMonitoringMetricId(id);
+                                        if (splitString.length > 1) {
+                                            for (String metricId : defaultMonitoringParameters.get(defaultMonitoringParam)) {
+                                                newTrends.add(AgentUtils.getMonitoringMetricId(metricId, splitString[1]));      // metricId + agentName
+                                            }
                                         }
                                     }
                                     // old monitoring id was replaced with new metricNameDto ids
