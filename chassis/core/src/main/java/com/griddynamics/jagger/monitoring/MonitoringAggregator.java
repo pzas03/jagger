@@ -223,7 +223,7 @@ public class MonitoringAggregator extends LogProcessor implements DistributionLi
         while (logEntry.getTime() > currentInterval) {
             if (!countByIntervalAgent.isEmpty() || !countByIntervalSuT.isEmpty()) {
 
-                long time = currentInterval - aggregationInfo.getMinTime() + extendedInterval.get() / 2;
+                long time = currentInterval - aggregationInfo.getMinTime() - extendedInterval.get() / 2;
                 finalizeIntervalSysInfo(sessionId, taskData,
                         time,
                         sumByIntervalAgent, countByIntervalAgent, avgStatisticsByAgent);
