@@ -6,6 +6,7 @@ import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadData;
 import com.griddynamics.jagger.monitoring.model.MonitoringStatistics;
 import com.griddynamics.jagger.monitoring.model.PerformedMonitoring;
 import com.griddynamics.jagger.monitoring.reporting.GroupKey;
+import com.griddynamics.jagger.util.MonitoringIdUtils;
 import com.griddynamics.jagger.util.Pair;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
 import com.griddynamics.jagger.webclient.client.dto.PlotDatasetDto;
@@ -16,11 +17,11 @@ import com.griddynamics.jagger.webclient.server.DataProcessingUtil;
 import com.griddynamics.jagger.webclient.server.fetch.PlotsDbMetricDataFetcher;
 import org.springframework.beans.factory.annotation.Required;
 
+import javax.persistence.NoResultException;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.griddynamics.jagger.util.AgentUtils.AGENT_NAME_SEPARATOR;
 
 public class MonitoringMetricPlotFetcher extends PlotsDbMetricDataFetcher {
 
@@ -47,9 +48,18 @@ public class MonitoringMetricPlotFetcher extends PlotsDbMetricDataFetcher {
             checkArgument(!taskIds.isEmpty(), "taskIds is empty");
             checkNotNull(metricNameDto, "metricNameDto is null");
 
+            String monitoringKey;
+            String agentIdentifier;
             String metricId =  metricNameDto.getMetricName();
-            String monitoringKey = metricId.substring(0, metricId.indexOf(AGENT_NAME_SEPARATOR));
-            String agentIdentifier = metricId.substring(metricId.indexOf(AGENT_NAME_SEPARATOR) + AGENT_NAME_SEPARATOR.length());
+            MonitoringIdUtils.MonitoringId monitoringId = MonitoringIdUtils.splitMonitoringMetricId(metricId);
+            if (monitoringId != null) {
+                monitoringKey = monitoringId.getMonitoringName();
+                agentIdentifier = monitoringId.getAgentName();
+            }
+            else {
+                log.error("Unable to split name '{}' to monitoringKey and agentIdentifier",metricId);
+                throw new RuntimeException("Unable to split name '" + metricId + "' to monitoringKey and agentIdentifier");
+            }
 
             DefaultMonitoringParameters[] defaultMonitoringParametersGroup = findDefaultMonitoringParameters(monitoringPlotGroups, monitoringKey);
             List<String> monitoringParametersList = assembleDefaultMonitoringParametersDescriptions(defaultMonitoringParametersGroup);
@@ -62,26 +72,32 @@ public class MonitoringMetricPlotFetcher extends PlotsDbMetricDataFetcher {
 
                 WorkloadData workloadData = findWorkloadDataBySessionIdAndTaskId(workloadTaskData.getSessionId(), workloadTaskData.getTaskId());
 
-                TaskData monitoringTaskData = findMonitoringTaskDataBySessionIdAndParentId(workloadData.getSessionId(), workloadData.getParentId());
+                // metricNameDto can contain taskId for tasks without monitoring data available => ignore
+                try {
+                    TaskData monitoringTaskData = findMonitoringTaskDataBySessionIdAndParentId(workloadData.getSessionId(), workloadData.getParentId());
 
-                // todo here we fetching all MonitoringStatistic entity with TaskData in it. may be it could be simplified.
-                List<MonitoringStatistics> monitoringStatisticsList = findAllMonitoringStatisticsByMonitoringTaskDataAndDescriptionInList(monitoringTaskData, monitoringParametersList, agentIdentifier);
+                    // todo here we fetching all MonitoringStatistic entity with TaskData in it. may be it could be simplified.
+                    List<MonitoringStatistics> monitoringStatisticsList = findAllMonitoringStatisticsByMonitoringTaskDataAndDescriptionInList(monitoringTaskData, monitoringParametersList, agentIdentifier);
 
-                Map<String, Map<String, List<MonitoringStatistics>>> composedMap = composeByBoxIdentifierAndDescription(monitoringStatisticsList, true);
+                    Map<String, Map<String, List<MonitoringStatistics>>> composedMap = composeByBoxIdentifierAndDescription(monitoringStatisticsList, true);
 
-                for (Map.Entry<String, Map<String, List<MonitoringStatistics>>> boxEntry : composedMap.entrySet()) {
-                    if (!finalComposedMap.containsKey(boxEntry.getKey())) {
-                        finalComposedMap.put(boxEntry.getKey(), new HashMap<String, List<MonitoringStatistics>>());
-                    }
-
-                    for (Map.Entry<String, List<MonitoringStatistics>> descrEntry : boxEntry.getValue().entrySet()) {
-                        if (!finalComposedMap.get(boxEntry.getKey()).containsKey(descrEntry.getKey())) {
-                            finalComposedMap.get(boxEntry.getKey()).put(descrEntry.getKey(), new ArrayList<MonitoringStatistics>());
+                    for (Map.Entry<String, Map<String, List<MonitoringStatistics>>> boxEntry : composedMap.entrySet()) {
+                        if (!finalComposedMap.containsKey(boxEntry.getKey())) {
+                            finalComposedMap.put(boxEntry.getKey(), new HashMap<String, List<MonitoringStatistics>>());
                         }
-                        finalComposedMap.get(boxEntry.getKey()).get(descrEntry.getKey()).addAll(descrEntry.getValue());
+
+                        for (Map.Entry<String, List<MonitoringStatistics>> descrEntry : boxEntry.getValue().entrySet()) {
+                            if (!finalComposedMap.get(boxEntry.getKey()).containsKey(descrEntry.getKey())) {
+                                finalComposedMap.get(boxEntry.getKey()).put(descrEntry.getKey(), new ArrayList<MonitoringStatistics>());
+                            }
+                            finalComposedMap.get(boxEntry.getKey()).get(descrEntry.getKey()).addAll(descrEntry.getValue());
+                        }
                     }
                 }
-            }
+                catch (NoResultException ex) {
+                    log.warn("Not able to fetch monitoring data for session id: " + workloadData.getSessionId() + " task id: " + taskId, ex);
+                }
+        }
 
             List<PlotSeriesDto> plotSeries = assemble(finalComposedMap, monitoringKey, taskIds);
             List<PlotDatasetDto> plotDatasetDtoList = new ArrayList<PlotDatasetDto>();
@@ -148,8 +164,11 @@ public class MonitoringMetricPlotFetcher extends PlotsDbMetricDataFetcher {
 
     private DefaultMonitoringParameters[] findDefaultMonitoringParameters(Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups, String plotName) {
         for (Map.Entry<GroupKey, DefaultMonitoringParameters[]> entry : monitoringPlotGroups.entrySet()) {
-            if (entry.getKey().getUpperName().equalsIgnoreCase(plotName)) {
-                return entry.getValue();
+            for (DefaultMonitoringParameters defaultMonitoringParameters : entry.getValue()) {
+                if (plotName.equals(defaultMonitoringParameters.getId())) {
+                    DefaultMonitoringParameters[] result = {defaultMonitoringParameters};
+                    return result;
+                }
             }
         }
 

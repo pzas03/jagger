@@ -29,7 +29,6 @@ import java.util.*;
  * Time: 12:30
  * Panel that contains table of metrics in comparison mod (multiple session selected)
  */
-
 public class SessionComparisonPanel extends VerticalPanel {
 
     private final String TEST_DESCRIPTION = "testDescription";

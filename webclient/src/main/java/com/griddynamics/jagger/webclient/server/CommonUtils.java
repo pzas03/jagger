@@ -2,7 +2,7 @@ package com.griddynamics.jagger.webclient.server;
 
 import com.griddynamics.jagger.agent.model.DefaultMonitoringParameters;
 import com.griddynamics.jagger.monitoring.reporting.GroupKey;
-import com.griddynamics.jagger.util.AgentUtils;
+import com.griddynamics.jagger.util.MonitoringIdUtils;
 import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
 
 import java.util.*;
@@ -48,9 +48,9 @@ public class CommonUtils {
     }
 
     private static String getMonitoringId(String origin){
-        int splitIndex = origin.indexOf(AgentUtils.AGENT_NAME_SEPARATOR);
-        if (splitIndex != -1){
-            return origin.substring(0, splitIndex);
+        MonitoringIdUtils.MonitoringId monitoringId = MonitoringIdUtils.splitMonitoringMetricId(origin);
+        if (monitoringId != null) {
+            return monitoringId.getMonitoringName();
         }
 
         return origin;
