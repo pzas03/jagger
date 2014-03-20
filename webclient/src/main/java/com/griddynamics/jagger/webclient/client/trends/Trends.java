@@ -1741,9 +1741,9 @@ public class Trends extends DefaultActivity {
 
     void setupSearchTabPanel() {
 
-        final int indexDate = 0;
-        final int indexId = 1;
-        final int indexTag = 2;
+        final int indexId = 0;
+        final int indexTag = 1;
+        final int indexDate = 2;
         allTags();
         tagFilterBox = new TagBox();
         tagButton = new Button("...");
@@ -1776,11 +1776,12 @@ public class Trends extends DefaultActivity {
         tagsPanel.setBorderWidth(0);
         sessionIdsTextBox.setSize("98%", "18px");
 
-        searchTabPanel.selectTab(0);
+        searchTabPanel.selectTab(indexId);
 
-        searchTabPanel.getTabWidget(0).setTitle("Search by an session's id");
-        searchTabPanel.getTabWidget(1).setTitle("Search by a date of sessions");
-        searchTabPanel.getTabWidget(2).setTitle("Search by session's tags");
+        searchTabPanel.getTabWidget(indexId).setTitle("Search by an session's id");
+        searchTabPanel.getTabWidget(indexTag).setTitle("Search by session's tags");
+        searchTabPanel.getTabWidget(indexDate).setTitle("Search by a date of sessions");
+
 
         searchTabPanel.setTitle("A search bar");
 
@@ -1789,14 +1790,14 @@ public class Trends extends DefaultActivity {
             public void onSelection(SelectionEvent<Integer> event) {
                 int selected = event.getSelectedItem();
                 switch (selected) {
-                    case indexDate:
-                        onDateSearchTabSelected();
-                        break;
                     case indexId:
                         onIdSearchTabSelected();
                         break;
                     case indexTag:
                         onTagSearchTabSelected();
+                        break;
+                    case indexDate:
+                        onDateSearchTabSelected();
                         break;
                     default:
                 }

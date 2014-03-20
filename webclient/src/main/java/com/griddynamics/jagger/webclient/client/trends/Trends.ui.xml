@@ -44,23 +44,22 @@
                                         </g:header>
                                         <g:HorizontalPanel addStyleNames="{res.css.searchPanel}"
                                                            ui:field="idsPanel" borderWidth="0"/>
-
                                     </g:tab>
-                                    <g:tab>
-                                        <g:header>
-                                            <b>Date range</b>
-                                        </g:header>
-                                        <g:HorizontalPanel addStyleNames="{res.css.searchPanel}"
-                                                           ui:field="datesPanel" borderWidth="0"/>
 
-                                    </g:tab>
                                     <g:tab>
                                         <g:header>
                                             <b>Tags</b>
                                         </g:header>
                                         <g:HorizontalPanel addStyleNames="{res.css.searchPanel}"
                                                            ui:field="tagsPanel" borderWidth="0"/>
+                                    </g:tab>
 
+                                    <g:tab>
+                                        <g:header>
+                                            <b>Date range</b>
+                                        </g:header>
+                                        <g:HorizontalPanel addStyleNames="{res.css.searchPanel}"
+                                                           ui:field="datesPanel" borderWidth="0"/>
                                     </g:tab>
                                 </g:TabLayoutPanel>
 

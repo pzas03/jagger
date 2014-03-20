@@ -27,7 +27,7 @@ public class DataSaverServiceImpl implements DataSaverService {
        this.entityManager = entityManager.getEntityManagerFactory().createEntityManager();
     }
 
-    //synchronized because we use "not safety" entity manager
+    //synchronized because we use not thread safe entity manager
     @Override
     public synchronized void saveUserComment(Long sessionData_id, String userComment) {
 
