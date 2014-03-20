@@ -6,7 +6,7 @@ import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadData;
 import com.griddynamics.jagger.monitoring.model.MonitoringStatistics;
 import com.griddynamics.jagger.monitoring.model.PerformedMonitoring;
 import com.griddynamics.jagger.monitoring.reporting.GroupKey;
-import com.griddynamics.jagger.util.AgentUtils;
+import com.griddynamics.jagger.util.MonitoringIdUtils;
 import com.griddynamics.jagger.webclient.client.dto.*;
 import com.griddynamics.jagger.webclient.server.ColorCodeGenerator;
 import com.griddynamics.jagger.webclient.server.DataProcessingUtil;
@@ -72,13 +72,13 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
     public List<PlotSeriesDto> getPlotData(String sessionId, String plotName) {
         String monitoringKey;
         String agentIdentifier;
-        String[] splitName = AgentUtils.splitMonitoringMetricId(plotName);
-        if (splitName.length > 1) {
-            monitoringKey = splitName[0];
-            agentIdentifier = splitName[1];
+        MonitoringIdUtils.MonitoringId monitoringId = MonitoringIdUtils.splitMonitoringMetricId(plotName);
+        if (monitoringId != null) {
+            monitoringKey = monitoringId.getMonitoringName();
+            agentIdentifier = monitoringId.getAgentName();
         }
         else {
-            log.error("Unable to split name '" + plotName + "' to monitoringKey and agentIdentifier");
+            log.error("Unable to split name '{}' to monitoringKey and agentIdentifier",plotName);
             throw new RuntimeException("Unable to split name '" + plotName + "' to monitoringKey and agentIdentifier");
         }
 
@@ -157,13 +157,13 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
         String monitoringKey;
         String agentIdentifier;
         String metricId =  metricNameDto.getMetricName();
-        String[] splitName = AgentUtils.splitMonitoringMetricId(metricId);
-        if (splitName.length > 1) {
-            monitoringKey = splitName[0];
-            agentIdentifier = splitName[1];
+        MonitoringIdUtils.MonitoringId monitoringId = MonitoringIdUtils.splitMonitoringMetricId(metricId);
+        if (monitoringId != null) {
+            monitoringKey = monitoringId.getMonitoringName();
+            agentIdentifier = monitoringId.getAgentName();
         }
         else {
-            log.error("Unable to split name '" + metricId + "' to monitoringKey and agentIdentifier");
+            log.error("Unable to split name '{}' to monitoringKey and agentIdentifier",metricId);
             throw new RuntimeException("Unable to split name '" + metricId + "' to monitoringKey and agentIdentifier");
         }
 
@@ -201,7 +201,7 @@ public class MonitoringPlotDataProvider implements PlotDataProvider, SessionScop
                 }
             }
             catch (NoResultException ex) {
-                log.error("Not able to fetch monitoring data for session id: " + workloadData.getSessionId() + " task id: " + taskId, ex);
+                log.warn("Not able to fetch monitoring data for session id: " + workloadData.getSessionId() + " task id: " + taskId, ex);
             }
         }
 

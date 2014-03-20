@@ -35,7 +35,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.gwt.view.client.*;
-import com.griddynamics.jagger.util.AgentUtils;
+import com.griddynamics.jagger.util.MonitoringIdUtils;
 import com.griddynamics.jagger.webclient.client.*;
 import com.griddynamics.jagger.webclient.client.components.*;
 import com.griddynamics.jagger.webclient.client.components.control.CheckHandlerMap;
@@ -412,7 +412,7 @@ public class Trends extends DefaultActivity {
 
     private Map<String,Set<String>> defaultMonitoringParameters;
 
-    public void getDefaultMonitoringParameters(){
+    public void loadDefaultMonitoringParameters(){
 
         CommonDataService.Async.getInstance().getDefaultMonitoringParameters(new AsyncCallback<Map<String, Set<String>>>() {
             @Override
@@ -424,6 +424,7 @@ public class Trends extends DefaultActivity {
             @Override
             public void onSuccess(Map<String, Set<String>> result) {
                 defaultMonitoringParameters = result;
+                updatePlace(place);
             }
         });
     }
@@ -1155,10 +1156,10 @@ public class Trends extends DefaultActivity {
                                     }
                                     else {
                                         // selection per agent node
-                                        String[] splitString = AgentUtils.splitMonitoringMetricId(id);
-                                        if (splitString.length > 1) {
+                                        MonitoringIdUtils.MonitoringId monitoringId = MonitoringIdUtils.splitMonitoringMetricId(id);
+                                        if (monitoringId != null) {
                                             for (String metricId : defaultMonitoringParameters.get(defaultMonitoringParam)) {
-                                                newTrends.add(AgentUtils.getMonitoringMetricId(metricId, splitString[1]));      // metricId + agentName
+                                                newTrends.add(MonitoringIdUtils.getMonitoringMetricId(metricId, monitoringId.getAgentName()));      // metricId + agentName
                                             }
                                         }
                                     }

@@ -69,6 +69,7 @@
         <property name="threadPool" ref="executorService"/>
         <property name="treeViewGroupRuleProvider" ref="ruleProvider_TreeViewGroup"/>
         <property name="treeViewGroupMetricsToNodeRuleProvider" ref="ruleProvider_TreeViewGroupMetricsToNode"/>
+        <property name="defaultMonitoringParams" ref="monitoringPlotGroups"/>
     </bean>
 
     <bean id="executorService" class="java.util.concurrent.Executors"

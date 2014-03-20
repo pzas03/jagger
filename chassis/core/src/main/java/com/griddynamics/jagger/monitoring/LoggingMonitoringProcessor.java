@@ -33,7 +33,7 @@ import com.griddynamics.jagger.engine.e1.collector.MetricDescription;
 import com.griddynamics.jagger.engine.e1.collector.SumMetricAggregatorProvider;
 import com.griddynamics.jagger.engine.e1.services.DefaultMetricService;
 import com.griddynamics.jagger.engine.e1.services.MetricService;
-import com.griddynamics.jagger.util.AgentUtils;
+import com.griddynamics.jagger.util.MonitoringIdUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +90,7 @@ public class LoggingMonitoringProcessor implements MonitoringProcessor {
 
     // return metric id for current monitoring parameter
     private String getMetricId(String serviceId, MonitoringParameter monitoringParameter, String agentId){
-        String metricId = AgentUtils.getMonitoringMetricId(monitoringParameter.getId(), agentId);
+        String metricId = MonitoringIdUtils.getMonitoringMetricId(monitoringParameter.getId(), agentId);
 
         // register metric aggregators
         if (!createdMetrics.contains(serviceId, metricId)){

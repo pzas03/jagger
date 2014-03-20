@@ -35,12 +35,6 @@ import java.util.Map;
  */
 public class AgentUtils {
 
-    /**
-     * used to separate monitoring plot name and agent id in MetricNameDto.metricName/SessionNameDto.metricName
-     * note: '|' == '%7C' in while link processing
-     */
-    private static final String AGENT_NAME_SEPARATOR = "|";
-
     private static final String JMX_SERVICE_SEPARATOR = ",";
 
     public static Map<String, JMXConnector> getJMXConnectors(final String[] jmxServices, final String name, final String urlFormat) throws IOException {
@@ -80,15 +74,4 @@ public class AgentUtils {
         }
         return services.split(JMX_SERVICE_SEPARATOR);
     }
-
-    // keep functionality of following functions dependent
-    // direct
-    public static String getMonitoringMetricId(String monitoringName, String agentName){
-        return monitoringName + AGENT_NAME_SEPARATOR + agentName + AGENT_NAME_SEPARATOR;
-    }
-    // backwards
-    public static String[] splitMonitoringMetricId(String monitoringMetricId) {
-        return monitoringMetricId.split("\\" + AGENT_NAME_SEPARATOR); // escape special char for regex
-    }
-
 }

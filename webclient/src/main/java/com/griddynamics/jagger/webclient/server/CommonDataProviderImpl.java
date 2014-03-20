@@ -4,7 +4,7 @@ import com.google.common.collect.Multimap;
 import com.griddynamics.jagger.agent.model.DefaultMonitoringParameters;
 import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadProcessLatencyPercentile;
 import com.griddynamics.jagger.monitoring.reporting.GroupKey;
-import com.griddynamics.jagger.util.AgentUtils;
+import com.griddynamics.jagger.util.MonitoringIdUtils;
 import com.griddynamics.jagger.webclient.client.components.control.model.MetricNode;
 import com.griddynamics.jagger.webclient.client.components.control.model.MonitoringSessionScopePlotNode;
 import com.griddynamics.jagger.webclient.client.components.control.model.PlotNode;
@@ -687,7 +687,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
 
             SessionPlotNode plotNode = new SessionPlotNode();
             String agentIdenty = objects[0] == null ? objects[1].toString() : objects[0].toString();
-            plotNode.setPlotNameDto(new SessionPlotNameDto(sessionIds, AgentUtils.getMonitoringMetricId(groupKey, agentIdenty)));
+            plotNode.setPlotNameDto(new SessionPlotNameDto(sessionIds, MonitoringIdUtils.getMonitoringMetricId(groupKey, agentIdenty)));
             plotNode.setDisplayName(agentIdenty);
             String id = METRICS_PREFIX + groupKey + agentIdenty;
             plotNode.setId(id);
@@ -754,7 +754,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                     PlotNode plotNode = new PlotNode();
 
                     String id = METRICS_PREFIX + tdd.hashCode() + "_" + monitoringId + "_" + agentId;
-                    MetricNameDto metricNameDto = new MetricNameDto(tdd, AgentUtils.getMonitoringMetricId(monitoringId,agentId));
+                    MetricNameDto metricNameDto = new MetricNameDto(tdd, MonitoringIdUtils.getMonitoringMetricId(monitoringId, agentId));
                     metricNameDto.setOrigin(MetricNameDto.Origin.MONITORING);
                     plotNode.init(id, id, Arrays.asList(metricNameDto));
 
@@ -959,7 +959,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
 
         try {
             entityManager.createQuery(
-                    "select count(sm) from SessionMetaDataEntity sm")
+                    "select 1 from SessionMetaDataEntity")
                     .getSingleResult();
             return true;
         } catch (Exception e) {
@@ -973,7 +973,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
 
         try {
             entityManager.createQuery(
-                    "select count(te) from TagEntity te")
+                    "select 1 from TagEntity")
                     .getSingleResult();
             return true;
         } catch (Exception e) {

@@ -2,7 +2,7 @@ package com.griddynamics.jagger.webclient.server;
 
 import com.griddynamics.jagger.agent.model.DefaultMonitoringParameters;
 import com.griddynamics.jagger.monitoring.reporting.GroupKey;
-import com.griddynamics.jagger.util.AgentUtils;
+import com.griddynamics.jagger.util.MonitoringIdUtils;
 import com.griddynamics.jagger.webclient.client.ControlTreeCreatorService;
 import com.griddynamics.jagger.webclient.client.components.control.model.*;
 import com.griddynamics.jagger.webclient.client.data.MetricRankingProvider;
@@ -44,17 +44,16 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
     @Required
     public void setTreeViewGroupRuleProvider(TreeViewGroupRuleProvider treeViewGroupRuleProvider) {
         this.treeViewGroupRuleProvider = treeViewGroupRuleProvider;
-        setDefaultMonitoringParams(this.treeViewGroupRuleProvider.getMonitoringPlotGroups());
     }
 
     @Required
     public void setTreeViewGroupMetricsToNodeRuleProvider(TreeViewGroupMetricsToNodeRuleProvider treeViewGroupMetricsToNodeRuleProvider) {
         this.treeViewGroupMetricsToNodeRuleProvider = treeViewGroupMetricsToNodeRuleProvider;
-        setDefaultMonitoringParams(this.treeViewGroupMetricsToNodeRuleProvider.getMonitoringPlotGroups());
     }
 
+    @Required
     public void setDefaultMonitoringParams(Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups) {
-        defaultMonitoringParams = CommonDataProviderImpl.getDefaultMonitoringParametersMap(monitoringPlotGroups);
+        this.defaultMonitoringParams = CommonDataProviderImpl.getDefaultMonitoringParametersMap(monitoringPlotGroups);
     }
 
     public void setDatabaseFetcher(CommonDataProvider databaseFetcher) {
@@ -146,7 +145,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
             if (!monitoringMap.isEmpty()) {
                 for (TaskDataDto taskDataDto : monitoringMap.keySet()) { plotNodeList.addAll(monitoringMap.get(taskDataDto));}}
             for (TaskDataDto taskDataDto : map.keySet()) { plotNodeList.addAll(map.get(taskDataDto));}
-            Map<String,Set<String>> agentNames = GerAgentNamesForMonitoringParameters(plotNodeList);
+            Map<String,Set<String>> agentNames = getAgentNamesForMonitoringParameters(plotNodeList);
 
             // get tree
             for (TaskDataDto tdd : taskList) {
@@ -159,7 +158,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
 
                 if (metricNodeList.size() > 0) {
                     // apply rules how to build tree
-                    MetricGroupNode<PlotNode> testDetailsNodeBase = BuildTreeAccordingToRules(rootId,agentNames,metricNodeList);
+                    MetricGroupNode<PlotNode> testDetailsNodeBase = buildTreeAccordingToRules(rootId, agentNames, metricNodeList);
 
                     // full test details node
                     TestDetailsNode testNode = new TestDetailsNode(testDetailsNodeBase);
@@ -197,7 +196,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
 
             if (metricNodeList.size() > 0) {
                 // apply rules how to build tree
-                MetricGroupNode<MetricNode> testNodeBase = BuildTreeAccordingToRules(rootId,null,metricNodeList);
+                MetricGroupNode<MetricNode> testNodeBase = buildTreeAccordingToRules(rootId, null, metricNodeList);
 
                 // full test node with info data
                 TestNode testNode = new TestNode(testNodeBase);
@@ -281,7 +280,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
         }
     }
 
-    private Map<String,Set<String>> GerAgentNamesForMonitoringParameters(Set<PlotNode> plotNodeList) {
+    private Map<String,Set<String>> getAgentNamesForMonitoringParameters(Set<PlotNode> plotNodeList) {
         Map<String,Set<String>> agentNames = new HashMap<String, Set<String>>();
 
         for (PlotNode plotNode : plotNodeList) {
@@ -291,15 +290,15 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
                         (metricNameDto.getOrigin() == MetricNameDto.Origin.TEST_GROUP_METRIC)) {
 
                     // if looks like monitoring parameter
-                    String[] splitResult = AgentUtils.splitMonitoringMetricId(metricNameDto.getMetricName());
-                    if (splitResult.length > 1) {
+                    MonitoringIdUtils.MonitoringId monitoringId = MonitoringIdUtils.splitMonitoringMetricId(metricNameDto.getMetricName());
+                    if (monitoringId != null) {
                         // if available in default monitoring parameters
                         for (String key : defaultMonitoringParams.keySet()) {
-                            if (defaultMonitoringParams.get(key).contains(splitResult[0])) {
+                            if (defaultMonitoringParams.get(key).contains(monitoringId.getMonitoringName())) {
                                 if (!agentNames.containsKey(key)) {
                                     agentNames.put(key,new HashSet<String>());
                                 }
-                                agentNames.get(key).add(splitResult[1]);
+                                agentNames.get(key).add(monitoringId.getAgentName());
                             }
                         }
                     }
@@ -310,10 +309,10 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
         return agentNames;
     }
 
-    private <M extends MetricNode> MetricGroupNode<M> BuildTreeAccordingToRules(String rootId, Map<String,Set<String>> agentNames, List<M> metricNodeList)
+    private <M extends MetricNode> MetricGroupNode<M> buildTreeAccordingToRules(String rootId, Map<String, Set<String>> agentNames, List<M> metricNodeList)
     {
         // rules to unite metrics in single plot
-        TreeViewGroupMetricsToNodeRule unitedMetricsRule= treeViewGroupMetricsToNodeRuleProvider.provide(agentNames);
+        TreeViewGroupMetricsToNodeRule unitedMetricsRule = treeViewGroupMetricsToNodeRuleProvider.provide(agentNames);
         // unite metrics and add result to original list
         List<M> unitedMetrics = unitedMetricsRule.filter(rootId, metricNodeList);
         if (unitedMetrics != null) {
