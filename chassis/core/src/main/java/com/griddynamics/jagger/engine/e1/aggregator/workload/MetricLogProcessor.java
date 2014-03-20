@@ -223,8 +223,9 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
 
                     MetricAggregator nameAggregator = overallMetricAggregator == null ? intervalAggregator : overallMetricAggregator;
 
-                    String aggregatorDisplayNameSuffix = nameAggregator.getName();
-                    String aggregatorIdSuffix = createIdFromDisplayName(aggregatorDisplayNameSuffix);
+                    String aggregatorName = nameAggregator.getName();
+                    String aggregatorIdSuffix = createIdFromName(aggregatorName);
+                    String aggregatorDisplayNameSuffix = createAggregatorDisplayNameSuffix(aggregatorName);
 
                     String displayName = (metricDescription.getDisplayName() == null ? metricDescription.getMetricId() :
                     metricDescription.getDisplayName()) + aggregatorDisplayNameSuffix;
@@ -336,9 +337,19 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
         * @param name aggregator`s name
         * @return aggregator`s id
         */
-        private String createIdFromDisplayName(String name) {
+        private String createIdFromName(String name) {
             String regexp = "[\\;/\\?\\:@\\&=\\+\\$\\,]";
             return name.replaceAll(regexp, "");
         }
+
+        /**
+         * Wrap aggregator name to make it more comfortable to read in pdf/webclient
+         * @param name aggregator`s name
+         * @return suffix for displayName of metric with given aggregator
+         */
+        private String createAggregatorDisplayNameSuffix(String name) {
+            return " [" + name + ']';
+        }
+        
     }
 }
