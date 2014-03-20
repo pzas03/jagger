@@ -435,8 +435,6 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
 
             log.info("There was loaded {} sessions data from {} for {} ms", new Object[]{sessionDataDtoList.size(), totalSize, System.currentTimeMillis() - timestamp});
         } catch (Exception e) {
-            System.out.println(e);
-            e.printStackTrace();
             log.error("Error was occurred during session data fetching for session tags " + sessionTagNames + "; start " + start + ", length " + length, e);
             throw new RuntimeException(e);
         }

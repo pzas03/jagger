@@ -17,7 +17,7 @@ public class SessionDataDto implements Serializable {
     private int tasksExecuted;
     private int tasksFailed;
     private Long id;
-    private List<TagDto> tags = new ArrayList<TagDto>();
+    private List<TagDto> tags;
 
     public SessionDataDto() {
     }

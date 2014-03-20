@@ -27,6 +27,7 @@ public class DataSaverServiceImpl implements DataSaverService {
        this.entityManager = entityManager.getEntityManagerFactory().createEntityManager();
     }
 
+    //synchronized because we use "not safety" entity manager
     @Override
     public synchronized void saveUserComment(Long sessionData_id, String userComment) {
 
@@ -95,9 +96,7 @@ public class DataSaverServiceImpl implements DataSaverService {
         }
         try {
             entityManager.getTransaction().begin();
-            sessionData = (SessionData) entityManager.createQuery("select sd from SessionData as sd where sd.id  = (:sessionData_id)")
-                    .setParameter("sessionData_id", sessionData_id)
-                    .getSingleResult();
+            sessionData = entityManager.find(SessionData.class,sessionData_id);
             if (sessionData != null) {
                 sessionData.setTags(tagEntities);
                 entityManager.merge(sessionData);
