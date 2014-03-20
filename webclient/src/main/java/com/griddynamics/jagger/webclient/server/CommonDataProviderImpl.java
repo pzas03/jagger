@@ -958,8 +958,9 @@ public class CommonDataProviderImpl implements CommonDataProvider {
     private boolean checkIfUserCommentStorageAvailable() {
 
         try {
+            // even if table is empty we can set user comments
             entityManager.createQuery(
-                    "select 1 from SessionMetaDataEntity")
+                    "select count(sm) from SessionMetaDataEntity sm")
                     .getSingleResult();
             return true;
         } catch (Exception e) {
