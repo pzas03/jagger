@@ -71,8 +71,9 @@ public class TestGeneralReporter extends AbstractReportProvider {
     public JRDataSource getDataSource() {
         List<TestDetailsDTO> result = new ArrayList<TestDetailsDTO>();
         //if a session scope is disable we return a bean with an empty collection
-        if (!sessionScopeAvailable)
+        if (!sessionScopeAvailable){
             return new JRBeanCollectionDataSource(result);
+        }
 
         SystemUnderTestPlotsGeneralProvider plotsGeneralProvider = (SystemUnderTestPlotsGeneralProvider) getContext().getMappedProvider("sysUTPlotsGeneral");
         Set<String> boxIdentifiers = plotsGeneralProvider.getStatistics().findBoxIdentifiers();
