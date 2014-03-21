@@ -84,4 +84,19 @@ public class CommonUtils {
 
         return result;
     }
+
+    public static int generateHash(Object ... objects) {
+
+        if (objects.length == 0) {
+            // generate random hash
+            return (int) (Math.random() * 100000);
+        }
+
+        int result = 0;
+        for (Object obj : objects) {
+            result += obj.hashCode();
+        }
+        return result;
+    }
+
 }
