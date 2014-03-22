@@ -534,6 +534,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                 metric.setMetricDisplayName(metricNameDto.getMetricDisplayName());
                 metric.setOrigin(metricNameDto.getOrigin());
                 metric.setTest(taskDataDto);
+                metric.setMetricNameSynonyms(metricNameDto.getMetricNameSynonyms());
                 list.add(metric);
             }
         }
