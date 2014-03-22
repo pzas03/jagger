@@ -30,7 +30,17 @@ public class MonitoringIdUtils {
      * used to separate monitoring plot name and agent id in MetricNameDto.metricName/SessionNameDto.metricName
      * note: '|' == '%7C' in while link processing
      */
-    private static final String AGENT_NAME_SEPARATOR = "|";
+    public static final String AGENT_NAME_SEPARATOR = "|";
+
+    // not all special characters are escaped!
+    // only required for agent Ids generation
+    public static String getSafeRegex(String input) {
+        return input.
+                replace("[","\\[").replace("]","\\]").
+                replace("(", "\\(").replace(")","\\)").
+                replace("|","\\|");
+    }
+
 
     // keep functionality of following functions dependent
     // direct
