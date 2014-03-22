@@ -91,7 +91,10 @@
 
     <bean id="sessionDataService" class="com.griddynamics.jagger.webclient.server.SessionDataServiceImpl">
         <property name="commonDataService" ref="commonDataService"/>
+        <property name="dataSaverService" ref="dataSaverService"/>
     </bean>
+
+    <bean id= "dataSaverService" class="com.griddynamics.jagger.webclient.server.DataSaverServiceImpl"/>
 
     <bean id="testInfoService" class="com.griddynamics.jagger.webclient.server.TestInfoServiceImpl"/>
 
