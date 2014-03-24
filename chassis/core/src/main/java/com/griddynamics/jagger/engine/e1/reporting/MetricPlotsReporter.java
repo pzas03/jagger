@@ -98,7 +98,17 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
         if (plots.size() == 0) {
             return null;
         }
-        return new JRBeanCollectionDataSource(Collections.singleton(plots.get(testId)));
+        String testIdParent = getParentId(testId);
+        if (plots.containsKey(testId)){
+            plots.get(testId).getMetricPlotDTOs().addAll(plots.get(testIdParent).getMetricPlotDTOs());
+            return new JRBeanCollectionDataSource(Collections.singleton(plots.get(testId)));
+        }
+        else
+            return new JRBeanCollectionDataSource(Collections.singleton(plots.get(testIdParent)));
+    }
+
+    public String getParentId(String testId){
+        return (String)getHibernateTemplate().find("select distinct w.parentId from WorkloadData w where w.taskId=?", testId).get(0);
     }
 
     public Map<String, MetricPlotDTOs> createTaskPlots() {
