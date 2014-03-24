@@ -714,7 +714,8 @@ INPUT                  = ./chassis/core/src/main/java/com/griddynamics/jagger/in
                          ./doc/pages/WebUiProperties.txt \
                          ./doc/pages/WebUiOverview.txt \
                          ./doc/pages/WebUiInstallation.txt \
-                         ./doc/pages/WebUiMain.txt
+                         ./doc/pages/WebUiMain.txt \
+                         ./doc/pages/AgentProperties.txt
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is
@@ -782,7 +783,9 @@ EXAMPLE_PATH           = ./archetype-examples/src/main/resources/archetype-resou
                          ./archetype-examples/src/main/resources/archetype-resources/src/main/java/listener/ProviderOfTestListener.java \
                          ./archetype-examples/src/main/resources/archetype-resources/src/main/java/listener/ProviderOfTestSuiteListener.java \
                          ./doc/setup/JaggerVersion.txt \
-                         ./webclient/src/main/resources/webclient.properties
+                         ./webclient/src/main/resources/webclient.properties \
+                         ./monitoring/agent/src/main/resources/spring/agent.properties
+
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp
