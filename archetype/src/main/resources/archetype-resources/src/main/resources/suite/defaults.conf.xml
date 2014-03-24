@@ -31,37 +31,19 @@
         http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd"
         >
-
     <beans:import resource="collectors.conf.xml"/>
-    <beans:import resource="test.suite.scenario.config.xml"/>
 
-    <configuration id="exampleConfiguration">
-        <latency-percentiles>
-            <percentile>99</percentile>
-            <percentile>98</percentile>
-            <percentile>97</percentile>
-            <percentile>95</percentile>
-            <percentile>90</percentile>
-            <percentile>85</percentile>
-            <percentile>60</percentile>
-        </latency-percentiles>
+    <!--This xml file will contain elements, shared between different configuration files-->
+    <!--Put here elements that will serve as parents for other elements -->
 
-        <test-suite id="JaggerTestSuit">
-               <test-group id="myFirstSearchTest">
-                   <test id="jaggerPage" testDescription="jaggerPageTest">
-                       <load xsi:type="load-tps" value="100" maxThreadNumber="1000"/>
-                       <termination xsi:type="termination-iterations" iterations="1000" maxDuration="2h"/>
-                   </test>
+    <!--Default test description - will serve as base for other test descriptions-->
+    <test-description id="td_default" version="1">
 
-                   <test id="googlePage" testDescription="googlePageTest">
-                       <load xsi:type="load-threads" count="1"/>
-                       <termination xsi:type="termination-background" />
-                   </test>
-               </test-group>
-           </test-suite>
+        <!--Result collectors: put here validators, metrics, invokation listeners-->
+        <info-collectors>
+            <validator xsi:type="validator-not-null-response"/>
+            <metric id="responseSize" xsi:type="metric-custom" calculator="responseSize"/>
+        </info-collectors>
+    </test-description>
 
-        <report outputReportLocation="test-report.pdf">
-        </report>
-
-    </configuration>
 </beans:beans>

@@ -30,9 +30,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class PageVisitorInvoker implements Invoker<String, String, String> {
+public class Invoker_PageVisitor implements Invoker<String, String, String> {
 
-    public PageVisitorInvoker() {
+    public Invoker_PageVisitor() {
     }
 
     private String getUrl(String endpoint, String path) {

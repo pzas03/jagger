@@ -68,10 +68,12 @@ public interface Invoker<Q,R,E> extends Serializable {
 /// @li @ref Main_Collectors_General_group
 /// @li @ref Main_Providers_General_group
 /// @li @ref Main_Distributors_General_group
-/// @li @ref Main_Services_General_group @e @htmlonly <font color="#009900">NEW ver 1.2.3</font>@endhtmlonly
-/// @li @ref Main_Listeners_General_group @e @htmlonly <font color="#009900">NEW ver 1.2.3</font>@endhtmlonly
+/// @li @ref Main_Services_General_group
+/// @li @ref Main_Listeners_General_group
 ///
 /// @li @ref Main_Custom_Components_group
+///
+/// @li @ref Main_Properties_group @e @htmlonly <font color="#009900">NEW ver 1.2.4</font>@endhtmlonly
 ///
 /// @n
 /// @n
@@ -108,6 +110,15 @@ public interface Invoker<Q,R,E> extends Serializable {
 /// @li @ref Main_HowToCustomizeCollectors_group
 /// @li @ref Main_HowToCustomizeDecisionMakers_group
 /// @li @ref Main_HowToCustomizeListeners_group
+
+/// @defgroup Main_Properties_group Jagger properties
+///
+/// @details Below is copy of environment.properties file from Jagger archetype. @n
+/// This file contains all configurable Jagger properties. @n
+/// @n
+/// @dontinclude  environment.properties
+/// @skip  begin: following section is used for docu generation - Jagger properties
+/// @until end: following section is used for docu generation - Jagger properties
 
 /* **************** Invokers page *************************  */
 /// @defgroup Main_Invokers_General_group Invokers main page
