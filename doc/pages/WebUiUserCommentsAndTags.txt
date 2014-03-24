@@ -19,7 +19,7 @@
 ///    @dontinclude webclient.properties
 ///    @skipline webui.user.comment.available
 ///    @n
-///    Useful info about WebUI properties is <a href="https://github.com/griddynamics/jagger/wiki/Jagger-webclient-properties-file-example">here</a>
+///    Useful info about WebUI properties is @ref WebUiProperties "here" @n
 ///    @li Select "Session Info" in control tree for some session and double click on "User comment" row in Summary table @n
 ///    @n
 ///
@@ -38,7 +38,7 @@
 ///    @dontinclude webclient.properties
 ///    @skipline webui.tags.available
 ///    @n
-///    Useful info about WebUI properties is <a href="https://github.com/griddynamics/jagger/wiki/Jagger-webclient-properties-file-example">here</a>
+///    Useful info about WebUI properties is @ref WebUiProperties "here" @n
 ///    @li Select "Session Info" in control tree for some session and double click on "Tags" row in Summary table @n
 ///    @n
 ///
