@@ -235,6 +235,12 @@ input[type="text"] {
     color: #000000;
 }
 
+.tagButton{
+    font: normal 11px arial;
+    text-align: center;
+    vertical-align: middle;
+}
+
 .gwt-CheckBox label {
     display: inline-block;
     vertical-align: bottom;
