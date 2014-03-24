@@ -24,9 +24,9 @@ import com.griddynamics.jagger.engine.e1.aggregator.session.model.TaskData;
 import com.griddynamics.jagger.engine.e1.aggregator.workload.model.MetricDescriptionEntity;
 import com.griddynamics.jagger.engine.e1.aggregator.workload.model.MetricPointEntity;
 import com.griddynamics.jagger.engine.e1.aggregator.workload.model.MetricSummaryEntity;
-import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadData;
 import com.griddynamics.jagger.engine.e1.collector.*;
 import com.griddynamics.jagger.engine.e1.scenario.WorkloadTask;
+import com.griddynamics.jagger.master.CompositeTask;
 import com.griddynamics.jagger.master.DistributionListener;
 import com.griddynamics.jagger.master.Master;
 import com.griddynamics.jagger.master.SessionIdProvider;
@@ -114,7 +114,7 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
 
     @Override
     public void onTaskDistributionCompleted(String sessionId, String taskId, Task task) {
-        if (task instanceof WorkloadTask) {
+        if (task instanceof WorkloadTask || task instanceof CompositeTask) {
             processLog(sessionIdProvider.getSessionId(), taskId);
         }
     }
@@ -147,7 +147,7 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
                     StatisticsGenerator statisticsGenerator = new StatisticsGenerator(file, aggregationInfo, intervalSize, taskData).generate();
                     final Collection<MetricPointEntity> statistics = statisticsGenerator.getStatistics();
 
-                    log.info("BEGIN: Save to data base " + metricPath);
+                    log.debug("BEGIN: Save to data base " + metricPath);
                     getHibernateTemplate().execute(new HibernateCallback<Void>() {
                         @Override
                         public Void doInHibernate(Session session) throws HibernateException, SQLException {
@@ -158,7 +158,7 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
                             return null;
                         }
                     });
-                    log.info("END: Save to data base " + metricPath);
+                    log.debug("END: Save to data base " + metricPath);
                 } catch (Exception e) {
                     log.error("Error during processing metric by path: '{}'",metricPath);
                 }
@@ -223,8 +223,9 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
 
                     MetricAggregator nameAggregator = overallMetricAggregator == null ? intervalAggregator : overallMetricAggregator;
 
-                    String aggregatorDisplayNameSuffix = nameAggregator.getName();
-                    String aggregatorIdSuffix = createIdFromDisplayName(aggregatorDisplayNameSuffix);
+                    String aggregatorName = nameAggregator.getName();
+                    String aggregatorIdSuffix = createIdFromName(aggregatorName);
+                    String aggregatorDisplayNameSuffix = createAggregatorDisplayNameSuffix(aggregatorName);
 
                     String displayName = (metricDescription.getDisplayName() == null ? metricDescription.getMetricId() :
                     metricDescription.getDisplayName()) + aggregatorDisplayNameSuffix;
@@ -321,22 +322,7 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
         }
 
         private void persistAggregatedMetricValue(Number value, MetricDescriptionEntity md) {
-
-            WorkloadData workloadData = getWorkloadData(taskData.getSessionId(), taskData.getTaskId());
-            if(workloadData == null) {
-                log.warn("WorkloadData is not collected for task: '{}' terminating write metric: '{}' with value: '{}'",
-                        new Object[] {taskData.getTaskId(), md.getMetricId(), value});
-                return;
-            }
-            MetricSummaryEntity entity = getMetricSummaryEntity(md);
-            if (entity != null) {
-                log.info("DiagnosticResultEntity with name: '{}', for task: '{}' is  already exists. " +
-                        "Skipping write (please, disable DiagnosticCollector for this metric)",
-                        md.getMetricId(), workloadData.getTaskId());
-                return;
-            }
-
-            entity = new MetricSummaryEntity();
+            MetricSummaryEntity entity = new MetricSummaryEntity();
             entity.setTotal(value.doubleValue());
             entity.setMetricDescription(md);
 
@@ -351,36 +337,19 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
         * @param name aggregator`s name
         * @return aggregator`s id
         */
-        private String createIdFromDisplayName(String name) {
+        private String createIdFromName(String name) {
             String regexp = "[\\;/\\?\\:@\\&=\\+\\$\\,]";
             return name.replaceAll(regexp, "");
         }
 
-        @SuppressWarnings("unchecked")
-        private MetricSummaryEntity getMetricSummaryEntity(final MetricDescriptionEntity md) {
-            return getHibernateTemplate().execute(new HibernateCallback<MetricSummaryEntity>() {
-                @Override
-                public MetricSummaryEntity doInHibernate(Session session) throws HibernateException, SQLException {
-                    return (MetricSummaryEntity) session
-                            .createQuery("select t from MetricSummaryEntity t where t.metricDescription=?")
-                            .setParameter(0, md)
-                            .uniqueResult();
-                }
-            });
+        /**
+         * Wrap aggregator name to make it more comfortable to read in pdf/webclient
+         * @param name aggregator`s name
+         * @return suffix for displayName of metric with given aggregator
+         */
+        private String createAggregatorDisplayNameSuffix(String name) {
+            return " [" + name + ']';
         }
-
-        @SuppressWarnings("unchecked")
-        private WorkloadData getWorkloadData(final String sessionId, final String taskId) {
-            return getHibernateTemplate().execute(new HibernateCallback<WorkloadData>() {
-                @Override
-                public WorkloadData doInHibernate(Session session) throws HibernateException, SQLException {
-                    return (WorkloadData) session
-                            .createQuery("select t from WorkloadData t where sessionId=? and taskId=?")
-                            .setParameter(0, sessionId)
-                            .setParameter(1, taskId)
-                            .uniqueResult();
-                }
-            });
-        }
+        
     }
 }
