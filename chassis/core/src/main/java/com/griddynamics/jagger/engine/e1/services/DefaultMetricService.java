@@ -6,6 +6,7 @@ import com.griddynamics.jagger.storage.KeyValueStorage;
 import com.griddynamics.jagger.storage.Namespace;
 import com.griddynamics.jagger.storage.fs.logging.LogWriter;
 import com.griddynamics.jagger.storage.fs.logging.MetricLogEntry;
+import com.griddynamics.jagger.util.FileUtils;
 
 import java.io.File;
 
@@ -48,7 +49,7 @@ public class DefaultMetricService implements MetricService {
     @Override
     public void saveValue(String metricId, Number value, long timeStamp) {
         LogWriter logWriter = context.getService(LogWriter.class);
-        logWriter.log(sessionId, taskId + File.separatorChar + METRIC_MARKER + File.separatorChar + metricId, context.getId().getIdentifier(),
+        logWriter.log(sessionId, taskId + File.separatorChar + METRIC_MARKER + File.separatorChar + FileUtils.encodeFileName(metricId), context.getId().getIdentifier(),
                 new MetricLogEntry(timeStamp, metricId, value));
     }
 

@@ -36,6 +36,7 @@ import com.griddynamics.jagger.storage.FileStorage;
 import com.griddynamics.jagger.storage.KeyValueStorage;
 import com.griddynamics.jagger.storage.Namespace;
 import com.griddynamics.jagger.storage.fs.logging.*;
+import com.griddynamics.jagger.util.FileUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.slf4j.Logger;
@@ -191,6 +192,7 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
         public StatisticsGenerator generate() throws IOException {
             String tmp = path.substring(0, path.lastIndexOf(File.separatorChar));
             String metricName = tmp.substring(tmp.lastIndexOf(File.separatorChar) + 1);
+            metricName = FileUtils.decodeFileName(metricName);
 
             MetricDescription metricDescription = fetchDescription(metricName);
 
