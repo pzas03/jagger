@@ -94,7 +94,7 @@ public class CommonUtils {
 
         int result = 0;
         for (Object obj : objects) {
-            result += obj.hashCode();
+            result = 31 * result + (obj != null ? obj.hashCode() : 0);
         }
         return result;
     }
