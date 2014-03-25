@@ -13,7 +13,7 @@ public class TaskDataDto implements Serializable {
     private Set<String> sessionIds;
     private String taskName;
     private String description;
-    private int hashCode;
+    private int uniqueId;
 
     public TaskDataDto() {
     }
@@ -54,8 +54,8 @@ public class TaskDataDto implements Serializable {
         this.sessionIds = sessionIds;
     }
 
-    public void setHashCode(int hashCode) {
-        this.hashCode = hashCode;
+    public void setUniqueId(int uniqueId) {
+        this.uniqueId = uniqueId;
     }
 
     @Override
@@ -65,7 +65,7 @@ public class TaskDataDto implements Serializable {
 
         TaskDataDto that = (TaskDataDto) o;
 
-        if (hashCode != that.hashCode) return false;
+        if (uniqueId != that.uniqueId) return false;
         if (description != null ? !description.equals(that.description) : that.description != null) return false;
         if (taskName != null ? !taskName.equals(that.taskName) : that.taskName != null) return false;
 
@@ -76,7 +76,7 @@ public class TaskDataDto implements Serializable {
     public int hashCode() {
         int result = taskName != null ? taskName.hashCode() : 0;
         result = 31 * result + (description != null ? description.hashCode() : 0);
-        result = 31 * result + hashCode;
+        result = 31 * result + uniqueId;
         return result;
     }
 

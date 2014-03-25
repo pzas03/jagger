@@ -913,9 +913,9 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                 Set<String> sessionIdList = new HashSet<String>();
                 sessionIdList.add(sessionId);
                 taskDataDto.setSessionIds(sessionIdList);
-                // generate hash to make difference between tests with different matching parameters.
-                int hashCode = CommonUtils.generateHash(name, description, taskId, clock, clockValue, termination);
-                taskDataDto.setHashCode(hashCode);
+                // generate unique to make difference between tests with different matching parameters.
+                int uniqueId = CommonUtils.generateUniqueId(name, description, taskId, clock, clockValue, termination);
+                taskDataDto.setUniqueId(uniqueId);
 
                 map.put(key, taskDataDto);
                 mapIds.put(key, taskIdInt);
