@@ -8,14 +8,8 @@ import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyUpEvent;
-import com.google.gwt.event.dom.client.KeyUpHandler;
-import com.google.gwt.event.logical.shared.SelectionEvent;
-import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.logical.shared.*;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.HasDirection;
@@ -24,10 +18,7 @@ import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.DataGrid;
-import com.google.gwt.user.cellview.client.SimplePager;
-import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
@@ -70,7 +61,17 @@ public class Trends extends DefaultActivity {
     private TabIdentifier tabMetrics;
     private TabIdentifier tabNodes;
 
+    private TagBox tagFilterBox;
+
+    private List<TagDto> allTags;
+    private boolean allTagsLoadComplete = true;
+    private Set<String> tagNames = new HashSet<String>();
+
+
     private static TrendsUiBinder uiBinder = GWT.create(TrendsUiBinder.class);
+
+    @UiField
+    TabLayoutPanel searchTabPanel;
 
     @UiField
     TabLayoutPanel mainTabPanel;
@@ -99,16 +100,32 @@ public class Trends extends DefaultActivity {
     @UiField
     NodesPanel nodesPanel;
 
+    TextBox sessionIdsTextBox = new TextBox();
+
+    TextBox sessionTagsTextBox = new TextBox();
+
+    DateBox sessionsFrom = new DateBox();
+
+    DateBox sessionsTo = new DateBox();
+
     @UiField
-    TextBox sessionIdsTextBox;
+    HorizontalPanel tagsPanel;
+
+    @UiField
+    HorizontalPanel idsPanel;
+
+    @UiField
+    HorizontalPanel datesPanel;
+
+
+    private Button tagButton;
 
     private Timer stopTypingSessionIdsTimer;
+    private Timer stopTypingSessionTagsTimer;
 
-    @UiField
-    DateBox sessionsFrom;
 
-    @UiField
-    DateBox sessionsTo;
+
+
 
     @UiHandler("uncheckSessionsButton")
     void handleUncheckSessionsButtonClick(ClickEvent e) {
@@ -126,7 +143,8 @@ public class Trends extends DefaultActivity {
     void handleClearSessionFiltersButtonClick(ClickEvent e) {
         sessionsTo.setValue(null, true);
         sessionsFrom.setValue(null, true);
-        sessionIdsTextBox.setText(null);
+        sessionTagsTextBox.setValue(null,true);
+        sessionIdsTextBox.setValue(null, true);
         stopTypingSessionIdsTimer.schedule(10);
     }
 
@@ -263,6 +281,17 @@ public class Trends extends DefaultActivity {
 
     }
 
+    private String getMonitoringIdByMetricNameDtoId(String metricNameDtoId) {
+        for (String defaultMonitoringParam : defaultMonitoringParameters.keySet()) {
+            for (String id : defaultMonitoringParameters.get(defaultMonitoringParam)) {
+                if (id.equals(metricNameDtoId)) {
+                    return defaultMonitoringParam;
+                }
+            }
+        }
+        return null;
+    }
+
     private Map<String, List<String>> getTestTrendsMap(List<TestDetailsNode> tests, List<TaskDataDto> taskDataDtos) {
         Map<String, List<String>> resultMap = new LinkedHashMap<String, List<String>>();
 
@@ -270,14 +299,72 @@ public class Trends extends DefaultActivity {
             if (controlTree.isChosen(test)) {
                 if (taskDataDtos.contains(test.getTaskDataDto())) {
 
+                    Map<String,Boolean> uniteAgentsForMonitoringNames = new HashMap<String, Boolean>();
                     List<String> trends = new ArrayList<String>();
+                    List<String> trendsMonitoring = new ArrayList<String>();
                     for (PlotNode plotNode : test.getMetrics()) {
+
+                        // temporary work around to make URL shorter starts here
+                        // it groups metricNameDtoId|agentName id to old monitoringId|agentName
+                        if (plotNode.getMetricNameDtoList().size() > 0) {
+                            MetricNameDto metricNameDto = plotNode.getMetricNameDtoList().get(0);
+
+                            if ((metricNameDto.getOrigin() == MetricNameDto.Origin.MONITORING) ||
+                                (metricNameDto.getOrigin() == MetricNameDto.Origin.TEST_GROUP_METRIC)) {
+
+                                MonitoringIdUtils.MonitoringId monitoringId= MonitoringIdUtils.splitMonitoringMetricId(metricNameDto.getMetricName());
+                                if (monitoringId != null) {
+                                    String monitoringOldName = getMonitoringIdByMetricNameDtoId(monitoringId.getMonitoringName());
+                                    if (monitoringOldName != null) {
+                                        if (!uniteAgentsForMonitoringNames.containsKey(monitoringOldName)){
+                                            uniteAgentsForMonitoringNames.put(monitoringOldName,true);
+                                        }
+
+                                        if (controlTree.isChecked(plotNode)) {
+                                            trendsMonitoring.add(monitoringOldName + MonitoringIdUtils.AGENT_NAME_SEPARATOR + monitoringId.getAgentName());
+                                            // for this plotNode we are using work around. we will not go normal way
+                                            continue;
+                                        }
+                                        else {
+                                            // plot for some of agent of this monitoring metric is not checked
+                                            // we will not process this monitoring metric in next workaround
+                                            uniteAgentsForMonitoringNames.put(monitoringOldName,false);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        // temporary work around to make URL shorter ends here
+
+                        // this is correct way, but is has very long URL
                         if (controlTree.isChecked(plotNode)) {
                             for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
                                 trends.add(metricNameDto.getMetricName());
                             }
                         }
                     }
+
+                    // temporary work around to make URL shorter SECOND ROUND starts here
+                    // it groups old monitoringId|agentName to old monitoringId
+                    List<String> newTrendMonitoring = new ArrayList<String>();
+                    for (Map.Entry<String,Boolean> canWeOptimizeMore : uniteAgentsForMonitoringNames.entrySet()) {
+                        if (canWeOptimizeMore.getValue()) {
+                            // remove monitoringId|agentName
+                            Iterator<String> iterator = trendsMonitoring.iterator();
+                            while (iterator.hasNext()) {
+                                String id = iterator.next();
+                                if (id.matches("^" + canWeOptimizeMore.getKey() + ".*")) {
+                                    iterator.remove();
+                                }
+                            }
+                            // leave monitoringId
+                            newTrendMonitoring.add(canWeOptimizeMore.getKey());
+                        }
+                    }
+                    trendsMonitoring.addAll(newTrendMonitoring);
+                    // temporary work around to make URL shorter SECOND ROUND ends here
+
+                    trends.addAll(trendsMonitoring);
                     resultMap.put(test.getTaskDataDto().getTaskName(), trends);
                 }
             }
@@ -313,6 +400,7 @@ public class Trends extends DefaultActivity {
     private final SessionDataAsyncDataProvider sessionDataProvider = new SessionDataAsyncDataProvider();
     private final SessionDataForSessionIdsAsyncProvider sessionDataForSessionIdsAsyncProvider = new SessionDataForSessionIdsAsyncProvider();
     private final SessionDataForDatePeriodAsyncProvider sessionDataForDatePeriodAsyncProvider = new SessionDataForDatePeriodAsyncProvider();
+    private final SessionDataForSessionTagsAsyncProvider sessionDataForSessionTagsAsyncProvider = new SessionDataForSessionTagsAsyncProvider();
 
     @UiField
     Widget widget;
@@ -438,8 +526,9 @@ public class Trends extends DefaultActivity {
     private void filterSessions(Set<SessionDataDto> sessionDataDtoSet) {
         if (sessionDataDtoSet == null || sessionDataDtoSet.isEmpty()) {
             sessionIdsTextBox.setText(null);
+            sessionTagsTextBox.setText(null);
             stopTypingSessionIdsTimer.schedule(10);
-
+            stopTypingSessionTagsTimer.schedule(10);
             return;
         }
 
@@ -469,7 +558,9 @@ public class Trends extends DefaultActivity {
         uiBinder.createAndBindUi(this);
 
         setupTabPanel();
+        setupSearchTabPanel();
         setupSessionNumberTextBox();
+        setupSessionTagsTextBox();
         setupSessionsDateRange();
         setupControlTree();
     }
@@ -779,6 +870,7 @@ public class Trends extends DefaultActivity {
 
                 sessionDataProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
                 sessionDataForDatePeriodAsyncProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
+                sessionDataForSessionTagsAsyncProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
                 sessionDataForSessionIdsAsyncProvider.addDataDisplayIfNotExists(sessionsDataGrid);
             }
         };
@@ -786,8 +878,9 @@ public class Trends extends DefaultActivity {
         sessionIdsTextBox.addKeyUpHandler(new KeyUpHandler() {
             @Override
             public void onKeyUp(KeyUpEvent event) {
-                sessionsFrom.setValue(null);
-                sessionsTo.setValue(null);
+                sessionsFrom.setValue(null, true);
+                sessionsTo.setValue(null, true);
+                sessionTagsTextBox.setValue(null, true);
                 stopTypingSessionIdsTimer.schedule(500);
             }
         });
@@ -806,7 +899,9 @@ public class Trends extends DefaultActivity {
 
             @Override
             public void onValueChange(ValueChangeEvent<Date> dateValueChangeEvent) {
-                sessionIdsTextBox.setValue(null);
+
+                sessionTagsTextBox.setValue(null, true);
+                sessionIdsTextBox.setValue(null, true);
                 Date fromDate = sessionsFrom.getValue();
                 Date toDate = sessionsTo.getValue();
 
@@ -821,12 +916,68 @@ public class Trends extends DefaultActivity {
 
                 sessionDataProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
                 sessionDataForSessionIdsAsyncProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
+                sessionDataForSessionTagsAsyncProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
                 sessionDataForDatePeriodAsyncProvider.addDataDisplayIfNotExists(sessionsDataGrid);
             }
         };
 
         sessionsTo.addValueChangeHandler(valueChangeHandler);
         sessionsFrom.addValueChangeHandler(valueChangeHandler);
+    }
+
+
+    private void setupSessionTagsTextBox() {
+
+        stopTypingSessionTagsTimer = new Timer() {
+
+            @Override
+            public void run() {
+
+                String generalContent = sessionTagsTextBox.getText().trim();
+
+                // If session tags text box is empty then load all sessions
+                if (generalContent.isEmpty()) {
+                    sessionDataProvider.addDataDisplayIfNotExists(sessionsDataGrid);
+                    sessionDataForSessionTagsAsyncProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
+                    return;
+                }
+
+                if (generalContent.contains(",") || generalContent.contains(";") || generalContent.contains("/")) {
+                    tagNames.addAll(Arrays.asList(generalContent.split("\\s*[,;/]\\s*")));
+                } else {
+                    tagNames.add(generalContent);
+                }
+
+                sessionDataForSessionTagsAsyncProvider.setTagNames(tagNames);
+                sessionDataProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
+                sessionDataForDatePeriodAsyncProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
+                sessionDataForSessionIdsAsyncProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
+                sessionDataForSessionTagsAsyncProvider.addDataDisplayIfNotExists(sessionsDataGrid);
+            }
+        };
+
+        sessionTagsTextBox.addKeyUpHandler(new KeyUpHandler() {
+            @Override
+            public void onKeyUp(KeyUpEvent event) {
+                sessionsTo.setValue(null, true);
+                sessionsFrom.setValue(null,true);
+                sessionIdsTextBox.setValue(null, true);
+                tagNames.clear();
+                stopTypingSessionTagsTimer.schedule(500);
+            }
+        });
+        tagFilterBox.addCloseHandler(new CloseHandler<PopupPanel>() {
+            @Override
+            public void onClose(CloseEvent<PopupPanel> popupPanelCloseEvent) {
+                sessionsTo.setValue(null, true);
+                sessionsFrom.setValue(null, true);
+                sessionIdsTextBox.setValue(null, true);
+                if (!tagNames.isEmpty())
+                    sessionTagsTextBox.setValue(toParsableString(tagNames));
+                tagNames.clear();
+                stopTypingSessionTagsTimer.schedule(500);
+            }
+        });
     }
 
     private void renderPlots(HTMLPanel panel, List<PlotSeriesDto> plotSeriesDtoList, String id) {
@@ -1121,6 +1272,18 @@ public class Trends extends DefaultActivity {
                                         tempTree.setCheckedExpandedWithParent(metricNode);
                                         needTestInfo = true;
                                     }
+                                    // workaround for back compatibility for standard metrics like Latency and Co
+                                    else {
+                                        if (metricNameDto.getMetricNameSynonyms() != null) {
+                                            for (String synonym : metricNameDto.getMetricNameSynonyms()) {
+                                                if (testsMetrics.getMetrics().contains(synonym)) {
+                                                    tempTree.setCheckedExpandedWithParent(metricNode);
+                                                    needTestInfo = true;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                             if (needTestInfo) {
@@ -1145,13 +1308,8 @@ public class Trends extends DefaultActivity {
                                     if (id.equals(defaultMonitoringParam)) {
                                         // select all
                                         for (String metricId : defaultMonitoringParameters.get(defaultMonitoringParam)) {
-                                            for (PlotNode plotNode : testDetailsNode.getMetrics()) {
-                                                for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
-                                                    if (metricNameDto.getMetricName().matches("^" + metricId + ".*")) {
-                                                        newTrends.add(metricNameDto.getMetricName());
-                                                    }
-                                                }
-                                            }
+                                            String regex = "^" + MonitoringIdUtils.getEscapedStringForRegex(metricId) + ".*";
+                                            newTrends.addAll(getMatchingMetricNameDtos(regex,testDetailsNode));
                                         }
                                     }
                                     else {
@@ -1159,7 +1317,9 @@ public class Trends extends DefaultActivity {
                                         MonitoringIdUtils.MonitoringId monitoringId = MonitoringIdUtils.splitMonitoringMetricId(id);
                                         if (monitoringId != null) {
                                             for (String metricId : defaultMonitoringParameters.get(defaultMonitoringParam)) {
-                                                newTrends.add(MonitoringIdUtils.getMonitoringMetricId(metricId, monitoringId.getAgentName()));      // metricId + agentName
+                                                String monitoringMetricId = MonitoringIdUtils.getMonitoringMetricId(metricId, monitoringId.getAgentName());
+                                                String regex = "^" + MonitoringIdUtils.getEscapedStringForRegex(monitoringMetricId) + ".*";
+                                                newTrends.addAll(getMatchingMetricNameDtos(regex,testDetailsNode));
                                             }
                                         }
                                     }
@@ -1200,6 +1360,18 @@ public class Trends extends DefaultActivity {
             fireCheckEvents();
         }
 
+        private Set<String> getMatchingMetricNameDtos(String regex, TestDetailsNode testDetailsNode) {
+            Set <String> result = new HashSet<String>();
+            for (PlotNode plotNode : testDetailsNode.getMetrics()) {
+                for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
+                    String metricId = metricNameDto.getMetricName();
+                    if (metricId.matches(regex)) {
+                        result.add(metricId);
+                    }
+                }
+            }
+            return result;
+        }
 
         /**
          * @param testName name of the test
@@ -1670,8 +1842,114 @@ public class Trends extends DefaultActivity {
 
     }
 
-    // Tab index should be defined in single place
-    // to avoid problems during adding/deleting new tabs
+    private void allTags() {
+
+        allTags = new ArrayList<TagDto>();
+        SessionDataService.Async.getInstance().getAllTags(new AsyncCallback<List<TagDto>>() {
+            @Override
+            public void onFailure(Throwable throwable) {
+                new ExceptionPanel("Fail to fetch all tags from the database: " + throwable.getMessage());
+            }
+
+            @Override
+            public void onSuccess(List<TagDto> tagDtos) {
+                allTags.addAll(tagDtos);
+                allTagsLoadComplete = true;
+            }
+        });
+    }
+
+    void setupSearchTabPanel() {
+
+        final int indexId = 0;
+        final int indexTag = 1;
+        final int indexDate = 2;
+        allTags();
+        tagFilterBox = new TagBox();
+        tagButton = new Button("...");
+        tagButton.setSize("30px","22px");
+        tagButton.setEnabled(allTagsLoadComplete);
+        tagButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                tagNames.clear();
+                tagFilterBox.popUpForFilter(allTags, tagNames);
+            }
+        });
+
+
+        Label from = new Label("From ");
+        Label to = new Label(" to ");
+        from.setStyleName(JaggerResources.INSTANCE.css().searchPanel());
+        to.setStyleName(JaggerResources.INSTANCE.css().searchPanel());
+
+        setPanel(datesPanel, from, sessionsFrom, to, sessionsTo);
+        datesPanel.setBorderWidth(0);
+        sessionsFrom.setSize("95%","18px");
+        sessionsTo.setSize("95%","18px");
+
+        setPanel(tagsPanel, sessionTagsTextBox, tagButton);
+        idsPanel.setBorderWidth(0);
+        sessionTagsTextBox.setSize("98%","18px");
+
+        setPanel(idsPanel, sessionIdsTextBox);
+        tagsPanel.setBorderWidth(0);
+        sessionIdsTextBox.setSize("98%", "18px");
+
+        searchTabPanel.selectTab(indexId);
+
+        searchTabPanel.getTabWidget(indexId).setTitle("Search by an session's id");
+        searchTabPanel.getTabWidget(indexTag).setTitle("Search by session's tags");
+        searchTabPanel.getTabWidget(indexDate).setTitle("Search by a date of sessions");
+
+
+        searchTabPanel.setTitle("A search bar");
+
+        searchTabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
+            @Override
+            public void onSelection(SelectionEvent<Integer> event) {
+                int selected = event.getSelectedItem();
+                switch (selected) {
+                    case indexId:
+                        onIdSearchTabSelected();
+                        break;
+                    case indexTag:
+                        onTagSearchTabSelected();
+                        break;
+                    case indexDate:
+                        onDateSearchTabSelected();
+                        break;
+                    default:
+                }
+            }
+        });
+
+    }
+    private void onDateSearchTabSelected() {
+        searchTabPanel.forceLayout();
+    }
+
+    private void onIdSearchTabSelected() {
+        searchTabPanel.forceLayout();
+    }
+
+    private void onTagSearchTabSelected() {
+        searchTabPanel.forceLayout();
+
+    }
+
+    private void setPanel(HorizontalPanel panel, Widget... widgets){
+        panel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+        panel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+        for (Widget widget:widgets){
+            panel.add(widget);
+        }
+        panel.setSize("100%","20px");
+
+
+    }
+//    Tab index should be defined in single place
+//    to avoid problems during adding/deleting new tabs
     private class TabIdentifier {
 
         public TabIdentifier(String tabName, int tabIndex) {
@@ -1689,6 +1967,14 @@ public class Trends extends DefaultActivity {
 
         private String tabName = "";
         private int tabIndex = 0;
+    }
+
+    private String toParsableString(Collection T){
+        String str="";
+        for(Object t:T){
+            str+=t.toString()+'/';
+        }
+        return str;
     }
 
 }
