@@ -281,6 +281,17 @@ public class Trends extends DefaultActivity {
 
     }
 
+    private String getMonitoringIdByMetricNameDtoId(String metricNameDtoId) {
+        for (String defaultMonitoringParam : defaultMonitoringParameters.keySet()) {
+            for (String id : defaultMonitoringParameters.get(defaultMonitoringParam)) {
+                if (id.equals(metricNameDtoId)) {
+                    return defaultMonitoringParam;
+                }
+            }
+        }
+        return null;
+    }
+
     private Map<String, List<String>> getTestTrendsMap(List<TestDetailsNode> tests, List<TaskDataDto> taskDataDtos) {
         Map<String, List<String>> resultMap = new LinkedHashMap<String, List<String>>();
 
@@ -288,14 +299,72 @@ public class Trends extends DefaultActivity {
             if (controlTree.isChosen(test)) {
                 if (taskDataDtos.contains(test.getTaskDataDto())) {
 
+                    Map<String,Boolean> uniteAgentsForMonitoringNames = new HashMap<String, Boolean>();
                     List<String> trends = new ArrayList<String>();
+                    List<String> trendsMonitoring = new ArrayList<String>();
                     for (PlotNode plotNode : test.getMetrics()) {
+
+                        // temporary work around to make URL shorter starts here
+                        // it groups metricNameDtoId|agentName id to old monitoringId|agentName
+                        if (plotNode.getMetricNameDtoList().size() > 0) {
+                            MetricNameDto metricNameDto = plotNode.getMetricNameDtoList().get(0);
+
+                            if ((metricNameDto.getOrigin() == MetricNameDto.Origin.MONITORING) ||
+                                (metricNameDto.getOrigin() == MetricNameDto.Origin.TEST_GROUP_METRIC)) {
+
+                                MonitoringIdUtils.MonitoringId monitoringId= MonitoringIdUtils.splitMonitoringMetricId(metricNameDto.getMetricName());
+                                if (monitoringId != null) {
+                                    String monitoringOldName = getMonitoringIdByMetricNameDtoId(monitoringId.getMonitoringName());
+                                    if (monitoringOldName != null) {
+                                        if (!uniteAgentsForMonitoringNames.containsKey(monitoringOldName)){
+                                            uniteAgentsForMonitoringNames.put(monitoringOldName,true);
+                                        }
+
+                                        if (controlTree.isChecked(plotNode)) {
+                                            trendsMonitoring.add(monitoringOldName + MonitoringIdUtils.AGENT_NAME_SEPARATOR + monitoringId.getAgentName());
+                                            // for this plotNode we are using work around. we will not go normal way
+                                            continue;
+                                        }
+                                        else {
+                                            // plot for some of agent of this monitoring metric is not checked
+                                            // we will not process this monitoring metric in next workaround
+                                            uniteAgentsForMonitoringNames.put(monitoringOldName,false);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        // temporary work around to make URL shorter ends here
+
+                        // this is correct way, but is has very long URL
                         if (controlTree.isChecked(plotNode)) {
                             for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
                                 trends.add(metricNameDto.getMetricName());
                             }
                         }
                     }
+
+                    // temporary work around to make URL shorter SECOND ROUND starts here
+                    // it groups old monitoringId|agentName to old monitoringId
+                    List<String> newTrendMonitoring = new ArrayList<String>();
+                    for (Map.Entry<String,Boolean> canWeOptimizeMore : uniteAgentsForMonitoringNames.entrySet()) {
+                        if (canWeOptimizeMore.getValue()) {
+                            // remove monitoringId|agentName
+                            Iterator<String> iterator = trendsMonitoring.iterator();
+                            while (iterator.hasNext()) {
+                                String id = iterator.next();
+                                if (id.matches("^" + canWeOptimizeMore.getKey() + ".*")) {
+                                    iterator.remove();
+                                }
+                            }
+                            // leave monitoringId
+                            newTrendMonitoring.add(canWeOptimizeMore.getKey());
+                        }
+                    }
+                    trendsMonitoring.addAll(newTrendMonitoring);
+                    // temporary work around to make URL shorter SECOND ROUND ends here
+
+                    trends.addAll(trendsMonitoring);
                     resultMap.put(test.getTaskDataDto().getTaskName(), trends);
                 }
             }
@@ -332,7 +401,6 @@ public class Trends extends DefaultActivity {
     private final SessionDataForSessionIdsAsyncProvider sessionDataForSessionIdsAsyncProvider = new SessionDataForSessionIdsAsyncProvider();
     private final SessionDataForDatePeriodAsyncProvider sessionDataForDatePeriodAsyncProvider = new SessionDataForDatePeriodAsyncProvider();
     private final SessionDataForSessionTagsAsyncProvider sessionDataForSessionTagsAsyncProvider = new SessionDataForSessionTagsAsyncProvider();
-
 
     @UiField
     Widget widget;
@@ -1204,6 +1272,18 @@ public class Trends extends DefaultActivity {
                                         tempTree.setCheckedExpandedWithParent(metricNode);
                                         needTestInfo = true;
                                     }
+                                    // workaround for back compatibility for standard metrics like Latency and Co
+                                    else {
+                                        if (metricNameDto.getMetricNameSynonyms() != null) {
+                                            for (String synonym : metricNameDto.getMetricNameSynonyms()) {
+                                                if (testsMetrics.getMetrics().contains(synonym)) {
+                                                    tempTree.setCheckedExpandedWithParent(metricNode);
+                                                    needTestInfo = true;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                             if (needTestInfo) {
@@ -1228,13 +1308,8 @@ public class Trends extends DefaultActivity {
                                     if (id.equals(defaultMonitoringParam)) {
                                         // select all
                                         for (String metricId : defaultMonitoringParameters.get(defaultMonitoringParam)) {
-                                            for (PlotNode plotNode : testDetailsNode.getMetrics()) {
-                                                for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
-                                                    if (metricNameDto.getMetricName().matches("^" + metricId + ".*")) {
-                                                        newTrends.add(metricNameDto.getMetricName());
-                                                    }
-                                                }
-                                            }
+                                            String regex = "^" + MonitoringIdUtils.getEscapedStringForRegex(metricId) + ".*";
+                                            newTrends.addAll(getMatchingMetricNameDtos(regex,testDetailsNode));
                                         }
                                     }
                                     else {
@@ -1242,7 +1317,9 @@ public class Trends extends DefaultActivity {
                                         MonitoringIdUtils.MonitoringId monitoringId = MonitoringIdUtils.splitMonitoringMetricId(id);
                                         if (monitoringId != null) {
                                             for (String metricId : defaultMonitoringParameters.get(defaultMonitoringParam)) {
-                                                newTrends.add(MonitoringIdUtils.getMonitoringMetricId(metricId, monitoringId.getAgentName()));      // metricId + agentName
+                                                String monitoringMetricId = MonitoringIdUtils.getMonitoringMetricId(metricId, monitoringId.getAgentName());
+                                                String regex = "^" + MonitoringIdUtils.getEscapedStringForRegex(monitoringMetricId) + ".*";
+                                                newTrends.addAll(getMatchingMetricNameDtos(regex,testDetailsNode));
                                             }
                                         }
                                     }
@@ -1283,6 +1360,18 @@ public class Trends extends DefaultActivity {
             fireCheckEvents();
         }
 
+        private Set<String> getMatchingMetricNameDtos(String regex, TestDetailsNode testDetailsNode) {
+            Set <String> result = new HashSet<String>();
+            for (PlotNode plotNode : testDetailsNode.getMetrics()) {
+                for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
+                    String metricId = metricNameDto.getMetricName();
+                    if (metricId.matches(regex)) {
+                        result.add(metricId);
+                    }
+                }
+            }
+            return result;
+        }
 
         /**
          * @param testName name of the test

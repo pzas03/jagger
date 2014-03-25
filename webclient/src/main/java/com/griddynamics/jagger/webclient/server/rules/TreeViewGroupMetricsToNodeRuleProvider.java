@@ -2,6 +2,7 @@ package com.griddynamics.jagger.webclient.server.rules;
 
 import com.griddynamics.jagger.agent.model.DefaultMonitoringParameters;
 import com.griddynamics.jagger.monitoring.reporting.GroupKey;
+import com.griddynamics.jagger.util.MonitoringIdUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,9 +13,6 @@ public class TreeViewGroupMetricsToNodeRuleProvider {
 
     private Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups;
 
-    public Map<GroupKey, DefaultMonitoringParameters[]> getMonitoringPlotGroups() {
-        return monitoringPlotGroups;
-    }
     public void setMonitoringPlotGroups(Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups) {
         this.monitoringPlotGroups = monitoringPlotGroups;
     }
@@ -41,7 +39,7 @@ public class TreeViewGroupMetricsToNodeRuleProvider {
                             }
                             regex += defaultMonitoringParameters.getId();
                         }
-                        String safeAgentId = agentId.replace("[","\\[").replace("]","\\]").replace("(", "\\(").replace(")","\\)");
+                        String safeAgentId = MonitoringIdUtils.getEscapedStringForRegex(agentId);
                         regex += ").*" + safeAgentId + ".*";
 
                         result.add(new TreeViewGroupMetricsToNodeRule(Rule.By.ID, metricDisplayName + "_" + agentId,agentId,regex));

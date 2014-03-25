@@ -11,9 +11,6 @@ public class TreeViewGroupRuleProvider {
 
     private Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups;
 
-    public Map<GroupKey, DefaultMonitoringParameters[]> getMonitoringPlotGroups() {
-        return monitoringPlotGroups;
-    }
     public void setMonitoringPlotGroups(Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups) {
         this.monitoringPlotGroups = monitoringPlotGroups;
     }

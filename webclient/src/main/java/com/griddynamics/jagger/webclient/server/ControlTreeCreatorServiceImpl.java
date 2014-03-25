@@ -150,7 +150,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
             // get tree
             for (TaskDataDto tdd : taskList) {
                 List<PlotNode> metricNodeList = map.get(tdd);
-                if (!monitoringMap.isEmpty()) {
+                if ((!monitoringMap.isEmpty()) && (monitoringMap.containsKey(tdd))) {
                     metricNodeList.addAll(monitoringMap.get(tdd));
                 }
 
