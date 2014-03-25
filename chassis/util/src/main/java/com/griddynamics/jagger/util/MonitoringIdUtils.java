@@ -34,7 +34,7 @@ public class MonitoringIdUtils {
 
     // not all special characters are escaped!
     // only required for agent Ids generation
-    public static String getSafeRegex(String input) {
+    public static String getEscapedStringForRegex(String input) {
         return input.
                 replace("[","\\[").replace("]","\\]").
                 replace("(", "\\(").replace(")","\\)").

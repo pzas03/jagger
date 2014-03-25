@@ -250,7 +250,7 @@ public class Trends extends DefaultActivity {
 
         newPlace.setLinkFragments(linkFragments);
 
-        String linkText = Window.Location.getHost() + Window.Location.getPath() + Window.Location.getQueryString() +
+        String linkText = "http://" + Window.Location.getHost() + Window.Location.getPath() + Window.Location.getQueryString() +
                 "#" + new JaggerPlaceHistoryMapper().getToken(newPlace);
         linkText = URL.encode(linkText);
 
@@ -303,7 +303,6 @@ public class Trends extends DefaultActivity {
                     List<String> trends = new ArrayList<String>();
                     List<String> trendsMonitoring = new ArrayList<String>();
                     for (PlotNode plotNode : test.getMetrics()) {
-                        boolean skipNormalWay = false;
 
                         // temporary work around to make URL shorter starts here
                         // it groups metricNameDtoId|agentName id to old monitoringId|agentName
@@ -323,7 +322,8 @@ public class Trends extends DefaultActivity {
 
                                         if (controlTree.isChecked(plotNode)) {
                                             trendsMonitoring.add(monitoringOldName + MonitoringIdUtils.AGENT_NAME_SEPARATOR + monitoringId.getAgentName());
-                                            skipNormalWay = true;
+                                            // for this plotNode we are using work around. we will not go normal way
+                                            continue;
                                         }
                                         else {
                                             // plot for some of agent of this monitoring metric is not checked
@@ -337,11 +337,9 @@ public class Trends extends DefaultActivity {
                         // temporary work around to make URL shorter ends here
 
                         // this is correct way, but is has very long URL
-                        if (!skipNormalWay) {
-                            if (controlTree.isChecked(plotNode)) {
-                                for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
-                                    trends.add(metricNameDto.getMetricName());
-                                }
+                        if (controlTree.isChecked(plotNode)) {
+                            for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
+                                trends.add(metricNameDto.getMetricName());
                             }
                         }
                     }
@@ -1286,6 +1284,18 @@ public class Trends extends DefaultActivity {
                                         tempTree.setCheckedExpandedWithParent(metricNode);
                                         needTestInfo = true;
                                     }
+                                    // workaround for back compatibility for standard metrics like Latency and Co
+                                    else {
+                                        if (metricNameDto.getMetricNameSynonyms() != null) {
+                                            for (String synonym : metricNameDto.getMetricNameSynonyms()) {
+                                                if (testsMetrics.getMetrics().contains(synonym)) {
+                                                    tempTree.setCheckedExpandedWithParent(metricNode);
+                                                    needTestInfo = true;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                             if (needTestInfo) {
@@ -1310,7 +1320,7 @@ public class Trends extends DefaultActivity {
                                     if (id.equals(defaultMonitoringParam)) {
                                         // select all
                                         for (String metricId : defaultMonitoringParameters.get(defaultMonitoringParam)) {
-                                            String regex = "^" + MonitoringIdUtils.getSafeRegex(metricId) + ".*";
+                                            String regex = "^" + MonitoringIdUtils.getEscapedStringForRegex(metricId) + ".*";
                                             newTrends.addAll(getMatchingMetricNameDtos(regex,testDetailsNode));
                                         }
                                     }
@@ -1320,7 +1330,7 @@ public class Trends extends DefaultActivity {
                                         if (monitoringId != null) {
                                             for (String metricId : defaultMonitoringParameters.get(defaultMonitoringParam)) {
                                                 String monitoringMetricId = MonitoringIdUtils.getMonitoringMetricId(metricId, monitoringId.getAgentName());
-                                                String regex = "^" + MonitoringIdUtils.getSafeRegex(monitoringMetricId) + ".*";
+                                                String regex = "^" + MonitoringIdUtils.getEscapedStringForRegex(monitoringMetricId) + ".*";
                                                 newTrends.addAll(getMatchingMetricNameDtos(regex,testDetailsNode));
                                             }
                                         }

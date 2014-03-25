@@ -39,7 +39,7 @@
     <beans:import resource="collectors.conf.xml"/>
     <beans:import resource="test.suite.scenario.config.xml"/>
 
-    <configuration id="exampleConfiguration">
+    <configuration id="s_exampleConfiguration">
         <latency-percentiles>
             <percentile>99</percentile>
             <percentile>98</percentile>

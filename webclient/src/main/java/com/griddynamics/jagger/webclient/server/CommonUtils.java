@@ -84,4 +84,21 @@ public class CommonUtils {
 
         return result;
     }
+
+
+    /**
+     * generate unique id from given parameters
+     * @param o1 first parameter - to avoid no argument call
+     * @param objects rest parameters
+     * @return unique id
+     */
+    public static int generateUniqueId(Object o1, Object... objects) {
+
+        int result = o1 != null ? o1.hashCode() : 0;
+        for (Object obj : objects) {
+            result = 31 * result + (obj != null ? obj.hashCode() : 0);
+        }
+        return result;
+    }
+
 }
