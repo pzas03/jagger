@@ -39,7 +39,7 @@ public class TreeViewGroupMetricsToNodeRuleProvider {
                             }
                             regex += defaultMonitoringParameters.getId();
                         }
-                        String safeAgentId = MonitoringIdUtils.getSafeRegex(agentId);
+                        String safeAgentId = MonitoringIdUtils.getEscapedStringForRegex(agentId);
                         regex += ").*" + safeAgentId + ".*";
 
                         result.add(new TreeViewGroupMetricsToNodeRule(Rule.By.ID, metricDisplayName + "_" + agentId,agentId,regex));
