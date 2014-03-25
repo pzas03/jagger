@@ -250,7 +250,7 @@ public class Trends extends DefaultActivity {
 
         newPlace.setLinkFragments(linkFragments);
 
-        String linkText = Window.Location.getHost() + Window.Location.getPath() + Window.Location.getQueryString() +
+        String linkText = "http://" + Window.Location.getHost() + Window.Location.getPath() + Window.Location.getQueryString() +
                 "#" + new JaggerPlaceHistoryMapper().getToken(newPlace);
         linkText = URL.encode(linkText);
 
