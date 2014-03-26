@@ -694,9 +694,14 @@ INPUT                  = ./chassis/core/src/main/java/com/griddynamics/jagger/in
                          ./chassis/providers/src/main/java/com/griddynamics/jagger/providers/FileProvider.java  \
                          ./chassis/providers/src/main/java/com/griddynamics/jagger/providers/CsvProvider.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/MetricCollectorProvider.java \
+                         ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/MetricAggregator.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/MetricAggregatorProvider.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/SuccessRateAggregatorProvider.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/SuccessRateFailsAggregatorProvider.java \
+                         ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/AvgMetricAggregatorProvider.java \
+                         ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/StdDevMetricAggregatorProvider.java \
+                         ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/SumMetricAggregatorProvider.java \
+                         ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/CumulativeMetricAggregatorProvider.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/services/JaggerService.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/services/MetricService.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/services/SessionInfoService.java \
@@ -785,7 +790,9 @@ EXAMPLE_PATH           = ./archetype-examples/src/main/resources/archetype-resou
                          ./archetype-examples/src/main/resources/archetype-resources/src/main/resources/profiles/basic/environment.properties \
                          ./doc/setup/JaggerVersion.txt \
                          ./webclient/src/main/resources/webclient.properties \
-                         ./monitoring/agent/src/main/resources/spring/agent.properties
+                         ./monitoring/agent/src/main/resources/spring/agent.properties \
+                         ./test/jagger-test/src/main/java/metric/aggregator/MaxMetricAggregatorProvider.java \
+                         ./test/jagger-test/src/main/resources/configuration/master/metric/calculatorsAndAggregators.conf.xml
 
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the

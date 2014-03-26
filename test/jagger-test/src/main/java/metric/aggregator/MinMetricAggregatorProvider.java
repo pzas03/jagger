@@ -12,7 +12,7 @@ import java.util.ArrayList;
  * Time: 7:04 PM
  * To change this template use File | Settings | File Templates.
  */
-public class MinAggregator implements MetricAggregatorProvider{
+public class MinMetricAggregatorProvider implements MetricAggregatorProvider{
 
     @Override
     public MetricAggregator provide() {

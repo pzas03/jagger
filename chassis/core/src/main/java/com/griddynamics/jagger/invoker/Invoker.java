@@ -65,11 +65,12 @@ public interface Invoker<Q,R,E> extends Serializable {
 /// @li @ref Main_Test_Suite_Flow_group
 /// @li @ref Main_Test_Flow_group
 ///
+/// @li @ref Main_Aggregators_General_group @e @htmlonly <font color="#009900">NEW ver 1.2.4</font>@endhtmlonly
 /// @li @ref Main_Collectors_General_group
-/// @li @ref Main_Providers_General_group
 /// @li @ref Main_Distributors_General_group
-/// @li @ref Main_Services_General_group
 /// @li @ref Main_Listeners_General_group
+/// @li @ref Main_Providers_General_group
+/// @li @ref Main_Services_General_group
 ///
 /// @li @ref Main_Custom_Components_group
 ///
@@ -106,6 +107,7 @@ public interface Invoker<Q,R,E> extends Serializable {
 
 /// @defgroup Main_Custom_Components_group Custom component
 ///
+/// @li @ref Main_HowToCustomizeAggregators_group
 /// @li @ref Main_HowToCustomizeInvokers_group
 /// @li @ref Main_HowToCustomizeProviders_group
 /// @li @ref Main_HowToCustomizeDistributors_group
@@ -176,6 +178,8 @@ public interface Invoker<Q,R,E> extends Serializable {
 /// @details @ref Main_Services_General_group
 /// @defgroup Main_Listeners_Base_group Listener
 /// @details @ref Main_Listeners_General_group
+/// @defgroup Main_Aggregators_Base_group Aggregator
+/// @details @ref Main_Aggregators_General_group
 
 
 /* **************** Implementations ************************* */
@@ -191,5 +195,6 @@ public interface Invoker<Q,R,E> extends Serializable {
 /// @defgroup Main_Listeners_group Implementations of listeners
 /// @details @ref Main_Listeners_General_group
 /// @defgroup Main_Aggregators_group Implementations of aggregators
+/// @details @ref Main_Aggregators_General_group
 /// @defgroup Main_DecisionMakers_group Implementations of decision makers
 /// @defgroup Main_Terminators_group Implementations of termination strategies

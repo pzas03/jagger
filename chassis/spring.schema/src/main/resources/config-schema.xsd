@@ -912,6 +912,7 @@
 
     <xsd:complexType name="metric-aggregator-ref">
         <xsd:annotation><xsd:documentation>
+            Reference to custom aggregator
         </xsd:documentation></xsd:annotation>
         <xsd:complexContent>
             <xsd:extension base="metricAggregatorAbstract">
@@ -922,6 +923,7 @@
 
     <xsd:complexType name="metric-aggregator-avg">
         <xsd:annotation><xsd:documentation>
+            Average aggregator. Calculates average value on interval
         </xsd:documentation></xsd:annotation>
         <xsd:complexContent>
             <xsd:extension base="metricAggregatorAbstract">
@@ -931,6 +933,7 @@
 
     <xsd:complexType name="metric-aggregator-sum">
         <xsd:annotation><xsd:documentation>
+            Summary aggregator. Calculates summary of all values on interval
         </xsd:documentation></xsd:annotation>
         <xsd:complexContent>
             <xsd:extension base="metricAggregatorAbstract">
@@ -940,6 +943,7 @@
 
     <xsd:complexType name="metric-aggregator-std">
         <xsd:annotation><xsd:documentation>
+            Standard deviation aggregator. Calculates standard deviation on interval
         </xsd:documentation></xsd:annotation>
         <xsd:complexContent>
             <xsd:extension base="metricAggregatorAbstract">
