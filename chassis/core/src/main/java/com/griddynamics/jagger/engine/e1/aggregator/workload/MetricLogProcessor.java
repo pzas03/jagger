@@ -45,6 +45,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -191,6 +192,7 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
         public StatisticsGenerator generate() throws IOException {
             String tmp = path.substring(0, path.lastIndexOf(File.separatorChar));
             String metricName = tmp.substring(tmp.lastIndexOf(File.separatorChar) + 1);
+            metricName = URLDecoder.decode(metricName, "UTF-8");
 
             MetricDescription metricDescription = fetchDescription(metricName);
 
