@@ -8,6 +8,16 @@ import java.util.Set;
  * @par Details:
  * @details
  * @n
+ * @par Example - working with session comments:
+ * @dontinclude ProviderOfTestSuiteListener.java
+ * @skip  begin: following section is used for docu generation - work with session comments
+ * @until end: following section is used for docu generation - work with session comments
+ * @n
+ * @par Example - working with session tags:
+ * @dontinclude ProviderOfTestSuiteListener.java
+ * @skip  begin: following section is used for docu generation - work with session tags
+ * @until end: following section is used for docu generation - work with session tags
+ * @n
  * @ingroup Main_Services_group */
 public interface SessionInfoService extends JaggerService{
 
@@ -37,7 +47,7 @@ public interface SessionInfoService extends JaggerService{
      */
     void saveOrUpdateTag(String tagName, String tagDescription);
 
-    /** Marks session with tag
+    /** Marks session with tag. Previously set tags are not influenced
      *
      * @param tagName - a tag name which should be used to mark a session
      */

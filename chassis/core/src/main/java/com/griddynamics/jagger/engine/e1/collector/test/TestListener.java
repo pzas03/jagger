@@ -119,7 +119,7 @@ public interface TestListener{
 /// Approach for implementation will be always the same like described below. @n
 /// @n
 /// To add custom listener (f.e. test suite listener) you need to do -
-/// 1. Create class which extends @ref ServicesAware and implements interface @ref Provider<T>
+/// 1. Create class which extends @ref com.griddynamics.jagger.engine.e1.services.ServicesAware "ServicesAware" and implements interface @ref Provider<T>
 /// @dontinclude  ProviderOfTestSuiteListener.java
 /// @skipline  public class ProviderOfTestSuiteListener
 /// @n
