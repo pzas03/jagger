@@ -60,7 +60,7 @@ public class DefaultMetricService implements MetricService {
             logWriter.log(sessionId, taskId + File.separatorChar + METRIC_MARKER + File.separatorChar + metricId, context.getId().getIdentifier(),
                     new MetricLogEntry(timeStamp, metricId, value));
         } catch (UnsupportedEncodingException e) {
-            log.error("Can't save metric value with id="+metricId, e);
+            log.error("Can't save metric value with id={}", metricId, e);
         }
     }
 

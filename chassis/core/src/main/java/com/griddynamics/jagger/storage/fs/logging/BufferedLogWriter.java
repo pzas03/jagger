@@ -175,6 +175,9 @@ public abstract class BufferedLogWriter implements LogWriter {
                         for(Serializable serializable: fileQueue){
                             objectOutput.writeObject(serializable);
                         }
+                    }catch (Exception e){
+                        log.error("Error during saving data with path {} to fileStorage", logFilePath, e);
+
                     } finally {
                         try {
                             Closeables.closeQuietly(objectOutput);
@@ -184,9 +187,6 @@ public abstract class BufferedLogWriter implements LogWriter {
                         }
                     }
                 }
-            }catch (Exception e){
-                log.error("Error during saving data to fileStorage", e);
-
             } finally {
                 log.debug("Flush queue finished. flushId {}.Flush took: {}", startTime, (System.currentTimeMillis() - startTime));
 
