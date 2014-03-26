@@ -534,6 +534,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                 metric.setMetricDisplayName(metricNameDto.getMetricDisplayName());
                 metric.setOrigin(metricNameDto.getOrigin());
                 metric.setTest(taskDataDto);
+                metric.setMetricNameSynonyms(metricNameDto.getMetricNameSynonyms());
                 list.add(metric);
             }
         }
@@ -840,38 +841,38 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                         "select taskData.id, commonTests.name, commonTests.description, taskData.taskId , commonTests.clock, commonTests.clockValue, commonTests.termination, taskData.sessionId" +
                                 " from " +
                                 "( " +
-                                "select test.name, test.description, test.version, test.sessionId, test.taskId, test.clock, test.clockValue, test.termination from " +
-                                "( " +
-                                "select " +
-                                "l.*, s.name, s.description, s.version " +
-                                "from " +
-                                "(select * from WorkloadTaskData where sessionId in (:sessions)) as l " +
-                                "left outer join " +
-                                "(select * from WorkloadDetails) as s " +
-                                "on l.scenario_id=s.id " +
-                                ") as test " +
-                                "inner join " +
-                                "( " +
-                                "select t.* from " +
-                                "( " +
-                                "select " +
-                                "l.*, s.name, s.description, s.version " +
-                                "from " +
-                                "(select * from WorkloadTaskData where sessionId in (:sessions)) as l " +
-                                "left outer join " +
-                                "(select * from WorkloadDetails) as s " +
-                                "on l.scenario_id=s.id " +
-                                ") as t " +
-                                "group by " +
-                                "t.termination, t.clock, t.clockValue, t.name, t.description, t.version " +
-                                "having count(t.id)>=" + havingCount +
-                                ") as testArch " +
-                                "on " +
-                                "test.clock=testArch.clock and " +
-                                "test.clockValue=testArch.clockValue and " +
-                                "test.termination=testArch.termination and " +
-                                "test.name=testArch.name and " +
-                                "test.version=testArch.version " +
+                                "    select test.name, test.description, test.version, test.sessionId, test.taskId, test.clock, test.clockValue, test.termination from " +
+                                "    ( " +
+                                "        select " +
+                                "        l.*, s.name, s.description, s.version " +
+                                "        from " +
+                                "        (select * from WorkloadTaskData where sessionId in (:sessions)) as l " +
+                                "        left outer join " +
+                                "        (select * from WorkloadDetails) as s " +
+                                "        on l.scenario_id=s.id " +
+                                "    ) as test " +
+                                "    inner join " +
+                                "    ( " +
+                                "        select t.* from " +
+                                "        ( " +
+                                "            select " +
+                                "            l.*, s.name, s.description, s.version " +
+                                "            from " +
+                                "            (select * from WorkloadTaskData where sessionId in (:sessions)) as l " +
+                                "            left outer join " +
+                                "            (select * from WorkloadDetails) as s " +
+                                "            on l.scenario_id=s.id " +
+                                "        ) as t " +
+                                "        group by " +
+                                "        t.termination, t.clock, t.clockValue, t.name, t.description, t.version " +
+                                "        having count(t.id)>=" + havingCount +
+                                "    ) as testArch " +
+                                "    on " +
+                                "    test.clock=testArch.clock and " +
+                                "    test.clockValue=testArch.clockValue and " +
+                                "    test.termination=testArch.termination and " +
+                                "    test.name=testArch.name and " +
+                                "    test.version=testArch.version " +
                                 ") as commonTests " +
                                 "left outer join " +
                                 "(select * from TaskData where sessionId in (:sessions)) as taskData " +
@@ -913,6 +914,9 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                 Set<String> sessionIdList = new HashSet<String>();
                 sessionIdList.add(sessionId);
                 taskDataDto.setSessionIds(sessionIdList);
+                // generate unique to make difference between tests with different matching parameters.
+                int uniqueId = CommonUtils.generateUniqueId(name, description, taskId, clock, clockValue, termination);
+                taskDataDto.setUniqueId(uniqueId);
 
                 map.put(key, taskDataDto);
                 mapIds.put(key, taskIdInt);

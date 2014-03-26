@@ -782,6 +782,7 @@ EXAMPLE_PATH           = ./archetype-examples/src/main/resources/archetype-resou
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/services/ServicesAware.java \
                          ./archetype-examples/src/main/resources/archetype-resources/src/main/java/listener/ProviderOfTestListener.java \
                          ./archetype-examples/src/main/resources/archetype-resources/src/main/java/listener/ProviderOfTestSuiteListener.java \
+                         ./archetype-examples/src/main/resources/archetype-resources/src/main/resources/profiles/basic/environment.properties \
                          ./doc/setup/JaggerVersion.txt \
                          ./webclient/src/main/resources/webclient.properties \
                          ./monitoring/agent/src/main/resources/spring/agent.properties
