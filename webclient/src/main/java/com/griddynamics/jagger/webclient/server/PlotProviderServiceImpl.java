@@ -172,11 +172,10 @@ public class PlotProviderServiceImpl implements PlotProviderService {
         Map<MetricNode, PlotSeriesDto> result = new HashMap<MetricNode, PlotSeriesDto>();
 
         for (MetricNode metricNode : plots) {
-            // at the moment all MetricNameDtos in MetricNode have same taskIds => it is valid to use first one for legend provider
-            result.put(metricNode, new PlotSeriesDto(new ArrayList<PlotDatasetDto>(tempMultiMap.get(metricNode)),"Time, sec", "",legendProvider.getPlotHeader(metricNode.getMetricNameDtoList().get(0).getTaskIds(), metricNode.getDisplayName())));
+            List<PlotDatasetDto> plotDatasetDtoList = new ArrayList<PlotDatasetDto>(tempMultiMap.get(metricNode));
 
             // Sort lines by legend
-            Collections.sort(result.get(metricNode).getPlotSeries(), new Comparator<PlotDatasetDto>() {
+            Collections.sort(plotDatasetDtoList, new Comparator<PlotDatasetDto>() {
                 @Override
                 public int compare(PlotDatasetDto o1, PlotDatasetDto o2) {
                     String param1 = o1.getLegend();
@@ -186,6 +185,8 @@ public class PlotProviderServiceImpl implements PlotProviderService {
                 }
             });
 
+            // at the moment all MetricNameDtos in MetricNode have same taskIds => it is valid to use first one for legend provider
+            result.put(metricNode, new PlotSeriesDto(plotDatasetDtoList,"Time, sec", "",legendProvider.getPlotHeader(metricNode.getMetricNameDtoList().get(0).getTaskIds(), metricNode.getDisplayName())));
         }
 
         log.debug("Total time of plots retrieving : " + (System.currentTimeMillis() - temp));
