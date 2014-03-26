@@ -30,7 +30,7 @@
           class="com.griddynamics.jagger.diagnostics.thread.sampling.StubThreadInfoProvider"/>
 
     <bean id="multiThreadInfoProviderRemote" lazy-init="true"
-          class="com.griddynamics.jagger.diagnostics.thread.sampling.RemoteMultiThreadInfoProvider">
+          class="com.griddynamics.jagger.diagnostics.thread.sampling.RemoteMultiThreadInfoProvider" init-method="init">
         <property name="urlFormat" value="${jmx.url.format}"/>
         <property name="jmxServices" value="${jmx.services}"/>
     </bean>
