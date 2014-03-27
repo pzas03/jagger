@@ -16,27 +16,31 @@ import java.util.List;
  * To view test listener implementations click here @ref Main_Listeners_group
  * @n
  * @ingroup Main_Listeners_Base_group */
-public interface InvocationListener<Q, R, E>  {
+public abstract class InvocationListener<Q, R, E>  {
 
     /** Method is executed before invocation starts
      * @param invocationInfo - describes start invocation information*/
-    void onStart(InvocationInfo<Q, R, E> invocationInfo);
+    public void onStart(InvocationInfo<Q, R, E> invocationInfo){
+    }
 
     /** Method is executed after invocation starts
      * @param invocationInfo - describes invocation result information*/
-    void onSuccess(InvocationInfo<Q, R, E> invocationInfo);
+    public void onSuccess(InvocationInfo<Q, R, E> invocationInfo){
+    }
 
     /** Method is executed when some invocation exception happens
      * @param invocationInfo - describes invocation information
      * @param e - invocation exception*/
-    void onFail(InvocationInfo<Q, R, E> invocationInfo, InvocationException e);
+    public void onFail(InvocationInfo<Q, R, E> invocationInfo, InvocationException e){
+    }
 
     /** Method is executed when invocation was interrupted by some error
      * @param invocationInfo - describes invocation information
      * @param error - invocation error*/
-    void onError(InvocationInfo<Q, R, E> invocationInfo, Throwable error);
+    public void onError(InvocationInfo<Q, R, E> invocationInfo, Throwable error){
+    }
 
-    public static class Composer<Q, R, E> implements InvocationListener<Q, R, E>{
+    public static class Composer<Q, R, E> extends InvocationListener<Q, R, E>{
         private static Logger log = LoggerFactory.getLogger(Composer.class);
 
         private List<InvocationListener<Q, R, E>> listeners;
