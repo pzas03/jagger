@@ -39,7 +39,7 @@
                 <reportElement x="0" y="0" width="530" height="200"/>
                 <textField>
                     <reportElement style="Header_Italic" x="0" y="10" width="500" height="20" forecolor="#000000"/>
-                    <textElement textAlignment="Center"/>
+                    <textElement textAlignment="Right"/>
                     <textFieldExpression><![CDATA[$F{title}]]></textFieldExpression>
                 </textField>
 

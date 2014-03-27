@@ -24,6 +24,7 @@ import com.griddynamics.jagger.engine.e1.aggregator.workload.model.MetricDetails
 import com.griddynamics.jagger.engine.e1.aggregator.workload.model.MetricPointEntity;
 import com.griddynamics.jagger.reporting.AbstractMappedReportProvider;
 import com.griddynamics.jagger.reporting.chart.ChartHelper;
+import com.griddynamics.jagger.util.MonitoringIdUtils;
 import com.griddynamics.jagger.util.Pair;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
@@ -60,6 +61,16 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
                 metricPlotDTOs = new LinkedList<MetricPlotDTO>();
             }
             metricPlotDTOs.add(plot);
+        }
+
+        public void sortingByMetricName() {
+            if (metricPlotDTOs != null)
+                Collections.sort((List<MetricPlotDTO>) metricPlotDTOs, new Comparator<MetricPlotDTO>() {
+                    @Override
+                    public int compare(MetricPlotDTO o1, MetricPlotDTO o2) {
+                        return o1.getMetricName().compareTo(o2.getMetricName());
+                    }
+                });
         }
     }
 
@@ -113,10 +124,15 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
         }
         String testIdParent = getParentId(testId);
         if (plots.containsKey(testId)) {
-            plots.get(testId).getMetricPlotDTOs().addAll(plots.get(testIdParent).getMetricPlotDTOs());
+            plots.get(testId).sortingByMetricName();
+            plots.get(testIdParent).sortingByMetricName();
+            if (plots.get(testIdParent).getMetricPlotDTOs() != null)
+                plots.get(testId).getMetricPlotDTOs().addAll(plots.get(testIdParent).getMetricPlotDTOs());
             return new JRBeanCollectionDataSource(Collections.singleton(plots.get(testId)));
-        } else
+        } else {
+            plots.get(testIdParent).sortingByMetricName();
             return new JRBeanCollectionDataSource(Collections.singleton(plots.get(testIdParent)));
+        }
     }
 
     public String getParentId(String testId) {
@@ -168,10 +184,10 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
             for (String metricName : aggregatedByTasks.get(taskId).keySet()) {
                 List<MetricPointEntity> taskStats = aggregatedByTasks.get(taskId).get(metricName);
                 String displayName = taskStats.get(0).getDisplay();
-                String title = taskStats.get(0).getMetricDescription().getMetricId();
-                logger.info("\n\n" + title + "\n\n");
-
-
+                String title = displayName;
+                String agentName = MonitoringIdUtils.splitMonitoringMetricId(taskStats.get(0).getMetricDescription().getMetricId()).getAgentName();
+                if (agentName != null)
+                    title += " on " + agentName;
                 XYSeries plotEntry = new XYSeries(displayName);
                 for (MetricPointEntity stat : taskStats) {
                     plotEntry.add(stat.getTime(), stat.getValue());

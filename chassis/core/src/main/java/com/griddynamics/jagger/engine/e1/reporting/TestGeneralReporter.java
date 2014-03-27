@@ -27,6 +27,7 @@ import com.griddynamics.jagger.monitoring.reporting.SystemUnderTestPlotsGeneralP
 import com.griddynamics.jagger.reporting.AbstractReportProvider;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import java.util.Collections;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,12 +70,12 @@ public class TestGeneralReporter extends AbstractReportProvider {
 
     @Override
     public JRDataSource getDataSource() {
-        List<TestDetailsDTO> result = new ArrayList<TestDetailsDTO>();
         //if a session scope is disable we return a bean with an empty collection
         if (!sessionScopeAvailable){
-            return new JRBeanCollectionDataSource(result);
+            return new JRBeanCollectionDataSource(Collections.EMPTY_LIST);
         }
 
+        List<TestDetailsDTO> result = new ArrayList<TestDetailsDTO>();
         SystemUnderTestPlotsGeneralProvider plotsGeneralProvider = (SystemUnderTestPlotsGeneralProvider) getContext().getMappedProvider("sysUTPlotsGeneral");
         Set<String> boxIdentifiers = plotsGeneralProvider.getStatistics().findBoxIdentifiers();
         Set<String> sutUrls = plotsGeneralProvider.getStatistics().findSutUrls();
