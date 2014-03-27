@@ -109,6 +109,7 @@ public class RemoteMultiThreadInfoProvider implements ThreadInfoProvider {
         }
     }
 
+    @Required
     public void setUrlFormat(String urlFormat) {
         this.urlFormat = urlFormat;
     }
