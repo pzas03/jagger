@@ -156,7 +156,7 @@ public interface Invoker<Q,R,E> extends Serializable {
 /// @n
 ///
 /// 3. Create component @xlink{invoker} with type @xlink{invoker-class} and set attribute @xlink{invoker-class,class} with full class name of invoker
-/// @dontinclude  test.suite.scenario.config.xml
+/// @dontinclude  test.description.conf.xml
 /// @skip  begin: following section is used for docu generation - invoker usage
 /// @until end: following section is used for docu generation - invoker usage
 /// @n

@@ -711,6 +711,7 @@ INPUT                  = ./chassis/core/src/main/java/com/griddynamics/jagger/in
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/testgroup/TestGroupListener.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/CollectThreadsTestListener.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/invocation/InvocationListener.java \
+                         ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/invocation/InvocationInfo.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/test/TestInfo.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/testsuite/TestSuiteInfo.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/testgroup/TestGroupInfo.java \
@@ -786,6 +787,7 @@ EXAMPLE_PATH           = ./archetype-examples/src/main/resources/archetype-resou
                          ./archetype-examples/src/main/resources/archetype-resources/src/main/resources/ \
                          ./test/jagger-test/src/main/resources/configuration/master/session/ \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/services/ServicesAware.java \
+                         ./archetype-examples/src/main/resources/archetype-resources/src/main/java/listener/ProviderOfInvocationListener.java \
                          ./archetype-examples/src/main/resources/archetype-resources/src/main/java/listener/ProviderOfTestListener.java \
                          ./archetype-examples/src/main/resources/archetype-resources/src/main/java/listener/ProviderOfTestSuiteListener.java \
                          ./archetype-examples/src/main/resources/archetype-resources/src/main/resources/profiles/basic/environment.properties \

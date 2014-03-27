@@ -37,7 +37,7 @@
 
     <beans:import resource="listeners.conf.xml"/>
     <beans:import resource="collectors.conf.xml"/>
-    <beans:import resource="test.suite.scenario.config.xml"/>
+    <beans:import resource="test.description.conf.xml"/>
 
     <configuration id="s_exampleConfiguration">
         <latency-percentiles>
@@ -50,45 +50,45 @@
             <percentile>60</percentile>
         </latency-percentiles>
 
-        <test-suite id="jaggerTestSuit">
+        <test-suite id="ts_jaggerTestSuit">
 
-            <test-group id="groovyInvokerGroup">
-                <test id="invokerTest" testDescription="groovyGooglePageTest">
+            <test-group id="tg_groovyInvokerGroup">
+                <test id="t_invokerTest" testDescription="td_groovyGooglePageTest">
                     <load xsi:type="load-threads" count="1"/>
                     <termination xsi:type="termination-iterations" iterations="100" maxDuration="2m"/>
                 </test>
             </test-group>
 
-           <test-group id="groovyScenarioGroup">
-               <test id="groovyTest" testDescription="groovyScenarioExample">
+           <test-group id="tg_groovyScenarioGroup">
+               <test id="t_groovyTest" testDescription="td_groovyScenarioExample">
                    <load xsi:type="load-tps" value="1" maxThreadNumber="10"/>
                    <termination xsi:type="termination-iterations" iterations="40" maxDuration="2m"/>
                </test>
            </test-group>
 
-            <test-group id="randomDistributorGroup">
-                <test id="jaggerRandomScenarioTest" testDescription="jaggerRandomDistributorScenario">
+            <test-group id="tg_randomDistributorGroup">
+                <test id="t_jaggerRandomScenarioTest" testDescription="td_jaggerRandomDistributorScenario">
                     <load xsi:type="load-tps" value="50" maxThreadNumber="1000"/>
                     <termination xsi:type="termination-iterations" iterations="1000" maxDuration="2m"/>
                 </test>
-                <test id="jaggerRandomDistributorTest" testDescription="jaggerRandomPageTest">
+                <test id="t_jaggerRandomDistributorTest" testDescription="td_jaggerRandomPageTest">
                     <load xsi:type="load-tps" value="50" maxThreadNumber="1000"/>
                     <termination xsi:type="termination-background"/>
                 </test>
             </test-group>
 
 
-            <test-group id="fileValidatorGroup">
-                <test id="fileValidatorTest" testDescription="fileValidatorGooglePageTest">
+            <test-group id="tg_fileValidatorGroup">
+                <test id="t_fileValidatorTest" testDescription="td_fileValidatorGooglePageTest">
                     <load xsi:type="load-threads" count="1"/>
-                    <termination xsi:type="termination-iterations" iterations="100" maxDuration="2m"/>
+                    <termination xsi:type="termination-iterations" iterations="10" maxDuration="2m"/>
                 </test>
             </test-group>
 
 
-            <test-group id="myFirstSearchTest">
+            <test-group id="tg_myFirstSearchTest">
                 <!-- begin: following section is used for docu generation - test listener usage -->
-               <test id="jaggerPage" testDescription="jaggerPageTest">
+               <test id="t_jaggerPage" testDescription="td_jaggerPageTest">
                    <load xsi:type="load-tps" value="100" maxThreadNumber="1000"/>
                    <termination xsi:type="termination-iterations" iterations="1000" maxDuration="2m"/>
 
@@ -102,7 +102,7 @@
                </test>
                <!-- end: following section is used for docu generation - test listener usage -->
 
-               <test id="googlePage" testDescription="googlePageTest">
+               <test id="t_googlePage" testDescription="td_googlePageTest">
                    <load xsi:type="load-threads" count="1"/>
                    <termination xsi:type="termination-background" />
                </test>
