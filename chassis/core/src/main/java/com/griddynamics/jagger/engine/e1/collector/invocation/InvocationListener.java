@@ -11,9 +11,7 @@ import java.util.List;
  * @n
  * @par Details:
  * @details Possible applications for invocation listener: @n
- * @li Collect some parameters during test run and save as metrics *
- * @n
- * To view test listener implementations click here @ref Main_Listeners_group
+ * @li Collect some parameters during test run and save as metrics
  * @n
  * @ingroup Main_Listeners_Base_group */
 public interface InvocationListener<Q, R, E>  {
@@ -22,11 +20,11 @@ public interface InvocationListener<Q, R, E>  {
      * @param invocationInfo - describes start invocation information*/
     void onStart(InvocationInfo<Q, R, E> invocationInfo);
 
-    /** Method is executed after invocation starts
+    /** Method is executed when invocation finished successfully
      * @param invocationInfo - describes invocation result information*/
     void onSuccess(InvocationInfo<Q, R, E> invocationInfo);
 
-    /** Method is executed when some invocation exception happens
+    /** Method is executed when some invocation exception happens or some validator failed
      * @param invocationInfo - describes invocation information
      * @param e - invocation exception*/
     void onFail(InvocationInfo<Q, R, E> invocationInfo, InvocationException e);
@@ -36,6 +34,8 @@ public interface InvocationListener<Q, R, E>  {
      * @param error - invocation error*/
     void onError(InvocationInfo<Q, R, E> invocationInfo, Throwable error);
 
+    /** Class is used by Jagger for sequential execution of several listeners @n
+     *  Not required for custom test listeners */
     public static class Composer<Q, R, E> implements InvocationListener<Q, R, E>{
         private static Logger log = LoggerFactory.getLogger(Composer.class);
 

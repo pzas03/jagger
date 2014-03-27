@@ -710,6 +710,7 @@ INPUT                  = ./chassis/core/src/main/java/com/griddynamics/jagger/in
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/testsuite/TestSuiteListener.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/testgroup/TestGroupListener.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/CollectThreadsTestListener.java \
+                         ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/invocation/InvocationListener.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/test/TestInfo.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/testsuite/TestSuiteInfo.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/testgroup/TestGroupInfo.java \

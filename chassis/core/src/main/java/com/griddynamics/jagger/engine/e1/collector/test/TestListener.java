@@ -91,7 +91,8 @@ public interface TestListener{
 /// @details
 /// @par General info
 /// Listeners give possibility to provide some user actions during test flow defined by XML configuration @n
-/// User can implement custom listener and Jagger will trigger it on some events (f.e. test suit start/stop, test group start/stop, test start/run/stop)
+/// User can implement custom listener and Jagger will trigger it on some events (f.e. test suit start/stop, test group start/stop, test start/run/stop, invocation start/stop)
+/// You can find example of custom listeners under link: @ref Main_CustomListenersExamples_group
 ///
 
 /* **************** Relation of listeners and Jagger services ************************* */
