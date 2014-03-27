@@ -1867,8 +1867,10 @@ public class Trends extends DefaultActivity {
         allTags();
         tagFilterBox = new TagBox();
         tagButton = new Button("...");
-        tagButton.setSize("30px","22px");
+        tagButton.setStyleName(JaggerResources.INSTANCE.css().tagButton());
+        tagButton.setSize("30px","23px");
         tagButton.setEnabled(allTagsLoadComplete);
+
         tagButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
@@ -1876,31 +1878,45 @@ public class Trends extends DefaultActivity {
                 tagFilterBox.popUpForFilter(allTags, tagNames);
             }
         });
-
-
         Label from = new Label("From ");
         Label to = new Label(" to ");
         from.setStyleName(JaggerResources.INSTANCE.css().searchPanel());
         to.setStyleName(JaggerResources.INSTANCE.css().searchPanel());
 
+        datesPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
         setPanel(datesPanel, from, sessionsFrom, to, sessionsTo);
         datesPanel.setBorderWidth(0);
-        sessionsFrom.setSize("95%","18px");
-        sessionsTo.setSize("95%","18px");
+        sessionsFrom.setSize("97%","21px");
+        sessionsFrom.setStyleName(JaggerResources.INSTANCE.css().searchPanel());
 
-        setPanel(tagsPanel, sessionTagsTextBox, tagButton);
-        idsPanel.setBorderWidth(0);
-        sessionTagsTextBox.setSize("98%","18px");
+        sessionsTo.setSize("97%","21px");
+        sessionsTo.setStyleName(JaggerResources.INSTANCE.css().searchPanel());
+
+        DockPanel dockTag = new DockPanel();
+        dockTag.setBorderWidth(0);
+        dockTag.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+        sessionTagsTextBox.setSize("108%","21px");
+        sessionTagsTextBox.setStyleName(JaggerResources.INSTANCE.css().searchPanel());
+        dockTag.setSize("100%","100%");
+        dockTag.add(sessionTagsTextBox,DockPanel.WEST);
+        dockTag.add(tagButton,DockPanel.EAST);
+
+
+        tagsPanel.setBorderWidth(0);
+        setPanel(tagsPanel,dockTag);
+
 
         setPanel(idsPanel, sessionIdsTextBox);
-        tagsPanel.setBorderWidth(0);
-        sessionIdsTextBox.setSize("98%", "18px");
+
+        idsPanel.setBorderWidth(0);
+        sessionIdsTextBox.setSize("99%", "21px");
+        sessionIdsTextBox.setStyleName(JaggerResources.INSTANCE.css().searchPanel());
 
         searchTabPanel.selectTab(indexId);
 
-        searchTabPanel.getTabWidget(indexId).setTitle("Search by an session's id");
+        searchTabPanel.getTabWidget(indexId).setTitle("Search by a session's id");
         searchTabPanel.getTabWidget(indexTag).setTitle("Search by session's tags");
-        searchTabPanel.getTabWidget(indexDate).setTitle("Search by a date of sessions");
+        searchTabPanel.getTabWidget(indexDate).setTitle("Search by a session's date");
 
 
         searchTabPanel.setTitle("A search bar");
@@ -1940,11 +1956,10 @@ public class Trends extends DefaultActivity {
 
     private void setPanel(HorizontalPanel panel, Widget... widgets){
         panel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-        panel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
         for (Widget widget:widgets){
             panel.add(widget);
         }
-        panel.setSize("100%","20px");
+        panel.setSize("100%","100%");
 
 
     }
