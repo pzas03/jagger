@@ -169,7 +169,7 @@
         <property name="fetchUtil" ref="fetchUtil"/>
     </bean>
 
-    <bean id="monitoringMetricPlotFetcher" class="com.griddynamics.jagger.webclient.server.fetch.implementation.MonitoringMetricPlotFetcher">
+    <bean id="monitoringMetricPlotFetcher" class="com.griddynamics.jagger.webclient.server.fetch.implementation.MonitoringMetricPlotFetcher" init-method="init">
         <property name="legendProvider" ref="legendProvider"/>
         <property name="threadPool" ref="executorService"/>
         <property name="monitoringPlotGroups" ref="monitoringPlotGroups"/>
