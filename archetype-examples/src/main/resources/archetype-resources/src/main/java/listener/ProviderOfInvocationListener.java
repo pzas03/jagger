@@ -81,6 +81,12 @@ public class ProviderOfInvocationListener extends ServicesAware implements Provi
                     int code = myResult.getStatusCode();
                     String metricId = "http_return_code_" + code;
 
+                    // IMPORTANT: saveResult method will be executed during every invocation = every request to SUT
+                    // Try to avoid slow operations in invocation listener code. They will slow down your workload
+                    // Creating new metric is time consuming opreration. We are creating metrics dynamically in this example,
+                    // because we don't know beforehand what HTTP codes will be returned => what metric ids will be used.
+                    // As soon as you know metric ids in advance, create your metrics in init() method above!
+
                     // Create new metric if it doesn't exist
                     if (!codes.contains(code)) {
                         codes.add(code);

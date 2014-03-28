@@ -10,9 +10,13 @@ import java.util.List;
  * @author Gribov Kirill
  * @n
  * @par Details:
- * @details Possible applications for invocation listener: @n
- * @li Collect some parameters during test run and save as metrics
+ * @details
+ * @b IMPORTANT: listener code will be executed during every invocation = every request to SUT @n
+ * Try to avoid slow operations in invocation listener code. They will slow down your workload @n
  * @n
+ * Possible applications for invocation listener:
+ * @li Collect some parameters during test run and save as metrics
+ *
  * @ingroup Main_Listeners_Base_group */
 public interface InvocationListener<Q, R, E>  {
 

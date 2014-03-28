@@ -16,36 +16,36 @@ public class MinMetricAggregatorProvider implements MetricAggregatorProvider{
 
     @Override
     public MetricAggregator provide() {
-        return new MetricAggregator<Number>() {
+        return new MinMetricAggregator();
+    }
 
-            private ArrayList<Number> values = new ArrayList<Number>(1000);
+    private static class MinMetricAggregator implements MetricAggregator<Number> {
 
-            @Override
-            public void append(Number calculated) {
-                values.add(calculated);
+        private Double value = null;
+
+        @Override
+        public void append(Number calculated) {
+            if (value == null) {
+                value = calculated.doubleValue();
             }
-
-            @Override
-            public Double getAggregated() {
-                if (values.isEmpty())
-                    return null;
-
-                Double max = Double.MAX_VALUE;
-                for (Number value : values){
-                    max = Math.min(max, value.doubleValue());
-                }
-                return max;
+            else {
+                value = Math.min(value,calculated.doubleValue());
             }
+        }
 
-            @Override
-            public void reset() {
-                values.clear();
-            }
+        @Override
+        public Double getAggregated() {
+            return value;
+        }
 
-            @Override
-            public String getName() {
-                return "min";
-            }
-        };
+        @Override
+        public void reset() {
+            value = null;
+        }
+
+        @Override
+        public String getName() {
+            return "min";
+        }
     }
 }

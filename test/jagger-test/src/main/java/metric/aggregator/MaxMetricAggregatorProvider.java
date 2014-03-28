@@ -20,30 +20,28 @@ public class MaxMetricAggregatorProvider implements MetricAggregatorProvider{
         return new MaxMetricAggregator();
     }
 
-    private static  class MaxMetricAggregator implements MetricAggregator<Number> {
+    private static class MaxMetricAggregator implements MetricAggregator<Number> {
 
-        private ArrayList<Number> values = new ArrayList<Number>(1000);
+        private Double value = null;
 
         @Override
         public void append(Number calculated) {
-            values.add(calculated);
+            if (value == null) {
+                value = calculated.doubleValue();
+            }
+            else {
+                value = Math.max(value,calculated.doubleValue());
+            }
         }
 
         @Override
-        public Number getAggregated() {
-            if (values.isEmpty())
-                return null;
-
-            Double max = Double.MIN_VALUE;
-            for (Number value : values){
-                max = Math.max(max, value.doubleValue());
-            }
-            return max;
+        public Double getAggregated() {
+            return value;
         }
 
         @Override
         public void reset() {
-            values.clear();
+            value = null;
         }
 
         @Override
