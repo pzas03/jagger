@@ -45,16 +45,15 @@ public abstract class AbstractMetricPlotFetcher extends PlotsDbMetricDataFetcher
             for (Long taskId : metricName.getTaskIds()) {
                 Collection<MetricRawData> rawDatas;
 
-                try {
-                    rawDatas = taskIdMetricIdRawMap.get(taskId).get(metricName.getMetricName());
-
-                    if (rawDatas.isEmpty()) {
-                        // no data was saved for given task Id and metric Id
-                        continue;
-                    }
-                } catch (NullPointerException e) {
-                    // we did not find metric with given TaskDataId
-                    // it could happen if we got 2 sessions, with different sets of custom metrics
+                Multimap<String, MetricRawData> multimap = taskIdMetricIdRawMap.get(taskId);
+                if (multimap == null) {
+                    // we did not find metric for given task Id
+                    // it could happen if we got 2 sessions with different sets of custom metrics
+                    continue;
+                }
+                rawDatas = multimap.get(metricName.getMetricName());
+                if (rawDatas == null || rawDatas.isEmpty()) {
+                    // no data was saved for given taskId and metric Id
                     continue;
                 }
 
