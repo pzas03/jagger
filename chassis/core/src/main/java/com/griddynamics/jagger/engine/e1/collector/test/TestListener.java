@@ -15,23 +15,26 @@ import org.slf4j.LoggerFactory;
  * To view test listener implementations click here @ref Main_Listeners_group
  * @n
  * @ingroup Main_Listeners_Base_group */
-public interface TestListener{
+public abstract class TestListener{
 
     /** Method is executed before test starts
      * @param testInfo - describes start test information*/
-    void onStart(TestInfo testInfo);
+    public void onStart(TestInfo testInfo){
+    }
 
     /** Executes after test stops
      * @param testInfo - describes stop test information */
-    void onStop(TestInfo testInfo);
+    public void onStop(TestInfo testInfo){
+    }
 
     /** This method is periodically called while test is running. It shows current Jagger execution status(number of Jagger threads, etc)
      * @param status - contains info about current number of threads, samples and etc.*/
-    void onRun(TestInfo status);
+    public void onRun(TestInfo status){
+    }
 
     /** Class is used by Jagger for sequential execution of several listeners @n
      *  Not required for custom test listeners */
-    public static class Composer implements TestListener {
+    public static class Composer extends TestListener {
         private static Logger log = LoggerFactory.getLogger(Composer.class);
 
         private Iterable<TestListener> listeners;

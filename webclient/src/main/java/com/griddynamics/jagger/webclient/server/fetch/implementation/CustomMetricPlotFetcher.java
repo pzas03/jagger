@@ -1,100 +1,58 @@
 package com.griddynamics.jagger.webclient.server.fetch.implementation;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-import com.griddynamics.jagger.util.Pair;
 import com.griddynamics.jagger.webclient.client.dto.MetricNameDto;
-import com.griddynamics.jagger.webclient.client.dto.PlotDatasetDto;
-import com.griddynamics.jagger.webclient.client.dto.PointDto;
-import com.griddynamics.jagger.webclient.server.ColorCodeGenerator;
 import com.griddynamics.jagger.webclient.server.DataProcessingUtil;
-import com.griddynamics.jagger.webclient.server.fetch.PlotsDbMetricDataFetcher;
 
 import java.util.*;
 
-public class CustomMetricPlotFetcher extends PlotsDbMetricDataFetcher {
+public class CustomMetricPlotFetcher extends AbstractMetricPlotFetcher {
+
     @Override
-    protected Set<Pair<MetricNameDto, List<PlotDatasetDto>>> fetchData(List<MetricNameDto> metricNames) {
+    protected Collection<MetricRawData> getAllRawData(List<MetricNameDto> metricNames) {
 
-        if (metricNames.isEmpty()) {
-            return Collections.emptySet();
-        }
-
-        Set<Pair<MetricNameDto, List<PlotDatasetDto>>> resultSet = new HashSet<Pair<MetricNameDto, List<PlotDatasetDto>>>(metricNames.size());
-        Set<Long> taskIds = new HashSet<Long>();
         Set<String> metricIds = new HashSet<String>();
-        for (MetricNameDto metricNameDto : metricNames) {
-            taskIds.addAll(metricNameDto.getTaskIds());
-            metricIds.add(metricNameDto.getMetricName());
-        }
-
-        List<Object[]> rawAllData = getAllRawData(taskIds, metricIds);
-
-        if (rawAllData.isEmpty()) {
-            throw new RuntimeException("Could not find plot data for " + metricNames);
-        }
-
-        Map<Long, Multimap<String, Object[]>> taskIdMetricIdRawMap = createMappedPlotDatasets(metricNames);
-        for (Object[] rawData : rawAllData) {
-            Long taskDataId = (Long) rawData[0];
-            String metricId = (String) rawData[4];
-            taskIdMetricIdRawMap.get(taskDataId).put(metricId, rawData);
-        }
-
-        Multimap<MetricNameDto, PlotDatasetDto> metricNamePlotMap = ArrayListMultimap.create();
+        Set<Long> taskIds = new HashSet<Long>();
 
         for (MetricNameDto metricName : metricNames) {
-            String displayName = metricName.getMetricDisplayName();
-            for (Long taskId : metricName.getTaskIds()) {
-                Collection<Object[]> rawData;
-
-                try {
-                    rawData = taskIdMetricIdRawMap.get(taskId).get(metricName.getMetricName());
-
-                    if (rawData.isEmpty()) {
-                        // no data was saved for given task Id and metric Id
-                        continue;
-                    }
-                } catch (NullPointerException e) {
-                    // we did not find metric with given TaskDataId
-                    // it could happen if we got 2 sessions, with different sets of custom metrics
-                    continue;
-                }
-
-                List<PointDto> points = new ArrayList<PointDto>(rawData.size());
-                String sessionId = null;
-
-                for (Object[] metricDetails : rawData){
-                    if (sessionId == null) sessionId = (String)metricDetails[3];
-                    points.add(new PointDto((Long)metricDetails[1] / 1000D, Double.parseDouble(metricDetails[2].toString())));
-                }
-
-                PlotDatasetDto plotDatasetDto = new PlotDatasetDto(points, legendProvider.generatePlotLegend(sessionId, displayName, true), ColorCodeGenerator.getHexColorCode());
-                metricNamePlotMap.put(metricName, plotDatasetDto);
-            }
+            metricIds.add(metricName.getMetricName());
+            taskIds.addAll(metricName.getTaskIds());
         }
 
-        for (MetricNameDto metricName : metricNamePlotMap.keySet()) {
-            List<PlotDatasetDto> plotDatasetDtoList = new ArrayList<PlotDatasetDto>(metricNamePlotMap.get(metricName));
-            resultSet.add(
-                    Pair.of(
-                            metricName,
-                            plotDatasetDtoList
-                    ));
+        List<Object[]> rawData = getRawData(taskIds, metricIds);
+
+        if (rawData.isEmpty()) {
+            log.warn("No plot data found for metrics {} within taskData ids {}", metricIds, taskIds);
+            return Collections.emptyList();
         }
 
-        return resultSet;
+        List<MetricRawData> resultList = new ArrayList<MetricRawData>();
+        for (Object[] objects : rawData) {
+            MetricRawData metricRawData = new MetricRawData();
+
+            metricRawData.setWorkloadTaskDataId(((Number)objects[0]).longValue());
+            metricRawData.setTime((Long)objects[1]);
+            metricRawData.setValue((Double)objects[2]);
+            metricRawData.setSessionId((String)objects[3]);
+            metricRawData.setMetricId((String)objects[4]);
+
+            resultList.add(metricRawData);
+        }
+
+        return resultList;
     }
 
     /**
      * @return collection of objects {Task Data id, time, value, sessionId, metricId}
      */
-    protected List<Object[]> getAllRawData(Set<Long> taskIds, Set<String> metricIds) {
+    protected List<Object[]> getRawData(Set<Long> taskDataIds, Set<String> metricIds) {
 
+        if (taskDataIds.isEmpty() || metricIds.isEmpty()) {
+            log.warn("Empty data for getRawData() method {}; {}" + taskDataIds, metricIds);
+            return Collections.emptyList();
+        }
         List<Object[]> resultList = new ArrayList<Object[]>();
-
-        resultList.addAll(getPlotDataNewModel(taskIds, metricIds));
-        resultList.addAll(getPlotDataOldModel(taskIds, metricIds));
+        resultList.addAll(getPlotDataNewModel(taskDataIds, metricIds));
+        resultList.addAll(getPlotDataOldModel(taskDataIds, metricIds));
         return resultList;
     }
 
@@ -127,23 +85,4 @@ public class CustomMetricPlotFetcher extends PlotsDbMetricDataFetcher {
         }
     }
 
-
-
-    /**
-     * Map Collection of MetricNameDto first of all by TaskDataDto id, after all by metric name (metric id)
-     * @param metricNameDtos collection of MetricNameDto to be mapped
-     * @return Map <TaskDataDto.id, Multimap<metricName, Object[]>>
-     */
-    private Map<Long, Multimap<String, Object[]>> createMappedPlotDatasets(Collection<MetricNameDto> metricNameDtos) {
-        Map<Long, Multimap<String, Object[]>> taskIdMap = new HashMap<Long, Multimap<String, Object[]>>();
-        for (MetricNameDto metricName : metricNameDtos) {
-            Set<Long> ids = metricName.getTaskIds();
-            for (Long id : ids) {
-                if (!taskIdMap.containsKey(id)) {
-                    taskIdMap.put(id, ArrayListMultimap.<String, Object[]>create());
-                }
-            }
-        }
-        return taskIdMap;
-    }
 }

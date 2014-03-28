@@ -736,17 +736,18 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                         resultMap.put(tdd, new HashSet<PlotNode>());
                     }
 
+                    String description = (String) objects[3];
                     String monitoringId = null;     // Id of particular metric
                     for (Map.Entry<GroupKey, DefaultMonitoringParameters[]> entry : monitoringParameters) {
                         for (DefaultMonitoringParameters dmp : entry.getValue()) {
-                            if (dmp.getDescription().equals((String) objects[3])) {
+                            if (dmp.getDescription().equals(description)) {
                                 monitoringId = dmp.getId();
                             }
                         }
                     }
 
                     if (monitoringId == null) {
-                        log.warn("Could not find monitoring key for description: '{}' and monitoing task id: '{}'", objects[3], objects[2]);
+                        log.warn("Could not find monitoring key for description: '{}' and monitoing task id: '{}'", description, objects[2]);
                         break;
                     }
 
@@ -757,6 +758,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                     String id = METRICS_PREFIX + tdd.hashCode() + "_" + monitoringId + "_" + agentId;
                     MetricNameDto metricNameDto = new MetricNameDto(tdd, MonitoringIdUtils.getMonitoringMetricId(monitoringId, agentId));
                     metricNameDto.setOrigin(MetricNameDto.Origin.MONITORING);
+                    metricNameDto.setMetricDisplayName(description);
                     plotNode.init(id, id, Arrays.asList(metricNameDto));
 
                     resultMap.get(tdd).add(plotNode);
