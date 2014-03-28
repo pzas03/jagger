@@ -48,6 +48,10 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
     public static class MetricPlotDTOs {
         private Collection<MetricPlotDTO> metricPlotDTOs;
 
+        public MetricPlotDTOs() {
+            metricPlotDTOs = new LinkedList<MetricPlotDTO>();
+        }
+
         public Collection<MetricPlotDTO> getMetricPlotDTOs() {
             return metricPlotDTOs;
         }
@@ -57,27 +61,20 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
         }
 
         public void addPlot(MetricPlotDTO plot) {
-            if (metricPlotDTOs == null) {
-                metricPlotDTOs = new LinkedList<MetricPlotDTO>();
-            }
             metricPlotDTOs.add(plot);
         }
 
-       public void addPlots(Collection<MetricPlotDTO> plots){
-           if (metricPlotDTOs == null) {
-               metricPlotDTOs = new LinkedList<MetricPlotDTO>();
-           }
-           metricPlotDTOs.addAll(plots);
-       }
+        public void addPlots(Collection<MetricPlotDTO> plots) {
+            metricPlotDTOs.addAll(plots);
+        }
 
         public void sortingByMetricName() {
-            if (metricPlotDTOs != null)
-                Collections.sort((List<MetricPlotDTO>) metricPlotDTOs, new Comparator<MetricPlotDTO>() {
-                    @Override
-                    public int compare(MetricPlotDTO o1, MetricPlotDTO o2) {
-                        return o1.getMetricName().compareTo(o2.getMetricName());
-                    }
-                });
+            Collections.sort((List<MetricPlotDTO>) metricPlotDTOs, new Comparator<MetricPlotDTO>() {
+                @Override
+                public int compare(MetricPlotDTO o1, MetricPlotDTO o2) {
+                    return o1.getMetricName().compareTo(o2.getMetricName());
+                }
+            });
         }
     }
 
@@ -90,7 +87,6 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
             this.metricPlot = metricPlot;
             this.metricName = metricName;
             this.title = title;
-
         }
 
         public MetricPlotDTO() {
@@ -131,19 +127,19 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
         }
         MetricPlotDTOs result = new MetricPlotDTOs();
         String testIdParent = getParentId(testId);
-        if (!(plots.containsKey(testId) || plots.containsKey(testIdParent))){
+        if (!plots.containsKey(testId) && !plots.containsKey(testIdParent)) {
             return new JRBeanCollectionDataSource(Collections.EMPTY_SET);
         }
         if (plots.containsKey(testId)) {
-            if (plots.get(testId).getMetricPlotDTOs() != null){
+            if (plots.get(testId).getMetricPlotDTOs() != null) {
+                plots.get(testId).sortingByMetricName();
                 result.addPlots(plots.get(testId).getMetricPlotDTOs());
-                result.sortingByMetricName();
             }
         }
-        if (plots.containsKey(testIdParent)){
-            if (plots.get(testIdParent).getMetricPlotDTOs() != null){
+        if (plots.containsKey(testIdParent)) {
+            if (plots.get(testIdParent).getMetricPlotDTOs() != null) {
+                plots.get(testIdParent).sortingByMetricName();
                 result.addPlots(plots.get(testIdParent).getMetricPlotDTOs());
-                result.sortingByMetricName();
             }
         }
         return new JRBeanCollectionDataSource(Collections.singleton(result));
@@ -202,7 +198,7 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
                 String agentName = null;
                 MonitoringIdUtils.MonitoringId monitoringId = MonitoringIdUtils.splitMonitoringMetricId(taskStats.get(0).getMetricDescription().getMetricId());
                 if (monitoringId != null)
-                     agentName = monitoringId.getAgentName();
+                    agentName = monitoringId.getAgentName();
                 if (agentName != null)
                     title += " on " + agentName;
                 XYSeries plotEntry = new XYSeries(displayName);
