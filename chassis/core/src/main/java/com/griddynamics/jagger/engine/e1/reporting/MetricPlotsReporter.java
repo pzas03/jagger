@@ -63,6 +63,13 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
             metricPlotDTOs.add(plot);
         }
 
+       public void addPlots(Collection<MetricPlotDTO> plots){
+           if (metricPlotDTOs == null) {
+               metricPlotDTOs = new LinkedList<MetricPlotDTO>();
+           }
+           metricPlotDTOs.addAll(plots);
+       }
+
         public void sortingByMetricName() {
             if (metricPlotDTOs != null)
                 Collections.sort((List<MetricPlotDTO>) metricPlotDTOs, new Comparator<MetricPlotDTO>() {
@@ -122,17 +129,24 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
         if (plots.size() == 0) {
             return null;
         }
+        MetricPlotDTOs result = new MetricPlotDTOs();
         String testIdParent = getParentId(testId);
-        if (plots.containsKey(testId)) {
-            plots.get(testId).sortingByMetricName();
-            plots.get(testIdParent).sortingByMetricName();
-            if (plots.get(testIdParent).getMetricPlotDTOs() != null)
-                plots.get(testId).getMetricPlotDTOs().addAll(plots.get(testIdParent).getMetricPlotDTOs());
-            return new JRBeanCollectionDataSource(Collections.singleton(plots.get(testId)));
-        } else {
-            plots.get(testIdParent).sortingByMetricName();
-            return new JRBeanCollectionDataSource(Collections.singleton(plots.get(testIdParent)));
+        if (!(plots.containsKey(testId) || plots.containsKey(testIdParent))){
+            return new JRBeanCollectionDataSource(Collections.EMPTY_SET);
         }
+        if (plots.containsKey(testId)) {
+            if (plots.get(testId).getMetricPlotDTOs() != null){
+                result.addPlots(plots.get(testId).getMetricPlotDTOs());
+                result.sortingByMetricName();
+            }
+        }
+        if (plots.containsKey(testIdParent)){
+            if (plots.get(testIdParent).getMetricPlotDTOs() != null){
+                result.addPlots(plots.get(testIdParent).getMetricPlotDTOs());
+                result.sortingByMetricName();
+            }
+        }
+        return new JRBeanCollectionDataSource(Collections.singleton(result));
     }
 
     public String getParentId(String testId) {
@@ -185,7 +199,10 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
                 List<MetricPointEntity> taskStats = aggregatedByTasks.get(taskId).get(metricName);
                 String displayName = taskStats.get(0).getDisplay();
                 String title = displayName;
-                String agentName = MonitoringIdUtils.splitMonitoringMetricId(taskStats.get(0).getMetricDescription().getMetricId()).getAgentName();
+                String agentName = null;
+                MonitoringIdUtils.MonitoringId monitoringId = MonitoringIdUtils.splitMonitoringMetricId(taskStats.get(0).getMetricDescription().getMetricId());
+                if (monitoringId != null)
+                     agentName = monitoringId.getAgentName();
                 if (agentName != null)
                     title += " on " + agentName;
                 XYSeries plotEntry = new XYSeries(displayName);
