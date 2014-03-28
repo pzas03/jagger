@@ -51,6 +51,10 @@ public class MonitoringMetricPlotFetcher extends AbstractMetricPlotFetcher {
         for (MetricNameDto metricName : metricNames) {
 
             MonitoringIdUtils.MonitoringId monitoringId = splitMonitoringMetricId(metricName.getMetricName());
+            if(monitoringId == null) {
+                log.error("Could not split metricName of {} to MonitoringId. Will skip.", metricName);
+                continue;
+            }
             agentNames.add(monitoringId.getAgentName());
             String description = newToOldMonitoringIds.get(monitoringId.getMonitoringName());
             monitoringDescriptions.add(description == null ? monitoringId.getMonitoringName() : description);
