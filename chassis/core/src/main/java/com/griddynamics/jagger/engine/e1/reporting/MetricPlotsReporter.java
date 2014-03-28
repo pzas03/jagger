@@ -60,14 +60,6 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
             this.metricPlotDTOs = metricPlotDTOs;
         }
 
-        public void addPlot(MetricPlotDTO plot) {
-            metricPlotDTOs.add(plot);
-        }
-
-        public void addPlots(Collection<MetricPlotDTO> plots) {
-            metricPlotDTOs.addAll(plots);
-        }
-
         public void sortingByMetricName() {
             Collections.sort((List<MetricPlotDTO>) metricPlotDTOs, new Comparator<MetricPlotDTO>() {
                 @Override
@@ -127,21 +119,20 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
         }
         MetricPlotDTOs result = new MetricPlotDTOs();
         String testIdParent = getParentId(testId);
-        if (!plots.containsKey(testId) && !plots.containsKey(testIdParent)) {
-            return new JRBeanCollectionDataSource(Collections.EMPTY_SET);
-        }
+
         if (plots.containsKey(testId)) {
             if (plots.get(testId).getMetricPlotDTOs() != null) {
                 plots.get(testId).sortingByMetricName();
-                result.addPlots(plots.get(testId).getMetricPlotDTOs());
+                result.getMetricPlotDTOs().addAll(plots.get(testId).getMetricPlotDTOs());
             }
         }
         if (plots.containsKey(testIdParent)) {
             if (plots.get(testIdParent).getMetricPlotDTOs() != null) {
                 plots.get(testIdParent).sortingByMetricName();
-                result.addPlots(plots.get(testIdParent).getMetricPlotDTOs());
+                result.getMetricPlotDTOs().addAll(plots.get(testIdParent).getMetricPlotDTOs());
             }
         }
+
         return new JRBeanCollectionDataSource(Collections.singleton(result));
     }
 
@@ -195,12 +186,12 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
                 List<MetricPointEntity> taskStats = aggregatedByTasks.get(taskId).get(metricName);
                 String displayName = taskStats.get(0).getDisplay();
                 String title = displayName;
-                String agentName = null;
+
                 MonitoringIdUtils.MonitoringId monitoringId = MonitoringIdUtils.splitMonitoringMetricId(taskStats.get(0).getMetricDescription().getMetricId());
-                if (monitoringId != null)
-                    agentName = monitoringId.getAgentName();
-                if (agentName != null)
-                    title += " on " + agentName;
+                if (monitoringId != null) {
+                    title += " on " +  monitoringId.getAgentName();
+                }
+
                 XYSeries plotEntry = new XYSeries(displayName);
                 for (MetricPointEntity stat : taskStats) {
                     plotEntry.add(stat.getTime(), stat.getValue());
@@ -211,7 +202,7 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
                 plotCollection = pair.getSecond();
                 JFreeChart chartMetric = ChartHelper.createXYChart(null, plotCollection,
                         "Time (" + pair.getFirst() + ")", displayName, 2, 2, ChartHelper.ColorTheme.LIGHT);
-                taskPlot.addPlot(new MetricPlotDTO(displayName, title, new JCommonDrawableRenderer(chartMetric)));
+                taskPlot.getMetricPlotDTOs().add(new MetricPlotDTO(displayName, title, new JCommonDrawableRenderer(chartMetric)));
             }
         }
         return taskPlots;
@@ -255,7 +246,7 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
                 plotCollection = pair.getSecond();
                 JFreeChart chartMetric = ChartHelper.createXYChart(null, plotCollection,
                         "Time (" + pair.getFirst() + ")", metricName, 2, 2, ChartHelper.ColorTheme.LIGHT);
-                taskPlot.addPlot(new MetricPlotDTO(metricName, null, new JCommonDrawableRenderer(chartMetric)));
+                taskPlot.getMetricPlotDTOs().add(new MetricPlotDTO(metricName, null, new JCommonDrawableRenderer(chartMetric)));
             }
         }
         return taskPlots;
