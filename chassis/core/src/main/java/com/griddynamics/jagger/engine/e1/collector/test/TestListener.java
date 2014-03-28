@@ -94,7 +94,8 @@ public abstract class TestListener{
 /// @details
 /// @par General info
 /// Listeners give possibility to provide some user actions during test flow defined by XML configuration @n
-/// User can implement custom listener and Jagger will trigger it on some events (f.e. test suit start/stop, test group start/stop, test start/run/stop)
+/// User can implement custom listener and Jagger will trigger it on some events (f.e. test suit start/stop, test group start/stop, test start/run/stop, invocation start/stop) @n
+/// You can find example of custom listeners under link: @ref Main_CustomListenersExamples_group
 ///
 
 /* **************** Relation of listeners and Jagger services ************************* */
@@ -132,12 +133,23 @@ public abstract class TestListener{
 /// @skip  begin: following section is used for docu generation - listener usage
 /// @until end: following section is used for docu generation - listener usage
 /// @n
+/// @b Important. For invocation listener bean scope is important. @n
+/// When @e scope="prototype" is set separate object will be created for exevy test in your XML configuration @n
+/// @dontinclude  listeners.conf.xml
+/// @skip  begin: following section is used for docu generation - invocation listener usage
+/// @until end: following section is used for docu generation - invocation listener usage
+/// @n
 ///
-/// 3. Add @xlink{listeners-test-suite} of type @xlink_complex{listener-test-suite-ref} to @xlink{test-suite} block @n
+/// 3. Add @xlink_complex{listener-test-suite-ref} to @xlink{test-suite} block @n
 /// in your configuration XML file and set id of listener to attribute @xlink_complex{listener-test-suite-ref,ref}.
-/// @dontinclude  test.suite.conf.xml
+/// @dontinclude  suite.conf.xml
 /// @skip  begin: following section is used for docu generation - test suite listener usage
 /// @until end: following section is used for docu generation - test suite listener usage
+/// @n
+/// @xlink_complex{listener-test-suite-ref} belongs to @xlink{test-suite} block in XML @n
+/// @xlink_complex{listener-test-group-ref} belongs to @xlink{test-group} block in XML @n
+/// @xlink_complex{listener-test-ref} belongs to @xlink{test} block in XML @n
+/// @xlink_complex{listener-invocation-ref} belongs to @xlink{test-description,info-collectors} block in XML @n
 /// @n
 /// @b Note:
 /// @li full examples of the code are available in maven archetype-examples or here: @ref Main_CustomListenersExamples_group
@@ -151,7 +163,8 @@ public abstract class TestListener{
 ///
 /// @example_begin
 /// @example_addmenu{0,Custom test listener}
-/// @example_addmenu{1,Custom test suite listner}
+/// @example_addmenu{1,Custom test suite listener}
+/// @example_addmenu{2,Custom invocation listener}
 /// @example_begin_content{0}
 /// @dontinclude  ProviderOfTestListener.java
 /// @skip  begin: following section is used for docu generation - custom test listener
@@ -161,5 +174,10 @@ public abstract class TestListener{
 /// @dontinclude  ProviderOfTestSuiteListener.java
 /// @skip  begin: following section is used for docu generation - custom test suite listener
 /// @until end: following section is used for docu generation - custom test suite listener
+/// @example_end_content
+/// @example_begin_content{2}
+/// @dontinclude  ProviderOfInvocationListener.java
+/// @skip  begin: following section is used for docu generation - custom invocation listener
+/// @until end: following section is used for docu generation - custom invocation listener
 /// @example_end_content
 /// @example_end

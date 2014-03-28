@@ -23,7 +23,34 @@ package com.griddynamics.jagger.engine.e1.collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** Calculates increment of the value on interval
+ * @author amikryukov
+ * @n
+ * @par Details:
+ * @details this is special aggregator for cumulative metrics. Cumulative metrics are always increasing values. @n
+ * F.e. calculating number of events. This aggregator is calculating increment of the value on interval @n
+ * Example: @n
+ * @code
+ * ----- interval
+ * 2
+ * 3                    aggregated value = 2
+ * 4
+ * ----- interval
+ * 5
+ * 6                    aggregated value = 1
+ * 6
+ * ----- interval
+ * 6
+ * 6                    aggregated value = 0
+ * 6
+ * ----- interval
+ * @endcode
+ * @n
+ *
+ * @ingroup Main_Aggregators_group */
 public class CumulativeMetricAggregatorProvider implements MetricAggregatorProvider {
+
+    /** Method is called to provide instance of private class: \b CumulativeMetricAggregator that implements @ref MetricAggregator<C extends Number> and calculates increment of cumulative metric on interval */
     @Override
     public MetricAggregator provide() {
         return new CumulativeMetricAggregator();
