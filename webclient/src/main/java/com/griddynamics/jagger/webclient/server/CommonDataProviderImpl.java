@@ -913,7 +913,7 @@ public class CommonDataProviderImpl implements CommonDataProvider {
                 mapIds.put(key, (oldValue==null ? 0 : oldValue)+taskIdInt);
             }else{
                 TaskDataDto taskDataDto = new TaskDataDto(id.longValue(), name, description);
-                Set<String> sessionIdList = new HashSet<String>();
+                Set<String> sessionIdList = new TreeSet<String>();
                 sessionIdList.add(sessionId);
                 taskDataDto.setSessionIds(sessionIdList);
                 // generate unique to make difference between tests with different matching parameters.

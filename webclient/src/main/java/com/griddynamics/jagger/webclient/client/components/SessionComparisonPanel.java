@@ -484,7 +484,11 @@ public class SessionComparisonPanel extends VerticalPanel {
     }
 
     private String getTestItemName(TaskDataDto tdd) {
-        return tdd.getTaskName() + " from sessions: " + tdd.getSessionIds();
+        if (webClientProperties.isShowOnlyMatchedTests())
+            return tdd.getTaskName();
+        else
+            return tdd.getTaskName() + " from sessions: " + tdd.getSessionIds();
+
     }
 
     private TreeItem getTestDescriptionItem(String descriptionStr) {
