@@ -1,11 +1,11 @@
 package com.griddynamics.jagger.webclient.server.fetch;
 
-import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.math.BigInteger;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -24,50 +24,55 @@ public class FetchUtil {
      * @return multi map <test-group id, tests ids>
      */
     public Multimap<Long, Long> getTestsInTestGroup(Set<Long> taskIds){
-        List<Object[]> parents = getParents(taskIds);
-        List<Object[]> groups = getTestGroups(taskIds);
 
-        Multimap testMap = ArrayListMultimap.create();
-        for (Object[] test : parents){
-            String key = (String)test[1] + (String)test[2];
-            testMap.put(key, ((BigInteger) test[0]).longValue());
+        Multimap<Long, Long> resultMap = HashMultimap.create();
+
+        List<String> sessionIds = getSessionIds(taskIds);
+        if (sessionIds.isEmpty()) {
+            // return empty Map, as we did not find any data we wanted
+            return resultMap;
         }
 
-        Multimap testsByGroupId = ArrayListMultimap.create();
-        for (Object[] group : groups){
-            String key = (String)group[1] + (String)group[2];
-            testsByGroupId.putAll(((BigInteger) group[0]).longValue(), testMap.get(key));
-        }
+        List<Object[]> groupToTaskList = getGroupToTaskIdsList(sessionIds, taskIds);
 
-        return testsByGroupId;
+        for (Object[] objects : groupToTaskList) {
+            Long groupId = ((Number) objects[0]).longValue();
+            Long taskId = ((Number) objects[1]).longValue();
+            resultMap.put(groupId, taskId);
+        }
+        return resultMap;
     }
 
     /**
-     * @return list of object[] (taskdata id, parent id, session id)
+     * @param sessionIds session ids of sessions to select pairs
+     * @param taskIds TaskData ids of tests to select pairs
+     * @return pairs as (test group id, test id)
      */
-    public List<Object[]> getParents(Set<Long> taskIds){
-        return entityManager.createNativeQuery("select taskData.id, workloadData.parentId, taskData.sessionId from TaskData taskData " +
-                                               "inner join " +
-                                                    "WorkloadData workloadData on taskData.taskId = workloadData.taskId " +
-                                                                             " and taskData.sessionId = workloadData.sessionId " +
-                                               "where taskData.id in (:ids);")
-                                               .setParameter("ids", taskIds).getResultList();
-        }
-
-    /**
-     * @return list of object[] (taskdata id, taskId, session id)
-     */
-    public List<Object[]> getTestGroups(Set<Long> taskIds){
-        return entityManager.createNativeQuery("select task.id, task.taskId, task.sessionId from TaskData task " +
-                                               "inner join " +
-                                                    "(select taskData.id, taskData.taskId, workloadData.parentId, taskData.sessionId from TaskData taskData " +
-                                                     "inner join WorkloadData workloadData on  taskData.taskId=workloadData.taskId " +
-                                                                                          "and taskData.sessionId=workloadData.sessionId  " +
-                                                     "where taskData.id in (:ids)) parents " +
-                                               "on task.taskId=parents.parentId " +
-                                               "and task.sessionId=parents.sessionId;")
-                                               .setParameter("ids", taskIds).getResultList();
+    private List<Object[]> getGroupToTaskIdsList (Collection<String> sessionIds, Collection<Long> taskIds) {
+        return entityManager.createNativeQuery("select grTaskData.id, some.taskDataId from" +
+                "  (" +
+                "    select * from TaskData as td where td.sessionId in (:sessionIds) " +
+                "  ) as grTaskData join" +
+                "  (" +
+                "    select td2.sessionId, td2.id as taskDataId, wd.parentId from" +
+                "      ( " +
+                "         select wd.parentId, wd.sessionId, wd.taskId from WorkloadData as wd where wd.sessionId in (:sessionIds)" +
+                "      ) as wd join " +
+                "      TaskData as td2" +
+                "          on td2.id in (:taskIds)" +
+                "          and wd.sessionId = td2.sessionId" +
+                "          and wd.taskId=td2.taskId" +
+                "  ) as some " +
+                "      on grTaskData.sessionId = some.sessionId and grTaskData.taskId=some.parentId")
+                .setParameter("sessionIds", sessionIds)
+                .setParameter("taskIds", taskIds)
+                .getResultList();
     }
 
-
+    private List<String> getSessionIds(Set<Long> taskIds) {
+        return entityManager.createNativeQuery("select distinct taskData.sessionId from TaskData taskData " +
+                "where taskData.id in (:ids)")
+                .setParameter("ids", taskIds)
+                .getResultList();
+    }
 }
