@@ -36,4 +36,10 @@
            fontSize="12" isBold="true" isItalic="false" isUnderline="false"
            isStrikeThrough="false" pdfFontName="Helvetica-Bold"
            pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+
+    <style name="Header_Italic" isDefault="false" fontName="sans-serif"
+           fontSize="8" isBold="false" isItalic="true" isUnderline="false"
+           isStrikeThrough="false" pdfFontName="Helvetica-Bold"
+           pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+
 </jasperTemplate>

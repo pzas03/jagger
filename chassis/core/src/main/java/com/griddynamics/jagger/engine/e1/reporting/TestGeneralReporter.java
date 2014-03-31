@@ -27,6 +27,7 @@ import com.griddynamics.jagger.monitoring.reporting.SystemUnderTestPlotsGeneralP
 import com.griddynamics.jagger.reporting.AbstractReportProvider;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import java.util.Collections;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,8 @@ import java.util.Set;
  * User: dkotlyarov
  */
 public class TestGeneralReporter extends AbstractReportProvider {
+    private boolean sessionScopeAvailable;
+
     public static class TestDetailsDTO {
         private String testId;
         private String testName;
@@ -57,11 +60,23 @@ public class TestGeneralReporter extends AbstractReportProvider {
         }
     }
 
+    public boolean isSessionScopeAvailable() {
+        return sessionScopeAvailable;
+    }
+
+    public void setSessionScopeAvailable(boolean sessionScopeAvailable) {
+        this.sessionScopeAvailable = sessionScopeAvailable;
+    }
+
     @Override
     public JRDataSource getDataSource() {
-        SystemUnderTestPlotsGeneralProvider plotsGeneralProvider = (SystemUnderTestPlotsGeneralProvider) getContext().getMappedProvider("sysUTPlotsGeneral");
+        //if a session scope is disable we return a bean with an empty collection
+        if (!sessionScopeAvailable){
+            return new JRBeanCollectionDataSource(Collections.EMPTY_LIST);
+        }
 
         List<TestDetailsDTO> result = new ArrayList<TestDetailsDTO>();
+        SystemUnderTestPlotsGeneralProvider plotsGeneralProvider = (SystemUnderTestPlotsGeneralProvider) getContext().getMappedProvider("sysUTPlotsGeneral");
         Set<String> boxIdentifiers = plotsGeneralProvider.getStatistics().findBoxIdentifiers();
         Set<String> sutUrls = plotsGeneralProvider.getStatistics().findSutUrls();
         for (GroupKey groupName : plotsGeneralProvider.getPlotGroups().getPlotGroups().keySet()) {
