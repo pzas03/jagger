@@ -73,6 +73,21 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
     }
 
     @Override
+    public Long getStartPosition(Set<String> selectedIds, int length) throws RuntimeException {
+        if (selectedIds.isEmpty()){
+            return 0L;
+        }
+
+        Date startTime = (Date)entityManager.createQuery("select ses.startTime from SessionData ses where ses.sessionId in (:sessionIds) order by ses.startTime asc")
+                                        .setMaxResults(1)
+                                        .setParameter("sessionIds", selectedIds).getSingleResult();
+
+        Long lastPosition = (Long)entityManager.createQuery("select count(ses.id) from SessionData ses where startTime<=:startTime").setParameter("startTime", startTime).getSingleResult();
+
+        return lastPosition - 1;
+    }
+
+    @Override
     public PagedSessionDataDto getAll(int start, int length) {
         checkArgument(start >= 0, "start is negative");
         checkArgument(length >= 0, "length is negative");

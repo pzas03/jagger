@@ -1,6 +1,5 @@
 /// @page WebUiProperties WebUi properties
 /// @n
-/// Back to <a href="https://github.com/griddynamics/jagger/wiki/Jagger-webclient-summary">GitHub WebUI</a> documentation @n
 /// Back to @ref WebUiMain @n
 /// @n
 /// @n
