@@ -111,6 +111,9 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
 
     @Override
     public JRDataSource getDataSource(String testId) {
+        sessionId = getSessionIdProvider().getSessionId();
+        String testIdParent = getParentId(testId);
+
         if (plots == null) {
             plots = createTaskPlots();
         }
@@ -118,7 +121,6 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
             return null;
         }
         MetricPlotDTOs result = new MetricPlotDTOs();
-        String testIdParent = getParentId(testId);
 
         if (plots.containsKey(testId)) {
             if (plots.get(testId).getMetricPlotDTOs() != null) {
@@ -136,13 +138,11 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
         return new JRBeanCollectionDataSource(Collections.singleton(result));
     }
 
-    public String getParentId(String testId) {
+    private String getParentId(String testId) {
         return (String) getHibernateTemplate().find("select distinct w.parentId from WorkloadData w where w.taskId=? and w.sessionId=?", testId, sessionId).get(0);
     }
 
-    public Map<String, MetricPlotDTOs> createTaskPlots() {
-        sessionId = getSessionIdProvider().getSessionId();
-
+    private Map<String, MetricPlotDTOs> createTaskPlots() {
         // check new model
         List<MetricPointEntity> metricDetails = getHibernateTemplate().find(
                 "select m from MetricPointEntity m where m.metricDescription.taskData.sessionId=?", sessionId);
@@ -210,7 +210,6 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
 
     // create TaskPlots as before 1.2.4
     private Map<String, MetricPlotDTOs> oldWay() {
-        String sessionId = getSessionIdProvider().getSessionId();
         List<MetricDetails> metricDetails = getHibernateTemplate().find(
                 "select m from MetricDetails m where m.taskData.sessionId=?", sessionId);
         Map<String, Map<String, List<MetricDetails>>> aggregatedByTasks = Maps.newLinkedHashMap();
