@@ -30,5 +30,5 @@ public interface SessionDataServiceAsync {
 
     void saveTags(Long sessionData_id, List<TagDto> tags, AsyncCallback<Void> async);
 
-    void getStartPosition(Set<String> selectedIds, int length, AsyncCallback<Long> async);
+    void getStartPosition(Set<String> selectedIds, AsyncCallback<Long> async);
 }

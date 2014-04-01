@@ -95,6 +95,9 @@ public class Trends extends DefaultActivity {
     HTMLPanel plotTrendsPanel;
 
     @UiField
+    ScrollPanel summaryPanelScrollPanel;
+
+    @UiField
     SummaryPanel summaryPanel;
 
     @UiField
@@ -526,7 +529,7 @@ public class Trends extends DefaultActivity {
 
     private void loadRangeForSessionIds(Set<String> sessionIds){
         final int rangeLength = sessionsDataGrid.getVisibleRange().getLength();
-        SessionDataService.Async.getInstance().getStartPosition(sessionIds, rangeLength, new AsyncCallback<Long>() {
+        SessionDataService.Async.getInstance().getStartPosition(sessionIds, new AsyncCallback<Long>() {
             @Override
             public void onFailure(Throwable caught) {
                 new ExceptionPanel(caught.getMessage());
@@ -1656,7 +1659,7 @@ public class Trends extends DefaultActivity {
             MetricRankingProvider.sortMetrics(loaded);
             summaryPanel.getSessionComparisonPanel().addMetricRecords(loaded);
             renderMetricPlots(loaded);
-            ((ScrollPanel)summaryPanel.getParent()).scrollToBottom();
+            summaryPanelScrollPanel.scrollToBottom();
         }
 
         private void renderMetricPlots(List<MetricDto> result) {

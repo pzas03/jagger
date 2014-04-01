@@ -73,7 +73,7 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
     }
 
     @Override
-    public Long getStartPosition(Set<String> selectedIds, int length) throws RuntimeException {
+    public Long getStartPosition(Set<String> selectedIds) throws RuntimeException {
         if (selectedIds.isEmpty()){
             return 0L;
         }
