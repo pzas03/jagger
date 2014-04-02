@@ -18,6 +18,7 @@ import java.util.List;
 @RemoteServiceRelativePath("rpc/SessionDataService")
 public interface SessionDataService extends RemoteService {
 
+    Long getStartPosition(Set<String> selectedIds) throws RuntimeException;
     PagedSessionDataDto getAll(int start, int length) throws RuntimeException;
     PagedSessionDataDto getByDatePeriod(int start, int length, Date from, Date to) throws RuntimeException;
     PagedSessionDataDto getBySessionIds(int start, int length, Set<String> sessionIds) throws RuntimeException;

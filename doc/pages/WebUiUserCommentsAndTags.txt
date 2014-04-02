@@ -1,6 +1,5 @@
 /// @page WebUiUserCommentsAndTags WebUi user comments and operations with tags
 /// @n
-/// Back to <a href="https://github.com/griddynamics/jagger/wiki/Jagger-webclient-summary">GitHub WebUI</a> documentation @n
 /// Back to @ref WebUiMain @n
 /// @n
 /// Jagger WebUI allows to set user comments for sessions and mark sessions with tags

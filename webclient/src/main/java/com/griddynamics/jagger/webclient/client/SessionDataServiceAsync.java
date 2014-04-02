@@ -29,4 +29,6 @@ public interface SessionDataServiceAsync {
     void saveUserComment(Long sessionData_id, String userComment, AsyncCallback<Void> async);
 
     void saveTags(Long sessionData_id, List<TagDto> tags, AsyncCallback<Void> async);
+
+    void getStartPosition(Set<String> selectedIds, AsyncCallback<Long> async);
 }

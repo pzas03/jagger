@@ -87,7 +87,7 @@
                     <g:header>
                         <b>Summary</b>
                     </g:header>
-                    <g:ScrollPanel>
+                    <g:ScrollPanel ui:field="summaryPanelScrollPanel">
                         <custom:SummaryPanel addStyleNames="{res.css.summaryPanel}" ui:field="summaryPanel"/>
                     </g:ScrollPanel>
                 </g:tab>

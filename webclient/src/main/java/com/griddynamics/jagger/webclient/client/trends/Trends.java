@@ -95,6 +95,9 @@ public class Trends extends DefaultActivity {
     HTMLPanel plotTrendsPanel;
 
     @UiField
+    ScrollPanel summaryPanelScrollPanel;
+
+    @UiField
     SummaryPanel summaryPanel;
 
     @UiField
@@ -458,10 +461,11 @@ public class Trends extends DefaultActivity {
             return;
         }
 
+        loadRangeForSessionIds(place.getSelectedSessionIds());
+
         SessionDataService.Async.getInstance().getBySessionIds(0, place.getSelectedSessionIds().size(), place.getSelectedSessionIds(), new AsyncCallback<PagedSessionDataDto>() {
             @Override
             public void onFailure(Throwable caught) {
-                caught.printStackTrace();
                 new ExceptionPanel(finalPlace , caught.getMessage());
                 noSessionsFromLink();
             }
@@ -521,6 +525,21 @@ public class Trends extends DefaultActivity {
         sessionsDataGrid.getSelectionModel().addSelectionChangeHandler(new SessionSelectChangeHandler());
         selectTests = true;
         chooseTab(place.getToken());
+    }
+
+    private void loadRangeForSessionIds(Set<String> sessionIds){
+        final int rangeLength = sessionsDataGrid.getVisibleRange().getLength();
+        SessionDataService.Async.getInstance().getStartPosition(sessionIds, new AsyncCallback<Long>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                new ExceptionPanel(caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(Long result) {
+                sessionsDataGrid.setVisibleRange(result.intValue(), rangeLength);
+            }
+        });
     }
 
     private void filterSessions(Set<SessionDataDto> sessionDataDtoSet) {
@@ -1640,6 +1659,7 @@ public class Trends extends DefaultActivity {
             MetricRankingProvider.sortMetrics(loaded);
             summaryPanel.getSessionComparisonPanel().addMetricRecords(loaded);
             renderMetricPlots(loaded);
+            summaryPanelScrollPanel.scrollToBottom();
         }
 
         private void renderMetricPlots(List<MetricDto> result) {
