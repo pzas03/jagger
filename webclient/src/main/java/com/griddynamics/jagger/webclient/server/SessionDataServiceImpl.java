@@ -78,9 +78,15 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
             return 0L;
         }
 
-        Date startTime = (Date)entityManager.createQuery("select ses.startTime from SessionData ses where ses.sessionId in (:sessionIds) order by ses.startTime asc")
+        List<Date> startTimeList = (List<Date>)entityManager.createQuery("select ses.startTime from SessionData ses where ses.sessionId in (:sessionIds) order by ses.startTime asc")
                                         .setMaxResults(1)
-                                        .setParameter("sessionIds", selectedIds).getSingleResult();
+                                        .setParameter("sessionIds", selectedIds).getResultList();
+
+        if (startTimeList.isEmpty()){
+            return 0L;
+        }
+
+        Date startTime = startTimeList.iterator().next();
 
         Long lastPosition = (Long)entityManager.createQuery("select count(ses.id) from SessionData ses where startTime<=:startTime").setParameter("startTime", startTime).getSingleResult();
 
