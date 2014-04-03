@@ -149,6 +149,7 @@ public class Trends extends DefaultActivity {
         sessionTagsTextBox.setValue(null,true);
         sessionIdsTextBox.setValue(null, true);
         stopTypingSessionIdsTimer.schedule(10);
+        stopTypingSessionTagsTimer.schedule(10);
     }
 
     @UiHandler("getHyperlink")
@@ -955,7 +956,7 @@ public class Trends extends DefaultActivity {
                 String generalContent = sessionTagsTextBox.getText().trim();
 
                 // If session tags text box is empty then load all sessions
-                if (generalContent.isEmpty()) {
+                if (generalContent == null || generalContent.isEmpty()) {
                     sessionDataProvider.addDataDisplayIfNotExists(sessionsDataGrid);
                     sessionDataForSessionTagsAsyncProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
                     return;
