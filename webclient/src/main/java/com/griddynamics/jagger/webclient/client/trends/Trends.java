@@ -872,7 +872,7 @@ public class Trends extends DefaultActivity {
                 final String currentContent = sessionIdsTextBox.getText().trim();
 
                 // If session ID text box is empty then load all sessions
-                if (currentContent == null || currentContent.isEmpty()) {
+                if (currentContent.isEmpty()) {
                     sessionDataProvider.addDataDisplayIfNotExists(sessionsDataGrid);
                     sessionDataForSessionIdsAsyncProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
 
@@ -953,10 +953,10 @@ public class Trends extends DefaultActivity {
             @Override
             public void run() {
 
-                String generalContent = sessionTagsTextBox.getText().trim();
+                final String generalContent = sessionTagsTextBox.getText().trim();
 
                 // If session tags text box is empty then load all sessions
-                if (generalContent == null || generalContent.isEmpty()) {
+                if (generalContent.isEmpty()) {
                     sessionDataProvider.addDataDisplayIfNotExists(sessionsDataGrid);
                     sessionDataForSessionTagsAsyncProvider.removeDataDisplayIfNotExists(sessionsDataGrid);
                     return;
