@@ -70,27 +70,27 @@ public class SessionInfoProviderImpl implements SessionInfoProvider {
         dataSaverService.saveUserComment(sessionData_id, userComment);
     }
 
-    public Integer getTotalSize() throws RuntimeException{
-        return (Integer) entityManager.createQuery("select count(sessionData.id) from SessionData as sessionData").getSingleResult();
+    public Long getTotalSize() throws RuntimeException{
+        return (Long) entityManager.createQuery("select count(sessionData.id) from SessionData as sessionData").getSingleResult();
     }
 
-    public Integer getTotalSizeByDate(Date from, Date to){
-        return (Integer)entityManager.createQuery("select count(sd.id) from SessionData as sd where sd.startTime between :from and :to")
+    public Long getTotalSizeByDate(Date from, Date to){
+        return (Long)entityManager.createQuery("select count(sd.id) from SessionData as sd where sd.startTime between :from and :to")
                                         .setParameter("from", from)
                                         .setParameter("to", to)
                                         .getSingleResult();
     }
 
-    public Integer getTotalSizeByIds(Set<String> sessionIds){
-        return (Integer)entityManager.createQuery("select count(sd.id) from SessionData as sd where sd.sessionId in (:sessionIds)")
+    public Long getTotalSizeByIds(Set<String> sessionIds){
+        return (Long)entityManager.createQuery("select count(sd.id) from SessionData as sd where sd.sessionId in (:sessionIds)")
                                         .setParameter("sessionIds", new ArrayList<String>(sessionIds))
                                         .getSingleResult();
     }
 
-    public Integer getTotalSizeByTags(Set<String> sessionTagNames){
-        return ((BigInteger) entityManager.createNativeQuery("select count(distinct ste.sessions_id) from SessionTagEntity as ste where ste.tags_name in (:sessionTagNames)")
+    public Long getTotalSizeByTags(Set<String> sessionTagNames){
+        return ((Long) entityManager.createNativeQuery("select count(distinct ste.sessions_id) from SessionTagEntity as ste where ste.tags_name in (:sessionTagNames)")
                                             .setParameter("sessionTagNames", new ArrayList<String>(sessionTagNames))
-                                            .getSingleResult()).intValue();
+                                            .getSingleResult()).longValue();
     }
 
     public Long getFirstPosition(Set<String> selectedIds) throws RuntimeException {

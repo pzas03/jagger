@@ -28,28 +28,28 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
     @Override
     public PagedSessionDataDto getAll(int start, int length) throws RuntimeException {
         List<SessionDataDto> result = databaseService.getSessionInfoService().getAll(start, length);
-        Integer size = databaseService.getSessionInfoService().getTotalSize();
+        Integer size = databaseService.getSessionInfoService().getTotalSize().intValue();
         return new PagedSessionDataDto(result, size);
     }
 
     @Override
     public PagedSessionDataDto getByDatePeriod(int start, int length, Date from, Date to) throws RuntimeException {
         List<SessionDataDto> result = databaseService.getSessionInfoService().getByDatePeriod(start, length, from, to);
-        Integer size = databaseService.getSessionInfoService().getTotalSizeByDate(from, to);
+        Integer size = databaseService.getSessionInfoService().getTotalSizeByDate(from, to).intValue();
         return new PagedSessionDataDto(result, size);
     }
 
     @Override
     public PagedSessionDataDto getBySessionIds(int start, int length, Set<String> sessionIds) throws RuntimeException {
         List<SessionDataDto> result = databaseService.getSessionInfoService().getBySessionIds(start, length, sessionIds);
-        Integer size = databaseService.getSessionInfoService().getTotalSizeByIds(sessionIds);
+        Integer size = databaseService.getSessionInfoService().getTotalSizeByIds(sessionIds).intValue();
         return new PagedSessionDataDto(result, size);
     }
 
     @Override
     public PagedSessionDataDto getBySessionTagsName(int start, int length, Set<String> sessionTagNames) throws RuntimeException {
         List<SessionDataDto> result = databaseService.getSessionInfoService().getBySessionTagsName(start, length, sessionTagNames);
-        Integer size = databaseService.getSessionInfoService().getTotalSizeByTags(sessionTagNames);
+        Integer size = databaseService.getSessionInfoService().getTotalSizeByTags(sessionTagNames).intValue();
         return new PagedSessionDataDto(result, size);
     }
 

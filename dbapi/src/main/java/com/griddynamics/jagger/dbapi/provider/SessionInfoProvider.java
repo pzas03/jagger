@@ -12,10 +12,10 @@ import java.util.Set;
  */
 public interface SessionInfoProvider {
     Long getFirstPosition(Set<String> selectedIds) throws RuntimeException;
-    Integer getTotalSize() throws RuntimeException;
-    Integer getTotalSizeByDate(Date from, Date to);
-    Integer getTotalSizeByIds(Set<String> sessionIds);
-    Integer getTotalSizeByTags(Set<String> sessionTagNames);
+    Long getTotalSize() throws RuntimeException;
+    Long getTotalSizeByDate(Date from, Date to);
+    Long getTotalSizeByIds(Set<String> sessionIds);
+    Long getTotalSizeByTags(Set<String> sessionTagNames);
 
     List<SessionDataDto> getAll(int offset, int maxResult) throws RuntimeException;
     List<SessionDataDto> getByDatePeriod(int offset, int maxResult, Date from, Date to) throws RuntimeException;
