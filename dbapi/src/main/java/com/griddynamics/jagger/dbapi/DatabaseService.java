@@ -22,6 +22,8 @@ public interface DatabaseService {
 
     Map<TaskDataDto, Map<String, TestInfoDto>> getTestInfos(Collection<TaskDataDto> taskDataDtos) throws RuntimeException;
 
+    List<NodeInfoPerSessionDto> getNodeInfo(Set<String> sessionIds) throws RuntimeException;
+
     Map<String,Set<String>> getDefaultMonitoringParameters();
     WebClientProperties getWebClientProperties();
 

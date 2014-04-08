@@ -8,7 +8,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.griddynamics.jagger.webclient.client.NodeInfoService;
-import com.griddynamics.jagger.webclient.client.dto.NodeInfoPerSessionDto;
+import com.griddynamics.jagger.dbapi.dto.NodeInfoPerSessionDto;
 import com.griddynamics.jagger.dbapi.dto.SessionDataDto;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
 import com.griddynamics.jagger.webclient.client.trends.TrendsPlace;

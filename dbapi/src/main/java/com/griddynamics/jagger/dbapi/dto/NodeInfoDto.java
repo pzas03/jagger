@@ -17,29 +17,26 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.griddynamics.jagger.webclient.client.dto;
+package com.griddynamics.jagger.dbapi.dto;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Map;
 
-public class NodeInfoPerSessionDto implements Serializable {
+public class NodeInfoDto implements Serializable {
 
-    private String sessionId;
-    private List<NodeInfoDto> nodes;
+    private String nodeId;
+    private Map<String,String> parameters;
 
-    public NodeInfoPerSessionDto(String sessionId, List<NodeInfoDto> nodes) {
-        this.sessionId = sessionId;
-        this.nodes = nodes;
+    public NodeInfoDto(String nodeId, Map<String, String> parameters) {
+        this.nodeId = nodeId;
+        this.parameters = parameters;
     }
-    public NodeInfoPerSessionDto() {}
+    public NodeInfoDto() {}
 
-    public String getSessionId() {
-        return sessionId;
+    public String getNodeId() {
+        return nodeId;
     }
-    public List<NodeInfoDto> getNodes() {
-        return nodes;
+    public Map<String, String> getParameters() {
+        return parameters;
     }
-
-
-
 }

@@ -11,7 +11,8 @@ import com.griddynamics.jagger.dbapi.model.rules.TreeViewGroupRuleProvider;
 import com.griddynamics.jagger.dbapi.parameter.DefaultWorkloadParameters;
 import com.griddynamics.jagger.dbapi.provider.*;
 import com.griddynamics.jagger.dbapi.util.*;
-import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadProcessLatencyPercentile;
+import com.griddynamics.jagger.engine.e1.aggregator.workload.model.NodeInfoEntity;
+import com.griddynamics.jagger.engine.e1.aggregator.workload.model.NodePropertyEntity;
 import com.griddynamics.jagger.monitoring.reporting.GroupKey;
 import com.griddynamics.jagger.util.MonitoringIdUtils;
 import com.griddynamics.jagger.util.Pair;
@@ -24,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import java.math.BigInteger;
@@ -99,10 +101,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         this.workloadPlotGroups = workloadPlotGroups;
     }
 
-    public CustomMetricPlotNameProvider getCustomMetricPlotNameProvider() {
-        return customMetricPlotNameProvider;
-    }
-
+    @Required
     public void setCustomMetricPlotNameProvider(CustomMetricPlotNameProvider customMetricPlotNameProvider) {
         this.customMetricPlotNameProvider = customMetricPlotNameProvider;
     }
@@ -151,6 +150,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         this.monitoringMetricPlotFetcher = monitoringMetricPlotFetcher;
     }
 
+    @Required
     public void setWebClientProperties(WebClientProperties webClientProperties) {
         this.webClientProperties = webClientProperties;
         this.webClientProperties.setUserCommentStoreAvailable(checkIfUserCommentStorageAvailable());
@@ -161,26 +161,32 @@ public class DatabaseServiceImpl implements DatabaseService {
         return webClientProperties;
     }
 
+    @Required
     public void setStandardMetricSummaryFetcher(StandardMetricSummaryFetcher standardMetricSummaryFetcher) {
         this.standardMetricSummaryFetcher = standardMetricSummaryFetcher;
     }
 
+    @Required
     public void setDurationMetricSummaryFetcher(DurationMetricSummaryFetcher durationMetricSummaryFetcher) {
         this.durationMetricSummaryFetcher = durationMetricSummaryFetcher;
     }
 
+    @Required
     public void setLatencyMetricDataFetcher(LatencyMetricSummaryFetcher latencyMetricDataFetcher) {
         this.latencyMetricDataFetcher = latencyMetricDataFetcher;
     }
 
+    @Required
     public void setCustomMetricSummaryFetcher(CustomMetricSummaryFetcher customMetricSummaryFetcher) {
         this.customMetricSummaryFetcher = customMetricSummaryFetcher;
     }
 
+    @Required
     public void setValidatorSummaryFetcher(ValidatorSummaryFetcher validatorSummaryFetcher) {
         this.validatorSummaryFetcher = validatorSummaryFetcher;
     }
 
+    @Required
     public void setCustomTestGroupMetricSummaryFetcher(CustomTestGroupMetricSummaryFetcher customTestGroupMetricSummaryFetcher) {
         this.customTestGroupMetricSummaryFetcher = customTestGroupMetricSummaryFetcher;
     }
@@ -195,14 +201,17 @@ public class DatabaseServiceImpl implements DatabaseService {
         this.treeViewGroupMetricsToNodeRuleProvider = treeViewGroupMetricsToNodeRuleProvider;
     }
 
+    @Required
     public void setSessionInfoServiceImpl(SessionInfoProviderImpl sessionInfoServiceImpl) {
         this.sessionInfoServiceImpl = sessionInfoServiceImpl;
     }
 
+    @Required
     public void setCustomMetricNameProvider(CustomMetricNameProvider customMetricNameProvider) {
         this.customMetricNameProvider = customMetricNameProvider;
     }
 
+    @Required
     public void setStandardMetricNameProvider(StandardMetricNameProvider standardMetricNameProvider) {
         this.standardMetricNameProvider = standardMetricNameProvider;
     }
@@ -1130,8 +1139,72 @@ public class DatabaseServiceImpl implements DatabaseService {
         return resultMap;
     }
 
+    @Override
     public SessionInfoProvider getSessionInfoService(){
         return sessionInfoServiceImpl;
+    }
+
+    @Override
+    public List<NodeInfoPerSessionDto> getNodeInfo(Set<String> sessionIds) {
+
+        Long time = System.currentTimeMillis();
+        List<NodeInfoPerSessionDto> nodeInfoPerSessionDtoList = new ArrayList<NodeInfoPerSessionDto>();
+
+        try {
+            List<NodeInfoEntity> nodeInfoEntityList = (List<NodeInfoEntity>)
+                    entityManager.createQuery("select nie from NodeInfoEntity as nie where nie.sessionId in (:sessionIds)").
+                            setParameter("sessionIds", new ArrayList<String>(sessionIds)).
+                            getResultList();
+
+            Map<String,List<NodeInfoDto>> sessions = new HashMap<String, List<NodeInfoDto>>();
+
+            for (NodeInfoEntity nodeInfoEntity : nodeInfoEntityList) {
+                Map<String,String> parameters = new HashMap<String, String>();
+
+                parameters.put("CPU model",nodeInfoEntity.getCpuModel());
+                parameters.put("CPU frequency, MHz",String.valueOf(nodeInfoEntity.getCpuMHz()));
+                parameters.put("CPU number of cores",String.valueOf(nodeInfoEntity.getCpuTotalCores()));
+                parameters.put("CPU number of sockets",String.valueOf(nodeInfoEntity.getCpuTotalSockets()));
+                parameters.put("Jagger Java version", nodeInfoEntity.getJaggerJavaVersion());
+                parameters.put("OS name", nodeInfoEntity.getOsName());
+                parameters.put("OS version", nodeInfoEntity.getOsVersion());
+                parameters.put("System RAM, MB",String.valueOf(nodeInfoEntity.getSystemRAM()));
+
+                List<NodePropertyEntity> nodePropertyEntityList = nodeInfoEntity.getProperties();
+                for (NodePropertyEntity nodePropertyEntity : nodePropertyEntityList) {
+                    parameters.put("Property '" + nodePropertyEntity.getName() + "'",nodePropertyEntity.getValue());
+                }
+                NodeInfoDto nodeInfoDto = new NodeInfoDto(nodeInfoEntity.getNodeId(),parameters);
+
+                String sessionId = nodeInfoEntity.getSessionId();
+                if (sessions.containsKey(sessionId)) {
+                    sessions.get(sessionId).add(nodeInfoDto);
+                }
+                else {
+                    List <NodeInfoDto> node = new ArrayList<NodeInfoDto>();
+                    node.add(nodeInfoDto);
+                    sessions.put(sessionId, node);
+                }
+            }
+
+            for (Map.Entry<String,List<NodeInfoDto>> session : sessions.entrySet()) {
+                nodeInfoPerSessionDtoList.add(new NodeInfoPerSessionDto(session.getKey(),session.getValue()));
+            }
+
+            log.info("For session ids " + sessionIds + " were found node info values in " + (System.currentTimeMillis() - time) + " ms");
+        }
+        catch (NoResultException ex) {
+            log.info("No node info data was found for session id " + sessionIds, ex);
+        }
+        catch (PersistenceException ex) {
+            log.info("No node info data was found for session id " + sessionIds, ex);
+        }
+        catch (Exception ex) {
+            log.error("Error occurred during loading node info data for session ids " + sessionIds, ex);
+            throw new RuntimeException("Error occurred during loading node info data for session ids " + sessionIds,ex);
+        }
+
+        return nodeInfoPerSessionDtoList;
     }
 }
 

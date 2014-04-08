@@ -78,7 +78,9 @@
         <property name="databaseService" ref="databaseService"/>
     </bean>
 
-    <bean id="nodeInfoService" class="com.griddynamics.jagger.webclient.server.NodeInfoServiceImpl"/>
+    <bean id="nodeInfoService" class="com.griddynamics.jagger.webclient.server.NodeInfoServiceImpl">
+        <property name="databaseService" ref="databaseService"/>
+    </bean>
 
     <bean id="commonDataService" class="com.griddynamics.jagger.webclient.server.CommonDataServiceImpl">
         <property name="databaseService" ref="databaseService"/>
