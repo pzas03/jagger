@@ -18,27 +18,52 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.griddynamics.jagger.engine.e1.aggregator.workload.model;
+package com.griddynamics.jagger.dbapi.entity;
 
 import javax.persistence.*;
 
 @Entity
-public class TimeLatencyPercentile extends Percentile {
-    @ManyToOne
-    @JoinColumn(name="statistics_id")
-    private TimeInvocationStatistics timeInvocationStatistics;
+@Inheritance(strategy = InheritanceType.JOINED)
+public class Percentile {
+    @Id
+    // Identity strategy is not supported by Oracle DB from the box
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    public TimeLatencyPercentile() {}
+    @Column
+    private Double percentileKey;
 
-    public TimeLatencyPercentile(double percentileKey, double percentileValue) {
-        super(percentileKey, percentileValue);
+    @Column
+    private Double percentileValue;
+
+    public Percentile() {}
+
+    public Percentile(double percentileKey, double percentileValue) {
+        this.percentileKey = percentileKey;
+        this.percentileValue = percentileValue;
     }
 
-    public TimeInvocationStatistics getTimeInvocationStatistics() {
-        return timeInvocationStatistics;
+    public Long getId() {
+        return id;
     }
 
-    public void setTimeInvocationStatistics(TimeInvocationStatistics timeInvocationStatistics) {
-        this.timeInvocationStatistics = timeInvocationStatistics;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Double getPercentileKey() {
+        return percentileKey;
+    }
+
+    public void setPercentileKey(Double percentileKey) {
+        this.percentileKey = percentileKey;
+    }
+
+    public Double getPercentileValue() {
+        return percentileValue;
+    }
+
+    public void setPercentileValue(Double percentileValue) {
+        this.percentileValue = percentileValue;
     }
 }

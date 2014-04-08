@@ -3,7 +3,7 @@ package com.griddynamics.jagger.dbapi.fetcher;
 import com.griddynamics.jagger.dbapi.dto.MetricDto;
 import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
 import com.griddynamics.jagger.dbapi.dto.MetricValueDto;
-import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadTaskData;
+import com.griddynamics.jagger.dbapi.entity.WorkloadTaskData;
 
 import java.util.*;
 

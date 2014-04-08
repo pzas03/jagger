@@ -5,10 +5,10 @@ import com.google.common.collect.Multimap;
 import com.griddynamics.jagger.dbapi.DataSaverService;
 import com.griddynamics.jagger.dbapi.dto.SessionDataDto;
 import com.griddynamics.jagger.dbapi.dto.TagDto;
+import com.griddynamics.jagger.dbapi.entity.SessionData;
+import com.griddynamics.jagger.dbapi.entity.TagEntity;
 import com.griddynamics.jagger.dbapi.model.WebClientProperties;
 import com.griddynamics.jagger.dbapi.util.HTMLFormatter;
-import com.griddynamics.jagger.engine.e1.aggregator.session.model.SessionData;
-import com.griddynamics.jagger.engine.e1.aggregator.session.model.TagEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

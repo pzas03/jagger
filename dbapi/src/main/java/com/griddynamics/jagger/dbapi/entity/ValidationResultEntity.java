@@ -17,25 +17,34 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.griddynamics.jagger.monitoring.model;
+package com.griddynamics.jagger.dbapi.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
-public class PerformedMonitoring {
-    private Long id;
-    private String sessionId;
-    private String monitoringId;
-    private String parentId;
-    private String name;
-    private String termination;
+public class ValidationResultEntity {
 
     @Id
     // Identity strategy is not supported by Oracle DB from the box
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    private WorkloadData workloadData;
+
+    @Column
+    private String validator;
+
+    @Column
+    private Integer total;
+
+    @Column
+    private Integer failed;
+
+    @Column
+    private String displayName;
+
+
     public Long getId() {
         return id;
     }
@@ -44,43 +53,49 @@ public class PerformedMonitoring {
         this.id = id;
     }
 
-    public String getMonitoringId() {
-        return monitoringId;
+
+    public WorkloadData getWorkloadData() {
+        return workloadData;
     }
 
-    public void setMonitoringId(String monitoringId) {
-        this.monitoringId = monitoringId;
+    public void setWorkloadData(WorkloadData workloadData) {
+        this.workloadData = workloadData;
     }
 
-    public String getParentId() {
-        return parentId;
+    public String getValidator() {
+        return validator;
     }
 
-    public void setParentId(String parentId) {
-        this.parentId = parentId;
+    public void setValidator(String validator) {
+        this.validator = validator;
     }
 
-    public String getSessionId() {
-        return sessionId;
+    public Integer getTotal() {
+        return total;
     }
 
-    public void setSessionId(String sessionId) {
-        this.sessionId = sessionId;
+    public void setTotal(Integer total) {
+        this.total = total;
     }
 
-    public String getName() {
-        return name;
+    public Integer getFailed() {
+        return failed;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFailed(Integer failed) {
+        this.failed = failed;
     }
 
-    public String getTermination() {
-        return termination;
+    public String getDisplayName() {
+        return displayName;
     }
 
-    public void setTermination(String termination) {
-        this.termination = termination;
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getDisplay() {
+        return displayName == null ?
+                validator : displayName;
     }
 }

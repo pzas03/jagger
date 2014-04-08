@@ -17,27 +17,21 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package com.griddynamics.jagger.dbapi.entity;
 
-package com.griddynamics.jagger.engine.e1.aggregator.session.model;
-
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 @Entity
-public class TaskData {
-
+public class PerformedMonitoring {
     private Long id;
-    private String taskId;
     private String sessionId;
-    private String taskName;
-    private Integer number;
-    private ExecutionStatus status;
-
-    public TaskData() {
-    }
-
-    public TaskData(Long id) {
-        this.id = id;
-    }
+    private String monitoringId;
+    private String parentId;
+    private String name;
+    private String termination;
 
     @Id
     // Identity strategy is not supported by Oracle DB from the box
@@ -50,12 +44,20 @@ public class TaskData {
         this.id = id;
     }
 
-    public String getTaskId() {
-        return taskId;
+    public String getMonitoringId() {
+        return monitoringId;
     }
 
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
+    public void setMonitoringId(String monitoringId) {
+        this.monitoringId = monitoringId;
+    }
+
+    public String getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(String parentId) {
+        this.parentId = parentId;
     }
 
     public String getSessionId() {
@@ -66,32 +68,19 @@ public class TaskData {
         this.sessionId = sessionId;
     }
 
-    public String getTaskName() {
-        return taskName;
+    public String getName() {
+        return name;
     }
 
-    public void setTaskName(String taskName) {
-        this.taskName = taskName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public Integer getNumber() {
-        return number;
+    public String getTermination() {
+        return termination;
     }
 
-    public void setNumber(Integer number) {
-        this.number = number;
-    }
-
-    @Enumerated(EnumType.STRING)
-    public ExecutionStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(ExecutionStatus status) {
-        this.status = status;
-    }
-
-    public static enum ExecutionStatus {
-        SUCCEEDED, FAILED
+    public void setTermination(String termination) {
+        this.termination = termination;
     }
 }

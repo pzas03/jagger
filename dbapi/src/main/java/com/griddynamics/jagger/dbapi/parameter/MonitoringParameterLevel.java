@@ -18,53 +18,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.griddynamics.jagger.engine.e1.aggregator.workload.model;
+package com.griddynamics.jagger.dbapi.parameter;
 
-import javax.persistence.*;
+public enum MonitoringParameterLevel {
+    /**
+     * Parameter is collected for entire box, i.e. for Agent - CPU, network etc
+     */
+    BOX,
 
-@Entity
-public class DiagnosticResultEntity {
-
-    private Long id;
-    private String name;
-    private Double total;
-    private WorkloadData workloadData;
-
-    @Id
-    // Identity strategy is not supported by Oracle DB from the box
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long getId() {
-        return id;
-    }
-
-    @ManyToOne
-    public WorkloadData getWorkloadData() {
-        return workloadData;
-    }
-
-    public void setWorkloadData(WorkloadData workloadData) {
-        this.workloadData = workloadData;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-
-        return name;
-    }
-
-    public Double getTotal() {
-        return total;
-    }
-
-    public void setTotal(Double total) {
-        this.total = total;
-    }
-
+    /**
+     * Parameter is collected for each System Under Test separately - JVM Heap etc
+     */
+    SUT
 }

@@ -18,41 +18,28 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.griddynamics.jagger.agent.model;
+package com.griddynamics.jagger.dbapi.entity;
 
-import com.griddynamics.jagger.dbapi.parameter.MonitoringParameter;
+import javax.persistence.*;
 
-import javax.management.ObjectName;
+@Entity
+public class WorkloadProcessLatencyPercentile extends Percentile {
 
-/**
- * @author Nikolay Musienko
- *         Date: 10.07.13
- */
-public class JmxMetric {
+    @ManyToOne
+    @JoinColumn(name="statistics_id")
+    private WorkloadProcessDescriptiveStatistics workloadProcessDescriptiveStatistics;
 
-    private MonitoringParameter parameter;
-    private ObjectName objectName;
-    private String attributeName;
+    public WorkloadProcessLatencyPercentile() {}
 
-    public JmxMetric(MonitoringParameter parameter, ObjectName objectName, String attributeName) {
-        this.parameter = parameter;
-        this.objectName = objectName;
-        this.attributeName = attributeName;
+    public WorkloadProcessLatencyPercentile(double percentileKey, double percentileValue) {
+        super(percentileKey, percentileValue);
     }
 
-    public JmxMetric() {
+    public WorkloadProcessDescriptiveStatistics getWorkloadProcessDescriptiveStatistics() {
+        return workloadProcessDescriptiveStatistics;
     }
 
-    public MonitoringParameter getParameter() {
-        return parameter;
+    public void setWorkloadProcessDescriptiveStatistics(WorkloadProcessDescriptiveStatistics workloadProcessDescriptiveStatistics) {
+        this.workloadProcessDescriptiveStatistics = workloadProcessDescriptiveStatistics;
     }
-
-    public ObjectName getObjectName() {
-        return objectName;
-    }
-
-    public String getAttributeName() {
-        return attributeName;
-    }
-
 }

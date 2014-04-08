@@ -2,9 +2,9 @@ package com.griddynamics.jagger.dbapi.provider;
 
 import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
 import com.griddynamics.jagger.dbapi.dto.TaskDataDto;
+import com.griddynamics.jagger.dbapi.entity.WorkloadProcessLatencyPercentile;
 import com.griddynamics.jagger.dbapi.util.DataProcessingUtil;
 import com.griddynamics.jagger.dbapi.util.MetricNameUtil;
-import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadProcessLatencyPercentile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

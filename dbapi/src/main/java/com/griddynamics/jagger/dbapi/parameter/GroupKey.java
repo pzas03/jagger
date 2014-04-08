@@ -18,7 +18,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.griddynamics.jagger.monitoring.reporting;
+package com.griddynamics.jagger.dbapi.parameter;
 
 import com.google.common.base.Objects;
 

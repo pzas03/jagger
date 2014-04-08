@@ -18,11 +18,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.griddynamics.jagger.monitoring;
+package com.griddynamics.jagger.dbapi.parameter;
 
 import com.google.common.base.Objects;
-import com.griddynamics.jagger.agent.model.MonitoringParameter;
-import com.griddynamics.jagger.agent.model.MonitoringParameterLevel;
 import org.hibernate.annotations.Index;
 
 import javax.persistence.Embeddable;

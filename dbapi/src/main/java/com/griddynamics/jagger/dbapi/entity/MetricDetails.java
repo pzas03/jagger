@@ -17,29 +17,59 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-package com.griddynamics.jagger.engine.e1.aggregator.workload.model;
-
-import com.griddynamics.jagger.engine.e1.aggregator.session.model.TaskData;
+package com.griddynamics.jagger.dbapi.entity;
 
 import javax.persistence.*;
-import java.util.List;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: nmusienko
+ * Date: 18.03.13
+ * Time: 17:10
+ */
 
 @Entity
-public class WorkloadProcessDescriptiveStatistics {
+public class MetricDetails {
+
+    public static final int ALLOCATION_SIZE = 100;
+    public static final String METRIC_ID = "MetricDetails_ID";
+
+    @TableGenerator(name="GENERATOR",
+                    table="IdGeneratorEntity",
+
+                    pkColumnName="tableName",
+                    valueColumnName="idValue",
+                    pkColumnValue=METRIC_ID,
+
+                    //do not change allocationSize value, it will cause duplicated key problem
+                    allocationSize=ALLOCATION_SIZE,
+                    initialValue = 0
+    )
     @Id
-    // Identity strategy is not supported by Oracle DB from the box
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.TABLE, generator="GENERATOR")
     private Long id;
 
-    @OneToMany(
-            fetch = FetchType.EAGER,
-            cascade = CascadeType.ALL,
-            mappedBy = "workloadProcessDescriptiveStatistics")
-    private List<WorkloadProcessLatencyPercentile> percentiles;
+    @Column
+    private long time;
+
+    @Column
+    private String metric;
+
+    @Column
+    private Double value;
 
     @ManyToOne
     private TaskData taskData;
+
+    public MetricDetails(long time, String metric, Double value, TaskData taskData) {
+        this.time = time;
+        this.metric = metric;
+        this.value = value;
+        this.taskData = taskData;
+    }
+
+    public MetricDetails() {
+    }
 
     public Long getId() {
         return id;
@@ -49,12 +79,28 @@ public class WorkloadProcessDescriptiveStatistics {
         this.id = id;
     }
 
-    public List<WorkloadProcessLatencyPercentile> getPercentiles() {
-        return percentiles;
+    public long getTime() {
+        return time;
     }
 
-    public void setPercentiles(List<WorkloadProcessLatencyPercentile> percentiles) {
-        this.percentiles = percentiles;
+    public void setTime(long time) {
+        this.time = time;
+    }
+
+    public String getMetric() {
+        return metric;
+    }
+
+    public void setMetric(String metric) {
+        this.metric = metric;
+    }
+
+    public Double getValue() {
+        return value;
+    }
+
+    public void setValue(Double value) {
+        this.value = value;
     }
 
     public TaskData getTaskData() {

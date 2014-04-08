@@ -18,44 +18,27 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.griddynamics.jagger.engine.e1.aggregator.session.model;
+package com.griddynamics.jagger.dbapi.entity;
 
 import javax.persistence.*;
 
 @Entity
-public class SessionMetaDataEntity {
+public class TimeLatencyPercentile extends Percentile {
+    @ManyToOne
+    @JoinColumn(name="statistics_id")
+    private TimeInvocationStatistics timeInvocationStatistics;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    public TimeLatencyPercentile() {}
 
-    @OneToOne
-    private SessionData sessionData;
-
-    @Column(length = 1000)
-    private String userComment;
-
-    public Long getId() {
-        return id;
+    public TimeLatencyPercentile(double percentileKey, double percentileValue) {
+        super(percentileKey, percentileValue);
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public TimeInvocationStatistics getTimeInvocationStatistics() {
+        return timeInvocationStatistics;
     }
 
-    public SessionData getSessionData() {
-        return sessionData;
-    }
-
-    public void setSessionData(SessionData sessionData) {
-        this.sessionData = sessionData;
-    }
-
-    public String getUserComment() {
-        return userComment;
-    }
-
-    public void setUserComment(String userComment) {
-        this.userComment = userComment;
+    public void setTimeInvocationStatistics(TimeInvocationStatistics timeInvocationStatistics) {
+        this.timeInvocationStatistics = timeInvocationStatistics;
     }
 }

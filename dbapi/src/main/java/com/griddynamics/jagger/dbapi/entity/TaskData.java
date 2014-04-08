@@ -17,34 +17,31 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.griddynamics.jagger.engine.e1.aggregator.workload.model;
+
+package com.griddynamics.jagger.dbapi.entity;
 
 import javax.persistence.*;
 
 @Entity
-public class ValidationResultEntity {
+public class TaskData {
+
+    private Long id;
+    private String taskId;
+    private String sessionId;
+    private String taskName;
+    private Integer number;
+    private ExecutionStatus status;
+
+    public TaskData() {
+    }
+
+    public TaskData(Long id) {
+        this.id = id;
+    }
 
     @Id
     // Identity strategy is not supported by Oracle DB from the box
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @ManyToOne
-    private WorkloadData workloadData;
-
-    @Column
-    private String validator;
-
-    @Column
-    private Integer total;
-
-    @Column
-    private Integer failed;
-
-    @Column
-    private String displayName;
-
-
     public Long getId() {
         return id;
     }
@@ -53,49 +50,48 @@ public class ValidationResultEntity {
         this.id = id;
     }
 
-
-    public WorkloadData getWorkloadData() {
-        return workloadData;
+    public String getTaskId() {
+        return taskId;
     }
 
-    public void setWorkloadData(WorkloadData workloadData) {
-        this.workloadData = workloadData;
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
     }
 
-    public String getValidator() {
-        return validator;
+    public String getSessionId() {
+        return sessionId;
     }
 
-    public void setValidator(String validator) {
-        this.validator = validator;
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
     }
 
-    public Integer getTotal() {
-        return total;
+    public String getTaskName() {
+        return taskName;
     }
 
-    public void setTotal(Integer total) {
-        this.total = total;
+    public void setTaskName(String taskName) {
+        this.taskName = taskName;
     }
 
-    public Integer getFailed() {
-        return failed;
+    public Integer getNumber() {
+        return number;
     }
 
-    public void setFailed(Integer failed) {
-        this.failed = failed;
+    public void setNumber(Integer number) {
+        this.number = number;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    @Enumerated(EnumType.STRING)
+    public ExecutionStatus getStatus() {
+        return status;
     }
 
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
+    public void setStatus(ExecutionStatus status) {
+        this.status = status;
     }
 
-    public String getDisplay() {
-        return displayName == null ?
-                validator : displayName;
+    public static enum ExecutionStatus {
+        SUCCEEDED, FAILED
     }
 }

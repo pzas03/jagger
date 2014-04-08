@@ -18,16 +18,48 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.griddynamics.jagger.agent.model;
+package com.griddynamics.jagger.dbapi.entity;
 
-public enum MonitoringParameterLevel {
-    /**
-     * Parameter is collected for entire box, i.e. for Agent - CPU, network etc
-     */
-    BOX,
+import javax.persistence.*;
+import java.util.List;
 
-    /**
-     * Parameter is collected for each System Under Test separately - JVM Heap etc
-     */
-    SUT
+@Entity
+public class WorkloadProcessDescriptiveStatistics {
+    @Id
+    // Identity strategy is not supported by Oracle DB from the box
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @OneToMany(
+            fetch = FetchType.EAGER,
+            cascade = CascadeType.ALL,
+            mappedBy = "workloadProcessDescriptiveStatistics")
+    private List<WorkloadProcessLatencyPercentile> percentiles;
+
+    @ManyToOne
+    private TaskData taskData;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public List<WorkloadProcessLatencyPercentile> getPercentiles() {
+        return percentiles;
+    }
+
+    public void setPercentiles(List<WorkloadProcessLatencyPercentile> percentiles) {
+        this.percentiles = percentiles;
+    }
+
+    public TaskData getTaskData() {
+        return taskData;
+    }
+
+    public void setTaskData(TaskData taskData) {
+        this.taskData = taskData;
+    }
 }

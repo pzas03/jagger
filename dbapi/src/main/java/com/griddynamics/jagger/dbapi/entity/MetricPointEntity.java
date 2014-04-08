@@ -1,4 +1,4 @@
-package com.griddynamics.jagger.engine.e1.aggregator.workload.model;
+package com.griddynamics.jagger.dbapi.entity;
 
 import javax.persistence.*;
 

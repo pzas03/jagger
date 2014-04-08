@@ -1,13 +1,13 @@
 package com.griddynamics.jagger.dbapi.provider;
 
 import com.google.common.collect.Multimap;
-import com.griddynamics.jagger.agent.model.DefaultMonitoringParameters;
 import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
 import com.griddynamics.jagger.dbapi.dto.TaskDataDto;
+import com.griddynamics.jagger.dbapi.parameter.DefaultMonitoringParameters;
+import com.griddynamics.jagger.dbapi.parameter.GroupKey;
 import com.griddynamics.jagger.dbapi.util.CommonUtils;
 import com.griddynamics.jagger.dbapi.util.DataProcessingUtil;
 import com.griddynamics.jagger.dbapi.util.FetchUtil;
-import com.griddynamics.jagger.monitoring.reporting.GroupKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;

@@ -18,7 +18,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.griddynamics.jagger.agent.model;
+package com.griddynamics.jagger.dbapi.parameter;
 
 public interface MonitoringParameter {
     boolean isCumulativeCounter();

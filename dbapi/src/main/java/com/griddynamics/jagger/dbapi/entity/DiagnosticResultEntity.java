@@ -18,52 +18,53 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.griddynamics.jagger.engine.e1.aggregator.workload.model;
+package com.griddynamics.jagger.dbapi.entity;
 
 import javax.persistence.*;
 
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
-public class Percentile {
+public class DiagnosticResultEntity {
+
+    private Long id;
+    private String name;
+    private Double total;
+    private WorkloadData workloadData;
+
     @Id
     // Identity strategy is not supported by Oracle DB from the box
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-
-    @Column
-    private Double percentileKey;
-
-    @Column
-    private Double percentileValue;
-
-    public Percentile() {}
-
-    public Percentile(double percentileKey, double percentileValue) {
-        this.percentileKey = percentileKey;
-        this.percentileValue = percentileValue;
-    }
-
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long getId() {
         return id;
+    }
+
+    @ManyToOne
+    public WorkloadData getWorkloadData() {
+        return workloadData;
+    }
+
+    public void setWorkloadData(WorkloadData workloadData) {
+        this.workloadData = workloadData;
     }
 
     public void setId(Long id) {
         this.id = id;
     }
 
-    public Double getPercentileKey() {
-        return percentileKey;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public void setPercentileKey(Double percentileKey) {
-        this.percentileKey = percentileKey;
+    public String getName() {
+
+        return name;
     }
 
-    public Double getPercentileValue() {
-        return percentileValue;
+    public Double getTotal() {
+        return total;
     }
 
-    public void setPercentileValue(Double percentileValue) {
-        this.percentileValue = percentileValue;
+    public void setTotal(Double total) {
+        this.total = total;
     }
+
 }

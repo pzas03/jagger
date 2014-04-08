@@ -1,7 +1,7 @@
 package com.griddynamics.jagger.dbapi.model.rules;
 
-import com.griddynamics.jagger.agent.model.DefaultMonitoringParameters;
-import com.griddynamics.jagger.monitoring.reporting.GroupKey;
+import com.griddynamics.jagger.dbapi.parameter.DefaultMonitoringParameters;
+import com.griddynamics.jagger.dbapi.parameter.GroupKey;
 import com.griddynamics.jagger.util.MonitoringIdUtils;
 
 import java.util.ArrayList;

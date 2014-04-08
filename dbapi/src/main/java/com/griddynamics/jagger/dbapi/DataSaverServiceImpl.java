@@ -1,8 +1,8 @@
 package com.griddynamics.jagger.dbapi;
 
-import com.griddynamics.jagger.engine.e1.aggregator.session.model.SessionData;
-import com.griddynamics.jagger.engine.e1.aggregator.session.model.TagEntity;
 import com.griddynamics.jagger.dbapi.dto.TagDto;
+import com.griddynamics.jagger.dbapi.entity.SessionData;
+import com.griddynamics.jagger.dbapi.entity.TagEntity;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;

@@ -18,9 +18,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.griddynamics.jagger.engine.e1.aggregator.workload.model;
-
-import com.griddynamics.jagger.engine.e1.aggregator.session.model.TaskData;
+package com.griddynamics.jagger.dbapi.entity;
 
 import javax.persistence.*;
 

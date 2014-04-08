@@ -1,4 +1,4 @@
-package com.griddynamics.jagger.engine.e1.aggregator.session.model;
+package com.griddynamics.jagger.dbapi.entity;
 
 import javax.persistence.*;
 import java.util.Collections;
