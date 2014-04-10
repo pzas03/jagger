@@ -5,6 +5,7 @@ import com.griddynamics.jagger.dbapi.dto.NodeInfoPerSessionDto;
 import com.griddynamics.jagger.webclient.client.NodeInfoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Required;
 
 import java.util.List;
 import java.util.Set;
@@ -15,6 +16,7 @@ public class NodeInfoServiceImpl implements NodeInfoService {
 
     private DatabaseService databaseService;
 
+    @Required
     public void setDatabaseService(DatabaseService databaseService) {
         this.databaseService = databaseService;
     }

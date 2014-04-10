@@ -11,6 +11,7 @@ import com.griddynamics.jagger.dbapi.model.WebClientProperties;
 import com.griddynamics.jagger.dbapi.util.HTMLFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Required;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -39,10 +40,12 @@ public class SessionInfoProviderImpl implements SessionInfoProvider {
         this.entityManager = entityManager;
     }
 
+    @Required
     public void setWebClientProperties(WebClientProperties webClientProperties) {
         this.webClientProperties = webClientProperties;
     }
 
+    @Required
     public void setDataSaverService(DataSaverService dataSaverService) {
         this.dataSaverService = dataSaverService;
     }

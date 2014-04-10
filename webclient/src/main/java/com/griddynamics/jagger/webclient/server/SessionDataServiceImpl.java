@@ -5,6 +5,7 @@ import com.griddynamics.jagger.dbapi.dto.SessionDataDto;
 import com.griddynamics.jagger.dbapi.dto.TagDto;
 import com.griddynamics.jagger.webclient.client.SessionDataService;
 import com.griddynamics.jagger.webclient.client.dto.PagedSessionDataDto;
+import org.springframework.beans.factory.annotation.Required;
 
 import java.util.*;
 
@@ -16,6 +17,7 @@ public class SessionDataServiceImpl /*extends RemoteServiceServlet*/ implements 
 
     private DatabaseService databaseService;
 
+    @Required
     public void setDatabaseService(DatabaseService databaseService) {
         this.databaseService = databaseService;
     }

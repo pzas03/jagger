@@ -5,6 +5,7 @@ import com.griddynamics.jagger.dbapi.dto.PlotSeriesDto;
 import com.griddynamics.jagger.dbapi.dto.SessionPlotNameDto;
 import com.griddynamics.jagger.webclient.client.PlotProviderService;
 import com.griddynamics.jagger.dbapi.model.MetricNode;
+import org.springframework.beans.factory.annotation.Required;
 
 import java.util.*;
 
@@ -17,6 +18,7 @@ public class PlotProviderServiceImpl implements PlotProviderService {
 
     private DatabaseService databaseService;
 
+    @Required
     public void setDatabaseService(DatabaseService databaseService) {
         this.databaseService = databaseService;
     }
@@ -28,6 +30,7 @@ public class PlotProviderServiceImpl implements PlotProviderService {
 
     @Override
     public Map<SessionPlotNameDto, List<PlotSeriesDto>> getSessionScopePlotData(String sessionId, Collection<SessionPlotNameDto> plotType) throws RuntimeException {
+        // @todo create session scope plots for monitoring and test-group metrics
         return Collections.EMPTY_MAP;
     }
 }
