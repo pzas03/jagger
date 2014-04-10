@@ -11,6 +11,7 @@ import com.griddynamics.jagger.dbapi.util.FetchUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Required;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -39,10 +40,12 @@ public class CustomMetricPlotNameProvider {
         this.entityManager = entityManager;
     }
 
+    @Required
     public void setFetchUtil(FetchUtil fetchUtil) {
         this.fetchUtil = fetchUtil;
     }
 
+    @Required
     public void setMonitoringPlotGroups(Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups) {
         this.monitoringPlotGroups = monitoringPlotGroups;
     }

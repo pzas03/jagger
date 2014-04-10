@@ -6,6 +6,7 @@ import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
 import com.griddynamics.jagger.webclient.client.MetricDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Required;
 
 import java.util.*;
 
@@ -22,6 +23,7 @@ public class MetricDataServiceImpl implements MetricDataService {
 
     private DatabaseService databaseService;
 
+    @Required
     public void setDatabaseService(DatabaseService databaseService) {
         this.databaseService = databaseService;
     }

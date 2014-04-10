@@ -92,10 +92,6 @@ public class DatabaseServiceImpl implements DatabaseService {
         this.defaultMonitoringParams = getDefaultMonitoringParametersMap(monitoringPlotGroups);
     }
 
-    public Map<GroupKey, DefaultWorkloadParameters[]> getWorkloadPlotGroups() {
-        return workloadPlotGroups;
-    }
-
     @Required
     public void setWorkloadPlotGroups(Map<GroupKey, DefaultWorkloadParameters[]> workloadPlotGroups) {
         this.workloadPlotGroups = workloadPlotGroups;
@@ -141,6 +137,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         this.customMetricPlotFetcher = customMetricPlotFetcher;
     }
 
+    @Required
     public void setCustomTestGroupMetricPlotFetcher(CustomTestGroupMetricPlotFetcher customTestGroupMetricPlotFetcher) {
         this.customTestGroupMetricPlotFetcher = customTestGroupMetricPlotFetcher;
     }

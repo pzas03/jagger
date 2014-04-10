@@ -3,6 +3,7 @@ package com.griddynamics.jagger.webclient.server;
 import com.griddynamics.jagger.dbapi.DatabaseService;
 import com.griddynamics.jagger.webclient.client.ControlTreeCreatorService;
 import com.griddynamics.jagger.dbapi.model.*;
+import org.springframework.beans.factory.annotation.Required;
 
 import java.util.*;
 
@@ -15,6 +16,7 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
 
     private DatabaseService databaseService;
 
+    @Required
     public void setDatabaseService(DatabaseService databaseService) {
         this.databaseService = databaseService;
     }
