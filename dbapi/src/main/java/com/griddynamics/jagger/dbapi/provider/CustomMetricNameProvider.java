@@ -21,7 +21,7 @@ import java.util.*;
 /**
  * Created by kgribov on 4/7/14.
  */
-public class CustomMetricNameProvider {
+public class CustomMetricNameProvider implements MetricNameProvider {
     private Logger log = LoggerFactory.getLogger(CustomMetricNameProvider.class);
 
     private EntityManager entityManager;
@@ -43,13 +43,13 @@ public class CustomMetricNameProvider {
         this.monitoringPlotGroups = monitoringPlotGroups;
     }
 
-    ///////////////////////
     /**
      * Fetch custom metrics names from database
      * @param tests tests data
      * @return set of MetricNameDto representing name of metric
      */
-    public Set<MetricNameDto> getCustomMetricsNames(List<TaskDataDto> tests){
+    @Override
+    public Set<MetricNameDto> getMetricNames(List<TaskDataDto> tests){
 
         Set<MetricNameDto>  metrics = new HashSet<MetricNameDto>();
 
@@ -93,7 +93,7 @@ public class CustomMetricNameProvider {
                 .getResultList();
 
         if (metricNames.isEmpty()) {
-            return Collections.EMPTY_SET;
+            return Collections.emptySet();
         }
 
         Set<MetricNameDto> metrics = new HashSet<MetricNameDto>(metricNames.size());
@@ -122,10 +122,10 @@ public class CustomMetricNameProvider {
         try {
             Set<Long> taskIds = CommonUtils.getTestsIds(tests);
 
-            List<Object[]> metricDescriptionEntities = fetchUtil.getMetricNames(taskIds);
+            List<Object[]> metricDescriptionEntities = getMetricNames(taskIds);
 
             if (metricDescriptionEntities.isEmpty()) {
-                return Collections.EMPTY_SET;
+                return Collections.emptySet();
             }
 
             Set<MetricNameDto>  metrics = new HashSet<MetricNameDto>(metricDescriptionEntities.size());
@@ -142,7 +142,7 @@ public class CustomMetricNameProvider {
             return metrics;
         } catch (PersistenceException e) {
             log.debug("Could not fetch data from MetricSummaryEntity: {}", DataProcessingUtil.getMessageFromLastCause(e));
-            return Collections.EMPTY_SET;
+            return Collections.emptySet();
         }
     }
 
@@ -152,12 +152,12 @@ public class CustomMetricNameProvider {
 
             Multimap<Long, Long> testGroupMap = fetchUtil.getTestsInTestGroup(taskIds);
 
-            List<Object[]> metricDescriptionEntities = fetchUtil.getMetricNames(testGroupMap.keySet());
+            List<Object[]> metricDescriptionEntities = getMetricNames(testGroupMap.keySet());
 
             metricDescriptionEntities = CommonUtils.filterMonitoring(metricDescriptionEntities, monitoringPlotGroups);
 
             if (metricDescriptionEntities.isEmpty()) {
-                return Collections.EMPTY_SET;
+                return Collections.emptySet();
             }
 
             Set<MetricNameDto>  metrics = new HashSet<MetricNameDto>(metricDescriptionEntities.size());
@@ -175,7 +175,22 @@ public class CustomMetricNameProvider {
             return metrics;
         } catch (PersistenceException e) {
             log.debug("Could not fetch test-group data from MetricSummaryEntity: {}", DataProcessingUtil.getMessageFromLastCause(e));
-            return Collections.EMPTY_SET;
+            return Collections.emptySet();
         }
+    }
+
+    /**
+     * @param taskIds TaskData ids
+     * @return list of objects {MetricDescription.id, MetricDescription.dysplayName, TaskData.id}
+     */
+    private List<Object[]> getMetricNames(Set<Long> taskIds){
+        if (taskIds.isEmpty()){
+            return Collections.emptyList();
+        }
+        return entityManager.createQuery(
+                "select mse.metricDescription.metricId, mse.metricDescription.displayName, mse.metricDescription.taskData.id " +
+                        "from MetricSummaryEntity as mse where mse.metricDescription.taskData.id in (:taskIds)")
+                .setParameter("taskIds", taskIds)
+                .getResultList();
     }
 }

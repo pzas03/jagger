@@ -55,7 +55,8 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     private CustomMetricPlotNameProvider customMetricPlotNameProvider;
     private CustomMetricNameProvider customMetricNameProvider;
-    private StandardMetricNameProvider standardMetricNameProvider;
+    private LatencyMetricNameProvider latencyMetricNameProvider;
+    private ValidatorNamesProvider validatorNamesProvider;
     private SessionInfoProviderImpl sessionInfoServiceImpl;
 
     private TreeViewGroupRuleProvider treeViewGroupRuleProvider;
@@ -209,8 +210,13 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     @Required
-    public void setStandardMetricNameProvider(StandardMetricNameProvider standardMetricNameProvider) {
-        this.standardMetricNameProvider = standardMetricNameProvider;
+    public void setLatencyMetricNameProvider(LatencyMetricNameProvider latencyMetricNameProvider) {
+        this.latencyMetricNameProvider = latencyMetricNameProvider;
+    }
+
+    @Required
+    public void setValidatorNamesProvider(ValidatorNamesProvider validatorNamesProvider) {
+        this.validatorNamesProvider = validatorNamesProvider;
     }
 
     //===========================
@@ -483,7 +489,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
         Map<TaskDataDto, List<BigInteger>> result = new HashMap<TaskDataDto, List<BigInteger>>();
         if (monitoringTaskIds.isEmpty()) {
-            return Collections.EMPTY_MAP;
+            return Collections.emptyMap();
         }
 
 
@@ -524,7 +530,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
                         @Override
                         public Set<MetricNameDto> call() throws Exception {
-                            return standardMetricNameProvider.getLatencyMetricsNames(tddos);
+                            return latencyMetricNameProvider.getMetricNames(tddos);
                         }
                     }
             );
@@ -534,7 +540,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
                         @Override
                         public Set<MetricNameDto> call() throws Exception {
-                            return customMetricNameProvider.getCustomMetricsNames(tddos);
+                            return customMetricNameProvider.getMetricNames(tddos);
                         }
                     }
             );
@@ -544,7 +550,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
                         @Override
                         public Set<MetricNameDto> call() throws Exception {
-                            return standardMetricNameProvider.getValidatorsNames(tddos);
+                            return validatorNamesProvider.getMetricNames(tddos);
                         }
                     }
             );
@@ -919,8 +925,14 @@ public class DatabaseServiceImpl implements DatabaseService {
             // get agent names
             Set<PlotNode> plotNodeList = new HashSet<PlotNode>();
             if (!monitoringMap.isEmpty()) {
-                for (TaskDataDto taskDataDto : monitoringMap.keySet()) { plotNodeList.addAll(monitoringMap.get(taskDataDto));}}
-            for (TaskDataDto taskDataDto : map.keySet()) { plotNodeList.addAll(map.get(taskDataDto));}
+                for (TaskDataDto taskDataDto : monitoringMap.keySet()) {
+                    plotNodeList.addAll(monitoringMap.get(taskDataDto));
+                }
+            }
+
+            for (TaskDataDto taskDataDto : map.keySet()) {
+                plotNodeList.addAll(map.get(taskDataDto));
+            }
             Map<String,Set<String>> agentNames = getAgentNamesForMonitoringParameters(plotNodeList);
 
             // get tree

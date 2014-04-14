@@ -77,14 +77,4 @@ public class FetchUtil {
                 .getResultList();
     }
 
-    public List<Object[]> getMetricNames(Set<Long> taskIds){
-        if (taskIds.isEmpty()){
-            return Collections.EMPTY_LIST;
-        }
-        return entityManager.createQuery(
-                "select mse.metricDescription.metricId, mse.metricDescription.displayName, mse.metricDescription.taskData.id " +
-                        "from MetricSummaryEntity as mse where mse.metricDescription.taskData.id in (:taskIds)")
-                .setParameter("taskIds", taskIds)
-                .getResultList();
-    }
 }
