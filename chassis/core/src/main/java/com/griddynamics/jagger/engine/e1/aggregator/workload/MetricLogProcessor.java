@@ -202,24 +202,28 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
                 metricDescription.setMetricId(metricName);
             }else{
                 // if there are no aggregators - add default sum-aggregator
-                if (metricDescription.getAggregators().isEmpty()){
+                if (metricDescription.getAggregatorsWithSettings().isEmpty()){
                     log.warn("Aggregators not found for metric: '{}' in task: '{}'; Using default aggregator", metricName, taskData.getTaskId());
-                    metricDescription.getAggregators().add(new SumMetricAggregatorProvider());
+                    metricDescription.addAggregator(new SumMetricAggregatorProvider());
                 }
             }
 
             LogReader.FileReader<MetricLogEntry> fileReader = null;
             statistics = new LinkedList<MetricPointEntity>();
 
-            for (MetricAggregatorProvider entry: metricDescription.getAggregators()) {
+            for (MetricAggregatorProviderWithSettings entry: metricDescription.getAggregatorsWithSettings()) {
                 MetricAggregator overallMetricAggregator = null;
                 MetricAggregator intervalAggregator = null;
+                MetricAggregatorProviderWithSettings.Settings aggregatorSettings = entry.getSettings();
+
+                long normalizeByInterval = aggregatorSettings.getNormalizationBy().getMilliseconds();
+                long currentIntervalSize = getCurrentIntervalSize(intervalSize, aggregatorSettings);
 
                 if (metricDescription.getShowSummary())
-                    overallMetricAggregator= entry.provide();
+                    overallMetricAggregator= entry.getAggregatorProvider().provide();
 
                 if (metricDescription.getPlotData())
-                    intervalAggregator = entry.provide();
+                    intervalAggregator = entry.getAggregatorProvider().provide();
 
                 if ((metricDescription.getShowSummary()) || (metricDescription.getPlotData())) {
 
@@ -235,10 +239,10 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
 
                     MetricDescriptionEntity metricDescriptionEntity = persistMetricDescription(metricId, displayName);
 
-                    long currentInterval = aggregationInfo.getMinTime() + intervalSize;
-                    long time = intervalSize;
+                    long currentInterval = aggregationInfo.getMinTime() + currentIntervalSize;
+                    long time = currentIntervalSize;
 
-                    long extendedInterval = intervalSize;
+                    long extendedInterval = currentIntervalSize;
 
                     try {
                         fileReader = logReader.read(path, MetricLogEntry.class);
@@ -252,20 +256,24 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
                                         // we leave interval
                                         // we have some info in interval aggregator
                                         // we need to save it
-                                        statistics.add(new MetricPointEntity(time - extendedInterval / 2, aggregated.doubleValue(), metricDescriptionEntity));
+                                        double value = aggregated.doubleValue();
+                                        if (aggregatorSettings.isNormalizeByTimeRequired()) {
+                                            value = value * normalizeByInterval * 1d / extendedInterval;
+                                        }
+                                        statistics.add(new MetricPointEntity(time - extendedInterval / 2, value, metricDescriptionEntity));
                                         intervalAggregator.reset();
 
                                         // go for the next interval
-                                        extendedInterval = intervalSize;
-                                        time += intervalSize;
-                                        currentInterval += intervalSize;
+                                        extendedInterval = currentIntervalSize;
+                                        time += currentIntervalSize;
+                                        currentInterval += currentIntervalSize;
                                     }else{
                                         // current interval is empty
                                         // we will extend it
                                         while (logEntry.getTime() > currentInterval){
-                                            extendedInterval += intervalSize;
-                                            time += intervalSize;
-                                            currentInterval += intervalSize;
+                                            extendedInterval += currentIntervalSize;
+                                            time += currentIntervalSize;
+                                            currentInterval += currentIntervalSize;
                                         }
                                     }
                                 }
@@ -278,13 +286,22 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
                         if (metricDescription.getPlotData()) {
                             Number aggregated = intervalAggregator.getAggregated();
                             if (aggregated != null){
-                                statistics.add(new MetricPointEntity(time - extendedInterval / 2, aggregated.doubleValue(), metricDescriptionEntity));
+                                double value = aggregated.doubleValue();
+                                if (aggregatorSettings.isNormalizeByTimeRequired()) {
+                                    value = value * normalizeByInterval * 1d / extendedInterval;
+                                }
+                                statistics.add(new MetricPointEntity(time - extendedInterval / 2, value, metricDescriptionEntity));
                                 intervalAggregator.reset();
                             }
                         }
 
-                        if (metricDescription.getShowSummary())
-                            persistAggregatedMetricValue(overallMetricAggregator.getAggregated(), metricDescriptionEntity);
+                        if (metricDescription.getShowSummary()) {
+                            double value = overallMetricAggregator.getAggregated().doubleValue();
+                            if (aggregatorSettings.isNormalizeByTimeRequired()) {
+                                value = value * normalizeByInterval * 1d / time;
+                            }
+                            persistAggregatedMetricValue(value, metricDescriptionEntity);
+                        }
 
                     }
                     finally {
@@ -296,6 +313,21 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
             }
 
             return this;
+        }
+
+        private long getCurrentIntervalSize(int intervalSizeFromProperty, MetricAggregatorProviderWithSettings.Settings settings) {
+            long currentIntervalSize = intervalSizeFromProperty;
+            if (settings.getPointsCount() > 0) {
+                currentIntervalSize = (aggregationInfo.getMaxTime() - aggregationInfo.getMinTime())
+                        / settings.getPointsCount();
+                if (currentIntervalSize < 1)
+                    currentIntervalSize = 1;
+            }
+
+            if (settings.getAggregationInterval() > 0) {
+                currentIntervalSize = settings.getAggregationInterval();
+            }
+            return currentIntervalSize;
         }
 
 

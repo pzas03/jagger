@@ -15,7 +15,7 @@ public class MetricDescription implements Serializable{
     protected String displayName;
     protected boolean showSummary = true;
     protected boolean plotData;
-    protected List<MetricAggregatorProvider> aggregators = Lists.newArrayList();
+    protected List<MetricAggregatorProviderWithSettings> aggregatorsWithSettings = Lists.newArrayList();
 
     /** Constructor
      * @param metricId - main ID of the metric. Metric will be stored under this ID in DB */
@@ -46,16 +46,32 @@ public class MetricDescription implements Serializable{
     }
 
     /** Getter for metric aggregators
+     * @deprecated since 1.2.5 MetricDescription class contains list of wrappers of Aggregators. use getAggregatorsWithSettings;
      * @return list of aggregators assigned to this metric */
+    @Deprecated
     public List<MetricAggregatorProvider> getAggregators() {
-        return aggregators;
+        List<MetricAggregatorProvider> result = Lists.newArrayListWithCapacity(aggregatorsWithSettings.size());
+        for (MetricAggregatorProviderWithSettings mapws : aggregatorsWithSettings) {
+            result.add(mapws.getAggregatorProvider());
+        }
+        return result;
     }
     /** Setter for metric aggregators
      * @param aggregators - list of aggregators that will be applied to this metric during result processing. @n
      *                      If list will be empty Jagger will use default aggregator (summary).@n
      *                      You can use Jagger built in aggregators @ref Main_Aggregators_group or custom aggregators */
     public void setAggregators(List<MetricAggregatorProvider> aggregators) {
-        this.aggregators = aggregators;
+        for (MetricAggregatorProvider map : aggregators) {
+            aggregatorsWithSettings.add(new MetricAggregatorProviderWithSettings(map));
+        }
+    }
+
+    public List<MetricAggregatorProviderWithSettings> getAggregatorsWithSettings() {
+        return aggregatorsWithSettings;
+    }
+
+    public void setAggregatorsWithSettings(List<MetricAggregatorProviderWithSettings> aggregatorsWithSettings) {
+        this.aggregatorsWithSettings = aggregatorsWithSettings;
     }
 
     /** Getter for metric "show summary" boolean parameter
@@ -107,7 +123,17 @@ public class MetricDescription implements Serializable{
      *                     You can use Jagger built in aggregators @ref Main_Aggregators_group or custom aggregator
      * @return this MetricDescription */
     public MetricDescription addAggregator(MetricAggregatorProvider aggregator){
-        aggregators.add(aggregator);
+        aggregatorsWithSettings.add(new MetricAggregatorProviderWithSettings(aggregator));
+        return this;
+    }
+
+    /** Append new aggregator to list of metric aggregator with interval of time to normalize plot data.
+     * @param aggregator - aggregators that will be applied to this metric during result processing. @n
+     *                     You can use Jagger built in aggregators @ref Main_Aggregators_group or custom aggregator
+     * @param settings - settings of aggregator.
+     * @return this MetricDescription */
+    public MetricDescription addAggregator(MetricAggregatorProvider aggregator, MetricAggregatorProviderWithSettings.Settings settings){
+        aggregatorsWithSettings.add(new MetricAggregatorProviderWithSettings(aggregator, settings));
         return this;
     }
 }
