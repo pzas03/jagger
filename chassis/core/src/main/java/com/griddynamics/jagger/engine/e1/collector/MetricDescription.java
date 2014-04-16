@@ -51,8 +51,8 @@ public class MetricDescription implements Serializable{
     @Deprecated
     public List<MetricAggregatorProvider> getAggregators() {
         List<MetricAggregatorProvider> result = Lists.newArrayListWithCapacity(aggregatorsWithSettings.size());
-        for (MetricAggregatorProviderWithSettings mapws : aggregatorsWithSettings) {
-            result.add(mapws.getAggregatorProvider());
+        for (MetricAggregatorProviderWithSettings aggregatorWithSettings : aggregatorsWithSettings) {
+            result.add(aggregatorWithSettings.getAggregatorProvider());
         }
         return result;
     }
@@ -61,8 +61,8 @@ public class MetricDescription implements Serializable{
      *                      If list will be empty Jagger will use default aggregator (summary).@n
      *                      You can use Jagger built in aggregators @ref Main_Aggregators_group or custom aggregators */
     public void setAggregators(List<MetricAggregatorProvider> aggregators) {
-        for (MetricAggregatorProvider map : aggregators) {
-            aggregatorsWithSettings.add(new MetricAggregatorProviderWithSettings(map));
+        for (MetricAggregatorProvider aggregatorProvider : aggregators) {
+            aggregatorsWithSettings.add(new MetricAggregatorProviderWithSettings(aggregatorProvider));
         }
     }
 

@@ -62,41 +62,32 @@ public class MetricAggregatorProviderWithSettings {
 
         private static final Settings EMPTY_SETTINGS = new Settings();
 
-        private boolean normalizeByTimeRequired = false;
-        private TimeUnits normalizationBy = TimeUnits.SECOND;
-        private long aggregationInterval = 0;
+        private TimeUnits normalizationBy = TimeUnits.NONE;
+        private int aggregationInterval = 0;
         private int pointsCount = 0;
 
         public TimeUnits getNormalizationBy() {
             return normalizationBy;
         }
 
-        public void setNormalizationBy(TimeUnits normalizationBy) {
-            this.normalizationBy = normalizationBy;
-        }
-
-        public long getAggregationInterval() {
+        public int getAggregationInterval() {
             return aggregationInterval;
-        }
-
-        public void setAggregationInterval(long aggregationInterval) {
-            this.aggregationInterval = aggregationInterval;
         }
 
         public int getPointsCount() {
             return pointsCount;
         }
 
+        public void setNormalizationBy(TimeUnits normalizationBy) {
+            this.normalizationBy = normalizationBy;
+        }
+
+        public void setAggregationInterval(int aggregationInterval) {
+            this.aggregationInterval = aggregationInterval;
+        }
+
         public void setPointsCount(int pointsCount) {
             this.pointsCount = pointsCount;
-        }
-
-        public boolean isNormalizeByTimeRequired() {
-            return normalizeByTimeRequired;
-        }
-
-        public void setNormalizeByTimeRequired(boolean normalizeByTimeRequired) {
-            this.normalizeByTimeRequired = normalizeByTimeRequired;
         }
     }
 }

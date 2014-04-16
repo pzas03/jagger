@@ -31,11 +31,13 @@ import com.griddynamics.jagger.master.DistributionListener;
 import com.griddynamics.jagger.master.Master;
 import com.griddynamics.jagger.master.SessionIdProvider;
 import com.griddynamics.jagger.master.configuration.Task;
+import com.griddynamics.jagger.reporting.interval.CalculatedIntervalSizeProvider;
 import com.griddynamics.jagger.reporting.interval.IntervalSizeProvider;
 import com.griddynamics.jagger.storage.FileStorage;
 import com.griddynamics.jagger.storage.KeyValueStorage;
 import com.griddynamics.jagger.storage.Namespace;
 import com.griddynamics.jagger.storage.fs.logging.*;
+import com.griddynamics.jagger.util.TimeUnits;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.slf4j.Logger;
@@ -141,11 +143,7 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
                         //metric not collected
                         return;
                     }
-                    int intervalSize = intervalSizeProvider.getIntervalSize(aggregationInfo.getMinTime(), aggregationInfo.getMaxTime());
-                    if (intervalSize < 1) {
-                        intervalSize = 1;
-                    }
-                    StatisticsGenerator statisticsGenerator = new StatisticsGenerator(file, aggregationInfo, intervalSize, taskData).generate();
+                    StatisticsGenerator statisticsGenerator = new StatisticsGenerator(file, aggregationInfo, intervalSizeProvider, taskData).generate();
                     final Collection<MetricPointEntity> statistics = statisticsGenerator.getStatistics();
 
                     log.debug("BEGIN: Save to data base " + metricPath);
@@ -174,14 +172,14 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
     private class StatisticsGenerator {
         private String path;
         private AggregationInfo aggregationInfo;
-        private int intervalSize;
+        private IntervalSizeProvider intervalSizeProvider;
         private TaskData taskData;
         private Collection<MetricPointEntity> statistics;
 
-        public StatisticsGenerator(String path, AggregationInfo aggregationInfo,  int intervalSize, TaskData taskData) {
+        public StatisticsGenerator(String path, AggregationInfo aggregationInfo,  IntervalSizeProvider intervalSizeProvider, TaskData taskData) {
             this.path = path;
             this.aggregationInfo = aggregationInfo;
-            this.intervalSize = intervalSize;
+            this.intervalSizeProvider = intervalSizeProvider;
             this.taskData = taskData;
         }
 
@@ -216,8 +214,9 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
                 MetricAggregator intervalAggregator = null;
                 MetricAggregatorProviderWithSettings.Settings aggregatorSettings = entry.getSettings();
 
+                boolean normalizeByTimeRequired = aggregatorSettings.getNormalizationBy() != TimeUnits.NONE;
                 long normalizeByInterval = aggregatorSettings.getNormalizationBy().getMilliseconds();
-                long currentIntervalSize = getCurrentIntervalSize(intervalSize, aggregatorSettings);
+                long currentIntervalSize = getCurrentIntervalSize(intervalSizeProvider, aggregatorSettings, aggregationInfo);
 
                 if (metricDescription.getShowSummary())
                     overallMetricAggregator= entry.getAggregatorProvider().provide();
@@ -257,7 +256,7 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
                                         // we have some info in interval aggregator
                                         // we need to save it
                                         double value = aggregated.doubleValue();
-                                        if (aggregatorSettings.isNormalizeByTimeRequired()) {
+                                        if (normalizeByTimeRequired) {
                                             value = value * normalizeByInterval * 1d / extendedInterval;
                                         }
                                         statistics.add(new MetricPointEntity(time - extendedInterval / 2, value, metricDescriptionEntity));
@@ -287,7 +286,7 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
                             Number aggregated = intervalAggregator.getAggregated();
                             if (aggregated != null){
                                 double value = aggregated.doubleValue();
-                                if (aggregatorSettings.isNormalizeByTimeRequired()) {
+                                if (normalizeByTimeRequired) {
                                     value = value * normalizeByInterval * 1d / extendedInterval;
                                 }
                                 statistics.add(new MetricPointEntity(time - extendedInterval / 2, value, metricDescriptionEntity));
@@ -297,7 +296,7 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
 
                         if (metricDescription.getShowSummary()) {
                             double value = overallMetricAggregator.getAggregated().doubleValue();
-                            if (aggregatorSettings.isNormalizeByTimeRequired()) {
+                            if (normalizeByTimeRequired) {
                                 value = value * normalizeByInterval * 1d / time;
                             }
                             persistAggregatedMetricValue(value, metricDescriptionEntity);
@@ -315,17 +314,25 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
             return this;
         }
 
-        private long getCurrentIntervalSize(int intervalSizeFromProperty, MetricAggregatorProviderWithSettings.Settings settings) {
-            long currentIntervalSize = intervalSizeFromProperty;
-            if (settings.getPointsCount() > 0) {
-                currentIntervalSize = (aggregationInfo.getMaxTime() - aggregationInfo.getMinTime())
-                        / settings.getPointsCount();
+        private int getCurrentIntervalSize(IntervalSizeProvider intervalSizeProvider,
+                                            MetricAggregatorProviderWithSettings.Settings aggregatorSettings,
+                                            AggregationInfo aggregationInfo) {
+
+            long maxTime = aggregationInfo.getMaxTime();
+            long minTime = aggregationInfo.getMinTime();
+            int pointsCount = aggregatorSettings.getPointsCount();
+            int aggregationInterval = aggregatorSettings.getAggregationInterval();
+
+            int currentIntervalSize = intervalSizeProvider.getIntervalSize(minTime, maxTime);
+
+            if (aggregatorSettings.getPointsCount() > 0) {
+                currentIntervalSize = new CalculatedIntervalSizeProvider(pointsCount).getIntervalSize(minTime, maxTime);
                 if (currentIntervalSize < 1)
                     currentIntervalSize = 1;
             }
 
-            if (settings.getAggregationInterval() > 0) {
-                currentIntervalSize = settings.getAggregationInterval();
+            if (aggregatorSettings.getAggregationInterval() > 0) {
+                currentIntervalSize = aggregationInterval;
             }
             return currentIntervalSize;
         }

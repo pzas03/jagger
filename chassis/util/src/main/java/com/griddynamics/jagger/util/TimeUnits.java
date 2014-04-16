@@ -22,7 +22,7 @@ package com.griddynamics.jagger.util;
 
 public enum TimeUnits {
 
-    SECOND(1000), MINUTE(60000), HOUR(3600000);
+    NONE(0), SECOND(1000), MINUTE(60000), HOUR(3600000);
 
     private long milliseconds;
 
