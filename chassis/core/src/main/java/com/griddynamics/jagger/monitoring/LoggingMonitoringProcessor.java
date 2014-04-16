@@ -45,7 +45,7 @@ import java.util.Map;
  */
 public class LoggingMonitoringProcessor implements MonitoringProcessor {
     private Logger log = LoggerFactory.getLogger(LoggingMonitoringProcessor.class);
-    private Map<String,MetricDescription> jaggerOverrideForMonitoringMetrics;
+    private Map<String,MetricDescription> monitoringMetricsDescription;
 
     public static final String MONITORING_MARKER = "MONITORING";
 
@@ -102,9 +102,9 @@ public class LoggingMonitoringProcessor implements MonitoringProcessor {
         if (!createdMetrics.contains(serviceId, metricId)){
             MetricDescription metricDescription;
 
-            if (jaggerOverrideForMonitoringMetrics.containsKey(monitoringParameter.getId())) {
+            if (monitoringMetricsDescription.containsKey(monitoringParameter.getId())) {
                 // we will create monitoring metrics with overriding default setup
-                metricDescription = jaggerOverrideForMonitoringMetrics.get(monitoringParameter.getId());
+                metricDescription = monitoringMetricsDescription.get(monitoringParameter.getId());
 
                 // we will not save this metric
                 if ((!metricDescription.getShowSummary()) && (!metricDescription.getPlotData())) {
@@ -139,8 +139,8 @@ public class LoggingMonitoringProcessor implements MonitoringProcessor {
     }
 
     @Required
-    public void setJaggerOverrideForMonitoringMetrics(Map<String, MetricDescription> jaggerOverrideForMonitoringMetrics) {
-        this.jaggerOverrideForMonitoringMetrics = jaggerOverrideForMonitoringMetrics;
+    public void setMonitoringMetricsDescription(Map<String, MetricDescription> monitoringMetricsDescription) {
+        this.monitoringMetricsDescription = monitoringMetricsDescription;
     }
 
 }
