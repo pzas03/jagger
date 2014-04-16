@@ -49,10 +49,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -200,7 +197,7 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
                 metricDescription.setMetricId(metricName);
             }else{
                 // if there are no aggregators - add default sum-aggregator
-                if (metricDescription.getAggregatorsWithSettings().isEmpty()){
+                if (metricDescription.getAggregators().isEmpty()){
                     log.warn("Aggregators not found for metric: '{}' in task: '{}'; Using default aggregator", metricName, taskData.getTaskId());
                     metricDescription.addAggregator(new SumMetricAggregatorProvider());
                 }
@@ -209,20 +206,20 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
             LogReader.FileReader<MetricLogEntry> fileReader = null;
             statistics = new LinkedList<MetricPointEntity>();
 
-            for (MetricAggregatorProviderWithSettings entry: metricDescription.getAggregatorsWithSettings()) {
+            for (Map.Entry<MetricAggregatorProvider, MetricAggregatorSettings> entry : metricDescription.getSettingsMap().entrySet()) {
                 MetricAggregator overallMetricAggregator = null;
                 MetricAggregator intervalAggregator = null;
-                MetricAggregatorProviderWithSettings.Settings aggregatorSettings = entry.getSettings();
+                MetricAggregatorSettings aggregatorSettings = entry.getValue();
 
                 boolean normalizeByTimeRequired = aggregatorSettings.getNormalizationBy() != TimeUnits.NONE;
                 long normalizeByInterval = aggregatorSettings.getNormalizationBy().getMilliseconds();
-                long currentIntervalSize = getCurrentIntervalSize(intervalSizeProvider, aggregatorSettings, aggregationInfo);
+                long intervalSize = getIntervalSize(intervalSizeProvider, aggregatorSettings, aggregationInfo);
 
                 if (metricDescription.getShowSummary())
-                    overallMetricAggregator= entry.getAggregatorProvider().provide();
+                    overallMetricAggregator = entry.getKey().provide();
 
                 if (metricDescription.getPlotData())
-                    intervalAggregator = entry.getAggregatorProvider().provide();
+                    intervalAggregator = entry.getKey().provide();
 
                 if ((metricDescription.getShowSummary()) || (metricDescription.getPlotData())) {
 
@@ -238,10 +235,10 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
 
                     MetricDescriptionEntity metricDescriptionEntity = persistMetricDescription(metricId, displayName);
 
-                    long currentInterval = aggregationInfo.getMinTime() + currentIntervalSize;
-                    long time = currentIntervalSize;
+                    long currentInterval = aggregationInfo.getMinTime() + intervalSize;
+                    long time = intervalSize;
 
-                    long extendedInterval = currentIntervalSize;
+                    long extendedInterval = intervalSize;
 
                     try {
                         fileReader = logReader.read(path, MetricLogEntry.class);
@@ -263,16 +260,16 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
                                         intervalAggregator.reset();
 
                                         // go for the next interval
-                                        extendedInterval = currentIntervalSize;
-                                        time += currentIntervalSize;
-                                        currentInterval += currentIntervalSize;
+                                        extendedInterval = intervalSize;
+                                        time += intervalSize;
+                                        currentInterval += intervalSize;
                                     }else{
                                         // current interval is empty
                                         // we will extend it
                                         while (logEntry.getTime() > currentInterval){
-                                            extendedInterval += currentIntervalSize;
-                                            time += currentIntervalSize;
-                                            currentInterval += currentIntervalSize;
+                                            extendedInterval += intervalSize;
+                                            time += intervalSize;
+                                            currentInterval += intervalSize;
                                         }
                                     }
                                 }
@@ -314,8 +311,8 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
             return this;
         }
 
-        private int getCurrentIntervalSize(IntervalSizeProvider intervalSizeProvider,
-                                            MetricAggregatorProviderWithSettings.Settings aggregatorSettings,
+        private int getIntervalSize(IntervalSizeProvider intervalSizeProvider,
+                                            MetricAggregatorSettings aggregatorSettings,
                                             AggregationInfo aggregationInfo) {
 
             long maxTime = aggregationInfo.getMaxTime();
@@ -323,18 +320,18 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
             int pointsCount = aggregatorSettings.getPointsCount();
             int aggregationInterval = aggregatorSettings.getAggregationInterval();
 
-            int currentIntervalSize = intervalSizeProvider.getIntervalSize(minTime, maxTime);
+            int intervalSize = intervalSizeProvider.getIntervalSize(minTime, maxTime);
 
-            if (aggregatorSettings.getPointsCount() > 0) {
-                currentIntervalSize = new CalculatedIntervalSizeProvider(pointsCount).getIntervalSize(minTime, maxTime);
-                if (currentIntervalSize < 1)
-                    currentIntervalSize = 1;
+            if (pointsCount > 0) {
+                intervalSize = new CalculatedIntervalSizeProvider(pointsCount).getIntervalSize(minTime, maxTime);
+                if (intervalSize < 1)
+                    intervalSize = 1;
             }
 
-            if (aggregatorSettings.getAggregationInterval() > 0) {
-                currentIntervalSize = aggregationInterval;
+            if (aggregationInterval > 0) {
+                intervalSize = aggregationInterval;
             }
-            return currentIntervalSize;
+            return intervalSize;
         }
 
 
