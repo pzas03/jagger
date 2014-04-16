@@ -328,22 +328,20 @@ public final class JaggerLauncher {
         if (userBootPropertiesLocationsString == null) {
             userBootPropertiesLocationsString = environmentProperties.getProperty(USER_ENVIRONMENT_PROPERTIES);
         }
-        if(userBootPropertiesLocationsString != null){
-            String[] userBootPropertiesSingleLocations = userBootPropertiesLocationsString.split(",");
-
-            for (String location : userBootPropertiesSingleLocations) {
-                URL userBootPropertiesFile = new URL(directory, location);
-                Properties userBootProperties = new Properties();
-                userBootProperties.load(userBootPropertiesFile.openStream());
-
-                for (String name : userBootProperties.stringPropertyNames()) {
-                    // overwrite due to higher priority
-                    environmentProperties.setProperty(name, userBootProperties.getProperty(name));
-                }
-            }
-        }
-        else {
+        if (userBootPropertiesLocationsString == null) {
             userBootPropertiesLocationsString = DEFAULT_USER_ENVIRONMENT_PROPERTIES_LOCATION;
+        }
+        String[] userBootPropertiesSingleLocations = userBootPropertiesLocationsString.split(",");
+
+        for (String location : userBootPropertiesSingleLocations) {
+            URL userBootPropertiesFile = new URL(directory, location);
+            Properties userBootProperties = new Properties();
+            userBootProperties.load(userBootPropertiesFile.openStream());
+
+            for (String name : userBootProperties.stringPropertyNames()) {
+                // overwrite due to higher priority
+                environmentProperties.setProperty(name, userBootProperties.getProperty(name));
+            }
         }
 
         // default properties
