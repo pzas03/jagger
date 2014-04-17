@@ -568,7 +568,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         Map<TaskDataDto, List<MetricNode>> result = new HashMap<TaskDataDto, List<MetricNode>>();
 
         for (MetricNameDto mnd : list) {
-            if ((mnd.getMetricName().equals("")) || (mnd.getMetricName() == null)) {
+            if ((mnd.getMetricName() == null) || (mnd.getMetricName().equals(""))) {
                 log.warn("Metric with undefined id detected. It will be ignored. Details: " + mnd);
             }
             else {
@@ -615,7 +615,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             log.debug("For sessions {} are available these plots: {}", sessionIds, metricNameDtoList);
 
             for (MetricNameDto pnd : metricNameDtoList) {
-                if ((pnd.getMetricName().equals("")) || (pnd.getMetricName() == null)) {
+                if ((pnd.getMetricName() == null) || (pnd.getMetricName().equals(""))) {
                     log.warn("Metric with undefined id detected. It will be ignored. Details: " + pnd);
                 }
                 else {
