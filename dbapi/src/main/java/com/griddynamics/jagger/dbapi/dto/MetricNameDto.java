@@ -59,6 +59,8 @@ public class MetricNameDto extends MetricName {
         return "MetricNameDto{" +
                 (test != null ? "taskIds=" + test.getIds() : "") +
                 ", metricName='" + metricName + '\'' +
+                ", metricDisplayName='" + metricDisplayName + '\'' +
+                ", origin='" + origin + '\'' +
                 '}';
     }
 
