@@ -20,6 +20,8 @@
 
 package com.griddynamics.jagger.util;
 
+/** Class that describes settings for normalization vs time
+ */
 public enum TimeUnits {
 
     NONE(0), SECOND(1000), MINUTE(60000), HOUR(3600000);
