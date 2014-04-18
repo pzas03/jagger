@@ -197,4 +197,8 @@ public class XMLConstants {
     public static final String NEED_SAVE_SUMMARY = "showSummary";
     public static final String METRIC_AGGREGATOR_PROVIDER = "metricAggregatorProvider";
     public static final String METRIC_DESCRIPTION = "metricDescription";
+    public static final String AGGREGATORS_SETTINGS_MAP = "aggregatorsSettingsMap";
+    public static final String NORMALIZE_BY = "normalizeBy";
+    public static final String POINTS_COUNT = "pointsCount";
+    public static final String AGGREGATION_INTERVAL = "aggregationInterval";
 }

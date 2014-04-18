@@ -206,7 +206,7 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
             LogReader.FileReader<MetricLogEntry> fileReader = null;
             statistics = new LinkedList<MetricPointEntity>();
 
-            for (Map.Entry<MetricAggregatorProvider, MetricAggregatorSettings> entry : metricDescription.getSettingsMap().entrySet()) {
+            for (Map.Entry<MetricAggregatorProvider, MetricAggregatorSettings> entry : metricDescription.getAggregatorsSettingsMap().entrySet()) {
                 MetricAggregator overallMetricAggregator = null;
                 MetricAggregator intervalAggregator = null;
                 MetricAggregatorSettings aggregatorSettings = entry.getValue();
