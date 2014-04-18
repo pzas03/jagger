@@ -22,58 +22,48 @@ package com.griddynamics.jagger.engine.e1.collector;
 
 import com.griddynamics.jagger.util.TimeUnits;
 
-/**
- * Class that describes settings of aggregator
+/** Class that describes settings of aggregator
+ * @details With help of this class you can define: @n
+ * @li aggregation interval for metric or number of saved points
+ * @li normalisation of metric vs time
+ *
  */
 public class MetricAggregatorSettings {
 
-    /**
-     * Empty settings that not affect data processing.
+    /** Empty settings that not affect data processing. Used when no additional settings required for aggregation
      */
     public static final MetricAggregatorSettings EMPTY_SETTINGS = new MetricAggregatorSettings();
 
-    /**
-     * Interval of time to normalize values by it.
-     * */
+    /** Interval of time to normalize values by it */
     private TimeUnits normalizationBy = TimeUnits.NONE;
-
-    /**
-     * Size of interval in milliseconds to aggregate values on it.
-     */
+    /** Size of interval in milliseconds to aggregate values on it */
     private int aggregationInterval = 0;
-
-    /**
-     * Maximum number of points on plot.
-     */
+    /**Maximum number of points on plot */
     private int pointsCount = 0;
 
 
-    /**
-     * Getter for normalization interval
+    /** Getter for normalization interval
      * @return Normalization interval
      */
     public TimeUnits getNormalizationBy() {
         return normalizationBy;
     }
 
-    /**
-     * Getter for aggregation interval
+    /** Getter for aggregation interval
      * @return Aggregation interval
      */
     public int getAggregationInterval() {
         return aggregationInterval;
     }
 
-    /**
-     * Getter for points count
+    /** Getter for points count
      * @return Points count
      */
     public int getPointsCount() {
         return pointsCount;
     }
 
-    /**
-     * Setter for normalization interval. Aggregated values will be normalized by this interval. @n
+    /** Setter for normalization interval. Aggregated values will be normalized by this interval. @n
      * Use TimeUtils.NONE if normalization not required.
      * @param normalizationBy Normalization interval
      */
@@ -81,8 +71,7 @@ public class MetricAggregatorSettings {
         this.normalizationBy = normalizationBy;
     }
 
-    /**
-     * Setter for aggregation interval. Aggregator will aggregate values on this interval in milliseconds. @n
+    /** Setter for aggregation interval. Aggregator will aggregate values on this interval in milliseconds. @n
      * !Note that aggregationInterval has higher priority then pointsCount
      * @param aggregationInterval Aggregation interval
      */
@@ -90,8 +79,7 @@ public class MetricAggregatorSettings {
         this.aggregationInterval = aggregationInterval;
     }
 
-    /**
-     * Setter for points count. Indicates maximum number of points on plot. @n
+    /** Setter for points count. Indicates maximum number of points on plot. @n
      * !Note that aggregationInterval has higher priority then pointsCount
      * @param pointsCount Points count;
      */
