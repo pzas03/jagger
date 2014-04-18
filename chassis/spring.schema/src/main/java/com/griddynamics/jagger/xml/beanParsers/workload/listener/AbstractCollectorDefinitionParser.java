@@ -23,7 +23,7 @@ import com.griddynamics.jagger.engine.e1.collector.*;
 import com.griddynamics.jagger.engine.e1.collector.MetricDescription;
 import com.griddynamics.jagger.util.TimeUnits;
 import com.griddynamics.jagger.xml.beanParsers.XMLConstants;
-import org.springframework.beans.factory.config.BeanDefinitionHolder;
+import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.beans.factory.xml.AbstractSimpleBeanDefinitionParser;
@@ -65,8 +65,18 @@ public abstract class AbstractCollectorDefinitionParser extends AbstractSimpleBe
 
         ManagedMap aggregatorsSettingsMap = getAggregatorsSettingsMap(element, parserContext, builder);
 
+        if (aggregatorsSettingsMap.isEmpty()) {
+            for (MetricAggregatorProvider aggregatorProvider : getAggregators()) {
+                aggregatorsSettingsMap.put(aggregatorProvider, MetricAggregatorSettings.EMPTY_SETTINGS);
+            }
+
+            if (name == null) {
+                name = getDefaultCollectorName();
+            }
+        }
+
         if (name == null) {
-            name = getDefaultCollectorName();
+            name = XMLConstants.DEFAULT_METRIC_NAME;
         }
 
         builder.addPropertyValue(XMLConstants.NAME, name);
@@ -103,7 +113,7 @@ public abstract class AbstractCollectorDefinitionParser extends AbstractSimpleBe
         return settings;
     }
 
-    public ManagedMap getAggregatorsSettingsMap(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
+    private ManagedMap getAggregatorsSettingsMap(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
 
         ManagedMap map = new ManagedMap();
 
@@ -111,17 +121,22 @@ public abstract class AbstractCollectorDefinitionParser extends AbstractSimpleBe
         if (elements != null && !elements.isEmpty()){
             for (Element el : elements){
                 MetricAggregatorSettings settings = getAggregatorsSettings(el);
-                BeanDefinitionHolder bb = (BeanDefinitionHolder)parserContext.getDelegate().parsePropertySubElement(el,  builder.getBeanDefinition());
-                map.put(bb, settings);
+
+                Object aggregator;
+                if (el.hasAttribute(XMLConstants.ATTRIBUTE_REF)) {
+                    String ref = el.getAttribute(XMLConstants.ATTRIBUTE_REF);
+                    if (!ref.isEmpty()) {
+                        aggregator = new RuntimeBeanReference(ref);
+                    } else {
+                        aggregator = parserContext.getDelegate().parsePropertySubElement(el, builder.getBeanDefinition());
+                    }
+                } else {
+                    aggregator = parserContext.getDelegate().parsePropertySubElement(el, builder.getBeanDefinition());
+                }
+
+                map.put(aggregator, settings);
             }
         }
-
-        if (map.isEmpty()) {
-            for (MetricAggregatorProvider aggregatorProvider : getAggregators()) {
-                map.put(aggregatorProvider, MetricAggregatorSettings.EMPTY_SETTINGS);
-            }
-        }
-
         return map;
     }
 
