@@ -568,16 +568,21 @@ public class DatabaseServiceImpl implements DatabaseService {
         Map<TaskDataDto, List<MetricNode>> result = new HashMap<TaskDataDto, List<MetricNode>>();
 
         for (MetricNameDto mnd : list) {
-            for (TaskDataDto tdd : tddos) {
-                if (tdd.getIds().containsAll(mnd.getTaskIds())) {
-                    if (!result.containsKey(tdd)) {
-                        result.put(tdd, new ArrayList<MetricNode>());
+            if ((mnd.getMetricName() == null) || (mnd.getMetricName().equals(""))) {
+                log.warn("Metric with undefined id detected. It will be ignored. Details: " + mnd);
+            }
+            else {
+                for (TaskDataDto tdd : tddos) {
+                    if (tdd.getIds().containsAll(mnd.getTaskIds())) {
+                        if (!result.containsKey(tdd)) {
+                            result.put(tdd, new ArrayList<MetricNode>());
+                        }
+                        MetricNode mn = new MetricNode();
+                        String id = NameTokens.SUMMARY_PREFIX + tdd.hashCode() + mnd.getMetricName();
+                        mn.init(id, mnd.getMetricDisplayName(), Arrays.asList(mnd));
+                        result.get(tdd).add(mn);
+                        break;
                     }
-                    MetricNode mn = new MetricNode();
-                    String id = NameTokens.SUMMARY_PREFIX + tdd.hashCode() + mnd.getMetricName();
-                    mn.init(id, mnd.getMetricDisplayName(), Arrays.asList(mnd));
-                    result.get(tdd).add(mn);
-                    break;
                 }
             }
         }
@@ -610,16 +615,21 @@ public class DatabaseServiceImpl implements DatabaseService {
             log.debug("For sessions {} are available these plots: {}", sessionIds, metricNameDtoList);
 
             for (MetricNameDto pnd : metricNameDtoList) {
-                for (TaskDataDto tdd : taskList) {
-                    if (tdd.getIds().containsAll(pnd.getTaskIds())) {
-                        if (!result.containsKey(tdd)) {
-                            result.put(tdd, new ArrayList<PlotNode>());
+                if ((pnd.getMetricName() == null) || (pnd.getMetricName().equals(""))) {
+                    log.warn("Metric with undefined id detected. It will be ignored. Details: " + pnd);
+                }
+                else {
+                    for (TaskDataDto tdd : taskList) {
+                        if (tdd.getIds().containsAll(pnd.getTaskIds())) {
+                            if (!result.containsKey(tdd)) {
+                                result.put(tdd, new ArrayList<PlotNode>());
+                            }
+                            PlotNode pn = new PlotNode();
+                            String id = NameTokens.METRICS_PREFIX + tdd.hashCode() + pnd.getMetricName();
+                            pn.init(id, pnd.getMetricDisplayName(), Arrays.asList(pnd));
+                            result.get(tdd).add(pn);
+                            break;
                         }
-                        PlotNode pn = new PlotNode();
-                        String id = NameTokens.METRICS_PREFIX + tdd.hashCode() + pnd.getMetricName();
-                        pn.init(id, pnd.getMetricDisplayName(), Arrays.asList(pnd));
-                        result.get(tdd).add(pn);
-                        break;
                     }
                 }
             }
