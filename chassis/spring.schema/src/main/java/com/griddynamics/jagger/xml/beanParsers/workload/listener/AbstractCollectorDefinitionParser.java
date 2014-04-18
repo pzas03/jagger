@@ -92,13 +92,13 @@ public abstract class AbstractCollectorDefinitionParser extends AbstractSimpleBe
             settings.setNormalizationBy(TimeUnits.valueOf(element.getAttribute(XMLConstants.NORMALIZE_BY)));
             element.removeAttribute(XMLConstants.NORMALIZE_BY);
         }
-        if (element.hasAttribute(XMLConstants.POINTS_COUNT)) {
-            settings.setPointsCount(Integer.valueOf(element.getAttribute(XMLConstants.POINTS_COUNT)));
-            element.removeAttribute(XMLConstants.POINTS_COUNT);
+        if (element.hasAttribute(XMLConstants.POINT_COUNT)) {
+            settings.setPointCount(Integer.valueOf(element.getAttribute(XMLConstants.POINT_COUNT)));
+            element.removeAttribute(XMLConstants.POINT_COUNT);
         }
-        if (element.hasAttribute(XMLConstants.AGGREGATION_INTERVAL)) {
-            settings.setAggregationInterval(Integer.valueOf(element.getAttribute(XMLConstants.AGGREGATION_INTERVAL)));
-            element.removeAttribute(XMLConstants.AGGREGATION_INTERVAL);
+        if (element.hasAttribute(XMLConstants.POINT_INTERVAL)) {
+            settings.setPointInterval(Integer.valueOf(element.getAttribute(XMLConstants.POINT_INTERVAL)));
+            element.removeAttribute(XMLConstants.POINT_INTERVAL);
         }
         return settings;
     }

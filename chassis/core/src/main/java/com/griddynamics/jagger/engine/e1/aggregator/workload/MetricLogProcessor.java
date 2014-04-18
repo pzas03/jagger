@@ -317,8 +317,8 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
 
             long maxTime = aggregationInfo.getMaxTime();
             long minTime = aggregationInfo.getMinTime();
-            int pointsCount = aggregatorSettings.getPointsCount();
-            int aggregationInterval = aggregatorSettings.getAggregationInterval();
+            int pointsCount = aggregatorSettings.getPointCount();
+            int aggregationInterval = aggregatorSettings.getPointInterval();
 
             int intervalSize = intervalSizeProvider.getIntervalSize(minTime, maxTime);
 
