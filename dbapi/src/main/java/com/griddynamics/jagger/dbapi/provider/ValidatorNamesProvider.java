@@ -2,9 +2,7 @@ package com.griddynamics.jagger.dbapi.provider;
 
 import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
 import com.griddynamics.jagger.dbapi.dto.TaskDataDto;
-import com.griddynamics.jagger.dbapi.entity.WorkloadProcessLatencyPercentile;
 import com.griddynamics.jagger.dbapi.util.DataProcessingUtil;
-import com.griddynamics.jagger.dbapi.util.MetricNameUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,11 +15,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Created by kgribov on 4/7/14.
- */
-public class StandardMetricNameProvider {
-    private Logger log = LoggerFactory.getLogger(StandardMetricNameProvider.class);
+public class ValidatorNamesProvider implements MetricNameProvider {
+
+    private Logger log = LoggerFactory.getLogger(ValidatorNamesProvider.class);
 
     private EntityManager entityManager;
 
@@ -30,13 +26,8 @@ public class StandardMetricNameProvider {
         this.entityManager = entityManager;
     }
 
-    /**
-     * Fetch validators names from database
-     * @param tests tests data
-     * @return set of MetricNameDto representing name of validator
-     */
-    public Set<MetricNameDto> getValidatorsNames(List<TaskDataDto> tests){
-
+    @Override
+    public Set<MetricNameDto> getMetricNames(List<TaskDataDto> tests) {
         Set<Long> taskIds = new HashSet<Long>();
         Set<String> sessionIds = new HashSet<String>();
         for (TaskDataDto tdd : tests) {
@@ -114,7 +105,7 @@ public class StandardMetricNameProvider {
             log.debug("{} ms spent for fetching {} validators", System.currentTimeMillis() - temp, validatorNames.size());
 
             if (validatorNames.isEmpty()) {
-                return Collections.EMPTY_SET;
+                return Collections.emptySet();
             }
             Set<MetricNameDto> validators = new HashSet<MetricNameDto>(validatorNames.size());
 
@@ -140,43 +131,4 @@ public class StandardMetricNameProvider {
         }
     }
 
-    public Set<MetricNameDto> getLatencyMetricsNames(List<TaskDataDto> tests){
-        Set<MetricNameDto> latencyNames;
-
-        Set<Long> testIds = new HashSet<Long>();
-        for (TaskDataDto tdd : tests) {
-            testIds.addAll(tdd.getIds());
-        }
-
-        long temp = System.currentTimeMillis();
-        List<WorkloadProcessLatencyPercentile> latency = entityManager.createQuery(
-                "select s from  WorkloadProcessLatencyPercentile as s where s.workloadProcessDescriptiveStatistics.taskData.id in (:taskIds) ")
-                .setParameter("taskIds", testIds)
-                .getResultList();
-
-
-        log.debug("{} ms spent for Latency Percentile fetching (size ={})", System.currentTimeMillis() - temp, latency.size());
-
-        latencyNames = new HashSet<MetricNameDto>(latency.size());
-
-        if (!latency.isEmpty()){
-
-
-            for(WorkloadProcessLatencyPercentile percentile : latency) {
-                for (TaskDataDto tdd : tests) {
-
-                    if (tdd.getIds().contains(percentile.getWorkloadProcessDescriptiveStatistics().getTaskData().getId())) {
-                        MetricNameDto dto = new MetricNameDto();
-                        dto.setMetricName(MetricNameUtil.getLatencyMetricName(percentile.getPercentileKey()));
-                        dto.setMetricDisplayName(MetricNameUtil.getLatencyMetricName(percentile.getPercentileKey()));
-                        dto.setTest(tdd);
-                        dto.setOrigin(MetricNameDto.Origin.LATENCY_PERCENTILE);
-                        latencyNames.add(dto);
-                        break;
-                    }
-                }
-            }
-        }
-        return latencyNames;
-    }
 }
