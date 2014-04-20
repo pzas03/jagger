@@ -153,7 +153,7 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
 
         RootNode rootNode = databaseService.getControlTreeForSessions(new HashSet<String>(Arrays.asList(sessionId)));
         DetailsNode detailsNode = rootNode.getDetailsNode();
-        if (detailsNode.getTests().isEmpty() && detailsNode.getChildren().isEmpty())
+        if (detailsNode.getChildren().isEmpty())
             return;
 
         for (TestDetailsNode testDetailsNode : detailsNode.getTests()) {
