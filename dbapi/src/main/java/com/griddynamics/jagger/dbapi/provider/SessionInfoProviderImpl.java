@@ -91,9 +91,14 @@ public class SessionInfoProviderImpl implements SessionInfoProvider {
     }
 
     public Long getTotalSizeByTags(Set<String> sessionTagNames){
-        return ((Long) entityManager.createNativeQuery("select count(distinct ste.sessions_id) from SessionTagEntity as ste where ste.tags_name in (:sessionTagNames)")
-                                            .setParameter("sessionTagNames", new ArrayList<String>(sessionTagNames))
-                                            .getSingleResult()).longValue();
+        if (webClientProperties.isTagsStoreAvailable()) {
+            return ((BigInteger) entityManager.createNativeQuery("select count(distinct ste.sessions_id) from SessionTagEntity as ste where ste.tags_name in (:sessionTagNames)")
+                                                .setParameter("sessionTagNames", new ArrayList<String>(sessionTagNames))
+                                                .getSingleResult()).longValue();
+        }
+        else {
+            return 0L;
+        }
     }
 
     public Long getFirstPosition(Set<String> selectedIds) throws RuntimeException {
@@ -331,13 +336,15 @@ public class SessionInfoProviderImpl implements SessionInfoProvider {
     }
 
     public List<SessionDataDto> getBySessionTagsName(int start, int length, Set<String> sessionTagNames) {
+        if (!webClientProperties.isTagsStoreAvailable())
+            return Collections.<SessionDataDto>emptyList();
+
         checkArgument(start >= 0, "start is negative");
         checkArgument(length >= 0, "length is negative");
         checkNotNull(sessionTagNames, "sessionTagNames is null");
 
         long timestamp = System.currentTimeMillis();
 
-        long totalSize;
         List<SessionDataDto> sessionDataDtoList;
         List<Long> sessionIds = new ArrayList<Long>();
         List<BigInteger> ids;
