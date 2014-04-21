@@ -227,8 +227,8 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
                     MetricAggregator nameAggregator = overallMetricAggregator == null ? intervalAggregator : overallMetricAggregator;
 
                     String aggregatorName = nameAggregator.getName();
-                    String aggregatorIdSuffix = createIdFromName(aggregatorName,normalizeByIntervalValue);
-                    String aggregatorDisplayNameSuffix = createAggregatorDisplayNameSuffix(aggregatorName,normalizeByIntervalValue);
+                    String aggregatorIdSuffix = createIdFromName(aggregatorName, normalizeByIntervalValue);
+                    String aggregatorDisplayNameSuffix = createAggregatorDisplayNameSuffix(aggregatorName, normalizeByIntervalValue);
 
                     String displayName = (metricDescription.getDisplayName() == null ? metricDescription.getMetricId() :
                     metricDescription.getDisplayName()) + aggregatorDisplayNameSuffix;
@@ -318,8 +318,8 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
 
             long maxTime = aggregationInfo.getMaxTime();
             long minTime = aggregationInfo.getMinTime();
-            int pointsCount = aggregatorSettings.getPointsCount();
-            int aggregationInterval = aggregatorSettings.getAggregationInterval();
+            int pointsCount = aggregatorSettings.getPointCount();
+            int aggregationInterval = aggregatorSettings.getPointInterval();
 
             int intervalSize = intervalSizeProvider.getIntervalSize(minTime, maxTime);
 

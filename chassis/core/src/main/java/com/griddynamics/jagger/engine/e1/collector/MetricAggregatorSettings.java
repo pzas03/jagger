@@ -37,9 +37,9 @@ public class MetricAggregatorSettings {
     /** Interval of time to normalize values by it */
     private TimeUnits normalizationBy = TimeUnits.NONE;
     /** Size of interval in milliseconds to aggregate values on it */
-    private int aggregationInterval = 0;
+    private int pointInterval = 0;
     /**Maximum number of points on plot */
-    private int pointsCount = 0;
+    private int pointCount = 0;
 
 
     /** Getter for normalization interval
@@ -52,15 +52,15 @@ public class MetricAggregatorSettings {
     /** Getter for aggregation interval
      * @return Aggregation interval
      */
-    public int getAggregationInterval() {
-        return aggregationInterval;
+    public int getPointInterval() {
+        return pointInterval;
     }
 
     /** Getter for points count
      * @return Points count
      */
-    public int getPointsCount() {
-        return pointsCount;
+    public int getPointCount() {
+        return pointCount;
     }
 
     /** Setter for normalization interval. Aggregated values will be normalized by this interval. @n
@@ -72,18 +72,18 @@ public class MetricAggregatorSettings {
     }
 
     /** Setter for aggregation interval. Aggregator will aggregate values on this interval in milliseconds. @n
-     * !Note that aggregationInterval has higher priority then pointsCount
-     * @param aggregationInterval Aggregation interval
+     * !Note that pointInterval has higher priority then pointCount
+     * @param pointInterval Aggregation interval
      */
-    public void setAggregationInterval(int aggregationInterval) {
-        this.aggregationInterval = aggregationInterval;
+    public void setPointInterval(int pointInterval) {
+        this.pointInterval = pointInterval;
     }
 
     /** Setter for points count. Indicates maximum number of points on plot. @n
-     * !Note that aggregationInterval has higher priority then pointsCount
-     * @param pointsCount Points count;
+     * !Note that pointInterval has higher priority then pointCount
+     * @param pointCount Points count;
      */
-    public void setPointsCount(int pointsCount) {
-        this.pointsCount = pointsCount;
+    public void setPointCount(int pointCount) {
+        this.pointCount = pointCount;
     }
 }
