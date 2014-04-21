@@ -11,9 +11,7 @@ import com.griddynamics.jagger.engine.e1.sessioncomparation.DecisionMakerInfo;
 import com.griddynamics.jagger.engine.e1.sessioncomparation.TestGroupDecisionMakerListener;
 import com.griddynamics.jagger.master.configuration.Task;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -46,9 +44,17 @@ public class DecisionMakerDistributionListener implements DistributionListener {
                     nodeContext,
                     JaggerPlace.TEST_GROUP_DECISION_MAKER_LISTENER));
 
-            //???
-            RootNode rootNode = databaseService.getControlTreeForSessions(new HashSet<String>(Arrays.asList(sessionId)));
-            SummaryNode summaryNode = rootNode.getSummaryNode();
+//            //???
+//            RootNode rootNode = databaseService.getControlTreeForSessions(new HashSet<String>(Arrays.asList(sessionId)));
+//            SummaryNode summaryNode = rootNode.getSummaryNode();
+//
+//
+//            CompositeTask compositeTask = (CompositeTask) task;
+//            List<CompositableTask> children = new ArrayList<CompositableTask>();
+//            children.addAll(compositeTask.getAttendant());
+//            children.addAll(compositeTask.getLeading());
+//
+//            //summaryNode.getTests()
 
 
 

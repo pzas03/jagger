@@ -118,14 +118,6 @@
         <property name="monitoringPlotGroups" ref="monitoringPlotGroups"/>
     </bean>
 
-
-    <!-- @deprecated another conception of control since jagger 1.2.2-m3
-    <bean id="taskDataService" class="com.griddynamics.jagger.webclient.server.TaskDataServiceImpl"/>
-
-    <bean id="workloadDataService" class="com.griddynamics.jagger.webclient.server.WorkloadServiceImpl"/>
-    <bean id="workloadTaskDataService" class="com.griddynamics.jagger.webclient.server.WorkloadTaskDataServiceImpl"/>
-    -->
-
     <bean id="databaseService" class="com.griddynamics.jagger.dbapi.DatabaseServiceImpl">
         <property name="threadPool" ref="executorService"/>
 
