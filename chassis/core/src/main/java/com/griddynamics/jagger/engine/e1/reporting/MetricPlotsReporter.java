@@ -145,11 +145,12 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
         return new JRBeanCollectionDataSource(Collections.singleton(result));
     }
 
+    // Session scope plots isn't available (JFG-724)
     private void createFromTree() {
 
         plots = new HashMap<Long, MetricPlotDTOs>();
 
-        Set<MetricNode> allMetrics = new LinkedHashSet<MetricNode>();
+        Set<MetricNode> allMetrics = new HashSet<MetricNode>();
 
         RootNode rootNode = databaseService.getControlTreeForSessions(new HashSet<String>(Arrays.asList(sessionId)));
         DetailsNode detailsNode = rootNode.getDetailsNode();
@@ -157,7 +158,7 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
             return;
 
         for (TestDetailsNode testDetailsNode : detailsNode.getTests()) {
-            allMetrics.addAll(getAllMetrics(testDetailsNode));
+            allMetrics.addAll(testDetailsNode.getMetrics());
         }
 
         try {
@@ -170,19 +171,6 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
             getReport(testDetailsNode, testDetailsNode.getTaskDataDto().getId());
         }
     }
-
-    private List<MetricNode> getAllMetrics(MetricGroupNode metricGroupNode) {
-        List<MetricNode> metrics = new ArrayList<MetricNode>();
-
-        if (metricGroupNode.getMetricGroupNodeList() != null) {
-            for (MetricGroupNode metricGroup : (List<MetricGroupNode>) metricGroupNode.getMetricGroupNodeList())
-                metrics.addAll(getAllMetrics(metricGroup));
-        }
-        if (metricGroupNode.getMetricsWithoutChildren() != null)
-            metrics.addAll(metricGroupNode.getMetricsWithoutChildren());
-        return metrics;
-    }
-
 
     private JCommonDrawableRenderer makePlot(PlotSeriesDto plotSeriesDto) {
         XYSeriesCollection plotCollection = new XYSeriesCollection();
@@ -213,8 +201,10 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
 
                 String groupTitle = metricGroupNode.getDisplayName();
                 for (MetricNode node : (List<MetricNode>) metricGroupNode.getMetricsWithoutChildren()) {
-                    if (plotsReal.get(node).getPlotSeries().isEmpty())
+                    if (plotsReal.get(node).getPlotSeries().isEmpty())   {
+                        log.warn("No plot data for "+ node.getDisplayName());
                         continue;
+                    }
                     if (!plots.containsKey(testId))
                         plots.put(testId, new MetricPlotDTOs());
                     plots.get(testId).getMetricPlotDTOs().add(new MetricPlotDTO(node.getDisplayName(), node.getDisplayName(), groupTitle, makePlot(plotsReal.get(node))));
@@ -222,7 +212,7 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
                 }
             }
         } catch (Exception e) {
-            log.error("Unable to take plot information about {}", metricGroupNode.getDisplayName());
+            log.error("Unable to take plot data for {}", metricGroupNode.getDisplayName());
         }
     }
 }

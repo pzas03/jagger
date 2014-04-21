@@ -894,7 +894,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                     .getSingleResult();
             return true;
         } catch (Exception e) {
-            log.warn("Could not access TagEntity table", e);
+            log.warn("Could not access TagEntity table");
         }
 
         return false;

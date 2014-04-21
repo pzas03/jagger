@@ -287,7 +287,8 @@
         <property name="workloadPlotGroups" ref="workloadPlotGroups"/>
         <property name="customMetricPlotNameProvider" ref="customMetricPlotNameProvider"/>
         <property name="customMetricNameProvider" ref="customMetricNameProvider"/>
-        <property name="standardMetricNameProvider" ref="standardMetricNameProvider"/>
+        <property name="latencyMetricNameProvider" ref="latencyMetricNameProvider"/>
+        <property name="validatorNamesProvider" ref="validatorNameProvider"/>
 
         <property name="sessionInfoServiceImpl" ref="sessionInfoService"/>
 
@@ -396,7 +397,12 @@
         <property name="monitoringPlotGroups" ref="monitoringPlotGroups"/>
     </bean>
 
-    <bean id="standardMetricNameProvider" class="com.griddynamics.jagger.dbapi.provider.StandardMetricNameProvider"/>
+
+    <bean id="latencyMetricNameProvider" class="com.griddynamics.jagger.dbapi.provider.LatencyMetricNameProvider"/>
+
+    <bean id="validatorNameProvider" class="com.griddynamics.jagger.dbapi.provider.ValidatorNamesProvider"/>
+
+
 
     <bean id="throughputMetricNameDto" class="com.griddynamics.jagger.dbapi.dto.MetricNameDto">
         <property name="metricName" value="throughput"/>
