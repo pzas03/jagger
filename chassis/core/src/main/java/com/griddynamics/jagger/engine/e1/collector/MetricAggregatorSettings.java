@@ -72,7 +72,7 @@ public class MetricAggregatorSettings {
     }
 
     /** Setter for aggregation interval. Aggregator will aggregate values on this interval in milliseconds. @n
-     * !Note that aggregationInterval has higher priority then pointsCount
+     * !Note that pointInterval has higher priority then pointCount
      * @param pointInterval Aggregation interval
      */
     public void setPointInterval(int pointInterval) {
@@ -80,7 +80,7 @@ public class MetricAggregatorSettings {
     }
 
     /** Setter for points count. Indicates maximum number of points on plot. @n
-     * !Note that aggregationInterval has higher priority then pointsCount
+     * !Note that pointInterval has higher priority then pointCount
      * @param pointCount Points count;
      */
     public void setPointCount(int pointCount) {

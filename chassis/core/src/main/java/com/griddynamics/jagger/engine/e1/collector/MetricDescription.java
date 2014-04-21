@@ -57,6 +57,7 @@ public class MetricDescription implements Serializable{
      *                      If list will be empty Jagger will use default aggregator (summary).@n
      *                      You can use Jagger built in aggregators @ref Main_Aggregators_group or custom aggregators */
     public void setAggregators(List<MetricAggregatorProvider> aggregators) {
+        aggregatorsWithSettings.clear();
         for (MetricAggregatorProvider aggregator : aggregators) {
             aggregatorsWithSettings.put(aggregator, MetricAggregatorSettings.EMPTY_SETTINGS);
         }
