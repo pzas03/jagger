@@ -20,6 +20,7 @@
 
 package com.griddynamics.jagger.engine.e1.reporting;
 
+import com.griddynamics.jagger.dbapi.entity.TaskData;
 import com.griddynamics.jagger.dbapi.entity.WorkloadTaskData;
 import com.griddynamics.jagger.reporting.AbstractReportProvider;
 import net.sf.jasperreports.engine.JRDataSource;
@@ -32,6 +33,7 @@ public class TestDetailsReporter extends AbstractReportProvider {
     public static class TestDetailsDTO {
         private String testId;
         private String testName;
+        private String id;
 
         public String getTestId() {
             return testId;
@@ -48,6 +50,14 @@ public class TestDetailsReporter extends AbstractReportProvider {
         public void setTestName(String testName) {
             this.testName = testName;
         }
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
     }
 
     @Override
@@ -56,11 +66,21 @@ public class TestDetailsReporter extends AbstractReportProvider {
         List<WorkloadTaskData> tests = getHibernateTemplate().find("from WorkloadTaskData d where d.sessionId=? order by d.number asc, d.scenario.name asc",
 				getSessionIdProvider().getSessionId());
 
+        @SuppressWarnings("unchecked")
+        List<TaskData>  taskDatas = getHibernateTemplate().find("from TaskData d where d.sessionId=? order by d.number asc",
+                getSessionIdProvider().getSessionId());
+
+
         List<TestDetailsDTO> result = new ArrayList<TestDetailsDTO>();
+
         for(WorkloadTaskData test : tests) {
             TestDetailsDTO testDetailsDTO = new TestDetailsDTO();
             testDetailsDTO.setTestId(test.getTaskId());
             testDetailsDTO.setTestName(getTestHumanReadableName(test));
+            for (TaskData taskData: taskDatas){
+                if (taskData.getTaskId().equals(test.getTaskId()))
+                    testDetailsDTO.setId(taskData.getId().toString());
+            }
             result.add(testDetailsDTO);
         }
 
