@@ -63,11 +63,11 @@ public abstract class AbstractCollectorDefinitionParser extends AbstractSimpleBe
             saveSummary = Boolean.valueOf(element.getAttribute(XMLConstants.SAVE_SUMMARY));
         }
 
-        ManagedMap aggregatorsSettingsMap = getAggregatorsSettingsMap(element, parserContext, builder);
+        ManagedMap aggregatorsWithSettings = getAggregatorsWithSettings(element, parserContext, builder);
 
-        if (aggregatorsSettingsMap.isEmpty()) {
+        if (aggregatorsWithSettings.isEmpty()) {
             for (MetricAggregatorProvider aggregatorProvider : getAggregators()) {
-                aggregatorsSettingsMap.put(aggregatorProvider, MetricAggregatorSettings.EMPTY_SETTINGS);
+                aggregatorsWithSettings.put(aggregatorProvider, MetricAggregatorSettings.EMPTY_SETTINGS);
             }
 
             if (name == null) {
@@ -87,7 +87,7 @@ public abstract class AbstractCollectorDefinitionParser extends AbstractSimpleBe
         metricDescription.addConstructorArgValue(name);
         metricDescription.addPropertyValue(XMLConstants.NEED_PLOT_DATA, plotData);
         metricDescription.addPropertyValue(XMLConstants.NEED_SAVE_SUMMARY, saveSummary);
-        metricDescription.addPropertyValue(XMLConstants.AGGREGATORS_SETTINGS_MAP, aggregatorsSettingsMap);
+        metricDescription.addPropertyValue(XMLConstants.AGGREGATORS_WITH_SETTINGS, aggregatorsWithSettings);
         metricDescription.addPropertyValue(XMLConstants.DISPLAY_NAME, displayName.isEmpty() ? null : displayName);
 
         builder.addPropertyValue(XMLConstants.METRIC_DESCRIPTION, metricDescription.getBeanDefinition());
@@ -113,7 +113,7 @@ public abstract class AbstractCollectorDefinitionParser extends AbstractSimpleBe
         return settings;
     }
 
-    private ManagedMap getAggregatorsSettingsMap(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
+    private ManagedMap getAggregatorsWithSettings(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
 
         ManagedMap map = new ManagedMap();
 

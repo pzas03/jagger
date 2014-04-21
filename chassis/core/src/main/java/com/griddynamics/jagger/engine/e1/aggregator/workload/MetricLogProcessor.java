@@ -206,13 +206,14 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
             LogReader.FileReader<MetricLogEntry> fileReader = null;
             statistics = new LinkedList<MetricPointEntity>();
 
-            for (Map.Entry<MetricAggregatorProvider, MetricAggregatorSettings> entry : metricDescription.getAggregatorsSettingsMap().entrySet()) {
+            for (Map.Entry<MetricAggregatorProvider, MetricAggregatorSettings> entry : metricDescription.getAggregatorsWithSettings().entrySet()) {
                 MetricAggregator overallMetricAggregator = null;
                 MetricAggregator intervalAggregator = null;
                 MetricAggregatorSettings aggregatorSettings = entry.getValue();
 
-                boolean normalizeByTimeRequired = aggregatorSettings.getNormalizationBy() != TimeUnits.NONE;
-                long normalizeByInterval = aggregatorSettings.getNormalizationBy().getMilliseconds();
+                TimeUnits normalizeByIntervalValue = aggregatorSettings.getNormalizationBy();
+                boolean normalizeByTimeRequired = (normalizeByIntervalValue != TimeUnits.NONE);
+                long normalizeByInterval = normalizeByIntervalValue.getMilliseconds();
                 long intervalSize = getIntervalSize(intervalSizeProvider, aggregatorSettings, aggregationInfo);
 
                 if (metricDescription.getShowSummary())
@@ -226,8 +227,8 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
                     MetricAggregator nameAggregator = overallMetricAggregator == null ? intervalAggregator : overallMetricAggregator;
 
                     String aggregatorName = nameAggregator.getName();
-                    String aggregatorIdSuffix = createIdFromName(aggregatorName);
-                    String aggregatorDisplayNameSuffix = createAggregatorDisplayNameSuffix(aggregatorName);
+                    String aggregatorIdSuffix = createIdFromName(aggregatorName, normalizeByIntervalValue);
+                    String aggregatorDisplayNameSuffix = createAggregatorDisplayNameSuffix(aggregatorName, normalizeByIntervalValue);
 
                     String displayName = (metricDescription.getDisplayName() == null ? metricDescription.getMetricId() :
                     metricDescription.getDisplayName()) + aggregatorDisplayNameSuffix;
@@ -375,9 +376,24 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
         * @param name aggregator`s name
         * @return aggregator`s id
         */
-        private String createIdFromName(String name) {
+        private String createIdFromName(String name, TimeUnits normalization) {
+            String result;
             String regexp = "[\\;/\\?\\:@\\&=\\+\\$\\,]";
-            return name.replaceAll(regexp, "");
+            result = name.replaceAll(regexp, "");
+            switch (normalization) {
+                case NONE:
+                    break;
+                case SECOND:
+                    result += "_per_second";
+                    break;
+                case MINUTE:
+                    result += "_per_minute";
+                    break;
+                case HOUR:
+                    result += "_per_hour";
+                    break;
+            }
+            return result;
         }
 
         /**
@@ -385,8 +401,23 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
          * @param name aggregator`s name
          * @return suffix for displayName of metric with given aggregator
          */
-        private String createAggregatorDisplayNameSuffix(String name) {
-            return " [" + name + ']';
+        private String createAggregatorDisplayNameSuffix(String name, TimeUnits normalization) {
+            String result = " [" + name;
+            switch (normalization) {
+                case NONE:
+                    break;
+                case SECOND:
+                    result += "/second";
+                    break;
+                case MINUTE:
+                    result += "/minute";
+                    break;
+                case HOUR:
+                    result += "/hour";
+                    break;
+            }
+            result += "]";
+            return result;
         }
         
     }

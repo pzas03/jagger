@@ -17,7 +17,7 @@ public class MetricDescription implements Serializable{
     protected String displayName;
     protected boolean showSummary = true;
     protected boolean plotData;
-    protected Map<MetricAggregatorProvider, MetricAggregatorSettings> aggregatorsSettingsMap = Maps.newHashMap();
+    protected Map<MetricAggregatorProvider, MetricAggregatorSettings> aggregatorsWithSettings = Maps.newHashMap();
 
     /** Constructor
      * @param metricId - main ID of the metric. Metric will be stored under this ID in DB */
@@ -50,7 +50,7 @@ public class MetricDescription implements Serializable{
     /** Getter for metric aggregators
      * @return list of aggregators assigned to this metric */
     public List<MetricAggregatorProvider> getAggregators() {
-        return Lists.newArrayList(aggregatorsSettingsMap.keySet());
+        return Lists.newArrayList(aggregatorsWithSettings.keySet());
     }
     /** Setter for metric aggregators
      * @param aggregators - list of aggregators that will be applied to this metric during result processing. @n
@@ -58,20 +58,23 @@ public class MetricDescription implements Serializable{
      *                      You can use Jagger built in aggregators @ref Main_Aggregators_group or custom aggregators */
     public void setAggregators(List<MetricAggregatorProvider> aggregators) {
         for (MetricAggregatorProvider aggregator : aggregators) {
-            aggregatorsSettingsMap.put(aggregator, MetricAggregatorSettings.EMPTY_SETTINGS);
+            aggregatorsWithSettings.put(aggregator, MetricAggregatorSettings.EMPTY_SETTINGS);
         }
     }
 
     /** Getter for metric aggregators with settings
      * @return Aggregators settings map */
-    public Map<MetricAggregatorProvider, MetricAggregatorSettings> getAggregatorsSettingsMap() {
-        return aggregatorsSettingsMap;
+    public Map<MetricAggregatorProvider, MetricAggregatorSettings> getAggregatorsWithSettings() {
+        return aggregatorsWithSettings;
     }
-
+    
     /** Setter for metric aggregators with settings
-     * @param aggregatorsSettingsMap Aggregators settings map */
-    public void setAggregatorsSettingsMap(Map<MetricAggregatorProvider, MetricAggregatorSettings> aggregatorsSettingsMap) {
-        this.aggregatorsSettingsMap = aggregatorsSettingsMap;
+     * @param aggregatorsWithSettings - map of aggregators with settings that will be applied to this metric during result processing. @n
+     *                      What additional settings can be applied you can find here @ref MetricAggregatorSettings @n
+     *                      If map will be empty Jagger will use default aggregator (summary) without additional settings.@n
+     *                      You can use Jagger built in aggregators @ref Main_Aggregators_group or custom aggregators */
+    public void setAggregatorsWithSettings(Map<MetricAggregatorProvider, MetricAggregatorSettings> aggregatorsWithSettings) {
+        this.aggregatorsWithSettings = aggregatorsWithSettings;
     }
 
     /** Getter for metric "show summary" boolean parameter
@@ -123,7 +126,7 @@ public class MetricDescription implements Serializable{
      *                     You can use Jagger built in aggregators @ref Main_Aggregators_group or custom aggregator
      * @return this MetricDescription */
     public MetricDescription addAggregator(MetricAggregatorProvider aggregator){
-        this.aggregatorsSettingsMap.put(aggregator, MetricAggregatorSettings.EMPTY_SETTINGS);
+        this.aggregatorsWithSettings.put(aggregator, MetricAggregatorSettings.EMPTY_SETTINGS);
         return this;
     }
 
@@ -133,7 +136,7 @@ public class MetricDescription implements Serializable{
      * @param settings - settings of aggregator.
      * @return this MetricDescription */
     public MetricDescription addAggregator(MetricAggregatorProvider aggregator, MetricAggregatorSettings settings){
-        this.aggregatorsSettingsMap.put(aggregator, settings);
+        this.aggregatorsWithSettings.put(aggregator, settings);
         return this;
     }
 }

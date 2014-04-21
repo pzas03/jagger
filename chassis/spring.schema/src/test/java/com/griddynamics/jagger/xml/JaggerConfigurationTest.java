@@ -199,7 +199,7 @@ public class JaggerConfigurationTest {
         MetricCollectorProvider mcp = (MetricCollectorProvider) ctx.getBean("metric-aggregator-with-no-settings");
         MetricDescription description = mcp.getMetricDescriptions();
 
-        for (MetricAggregatorSettings settings : description.getAggregatorsSettingsMap().values()) {
+        for (MetricAggregatorSettings settings : description.getAggregatorsWithSettings().values()) {
             Assert.assertEquals(TimeUnits.NONE, settings.getNormalizationBy());
             Assert.assertEquals(0, settings.getPointCount());
             Assert.assertEquals(0, settings.getPointInterval());
@@ -212,7 +212,7 @@ public class JaggerConfigurationTest {
         MetricCollectorProvider mcp = (MetricCollectorProvider) ctx.getBean("metric-aggregator-with-settings");
         MetricDescription description = mcp.getMetricDescriptions();
 
-        for (MetricAggregatorSettings settings : description.getAggregatorsSettingsMap().values()) {
+        for (MetricAggregatorSettings settings : description.getAggregatorsWithSettings().values()) {
             Assert.assertEquals(TimeUnits.MINUTE, settings.getNormalizationBy());
             Assert.assertEquals(10, settings.getPointCount());
             Assert.assertEquals(1000, settings.getPointInterval());
