@@ -24,7 +24,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 						http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
 
-    <bean id="monitoringPlotGroups" class="com.griddynamics.jagger.monitoring.reporting.DynamicPlotGroups">
+    <bean id="monitoringPlotGroupsDyn" class="com.griddynamics.jagger.monitoring.reporting.DynamicPlotGroups">
         <property name="plotGroups">
             <bean class="java.util.LinkedHashMap">
                 <constructor-arg index="0">

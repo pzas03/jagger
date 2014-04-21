@@ -46,7 +46,7 @@
         <property name="reportingService" ref="reportingService"/>
         <property name="conditions" ref="conditions"/>
         <property name="executor" ref="coreExecutor"/>
-        <property name="dynamicPlotGroups" ref="monitoringPlotGroups"/>
+        <property name="dynamicPlotGroups" ref="monitoringPlotGroupsDyn"/>
         <property name="agentStopManagementProps">
             <map>
                 <entry key="WAIT_BEFORE" value="20000"/>
