@@ -37,6 +37,7 @@ public class CompositeTask implements Task {
     private List<CompositableTask> leading;
     private List<CompositableTask> attendant = ImmutableList.of();
     private List<Provider<TestGroupListener>> listeners = ImmutableList.of();
+    //??? why is here
     private List<Provider<TestGroupDecisionMakerListener>> decisionMakerListeners = ImmutableList.of();
     private int number;
     private String name;

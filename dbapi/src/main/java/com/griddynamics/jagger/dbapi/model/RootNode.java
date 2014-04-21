@@ -10,16 +10,15 @@ import java.util.List;
  */
 public class RootNode extends AbstractIdentifyNode {
 
-    SummaryNode summary;
+    private SummaryNode summaryNode;
+    private DetailsNode detailsNode;
 
-    DetailsNode detailsNode;
-
-    public SummaryNode getSummary() {
-        return summary;
+    public SummaryNode getSummaryNode() {
+        return summaryNode;
     }
 
-    public void setSummary(SummaryNode summary) {
-        this.summary = summary;
+    public void setSummaryNode(SummaryNode summaryNode) {
+        this.summaryNode = summaryNode;
     }
 
     public DetailsNode getDetailsNode() {
@@ -33,7 +32,7 @@ public class RootNode extends AbstractIdentifyNode {
     @Override
     public List<? extends AbstractIdentifyNode> getChildren() {
         List<AbstractIdentifyNode> result = new ArrayList<AbstractIdentifyNode>();
-        result.add(summary);
+        result.add(summaryNode);
         if (detailsNode != null) result.add(detailsNode);
         return result;
     }

@@ -219,7 +219,7 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
     public Set<TaskDataDto> getSelectedTests() {
 
         Set<TaskDataDto> resultSet = new HashSet<TaskDataDto>();
-        for (TestNode testNode : rootNode.getSummary().getTests()) {
+        for (TestNode testNode : rootNode.getSummaryNode().getTests()) {
             if (isChosen(testNode)) {
                 resultSet.add(testNode.getTaskDataDto());
             }
@@ -240,7 +240,7 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
     public Set<MetricNameDto> getCheckedMetrics() {
 
         Set<MetricNameDto> resultSet = new HashSet<MetricNameDto>();
-        for (TestNode test : rootNode.getSummary().getTests()) {
+        for (TestNode test : rootNode.getSummaryNode().getTests()) {
             resultSet.addAll(getCheckedMetrics(test));
         }
         return resultSet;
@@ -265,7 +265,7 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
 
     public TestNode findTestNode(TaskDataDto taskDataDto) {
 
-        for (TestNode test : rootNode.getSummary().getTests()) {
+        for (TestNode test : rootNode.getSummaryNode().getTests()) {
             if (test.getTaskDataDto().equals(taskDataDto)) {
                 return test;
             }
@@ -332,7 +332,7 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
 
     private void onMetricsTab(boolean boo) {
         if (rootNode != null) {
-            setExpanded(rootNode.getSummary(), !boo);
+            setExpanded(rootNode.getSummaryNode(), !boo);
             setExpanded(rootNode.getDetailsNode(), boo);
         }
     }
