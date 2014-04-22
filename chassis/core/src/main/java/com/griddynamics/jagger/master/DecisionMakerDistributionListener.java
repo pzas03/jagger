@@ -3,10 +3,7 @@ package com.griddynamics.jagger.master;
 import com.griddynamics.jagger.coordinator.NodeContext;
 import com.griddynamics.jagger.coordinator.NodeId;
 import com.griddynamics.jagger.dbapi.DatabaseService;
-import com.griddynamics.jagger.dbapi.model.RootNode;
-import com.griddynamics.jagger.dbapi.model.SummaryNode;
 import com.griddynamics.jagger.engine.e1.ProviderUtil;
-import com.griddynamics.jagger.engine.e1.scenario.WorkloadTask;
 import com.griddynamics.jagger.engine.e1.services.JaggerPlace;
 import com.griddynamics.jagger.engine.e1.sessioncomparation.DecisionMakerInfo;
 import com.griddynamics.jagger.engine.e1.sessioncomparation.TestGroupDecisionMakerListener;
@@ -39,8 +36,6 @@ public class DecisionMakerDistributionListener implements DistributionListener {
     public void onTaskDistributionCompleted(String sessionId, String taskId, Task task) {
         //??? why executed twice when 2 test groups
 
-
-        //??? why only composite task
         if (task instanceof CompositeTask) {
             TestGroupDecisionMakerListener decisionMakerListener = TestGroupDecisionMakerListener.Composer.compose(ProviderUtil.provideElements(((CompositeTask) task).getDecisionMakerListeners(),
                     sessionId,
@@ -48,34 +43,23 @@ public class DecisionMakerDistributionListener implements DistributionListener {
                     nodeContext,
                     JaggerPlace.TEST_GROUP_DECISION_MAKER_LISTENER));
 
-            //???
-            RootNode rootNode = databaseService.getControlTreeForSessions(new HashSet<String>(Arrays.asList(sessionId)));
-            SummaryNode summaryNode = rootNode.getSummaryNode();
-
-
-            CompositeTask compositeTask = (CompositeTask) task;
-            List<CompositableTask> children = new ArrayList<CompositableTask>();
-            for (CompositableTask compositableTask : compositeTask.getAttendant()) {
-                if (compositableTask instanceof WorkloadTask) {
-                    children.add(compositableTask);
-                }
-            }
-            for (CompositableTask compositableTask : compositeTask.getLeading()) {
-                if (compositableTask instanceof WorkloadTask) {
-                    children.add(compositableTask);
-                }
-            }
-
-//            for (CompositableTask child : children) {
+//            //???
+//            RootNode rootNode = databaseService.getControlTreeForSessions(new HashSet<String>(Arrays.asList(sessionId)));
+//            SummaryNode summaryNode = rootNode.getSummaryNode();
 //
-//                if (compositeTask.getLimits().get(child.getTaskName()).size() > 0) {
-//                    System.out.println("Bingo!!!");
+//
+//            CompositeTask compositeTask = (CompositeTask) task;
+//            List<CompositableTask> children = new ArrayList<CompositableTask>();
+//            for (CompositableTask compositableTask : compositeTask.getAttendant()) {
+//                if (compositableTask instanceof WorkloadTask) {
+//                    children.add(compositableTask);
 //                }
 //            }
-
-
-            //summaryNode.getTests()
-
+//            for (CompositableTask compositableTask : compositeTask.getLeading()) {
+//                if (compositableTask instanceof WorkloadTask) {
+//                    children.add(compositableTask);
+//                }
+//            }
 
 
             DecisionMakerInfo decisionMakerInfo = new DecisionMakerInfo();

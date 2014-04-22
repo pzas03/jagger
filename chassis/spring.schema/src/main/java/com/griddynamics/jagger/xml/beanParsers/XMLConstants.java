@@ -201,7 +201,7 @@ public class XMLConstants {
     public static final String LIMIT = "limit";
     public static final String LIMIT_METRIC_NAME = "metricName";
     public static final String LIMIT_DESCRIPTION = "limitDescription";
-    public static final String LIMIT_REFERENCE = "reference";
+    public static final String LIMIT_REFVALUE = "refValue";
     public static final String LIMIT_LWL = "LWL";
     public static final String LIMIT_UWL = "UWL";
     public static final String LIMIT_LEL = "LEL";

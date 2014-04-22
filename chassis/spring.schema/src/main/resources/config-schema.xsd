@@ -708,18 +708,18 @@
     </xsd:attributeGroup>
 
     <xsd:attributeGroup name="tpsAttributes">
-        <xsd:attribute name="value" type="xsd:string" use="required"></xsd:attribute>
-        <xsd:attribute name="warmUpTime" type="xsd:string" use="optional"></xsd:attribute>
+        <xsd:attribute name="value" type="xsd:string" use="required"/>
+        <xsd:attribute name="warmUpTime" type="xsd:string" use="optional"/>
         <xsd:attribute name="maxThreadNumber" type="xsd:string"/>
     </xsd:attributeGroup>
 
     <xsd:attributeGroup name="iterationsAttributes">
-        <xsd:attribute name="maxDuration" type="xsd:string"></xsd:attribute>
-        <xsd:attribute name="iterations" type="xsd:string" use="required"></xsd:attribute>
+        <xsd:attribute name="maxDuration" type="xsd:string"/>
+        <xsd:attribute name="iterations" type="xsd:string" use="required"/>
     </xsd:attributeGroup>
 
     <xsd:attributeGroup name="durationAttributes">
-        <xsd:attribute name="duration" type="xsd:string" use="required"></xsd:attribute>
+        <xsd:attribute name="duration" type="xsd:string" use="required"/>
     </xsd:attributeGroup>
 
     <!--******************-->
@@ -842,58 +842,147 @@
 
     <xsd:element name="limits" type="testLimitsGroupType">
         <xsd:annotation><xsd:documentation>
-            ??? not ready
+            List of test limits, required to make decision based of results of some test.
+            You can define stand alone list of limits and link it to different tests in test configuration
         </xsd:documentation></xsd:annotation>
     </xsd:element>
 
     <xsd:complexType name="testLimitsGroupType">
         <xsd:annotation><xsd:documentation>
-            ??? not ready
+            List of test limits, required to make decision based of results of some test.
+            You can define stand alone list of limits and link it to different tests in test configuration
         </xsd:documentation></xsd:annotation>
         <xsd:complexContent>
             <xsd:extension base="identifiedRequiredType">
                 <xsd:sequence minOccurs="1" maxOccurs="unbounded">
-                    <xsd:element name="limit" type="testLimitType" maxOccurs="unbounded"/>
+                    <xsd:element name="limit" type="testLimitTypeAbstract" minOccurs="1" maxOccurs="unbounded"/>
                 </xsd:sequence>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:complexType name="testLimitType">
+    <xsd:complexType name="testLimitTypeAbstract" abstract="true">
         <xsd:annotation><xsd:documentation>
-            ??? not ready
+            Test limit. Defines allowed deviations of some metric from baseline or from reference value.
+            Limits are used by decision maker to take decision whether you test results are ok or not.
         </xsd:documentation></xsd:annotation>
         <xsd:complexContent>
-            <xsd:extension base="identifiedType">
-                <xsd:attribute name="metricName" type="xsd:string" use="required"/>
-                <xsd:attribute name="limitDescription" type="xsd:string" use="optional"/>
-                <!--??? session number or value (baseline or reference value) -->
-                <xsd:attribute name="reference" type="xsd:string" use="required"/>
-                <xsd:attribute name="LWL" type="xsd:string" use="required"/>
-                <xsd:attribute name="UWL" type="xsd:string" use="required"/>
-                <xsd:attribute name="LEL" type="xsd:string" use="required"/>
-                <xsd:attribute name="UEL" type="xsd:string" use="required"/>
+            <xsd:extension base="identifiedType"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="limit-vs-baseline">
+        <xsd:annotation><xsd:documentation>
+            Test limit. When decision maker will take decision it will compare metric value with value
+            from baseline session defined by chassis.engine.e1.reporting.session.comparison.baseline.session.id property
+        </xsd:documentation></xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="testLimitTypeAbstract">
+                <xsd:attribute name="metricName" type="xsd:string" use="required">
+                    <xsd:annotation><xsd:documentation>
+                        Metric name (aka metric Id) - metric we are going to compare
+                    </xsd:documentation></xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="limitDescription" type="xsd:string" use="optional">
+                    <xsd:annotation><xsd:documentation>
+                        Description of this limit
+                    </xsd:documentation></xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="LWL" type="xsd:string" use="required">
+                    <xsd:annotation><xsd:documentation>
+                        Low warning limit - relative value
+                        Result pass when value in range (LWL*ref .. UWL*ref)
+                        Result warning when value in range (LEL*ref .. LWL*ref) OR (UWL*ref .. UEL*ref)
+                        Result error when: value is less than LEL*ref OR is greater than UEL*ref
+                    </xsd:documentation></xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="UWL" type="xsd:string" use="required">
+                    <xsd:annotation><xsd:documentation>
+                        Upper warning limit - relative value
+                        Result pass when value in range (LWL*ref .. UWL*ref)
+                        Result warning when value in range (LEL*ref .. LWL*ref) OR (UWL*ref .. UEL*ref)
+                        Result error when: value is less than LEL*ref OR is greater than UEL*ref
+                    </xsd:documentation></xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="LEL" type="xsd:string" use="required">
+                    <xsd:annotation><xsd:documentation>
+                        Low error limit - relative value
+                        Result pass when value in range (LWL*ref .. UWL*ref)
+                        Result warning when value in range (LEL*ref .. LWL*ref) OR (UWL*ref .. UEL*ref)
+                        Result error when: value is less than LEL*ref OR is greater than UEL*ref
+                    </xsd:documentation></xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="UEL" type="xsd:string" use="required">
+                    <xsd:annotation><xsd:documentation>
+                        Upper error limit - relative value
+                        Result pass when value in range (LWL*ref .. UWL*ref)
+                        Result warning when value in range (LEL*ref .. LWL*ref) OR (UWL*ref .. UEL*ref)
+                        Result error when: value is less than LEL*ref OR is greater than UEL*ref
+                    </xsd:documentation></xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="limit-vs-value">
+        <xsd:annotation><xsd:documentation>
+            Test limit. When decision maker will take decision it will compare metric value with reference value
+        </xsd:documentation></xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="testLimitTypeAbstract">
+                <xsd:attribute name="metricName" type="xsd:string" use="required">
+                    <xsd:annotation><xsd:documentation>
+                        Metric name (aka metric Id) - metric we are going to compare
+                    </xsd:documentation></xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="refValue" type="xsd:string" use="required">
+                    <xsd:annotation><xsd:documentation>
+                        Reference value - absolute value used as reference for comparison
+                    </xsd:documentation></xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="limitDescription" type="xsd:string" use="optional">
+                    <xsd:annotation><xsd:documentation>
+                        Description of this limit
+                    </xsd:documentation></xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="LWL" type="xsd:string" use="required">
+                    <xsd:annotation><xsd:documentation>
+                        Low warning limit - relative value
+                        Result pass when value in range (LWL*ref .. UWL*ref)
+                        Result warning when value in range (LEL*ref .. LWL*ref) OR (UWL*ref .. UEL*ref)
+                        Result error when: value is less than LEL*ref OR is greater than UEL*ref
+                    </xsd:documentation></xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="UWL" type="xsd:string" use="required">
+                    <xsd:annotation><xsd:documentation>
+                        Upper warning limit - relative value
+                        Result pass when value in range (LWL*ref .. UWL*ref)
+                        Result warning when value in range (LEL*ref .. LWL*ref) OR (UWL*ref .. UEL*ref)
+                        Result error when: value is less than LEL*ref OR is greater than UEL*ref
+                    </xsd:documentation></xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="LEL" type="xsd:string" use="required">
+                    <xsd:annotation><xsd:documentation>
+                        Low error limit - relative value
+                        Result pass when value in range (LWL*ref .. UWL*ref)
+                        Result warning when value in range (LEL*ref .. LWL*ref) OR (UWL*ref .. UEL*ref)
+                        Result error when: value is less than LEL*ref OR is greater than UEL*ref
+                    </xsd:documentation></xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="UEL" type="xsd:string" use="required">
+                    <xsd:annotation><xsd:documentation>
+                        Upper error limit - relative value
+                        Result pass when value in range (LWL*ref .. UWL*ref)
+                        Result warning when value in range (LEL*ref .. LWL*ref) OR (UWL*ref .. UEL*ref)
+                        Result error when: value is less than LEL*ref OR is greater than UEL*ref
+                    </xsd:documentation></xsd:annotation>
+                </xsd:attribute>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
 
-    <!--???-->
-    <!--<xsd:complexType name="limitsTest">-->
-        <!--<xsd:annotation><xsd:documentation>-->
-            <!--??? no ready-->
-        <!--</xsd:documentation></xsd:annotation>-->
-        <!--<xsd:complexContent>-->
-            <!--<xsd:extension base="identifiedType">-->
-                <!--<xsd:choice>-->
-                    <!--<xsd:element name="limits123" type="limitsTestAbstract" minOccurs="1" maxOccurs="unbounded"/>-->
-                <!--</xsd:choice>-->
-            <!--</xsd:extension>-->
-        <!--</xsd:complexContent>-->
-    <!--</xsd:complexType>-->
-
     <xsd:complexType name="limitsTestAbstract" abstract="true">
         <xsd:annotation><xsd:documentation>
-            ??? not ready
+            Abstract list of test limits. See available implementations
         </xsd:documentation></xsd:annotation>
         <xsd:complexContent>
             <xsd:extension base="identifiedType">
@@ -903,7 +992,7 @@
 
     <xsd:complexType name="limits-ref">
         <xsd:annotation><xsd:documentation>
-            ???
+            Reference to the existing list of test limits.
         </xsd:documentation></xsd:annotation>
         <xsd:complexContent>
             <xsd:extension base="limitsTestAbstract">
@@ -912,19 +1001,18 @@
         </xsd:complexContent>
     </xsd:complexType>
 
-    <!--???-->
-    <!--<xsd:complexType name="limits-test-group">-->
-        <!--<xsd:annotation><xsd:documentation>-->
-            <!--??? not ready-->
-        <!--</xsd:documentation></xsd:annotation>-->
-        <!--<xsd:complexContent>-->
-            <!--<xsd:extension base="listenerTestAbstract">-->
-                <!--<xsd:sequence minOccurs="1" maxOccurs="unbounded">-->
-                    <!--<xsd:element name="limit" type="testLimitType" maxOccurs="unbounded"/>-->
-                <!--</xsd:sequence>-->
-            <!--</xsd:extension>-->
-        <!--</xsd:complexContent>-->
-    <!--</xsd:complexType>-->
+    <xsd:complexType name="limits-group">
+        <xsd:annotation><xsd:documentation>
+            List of test limits defined directly in test configuration
+        </xsd:documentation></xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="limitsTestAbstract">
+                <xsd:sequence minOccurs="1" maxOccurs="unbounded">
+                    <xsd:element name="limit" type="testLimitTypeAbstract" minOccurs="1" maxOccurs="unbounded"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
 
 
     <!--************************-->

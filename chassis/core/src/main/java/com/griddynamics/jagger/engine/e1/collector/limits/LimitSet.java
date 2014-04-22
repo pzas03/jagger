@@ -20,16 +20,23 @@
 
 package com.griddynamics.jagger.engine.e1.collector.limits;
 
-import java.util.Collections;
-import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 public class LimitSet {
+    private static final Logger log = LoggerFactory.getLogger(LimitSet.class);
+
     private List<Limit> limits = Collections.EMPTY_LIST;
     private String id;
+    //??? set baseline sessionId here
 
     public void setLimits(List<Limit> limits) {
 
-        //??? remove duplicates
+        removeDuplicates(limits);
+        checkThresholdsRelation(limits);
+
         this.limits = limits;
     }
 
@@ -43,6 +50,51 @@ public class LimitSet {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    private void removeDuplicates(List<Limit> inputList) {
+        Set<String> params = new HashSet<String>();
+        String param;
+        List<Limit> duplicates = new ArrayList<Limit>();
+
+        for(Limit limit : inputList) {
+            param = limit.getMetricName();
+
+            if(params.contains(param)) {
+                duplicates.add(limit);
+                log.error("Limit with metricName '" + param + "' already exists. New limit with the same name will be ignored");
+            }
+            params.add(param);
+        }
+
+        inputList.removeAll(duplicates);
+    }
+
+    private void checkThresholdsRelation(List<Limit> inputList) {
+        List<Limit> limitsWithErrors = new ArrayList<Limit>();
+
+        for(Limit limit : inputList) {
+            if (limit.getLEL() > limit.getLWL()) {
+                limitsWithErrors.add(limit);
+                log.error("Limit with metricName '" + limit.getMetricName() +
+                        "' has wrong relation of thresholds. LEL "+ limit.getLEL() + " should be less than LWL " + limit.getLWL());
+                continue;
+            }
+            if (limit.getLWL() > limit.getUWL()) {
+                limitsWithErrors.add(limit);
+                log.error("Limit with metricName '" + limit.getMetricName() +
+                        "' has wrong relation of thresholds. LWL " + limit.getLWL() + " should be less than UWL " + limit.getUWL());
+                continue;
+            }
+            if (limit.getUWL() > limit.getUEL()) {
+                limitsWithErrors.add(limit);
+                log.error("Limit with metricName '" + limit.getMetricName() +
+                        "' has wrong relation of thresholds. UWL " + limit.getUWL() + " should be less than UEL " + limit.getUEL());
+                continue;
+            }
+        }
+
+        inputList.removeAll(limitsWithErrors);
     }
 
 }

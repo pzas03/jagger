@@ -22,8 +22,6 @@ public class LimitDefinitionParser extends CustomBeanDefinitionParser {
     @Override
     protected void preParseAttributes(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
         builder.addPropertyValue(XMLConstants.LIMIT_METRIC_NAME, element.getAttribute(XMLConstants.LIMIT_METRIC_NAME));
-        //??? check it here
-        builder.addPropertyValue(XMLConstants.LIMIT_REFERENCE, element.getAttribute(XMLConstants.LIMIT_REFERENCE));
         builder.addPropertyValue(XMLConstants.LIMIT_LWL, element.getAttribute(XMLConstants.LIMIT_LWL));
         builder.addPropertyValue(XMLConstants.LIMIT_UWL, element.getAttribute(XMLConstants.LIMIT_UWL));
         builder.addPropertyValue(XMLConstants.LIMIT_LEL, element.getAttribute(XMLConstants.LIMIT_LEL));
@@ -32,6 +30,10 @@ public class LimitDefinitionParser extends CustomBeanDefinitionParser {
         String description = element.getAttribute(XMLConstants.LIMIT_DESCRIPTION);
         if (description != null) {
             builder.addPropertyValue(XMLConstants.LIMIT_DESCRIPTION,description);
+        }
+        String refValue = element.getAttribute(XMLConstants.LIMIT_REFVALUE);
+        if ((refValue != null) && (!refValue.equals(""))) {
+            builder.addPropertyValue(XMLConstants.LIMIT_REFVALUE, refValue);
         }
 
     }

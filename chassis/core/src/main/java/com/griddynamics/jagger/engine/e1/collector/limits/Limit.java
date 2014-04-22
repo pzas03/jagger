@@ -23,32 +23,12 @@ package com.griddynamics.jagger.engine.e1.collector.limits;
 public class Limit {
     String metricName = null;
     String limitDescription;
-    //??? optional baseline or reference
-    Double reference = -1D;
+    // if refValue is null we will compare to baseline session value
+    Double refValue = null;
     Double LWL = 0D;
     Double UWL = 0D;
     Double LEL = 0D;
     Double UEL = 0D;
-
-    //???
-//    public Limit(String metricName, String limitDescription, Double reference, Double LWL, Double UWL, Double LEL, Double UEL) {
-//        this.metricName = metricName;
-//        this.limitDescription = limitDescription;
-//        this.reference = reference;
-//        this.LWL = LWL;
-//        this.UWL = UWL;
-//        this.LEL = LEL;
-//        this.UEL = UEL;
-//    }
-//
-//    public Limit(String metricName, Double reference, Double LWL, Double UWL, Double LEL, Double UEL) {
-//        this.metricName = metricName;
-//        this.reference = reference;
-//        this.LWL = LWL;
-//        this.UWL = UWL;
-//        this.LEL = LEL;
-//        this.UEL = UEL;
-//    }
 
     public Limit() {}
 
@@ -68,12 +48,12 @@ public class Limit {
         this.limitDescription = limitDescription;
     }
 
-    public Double getReference() {
-        return reference;
+    public Double getRefValue() {
+        return refValue;
     }
 
-    public void setReference(Double reference) {
-        this.reference = reference;
+    public void setRefValue(Double refValue) {
+        this.refValue = refValue;
     }
 
     public Double getLWL() {
