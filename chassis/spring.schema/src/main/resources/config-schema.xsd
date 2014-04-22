@@ -141,6 +141,20 @@
         </xsd:complexContent>
     </xsd:complexType>
 
+    <xsd:simpleType name="time-units">
+        <xsd:annotation><xsd:documentation>
+            Time units that are the values of com.griddynamics.jagger.util.TimeUnits enumeration.
+            Used as metric-aggregator element attribute to define interval of time to normalize to it.
+        </xsd:documentation></xsd:annotation>
+
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="NONE" />
+            <xsd:enumeration value="SECOND" />
+            <xsd:enumeration value="MINUTE" />
+            <xsd:enumeration value="HOUR" />
+        </xsd:restriction>
+    </xsd:simpleType>
+
     <!--***********************-->
     <!-- Configuration element -->
     <!--***********************-->
@@ -1098,6 +1112,24 @@
         <xsd:annotation><xsd:documentation>
             Metric aggregator is a aggregation function for metric.
         </xsd:documentation></xsd:annotation>
+
+        <xsd:attribute name="normalizeBy" type="time-units" use="optional" >
+            <xsd:annotation><xsd:documentation>
+                Tells whether values should be normalized by particular time unit.
+            </xsd:documentation></xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="pointCount" type="xsd:string" use="optional" >
+            <xsd:annotation><xsd:documentation>
+                Describes maximum points count on the plot.
+                !Note that 'pointInterval' attribute has higher priority then 'pointCount'.
+            </xsd:documentation></xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="pointInterval" type="xsd:string" use="optional" >
+            <xsd:annotation><xsd:documentation>
+                Describes aggregation interval size. All values on that interval will be aggregated to one value.
+                !Note that 'pointInterval' attribute has higher priority then 'pointCount'.
+            </xsd:documentation></xsd:annotation>
+        </xsd:attribute>
     </xsd:complexType>
 
     <xsd:complexType name="metric-aggregator-ref">

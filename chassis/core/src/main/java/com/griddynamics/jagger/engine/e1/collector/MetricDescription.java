@@ -1,9 +1,9 @@
 package com.griddynamics.jagger.engine.e1.collector;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,8 +17,7 @@ public class MetricDescription implements Serializable{
     protected String displayName;
     protected boolean showSummary = true;
     protected boolean plotData;
-    protected Map<MetricAggregatorProvider, MetricAggregatorSettings> aggregatorsWithSettings =
-            new HashMap<MetricAggregatorProvider, MetricAggregatorSettings>();
+    protected Map<MetricAggregatorProvider, MetricAggregatorSettings> aggregatorsWithSettings = Maps.newHashMap();
 
     /** Constructor
      * @param metricId - main ID of the metric. Metric will be stored under this ID in DB */
@@ -58,12 +57,10 @@ public class MetricDescription implements Serializable{
      *                      If list will be empty Jagger will use default aggregator (summary).@n
      *                      You can use Jagger built in aggregators @ref Main_Aggregators_group or custom aggregators */
     public void setAggregators(List<MetricAggregatorProvider> aggregators) {
-        Map<MetricAggregatorProvider,MetricAggregatorSettings> listToMap =
-                new HashMap<MetricAggregatorProvider, MetricAggregatorSettings>();
+        aggregatorsWithSettings.clear();
         for (MetricAggregatorProvider aggregator : aggregators) {
-            listToMap.put(aggregator, MetricAggregatorSettings.EMPTY_SETTINGS);
+            aggregatorsWithSettings.put(aggregator, MetricAggregatorSettings.EMPTY_SETTINGS);
         }
-        this.aggregatorsWithSettings = listToMap;
     }
 
     /** Getter for metric aggregators with settings
@@ -71,6 +68,7 @@ public class MetricDescription implements Serializable{
     public Map<MetricAggregatorProvider, MetricAggregatorSettings> getAggregatorsWithSettings() {
         return aggregatorsWithSettings;
     }
+    
     /** Setter for metric aggregators with settings
      * @param aggregatorsWithSettings - map of aggregators with settings that will be applied to this metric during result processing. @n
      *                      What additional settings can be applied you can find here @ref MetricAggregatorSettings @n
