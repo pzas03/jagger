@@ -324,6 +324,7 @@
                     <xsd:element name="load" type="loadAbstract" minOccurs="0" maxOccurs="1"/>
                     <xsd:element name="termination" type="terminationAbstract" minOccurs="0" maxOccurs="1"/>
                     <xsd:element name="listeners-test" type="listenersTest" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="limits" type="limitsTestAbstract" minOccurs="0" maxOccurs="1"/>
                 </xsd:all>
                 <xsd:attribute name="startDelay" type="xsd:string" use="optional"/>
                 <xsd:attribute name="testDescription" type="xsd:string" use="optional"/>
@@ -670,16 +671,16 @@
     </xsd:complexType>
 
     <xsd:attributeGroup name="userAttributes">
-        <xsd:attribute name="count" type="xsd:string" use="required"></xsd:attribute>
-        <xsd:attribute name="startCount" type="xsd:string" use="required"></xsd:attribute>
-        <xsd:attribute name="startIn" type="xsd:string" use="required"></xsd:attribute>
-        <xsd:attribute name="startBy" type="xsd:string" use="required"></xsd:attribute>
-        <xsd:attribute name="life" type="xsd:string" use="required"></xsd:attribute>
+        <xsd:attribute name="count" type="xsd:string" use="required"/>
+        <xsd:attribute name="startCount" type="xsd:string" use="required"/>
+        <xsd:attribute name="startIn" type="xsd:string" use="required"/>
+        <xsd:attribute name="startBy" type="xsd:string" use="required"/>
+        <xsd:attribute name="life" type="xsd:string" use="required"/>
     </xsd:attributeGroup>
 
     <xsd:attributeGroup name="virtualUserAttributes">
-        <xsd:attribute name="count" type="xsd:string" use="required"></xsd:attribute>
-        <xsd:attribute name="delay" type="xsd:string" use="optional"></xsd:attribute>
+        <xsd:attribute name="count" type="xsd:string" use="required"/>
+        <xsd:attribute name="delay" type="xsd:string" use="optional"/>
     </xsd:attributeGroup>
 
     <xsd:attributeGroup name="invocationAttributes">
@@ -834,6 +835,97 @@
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
+
+    <!--************************-->
+    <!-- Limits                 -->
+    <!--************************-->
+
+    <xsd:element name="limits" type="testLimitsGroupType">
+        <xsd:annotation><xsd:documentation>
+            ??? not ready
+        </xsd:documentation></xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="testLimitsGroupType">
+        <xsd:annotation><xsd:documentation>
+            ??? not ready
+        </xsd:documentation></xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="identifiedRequiredType">
+                <xsd:sequence minOccurs="1" maxOccurs="unbounded">
+                    <xsd:element name="limit" type="testLimitType" maxOccurs="unbounded"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="testLimitType">
+        <xsd:annotation><xsd:documentation>
+            ??? not ready
+        </xsd:documentation></xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="identifiedType">
+                <xsd:attribute name="metricName" type="xsd:string" use="required"/>
+                <xsd:attribute name="limitDescription" type="xsd:string" use="optional"/>
+                <!--??? session number or value (baseline or reference value) -->
+                <xsd:attribute name="reference" type="xsd:string" use="required"/>
+                <xsd:attribute name="LWL" type="xsd:string" use="required"/>
+                <xsd:attribute name="UWL" type="xsd:string" use="required"/>
+                <xsd:attribute name="LEL" type="xsd:string" use="required"/>
+                <xsd:attribute name="UEL" type="xsd:string" use="required"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <!--???-->
+    <!--<xsd:complexType name="limitsTest">-->
+        <!--<xsd:annotation><xsd:documentation>-->
+            <!--??? no ready-->
+        <!--</xsd:documentation></xsd:annotation>-->
+        <!--<xsd:complexContent>-->
+            <!--<xsd:extension base="identifiedType">-->
+                <!--<xsd:choice>-->
+                    <!--<xsd:element name="limits123" type="limitsTestAbstract" minOccurs="1" maxOccurs="unbounded"/>-->
+                <!--</xsd:choice>-->
+            <!--</xsd:extension>-->
+        <!--</xsd:complexContent>-->
+    <!--</xsd:complexType>-->
+
+    <xsd:complexType name="limitsTestAbstract" abstract="true">
+        <xsd:annotation><xsd:documentation>
+            ??? not ready
+        </xsd:documentation></xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="identifiedType">
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="limits-ref">
+        <xsd:annotation><xsd:documentation>
+            ???
+        </xsd:documentation></xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="limitsTestAbstract">
+                <xsd:attribute name="ref" type="xsd:string" use="required"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <!--???-->
+    <!--<xsd:complexType name="limits-test-group">-->
+        <!--<xsd:annotation><xsd:documentation>-->
+            <!--??? not ready-->
+        <!--</xsd:documentation></xsd:annotation>-->
+        <!--<xsd:complexContent>-->
+            <!--<xsd:extension base="listenerTestAbstract">-->
+                <!--<xsd:sequence minOccurs="1" maxOccurs="unbounded">-->
+                    <!--<xsd:element name="limit" type="testLimitType" maxOccurs="unbounded"/>-->
+                <!--</xsd:sequence>-->
+            <!--</xsd:extension>-->
+        <!--</xsd:complexContent>-->
+    <!--</xsd:complexType>-->
+
 
     <!--************************-->
     <!-- Metric collectors types-->
@@ -1574,7 +1666,7 @@
         <xsd:complexContent>
             <xsd:extension base="identifiedType">
                 <xsd:choice minOccurs="0" maxOccurs="unbounded">
-                    <xsd:element name="extension" type="extensionType"></xsd:element>
+                    <xsd:element name="extension" type="extensionType"/>
                 </xsd:choice>
             </xsd:extension>
         </xsd:complexContent>
