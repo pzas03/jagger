@@ -122,7 +122,6 @@ public class ProfileReporter extends AbstractMonitoringReportProvider<String> {
             sysUnderTests = loadData();
         }
 
-        //??? check vs old and new DB!!!
         loadMonitoringMap();
 
         List<SysUnderTestDTO> data = sysUnderTests.get(testId);
