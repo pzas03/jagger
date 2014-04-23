@@ -50,6 +50,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
+//???
 /**
  * Aggregates monitoring information.
  *
@@ -58,11 +59,12 @@ import java.util.concurrent.atomic.AtomicLong;
 public class MonitoringAggregator extends LogProcessor implements DistributionListener {
     private static Logger log = LoggerFactory.getLogger(MonitoringAggregator.class);
 
-    private LogAggregator logAggregator;
+    //???
+//    private LogAggregator logAggregator;
     private FileStorage fileStorage;
 
     private LogReader logReader;
-    IntervalSizeProvider intervalSizeProvider;
+//    IntervalSizeProvider intervalSizeProvider;
 
     public void setLogReader(LogReader logReader) {
         this.logReader = logReader;
@@ -76,10 +78,10 @@ public class MonitoringAggregator extends LogProcessor implements DistributionLi
     @Override
     public void onTaskDistributionCompleted(String sessionId, String taskId, Task task) {
         if (task instanceof MonitoringTask) {
-            persistEntry(sessionId, taskId, (MonitoringTask) task);
+//            persistEntry(sessionId, taskId, (MonitoringTask) task);
 
             log.debug("Going to aggregate monitoring details for task id {}", taskId);
-            aggregateLogs(sessionId, taskId);
+//            aggregateLogs(sessionId, taskId);
             log.debug("Monitoring details aggregation completed for task id {}", taskId);
         }
     }
@@ -100,77 +102,80 @@ public class MonitoringAggregator extends LogProcessor implements DistributionLi
     }
 
     private void aggregateLogs(String sessionId, String taskId) {
-        String dir = sessionId + "/" + taskId + "/" + LoggingMonitoringProcessor.MONITORING_MARKER;
-        String aggregatedFile = dir + "/aggregated.dat";
+//        String dir = sessionId + "/" + taskId + "/" + LoggingMonitoringProcessor.MONITORING_MARKER;
+//        String aggregatedFile = dir + "/aggregated.dat";
         try {
-            AggregationInfo aggregationInfo = logAggregator.chronology(dir, aggregatedFile);
 
-            if(aggregationInfo.getCount() == 0) {
-                //metric not collected
-                return;
-            }
+            //???
+//            AggregationInfo aggregationInfo = logAggregator.chronology(dir, aggregatedFile);
+//
+//            if(aggregationInfo.getCount() == 0) {
+//                //metric not collected
+//                return;
+//            }
+//
+//            int intervalSize = intervalSizeProvider.getIntervalSize(aggregationInfo.getMinTime(),aggregationInfo.getMaxTime());
+//            if (intervalSize < 1) {
+//                intervalSize = 1;
+//            }
+//
+//            TaskData taskData = getTaskData(taskId, sessionId);
+//            if (taskData == null) {
+//                log.error("TaskData not found by taskId: {}", taskId);
+//                return;
+//            }
+//
+//            long currentInterval = aggregationInfo.getMinTime() + intervalSize;
+//            AtomicLong extendedInterval = new AtomicLong(intervalSize);
+//
+//            final Map<NodeId, Map<MonitoringParameter, Double>> sumByIntervalAgent = Maps.newHashMap();
+//            final Map<NodeId, Map<MonitoringParameter, Long>> countByIntervalAgent = Maps.newHashMap();
+//            final Map<String, Map<MonitoringParameter, Double>> sumByIntervalSuT = Maps.newHashMap();
+//            final Map<String, Map<MonitoringParameter, Long>> countByIntervalSuT = Maps.newHashMap();
+//            final ListMultimap<MonitoringStream, MonitoringStatistics> avgStatisticsByAgent = ArrayListMultimap.create();
+//            final ListMultimap<MonitoringStream, MonitoringStatistics> avgStatisticsBySuT = ArrayListMultimap.create();
+//
+//            LogReader.FileReader<MonitoringLogEntry> fileReader = logReader.read(aggregatedFile, MonitoringLogEntry.class);
+//            Iterator<MonitoringLogEntry> it = fileReader.iterator();
+//            while (it.hasNext()) {
+//                MonitoringLogEntry logEntry = it.next();
+//                try{
+//                    currentInterval = processLogEntry(sessionId, aggregationInfo, intervalSize, taskData, currentInterval,
+//                            sumByIntervalAgent, countByIntervalAgent, sumByIntervalSuT, countByIntervalSuT, avgStatisticsByAgent,
+//                            avgStatisticsBySuT, logEntry, extendedInterval);
+//                } catch (ClassCastException e){
+//                    //HotFix for hessian de/serialization problem
+//                    log.error("Deserialization problem: {}", e);
+//                }
+//            }
+//
+//            fileReader.close();
+//
+//            finalizeIntervalSysInfo(sessionId, taskData, currentInterval - aggregationInfo.getMinTime() - extendedInterval.get() / 2,
+//                    sumByIntervalAgent, countByIntervalAgent, avgStatisticsByAgent);
+//            finalizeIntervalSysUT(sessionId, taskData, currentInterval - aggregationInfo.getMinTime() - extendedInterval.get() / 2,
+//                    sumByIntervalSuT, countByIntervalSuT, avgStatisticsBySuT);
+//
+//            differentiateRelativeParameters(avgStatisticsByAgent);
+//            differentiateRelativeParameters(avgStatisticsBySuT);
+//
+//            log.info("BEGIN: Save to data base " + dir);
+//            getHibernateTemplate().execute(new HibernateCallback<Void>() {
+//                @Override
+//                public Void doInHibernate(Session session) throws HibernateException, SQLException {
+//                    for (MonitoringStatistics stat : avgStatisticsByAgent.values()) {
+//                        session.persist(stat);
+//                    }
+//                    for (MonitoringStatistics stat : avgStatisticsBySuT.values()) {
+//                        session.persist(stat);
+//                    }
+//                    session.flush();
+//                    return null;
+//                }
+//            });
+//            log.info("END: Save to data base " + dir);
 
-            int intervalSize = intervalSizeProvider.getIntervalSize(aggregationInfo.getMinTime(),aggregationInfo.getMaxTime());
-            if (intervalSize < 1) {
-                intervalSize = 1;
-            }
-
-            TaskData taskData = getTaskData(taskId, sessionId);
-            if (taskData == null) {
-                log.error("TaskData not found by taskId: {}", taskId);
-                return;
-            }
-
-            long currentInterval = aggregationInfo.getMinTime() + intervalSize;
-            AtomicLong extendedInterval = new AtomicLong(intervalSize);
-
-            final Map<NodeId, Map<MonitoringParameter, Double>> sumByIntervalAgent = Maps.newHashMap();
-            final Map<NodeId, Map<MonitoringParameter, Long>> countByIntervalAgent = Maps.newHashMap();
-            final Map<String, Map<MonitoringParameter, Double>> sumByIntervalSuT = Maps.newHashMap();
-            final Map<String, Map<MonitoringParameter, Long>> countByIntervalSuT = Maps.newHashMap();
-            final ListMultimap<MonitoringStream, MonitoringStatistics> avgStatisticsByAgent = ArrayListMultimap.create();
-            final ListMultimap<MonitoringStream, MonitoringStatistics> avgStatisticsBySuT = ArrayListMultimap.create();
-
-            LogReader.FileReader<MonitoringLogEntry> fileReader = logReader.read(aggregatedFile, MonitoringLogEntry.class);
-            Iterator<MonitoringLogEntry> it = fileReader.iterator();
-            while (it.hasNext()) {
-                MonitoringLogEntry logEntry = it.next();
-                try{
-                    currentInterval = processLogEntry(sessionId, aggregationInfo, intervalSize, taskData, currentInterval,
-                            sumByIntervalAgent, countByIntervalAgent, sumByIntervalSuT, countByIntervalSuT, avgStatisticsByAgent,
-                            avgStatisticsBySuT, logEntry, extendedInterval);
-                } catch (ClassCastException e){
-                    //HotFix for hessian de/serialization problem
-                    log.error("Deserialization problem: {}", e);
-                }
-            }
-
-            fileReader.close();
-
-            finalizeIntervalSysInfo(sessionId, taskData, currentInterval - aggregationInfo.getMinTime() - extendedInterval.get() / 2,
-                    sumByIntervalAgent, countByIntervalAgent, avgStatisticsByAgent);
-            finalizeIntervalSysUT(sessionId, taskData, currentInterval - aggregationInfo.getMinTime() - extendedInterval.get() / 2,
-                    sumByIntervalSuT, countByIntervalSuT, avgStatisticsBySuT);
-
-            differentiateRelativeParameters(avgStatisticsByAgent);
-            differentiateRelativeParameters(avgStatisticsBySuT);
-
-            log.info("BEGIN: Save to data base " + dir);
-            getHibernateTemplate().execute(new HibernateCallback<Void>() {
-                @Override
-                public Void doInHibernate(Session session) throws HibernateException, SQLException {
-                    for (MonitoringStatistics stat : avgStatisticsByAgent.values()) {
-                        session.persist(stat);
-                    }
-                    for (MonitoringStatistics stat : avgStatisticsBySuT.values()) {
-                        session.persist(stat);
-                    }
-                    session.flush();
-                    return null;
-                }
-            });
-            log.info("END: Save to data base " + dir);
-
+            //??? check functionality
             saveProfilers(sessionId, taskId);
 
         } catch (Exception e) {
@@ -179,6 +184,8 @@ public class MonitoringAggregator extends LogProcessor implements DistributionLi
     }
 
     private void saveProfilers(final String sessionId, final String taskId) throws IOException {
+
+        //??? profiles are saved under TG taskId now!
         String dir;
         dir = sessionId + "/" + taskId + "/" + MonitorProcess.PROFILER_MARKER;
 
@@ -213,193 +220,195 @@ public class MonitoringAggregator extends LogProcessor implements DistributionLi
         }
     }
 
-    private long processLogEntry(String sessionId, AggregationInfo aggregationInfo, long intervalSize, TaskData taskData,
-                                 long currentInterval, Map<NodeId, Map<MonitoringParameter, Double>> sumByIntervalAgent,
-                                 Map<NodeId, Map<MonitoringParameter, Long>> countByIntervalAgent,
-                                 Map<String, Map<MonitoringParameter, Double>> sumByIntervalSuT,
-                                 Map<String, Map<MonitoringParameter, Long>> countByIntervalSuT,
-                                 ListMultimap<MonitoringStream, MonitoringStatistics> avgStatisticsByAgent,
-                                 ListMultimap<MonitoringStream, MonitoringStatistics> avgStatisticsBySuT,
-                                 MonitoringLogEntry logEntry, AtomicLong extendedInterval) {
-        while (logEntry.getTime() > currentInterval) {
-            if (!countByIntervalAgent.isEmpty() || !countByIntervalSuT.isEmpty()) {
+    //???
+//    private long processLogEntry(String sessionId, AggregationInfo aggregationInfo, long intervalSize, TaskData taskData,
+//                                 long currentInterval, Map<NodeId, Map<MonitoringParameter, Double>> sumByIntervalAgent,
+//                                 Map<NodeId, Map<MonitoringParameter, Long>> countByIntervalAgent,
+//                                 Map<String, Map<MonitoringParameter, Double>> sumByIntervalSuT,
+//                                 Map<String, Map<MonitoringParameter, Long>> countByIntervalSuT,
+//                                 ListMultimap<MonitoringStream, MonitoringStatistics> avgStatisticsByAgent,
+//                                 ListMultimap<MonitoringStream, MonitoringStatistics> avgStatisticsBySuT,
+//                                 MonitoringLogEntry logEntry, AtomicLong extendedInterval) {
+//        while (logEntry.getTime() > currentInterval) {
+//            if (!countByIntervalAgent.isEmpty() || !countByIntervalSuT.isEmpty()) {
+//
+//                long time = currentInterval - aggregationInfo.getMinTime() - extendedInterval.get() / 2;
+//                finalizeIntervalSysInfo(sessionId, taskData,
+//                        time,
+//                        sumByIntervalAgent, countByIntervalAgent, avgStatisticsByAgent);
+//                finalizeIntervalSysUT(sessionId, taskData,
+//                        time,
+//                        sumByIntervalSuT, countByIntervalSuT, avgStatisticsBySuT);
+//                sumByIntervalAgent.clear();
+//                countByIntervalAgent.clear();
+//                sumByIntervalSuT.clear();
+//                countByIntervalSuT.clear();
+//                extendedInterval.set(0);
+//            }
+//            currentInterval += intervalSize;
+//            extendedInterval.addAndGet(intervalSize);
+//        }
+//        Map<String, SystemUnderTestInfo> sysUnderTest = logEntry.getSystemInfo().getSysUnderTest();
+//        if (sysUnderTest != null) {
+//            for (String url : sysUnderTest.keySet()) {
+//                Map<MonitoringParameter, Double> sumSysUnderTestMetrics = sumByIntervalSuT.get(url);
+//                Map<MonitoringParameter, Long> countSysUnderTestMetrics = countByIntervalSuT.get(url);
+//                if (sumSysUnderTestMetrics == null) {
+//                    sumSysUnderTestMetrics = Maps.newHashMap();
+//                    sumByIntervalSuT.put(url, sumSysUnderTestMetrics);
+//                    countSysUnderTestMetrics = Maps.newHashMap();
+//                    countByIntervalSuT.put(url, countSysUnderTestMetrics);
+//                }
+//                for (Map.Entry<MonitoringParameter, Double> entry : sysUnderTest.get(url).getSysUTInfo().entrySet()) {
+//                    Double prevSum = sumSysUnderTestMetrics.get(entry.getKey());
+//                    double value = entry.getValue();
+//                    if (prevSum != null) {
+//                        if (!entry.getKey().isCumulativeCounter()) {
+//                            value += prevSum;
+//                        } else {
+//                            value = Math.max(value, prevSum);
+//                        }
+//                    }
+//                    sumSysUnderTestMetrics.put(entry.getKey(), value);
+//                    Long prevCount = countSysUnderTestMetrics.get(entry.getKey());
+//                    countSysUnderTestMetrics.put(entry.getKey(), (prevCount == null || entry.getKey().isCumulativeCounter()) ? 1 : prevCount + 1);
+//                }
+//            }
+//        }
+//        Map<MonitoringParameter, Double> sysInfo = logEntry.getSystemInfo().getSysInfo();
+//        if (sysInfo != null) {
+//            NodeId nodeId = logEntry.getSystemInfo().getNodeId();
+//            for (Map.Entry<MonitoringParameter, Double> entry : sysInfo.entrySet()) {
+//                Map<MonitoringParameter, Double> sumMonitoringAgent = sumByIntervalAgent.get(nodeId);
+//                Map<MonitoringParameter, Long> countsMonitoringAgent = countByIntervalAgent.get(nodeId);
+//                if (sumMonitoringAgent == null) {
+//                    sumMonitoringAgent = Maps.newHashMap();
+//                    sumByIntervalAgent.put(nodeId, sumMonitoringAgent);
+//                    countsMonitoringAgent = Maps.newHashMap();
+//                    countByIntervalAgent.put(nodeId, countsMonitoringAgent);
+//                }
+//                Double prevSum = sumMonitoringAgent.get(entry.getKey());
+//                double value = entry.getValue();
+//                if (prevSum != null) {
+//                    if (!entry.getKey().isCumulativeCounter()) {
+//                        value += prevSum;
+//                    } else {
+//                        value = Math.max(value, prevSum);
+//                    }
+//                }
+//                sumMonitoringAgent.put(entry.getKey(), value);
+//                Long prevCount = countsMonitoringAgent.get(entry.getKey());
+//                countsMonitoringAgent.put(entry.getKey(), (prevCount == null || entry.getKey().isCumulativeCounter()) ? 1 : prevCount + 1);
+//            }
+//        }
+//        return currentInterval;
+//    }
+//
+//    private static void differentiateRelativeParameters(ListMultimap<MonitoringStream, ? extends MonitoringStatistics> aggregatedData) {
+//        for (MonitoringStream stream : aggregatedData.keySet()) {
+//            if (stream.monitoringParameter.isCumulativeCounter()) {
+//                List<? extends MonitoringStatistics> trace = aggregatedData.get(stream); // trace is ordered by time
+//                if (!trace.isEmpty()) {
+//                    for (int i = trace.size() - 1; i > 0; i--) {
+//                        MonitoringStatistics statisticsBySuT = trace.get(i);
+//                        MonitoringStatistics previousStatisticsBySuT = trace.get(i - 1);
+//                        double diffValue = statisticsBySuT.getAverageValue() - previousStatisticsBySuT.getAverageValue();
+//                        if (diffValue < 0) {
+//                            log.warn("Negative cumulative metric has been flushed and will be removed. Difference with previous value by parameter {} is {}: ({} - {})",
+//                                    new Object[]{statisticsBySuT.getParameterId(), diffValue, statisticsBySuT.getAverageValue(),
+//                                            previousStatisticsBySuT.getAverageValue()});
+//                            trace.remove(i);
+//                        } else {
+//                            statisticsBySuT.setAverageValue(diffValue);
+//                        }
+//                    }
+//                    trace.get(0).setAverageValue(0d);
+//                }
+//            }
+//        }
+//    }
+//
+//    private static void finalizeIntervalSysInfo(String sessionId, TaskData taskData, long currentInterval,
+//                                                Map<NodeId, Map<MonitoringParameter, Double>> sumByInterval,
+//                                                Map<NodeId, Map<MonitoringParameter, Long>> countByInterval,
+//                                                ListMultimap<MonitoringStream, MonitoringStatistics> aggregatedData) {
+//        for (NodeId nodeId : countByInterval.keySet()) {
+//            for (MonitoringParameter parameterId : countByInterval.get(nodeId).keySet()) {
+//                MonitoringParameterBean parameter = MonitoringParameterBean.copyOf(parameterId);
+//                if (parameter.getLevel() == MonitoringParameterLevel.BOX) {
+//                    Double avgValue = sumByInterval.get(nodeId).get(parameterId) / countByInterval.get(nodeId).get(parameterId);
+//
+//                    aggregatedData.put(
+//                            new MonitoringStream(nodeId.getIdentifier(), parameterId),
+//                            new MonitoringStatistics(nodeId.getIdentifier(), null, sessionId, taskData, currentInterval,
+//                                    parameter, avgValue)
+//                    );
+//                }
+//            }
+//        }
+//    }
+//
+//    private static void finalizeIntervalSysUT(String sessionId, TaskData taskData, long currentInterval,
+//                                              Map<String, Map<MonitoringParameter, Double>> sumByInterval,
+//                                              Map<String, Map<MonitoringParameter, Long>> countByInterval,
+//                                              ListMultimap<MonitoringStream, MonitoringStatistics> aggregatedData) {
+//        for (String url : countByInterval.keySet()) {
+//            for (MonitoringParameter parameterId : countByInterval.get(url).keySet()) {
+//                MonitoringParameterBean parameter = MonitoringParameterBean.copyOf(parameterId);
+//                if (parameter.getLevel() == MonitoringParameterLevel.SUT) {
+//                    Double avgValue = sumByInterval.get(url).get(parameterId) / countByInterval.get(url).get(parameterId);
+//
+//                    aggregatedData.put(
+//                            new MonitoringStream(url, parameterId),
+//                            new MonitoringStatistics(null, url, sessionId, taskData, currentInterval, parameter, avgValue)
+//                    );
+//                }
+//            }
+//        }
+//    }
 
-                long time = currentInterval - aggregationInfo.getMinTime() - extendedInterval.get() / 2;
-                finalizeIntervalSysInfo(sessionId, taskData,
-                        time,
-                        sumByIntervalAgent, countByIntervalAgent, avgStatisticsByAgent);
-                finalizeIntervalSysUT(sessionId, taskData,
-                        time,
-                        sumByIntervalSuT, countByIntervalSuT, avgStatisticsBySuT);
-                sumByIntervalAgent.clear();
-                countByIntervalAgent.clear();
-                sumByIntervalSuT.clear();
-                countByIntervalSuT.clear();
-                extendedInterval.set(0);
-            }
-            currentInterval += intervalSize;
-            extendedInterval.addAndGet(intervalSize);
-        }
-        Map<String, SystemUnderTestInfo> sysUnderTest = logEntry.getSystemInfo().getSysUnderTest();
-        if (sysUnderTest != null) {
-            for (String url : sysUnderTest.keySet()) {
-                Map<MonitoringParameter, Double> sumSysUnderTestMetrics = sumByIntervalSuT.get(url);
-                Map<MonitoringParameter, Long> countSysUnderTestMetrics = countByIntervalSuT.get(url);
-                if (sumSysUnderTestMetrics == null) {
-                    sumSysUnderTestMetrics = Maps.newHashMap();
-                    sumByIntervalSuT.put(url, sumSysUnderTestMetrics);
-                    countSysUnderTestMetrics = Maps.newHashMap();
-                    countByIntervalSuT.put(url, countSysUnderTestMetrics);
-                }
-                for (Map.Entry<MonitoringParameter, Double> entry : sysUnderTest.get(url).getSysUTInfo().entrySet()) {
-                    Double prevSum = sumSysUnderTestMetrics.get(entry.getKey());
-                    double value = entry.getValue();
-                    if (prevSum != null) {
-                        if (!entry.getKey().isCumulativeCounter()) {
-                            value += prevSum;
-                        } else {
-                            value = Math.max(value, prevSum);
-                        }
-                    }
-                    sumSysUnderTestMetrics.put(entry.getKey(), value);
-                    Long prevCount = countSysUnderTestMetrics.get(entry.getKey());
-                    countSysUnderTestMetrics.put(entry.getKey(), (prevCount == null || entry.getKey().isCumulativeCounter()) ? 1 : prevCount + 1);
-                }
-            }
-        }
-        Map<MonitoringParameter, Double> sysInfo = logEntry.getSystemInfo().getSysInfo();
-        if (sysInfo != null) {
-            NodeId nodeId = logEntry.getSystemInfo().getNodeId();
-            for (Map.Entry<MonitoringParameter, Double> entry : sysInfo.entrySet()) {
-                Map<MonitoringParameter, Double> sumMonitoringAgent = sumByIntervalAgent.get(nodeId);
-                Map<MonitoringParameter, Long> countsMonitoringAgent = countByIntervalAgent.get(nodeId);
-                if (sumMonitoringAgent == null) {
-                    sumMonitoringAgent = Maps.newHashMap();
-                    sumByIntervalAgent.put(nodeId, sumMonitoringAgent);
-                    countsMonitoringAgent = Maps.newHashMap();
-                    countByIntervalAgent.put(nodeId, countsMonitoringAgent);
-                }
-                Double prevSum = sumMonitoringAgent.get(entry.getKey());
-                double value = entry.getValue();
-                if (prevSum != null) {
-                    if (!entry.getKey().isCumulativeCounter()) {
-                        value += prevSum;
-                    } else {
-                        value = Math.max(value, prevSum);
-                    }
-                }
-                sumMonitoringAgent.put(entry.getKey(), value);
-                Long prevCount = countsMonitoringAgent.get(entry.getKey());
-                countsMonitoringAgent.put(entry.getKey(), (prevCount == null || entry.getKey().isCumulativeCounter()) ? 1 : prevCount + 1);
-            }
-        }
-        return currentInterval;
-    }
-
-    private static void differentiateRelativeParameters(ListMultimap<MonitoringStream, ? extends MonitoringStatistics> aggregatedData) {
-        for (MonitoringStream stream : aggregatedData.keySet()) {
-            if (stream.monitoringParameter.isCumulativeCounter()) {
-                List<? extends MonitoringStatistics> trace = aggregatedData.get(stream); // trace is ordered by time
-                if (!trace.isEmpty()) {
-                    for (int i = trace.size() - 1; i > 0; i--) {
-                        MonitoringStatistics statisticsBySuT = trace.get(i);
-                        MonitoringStatistics previousStatisticsBySuT = trace.get(i - 1);
-                        double diffValue = statisticsBySuT.getAverageValue() - previousStatisticsBySuT.getAverageValue();
-                        if (diffValue < 0) {
-                            log.warn("Negative cumulative metric has been flushed and will be removed. Difference with previous value by parameter {} is {}: ({} - {})",
-                                    new Object[]{statisticsBySuT.getParameterId(), diffValue, statisticsBySuT.getAverageValue(),
-                                            previousStatisticsBySuT.getAverageValue()});
-                            trace.remove(i);
-                        } else {
-                            statisticsBySuT.setAverageValue(diffValue);
-                        }
-                    }
-                    trace.get(0).setAverageValue(0d);
-                }
-            }
-        }
-    }
-
-    private static void finalizeIntervalSysInfo(String sessionId, TaskData taskData, long currentInterval,
-                                                Map<NodeId, Map<MonitoringParameter, Double>> sumByInterval,
-                                                Map<NodeId, Map<MonitoringParameter, Long>> countByInterval,
-                                                ListMultimap<MonitoringStream, MonitoringStatistics> aggregatedData) {
-        for (NodeId nodeId : countByInterval.keySet()) {
-            for (MonitoringParameter parameterId : countByInterval.get(nodeId).keySet()) {
-                MonitoringParameterBean parameter = MonitoringParameterBean.copyOf(parameterId);
-                if (parameter.getLevel() == MonitoringParameterLevel.BOX) {
-                    Double avgValue = sumByInterval.get(nodeId).get(parameterId) / countByInterval.get(nodeId).get(parameterId);
-
-                    aggregatedData.put(
-                            new MonitoringStream(nodeId.getIdentifier(), parameterId),
-                            new MonitoringStatistics(nodeId.getIdentifier(), null, sessionId, taskData, currentInterval,
-                                    parameter, avgValue)
-                    );
-                }
-            }
-        }
-    }
-
-    private static void finalizeIntervalSysUT(String sessionId, TaskData taskData, long currentInterval,
-                                              Map<String, Map<MonitoringParameter, Double>> sumByInterval,
-                                              Map<String, Map<MonitoringParameter, Long>> countByInterval,
-                                              ListMultimap<MonitoringStream, MonitoringStatistics> aggregatedData) {
-        for (String url : countByInterval.keySet()) {
-            for (MonitoringParameter parameterId : countByInterval.get(url).keySet()) {
-                MonitoringParameterBean parameter = MonitoringParameterBean.copyOf(parameterId);
-                if (parameter.getLevel() == MonitoringParameterLevel.SUT) {
-                    Double avgValue = sumByInterval.get(url).get(parameterId) / countByInterval.get(url).get(parameterId);
-
-                    aggregatedData.put(
-                            new MonitoringStream(url, parameterId),
-                            new MonitoringStatistics(null, url, sessionId, taskData, currentInterval, parameter, avgValue)
-                    );
-                }
-            }
-        }
-    }
-
-    public void setLogAggregator(LogAggregator logAggregator) {
-        this.logAggregator = logAggregator;
-    }
+//    public void setLogAggregator(LogAggregator logAggregator) {
+//        this.logAggregator = logAggregator;
+//    }
 
     public void setFileStorage(FileStorage fileStorage) {
         this.fileStorage = fileStorage;
     }
 
-    public void setIntervalSizeProvider(IntervalSizeProvider intervalSizeProvider) {
-        this.intervalSizeProvider = intervalSizeProvider;
-    }
+//    public void setIntervalSizeProvider(IntervalSizeProvider intervalSizeProvider) {
+//        this.intervalSizeProvider = intervalSizeProvider;
+//    }
 
-    private static class MonitoringStream {
-        private String sourceId;
-        private MonitoringParameter monitoringParameter;
-
-        public MonitoringStream(String sourceId, MonitoringParameter parameter) {
-            this.sourceId = sourceId;
-            this.monitoringParameter = parameter;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            MonitoringStream that = (MonitoringStream) o;
-
-            if (monitoringParameter != null ? !monitoringParameter.equals(that.monitoringParameter) : that.monitoringParameter != null)
-                return false;
-            if (sourceId != null ? !sourceId.equals(that.sourceId) : that.sourceId != null) return false;
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = sourceId != null ? sourceId.hashCode() : 0;
-            result = 31 * result + (monitoringParameter != null ? monitoringParameter.hashCode() : 0);
-            return result;
-        }
-    }
+    //???
+//    private static class MonitoringStream {
+//        private String sourceId;
+//        private MonitoringParameter monitoringParameter;
+//
+//        public MonitoringStream(String sourceId, MonitoringParameter parameter) {
+//            this.sourceId = sourceId;
+//            this.monitoringParameter = parameter;
+//        }
+//
+//        @Override
+//        public boolean equals(Object o) {
+//            if (this == o) return true;
+//            if (o == null || getClass() != o.getClass()) return false;
+//
+//            MonitoringStream that = (MonitoringStream) o;
+//
+//            if (monitoringParameter != null ? !monitoringParameter.equals(that.monitoringParameter) : that.monitoringParameter != null)
+//                return false;
+//            if (sourceId != null ? !sourceId.equals(that.sourceId) : that.sourceId != null) return false;
+//
+//            return true;
+//        }
+//
+//        @Override
+//        public int hashCode() {
+//            int result = sourceId != null ? sourceId.hashCode() : 0;
+//            result = 31 * result + (monitoringParameter != null ? monitoringParameter.hashCode() : 0);
+//            return result;
+//        }
+//    }
 
 }

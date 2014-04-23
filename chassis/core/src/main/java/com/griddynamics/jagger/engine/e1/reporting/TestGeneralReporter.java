@@ -75,6 +75,7 @@ public class TestGeneralReporter extends AbstractReportProvider {
             return new JRBeanCollectionDataSource(Collections.EMPTY_LIST);
         }
 
+        //??? always return empty collection
         List<TestDetailsDTO> result = new ArrayList<TestDetailsDTO>();
         SystemUnderTestPlotsGeneralProvider plotsGeneralProvider = (SystemUnderTestPlotsGeneralProvider) getContext().getMappedProvider("sysUTPlotsGeneral");
         Set<String> boxIdentifiers = plotsGeneralProvider.getStatistics().findBoxIdentifiers();

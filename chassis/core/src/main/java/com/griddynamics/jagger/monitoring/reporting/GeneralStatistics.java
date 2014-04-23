@@ -50,6 +50,7 @@ public final class GeneralStatistics implements Serializable {
     private final LinkedHashMap<MonitoringParameter, LinkedHashSet<String>> parameterSuts = new LinkedHashMap<MonitoringParameter, LinkedHashSet<String>>();
     private final LinkedHashMap<String, LinkedHashMap<MonitoringParameter, LinkedHashMap<String, List<MonitoringStatistics>>>> sutStatistics = new LinkedHashMap<String, LinkedHashMap<MonitoringParameter, LinkedHashMap<String, List<MonitoringStatistics>>>>();
 
+    //??? not used
     public GeneralStatistics(String sessionId, List<MonitoringStatistics> statistics) {
         log.info("BEGIN: General statistics generation");
 
