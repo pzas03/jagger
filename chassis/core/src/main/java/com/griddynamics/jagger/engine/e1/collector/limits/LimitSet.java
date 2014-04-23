@@ -28,7 +28,7 @@ import java.util.*;
 public class LimitSet {
     private static final Logger log = LoggerFactory.getLogger(LimitSet.class);
 
-    private List<Limit> limits = Collections.EMPTY_LIST;
+    private List<Limit> limits = Collections.emptyList();
     private String id;
     //??? set baseline sessionId here
 
@@ -74,22 +74,25 @@ public class LimitSet {
         List<Limit> limitsWithErrors = new ArrayList<Limit>();
 
         for(Limit limit : inputList) {
-            if (limit.getLEL() > limit.getLWL()) {
+            if (limit.getLowerErrorThreshold() > limit.getLowerWarningThreshold()) {
                 limitsWithErrors.add(limit);
                 log.error("Limit with metricName '" + limit.getMetricName() +
-                        "' has wrong relation of thresholds. LEL "+ limit.getLEL() + " should be less than LWL " + limit.getLWL());
+                        "' has wrong relation of thresholds. LowerErrorThreshold "+ limit.getLowerErrorThreshold() +
+                        " should be less than LowerWarningThreshold " + limit.getLowerWarningThreshold());
                 continue;
             }
-            if (limit.getLWL() > limit.getUWL()) {
+            if (limit.getLowerWarningThreshold() > limit.getUpperWarningThreshold()) {
                 limitsWithErrors.add(limit);
                 log.error("Limit with metricName '" + limit.getMetricName() +
-                        "' has wrong relation of thresholds. LWL " + limit.getLWL() + " should be less than UWL " + limit.getUWL());
+                        "' has wrong relation of thresholds. LowerWarningThreshold " + limit.getLowerWarningThreshold() +
+                        " should be less than UpperWarningThreshold " + limit.getUpperWarningThreshold());
                 continue;
             }
-            if (limit.getUWL() > limit.getUEL()) {
+            if (limit.getUpperWarningThreshold() > limit.getUpperErrorThreshold()) {
                 limitsWithErrors.add(limit);
                 log.error("Limit with metricName '" + limit.getMetricName() +
-                        "' has wrong relation of thresholds. UWL " + limit.getUWL() + " should be less than UEL " + limit.getUEL());
+                        "' has wrong relation of thresholds. UpperWarningThreshold " + limit.getUpperWarningThreshold() +
+                        " should be less than UpperErrorThreshold " + limit.getUpperErrorThreshold());
                 continue;
             }
         }

@@ -20,15 +20,39 @@
 
 package com.griddynamics.jagger.engine.e1.collector.limits;
 
+/** Class is used to describe individual limits for some metric. Limits are used for decision making
+ *
+ * @details
+ * Metric comparison will be provided by ??? decision maker @n
+ * Metric value will be compared with some reference: ref, where ref is: @n
+ * @li value from baseline when refValue = null @n
+ * @li refValue in all other cases @n
+ *
+ * Result pass when value in range (LWT*ref .. UWT*ref) @n
+ * Result warning when value in range (LET*ref .. LWT*ref) OR (UWT*ref .. UET*ref) @n
+ * Result error when value is less than LET*ref OR is greater than UET*ref @n
+ */
 public class Limit {
-    String metricName = null;
-    String limitDescription;
-    // if refValue is null we will compare to baseline session value
-    Double refValue = null;
-    Double LWL = 0D;
-    Double UWL = 0D;
-    Double LEL = 0D;
-    Double UEL = 0D;
+    /** Metric name (aka metric Id) - metric we are going to compare */
+    private String metricName = null;
+
+    /** Description of this limit */
+    private String limitDescription;
+
+    /** Reference value - absolute value used as reference for comparison. When refValue=null we will compare to baseline session value */
+    private Double refValue = null;
+
+    /** Lower warning threshold - LWT. Relative value */
+    private Double lowerWarningThreshold = 0D;
+
+    /** Upper warning threshold - UWT. Relative value */
+    private Double upperWarningThreshold = 0D;
+
+    /** Lower error threshold - LET. Relative value */
+    private Double lowerErrorThreshold = 0D;
+
+    /** Upper error threshold - UET. Relative value */
+    private Double upperErrorThreshold = 0D;
 
     public Limit() {}
 
@@ -56,36 +80,36 @@ public class Limit {
         this.refValue = refValue;
     }
 
-    public Double getLWL() {
-        return LWL;
+    public Double getLowerWarningThreshold() {
+        return lowerWarningThreshold;
     }
 
-    public void setLWL(Double LWL) {
-        this.LWL = LWL;
+    public void setLowerWarningThreshold(Double lowerWarningThreshold) {
+        this.lowerWarningThreshold = lowerWarningThreshold;
     }
 
-    public Double getUWL() {
-        return UWL;
+    public Double getUpperWarningThreshold() {
+        return upperWarningThreshold;
     }
 
-    public void setUWL(Double UWL) {
-        this.UWL = UWL;
+    public void setUpperWarningThreshold(Double upperWarningThreshold) {
+        this.upperWarningThreshold = upperWarningThreshold;
     }
 
-    public Double getLEL() {
-        return LEL;
+    public Double getLowerErrorThreshold() {
+        return lowerErrorThreshold;
     }
 
-    public void setLEL(Double LEL) {
-        this.LEL = LEL;
+    public void setLowerErrorThreshold(Double lowerErrorThreshold) {
+        this.lowerErrorThreshold = lowerErrorThreshold;
     }
 
-    public Double getUEL() {
-        return UEL;
+    public Double getUpperErrorThreshold() {
+        return upperErrorThreshold;
     }
 
-    public void setUEL(Double UEL) {
-        this.UEL = UEL;
+    public void setUpperErrorThreshold(Double upperErrorThreshold) {
+        this.upperErrorThreshold = upperErrorThreshold;
     }
 }
 

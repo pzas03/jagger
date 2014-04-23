@@ -22,10 +22,15 @@ public class LimitDefinitionParser extends CustomBeanDefinitionParser {
     @Override
     protected void preParseAttributes(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
         builder.addPropertyValue(XMLConstants.LIMIT_METRIC_NAME, element.getAttribute(XMLConstants.LIMIT_METRIC_NAME));
-        builder.addPropertyValue(XMLConstants.LIMIT_LWL, element.getAttribute(XMLConstants.LIMIT_LWL));
-        builder.addPropertyValue(XMLConstants.LIMIT_UWL, element.getAttribute(XMLConstants.LIMIT_UWL));
-        builder.addPropertyValue(XMLConstants.LIMIT_LEL, element.getAttribute(XMLConstants.LIMIT_LEL));
-        builder.addPropertyValue(XMLConstants.LIMIT_UEL, element.getAttribute(XMLConstants.LIMIT_UEL));
+
+        builder.addPropertyValue(XMLConstants.LIMIT_LWT_PROP, element.getAttribute(XMLConstants.LIMIT_LWT_TAG));
+        builder.addPropertyValue(XMLConstants.LIMIT_UWT_PROP, element.getAttribute(XMLConstants.LIMIT_UWT_TAG));
+        builder.addPropertyValue(XMLConstants.LIMIT_LET_PROP, element.getAttribute(XMLConstants.LIMIT_LET_TAG));
+        builder.addPropertyValue(XMLConstants.LIMIT_UET_PROP, element.getAttribute(XMLConstants.LIMIT_UET_TAG));
+        element.removeAttribute(XMLConstants.LIMIT_LWT_TAG);
+        element.removeAttribute(XMLConstants.LIMIT_UWT_TAG);
+        element.removeAttribute(XMLConstants.LIMIT_LET_TAG);
+        element.removeAttribute(XMLConstants.LIMIT_UET_TAG);
 
         String description = element.getAttribute(XMLConstants.LIMIT_DESCRIPTION);
         if (description != null) {

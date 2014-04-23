@@ -206,8 +206,12 @@ public class XMLConstants {
     public static final String LIMIT_METRIC_NAME = "metricName";
     public static final String LIMIT_DESCRIPTION = "limitDescription";
     public static final String LIMIT_REFVALUE = "refValue";
-    public static final String LIMIT_LWL = "LWL";
-    public static final String LIMIT_UWL = "UWL";
-    public static final String LIMIT_LEL = "LEL";
-    public static final String LIMIT_UEL = "UEL";
+    public static final String LIMIT_LWT_TAG = "LWT";
+    public static final String LIMIT_UWT_TAG = "UWT";
+    public static final String LIMIT_LET_TAG = "LET";
+    public static final String LIMIT_UET_TAG = "UET";
+    public static final String LIMIT_LWT_PROP = "lowerWarningThreshold";
+    public static final String LIMIT_UWT_PROP = "upperWarningThreshold";
+    public static final String LIMIT_LET_PROP = "lowerErrorThreshold";
+    public static final String LIMIT_UET_PROP = "upperErrorThreshold";
 }

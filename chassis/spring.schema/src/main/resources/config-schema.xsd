@@ -902,36 +902,36 @@
                         Description of this limit
                     </xsd:documentation></xsd:annotation>
                 </xsd:attribute>
-                <xsd:attribute name="LWL" type="xsd:string" use="required">
+                <xsd:attribute name="LWT" type="xsd:string" use="required">
                     <xsd:annotation><xsd:documentation>
-                        Low warning limit - relative value
-                        Result pass when value in range (LWL*ref .. UWL*ref)
-                        Result warning when value in range (LEL*ref .. LWL*ref) OR (UWL*ref .. UEL*ref)
-                        Result error when: value is less than LEL*ref OR is greater than UEL*ref
+                        Lower warning threshold - relative value
+                        Result pass when value in range (LWT*ref .. UWT*ref)
+                        Result warning when value in range (LET*ref .. LWT*ref) OR (UWT*ref .. UET*ref)
+                        Result error when value is less than LET*ref OR is greater than UET*ref
                     </xsd:documentation></xsd:annotation>
                 </xsd:attribute>
-                <xsd:attribute name="UWL" type="xsd:string" use="required">
+                <xsd:attribute name="UWT" type="xsd:string" use="required">
                     <xsd:annotation><xsd:documentation>
-                        Upper warning limit - relative value
-                        Result pass when value in range (LWL*ref .. UWL*ref)
-                        Result warning when value in range (LEL*ref .. LWL*ref) OR (UWL*ref .. UEL*ref)
-                        Result error when: value is less than LEL*ref OR is greater than UEL*ref
+                        Upper warning threshold - relative value
+                        Result pass when value in range (LWT*ref .. UWT*ref)
+                        Result warning when value in range (LET*ref .. LWT*ref) OR (UWT*ref .. UET*ref)
+                        Result error when value is less than LET*ref OR is greater than UET*ref
                     </xsd:documentation></xsd:annotation>
                 </xsd:attribute>
-                <xsd:attribute name="LEL" type="xsd:string" use="required">
+                <xsd:attribute name="LET" type="xsd:string" use="required">
                     <xsd:annotation><xsd:documentation>
-                        Low error limit - relative value
-                        Result pass when value in range (LWL*ref .. UWL*ref)
-                        Result warning when value in range (LEL*ref .. LWL*ref) OR (UWL*ref .. UEL*ref)
-                        Result error when: value is less than LEL*ref OR is greater than UEL*ref
+                        Lower error threshold - relative value
+                        Result pass when value in range (LWT*ref .. UWT*ref)
+                        Result warning when value in range (LET*ref .. LWT*ref) OR (UWT*ref .. UET*ref)
+                        Result error when value is less than LET*ref OR is greater than UET*ref
                     </xsd:documentation></xsd:annotation>
                 </xsd:attribute>
-                <xsd:attribute name="UEL" type="xsd:string" use="required">
+                <xsd:attribute name="UET" type="xsd:string" use="required">
                     <xsd:annotation><xsd:documentation>
-                        Upper error limit - relative value
-                        Result pass when value in range (LWL*ref .. UWL*ref)
-                        Result warning when value in range (LEL*ref .. LWL*ref) OR (UWL*ref .. UEL*ref)
-                        Result error when: value is less than LEL*ref OR is greater than UEL*ref
+                        Upper error threshold - relative value
+                        Result pass when value in range (LWT*ref .. UWT*ref)
+                        Result warning when value in range (LET*ref .. LWT*ref) OR (UWT*ref .. UET*ref)
+                        Result error when value is less than LET*ref OR is greater than UET*ref
                     </xsd:documentation></xsd:annotation>
                 </xsd:attribute>
             </xsd:extension>
@@ -958,36 +958,36 @@
                         Description of this limit
                     </xsd:documentation></xsd:annotation>
                 </xsd:attribute>
-                <xsd:attribute name="LWL" type="xsd:string" use="required">
+                <xsd:attribute name="LWT" type="xsd:string" use="required">
                     <xsd:annotation><xsd:documentation>
-                        Low warning limit - relative value
-                        Result pass when value in range (LWL*ref .. UWL*ref)
-                        Result warning when value in range (LEL*ref .. LWL*ref) OR (UWL*ref .. UEL*ref)
-                        Result error when: value is less than LEL*ref OR is greater than UEL*ref
+                        Lower warning threshold - relative value
+                        Result pass when value in range (LWT*ref .. UWT*ref)
+                        Result warning when value in range (LET*ref .. LWT*ref) OR (UWT*ref .. UET*ref)
+                        Result error when value is less than LET*ref OR is greater than UET*ref
                     </xsd:documentation></xsd:annotation>
                 </xsd:attribute>
-                <xsd:attribute name="UWL" type="xsd:string" use="required">
+                <xsd:attribute name="UWT" type="xsd:string" use="required">
                     <xsd:annotation><xsd:documentation>
-                        Upper warning limit - relative value
-                        Result pass when value in range (LWL*ref .. UWL*ref)
-                        Result warning when value in range (LEL*ref .. LWL*ref) OR (UWL*ref .. UEL*ref)
-                        Result error when: value is less than LEL*ref OR is greater than UEL*ref
+                        Upper warning threshold - relative value
+                        Result pass when value in range (LWT*ref .. UWT*ref)
+                        Result warning when value in range (LET*ref .. LWT*ref) OR (UWT*ref .. UET*ref)
+                        Result error when value is less than LET*ref OR is greater than UET*ref
                     </xsd:documentation></xsd:annotation>
                 </xsd:attribute>
-                <xsd:attribute name="LEL" type="xsd:string" use="required">
+                <xsd:attribute name="LET" type="xsd:string" use="required">
                     <xsd:annotation><xsd:documentation>
-                        Low error limit - relative value
-                        Result pass when value in range (LWL*ref .. UWL*ref)
-                        Result warning when value in range (LEL*ref .. LWL*ref) OR (UWL*ref .. UEL*ref)
-                        Result error when: value is less than LEL*ref OR is greater than UEL*ref
+                        Lower error threshold - relative value
+                        Result pass when value in range (LWT*ref .. UWT*ref)
+                        Result warning when value in range (LET*ref .. LWT*ref) OR (UWT*ref .. UET*ref)
+                        Result error when value is less than LET*ref OR is greater than UET*ref
                     </xsd:documentation></xsd:annotation>
                 </xsd:attribute>
-                <xsd:attribute name="UEL" type="xsd:string" use="required">
+                <xsd:attribute name="UET" type="xsd:string" use="required">
                     <xsd:annotation><xsd:documentation>
-                        Upper error limit - relative value
-                        Result pass when value in range (LWL*ref .. UWL*ref)
-                        Result warning when value in range (LEL*ref .. LWL*ref) OR (UWL*ref .. UEL*ref)
-                        Result error when: value is less than LEL*ref OR is greater than UEL*ref
+                        Upper error threshold - relative value
+                        Result pass when value in range (LWT*ref .. UWT*ref)
+                        Result warning when value in range (LET*ref .. LWT*ref) OR (UWT*ref .. UET*ref)
+                        Result error when value is less than LET*ref OR is greater than UET*ref
                     </xsd:documentation></xsd:annotation>
                 </xsd:attribute>
             </xsd:extension>
