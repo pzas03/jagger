@@ -142,12 +142,6 @@
                     </bean>
                 </entry>
 
-                <entry key="monitoringReporter">
-                    <bean class="com.griddynamics.jagger.monitoring.reporting.MonitoringReporter" parent="abstractReportProviderBean">
-                        <property name="template" value="configuration/reporting/monitoring-overview.jrxml"/>
-                    </bean>
-                </entry>
-
             </map>
         </property>
     </bean>

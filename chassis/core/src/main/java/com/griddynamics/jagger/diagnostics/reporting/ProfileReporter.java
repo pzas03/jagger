@@ -122,6 +122,7 @@ public class ProfileReporter extends AbstractMonitoringReportProvider<String> {
             sysUnderTests = loadData();
         }
 
+        //??? check vs old and new DB!!!
         loadMonitoringMap();
 
         List<SysUnderTestDTO> data = sysUnderTests.get(testId);
@@ -129,6 +130,11 @@ public class ProfileReporter extends AbstractMonitoringReportProvider<String> {
 
         if (data == null) {
             data = sysUnderTests.get(relatedMonitoringTask(testId));
+        }
+
+        // required after monitoring moved to metrics
+        if (data == null) {
+            data = sysUnderTests.get(parentOf(testId));
         }
 
         return new JRBeanCollectionDataSource(data);
