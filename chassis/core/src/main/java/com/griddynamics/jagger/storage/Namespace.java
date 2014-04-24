@@ -40,12 +40,13 @@ public class Namespace {
 		return of(Lists.<String> newArrayList());
 	}
 
-	public static Namespace of(List<String> values) {
+	private static Namespace of(List<String> values) {
 		return new Namespace(values);
 	}
 
-	public static Namespace of(String... values) {
-		return of(Lists.newArrayList(values));
+	public static Namespace of(String sessionId, String... values) {
+        List<String> list = Lists.asList(sessionId,values);
+		return of(list);
 	}
 
 	private Namespace(List<String> values) {

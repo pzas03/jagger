@@ -64,7 +64,7 @@ public class MasterWorkloadCollector implements DistributionListener {
     }
 
     private void putValues(String sessionId, String taskId, Collection<NodeId> capableNodes, WorkloadTask workload) {
-        Namespace sessionNamespace = Namespace.of(SESSION, sessionId);
+        Namespace sessionNamespace = Namespace.of(sessionId, SESSION);
         keyValueStorage.put(sessionNamespace, SCENARIOS, taskId);
 
         Namespace scenarioNamespace = Namespace.of(sessionId, taskId);
