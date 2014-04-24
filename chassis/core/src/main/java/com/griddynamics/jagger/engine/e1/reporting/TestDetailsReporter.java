@@ -60,7 +60,7 @@ public class TestDetailsReporter extends AbstractReportProvider {
         }
     }
 
-    // JFG-722 We should delete all queries from reporting-part jagger
+    //todo JFG-722 We should delete all queries from reporting-part jagger
     @Override
     public JRDataSource getDataSource() {
         @SuppressWarnings("unchecked")

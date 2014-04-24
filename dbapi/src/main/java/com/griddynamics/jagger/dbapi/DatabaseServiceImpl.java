@@ -343,7 +343,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             // temporary disabled session scope plots while transferring monitoring to metrics
             //detailsNode.setSessionScopePlotsNode(sessionScopePlotsNode);
 
-            rootNode.setSummary(summaryNode);
+            rootNode.setSummaryNode(summaryNode);
             rootNode.setDetailsNode(detailsNode);
 
             log.info("Total time fetching all data for control tree : {} ms", (System.currentTimeMillis() - temp));

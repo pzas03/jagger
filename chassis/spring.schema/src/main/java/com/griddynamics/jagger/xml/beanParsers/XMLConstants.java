@@ -96,7 +96,6 @@ public class XMLConstants {
     public static final String TEST_SUITE_LISTENERS = "listeners-test-suite";
     public static final String INVOCATION_LISTENER = "listener-invocation";
     public static final String TEST_GROUP_DECISION_MAKER_LISTENERS = "listeners-test-group-decision-maker";
-    public static final String DECISION_MAKER_LISTENERS = "testGroupDecisionMakerListeners";
 
     //don't change the order!!! will not works
     public static final String STANDARD_COLLECTORS = "standardCollectors";
@@ -201,4 +200,18 @@ public class XMLConstants {
     public static final String NORMALIZE_BY = "normalizeBy";
     public static final String POINT_COUNT = "pointCount";
     public static final String POINT_INTERVAL = "pointInterval";
+
+    public static final String LIMITS = "limits";
+    public static final String LIMIT = "limit";
+    public static final String LIMIT_METRIC_NAME = "metricName";
+    public static final String LIMIT_DESCRIPTION = "limitDescription";
+    public static final String LIMIT_REFVALUE = "refValue";
+    public static final String LIMIT_LWT_TAG = "LWT";
+    public static final String LIMIT_UWT_TAG = "UWT";
+    public static final String LIMIT_LET_TAG = "LET";
+    public static final String LIMIT_UET_TAG = "UET";
+    public static final String LIMIT_LWT_PROP = "lowerWarningThreshold";
+    public static final String LIMIT_UWT_PROP = "upperWarningThreshold";
+    public static final String LIMIT_LET_PROP = "lowerErrorThreshold";
+    public static final String LIMIT_UET_PROP = "upperErrorThreshold";
 }
