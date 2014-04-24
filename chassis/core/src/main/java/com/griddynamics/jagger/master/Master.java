@@ -174,9 +174,8 @@ public class Master implements Runnable {
                 .addService(LogWriter.class, getLogWriter())
                 .addService(LogReader.class, getLogReader())
                 .addService(KeyValueStorage.class, keyValueStorage)
-                .addService(SessionMetaDataStorage.class, metaDataStorage);
-
-        //??? add database service to context
+                .addService(SessionMetaDataStorage.class, metaDataStorage)
+                .addService(DatabaseService.class,databaseService);
 
         NodeContext context = contextBuilder.build();
 

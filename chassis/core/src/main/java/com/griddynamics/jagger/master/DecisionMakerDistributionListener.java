@@ -3,8 +3,13 @@ package com.griddynamics.jagger.master;
 import com.griddynamics.jagger.coordinator.NodeContext;
 import com.griddynamics.jagger.coordinator.NodeId;
 import com.griddynamics.jagger.dbapi.DatabaseService;
+import com.griddynamics.jagger.dbapi.model.RootNode;
+import com.griddynamics.jagger.dbapi.model.SummaryNode;
 import com.griddynamics.jagger.engine.e1.ProviderUtil;
+import com.griddynamics.jagger.engine.e1.services.DataService;
+import com.griddynamics.jagger.engine.e1.services.DefaultDataService;
 import com.griddynamics.jagger.engine.e1.services.JaggerPlace;
+import com.griddynamics.jagger.engine.e1.services.data.service.SessionEntity;
 import com.griddynamics.jagger.engine.e1.sessioncomparation.DecisionMakerInfo;
 import com.griddynamics.jagger.engine.e1.sessioncomparation.TestGroupDecisionMakerListener;
 import com.griddynamics.jagger.master.configuration.Task;
@@ -43,9 +48,16 @@ public class DecisionMakerDistributionListener implements DistributionListener {
                     nodeContext,
                     JaggerPlace.TEST_GROUP_DECISION_MAKER_LISTENER));
 
+            DataService dataService = new DefaultDataService(nodeContext);
+
+            SessionEntity sessionEntity = dataService.getSession(sessionId);
+            System.out.println(sessionEntity);
+
+            //??? decisionMakerListener
+
 //            //???
-//            RootNode rootNode = databaseService.getControlTreeForSessions(new HashSet<String>(Arrays.asList(sessionId)));
-//            SummaryNode summaryNode = rootNode.getSummaryNode();
+            RootNode rootNode = databaseService.getControlTreeForSessions(new HashSet<String>(Arrays.asList(sessionId)));
+            SummaryNode summaryNode = rootNode.getSummaryNode();
 //
 //
 //            CompositeTask compositeTask = (CompositeTask) task;
