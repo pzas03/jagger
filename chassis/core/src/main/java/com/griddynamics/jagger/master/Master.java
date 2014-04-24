@@ -170,6 +170,8 @@ public class Master implements Runnable {
                 .addService(KeyValueStorage.class, keyValueStorage)
                 .addService(SessionMetaDataStorage.class, metaDataStorage);
 
+        //??? add database service to context
+
         NodeContext context = contextBuilder.build();
 
         Map<NodeType, CountDownLatch> countDownLatchMap = Maps.newHashMap();

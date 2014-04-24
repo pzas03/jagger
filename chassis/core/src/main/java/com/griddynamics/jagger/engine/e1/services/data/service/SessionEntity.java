@@ -1,4 +1,4 @@
-package com.griddynamics.jagger.dbapi.entity;
+package com.griddynamics.jagger.engine.e1.services.data.service;
 
 /**
  * Created with IntelliJ IDEA.
@@ -10,8 +10,8 @@ package com.griddynamics.jagger.dbapi.entity;
 public class SessionEntity {
     private String id;
     private String comment;
-    private Long startTime;
-    private Long endTime;
+    private String startDate;
+    private String endDate;
     private Integer kernels;
 
     public String getId() {
@@ -30,20 +30,20 @@ public class SessionEntity {
         this.comment = comment;
     }
 
-    public Long getStartTime() {
-        return startTime;
+    public String getStartDate() {
+        return startDate;
     }
 
-    public void setStartTime(Long startTime) {
-        this.startTime = startTime;
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
     }
 
-    public Long getEndTime() {
-        return endTime;
+    public String getEndDate() {
+        return endDate;
     }
 
-    public void setEndTime(Long endTime) {
-        this.endTime = endTime;
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
     }
 
     public Integer getKernels() {
@@ -54,6 +54,7 @@ public class SessionEntity {
         this.kernels = kernels;
     }
 
+    //??? regenerate after changes
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -62,10 +63,10 @@ public class SessionEntity {
         SessionEntity that = (SessionEntity) o;
 
         if (comment != null ? !comment.equals(that.comment) : that.comment != null) return false;
-        if (endTime != null ? !endTime.equals(that.endTime) : that.endTime != null) return false;
+        if (endDate != null ? !endDate.equals(that.endDate) : that.endDate != null) return false;
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (kernels != null ? !kernels.equals(that.kernels) : that.kernels != null) return false;
-        if (startTime != null ? !startTime.equals(that.startTime) : that.startTime != null) return false;
+        if (startDate != null ? !startDate.equals(that.startDate) : that.startDate != null) return false;
 
         return true;
     }
@@ -74,8 +75,8 @@ public class SessionEntity {
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (comment != null ? comment.hashCode() : 0);
-        result = 31 * result + (startTime != null ? startTime.hashCode() : 0);
-        result = 31 * result + (endTime != null ? endTime.hashCode() : 0);
+        result = 31 * result + (startDate != null ? startDate.hashCode() : 0);
+        result = 31 * result + (endDate != null ? endDate.hashCode() : 0);
         result = 31 * result + (kernels != null ? kernels.hashCode() : 0);
         return result;
     }

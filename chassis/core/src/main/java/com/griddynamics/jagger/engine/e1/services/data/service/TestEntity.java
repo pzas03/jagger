@@ -1,4 +1,4 @@
-package com.griddynamics.jagger.dbapi.entity;
+package com.griddynamics.jagger.engine.e1.services.data.service;
 
 /**
  * Created with IntelliJ IDEA.

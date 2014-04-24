@@ -1,19 +1,20 @@
-package com.griddynamics.jagger.dbapi;
+package com.griddynamics.jagger.engine.e1.services;
 
-import com.griddynamics.jagger.dbapi.entity.MetricEntity;
-import com.griddynamics.jagger.dbapi.entity.MetricValueEntity;
-import com.griddynamics.jagger.dbapi.entity.SessionEntity;
-import com.griddynamics.jagger.dbapi.entity.TestEntity;
+import com.griddynamics.jagger.engine.e1.services.data.service.MetricEntity;
+import com.griddynamics.jagger.engine.e1.services.data.service.MetricValueEntity;
+import com.griddynamics.jagger.engine.e1.services.data.service.SessionEntity;
+import com.griddynamics.jagger.engine.e1.services.data.service.TestEntity;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /** Provides access to tests results, stored in jagger database. Data contains a full information about sessions, tests, metrics and etc.
  * @author Gribov Kirill
  * @n
  *
  * */
-public interface EntityService {
+public interface DataService extends JaggerService {
 
     /** Returns session's entity for specify session's id
      * @author Gribov Kirill
@@ -27,7 +28,7 @@ public interface EntityService {
      * @n
      * @param sessionIds - session's ids
      * @return list of session's entities */
-    List<SessionEntity> getSessions(List<String> sessionIds);
+    List<SessionEntity> getSessions(Set<String> sessionIds);
 
     /** Returns tests for specify session
      * @author Gribov Kirill

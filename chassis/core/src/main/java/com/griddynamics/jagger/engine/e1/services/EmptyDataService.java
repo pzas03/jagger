@@ -1,17 +1,20 @@
-package com.griddynamics.jagger.dbapi;
+package com.griddynamics.jagger.engine.e1.services;
 
-import com.griddynamics.jagger.dbapi.entity.MetricEntity;
-import com.griddynamics.jagger.dbapi.entity.MetricValueEntity;
-import com.griddynamics.jagger.dbapi.entity.SessionEntity;
-import com.griddynamics.jagger.dbapi.entity.TestEntity;
-import com.griddynamics.jagger.dbapi.entity.SessionData;
+import com.griddynamics.jagger.coordinator.NodeContext;
+import com.griddynamics.jagger.dbapi.DatabaseService;
+import com.griddynamics.jagger.dbapi.dto.SessionDataDto;
 import com.griddynamics.jagger.dbapi.entity.DiagnosticResultEntity;
 import com.griddynamics.jagger.dbapi.entity.MetricDetails;
 import com.griddynamics.jagger.dbapi.entity.WorkloadTaskData;
+import com.griddynamics.jagger.engine.e1.services.DataService;
+import com.griddynamics.jagger.engine.e1.services.data.service.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import java.util.*;
 
+//??? make correct code inside!!!
 /**
  * Created with IntelliJ IDEA.
  * User: kgribov
@@ -19,8 +22,25 @@ import java.util.*;
  * Time: 3:23 PM
  * To change this template use File | Settings | File Templates.
  */
-public class DefaultEntityService extends HibernateDaoSupport implements EntityService {
+public class EmptyDataService extends HibernateDaoSupport implements DataService {
 
+    private static Logger log = LoggerFactory.getLogger(EmptyMetricService.class);
+
+    private JaggerPlace jaggerPlace;
+
+    public EmptyDataService(JaggerPlace jaggerPlace) {
+        this.jaggerPlace = jaggerPlace;
+    }
+
+     //??? change code below
+
+    DatabaseService databaseService;
+
+    public EmptyDataService(NodeContext context) {
+        databaseService = context.getService(DatabaseService.class);
+    }
+
+    //??? delete
     private static final Map<String, String> STANDARD_METRICS = new HashMap<String, String>();
     static {
         STANDARD_METRICS.put(JaggerMetric.Throughput, "Throughput");
@@ -33,33 +53,33 @@ public class DefaultEntityService extends HibernateDaoSupport implements EntityS
 
     @Override
     public SessionEntity getSession(String sessionId) {
-        List<SessionEntity> sessions = getSessions(Arrays.asList(sessionId));
-        if (!sessions.isEmpty()){
-            return sessions.iterator().next();
+        List<SessionEntity> sessions = getSessions(new HashSet<String>(Arrays.asList(sessionId)));
+        if (sessions.isEmpty()){
+            return null;
         }
-
-        return null;
+        return sessions.iterator().next();
     }
 
     @Override
-    public List<SessionEntity> getSessions(List<String> sessionIds) {
+    public List<SessionEntity> getSessions(Set<String> sessionIds) {
         if (sessionIds.isEmpty()){
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
-        List<SessionData> sessions = getHibernateTemplate().findByNamedParam("select ses from SessionData as ses " +
-                                                                                "where ses.sessionId in (:sessionIds)",
-                                                                                "sessionIds", sessionIds);
+        List<SessionDataDto> sessionDataDtoList = databaseService.getSessionInfoService().getBySessionIds(0,sessionIds.size(),sessionIds);
 
-        List<SessionEntity> entities = new ArrayList<SessionEntity>(sessions.size());
+        if (sessionDataDtoList.isEmpty()) {
+            return Collections.emptyList();
+        }
 
-        for (SessionData sessionData : sessions){
+        List<SessionEntity> entities = new ArrayList<SessionEntity>(sessionDataDtoList.size());
+        for (SessionDataDto sessionDataDto : sessionDataDtoList) {
             SessionEntity sessionEntity = new SessionEntity();
-            sessionEntity.setId(sessionData.getSessionId());
-            sessionEntity.setStartTime(sessionData.getStartTime().getTime());
-            sessionEntity.setEndTime(sessionData.getEndTime().getTime());
-            sessionEntity.setKernels(sessionData.getActiveKernels());
-            sessionEntity.setComment(sessionData.getComment());
+            sessionEntity.setId(sessionDataDto.getSessionId());
+            sessionEntity.setStartDate(sessionDataDto.getStartDate());
+            sessionEntity.setEndDate(sessionDataDto.getEndDate());
+            sessionEntity.setKernels(sessionDataDto.getActiveKernelsCount());
+            sessionEntity.setComment(sessionDataDto.getComment());
 
             entities.add(sessionEntity);
         }
@@ -381,5 +401,10 @@ public class DefaultEntityService extends HibernateDaoSupport implements EntityS
         public Map<K,List<V>> getOrigin(){
             return map;
         }
+    }
+
+    @Override
+    public boolean isAvailable() {
+        return true;
     }
 }
