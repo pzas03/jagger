@@ -2,7 +2,9 @@ package com.griddynamics.jagger.engine.e1.services;
 
 import com.griddynamics.jagger.coordinator.NodeContext;
 import com.griddynamics.jagger.dbapi.DatabaseService;
+import com.griddynamics.jagger.dbapi.DatabaseServiceImpl;
 import com.griddynamics.jagger.dbapi.dto.SessionDataDto;
+import com.griddynamics.jagger.dbapi.dto.TaskDataDto;
 import com.griddynamics.jagger.engine.e1.services.data.service.*;
 import com.griddynamics.jagger.dbapi.entity.DiagnosticResultEntity;
 import com.griddynamics.jagger.dbapi.entity.MetricDetails;
@@ -11,21 +13,21 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import java.util.*;
 
-/**
- * Created with IntelliJ IDEA.
- * User: kgribov
- * Date: 12/17/13
- * Time: 3:23 PM
- * To change this template use File | Settings | File Templates.
- */
+
+//??? how to get metric ids for standard metrics and monitoring
+
 //??? will not need HibDaoSupport
 
 public class DefaultDataService extends HibernateDaoSupport implements DataService {
 
+    //???DatabaseService databaseService;
+
     DatabaseService databaseService;
+    DatabaseServiceImpl databaseServiceImpl;
 
     public DefaultDataService(NodeContext context) {
         databaseService = context.getService(DatabaseService.class);
+        databaseServiceImpl = (DatabaseServiceImpl) databaseService;
     }
 
     //??? delete
@@ -75,10 +77,12 @@ public class DefaultDataService extends HibernateDaoSupport implements DataServi
         return entities;
     }
 
+    @Override
     public List<TestEntity> getTests(SessionEntity session){
         return getTests(session.getId());
     }
 
+    @Override
     public List<TestEntity> getTests(String sessionId){
         Map<String, List<TestEntity>> map = getTests(Arrays.asList(sessionId));
 
@@ -90,10 +94,17 @@ public class DefaultDataService extends HibernateDaoSupport implements DataServi
         return Collections.EMPTY_LIST;
     }
 
+    @Override
+    public Map<String, List<TestEntity>> getTests(List<String> sessionIds){
+        return getTestsWithName(sessionIds, "%");
+    }
+
+    @Override
     public TestEntity getTestByName(SessionEntity session, String testName){
         return getTestByName(session.getId(), testName);
     }
 
+    @Override
     public TestEntity getTestByName(String sessionId, String testName){
         Map<String, TestEntity> map = getTestsByName(Arrays.asList(sessionId), testName);
 
@@ -105,6 +116,7 @@ public class DefaultDataService extends HibernateDaoSupport implements DataServi
         return null;
     }
 
+    @Override
     public Map<String, TestEntity> getTestsByName(List<String> sessionIds, String testName){
         Map<String, List<TestEntity>> tests = getTestsWithName(sessionIds, testName);
 
@@ -120,21 +132,20 @@ public class DefaultDataService extends HibernateDaoSupport implements DataServi
         return result;
     }
 
-    public Map<String, List<TestEntity>> getTests(List<String> sessionIds){
-        return getTestsWithName(sessionIds, "%");
-    }
 
     private Map<String, List<TestEntity>> getTestsWithName(List<String> sessionIds, String testName){
         if (sessionIds.isEmpty()){
             return Collections.EMPTY_MAP;
         }
 
+        List<TaskDataDto> taskDataDtoList = databaseServiceImpl.getTaskDataForSessions(new HashSet<String>(sessionIds));
+
         List<Object[]> tasksEntities = getHibernateTemplate().findByNamedParam("select task, taskData.id from WorkloadTaskData task, TaskData taskData " +
-                                                                                   "where task.sessionId in (:sessionIds) and " +
-                                                                                   "      task.scenario.name like :name and " +
-                                                                                   "      taskData.sessionId in (:sessionIds) and "+
-                                                                                   "      taskData.taskId=task.taskId",
-                                                                                          new String[]{"sessionIds", "name"}, new Object[]{sessionIds, testName});
+                "where task.sessionId in (:sessionIds) and " +
+                "      task.scenario.name like :name and " +
+                "      taskData.sessionId in (:sessionIds) and "+
+                "      taskData.taskId=task.taskId",
+                new String[]{"sessionIds", "name"}, new Object[]{sessionIds, testName});
 
         Map<String, List<TestEntity>> result = new HashMap<String, List<TestEntity>>();
 
@@ -160,6 +171,43 @@ public class DefaultDataService extends HibernateDaoSupport implements DataServi
 
         return result;
     }
+
+//    private Map<String, List<TestEntity>> getTestsWithName(List<String> sessionIds, String testName){
+//        if (sessionIds.isEmpty()){
+//            return Collections.EMPTY_MAP;
+//        }
+//
+//        List<Object[]> tasksEntities = getHibernateTemplate().findByNamedParam("select task, taskData.id from WorkloadTaskData task, TaskData taskData " +
+//                                                                                   "where task.sessionId in (:sessionIds) and " +
+//                                                                                   "      task.scenario.name like :name and " +
+//                                                                                   "      taskData.sessionId in (:sessionIds) and "+
+//                                                                                   "      taskData.taskId=task.taskId",
+//                                                                                          new String[]{"sessionIds", "name"}, new Object[]{sessionIds, testName});
+//
+//        Map<String, List<TestEntity>> result = new HashMap<String, List<TestEntity>>();
+//
+//        for (Object[] taskEntity : tasksEntities){
+//            WorkloadTaskData task = (WorkloadTaskData)taskEntity[0];
+//
+//            TestEntity entity = new TestEntity();
+//            entity.setId((Long)taskEntity[1]);
+//            entity.setName(task.getScenario().getName());
+//            entity.setDescription(task.getScenario().getDescription());
+//            entity.setLoad(task.getClock());
+//            entity.setTerminationStrategy(task.getTermination());
+//
+//            if (result.containsKey(task.getSessionId())){
+//                result.get(task.getSessionId()).add(entity);
+//            }else{
+//                List<TestEntity> list = new ArrayList<TestEntity>();
+//                list.add(entity);
+//
+//                result.put(task.getSessionId(), list);
+//            }
+//        }
+//
+//        return result;
+//    }
 
     public List<MetricEntity> getMetrics(Long testId){
         Map<Long, List<MetricEntity>> map = getMetricsByIds(Arrays.asList(testId));

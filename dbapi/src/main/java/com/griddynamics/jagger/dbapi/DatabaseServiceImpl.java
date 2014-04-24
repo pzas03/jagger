@@ -750,11 +750,13 @@ public class DatabaseServiceImpl implements DatabaseService {
         return resultMap;
     }
 
-    private List<TaskDataDto> getTaskDataForSessions(Set<String> sessionIds) {
+    //???private List<TaskDataDto> getTaskDataForSessions(Set<String> sessionIds) {
+    public List<TaskDataDto> getTaskDataForSessions(Set<String> sessionIds) {
 
         long timestamp = System.currentTimeMillis();
 
         int havingCount = 0;
+        //??? should be input param
         if (webClientProperties.isShowOnlyMatchedTests()) {
             havingCount = sessionIds.size();
         }
