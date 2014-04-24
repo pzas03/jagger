@@ -145,7 +145,7 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
         return new JRBeanCollectionDataSource(Collections.singleton(result));
     }
 
-    // Session scope plots isn't available (JFG-724)
+    // todo Session scope plots isn't supported by code below (JFG-724)
     private void createFromTree() {
 
         plots = new HashMap<Long, MetricPlotDTOs>();
@@ -154,7 +154,7 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
 
         RootNode rootNode = databaseService.getControlTreeForSessions(new HashSet<String>(Arrays.asList(sessionId)));
         DetailsNode detailsNode = rootNode.getDetailsNode();
-        if (detailsNode.getTests().isEmpty() && detailsNode.getChildren().isEmpty())
+        if (detailsNode.getChildren().isEmpty())
             return;
 
         for (TestDetailsNode testDetailsNode : detailsNode.getTests()) {
