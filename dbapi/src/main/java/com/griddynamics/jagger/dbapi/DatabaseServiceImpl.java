@@ -223,6 +223,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     //=======Get plot data=======
     //===========================
 
+    @Override
     public Map<MetricNode, PlotSeriesDto> getPlotData(Set<MetricNode> plots) throws IllegalArgumentException{
 
         long temp = System.currentTimeMillis();
@@ -321,7 +322,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     //===========================
     //=====Get control tree======
     //===========================
-    public RootNode getControlTreeForSessions(Set<String> sessionIds) throws RuntimeException {
+
+    @Override
+    public RootNode getControlTreeForSessions(Set<String> sessionIds, SessionMatchingSetup sessionMatchingSetup) throws RuntimeException {
 
         try {
 
@@ -329,7 +332,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             RootNode rootNode = new RootNode();
 
-            List<TaskDataDto> taskList = fetchTaskDatas(sessionIds);
+            List<TaskDataDto> taskList = fetchTaskDatas(sessionIds,sessionMatchingSetup);
 
             Future<SummaryNode> summaryFuture = threadPool.submit(new SummaryNodeFetcherTread(sessionIds, taskList));
             Future<DetailsNode> detailsNodeFuture = threadPool.submit(new DetailsNodeFetcherTread(sessionIds, taskList));
@@ -359,6 +362,8 @@ public class DatabaseServiceImpl implements DatabaseService {
     //===========================
     //=====Get summary data======
     //===========================
+
+    @Override
     public List<MetricDto> getMetrics(List<MetricNameDto> metricNames) {
 
         long temp = System.currentTimeMillis();
@@ -421,6 +426,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         return result;
     }
 
+    @Override
     public Map<String,Set<String>> getDefaultMonitoringParameters() {
         return defaultMonitoringParams;
     }
@@ -750,14 +756,13 @@ public class DatabaseServiceImpl implements DatabaseService {
         return resultMap;
     }
 
-    //???private List<TaskDataDto> getTaskDataForSessions(Set<String> sessionIds) {
-    public List<TaskDataDto> getTaskDataForSessions(Set<String> sessionIds) {
+    @Override
+    public List<TaskDataDto> getTaskDataForSessions(Set<String> sessionIds, SessionMatchingSetup sessionMatchingSetup) {
 
         long timestamp = System.currentTimeMillis();
 
         int havingCount = 0;
-        //??? should be input param
-        if (webClientProperties.isShowOnlyMatchedTests()) {
+        if (sessionMatchingSetup.isShowOnlyMatchedTests()) {
             havingCount = sessionIds.size();
         }
 
@@ -811,6 +816,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         //group tests by description
         HashMap<String, TaskDataDto> map = new HashMap<String, TaskDataDto>(list.size());
         HashMap<String, Integer> mapIds = new HashMap<String, Integer>(list.size());
+        int i = 0;
         for (Object[] testData : list){
             BigInteger id = (BigInteger)testData[0];
             String name = (String) testData[1];
@@ -826,25 +832,66 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             int taskIdInt = Integer.parseInt(taskId.substring(5));
 
-            // todo: it should be configurable in future (task about matching strategy).
-            String key = description+name+termination+clock+clockValue;
-            if (map.containsKey(key)){
-                map.get(key).getIds().add(id.longValue());
-                map.get(key).getSessionIds().add(sessionId);
+            // key - defines how to match tests when several sessions are selected
+            StringBuilder key = new StringBuilder(255);
+            // uniqueIdParams - is used to generate unique Ids for nodes in control tree depending on session matching strategy
+            List<String> uniqueIdParams = new ArrayList<String>();
 
-                Integer oldValue = mapIds.get(key);
-                mapIds.put(key, (oldValue==null ? 0 : oldValue)+taskIdInt);
+            // Define matching setup
+            Set<SessionMatchingSetup.MatchBy> matchingSetup = sessionMatchingSetup.getMatchingSetup();
+            if (matchingSetup.isEmpty()) {
+                // no matching at all
+
+                key.append(i++);
+
+                uniqueIdParams.add(description);
+                uniqueIdParams.add(name);
+                uniqueIdParams.add(termination);
+                uniqueIdParams.add(clock);
+                uniqueIdParams.add(clockValue.toString());
+                // sessionId is required to display tests with all equal attributes (description, name, etc)
+                uniqueIdParams.add(sessionId);
+            }
+            else {
+                if (matchingSetup.contains(SessionMatchingSetup.MatchBy.DESCRIPTION) || (matchingSetup.contains(SessionMatchingSetup.MatchBy.ALL))) {
+                    key.append(description);
+                    uniqueIdParams.add(description);
+                }
+                if (matchingSetup.contains(SessionMatchingSetup.MatchBy.NAME) || (matchingSetup.contains(SessionMatchingSetup.MatchBy.ALL))) {
+                    key.append(name);
+                    uniqueIdParams.add(name);
+                }
+                if (matchingSetup.contains(SessionMatchingSetup.MatchBy.TERMINATION) || (matchingSetup.contains(SessionMatchingSetup.MatchBy.ALL))) {
+                    key.append(termination);
+                    uniqueIdParams.add(termination);
+                }
+                if (matchingSetup.contains(SessionMatchingSetup.MatchBy.CLOCK) || (matchingSetup.contains(SessionMatchingSetup.MatchBy.ALL))) {
+                    key.append(clock);
+                    uniqueIdParams.add(clock);
+                }
+                if (matchingSetup.contains(SessionMatchingSetup.MatchBy.CLOCK_VALUE) || (matchingSetup.contains(SessionMatchingSetup.MatchBy.ALL))) {
+                    key.append(clockValue);
+                    uniqueIdParams.add(clockValue.toString());
+                }
+            }
+
+            // Provide matching
+            if (map.containsKey(key.toString())){
+                map.get(key.toString()).getIds().add(id.longValue());
+                map.get(key.toString()).getSessionIds().add(sessionId);
+
+                Integer oldValue = mapIds.get(key.toString());
+                mapIds.put(key.toString(), (oldValue==null ? 0 : oldValue)+taskIdInt);
             }else{
                 TaskDataDto taskDataDto = new TaskDataDto(id.longValue(), name, description);
                 Set<String> sessionIdList = new TreeSet<String>();
                 sessionIdList.add(sessionId);
                 taskDataDto.setSessionIds(sessionIdList);
-                // generate unique to make difference between tests with different matching parameters.
-                int uniqueId = CommonUtils.generateUniqueId(name, description, taskId, clock, clockValue, termination);
-                taskDataDto.setUniqueId(uniqueId);
+                // generate unique id to make difference between tests with different matching parameters.
+                taskDataDto.setUniqueId(CommonUtils.generateUniqueId(uniqueIdParams));
 
-                map.put(key, taskDataDto);
-                mapIds.put(key, taskIdInt);
+                map.put(key.toString(), taskDataDto);
+                mapIds.put(key.toString(), taskIdInt);
             }
         }
 
@@ -902,9 +949,9 @@ public class DatabaseServiceImpl implements DatabaseService {
         return false;
     }
 
-    private List<TaskDataDto> fetchTaskDatas(Set<String> sessionIds) {
+    private List<TaskDataDto> fetchTaskDatas(Set<String> sessionIds, SessionMatchingSetup sessionMatchingSetup) {
         long temp = System.currentTimeMillis();
-        List<TaskDataDto> tddos = getTaskDataForSessions(sessionIds);
+        List<TaskDataDto> tddos = getTaskDataForSessions(sessionIds, sessionMatchingSetup);
         log.debug("load tests : {} for summary with {} ms", tddos, System.currentTimeMillis() - temp);
         return tddos;
     }

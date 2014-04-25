@@ -338,7 +338,7 @@
                     <xsd:element name="load" type="loadAbstract" minOccurs="0" maxOccurs="1"/>
                     <xsd:element name="termination" type="terminationAbstract" minOccurs="0" maxOccurs="1"/>
                     <xsd:element name="listeners-test" type="listenersTest" minOccurs="0" maxOccurs="1"/>
-                    <xsd:element name="limits" type="limitsTestAbstract" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="limits" type="limitsMetricAbstract" minOccurs="0" maxOccurs="1"/>
                 </xsd:all>
                 <xsd:attribute name="startDelay" type="xsd:string" use="optional"/>
                 <xsd:attribute name="testDescription" type="xsd:string" use="optional"/>
@@ -854,30 +854,30 @@
     <!-- Limits                 -->
     <!--************************-->
 
-    <xsd:element name="limits" type="testLimitsGroupType">
+    <xsd:element name="limits" type="metricLimitsGroupType">
         <xsd:annotation><xsd:documentation>
-            List of test limits, required to make decision based of results of some test.
+            List of metric limits, required to make decision based of results of some test.
             You can define stand alone list of limits and link it to different tests in test configuration
         </xsd:documentation></xsd:annotation>
     </xsd:element>
 
-    <xsd:complexType name="testLimitsGroupType">
+    <xsd:complexType name="metricLimitsGroupType">
         <xsd:annotation><xsd:documentation>
-            List of test limits, required to make decision based of results of some test.
+            List of metric limits, required to make decision based of results of some test.
             You can define stand alone list of limits and link it to different tests in test configuration
         </xsd:documentation></xsd:annotation>
         <xsd:complexContent>
             <xsd:extension base="identifiedRequiredType">
                 <xsd:sequence minOccurs="1" maxOccurs="unbounded">
-                    <xsd:element name="limit" type="testLimitTypeAbstract" minOccurs="1" maxOccurs="unbounded"/>
+                    <xsd:element name="limit" type="metricLimitTypeAbstract" minOccurs="1" maxOccurs="unbounded"/>
                 </xsd:sequence>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:complexType name="testLimitTypeAbstract" abstract="true">
+    <xsd:complexType name="metricLimitTypeAbstract" abstract="true">
         <xsd:annotation><xsd:documentation>
-            Test limit. Defines allowed deviations of some metric from baseline or from reference value.
+            Metric limit. Defines allowed deviations of some metric from baseline or from reference value.
             Limits are used by decision maker to take decision whether you test results are ok or not.
         </xsd:documentation></xsd:annotation>
         <xsd:complexContent>
@@ -887,11 +887,11 @@
 
     <xsd:complexType name="limit-vs-baseline">
         <xsd:annotation><xsd:documentation>
-            Test limit. When decision maker will take decision it will compare metric value with value
+            Metric limit. When decision maker will take decision it will compare metric value with value
             from baseline session defined by chassis.engine.e1.reporting.session.comparison.baseline.session.id property
         </xsd:documentation></xsd:annotation>
         <xsd:complexContent>
-            <xsd:extension base="testLimitTypeAbstract">
+            <xsd:extension base="metricLimitTypeAbstract">
                 <xsd:attribute name="metricName" type="xsd:string" use="required">
                     <xsd:annotation><xsd:documentation>
                         Metric name (aka metric Id) - metric we are going to compare
@@ -939,10 +939,10 @@
     </xsd:complexType>
     <xsd:complexType name="limit-vs-value">
         <xsd:annotation><xsd:documentation>
-            Test limit. When decision maker will take decision it will compare metric value with reference value
+            Metric limit. When decision maker will take decision it will compare metric value with reference value
         </xsd:documentation></xsd:annotation>
         <xsd:complexContent>
-            <xsd:extension base="testLimitTypeAbstract">
+            <xsd:extension base="metricLimitTypeAbstract">
                 <xsd:attribute name="metricName" type="xsd:string" use="required">
                     <xsd:annotation><xsd:documentation>
                         Metric name (aka metric Id) - metric we are going to compare
@@ -994,9 +994,9 @@
         </xsd:complexContent>
     </xsd:complexType>
 
-    <xsd:complexType name="limitsTestAbstract" abstract="true">
+    <xsd:complexType name="limitsMetricAbstract" abstract="true">
         <xsd:annotation><xsd:documentation>
-            Abstract list of test limits. See available implementations
+            Abstract list of metric limits. See available implementations
         </xsd:documentation></xsd:annotation>
         <xsd:complexContent>
             <xsd:extension base="identifiedType">
@@ -1006,10 +1006,10 @@
 
     <xsd:complexType name="limits-ref">
         <xsd:annotation><xsd:documentation>
-            Reference to the existing list of test limits.
+            Reference to the existing list of metric limits.
         </xsd:documentation></xsd:annotation>
         <xsd:complexContent>
-            <xsd:extension base="limitsTestAbstract">
+            <xsd:extension base="limitsMetricAbstract">
                 <xsd:attribute name="ref" type="xsd:string" use="required"/>
             </xsd:extension>
         </xsd:complexContent>
@@ -1017,12 +1017,12 @@
 
     <xsd:complexType name="limits-group">
         <xsd:annotation><xsd:documentation>
-            List of test limits defined directly in test configuration
+            List of metric limits defined directly in test configuration
         </xsd:documentation></xsd:annotation>
         <xsd:complexContent>
-            <xsd:extension base="limitsTestAbstract">
+            <xsd:extension base="limitsMetricAbstract">
                 <xsd:sequence minOccurs="1" maxOccurs="unbounded">
-                    <xsd:element name="limit" type="testLimitTypeAbstract" minOccurs="1" maxOccurs="unbounded"/>
+                    <xsd:element name="limit" type="metricLimitTypeAbstract" minOccurs="1" maxOccurs="unbounded"/>
                 </xsd:sequence>
             </xsd:extension>
         </xsd:complexContent>
