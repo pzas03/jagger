@@ -10,4 +10,8 @@ package com.griddynamics.jagger.engine.e1.sessioncomparation;
 
  public class DecisionMakerInfo {
     //TODO add implementation
+
+    //??? should contain
+    // session Id
+    // test names or ids
  }

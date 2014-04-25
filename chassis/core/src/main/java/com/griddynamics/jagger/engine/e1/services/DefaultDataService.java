@@ -2,48 +2,40 @@ package com.griddynamics.jagger.engine.e1.services;
 
 import com.griddynamics.jagger.coordinator.NodeContext;
 import com.griddynamics.jagger.dbapi.DatabaseService;
-import com.griddynamics.jagger.dbapi.DatabaseServiceImpl;
+import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
 import com.griddynamics.jagger.dbapi.dto.SessionDataDto;
 import com.griddynamics.jagger.dbapi.dto.TaskDataDto;
+import com.griddynamics.jagger.dbapi.model.MetricNode;
+import com.griddynamics.jagger.dbapi.model.RootNode;
+import com.griddynamics.jagger.dbapi.model.TestDetailsNode;
+import com.griddynamics.jagger.dbapi.model.TestNode;
+import com.griddynamics.jagger.dbapi.util.SessionMatchingSetup;
 import com.griddynamics.jagger.engine.e1.services.data.service.*;
-import com.griddynamics.jagger.dbapi.entity.DiagnosticResultEntity;
 import com.griddynamics.jagger.dbapi.entity.MetricDetails;
-import com.griddynamics.jagger.dbapi.entity.WorkloadTaskData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import java.util.*;
 
+//??? check all overrides
 
 //??? how to get metric ids for standard metrics and monitoring
 
 //??? will not need HibDaoSupport
 
 public class DefaultDataService extends HibernateDaoSupport implements DataService {
-
-    //???DatabaseService databaseService;
+    private static final Logger log = LoggerFactory.getLogger(DefaultDataService.class);
 
     DatabaseService databaseService;
-    DatabaseServiceImpl databaseServiceImpl;
 
     public DefaultDataService(NodeContext context) {
         databaseService = context.getService(DatabaseService.class);
-        databaseServiceImpl = (DatabaseServiceImpl) databaseService;
-    }
-
-    //??? delete
-    private static final Map<String, String> STANDARD_METRICS = new HashMap<String, String>();
-    static {
-        STANDARD_METRICS.put(JaggerMetric.Throughput, "Throughput");
-        STANDARD_METRICS.put(JaggerMetric.AvgLatency, "AvgLatency");
-        STANDARD_METRICS.put(JaggerMetric.Failures, "Failures");
-        STANDARD_METRICS.put(JaggerMetric.Samples, "Samples");
-        STANDARD_METRICS.put(JaggerMetric.StdDevLatency, "StdDevLatency");
-        STANDARD_METRICS.put(JaggerMetric.SuccessRate, "SuccessRate");
     }
 
     @Override
     public SessionEntity getSession(String sessionId) {
-        List<SessionEntity> sessions = getSessions(new HashSet<String>(Arrays.asList(sessionId)));
+        Set<SessionEntity> sessions = getSessions(new HashSet<String>(Arrays.asList(sessionId)));
         if (sessions.isEmpty()){
             return null;
         }
@@ -51,18 +43,18 @@ public class DefaultDataService extends HibernateDaoSupport implements DataServi
     }
 
     @Override
-    public List<SessionEntity> getSessions(Set<String> sessionIds) {
+    public Set<SessionEntity> getSessions(Set<String> sessionIds) {
         if (sessionIds.isEmpty()){
-            return Collections.emptyList();
+            return Collections.emptySet();
         }
 
         List<SessionDataDto> sessionDataDtoList = databaseService.getSessionInfoService().getBySessionIds(0,sessionIds.size(),sessionIds);
 
         if (sessionDataDtoList.isEmpty()) {
-            return Collections.emptyList();
+            return Collections.emptySet();
         }
 
-        List<SessionEntity> entities = new ArrayList<SessionEntity>(sessionDataDtoList.size());
+        Set<SessionEntity> entities = new HashSet<SessionEntity>(sessionDataDtoList.size());
         for (SessionDataDto sessionDataDto : sessionDataDtoList) {
             SessionEntity sessionEntity = new SessionEntity();
             sessionEntity.setId(sessionDataDto.getSessionId());
@@ -78,25 +70,25 @@ public class DefaultDataService extends HibernateDaoSupport implements DataServi
     }
 
     @Override
-    public List<TestEntity> getTests(SessionEntity session){
+    public Set<TestEntity> getTests(SessionEntity session){
         return getTests(session.getId());
     }
 
     @Override
-    public List<TestEntity> getTests(String sessionId){
-        Map<String, List<TestEntity>> map = getTests(Arrays.asList(sessionId));
+    public Set<TestEntity> getTests(String sessionId){
+        Map<String, Set<TestEntity>> map = getTests(new HashSet<String>(Arrays.asList(sessionId)));
 
-        List<TestEntity> result = map.get(sessionId);
+        Set<TestEntity> result = map.get(sessionId);
         if (result != null){
             return result;
         }
 
-        return Collections.EMPTY_LIST;
+        return Collections.emptySet();
     }
 
     @Override
-    public Map<String, List<TestEntity>> getTests(List<String> sessionIds){
-        return getTestsWithName(sessionIds, "%");
+    public Map<String, Set<TestEntity>> getTests(Set<String> sessionIds){
+        return getTestsWithName(sessionIds, null);
     }
 
     @Override
@@ -106,7 +98,7 @@ public class DefaultDataService extends HibernateDaoSupport implements DataServi
 
     @Override
     public TestEntity getTestByName(String sessionId, String testName){
-        Map<String, TestEntity> map = getTestsByName(Arrays.asList(sessionId), testName);
+        Map<String, TestEntity> map = getTestsByName(new HashSet<String>(Arrays.asList(sessionId)), testName);
 
         TestEntity result = map.get(sessionId);
         if (result != null){
@@ -117,13 +109,13 @@ public class DefaultDataService extends HibernateDaoSupport implements DataServi
     }
 
     @Override
-    public Map<String, TestEntity> getTestsByName(List<String> sessionIds, String testName){
-        Map<String, List<TestEntity>> tests = getTestsWithName(sessionIds, testName);
+    public Map<String, TestEntity> getTestsByName(Set<String> sessionIds, String testName){
+        Map<String, Set<TestEntity>> tests = getTestsWithName(sessionIds, testName);
 
         Map<String, TestEntity> result = new HashMap<String, TestEntity>(tests.size());
 
-        for (Map.Entry<String, List<TestEntity>> entry : tests.entrySet()){
-            List<TestEntity> testEntities = entry.getValue();
+        for (Map.Entry<String, Set<TestEntity>> entry : tests.entrySet()){
+            Set<TestEntity> testEntities = entry.getValue();
             if (!testEntities.isEmpty()){
                 result.put(entry.getKey(), testEntities.iterator().next());
             }
@@ -133,116 +125,88 @@ public class DefaultDataService extends HibernateDaoSupport implements DataServi
     }
 
 
-    private Map<String, List<TestEntity>> getTestsWithName(List<String> sessionIds, String testName){
+    //??? pass testName null to ignore
+    private Map<String, Set<TestEntity>> getTestsWithName(Set<String> sessionIds, String testName){
         if (sessionIds.isEmpty()){
-            return Collections.EMPTY_MAP;
+            return Collections.emptyMap();
         }
 
-        List<TaskDataDto> taskDataDtoList = databaseServiceImpl.getTaskDataForSessions(new HashSet<String>(sessionIds));
+        // Get all test results without matching
+        SessionMatchingSetup sessionMatchingSetup = new SessionMatchingSetup(false,Collections.<SessionMatchingSetup.MatchBy>emptySet());
+        List<TaskDataDto> taskDataDtoList = databaseService.getTaskDataForSessions(sessionIds,sessionMatchingSetup);
 
-        List<Object[]> tasksEntities = getHibernateTemplate().findByNamedParam("select task, taskData.id from WorkloadTaskData task, TaskData taskData " +
-                "where task.sessionId in (:sessionIds) and " +
-                "      task.scenario.name like :name and " +
-                "      taskData.sessionId in (:sessionIds) and "+
-                "      taskData.taskId=task.taskId",
-                new String[]{"sessionIds", "name"}, new Object[]{sessionIds, testName});
+        Map<String, Set<TestEntity>> result = new HashMap<String, Set<TestEntity>>();
 
-        Map<String, List<TestEntity>> result = new HashMap<String, List<TestEntity>>();
+        for (TaskDataDto taskDataDto : taskDataDtoList) {
+            if (taskDataDto.getSessionIds().size() > 1) {
+                log.error("TaskDataDto contains data for more that one session. This is unexpected result. {}", taskDataDto);
+            }
+            else {
+                if (((testName != null) && (testName.equals(taskDataDto.getTaskName()))) ||
+                        (testName == null)) {
+                    TestEntity testEntity = new TestEntity();
+                    testEntity.setId(taskDataDto.getId());
+                    testEntity.setDescription(taskDataDto.getDescription());
+                    testEntity.setName(taskDataDto.getTaskName());
 
-        for (Object[] taskEntity : tasksEntities){
-            WorkloadTaskData task = (WorkloadTaskData)taskEntity[0];
 
-            TestEntity entity = new TestEntity();
-            entity.setId((Long)taskEntity[1]);
-            entity.setName(task.getScenario().getName());
-            entity.setDescription(task.getScenario().getDescription());
-            entity.setLoad(task.getClock());
-            entity.setTerminationStrategy(task.getTermination());
+                    //??? missing load and termination strategy
 
-            if (result.containsKey(task.getSessionId())){
-                result.get(task.getSessionId()).add(entity);
-            }else{
-                List<TestEntity> list = new ArrayList<TestEntity>();
-                list.add(entity);
+                    //???
+                    // may be use test info provider?
 
-                result.put(task.getSessionId(), list);
+
+                    if (result.containsKey(taskDataDto.getSessionId())){
+                        result.get(taskDataDto.getSessionId()).add(testEntity);
+                    }else{
+                        Set<TestEntity> list = new HashSet<TestEntity>();
+                        list.add(testEntity);
+                        result.put(taskDataDto.getSessionId(), list);
+                    }
+                }
             }
         }
 
         return result;
     }
 
-//    private Map<String, List<TestEntity>> getTestsWithName(List<String> sessionIds, String testName){
-//        if (sessionIds.isEmpty()){
-//            return Collections.EMPTY_MAP;
-//        }
-//
-//        List<Object[]> tasksEntities = getHibernateTemplate().findByNamedParam("select task, taskData.id from WorkloadTaskData task, TaskData taskData " +
-//                                                                                   "where task.sessionId in (:sessionIds) and " +
-//                                                                                   "      task.scenario.name like :name and " +
-//                                                                                   "      taskData.sessionId in (:sessionIds) and "+
-//                                                                                   "      taskData.taskId=task.taskId",
-//                                                                                          new String[]{"sessionIds", "name"}, new Object[]{sessionIds, testName});
-//
-//        Map<String, List<TestEntity>> result = new HashMap<String, List<TestEntity>>();
-//
-//        for (Object[] taskEntity : tasksEntities){
-//            WorkloadTaskData task = (WorkloadTaskData)taskEntity[0];
-//
-//            TestEntity entity = new TestEntity();
-//            entity.setId((Long)taskEntity[1]);
-//            entity.setName(task.getScenario().getName());
-//            entity.setDescription(task.getScenario().getDescription());
-//            entity.setLoad(task.getClock());
-//            entity.setTerminationStrategy(task.getTermination());
-//
-//            if (result.containsKey(task.getSessionId())){
-//                result.get(task.getSessionId()).add(entity);
-//            }else{
-//                List<TestEntity> list = new ArrayList<TestEntity>();
-//                list.add(entity);
-//
-//                result.put(task.getSessionId(), list);
-//            }
-//        }
-//
-//        return result;
-//    }
+    @Override
+    public Set<MetricEntity> getMetrics(Long testId){
+        Map<Long, Set<MetricEntity>> map = getMetricsByTestIds(new HashSet<Long>(Arrays.asList(testId)));
 
-    public List<MetricEntity> getMetrics(Long testId){
-        Map<Long, List<MetricEntity>> map = getMetricsByIds(Arrays.asList(testId));
-
-        List<MetricEntity> result = map.get(testId);
+        Set<MetricEntity> result = map.get(testId);
         if (result != null){
             return result;
         }
 
-        return Collections.EMPTY_LIST;
+        return Collections.emptySet();
     }
 
-    public List<MetricEntity> getMetrics(TestEntity test){
-        Map<TestEntity, List<MetricEntity>> map = getMetrics(Arrays.asList(test));
+    @Override
+    public Set<MetricEntity> getMetrics(TestEntity test){
+        Map<TestEntity, Set<MetricEntity>> map = getMetricsByTests(new HashSet<TestEntity>(Arrays.asList(test)));
 
-        List<MetricEntity> result = map.get(test);
+        Set<MetricEntity> result = map.get(test);
         if (result != null){
             return result;
         }
 
-        return Collections.EMPTY_LIST;
+        return Collections.emptySet();
     }
 
-    public Map<TestEntity, List<MetricEntity>> getMetrics(List<TestEntity> tests){
+    @Override
+    public Map<TestEntity, Set<MetricEntity>> getMetricsByTests(Set<TestEntity> tests){
         Map<Long, TestEntity> map = new HashMap<Long, TestEntity>(tests.size());
-        List<Long> ids = new ArrayList<Long>(tests.size());
+        Set<Long> ids = new HashSet<Long>(tests.size());
 
         for (TestEntity test : tests){
             map.put(test.getId(), test);
             ids.add(test.getId());
         }
 
-        Map<Long, List<MetricEntity>> metrics = getMetricsByIds(ids);
+        Map<Long, Set<MetricEntity>> metrics = getMetricsByTestIds(ids);
 
-        Map<TestEntity, List<MetricEntity>> result = new HashMap<TestEntity, List<MetricEntity>>();
+        Map<TestEntity, Set<MetricEntity>> result = new HashMap<TestEntity, Set<MetricEntity>>();
 
         for (Long key : map.keySet()){
             result.put(map.get(key), metrics.get(key));
@@ -251,94 +215,85 @@ public class DefaultDataService extends HibernateDaoSupport implements DataServi
         return result;
     }
 
-    public Map<Long, List<MetricEntity>> getMetricsByIds(List<Long> testIds){
+    @Override
+    public Map<Long, Set<MetricEntity>> getMetricsByTestIds(Set<Long> testIds){
         if (testIds.isEmpty()){
-            return Collections.EMPTY_MAP;
+            return Collections.emptyMap();
         }
 
-        MultiMap<Long, MetricEntity> result = new MultiMap<Long, MetricEntity>();
+        // Get
+        List<String> sessionIds = databaseService.getFetchUtil().getSessionIdsByTaskIds(new HashSet<Long>(testIds));
 
-        //try to find standard metrics
-        List<Object[]> standardMetrics = getHibernateTemplate().findByNamedParam("select task, taskData.id from WorkloadTaskData task, TaskData taskData " +
-                                                                                   "where taskData.id in (:ids) and " +
-                                                                                   "      task.taskId=taskData.taskId and " +
-                                                                                   "      task.sessionId=taskData.sessionId","ids", testIds);
-        for (Object[] taskEntity : standardMetrics){
-            WorkloadTaskData task = (WorkloadTaskData)taskEntity[0];
-            Long taskId = (Long)taskEntity[1];
+        SessionMatchingSetup sessionMatchingSetup = new SessionMatchingSetup(false,Collections.<SessionMatchingSetup.MatchBy>emptySet());
+        RootNode rootNode = databaseService.getControlTreeForSessions(new HashSet<String>(sessionIds),sessionMatchingSetup);
 
-            MetricEntity throughput = new MetricEntity();
-            throughput.setMetricId(JaggerMetric.Throughput);
-            throughput.setSummaryValue(task.getThroughput().doubleValue());
-            throughput.setDisplayName(STANDARD_METRICS.get(JaggerMetric.Throughput));
-            result.put(taskId, throughput);
+        // Filter
+        List<TestNode> summaryNodeTests = rootNode.getSummaryNode().getTests();
+        List<TestDetailsNode> detailsNodeTests = rootNode.getDetailsNode().getTests();
 
-            MetricEntity avgLatency = new MetricEntity();
-            avgLatency.setMetricId(JaggerMetric.AvgLatency);
-            avgLatency.setSummaryValue(task.getAvgLatency().doubleValue());
-            avgLatency.setDisplayName(STANDARD_METRICS.get(JaggerMetric.AvgLatency));
-            result.put(taskId, avgLatency);
+        Iterator<TestNode> iteratorTN = summaryNodeTests.iterator();
+        while (iteratorTN.hasNext()) {
+            Long testId = iteratorTN.next().getTaskDataDto().getId();
+            if (!testIds.contains(testId))
+               iteratorTN.remove();
+            }
 
-            MetricEntity failures = new MetricEntity();
-            failures.setMetricId(JaggerMetric.Failures);
-            failures.setSummaryValue(task.getFailuresCount().doubleValue());
-            failures.setDisplayName(STANDARD_METRICS.get(JaggerMetric.Failures));
-            result.put(taskId, failures);
-
-            MetricEntity samples = new MetricEntity();
-            samples.setMetricId(JaggerMetric.Samples);
-            samples.setSummaryValue(task.getSamples().doubleValue());
-            samples.setDisplayName(STANDARD_METRICS.get(JaggerMetric.Samples));
-            result.put(taskId, samples);
-
-            MetricEntity stdDevLatency = new MetricEntity();
-            stdDevLatency.setMetricId(JaggerMetric.StdDevLatency);
-            stdDevLatency.setSummaryValue(task.getStdDevLatency().doubleValue());
-            stdDevLatency.setDisplayName(STANDARD_METRICS.get(JaggerMetric.StdDevLatency));
-            result.put(taskId, stdDevLatency);
-
-            MetricEntity successRate = new MetricEntity();
-            successRate.setMetricId(JaggerMetric.SuccessRate);
-            successRate.setSummaryValue(task.getSuccessRate().doubleValue());
-            successRate.setDisplayName(STANDARD_METRICS.get(JaggerMetric.SuccessRate));
-            result.put(taskId, successRate);
+        Iterator<TestDetailsNode> iteratorTDN = detailsNodeTests.iterator();
+        while (iteratorTDN.hasNext()) {
+            Long testId = iteratorTDN.next().getTaskDataDto().getId();
+            if (!testIds.contains(testId))
+                iteratorTDN.remove();
         }
 
-        //try to find custom metrics
-        List<Object[]> customSummaryMetrics = getHibernateTemplate().findByNamedParam("select metric, taskData.id from DiagnosticResultEntity metric, TaskData taskData " +
-                                                                                        "where taskData.id in (:ids) and " +
-                                                                                        "      metric.workloadData.taskId=taskData.taskId and " +
-                                                                                        "      metric.workloadData.sessionId=taskData.sessionId", "ids", testIds);
-        for (Object[] customMetric : customSummaryMetrics){
-            DiagnosticResultEntity metric = (DiagnosticResultEntity) customMetric[0];
 
-            MetricEntity metricEntity = new MetricEntity();
-            metricEntity.setMetricId(metric.getName());
-            //need to change to real display name!!
-            metricEntity.setDisplayName(metric.getName());
-            metricEntity.setSummaryValue(metric.getTotal());
+        //??? should remember who has summary and who has plots!!!
 
-            result.put((Long)customMetric[1], metricEntity);
-        }
+        // Join
+        Map<Long,Set<MetricNameDto>> metrics = new HashMap<Long, Set<MetricNameDto>>();
 
-        List<MetricDetails> customPlotMetrics = getHibernateTemplate().findByNamedParam("select metric from MetricDetails metric " +
-                                                                                            "where metric.taskData.id in (:ids) " +
-                                                                                            "group by metric.metric","ids", testIds);
-        //try to find metrics with plotData only
-        for (MetricDetails metricDetails : customPlotMetrics){
-            MetricEntity metricEntity = new MetricEntity();
-            metricEntity.setMetricId(metricDetails.getMetric());
-            //need to change to real display name!!
-            metricEntity.setDisplayName(metricDetails.getMetric());
-            metricEntity.setSummaryValue(null);
+        for (TestNode testNode : summaryNodeTests) {
+            Long testId = testNode.getTaskDataDto().getId();
 
-            if (result.get(metricDetails.getId()) != null && !result.get(metricDetails.getId()).contains(metricEntity)){
-                result.put(metricDetails.getTaskData().getId(), metricEntity);
+            if (!metrics.containsKey(testId)) {
+                metrics.put(testId,new HashSet<MetricNameDto>());
+            }
+
+            for (MetricNode metricNode : testNode.getMetrics()) {
+                metrics.get(testId).addAll(metricNode.getMetricNameDtoList());
             }
         }
-        return result.getOrigin();
+
+        for (TestDetailsNode testDetailsNode : detailsNodeTests) {
+            Long testId = testDetailsNode.getTaskDataDto().getId();
+
+            if (!metrics.containsKey(testId)) {
+                metrics.put(testId,new HashSet<MetricNameDto>());
+            }
+
+            for (MetricNode metricNode : testDetailsNode.getMetrics()) {
+                metrics.get(testId).addAll(metricNode.getMetricNameDtoList());
+            }
+        }
+
+        // Convert
+        Map<Long, Set<MetricEntity>> result = new HashMap<Long, Set<MetricEntity>>();
+        for (Long key : metrics.keySet()) {
+            result.put(key,new HashSet<MetricEntity>());
+
+            for (MetricNameDto metricNameDto : metrics.get(key)) {
+                MetricEntity metricEntity = new MetricEntity();
+                metricEntity.setMetricNameDto(metricNameDto);
+                result.get(key).add(metricEntity);
+            }
+        }
+
+        return result;
     }
 
+    //??? get summary and values separately
+
+
+    @Override
     public List<MetricValueEntity> getMetricValues(Long testId, String metricId){
         Map<String, List<MetricValueEntity>> map = getMetricValuesByIds(testId, Arrays.asList(metricId));
 
@@ -347,13 +302,15 @@ public class DefaultDataService extends HibernateDaoSupport implements DataServi
             return result;
         }
 
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
+    @Override
     public List<MetricValueEntity> getMetricValues(TestEntity test, MetricEntity metric){
         return getMetricValues(test.getId(), metric);
     }
 
+    @Override
     public List<MetricValueEntity> getMetricValues(Long testId, MetricEntity metric){
         Map<MetricEntity, List<MetricValueEntity>> map = getMetricValues(testId, Arrays.asList(metric));
 
@@ -362,12 +319,13 @@ public class DefaultDataService extends HibernateDaoSupport implements DataServi
             return result;
         }
 
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
+    @Override
     public Map<String, List<MetricValueEntity>> getMetricValuesByIds(Long testId, List<String> metricIds){
         if (metricIds.isEmpty()){
-            return Collections.EMPTY_MAP;
+            return Collections.emptyMap();
         }
 
         MultiMap<String, MetricValueEntity> result = new MultiMap<String,MetricValueEntity>();
@@ -376,7 +334,7 @@ public class DefaultDataService extends HibernateDaoSupport implements DataServi
                                                                                     "where metric.taskData.id=:testId",
                                                                                     "testId", testId);
         if (metricValues.isEmpty()){
-            return Collections.EMPTY_MAP;
+            return Collections.emptyMap();
         }
 
         for (MetricDetails metricValue : metricValues){
@@ -390,10 +348,12 @@ public class DefaultDataService extends HibernateDaoSupport implements DataServi
         return result.getOrigin();
     }
 
+    @Override
     public Map<MetricEntity, List<MetricValueEntity>> getMetricValues(TestEntity test, List<MetricEntity> metrics){
         return getMetricValues(test.getId(), metrics);
     }
 
+    @Override
     public Map<MetricEntity, List<MetricValueEntity>> getMetricValues(Long testId, List<MetricEntity> metrics){
         List<String> ids = new ArrayList<String>(metrics.size());
         Map<String, MetricEntity> map = new HashMap<String, MetricEntity>(metrics.size());

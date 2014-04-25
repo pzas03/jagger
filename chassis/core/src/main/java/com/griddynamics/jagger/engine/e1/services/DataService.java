@@ -28,21 +28,30 @@ public interface DataService extends JaggerService {
      * @n
      * @param sessionIds - session's ids
      * @return list of session's entities */
-    List<SessionEntity> getSessions(Set<String> sessionIds);
+    Set<SessionEntity> getSessions(Set<String> sessionIds);
 
     /** Returns tests for specify session
      * @author Gribov Kirill
      * @n
      * @param session - session entity
      * @return list of test entities */
-    List<TestEntity> getTests(SessionEntity session);
+    Set<TestEntity> getTests(SessionEntity session);
 
     /** Returns tests for specify session's id
      * @author Gribov Kirill
      * @n
      * @param sessionId - session's id
      * @return list of test entities */
-    List<TestEntity> getTests(String sessionId);
+    Set<TestEntity> getTests(String sessionId);
+
+    /** Returns all tests for specify list of session's ids
+     * @author Gribov Kirill
+     * @n
+     * @param sessionIds - list of session's ids
+     * @return map of <session id, list of test entities> pairs*/
+    Map<String, Set<TestEntity>> getTests(Set<String> sessionIds);
+
+    //??? why no getTests for list of SessionEntity
 
     /** Returns test entity for specify session's id and test name
      * @author Gribov Kirill
@@ -66,42 +75,39 @@ public interface DataService extends JaggerService {
      * @param sessionIds - list of session's ids
      * @param testName - name of test
      * @return map of <session id, test entity> pairs*/
-    Map<String, TestEntity> getTestsByName(List<String> sessionIds, String testName);
-
-    /** Returns all tests for specify list of session's ids
-     * @author Gribov Kirill
-     * @n
-     * @param sessionIds - list of session's ids
-     * @return map of <session id, list of test entities> pairs*/
-    Map<String, List<TestEntity>> getTests(List<String> sessionIds);
+    Map<String, TestEntity> getTestsByName(Set<String> sessionIds, String testName);
 
     /** Returns all metric entities for specify test id
      * @author Gribov Kirill
      * @n
      * @param testId - test id
      * @return list of metric entities*/
-    List<MetricEntity> getMetrics(Long testId);
+    Set<MetricEntity> getMetrics(Long testId);
 
     /** Returns all metric entities for specify test
      * @author Gribov Kirill
      * @n
      * @param test - test entity
      * @return list of metric entities*/
-    List<MetricEntity> getMetrics(TestEntity test);
+    Set<MetricEntity> getMetrics(TestEntity test);
 
     /** Returns map, where key is test entity and value is a list of all test metrics
      * @author Gribov Kirill
      * @n
      * @param tests - list of tests
      * @return map of <test entity, list of metric entity> pairs*/
-    Map<TestEntity, List<MetricEntity>> getMetrics(List<TestEntity> tests);
+    Map<TestEntity, Set<MetricEntity>> getMetricsByTests(Set<TestEntity> tests);
 
     /** Returns map, where key is test id and value is a list of all test metrics
      * @author Gribov Kirill
      * @n
      * @param testIds - list of tests ids
      * @return map of <test id, list of metric entity> pairs*/
-    Map<Long, List<MetricEntity>> getMetricsByIds(List<Long> testIds);
+    Map<Long, Set<MetricEntity>> getMetricsByTestIds(Set<Long> testIds);
+
+    //??? Set vs List
+
+
 
     /** Returns all metric values for specify test id and metric id
      * @author Gribov Kirill

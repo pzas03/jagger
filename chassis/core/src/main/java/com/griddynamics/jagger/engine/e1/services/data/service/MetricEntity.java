@@ -1,5 +1,11 @@
 package com.griddynamics.jagger.engine.e1.services.data.service;
 
+import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
+
+//??? has only summary or plot
+
+
+
 /**
  * Created with IntelliJ IDEA.
  * User: kgribov
@@ -8,51 +14,72 @@ package com.griddynamics.jagger.engine.e1.services.data.service;
  * To change this template use File | Settings | File Templates.
  */
 public class MetricEntity {
-    private String metricId;
-    private String displayName;
-    private Double summaryValue;
+    private MetricNameDto metricNameDto;
+    //???
+//    private String metricId;
+//    private String displayName;
+//???    private Double summaryValue;
+
+    public void setMetricNameDto(MetricNameDto metricNameDto) {
+        this.metricNameDto = metricNameDto;
+    }
+    public MetricNameDto getMetricNameDto() {
+        return metricNameDto;
+    }
 
     public String getMetricId() {
-        return metricId;
+        return metricNameDto.getMetricName();
     }
 
-    public void setMetricId(String metricId) {
-        this.metricId = metricId;
-    }
+//    public void setMetricId(String metricId) {
+//        this.metricId = metricId;
+//    }
 
     public String getDisplayName() {
-        return displayName;
+        return metricNameDto.getMetricDisplayName();
     }
 
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
+    public MetricNameDto.Origin getOrigin() {
+        return metricNameDto.getOrigin();
     }
 
-    public Double getSummaryValue() {
-        return summaryValue;
-    }
+//    public void setDisplayName(String displayName) {
+//        this.displayName = displayName;
+//    }
 
-    public void setSummaryValue(Double summaryValue) {
-        this.summaryValue = summaryValue;
-    }
+    //???
+//    public Double getSummaryValue() {
+//        return summaryValue;
+//    }
+//
+//    public void setSummaryValue(Double summaryValue) {
+//        this.summaryValue = summaryValue;
+//    }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
 
-        MetricEntity entity = (MetricEntity) o;
 
-        if (displayName != null ? !displayName.equals(entity.displayName) : entity.displayName != null) return false;
-        if (metricId != null ? !metricId.equals(entity.metricId) : entity.metricId != null) return false;
 
-        return true;
-    }
 
-    @Override
-    public int hashCode() {
-        int result = metricId != null ? metricId.hashCode() : 0;
-        result = 31 * result + (displayName != null ? displayName.hashCode() : 0);
-        return result;
-    }
+
+
+    //???
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (o == null || getClass() != o.getClass()) return false;
+//
+//        MetricEntity entity = (MetricEntity) o;
+//
+//        if (displayName != null ? !displayName.equals(entity.displayName) : entity.displayName != null) return false;
+//        if (metricId != null ? !metricId.equals(entity.metricId) : entity.metricId != null) return false;
+//
+//        return true;
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        int result = metricId != null ? metricId.hashCode() : 0;
+//        result = 31 * result + (displayName != null ? displayName.hashCode() : 0);
+//        return result;
+//    }
 }

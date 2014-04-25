@@ -76,6 +76,8 @@ public class DatabaseServiceImpl implements DatabaseService {
     private CustomTestGroupMetricSummaryFetcher customTestGroupMetricSummaryFetcher;
     private ValidatorSummaryFetcher validatorSummaryFetcher;
 
+    private FetchUtil fetchUtil;
+
     //==========Setters
 
     @PersistenceContext
@@ -219,6 +221,11 @@ public class DatabaseServiceImpl implements DatabaseService {
         this.validatorNamesProvider = validatorNamesProvider;
     }
 
+    @Required
+    public void setFetchUtil(FetchUtil fetchUtil) {
+        this.fetchUtil = fetchUtil;
+    }
+
     //===========================
     //=======Get plot data=======
     //===========================
@@ -334,8 +341,8 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             List<TaskDataDto> taskList = fetchTaskDatas(sessionIds,sessionMatchingSetup);
 
-            Future<SummaryNode> summaryFuture = threadPool.submit(new SummaryNodeFetcherTread(sessionIds, taskList));
-            Future<DetailsNode> detailsNodeFuture = threadPool.submit(new DetailsNodeFetcherTread(sessionIds, taskList));
+            Future<SummaryNode> summaryFuture = threadPool.submit(new SummaryNodeFetcherThread(sessionIds, taskList));
+            Future<DetailsNode> detailsNodeFuture = threadPool.submit(new DetailsNodeFetcherThread(sessionIds, taskList));
             //Future<SessionScopePlotsNode> sessionScopePlotsNodeFuture = threadPool.submit(new SessionScopePlotsNodeFetcherThread(sessionIds));
 
             SummaryNode summaryNode = summaryFuture.get();
@@ -1073,10 +1080,10 @@ public class DatabaseServiceImpl implements DatabaseService {
         }
     }
 
-    public class SummaryNodeFetcherTread implements Callable<SummaryNode> {
+    public class SummaryNodeFetcherThread implements Callable<SummaryNode> {
         private Set<String> sessionIds;
         private List<TaskDataDto> taskList;
-        public SummaryNodeFetcherTread(Set<String> sessionIds, List<TaskDataDto> taskList) {
+        public SummaryNodeFetcherThread(Set<String> sessionIds, List<TaskDataDto> taskList) {
             this.sessionIds = sessionIds;
             this.taskList = taskList;
         }
@@ -1092,10 +1099,10 @@ public class DatabaseServiceImpl implements DatabaseService {
         }
     }
 
-    public class DetailsNodeFetcherTread implements Callable<DetailsNode> {
+    public class DetailsNodeFetcherThread implements Callable<DetailsNode> {
         private Set<String> sessionIds;
         private List<TaskDataDto> taskList;
-        public DetailsNodeFetcherTread(Set<String> sessionIds, List<TaskDataDto> taskList) {
+        public DetailsNodeFetcherThread(Set<String> sessionIds, List<TaskDataDto> taskList) {
             this.sessionIds = sessionIds;
             this.taskList = taskList;
         }
@@ -1274,5 +1281,11 @@ public class DatabaseServiceImpl implements DatabaseService {
 
         return nodeInfoPerSessionDtoList;
     }
+
+    @Override
+    public FetchUtil getFetchUtil() {
+        return fetchUtil;
+    }
+
 }
 

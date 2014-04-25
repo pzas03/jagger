@@ -6,7 +6,6 @@ import com.google.common.collect.Multimap;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -28,7 +27,7 @@ public class FetchUtil {
 
         Multimap<Long, Long> resultMap = HashMultimap.create();
 
-        List<String> sessionIds = getSessionIds(taskIds);
+        List<String> sessionIds = getSessionIdsByTaskIds(taskIds);
         if (sessionIds.isEmpty()) {
             // return empty Map, as we did not find any data we wanted
             return resultMap;
@@ -70,7 +69,11 @@ public class FetchUtil {
                 .getResultList();
     }
 
-    private List<String> getSessionIds(Set<Long> taskIds) {
+    /**
+     * @param taskIds TaskData ids for required sessions
+     * @return list of session Ids
+     */
+    public List<String> getSessionIdsByTaskIds(Set<Long> taskIds) {
         return entityManager.createNativeQuery("select distinct taskData.sessionId from TaskData taskData " +
                 "where taskData.id in (:ids)")
                 .setParameter("ids", taskIds)
