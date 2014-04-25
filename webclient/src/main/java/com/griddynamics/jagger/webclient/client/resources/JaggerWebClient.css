@@ -282,7 +282,8 @@ input[type="text"] {
 }
 
 .dragLabel {
-    background: #d7e1ff;
+    background: #d0e4f6;
+    cursor: move;
 }
 
 .saveLabel {

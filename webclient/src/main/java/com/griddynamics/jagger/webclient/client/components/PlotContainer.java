@@ -9,16 +9,21 @@ import com.sencha.gxt.dnd.core.client.*;
  * Draggable container that holds plot representation */
 public class PlotContainer extends VerticalPanel {
 
-    private PlotRepresentation chart;
+    private PlotRepresentation plotRepresentation;
 
-    public PlotContainer(String id, PlotRepresentation chart) {
+    private Label plotHeader;
+
+    private HorizontalPanel dragPanel;
+
+    public PlotContainer(String id, Label plotHeader, PlotRepresentation chart) {
         super();
         this.getElement().setId(id);
-        this.chart = chart;
+        this.plotRepresentation = chart;
+        this.plotHeader = plotHeader;
         initContainer();
     }
 
-    private void initDragAndDropBehavior(final Widget dragSource) {
+    private void initDragAndDropBehavior() {
 
         DropTarget target = new DropTarget(this) {
             @Override
@@ -33,12 +38,12 @@ public class PlotContainer extends VerticalPanel {
         target.setFeedback(DND.Feedback.BOTH);
 
 
-        new DragSource(dragSource) {
+        new DragSource(dragPanel) {
             @Override
             protected void onDragStart(DndDragStartEvent event) {
                 super.onDragStart(event);
                 // by default drag is allowed
-                event.setData(dragSource.getParent());
+                event.setData(dragPanel.getParent());
             }
         };
     }
@@ -48,39 +53,57 @@ public class PlotContainer extends VerticalPanel {
         String id1 = c1.getElement().getId();
         String id2 = c2.getElement().getId();
 
-        PlotRepresentation ch1 = c1.getChart();
-        PlotRepresentation ch2 = c2.getChart();
+        Label header1 = c1.getPlotHeader();
+        Label header2 = c2.getPlotHeader();
+
+        PlotRepresentation ch1 = c1.getPlotRepresentation();
+        PlotRepresentation ch2 = c2.getPlotRepresentation();
 
         c1.getElement().setId(id2);
         c2.getElement().setId(id1);
-        c1.setChart(ch2);
-        c2.setChart(ch1);
+        c1.setPlotRepresentation(ch2);
+        c2.setPlotRepresentation(ch1);
+        c1.setPlotHeader(header2);
+        c2.setPlotHeader(header1);
     }
 
     private void initContainer() {
         this.setWidth("100%");
-        SimplePanel dragPanel = new SimplePanel();
-        dragPanel.setSize("100%", "30px");
+        dragPanel = new HorizontalPanel();
+        dragPanel.setVerticalAlignment(ALIGN_MIDDLE);
+        dragPanel.setSize("100%", "20px");
         dragPanel.addStyleName(JaggerResources.INSTANCE.css().dragLabel());
-
+        dragPanel.add(plotHeader);
+        plotHeader.setHorizontalAlignment(ALIGN_LEFT);
+        dragPanel.setSpacing(3);
         add(dragPanel);
-        add(chart);
+        add(plotRepresentation);
 
-        initDragAndDropBehavior(dragPanel);
+        initDragAndDropBehavior();
     }
 
-    public void setChart(PlotRepresentation chart) {
-        remove(this.chart);
-        this.chart = chart;
-        add(this.chart);
+    public void setPlotRepresentation(PlotRepresentation plotRepresentation) {
+        remove(this.plotRepresentation);
+        this.plotRepresentation = plotRepresentation;
+        add(this.plotRepresentation);
     }
 
-    public PlotRepresentation getChart() {
-        return chart;
+    public PlotRepresentation getPlotRepresentation() {
+        return plotRepresentation;
+    }
+
+    public Label getPlotHeader() {
+        return plotHeader;
+    }
+
+    public void setPlotHeader(Label plotHeader) {
+        dragPanel.remove(this.plotHeader);
+        this.plotHeader = plotHeader;
+        dragPanel.add(this.plotHeader);
     }
 
     @Override
     public void setHeight(String height) {
-        chart.getSimplePlot().setHeight(height);
+        plotRepresentation.getSimplePlot().setHeight(height);
     }
 }

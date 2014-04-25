@@ -69,7 +69,6 @@ public class DynamicLayoutPanel extends VerticalPanel {
         HorizontalPanel newHp = new HorizontalPanel();
         newHp.setHorizontalAlignment(ALIGN_CENTER);
         newHp.setWidth("100%");
-        newHp.setBorderWidth(2);
         newHp.add(widget);
         newHp.setCellWidth(widget, "100%");
         newHp.setSpacing(1);
@@ -92,7 +91,6 @@ public class DynamicLayoutPanel extends VerticalPanel {
         HorizontalPanel newHp = new HorizontalPanel();
         newHp.setHorizontalAlignment(ALIGN_CENTER);
         newHp.setWidth("100%");
-        newHp.setBorderWidth(2);
         newHp.add(widget);
         newHp.setCellWidth(widget, "50%");
         newHp.add(stub);
@@ -107,10 +105,6 @@ public class DynamicLayoutPanel extends VerticalPanel {
             for (int j = 0; j < hp.getWidgetCount(); j ++) {
                 Widget widget = hp.getWidget(j);
                 widget.setHeight(plotContainerHeight);
-                if (widget instanceof PlotContainer) {
-                    PlotContainer pc = (PlotContainer) widget;
-                    pc.getChart().setHeight(plotContainerHeight);
-                }
             }
         }
     }

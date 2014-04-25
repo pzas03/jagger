@@ -26,7 +26,7 @@ public class PlotsPanel extends Composite {
 
     /**
      * default value for container height */
-    private Integer plotContainerHeight = 200;
+    private Integer plotContainerHeight = 150;
 
     public PlotsPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));

@@ -9,18 +9,15 @@ import com.googlecode.gflot.client.SimplePlot;
  * class that represents plot with all its functionality */
 public class PlotRepresentation extends VerticalPanel {
 
-    private Label plotHeader;
     private FlowPanel zoomPanel;
     private SimplePlot simplePlot;
     private Label xLabel;
 
-    public PlotRepresentation(Label plotHeader, FlowPanel zoomPanel, SimplePlot simplePlot, Label xLabel) {
+    public PlotRepresentation(FlowPanel zoomPanel, SimplePlot simplePlot, Label xLabel) {
         super();
-        this.plotHeader = plotHeader;
         this.zoomPanel = zoomPanel;
         this.simplePlot = simplePlot;
         this.xLabel = xLabel;
-        this.add(plotHeader);
         this.add(zoomPanel);
         this.add(simplePlot);
         this.add(xLabel);
@@ -38,9 +35,5 @@ public class PlotRepresentation extends VerticalPanel {
 
     public Label getxLabel() {
         return xLabel;
-    }
-
-    public Label getPlotHeader() {
-        return plotHeader;
     }
 }

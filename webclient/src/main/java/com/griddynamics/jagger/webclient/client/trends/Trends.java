@@ -617,7 +617,7 @@ public class Trends extends DefaultActivity {
                 .setLineSeriesOptions(LineSeriesOptions.create().setLineWidth(1).setShow(true).setFill(0.1))
                 .setPointsOptions(PointsSeriesOptions.create().setRadius(1).setShow(true)).setShadowSize(0d));
 
-        plotOptions.setPanOptions(PanOptions.create().setInteractive(false));
+        plotOptions.setPanOptions(PanOptions.create().setInteractive(true));
         plotOptions.setCanvasEnabled(true);
 
         if (isMetric) {
@@ -1140,9 +1140,9 @@ public class Trends extends DefaultActivity {
             vp.add(xLabel);
             // Will be added if there is need it
             //vp.add(plotLegend);
-            PlotRepresentation plotRepresentation = new PlotRepresentation(plotHeader, zoomPanel, plot, xLabel);
+            PlotRepresentation plotRepresentation = new PlotRepresentation(zoomPanel, plot, xLabel);
 
-            PlotContainer pc = new PlotContainer(id, plotRepresentation);
+            PlotContainer pc = new PlotContainer(id, plotHeader, plotRepresentation);
 
             panel.addElement(pc);
         }
