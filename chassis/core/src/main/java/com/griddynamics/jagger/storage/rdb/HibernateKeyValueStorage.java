@@ -113,12 +113,12 @@ public class HibernateKeyValueStorage extends HibernateDaoSupport implements Key
             getHibernateTemplate().bulkUpdate("delete from KeyValue");
             return;
         }
+        List<String> sessionForDelete = Lists.newArrayList();
+        sessionForDelete.add(sessionId);
         if (sessions.size() > sessionLimit) {
-            List<String> sessionForDelete = new ArrayList<String>(sessions.subList(0, (sessions.size() - 1) - sessionLimit));
-            getHibernateTemplate().bulkUpdate("delete from KeyValue where sessionId in (?)", sessionForDelete.toArray());
+            sessionForDelete.addAll(sessions.subList(0, (sessions.size() - 1) - sessionLimit));
         }
-        getHibernateTemplate().bulkUpdate("delete from KeyValue where sessionId=?", sessionId);
-
+        getHibernateTemplate().bulkUpdate("delete from KeyValue where sessionId in (?)", sessionForDelete.toArray());
     }
 
     @SuppressWarnings("unchecked")
