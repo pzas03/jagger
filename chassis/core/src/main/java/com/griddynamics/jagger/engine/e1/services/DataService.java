@@ -105,6 +105,16 @@ public interface DataService extends JaggerService {
      * @return map of <test id, list of metric entity> pairs*/
     Map<Long, Set<MetricEntity>> getMetricsByTestIds(Set<Long> testIds);
 
+    //??? docu
+    Double getMetricSummary(MetricEntity metric);
+
+    Map<MetricEntity,Double> getMetricSummary(Set<MetricEntity> metrics);
+
+    List<MetricValueEntity> getMetricPlotData(MetricEntity metric);
+
+    Map<MetricEntity,List<MetricValueEntity>> getMetricPlotData(Set<MetricEntity> metrics);
+
+
     //??? Set vs List
 
 

@@ -2,6 +2,7 @@ package com.griddynamics.jagger.engine.e1.services;
 
 import com.griddynamics.jagger.coordinator.NodeContext;
 import com.griddynamics.jagger.dbapi.DatabaseService;
+import com.griddynamics.jagger.dbapi.dto.MetricDto;
 import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
 import com.griddynamics.jagger.dbapi.dto.SessionDataDto;
 import com.griddynamics.jagger.dbapi.dto.TaskDataDto;
@@ -245,11 +246,10 @@ public class DefaultDataService extends HibernateDaoSupport implements DataServi
                 iteratorTDN.remove();
         }
 
-
-        //??? should remember who has summary and who has plots!!!
-
         // Join
         Map<Long,Set<MetricNameDto>> metrics = new HashMap<Long, Set<MetricNameDto>>();
+        Set<String> metricsWithSummary = new HashSet<String>();
+        Set<String> metricsWithPlots = new HashSet<String>();
 
         for (TestNode testNode : summaryNodeTests) {
             Long testId = testNode.getTaskDataDto().getId();
@@ -259,7 +259,10 @@ public class DefaultDataService extends HibernateDaoSupport implements DataServi
             }
 
             for (MetricNode metricNode : testNode.getMetrics()) {
-                metrics.get(testId).addAll(metricNode.getMetricNameDtoList());
+                for (MetricNameDto metricNameDto : metricNode.getMetricNameDtoList()) {
+                    metrics.get(testId).add(metricNameDto);
+                    metricsWithSummary.add(metricNameDto.getMetricName());
+                }
             }
         }
 
@@ -271,7 +274,10 @@ public class DefaultDataService extends HibernateDaoSupport implements DataServi
             }
 
             for (MetricNode metricNode : testDetailsNode.getMetrics()) {
-                metrics.get(testId).addAll(metricNode.getMetricNameDtoList());
+                for (MetricNameDto metricNameDto : metricNode.getMetricNameDtoList()) {
+                    metrics.get(testId).add(metricNameDto);
+                    metricsWithPlots.add(metricNameDto.getMetricName());
+                }
             }
         }
 
@@ -283,12 +289,63 @@ public class DefaultDataService extends HibernateDaoSupport implements DataServi
             for (MetricNameDto metricNameDto : metrics.get(key)) {
                 MetricEntity metricEntity = new MetricEntity();
                 metricEntity.setMetricNameDto(metricNameDto);
+                if (metricsWithSummary.contains(metricNameDto.getMetricName())) {
+                    metricEntity.setSummaryAvailable(true);
+                }
+                if (metricsWithPlots.contains(metricNameDto.getMetricName())) {
+                    metricEntity.setPlotAvailable(true);
+                }
                 result.get(key).add(metricEntity);
             }
         }
 
         return result;
     }
+
+    @Override
+    public Double getMetricSummary(MetricEntity metric) {
+        Map<MetricEntity, Double> map = getMetricSummary(new HashSet<MetricEntity>(Arrays.asList(metric)));
+
+        return map.get(metric);
+    }
+
+    //??? check with old monitoring
+
+    @Override
+    public Map<MetricEntity, Double> getMetricSummary(Set<MetricEntity> metrics) {
+
+        List<MetricNameDto> metricNameDtoList = new ArrayList<MetricNameDto>();
+        Map<MetricNameDto,MetricEntity> matchMap = new HashMap<MetricNameDto, MetricEntity>();
+
+        for (MetricEntity metric : metrics) {
+            if (metric.isSummaryAvailable()) {
+                metricNameDtoList.add(metric.getMetricNameDto());
+                matchMap.put(metric.getMetricNameDto(),metric);
+            }
+        }
+
+        List<MetricDto> metricDtoList = databaseService.getMetrics(metricNameDtoList);
+
+        Map<MetricEntity,Double> result = new HashMap<MetricEntity, Double>();
+        for (MetricDto metricDto : metricDtoList) {
+            MetricEntity metricEntity = matchMap.get(metricDto.getMetricName());
+            Double value = Double.parseDouble(metricDto.getValues().iterator().next().getValue());
+            result.put(metricEntity,value);
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<MetricValueEntity> getMetricPlotData(MetricEntity metric) {
+        return null;
+    }
+
+    @Override
+    public Map<MetricEntity, List<MetricValueEntity>> getMetricPlotData(Set<MetricEntity> metrics) {
+        return null;
+    }
+
 
     //??? get summary and values separately
 

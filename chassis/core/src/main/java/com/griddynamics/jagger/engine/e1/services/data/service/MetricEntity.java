@@ -15,6 +15,8 @@ import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
  */
 public class MetricEntity {
     private MetricNameDto metricNameDto;
+    private boolean summaryAvailable = false;
+    private boolean plotAvailable = false;
     //???
 //    private String metricId;
 //    private String displayName;
@@ -41,6 +43,22 @@ public class MetricEntity {
 
     public MetricNameDto.Origin getOrigin() {
         return metricNameDto.getOrigin();
+    }
+
+    public boolean isSummaryAvailable() {
+        return summaryAvailable;
+    }
+
+    public void setSummaryAvailable(boolean summaryAvailable) {
+        this.summaryAvailable = summaryAvailable;
+    }
+
+    public boolean isPlotAvailable() {
+        return plotAvailable;
+    }
+
+    public void setPlotAvailable(boolean plotAvailable) {
+        this.plotAvailable = plotAvailable;
     }
 
 //    public void setDisplayName(String displayName) {

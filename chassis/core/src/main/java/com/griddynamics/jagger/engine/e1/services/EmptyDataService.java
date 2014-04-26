@@ -86,6 +86,26 @@ public class EmptyDataService implements DataService {
     }
 
     @Override
+    public Double getMetricSummary(MetricEntity metric) {
+        return null;
+    }
+
+    @Override
+    public Map<MetricEntity, Double> getMetricSummary(Set<MetricEntity> metrics) {
+        return null;
+    }
+
+    @Override
+    public List<MetricValueEntity> getMetricPlotData(MetricEntity metric) {
+        return null;
+    }
+
+    @Override
+    public Map<MetricEntity, List<MetricValueEntity>> getMetricPlotData(Set<MetricEntity> metrics) {
+        return null;
+    }
+
+    @Override
     public List<MetricValueEntity> getMetricValues(Long testId, String metricId) {
         return null;
     }
