@@ -166,7 +166,7 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
         }
 
         try {
-            plotsReal = databaseService.getPlotData(allMetrics);
+            plotsReal = databaseService.getPlotDataByMetricNode(allMetrics);
         } catch (Exception e) {
             log.error("Unable to get plots information for metrics");
         }

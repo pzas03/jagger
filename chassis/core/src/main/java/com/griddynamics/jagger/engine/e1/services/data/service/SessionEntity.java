@@ -1,5 +1,6 @@
 package com.griddynamics.jagger.engine.e1.services.data.service;
 
+//??? docu
 /**
  * Created with IntelliJ IDEA.
  * User: kgribov
@@ -54,7 +55,6 @@ public class SessionEntity {
         this.kernels = kernels;
     }
 
-    //??? regenerate after changes
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

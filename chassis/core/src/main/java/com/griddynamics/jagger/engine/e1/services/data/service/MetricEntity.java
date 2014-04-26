@@ -2,10 +2,7 @@ package com.griddynamics.jagger.engine.e1.services.data.service;
 
 import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
 
-//??? has only summary or plot
-
-
-
+//??? docu
 /**
  * Created with IntelliJ IDEA.
  * User: kgribov
@@ -17,10 +14,6 @@ public class MetricEntity {
     private MetricNameDto metricNameDto;
     private boolean summaryAvailable = false;
     private boolean plotAvailable = false;
-    //???
-//    private String metricId;
-//    private String displayName;
-//???    private Double summaryValue;
 
     public void setMetricNameDto(MetricNameDto metricNameDto) {
         this.metricNameDto = metricNameDto;
@@ -32,10 +25,6 @@ public class MetricEntity {
     public String getMetricId() {
         return metricNameDto.getMetricName();
     }
-
-//    public void setMetricId(String metricId) {
-//        this.metricId = metricId;
-//    }
 
     public String getDisplayName() {
         return metricNameDto.getMetricDisplayName();
@@ -61,43 +50,25 @@ public class MetricEntity {
         this.plotAvailable = plotAvailable;
     }
 
-//    public void setDisplayName(String displayName) {
-//        this.displayName = displayName;
-//    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-    //???
-//    public Double getSummaryValue() {
-//        return summaryValue;
-//    }
-//
-//    public void setSummaryValue(Double summaryValue) {
-//        this.summaryValue = summaryValue;
-//    }
+        MetricEntity that = (MetricEntity) o;
 
+        if (plotAvailable != that.plotAvailable) return false;
+        if (summaryAvailable != that.summaryAvailable) return false;
+        if (!metricNameDto.equals(that.metricNameDto)) return false;
 
+        return true;
+    }
 
-
-
-
-
-    //???
-//    @Override
-//    public boolean equals(Object o) {
-//        if (this == o) return true;
-//        if (o == null || getClass() != o.getClass()) return false;
-//
-//        MetricEntity entity = (MetricEntity) o;
-//
-//        if (displayName != null ? !displayName.equals(entity.displayName) : entity.displayName != null) return false;
-//        if (metricId != null ? !metricId.equals(entity.metricId) : entity.metricId != null) return false;
-//
-//        return true;
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        int result = metricId != null ? metricId.hashCode() : 0;
-//        result = 31 * result + (displayName != null ? displayName.hashCode() : 0);
-//        return result;
-//    }
+    @Override
+    public int hashCode() {
+        int result = metricNameDto.hashCode();
+        result = 31 * result + (summaryAvailable ? 1 : 0);
+        result = 31 * result + (plotAvailable ? 1 : 0);
+        return result;
+    }
 }

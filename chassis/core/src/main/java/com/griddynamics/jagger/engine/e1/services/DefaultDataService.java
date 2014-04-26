@@ -2,30 +2,19 @@ package com.griddynamics.jagger.engine.e1.services;
 
 import com.griddynamics.jagger.coordinator.NodeContext;
 import com.griddynamics.jagger.dbapi.DatabaseService;
-import com.griddynamics.jagger.dbapi.dto.MetricDto;
-import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
-import com.griddynamics.jagger.dbapi.dto.SessionDataDto;
-import com.griddynamics.jagger.dbapi.dto.TaskDataDto;
+import com.griddynamics.jagger.dbapi.dto.*;
 import com.griddynamics.jagger.dbapi.model.MetricNode;
 import com.griddynamics.jagger.dbapi.model.RootNode;
 import com.griddynamics.jagger.dbapi.model.TestDetailsNode;
 import com.griddynamics.jagger.dbapi.model.TestNode;
 import com.griddynamics.jagger.dbapi.util.SessionMatchingSetup;
 import com.griddynamics.jagger.engine.e1.services.data.service.*;
-import com.griddynamics.jagger.dbapi.entity.MetricDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import java.util.*;
 
-//??? check all overrides
-
-//??? how to get metric ids for standard metrics and monitoring
-
-//??? will not need HibDaoSupport
-
-public class DefaultDataService extends HibernateDaoSupport implements DataService {
+public class DefaultDataService implements DataService {
     private static final Logger log = LoggerFactory.getLogger(DefaultDataService.class);
 
     DatabaseService databaseService;
@@ -125,8 +114,7 @@ public class DefaultDataService extends HibernateDaoSupport implements DataServi
         return result;
     }
 
-
-    //??? pass testName null to ignore
+    //pass testName=null to ignore it
     private Map<String, Set<TestEntity>> getTestsWithName(Set<String> sessionIds, String testName){
         if (sessionIds.isEmpty()){
             return Collections.emptyMap();
@@ -135,6 +123,7 @@ public class DefaultDataService extends HibernateDaoSupport implements DataServi
         // Get all test results without matching
         SessionMatchingSetup sessionMatchingSetup = new SessionMatchingSetup(false,Collections.<SessionMatchingSetup.MatchBy>emptySet());
         List<TaskDataDto> taskDataDtoList = databaseService.getTaskDataForSessions(sessionIds,sessionMatchingSetup);
+        Map<TaskDataDto,Map<String,TestInfoDto>> testInfoMap = databaseService.getTestInfoByTaskDataDto(taskDataDtoList);
 
         Map<String, Set<TestEntity>> result = new HashMap<String, Set<TestEntity>>();
 
@@ -150,12 +139,8 @@ public class DefaultDataService extends HibernateDaoSupport implements DataServi
                     testEntity.setDescription(taskDataDto.getDescription());
                     testEntity.setName(taskDataDto.getTaskName());
 
-
-                    //??? missing load and termination strategy
-
-                    //???
-                    // may be use test info provider?
-
+                    testEntity.setLoad(testInfoMap.get(taskDataDto).entrySet().iterator().next().getValue().getClock());
+                    testEntity.setTerminationStrategy(testInfoMap.get(taskDataDto).entrySet().iterator().next().getValue().getTermination());
 
                     if (result.containsKey(taskDataDto.getSessionId())){
                         result.get(taskDataDto.getSessionId()).add(testEntity);
@@ -309,8 +294,6 @@ public class DefaultDataService extends HibernateDaoSupport implements DataServi
         return map.get(metric);
     }
 
-    //??? check with old monitoring
-
     @Override
     public Map<MetricEntity, Double> getMetricSummary(Set<MetricEntity> metrics) {
 
@@ -324,7 +307,7 @@ public class DefaultDataService extends HibernateDaoSupport implements DataServi
             }
         }
 
-        List<MetricDto> metricDtoList = databaseService.getMetrics(metricNameDtoList);
+        List<MetricDto> metricDtoList = databaseService.getSummaryByMetricNameDto(metricNameDtoList);
 
         Map<MetricEntity,Double> result = new HashMap<MetricEntity, Double>();
         for (MetricDto metricDto : metricDtoList) {
@@ -337,123 +320,40 @@ public class DefaultDataService extends HibernateDaoSupport implements DataServi
     }
 
     @Override
-    public List<MetricValueEntity> getMetricPlotData(MetricEntity metric) {
-        return null;
+    public List<MetricPlotPointEntity> getMetricPlotData(MetricEntity metric) {
+        Map<MetricEntity, List<MetricPlotPointEntity>> map = getMetricPlotData(new HashSet<MetricEntity>(Arrays.asList(metric)));
+
+        return map.get(metric);
     }
 
     @Override
-    public Map<MetricEntity, List<MetricValueEntity>> getMetricPlotData(Set<MetricEntity> metrics) {
-        return null;
-    }
+    public Map<MetricEntity, List<MetricPlotPointEntity>> getMetricPlotData(Set<MetricEntity> metrics) {
+        Set<MetricNameDto> metricNameDtoSet = new HashSet<MetricNameDto>();
+        Map<MetricNameDto,MetricEntity> matchMap = new HashMap<MetricNameDto, MetricEntity>();
 
-
-    //??? get summary and values separately
-
-
-    @Override
-    public List<MetricValueEntity> getMetricValues(Long testId, String metricId){
-        Map<String, List<MetricValueEntity>> map = getMetricValuesByIds(testId, Arrays.asList(metricId));
-
-        List<MetricValueEntity> result = map.get(metricId);
-        if (result != null){
-            return result;
-        }
-
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<MetricValueEntity> getMetricValues(TestEntity test, MetricEntity metric){
-        return getMetricValues(test.getId(), metric);
-    }
-
-    @Override
-    public List<MetricValueEntity> getMetricValues(Long testId, MetricEntity metric){
-        Map<MetricEntity, List<MetricValueEntity>> map = getMetricValues(testId, Arrays.asList(metric));
-
-        List<MetricValueEntity> result = map.get(metric);
-        if (result != null){
-            return result;
-        }
-
-        return Collections.emptyList();
-    }
-
-    @Override
-    public Map<String, List<MetricValueEntity>> getMetricValuesByIds(Long testId, List<String> metricIds){
-        if (metricIds.isEmpty()){
-            return Collections.emptyMap();
-        }
-
-        MultiMap<String, MetricValueEntity> result = new MultiMap<String,MetricValueEntity>();
-
-        List<MetricDetails> metricValues = getHibernateTemplate().findByNamedParam("select metric from MetricDetails metric " +
-                                                                                    "where metric.taskData.id=:testId",
-                                                                                    "testId", testId);
-        if (metricValues.isEmpty()){
-            return Collections.emptyMap();
-        }
-
-        for (MetricDetails metricValue : metricValues){
-            MetricValueEntity valueEntity = new MetricValueEntity();
-            valueEntity.setTimeStamp(metricValue.getTime());
-            valueEntity.setValue(metricValue.getValue());
-
-            result.put(metricValue.getMetric(), valueEntity);
-        }
-
-        return result.getOrigin();
-    }
-
-    @Override
-    public Map<MetricEntity, List<MetricValueEntity>> getMetricValues(TestEntity test, List<MetricEntity> metrics){
-        return getMetricValues(test.getId(), metrics);
-    }
-
-    @Override
-    public Map<MetricEntity, List<MetricValueEntity>> getMetricValues(Long testId, List<MetricEntity> metrics){
-        List<String> ids = new ArrayList<String>(metrics.size());
-        Map<String, MetricEntity> map = new HashMap<String, MetricEntity>(metrics.size());
-        for (MetricEntity metricEntity : metrics){
-            ids.add(metricEntity.getMetricId());
-            map.put(metricEntity.getMetricId(), metricEntity);
-        }
-
-        Map<String, List<MetricValueEntity>> metricValues = getMetricValuesByIds(testId, ids);
-
-        Map<MetricEntity, List<MetricValueEntity>> result = new HashMap<MetricEntity, List<MetricValueEntity>>();
-        for (String key : map.keySet()){
-            result.put(map.get(key), metricValues.get(key));
-        }
-
-        return result;
-    }
-
-    class MultiMap<K,V>{
-        private Map<K,List<V>> map;
-
-        public MultiMap(){
-            map = new HashMap<K, List<V>>();
-        }
-
-        public void put(K key, V value){
-            if (map.containsKey(key)){
-                map.get(key).add(value);
-            }else{
-                ArrayList<V> list = new ArrayList<V>();
-                list.add(value);
-
-                map.put(key, list);
+        for (MetricEntity metric : metrics) {
+            if (metric.isPlotAvailable()) {
+                metricNameDtoSet.add(metric.getMetricNameDto());
+                matchMap.put(metric.getMetricNameDto(),metric);
             }
         }
 
-        public List<V> get(K key){
-            return map.get(key);
+        Map<MetricNameDto,List<PlotDatasetDto>> resultMap = databaseService.getPlotDataByMetricNameDto(metricNameDtoSet);
+
+        Map<MetricEntity,List<MetricPlotPointEntity>> result = new HashMap<MetricEntity, List<MetricPlotPointEntity>>();
+        for (Map.Entry<MetricNameDto,List<PlotDatasetDto>> entry : resultMap.entrySet()) {
+            MetricEntity metricEntity = matchMap.get(entry.getKey());
+            List<MetricPlotPointEntity> values = new ArrayList<MetricPlotPointEntity>();
+            for (PointDto pointDto : entry.getValue().iterator().next().getPlotData()) {
+                MetricPlotPointEntity metricPlotPointEntity = new MetricPlotPointEntity();
+                metricPlotPointEntity.setTime(pointDto.getX());
+                metricPlotPointEntity.setValue(pointDto.getY());
+                values.add(metricPlotPointEntity);
+            }
+            result.put(metricEntity,values);
         }
 
-        public Map<K,List<V>> getOrigin(){
-            return map;
-        }
+        return result;
     }
 
     @Override

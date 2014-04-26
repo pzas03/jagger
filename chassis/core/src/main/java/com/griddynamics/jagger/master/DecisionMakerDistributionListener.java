@@ -51,8 +51,6 @@ public class DecisionMakerDistributionListener implements DistributionListener {
             SessionEntity sessionEntity = dataService.getSession(sessionId);
             System.out.println(sessionEntity);
 
-            //??? decisionMakerListener
-
 //            //???
 //            RootNode rootNode = databaseService.getControlTreeForSessions(new HashSet<String>(Arrays.asList(sessionId)));
 //            SummaryNode summaryNode = rootNode.getSummaryNode();

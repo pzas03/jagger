@@ -1,7 +1,7 @@
 package com.griddynamics.jagger.engine.e1.services;
 
 import com.griddynamics.jagger.engine.e1.services.data.service.MetricEntity;
-import com.griddynamics.jagger.engine.e1.services.data.service.MetricValueEntity;
+import com.griddynamics.jagger.engine.e1.services.data.service.MetricPlotPointEntity;
 import com.griddynamics.jagger.engine.e1.services.data.service.SessionEntity;
 import com.griddynamics.jagger.engine.e1.services.data.service.TestEntity;
 
@@ -50,8 +50,6 @@ public interface DataService extends JaggerService {
      * @param sessionIds - list of session's ids
      * @return map of <session id, list of test entities> pairs*/
     Map<String, Set<TestEntity>> getTests(Set<String> sessionIds);
-
-    //??? why no getTests for list of SessionEntity
 
     /** Returns test entity for specify session's id and test name
      * @author Gribov Kirill
@@ -105,65 +103,44 @@ public interface DataService extends JaggerService {
      * @return map of <test id, list of metric entity> pairs*/
     Map<Long, Set<MetricEntity>> getMetricsByTestIds(Set<Long> testIds);
 
-    //??? docu
+    /** Return summary value for selected metric
+     * @author Dmitry Latnikov
+     * @n
+     * @details
+     * !Note: It is faster to get summary for set of metrics than fetch every metric in for loop @n
+     * See docu for overloaded function with set of metrics @n
+     * @param metric - metric entity
+     * @return summary value for selected metric  */
     Double getMetricSummary(MetricEntity metric);
 
+    /** Return summary values for selected metrics
+     * @author Dmitry Latnikov
+     * @n
+     * @details
+     * Preferable way to get data. Data will be fetched from database in batch in single request => @n
+     * it is faster to get batch of metrics than fetch every metric in for loop @n
+     * @param metrics - set of metric entities
+     * @return map of <metric entity, summary value> */
     Map<MetricEntity,Double> getMetricSummary(Set<MetricEntity> metrics);
 
-    List<MetricValueEntity> getMetricPlotData(MetricEntity metric);
-
-    Map<MetricEntity,List<MetricValueEntity>> getMetricPlotData(Set<MetricEntity> metrics);
-
-
-    //??? Set vs List
-
-
-
-    /** Returns all metric values for specify test id and metric id
-     * @author Gribov Kirill
+    /** Return list of points (values vs time) for selected metric
+     * @author Dmitry Latnikov
      * @n
-     * @param testId - test id
-     * @param metricId - metric id
-     * @return list of metric values*/
-    List<MetricValueEntity> getMetricValues(Long testId, String metricId);
-
-    /** Returns all metric values for specify test id and metric entity
-     * @author Gribov Kirill
-     * @n
-     * @param testId - test id
+     * @details
+     * !Note: It is faster to get plot data for set of metrics than fetch every metric in for loop @n
+     * See docu for overloaded function with set of metrics @n
      * @param metric - metric entity
-     * @return list of metric values*/
-    List<MetricValueEntity> getMetricValues(Long testId, MetricEntity metric);
+     * @return list of points (value vs time) for selected metric  */
+    List<MetricPlotPointEntity> getMetricPlotData(MetricEntity metric);
 
-    /** Returns all metric values for specify test and metric entity
-     * @author Gribov Kirill
+    /** Return lists of points (values vs time) for selected metrics
+     * @author Dmitry Latnikov
      * @n
-     * @param test - test entity
-     * @param metric - metric entity
-     * @return list of metric values*/
-    List<MetricValueEntity> getMetricValues(TestEntity test, MetricEntity metric);
+     * @details
+     * Preferable way to get data. Data will be fetched from database in batch in single request => @n
+     * it is faster to get batch of metrics than fetch every metric in for loop @n
+     * @param metrics - set metric entities
+     * @return map of <metic entity, list of points (value vs time)> for selected metric  */
+    Map<MetricEntity,List<MetricPlotPointEntity>> getMetricPlotData(Set<MetricEntity> metrics);
 
-    /** Search for metric values for specify test id and list of metric ids
-     * @author Gribov Kirill
-     * @n
-     * @param testId - id of test
-     * @param metricIds - a list of metric ids
-     * @return map of <metric id, list of metric values> pairs*/
-    Map<String, List<MetricValueEntity>> getMetricValuesByIds(Long testId, List<String> metricIds);
-
-    /** Search for metric values for specify test and list of metrics
-     * @author Gribov Kirill
-     * @n
-     * @param test - test entity
-     * @param metrics - a list of metric entities
-     * @return map of <metric, list of metric values> pairs*/
-    Map<MetricEntity, List<MetricValueEntity>> getMetricValues(TestEntity test, List<MetricEntity> metrics);
-
-    /** Search for metric values for specify test id and list of metrics
-     * @author Gribov Kirill
-     * @n
-     * @param testId - test id
-     * @param metrics - a list of metric entities
-     * @return map of <metric, list of metric values> pairs*/
-    Map<MetricEntity, List<MetricValueEntity>> getMetricValues(Long testId, List<MetricEntity> metrics);
 }

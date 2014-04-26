@@ -19,8 +19,6 @@ import java.util.*;
  */
 public class MetricDataServiceImpl implements MetricDataService {
 
-    private static final Logger log = LoggerFactory.getLogger(MetricDataServiceImpl.class);
-
     private DatabaseService databaseService;
 
     @Required
@@ -30,6 +28,6 @@ public class MetricDataServiceImpl implements MetricDataService {
 
     @Override
     public List<MetricDto> getMetrics(List<MetricNameDto> metricNames) throws RuntimeException {
-        return databaseService.getMetrics(metricNames);
+        return databaseService.getSummaryByMetricNameDto(metricNames);
     }
 }
