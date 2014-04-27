@@ -65,6 +65,7 @@
         <property name="generalNodeInfoAggregator" ref="generalNodeInfoAggregator"/>
         <property name="databaseValidator" ref="databaseValidator"/>
         <property name="metaDataStorage" ref="metaDataStorage"/>
+        <property name="databaseService" ref="databaseService"/>
     </bean>
 
     <bean id="distributionStartTimeTimeout" class="com.griddynamics.jagger.util.Timeout">
