@@ -37,16 +37,12 @@ public class Namespace {
 	private final List<String> values;
 
 	public static Namespace root() {
-		return of(Lists.<String> newArrayList());
-	}
-
-	private static Namespace of(List<String> values) {
-		return new Namespace(values);
+		return new Namespace(Lists.<String> newArrayList());
 	}
 
 	public static Namespace of(String sessionId, String... values) {
         List<String> list = Lists.asList(sessionId,values);
-		return of(list);
+		return new Namespace(list);
 	}
 
 	private Namespace(List<String> values) {
@@ -59,7 +55,7 @@ public class Namespace {
 	
 	public Namespace child(List<String> values) {
 		ImmutableList<String> child = ImmutableList.<String>builder().addAll(this.values).addAll(values).build();
-		return Namespace.of(child);
+		return new Namespace(child);
 	}
 	
 	public Namespace child(String... values) {

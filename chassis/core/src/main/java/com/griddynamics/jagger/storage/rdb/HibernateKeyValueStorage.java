@@ -52,6 +52,10 @@ public class HibernateKeyValueStorage extends HibernateDaoSupport implements Key
 
     @Required
     public void setSessionLimit(int sessionLimit) {
+        if (sessionLimit<0) {
+            log.warn("Session count can't be < 0; was get {}. ", sessionLimit);
+            return;
+        }
         this.sessionLimit = sessionLimit;
     }
 
@@ -104,10 +108,6 @@ public class HibernateKeyValueStorage extends HibernateDaoSupport implements Key
         ArrayList<String> sessions = (ArrayList) getHibernateTemplate().find("Select distinct k.sessionId from KeyValue k ORDER by k.sessionId");
         if (sessions.size() == 0)
             return;
-        if (sessionLimit < 0) {
-            log.warn("Session count can't be < 0; was get {}", sessionLimit);
-            return;
-        }
         if (sessionLimit == 0) {
             log.warn("Session count limit is equal '0', all temporary data about sessions will be delete");
             getHibernateTemplate().bulkUpdate("delete from KeyValue");
