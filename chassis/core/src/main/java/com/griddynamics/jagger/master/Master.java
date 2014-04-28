@@ -178,6 +178,9 @@ public class Master implements Runnable {
 
         NodeContext context = contextBuilder.build();
 
+        // add additional listener to configuration
+        configuration.getDistributionListeners().add(new DecisionMakerDistributionListener(context,databaseService));
+
         Map<NodeType, CountDownLatch> countDownLatchMap = Maps.newHashMap();
         CountDownLatch agentCountDownLatch = new CountDownLatch(
                 conditions.isMonitoringEnable() ?
@@ -343,7 +346,7 @@ public class Master implements Runnable {
 
         String taskId = taskIdProvider.getTaskId();
 
-        Service distribute = taskDistributor.distribute(executor, sessionIdProvider.getSessionId(), taskId, allNodes, coordinator, task, distributionListener(nodeContext), nodeContext);
+        Service distribute = taskDistributor.distribute(executor, sessionIdProvider.getSessionId(), taskId, allNodes, coordinator, task, distributionListener(), nodeContext);
         try{
             Future<Service.State> start;
             synchronized (terminateConfigurationLock) {
@@ -359,9 +362,7 @@ public class Master implements Runnable {
 
     }
 
-    private DistributionListener distributionListener(NodeContext nodeContext) {
-        DistributionListener decisionMakerListener = new DecisionMakerDistributionListener(nodeContext,databaseService);
-        configuration.getDistributionListeners().add(decisionMakerListener);
+    private DistributionListener distributionListener() {
         return CompositeDistributionListener.of(Iterables.concat(Arrays.asList(createFlushListener()),
                 configuration.getDistributionListeners()
         ));
