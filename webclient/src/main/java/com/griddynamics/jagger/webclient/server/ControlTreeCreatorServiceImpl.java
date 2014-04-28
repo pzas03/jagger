@@ -1,6 +1,7 @@
 package com.griddynamics.jagger.webclient.server;
 
 import com.griddynamics.jagger.dbapi.DatabaseService;
+import com.griddynamics.jagger.dbapi.util.SessionMatchingSetup;
 import com.griddynamics.jagger.webclient.client.ControlTreeCreatorService;
 import com.griddynamics.jagger.dbapi.model.*;
 import org.springframework.beans.factory.annotation.Required;
@@ -23,11 +24,16 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
 
     @Override
     public RootNode getControlTreeForSession(String sessionId) throws RuntimeException {
-        return databaseService.getControlTreeForSessions(new HashSet<String>(Arrays.asList(sessionId)));
+        return getControlTreeForSessions(new HashSet<String>(Arrays.asList(sessionId)));
     }
 
     @Override
     public RootNode getControlTreeForSessions(Set<String> sessionIds) throws RuntimeException {
-        return databaseService.getControlTreeForSessions(sessionIds);
+
+        SessionMatchingSetup sessionMatchingSetup = new SessionMatchingSetup(
+                databaseService.getWebClientProperties().isShowOnlyMatchedTests(),
+                EnumSet.of(SessionMatchingSetup.MatchBy.ALL));
+
+        return databaseService.getControlTreeForSessions(sessionIds,sessionMatchingSetup);
     }
 }

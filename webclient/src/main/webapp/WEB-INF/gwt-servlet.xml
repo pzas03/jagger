@@ -151,6 +151,8 @@
         <property name="customTestGroupMetricSummaryFetcher" ref="customTestGroupMetricSummaryFetcher"/>
         <property name="latencyMetricDataFetcher" ref="latencyMetricSummaryFetcher"/>
         <property name="validatorSummaryFetcher" ref="validatorSummaryFetcher"/>
+
+        <property name="fetchUtil" ref="fetchUtil"/>
     </bean>
 
     <!--=======Fetching session data=========-->

@@ -22,6 +22,7 @@ package com.griddynamics.jagger.engine.e1.reporting;
 import com.griddynamics.jagger.dbapi.DatabaseService;
 import com.griddynamics.jagger.dbapi.dto.*;
 import com.griddynamics.jagger.dbapi.model.*;
+import com.griddynamics.jagger.dbapi.util.SessionMatchingSetup;
 import com.griddynamics.jagger.reporting.AbstractMappedReportProvider;
 import com.griddynamics.jagger.reporting.chart.ChartHelper;
 import com.griddynamics.jagger.util.Pair;
@@ -152,7 +153,10 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
 
         Set<MetricNode> allMetrics = new HashSet<MetricNode>();
 
-        RootNode rootNode = databaseService.getControlTreeForSessions(new HashSet<String>(Arrays.asList(sessionId)));
+        SessionMatchingSetup sessionMatchingSetup = new SessionMatchingSetup(
+                databaseService.getWebClientProperties().isShowOnlyMatchedTests(),
+                EnumSet.of(SessionMatchingSetup.MatchBy.ALL));
+        RootNode rootNode = databaseService.getControlTreeForSessions(new HashSet<String>(Arrays.asList(sessionId)),sessionMatchingSetup);
         DetailsNode detailsNode = rootNode.getDetailsNode();
         if (detailsNode.getChildren().isEmpty())
             return;
@@ -162,7 +166,7 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
         }
 
         try {
-            plotsReal = databaseService.getPlotData(allMetrics);
+            plotsReal = databaseService.getPlotDataByMetricNode(allMetrics);
         } catch (Exception e) {
             log.error("Unable to get plots information for metrics");
         }

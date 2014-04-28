@@ -1,7 +1,5 @@
 package com.griddynamics.jagger.engine.e1.sessioncomparation;
 
-import com.griddynamics.jagger.engine.e1.collector.test.TestInfo;
-import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +36,7 @@ public interface TestGroupDecisionMakerListener {
                 try{
                     listener.onDecisionMaking(decisionMakerInfo);
                 }catch (RuntimeException ex){
-                    log.error("Failed to call on start in {} test-group-listener", listener.toString(), ex);
+                    log.error("Failed to call on decision making in {} test-group-decision-maker-listener", listener.toString(), ex);
                 }
             }
         }

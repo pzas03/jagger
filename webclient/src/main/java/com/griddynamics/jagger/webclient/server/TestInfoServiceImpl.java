@@ -13,8 +13,6 @@ import java.util.*;
 
 public class TestInfoServiceImpl implements TestInfoService {
 
-
-    private static final Logger log = LoggerFactory.getLogger(NodeInfoServiceImpl.class);
     private DatabaseService databaseService;
 
     @Required
@@ -24,6 +22,6 @@ public class TestInfoServiceImpl implements TestInfoService {
 
     @Override
     public Map<TaskDataDto, Map<String, TestInfoDto>> getTestInfos(Collection<TaskDataDto> taskDataDtos) throws RuntimeException {
-        return databaseService.getTestInfos(taskDataDtos);
+        return databaseService.getTestInfoByTaskDataDto(taskDataDtos);
     }
 }
