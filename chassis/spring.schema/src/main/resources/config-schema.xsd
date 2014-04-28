@@ -450,6 +450,16 @@
         </xsd:complexContent>
     </xsd:complexType>
 
+    <xsd:complexType name="listener-test-group-decision-maker-basic">
+        <xsd:annotation><xsd:documentation>
+            Basic implementation of listener-test-group-decision-maker will take decision comparing metric values vs limits
+        </xsd:documentation></xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="listenerTestGroupDecisionMakerAbstract">
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
     <xsd:complexType name="listener-test-group-ref">
         <xsd:annotation><xsd:documentation>
             A reference to listener-test-group element or TestGroupListener provider bean.
