@@ -1,18 +1,27 @@
 package com.griddynamics.jagger.engine.e1.services.data.service;
 
-//??? docu
-/**
- * Created with IntelliJ IDEA.
- * User: kgribov
- * Date: 12/5/13
- * Time: 12:26 PM
- * To change this template use File | Settings | File Templates.
+/** Class is a model of test
+ *
+ * @details
+ * TestEntity is used to get test results from database with use of @ref DataService
+ *
+ * @author
+ * Gribov Kirill
  */
 public class TestEntity {
+    /** Test id (aka task id) - unique id of this test */
     private Long id;
+
+    /** Test name in format [test group name] [test name] */
     private String name;
+
+    /** Test description id */
     private String description;
+
+    /** Description of the load for this test */
     private String load;
+
+    /** Description of the termination strategy for this test */
     private String terminationStrategy;
 
     public String getName() {

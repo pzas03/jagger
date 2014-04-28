@@ -1,18 +1,28 @@
 package com.griddynamics.jagger.engine.e1.services.data.service;
 
-//??? docu
-/**
- * Created with IntelliJ IDEA.
- * User: kgribov
- * Date: 12/5/13
- * Time: 12:25 PM
- * To change this template use File | Settings | File Templates.
+/** Class is a model of session
+ *
+ * @details
+ * SessionEntity is used to get test results from database with use of @ref DataService
+ *
+ * @author
+ * Gribov Kirill
  */
 public class SessionEntity {
+
+    /** Session id */
     private String id;
+
+    /** Session comment */
     private String comment;
+
+    /** Start time */
     private String startDate;
+
+    /** Stop time */
     private String endDate;
+
+    /** Number of used kernels for workload generation */
     private Integer kernels;
 
     public String getId() {

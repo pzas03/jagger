@@ -2,38 +2,57 @@ package com.griddynamics.jagger.engine.e1.services.data.service;
 
 import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
 
-//??? docu
-/**
- * Created with IntelliJ IDEA.
- * User: kgribov
- * Date: 12/5/13
- * Time: 12:26 PM
- * To change this template use File | Settings | File Templates.
+/** Class is a model of some metric
+ *
+ * @authors
+ * Gribov Kirill, Latnikov Dmitry
+ *
+ * @details
+ * MetricEntity is a model of metric. It can present some standard metrics (latency, throughput), @n
+ * monitoring metrics (CPU utilization, Heap memory usage) or custom metrics. @n
+ * This model is used to get test results from database with use of @ref DataService @n
+ * Model contains following information about metric: @n
+ * @li metric id
+ * @li metric display name
+ * @li metric origin
+ * @li is summary and detailed info available in DB for this metric
+ *
  */
 public class MetricEntity {
+    /** Internal metric model */
     private MetricNameDto metricNameDto;
+
+    /** True if summary value available for this metric */
     private boolean summaryAvailable = false;
+
+    /** True if detailed results for plot (values vs time) available for this metric */
     private boolean plotAvailable = false;
 
     public void setMetricNameDto(MetricNameDto metricNameDto) {
         this.metricNameDto = metricNameDto;
     }
+
+    /** Get internal metric model */
     public MetricNameDto getMetricNameDto() {
         return metricNameDto;
     }
 
+    /** Get metric id */
     public String getMetricId() {
         return metricNameDto.getMetricName();
     }
 
+    /** Get metric display name - label displayed in reports */
     public String getDisplayName() {
         return metricNameDto.getMetricDisplayName();
     }
 
+    /** Get metric origin - what kind of metric is it (standard, monitoring, custom, etc) */
     public MetricNameDto.Origin getOrigin() {
         return metricNameDto.getOrigin();
     }
 
+    /** Get flag: is summary value available for this metric */
     public boolean isSummaryAvailable() {
         return summaryAvailable;
     }
@@ -42,6 +61,7 @@ public class MetricEntity {
         this.summaryAvailable = summaryAvailable;
     }
 
+    /** Get flag: is detailed results for plot (values vs time) available for this metric */
     public boolean isPlotAvailable() {
         return plotAvailable;
     }
