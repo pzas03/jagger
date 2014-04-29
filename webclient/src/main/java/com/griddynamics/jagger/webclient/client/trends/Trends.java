@@ -595,6 +595,7 @@ public class Trends extends DefaultActivity {
         label.setHorizontalAlignment(HasHorizontalAlignment.HorizontalAlignmentConstant.startOf(HasDirection.Direction.DEFAULT));
         label.setStylePrimaryName(JaggerResources.INSTANCE.css().centered());
         label.setHeight("100%");
+        NO_SESSION_CHOSEN.setStyleName(JaggerResources.INSTANCE.css().controlFont());
         controlTreePanel.add(NO_SESSION_CHOSEN);
     }
 
@@ -620,8 +621,14 @@ public class Trends extends DefaultActivity {
         plotOptions.setPanOptions(PanOptions.create().setInteractive(true));
         plotOptions.setCanvasEnabled(true);
 
+        FontOptions fontOptions = FontOptions.create()
+                .setSize(11D)
+                .setColor("black");
+
         if (isMetric) {
-            plotOptions.addXAxisOptions(AxisOptions.create().setZoomRange(true).setTickDecimals(0)
+            plotOptions.addXAxisOptions(AxisOptions.create().setZoomRange(true)
+                    .setFont(fontOptions)
+                    .setTickDecimals(0)
                     .setTickFormatter(new TickFormatter() {
                         @Override
                         public String formatTickValue(double tickValue, Axis axis) {
@@ -632,12 +639,24 @@ public class Trends extends DefaultActivity {
                         }
                     }));
         } else {
-            plotOptions.addXAxisOptions(AxisOptions.create().setZoomRange(true).setMinimum(0));
+            plotOptions.addXAxisOptions(AxisOptions.create().setZoomRange(true).setMinimum(0)
+                    .setFont(fontOptions));
         }
 
-        plotOptions.addYAxisOptions(AxisOptions.create().setZoomRange(false).setMinimum(yMinimum));
+        plotOptions.addYAxisOptions(AxisOptions.create()
+                .setFont(fontOptions)
+                .setZoomRange(false).setMinimum(yMinimum));
 
-        plotOptions.setLegendOptions(LegendOptions.create().setPosition(LegendOptions.LegendPosition.NORTH_EAST).setNumOfColumns(2));
+        plotOptions.setLegendOptions(LegendOptions.create().setPosition(LegendOptions.LegendPosition.NORTH_EAST)
+                .setNumOfColumns(2)
+                .setBackgroundOpacity(0.7)
+                .setLabelFormatter(new LegendOptions.LabelFormatter() {
+                    @Override
+                    public String formatLabel(String s, Series series) {
+                        return "<span style=\"font-size:13px\">" + s + "</span> ";
+                    }
+                }));
+
 
         plotOptions.setCanvasEnabled(true);
         if (markings == null) {
@@ -1072,9 +1091,6 @@ public class Trends extends DefaultActivity {
             Label plotLegend = new Label("PLOT LEGEND");
             plotLegend.addStyleName(getResources().css().plotLegend());
 
-            VerticalPanel vp = new VerticalPanel();
-            vp.setWidth("100%");
-
             Label panLeftLabel = new Label();
             panLeftLabel.addStyleName(getResources().css().panLabel());
             panLeftLabel.getElement().appendChild(new Image(getResources().getArrowLeft()).getElement());
@@ -1134,12 +1150,6 @@ public class Trends extends DefaultActivity {
             zoomPanel.add(zoomOutLabel);
             zoomPanel.add(saveLabel);
 
-            vp.add(plotHeader);
-            vp.add(zoomPanel);
-            vp.add(plot);
-            vp.add(xLabel);
-            // Will be added if there is need it
-            //vp.add(plotLegend);
             PlotRepresentation plotRepresentation = new PlotRepresentation(zoomPanel, plot, xLabel);
 
             PlotContainer pc = new PlotContainer(id, plotHeader, plotRepresentation);
