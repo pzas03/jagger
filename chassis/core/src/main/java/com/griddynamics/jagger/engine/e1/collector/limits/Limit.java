@@ -20,6 +20,9 @@
 
 package com.griddynamics.jagger.engine.e1.collector.limits;
 
+//??? strict or relaxed
+
+
 /** Class is used to describe individual limits for some metric. Limits are used for decision making
  *
  * @details
@@ -110,6 +113,19 @@ public class Limit {
 
     public void setUpperErrorThreshold(Double upperErrorThreshold) {
         this.upperErrorThreshold = upperErrorThreshold;
+    }
+
+    @Override
+    public String toString() {
+        return "Limit{" +
+                "metricName='" + metricName + '\'' +
+                ", limitDescription='" + limitDescription + '\'' +
+                ", refValue=" + refValue +
+                ", lowerWarningThreshold=" + lowerWarningThreshold +
+                ", upperWarningThreshold=" + upperWarningThreshold +
+                ", lowerErrorThreshold=" + lowerErrorThreshold +
+                ", upperErrorThreshold=" + upperErrorThreshold +
+                '}';
     }
 }
 

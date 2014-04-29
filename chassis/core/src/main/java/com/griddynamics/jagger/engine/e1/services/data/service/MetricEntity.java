@@ -91,4 +91,13 @@ public class MetricEntity {
         result = 31 * result + (plotAvailable ? 1 : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "MetricEntity{" +
+                "metricNameDto=" + metricNameDto +
+                ", summaryAvailable=" + summaryAvailable +
+                ", plotAvailable=" + plotAvailable +
+                '}';
+    }
 }

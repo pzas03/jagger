@@ -90,4 +90,15 @@ public class SessionEntity {
         result = 31 * result + (kernels != null ? kernels.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "SessionEntity{" +
+                "id='" + id + '\'' +
+                ", comment='" + comment + '\'' +
+                ", startDate='" + startDate + '\'' +
+                ", endDate='" + endDate + '\'' +
+                ", kernels=" + kernels +
+                '}';
+    }
 }

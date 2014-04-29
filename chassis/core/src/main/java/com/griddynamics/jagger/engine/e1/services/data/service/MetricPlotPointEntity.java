@@ -30,4 +30,12 @@ public class MetricPlotPointEntity {
     public void setValue(Double value) {
         this.value = value;
     }
+
+    @Override
+    public String toString() {
+        return "MetricPlotPointEntity{" +
+                "time=" + time +
+                ", value=" + value +
+                '}';
+    }
 }
