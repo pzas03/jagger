@@ -4,7 +4,6 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.sencha.gxt.widget.core.client.info.Info;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,12 +55,10 @@ public class DynamicLayoutPanel extends VerticalPanel {
     public void addChild(Widget widget) {
 
         switch (layout) {
-            case ONE_COLUMN:  addChildOneColumn(widget);
-                              break;
             case TWO_COLUMNS: addChildTwoColumns(widget);
                               break;
-            default:
-                Info.display("DynamicLayoutPanel", "addChild with layout " + layout + " not yet implemented");
+
+            default:          addChildOneColumn(widget);
         }
     }
 
@@ -113,7 +110,6 @@ public class DynamicLayoutPanel extends VerticalPanel {
      * @param id id of widget to remove (id of plot container)
      */
     public void removeChild(String id) {
-        //as id there
         if (layout == Layout.ONE_COLUMN) {
             for (int i = 0; i < getWidgetCount(); i ++) {
                 HorizontalPanel hp = (HorizontalPanel) getWidget(i);
@@ -142,20 +138,11 @@ public class DynamicLayoutPanel extends VerticalPanel {
 
     public boolean containsElementWithId(String plotId) {
 
-        if (layout == Layout.ONE_COLUMN) {
-            for (int i = 0; i < getWidgetCount(); i ++) {
-                HorizontalPanel hp = (HorizontalPanel) getWidget(i);
-                if (plotId.equals(hp.getWidget(0).getElement().getId())) {
+        for (int i = 0; i < getWidgetCount(); i ++) {
+            HorizontalPanel hp = (HorizontalPanel) getWidget(i);
+            for (int j = 0; j < hp.getWidgetCount(); j++) {
+                if (plotId.equals(hp.getWidget(j).getElement().getId())) {
                     return true;
-                }
-            }
-        } else {
-            for (int i = 0; i < getWidgetCount(); i ++) {
-                HorizontalPanel hp = (HorizontalPanel) getWidget(i);
-                for (int j = 0; j < hp.getWidgetCount(); j++) {
-                    if (plotId.equals(hp.getWidget(j).getElement().getId())) {
-                        return true;
-                    }
                 }
             }
         }
@@ -164,8 +151,14 @@ public class DynamicLayoutPanel extends VerticalPanel {
     }
 
     /**
-     * just enum of possible layouts, maybe it should be inside DynamicLayoutPanel*/
+     * Enum of possible layouts of DynamicLayoutPanel*/
     public static enum Layout {
-        ONE_COLUMN , TWO_COLUMNS
+        ONE_COLUMN , TWO_COLUMNS;
+
+        /**
+         * @return next value of Layout enum by circle */
+        Layout getNext() {
+            return Layout.values()[(this.ordinal() + 1) % Layout.values().length];
+        }
     }
 }

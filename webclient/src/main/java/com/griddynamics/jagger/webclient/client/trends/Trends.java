@@ -1121,7 +1121,7 @@ public class Trends extends DefaultActivity {
                     if (plot.isExportAsImageEnabled()) {
                         plot.saveAsImage();
                     } else {
-                        Window.alert("Can not save image in your browser.");
+                        new ExceptionPanel("Can not save image in your browser.");
                     }
                 }
             });

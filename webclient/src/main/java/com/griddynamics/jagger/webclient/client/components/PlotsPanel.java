@@ -22,6 +22,7 @@ public class PlotsPanel extends Composite {
     protected DynamicLayoutPanel layoutPanel;
 
     @UiField
+    // temporary layout control panel todo: decide and implement final view of layout control.
     protected HorizontalPanel buttonPanel;
 
     /**
@@ -32,7 +33,6 @@ public class PlotsPanel extends Composite {
         initWidget(ourUiBinder.createAndBindUi(this));
 
         setUpButtonPanel();
-        setUpLayoutPanel();
     }
 
     /**
@@ -64,10 +64,6 @@ public class PlotsPanel extends Composite {
 
     }
 
-    private void setUpLayoutPanel() {
-    }
-
-
     /**
      * Remove widget from layoutPanel by element id
      * @param elementId Id of widget element (Widget.getElement.getId())*/
@@ -96,9 +92,7 @@ public class PlotsPanel extends Composite {
     private class ChangeLayoutHandler implements SelectEvent.SelectHandler {
         @Override
         public void onSelect(SelectEvent event) {
-            int size = DynamicLayoutPanel.Layout.values().length;
-            DynamicLayoutPanel.Layout layout = DynamicLayoutPanel.Layout.values()[(layoutPanel.getLayout().ordinal() + 1) % size];
-            layoutPanel.changeLayout(layout);
+            layoutPanel.changeLayout(layoutPanel.getLayout().getNext());
         }
     }
 
