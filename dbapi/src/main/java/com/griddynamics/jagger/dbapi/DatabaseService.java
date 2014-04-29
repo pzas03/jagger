@@ -6,6 +6,7 @@ import com.griddynamics.jagger.dbapi.model.WebClientProperties;
 import com.griddynamics.jagger.dbapi.model.MetricNode;
 import com.griddynamics.jagger.dbapi.model.RootNode;
 import com.griddynamics.jagger.dbapi.provider.SessionInfoProvider;
+import com.griddynamics.jagger.dbapi.util.SessionMatchingSetup;
 
 import java.util.*;
 
@@ -20,7 +21,7 @@ public interface DatabaseService {
     /** Returns control tree for selected sessions
      * @param sessionIds - selected sessions
      * @return a pointer to the root element of tree */
-    RootNode getControlTreeForSessions(Set<String> sessionIds) throws RuntimeException;
+    RootNode getControlTreeForSessions(Set<String> sessionIds, SessionMatchingSetup sessionMatchingSetup) throws RuntimeException;
 
     /** Returns map <metricNode, plot values> for specific metric nodes from control tree
      * @param plots - set of metric nodes
@@ -52,4 +53,10 @@ public interface DatabaseService {
     /** Returns SessionInfoProvider, which contains information about sessions
      * @return SessionInfoProvider */
     SessionInfoProvider getSessionInfoService();
+
+    /** Returns tests for specified session ids
+     * @param sessionIds - selected sessions
+     * @param sessionMatchingSetup - setup how to match sessions and what parameters to use for matching
+     * @return SessionInfoProvider */
+    List<TaskDataDto> getTaskDataForSessions(Set<String> sessionIds, SessionMatchingSetup sessionMatchingSetup);
 }
