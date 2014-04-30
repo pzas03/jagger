@@ -20,6 +20,7 @@
 
 package com.griddynamics.jagger.engine.e1.collector.limits;
 
+import com.griddynamics.jagger.engine.e1.sessioncomparation.BaselineSessionProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +31,8 @@ public class LimitSet {
 
     private List<Limit> limits = Collections.emptyList();
     private String id;
-    //??? set baseline sessionId here
+    private BaselineSessionProvider baselineSessionProvider;
+    private LimitSetConfig limitSetConfig;
 
     public void setLimits(List<Limit> limits) {
 
@@ -52,6 +54,24 @@ public class LimitSet {
         this.id = id;
     }
 
+    public String getBaselineId() {
+        return baselineSessionProvider.getBaselineSession();
+    }
+
+    public void setBaselineSessionProvider(BaselineSessionProvider baselineSessionProvider) {
+        this.baselineSessionProvider = baselineSessionProvider;
+    }
+
+    public LimitSetConfig getLimitSetConfig() {
+        return limitSetConfig;
+    }
+
+    public void setLimitSetConfig(LimitSetConfig limitSetConfig) {
+        this.limitSetConfig = limitSetConfig;
+    }
+
+    // relation single metric - single limit is important
+    // due to storage in database and displaying in UI
     private void removeDuplicates(List<Limit> inputList) {
         Set<String> params = new HashSet<String>();
         String param;

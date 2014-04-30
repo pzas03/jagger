@@ -39,8 +39,6 @@ import java.util.concurrent.Future;
  */
 public class DatabaseServiceImpl implements DatabaseService {
 
-    //??? clean printing to screen !!!
-
     private Logger log = LoggerFactory.getLogger(this.getClass());
 
     private EntityManager entityManager;
