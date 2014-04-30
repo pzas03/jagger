@@ -125,8 +125,7 @@ public class Trends extends DefaultActivity {
     private Timer stopTypingSessionIdsTimer;
     private Timer stopTypingSessionTagsTimer;
 
-
-
+    private PlotSaver plotSaver = new PlotSaver();
 
 
     @UiHandler("uncheckSessionsButton")
@@ -1082,10 +1081,12 @@ public class Trends extends DefaultActivity {
             }
 
             // Add X axis label
-            Label xLabel = new Label(plotSeriesDto.getXAxisLabel());
+            final String xAxisLabel = plotSeriesDto.getXAxisLabel();
+            Label xLabel = new Label(xAxisLabel);
             xLabel.addStyleName(getResources().css().xAxisLabel());
 
-            Label plotHeader = new Label(plotSeriesDto.getPlotHeader());
+            final String plotHeaderString = plotSeriesDto.getPlotHeader();
+            Label plotHeader = new Label(plotHeaderString);
             plotHeader.addStyleName(getResources().css().plotHeader());
 
             Label plotLegend = new Label("PLOT LEGEND");
@@ -1134,11 +1135,7 @@ public class Trends extends DefaultActivity {
             saveLabel.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    if (plot.isExportAsImageEnabled()) {
-                        plot.saveAsImage();
-                    } else {
-                        new ExceptionPanel("Can not save image in your browser.");
-                    }
+                    plotSaver.saveAsPng(plot, plotHeaderString, xAxisLabel);
                 }
             });
 
