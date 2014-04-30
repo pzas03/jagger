@@ -1,8 +1,5 @@
 package com.griddynamics.jagger.webclient.client.trends;
 
-import ca.nanometrics.gflot.client.*;
-import ca.nanometrics.gflot.client.options.*;
-import ca.nanometrics.gflot.client.options.Range;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.core.client.GWT;
@@ -26,6 +23,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.gwt.view.client.*;
+import com.googlecode.gflot.client.*;
+import com.googlecode.gflot.client.options.*;
 import com.griddynamics.jagger.dbapi.dto.*;
 import com.griddynamics.jagger.dbapi.model.*;
 import com.griddynamics.jagger.util.MonitoringIdUtils;
@@ -77,7 +76,7 @@ public class Trends extends DefaultActivity {
     TabLayoutPanel mainTabPanel;
 
     @UiField
-    HTMLPanel plotPanel;
+    PlotsPanel plotPanel;
 
     @UiField(provided = true)
     DataGrid<SessionDataDto> sessionsDataGrid;
@@ -92,7 +91,7 @@ public class Trends extends DefaultActivity {
     ScrollPanel scrollPanelMetrics;
 
     @UiField
-    HTMLPanel plotTrendsPanel;
+    PlotsPanel plotTrendsPanel;
 
     @UiField
     ScrollPanel summaryPanelScrollPanel;
@@ -612,16 +611,17 @@ public class Trends extends DefaultActivity {
 
     private SimplePlot createPlot(final String id, Markings markings, String xAxisLabel,
                                   double yMinimum, boolean isMetric, final List<String> sessionIds) {
-        PlotOptions plotOptions = new PlotOptions();
-        plotOptions.setZoomOptions(new ZoomOptions().setAmount(1.02));
-        plotOptions.setGlobalSeriesOptions(new GlobalSeriesOptions()
-                .setLineSeriesOptions(new LineSeriesOptions().setLineWidth(1).setShow(true).setFill(0.1))
-                .setPointsOptions(new PointsSeriesOptions().setRadius(1).setShow(true)).setShadowSize(0d));
+        PlotOptions plotOptions = PlotOptions.create();
+        plotOptions.setZoomOptions(ZoomOptions.create().setAmount(1.02));
+        plotOptions.setGlobalSeriesOptions(GlobalSeriesOptions.create()
+                .setLineSeriesOptions(LineSeriesOptions.create().setLineWidth(1).setShow(true).setFill(0.1))
+                .setPointsOptions(PointsSeriesOptions.create().setRadius(1).setShow(true)).setShadowSize(0d));
 
-        plotOptions.setPanOptions(new PanOptions().setInteractive(true));
+        plotOptions.setPanOptions(PanOptions.create().setInteractive(true));
+        plotOptions.setCanvasEnabled(true);
 
         if (isMetric) {
-            plotOptions.addXAxisOptions(new AxisOptions().setZoomRange(true).setTickDecimals(0)
+            plotOptions.addXAxisOptions(AxisOptions.create().setZoomRange(true).setTickDecimals(0)
                     .setTickFormatter(new TickFormatter() {
                         @Override
                         public String formatTickValue(double tickValue, Axis axis) {
@@ -632,19 +632,20 @@ public class Trends extends DefaultActivity {
                         }
                     }));
         } else {
-            plotOptions.addXAxisOptions(new AxisOptions().setZoomRange(true).setMinimum(0));
+            plotOptions.addXAxisOptions(AxisOptions.create().setZoomRange(true).setMinimum(0));
         }
 
-        plotOptions.addYAxisOptions(new AxisOptions().setZoomRange(false).setMinimum(yMinimum));
+        plotOptions.addYAxisOptions(AxisOptions.create().setZoomRange(false).setMinimum(yMinimum));
 
-        plotOptions.setLegendOptions(new LegendOptions().setNumOfColumns(2));
+        plotOptions.setLegendOptions(LegendOptions.create().setPosition(LegendOptions.LegendPosition.NORTH_EAST).setNumOfColumns(2));
 
+        plotOptions.setCanvasEnabled(true);
         if (markings == null) {
             // Make the grid hoverable
-            plotOptions.setGridOptions(new GridOptions().setHoverable(true));
+            plotOptions.setGridOptions(GridOptions.create().setHoverable(true));
         } else {
             // Make the grid hoverable and add  markings
-            plotOptions.setGridOptions(new GridOptions().setHoverable(true).setMarkings(markings).setClickable(true));
+            plotOptions.setGridOptions(GridOptions.create().setHoverable(true).setMarkings(markings).setClickable(true));
         }
 
         // create the plot
@@ -747,7 +748,7 @@ public class Trends extends DefaultActivity {
         mainTabPanel.forceLayout();
         controlTree.onMetricsTab();
         for (String plotId : chosenPlots.keySet()) {
-            if (plotPanel.getElementById(plotId) == null) {
+            if (!plotPanel.containsElementWithId(plotId)) {
                 renderPlots(plotPanel, chosenPlots.get(plotId), plotId);
                 scrollPanelMetrics.scrollToBottom();
             }
@@ -1000,12 +1001,11 @@ public class Trends extends DefaultActivity {
         });
     }
 
-    private void renderPlots(HTMLPanel panel, List<PlotSeriesDto> plotSeriesDtoList, String id) {
+    private void renderPlots(PlotsPanel panel, List<PlotSeriesDto> plotSeriesDtoList, String id) {
         renderPlots(panel, plotSeriesDtoList, id, 0, false);
     }
 
-    private void renderPlots(HTMLPanel panel, List<PlotSeriesDto> plotSeriesDtoList, String id, double yMinimum, boolean isMetric) {
-        panel.add(loadIndicator);
+    private void renderPlots(final PlotsPanel panel, List<PlotSeriesDto> plotSeriesDtoList, String id, double yMinimum, boolean isMetric) {
 
         SimplePlot redrawingPlot = null;
 
@@ -1016,10 +1016,10 @@ public class Trends extends DefaultActivity {
         for (PlotSeriesDto plotSeriesDto : plotSeriesDtoList) {
             Markings markings = null;
             if (plotSeriesDto.getMarkingSeries() != null) {
-                markings = new Markings();
+                markings = Markings.create();
                 for (MarkingDto plotDatasetDto : plotSeriesDto.getMarkingSeries()) {
                     double x = plotDatasetDto.getValue();
-                    markings.addMarking(new Marking().setX(new Range(x, x)).setLineWidth(1).setColor(plotDatasetDto.getColor()));
+                    markings.addMarking(Marking.create().setX(com.googlecode.gflot.client.options.Range.create().setFrom(x).setTo(x)).setLineWidth(1).setColor(plotDatasetDto.getColor()));
                 }
 
                 markingsMap.put(id, new TreeSet<MarkingDto>(plotSeriesDto.getMarkingSeries()));
@@ -1040,10 +1040,11 @@ public class Trends extends DefaultActivity {
                 redrawingPlot = plot;
                 int iter = 0;
                 for (PlotDatasetDto plotDatasetDto : plotSeriesDto.getPlotSeries()) {
-                    SeriesHandler handler = plotModel.addSeries(plotDatasetDto.getLegend(), plotDatasetDto.getColor());
+                    Series se = Series.create().setLabel(plotDatasetDto.getLegend()).setColor(plotDatasetDto.getColor());
+                    SeriesHandler handler = plotModel.addSeries(se);
                     // Populate plot with data
                     for (PointDto pointDto : plotDatasetDto.getPlotData()) {
-                        handler.add(new DataPoint(iter ++, pointDto.getY()));
+                        handler.add(DataPoint.of(iter++, pointDto.getY()));
                     }
                 }
             } else {
@@ -1051,11 +1052,12 @@ public class Trends extends DefaultActivity {
                 plotModel = plot.getModel();
                 redrawingPlot = plot;
                 for (PlotDatasetDto plotDatasetDto : plotSeriesDto.getPlotSeries()) {
-                    SeriesHandler handler = plotModel.addSeries(plotDatasetDto.getLegend(), plotDatasetDto.getColor());
+                    Series se = Series.create().setLabel(plotDatasetDto.getLegend()).setColor(plotDatasetDto.getColor());
+                    SeriesHandler handler = plotModel.addSeries(se);
 
                     // Populate plot with data
                     for (PointDto pointDto : plotDatasetDto.getPlotData()) {
-                        handler.add(new DataPoint(pointDto.getX(), pointDto.getY()));
+                        handler.add(DataPoint.of(pointDto.getX(), pointDto.getY()));
                     }
                 }
             }
@@ -1079,7 +1081,7 @@ public class Trends extends DefaultActivity {
             panLeftLabel.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    plot.pan(new Pan().setLeft(-100));
+                    plot.pan(Pan.create().setLeft(-100));
                 }
             });
 
@@ -1089,7 +1091,7 @@ public class Trends extends DefaultActivity {
             panRightLabel.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    plot.pan(new Pan().setLeft(100));
+                    plot.pan(Pan.create().setLeft(100));
                 }
             });
 
@@ -1111,12 +1113,26 @@ public class Trends extends DefaultActivity {
                 }
             });
 
+            Label saveLabel = new Label("Save");
+            saveLabel.addStyleName(getResources().css().saveLabel());
+            saveLabel.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    if (plot.isExportAsImageEnabled()) {
+                        plot.saveAsImage();
+                    } else {
+                        new ExceptionPanel("Can not save image in your browser.");
+                    }
+                }
+            });
+
             FlowPanel zoomPanel = new FlowPanel();
             zoomPanel.addStyleName(getResources().css().zoomPanel());
             zoomPanel.add(panLeftLabel);
             zoomPanel.add(panRightLabel);
             zoomPanel.add(zoomInLabel);
             zoomPanel.add(zoomOutLabel);
+            zoomPanel.add(saveLabel);
 
             vp.add(plotHeader);
             vp.add(zoomPanel);
@@ -1124,13 +1140,13 @@ public class Trends extends DefaultActivity {
             vp.add(xLabel);
             // Will be added if there is need it
             //vp.add(plotLegend);
+            PlotRepresentation plotRepresentation = new PlotRepresentation(zoomPanel, plot, xLabel);
 
-            plotGroupPanel.add(vp);
+            PlotContainer pc = new PlotContainer(id, plotHeader, plotRepresentation);
 
+            panel.addElement(pc);
         }
-        int loadingId = panel.getWidgetCount() - 1;
-        panel.remove(loadingId);
-        panel.add(plotGroupPanel);
+
 
         // Redraw plot
         if (redrawingPlot != null) {
@@ -1615,20 +1631,10 @@ public class Trends extends DefaultActivity {
                     if (!selectedMetricsIds.contains(plotId)) {
                         toRemoveFromTable.add(chosenMetrics.get(plotId));
                         chosenMetrics.remove(plotId);
+                        plotTrendsPanel.removeElementById(plotId);
                     }
                 }
-                metricIdsSet = chosenMetrics.keySet();
-                List<Widget> toRemove = new ArrayList<Widget>();
-                for (int i = 0; i < plotTrendsPanel.getWidgetCount(); i ++ ) {
-                    Widget widget = plotTrendsPanel.getWidget(i);
-                    String wId = widget.getElement().getId();
-                    if (!metricIdsSet.contains(wId)) {
-                        toRemove.add(widget);
-                    }
-                }
-                for (Widget widget : toRemove) {
-                    plotTrendsPanel.remove(widget);
-                }
+
                 summaryPanel.getSessionComparisonPanel().removeRecords(toRemoveFromTable);
 
                 if (!notLoaded.isEmpty()) {
@@ -1737,20 +1743,13 @@ public class Trends extends DefaultActivity {
                 return;
             }
 
-            List<Widget> toRemove = new ArrayList<Widget>();
             Set<String> widgetIds = new HashSet<String>();
             for (MetricNode metricNode : metricNodes) {
                 widgetIds.add(generatePlotId(metricNode));
             }
-            for (int i = 0; i < plotPanel.getWidgetCount(); i++) {
-                Widget widget = plotPanel.getWidget(i);
-                String widgetId = widget.getElement().getId();
-                if (widgetIds.contains(widgetId))
-                    toRemove.add(widget);
-            }
-            for (Widget w : toRemove) {
-                plotPanel.remove(w);
-                chosenPlots.remove(w.getElement().getId());
+            for (String elementId : widgetIds) {
+                plotPanel.removeElementById(elementId);
+                chosenPlots.remove(elementId);
             }
         }
     }
@@ -1832,17 +1831,9 @@ public class Trends extends DefaultActivity {
             }
 
             Set<String> widgetIdsToRemove = generateSessionPlotIds(plotNames);
-            List<Widget> toRemove = new ArrayList<Widget>();
-            for (int i = 0; i < plotPanel.getWidgetCount(); i ++) {
-                Widget widget = plotPanel.getWidget(i);
-                String widgetId = widget.getElement().getId();
-                if (widgetIdsToRemove.contains(widgetId)) {
-                    toRemove.add(widget);
-                }
-            }
-            for(Widget widget : toRemove) {
-                plotPanel.remove(widget);
-                chosenPlots.remove(widget.getElement().getId());
+            for(String elementId : widgetIdsToRemove) {
+                plotPanel.removeElementById(elementId);
+                chosenPlots.remove(elementId);
             }
         }
 
