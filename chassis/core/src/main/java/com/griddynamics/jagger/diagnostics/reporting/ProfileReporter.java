@@ -131,6 +131,11 @@ public class ProfileReporter extends AbstractMonitoringReportProvider<String> {
             data = sysUnderTests.get(relatedMonitoringTask(testId));
         }
 
+        // required after monitoring moved to metrics
+        if (data == null) {
+            data = sysUnderTests.get(parentOf(testId));
+        }
+
         return new JRBeanCollectionDataSource(data);
     }
 

@@ -240,13 +240,7 @@
 
     <bean id="validatorNameProvider" class="com.griddynamics.jagger.dbapi.provider.ValidatorNamesProvider"/>
 
-    <!--===========Monitoring Plot Data Providers===========-->
-    <!--Deprecated. @TODO - remove it (?) -->
-    <!--<bean id="monitoringPlotDataProvider" class="com.griddynamics.jagger.webclient.server.plot.MonitoringPlotDataProvider">-->
-        <!--<constructor-arg index="0" ref="monitoringPlotGroups"/>-->
-        <!--<property name="legendProvider" ref="legendProvider"/>-->
-        <!--<property name="renderTaskBoundaries" value="${plot.rendering.taskBoundariesEnabled}"/>-->
-    <!--</bean>-->
+    <!--=========== Dtos ===========-->
 
     <bean id="throughputMetricNameDto" class="com.griddynamics.jagger.dbapi.dto.MetricNameDto">
         <property name="metricName" value="throughput"/>
