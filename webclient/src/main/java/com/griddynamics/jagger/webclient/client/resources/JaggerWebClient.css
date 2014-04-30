@@ -280,3 +280,18 @@ input[type="text"] {
     cursor: default;
     font-size: 14px;
 }
+
+.dragLabel {
+    background: #d0e4f6;
+    cursor: move;
+}
+
+.saveLabel {
+
+    font-size: smaller;
+    color: #999;
+    background-color: #eee;
+    padding: .2em .5em .4em .5em;
+    cursor: pointer;
+    display: inline-block;
+}
