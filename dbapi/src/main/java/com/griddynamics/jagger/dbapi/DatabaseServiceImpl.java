@@ -1340,9 +1340,8 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     @Override
-    public FetchUtil getFetchUtil() {
-        return fetchUtil;
+    public List<String> getSessionIdsByTaskIds(Set<Long> taskIds) {
+        return fetchUtil.getSessionIdsByTaskIds(taskIds);
     }
-
 }
 

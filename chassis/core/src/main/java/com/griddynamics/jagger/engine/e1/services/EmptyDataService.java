@@ -7,6 +7,7 @@ import com.griddynamics.jagger.engine.e1.services.data.service.TestEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,7 +31,7 @@ public class EmptyDataService implements DataService {
     }
 
     @Override
-    public Set<SessionEntity> getSessions(Set<String> sessionIds) {
+    public Set<SessionEntity> getSessions(Collection<String> sessionIds) {
         log.warn("Can't get session entities for session ids {}. DataService is not supported in {}", sessionIds, jaggerPlace);
         return null;
     }
@@ -48,7 +49,7 @@ public class EmptyDataService implements DataService {
     }
 
     @Override
-    public Map<String, Set<TestEntity>> getTests(Set<String> sessionIds) {
+    public Map<String, Set<TestEntity>> getTests(Collection<String> sessionIds) {
         log.warn("Can't get test entities for session ids {}. DataService is not supported in {}", sessionIds, jaggerPlace);
         return null;
     }
@@ -66,7 +67,7 @@ public class EmptyDataService implements DataService {
     }
 
     @Override
-    public Map<String, TestEntity> getTestsByName(Set<String> sessionIds, String testName) {
+    public Map<String, TestEntity> getTestsByName(Collection<String> sessionIds, String testName) {
         log.warn("Can't get test entity {} for sessions {}. DataService is not supported in {}", new Object[]{testName, sessionIds, jaggerPlace});
         return null;
     }
@@ -84,13 +85,13 @@ public class EmptyDataService implements DataService {
     }
 
     @Override
-    public Map<TestEntity, Set<MetricEntity>> getMetricsByTests(Set<TestEntity> tests) {
+    public Map<TestEntity, Set<MetricEntity>> getMetricsByTests(Collection<TestEntity> tests) {
         log.warn("Can't get metric entities for tests {}. DataService is not supported in {}", tests, jaggerPlace);
         return null;
     }
 
     @Override
-    public Map<Long, Set<MetricEntity>> getMetricsByTestIds(Set<Long> testIds) {
+    public Map<Long, Set<MetricEntity>> getMetricsByTestIds(Collection<Long> testIds) {
         log.warn("Can't get metric entities for test ids {}. DataService is not supported in {}", testIds, jaggerPlace);
         return null;
     }
@@ -102,7 +103,7 @@ public class EmptyDataService implements DataService {
     }
 
     @Override
-    public Map<MetricEntity, Double> getMetricSummary(Set<MetricEntity> metrics) {
+    public Map<MetricEntity, Double> getMetricSummary(Collection<MetricEntity> metrics) {
         log.warn("Can't get summary values for metrics {}. DataService is not supported in {}", metrics, jaggerPlace);
         return null;
     }
@@ -114,7 +115,7 @@ public class EmptyDataService implements DataService {
     }
 
     @Override
-    public Map<MetricEntity, List<MetricPlotPointEntity>> getMetricPlotData(Set<MetricEntity> metrics) {
+    public Map<MetricEntity, List<MetricPlotPointEntity>> getMetricPlotData(Collection<MetricEntity> metrics) {
         log.warn("Can't get plot data values for metrics {}. DataService is not supported in {}", metrics, jaggerPlace);
         return null;
     }

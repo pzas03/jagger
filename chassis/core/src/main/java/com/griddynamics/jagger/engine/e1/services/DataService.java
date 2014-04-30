@@ -5,6 +5,7 @@ import com.griddynamics.jagger.engine.e1.services.data.service.MetricPlotPointEn
 import com.griddynamics.jagger.engine.e1.services.data.service.SessionEntity;
 import com.griddynamics.jagger.engine.e1.services.data.service.TestEntity;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,7 +29,7 @@ public interface DataService extends JaggerService {
      * @n
      * @param sessionIds - session's ids
      * @return list of session's entities */
-    Set<SessionEntity> getSessions(Set<String> sessionIds);
+    Set<SessionEntity> getSessions(Collection<String> sessionIds);
 
     /** Returns tests for specify session
      * @author Gribov Kirill
@@ -47,9 +48,9 @@ public interface DataService extends JaggerService {
     /** Returns all tests for specify list of session's ids
      * @author Gribov Kirill
      * @n
-     * @param sessionIds - list of session's ids
+     * @param sessionIds - session's ids
      * @return map of <session id, list of test entities> pairs*/
-    Map<String, Set<TestEntity>> getTests(Set<String> sessionIds);
+    Map<String, Set<TestEntity>> getTests(Collection<String> sessionIds);
 
     /** Returns test entity for specify session's id and test name
      * @author Gribov Kirill
@@ -70,10 +71,10 @@ public interface DataService extends JaggerService {
     /** Returns map, where key is session's id and value is test entity with specify name
      * @author Gribov Kirill
      * @n
-     * @param sessionIds - list of session's ids
+     * @param sessionIds - session's ids
      * @param testName - name of test
      * @return map of <session id, test entity> pairs*/
-    Map<String, TestEntity> getTestsByName(Set<String> sessionIds, String testName);
+    Map<String, TestEntity> getTestsByName(Collection<String> sessionIds, String testName);
 
     /** Returns all metric entities for specify test id
      * @author Gribov Kirill
@@ -92,16 +93,16 @@ public interface DataService extends JaggerService {
     /** Returns map, where key is test entity and value is a list of all test metrics
      * @author Gribov Kirill
      * @n
-     * @param tests - list of tests
+     * @param tests - tests
      * @return map of <test entity, list of metric entity> pairs*/
-    Map<TestEntity, Set<MetricEntity>> getMetricsByTests(Set<TestEntity> tests);
+    Map<TestEntity, Set<MetricEntity>> getMetricsByTests(Collection<TestEntity> tests);
 
     /** Returns map, where key is test id and value is a list of all test metrics
      * @author Gribov Kirill
      * @n
-     * @param testIds - list of tests ids
+     * @param testIds - test ids
      * @return map of <test id, list of metric entity> pairs*/
-    Map<Long, Set<MetricEntity>> getMetricsByTestIds(Set<Long> testIds);
+    Map<Long, Set<MetricEntity>> getMetricsByTestIds(Collection<Long> testIds);
 
     /** Return summary value for selected metric
      * @author Dmitry Latnikov
@@ -119,9 +120,9 @@ public interface DataService extends JaggerService {
      * @details
      * Preferable way to get data. Data will be fetched from database in batch in single request => @n
      * it is faster to get batch of metrics than fetch every metric in for loop @n
-     * @param metrics - set of metric entities
+     * @param metrics - metric entities
      * @return map of <metric entity, summary value> */
-    Map<MetricEntity,Double> getMetricSummary(Set<MetricEntity> metrics);
+    Map<MetricEntity,Double> getMetricSummary(Collection<MetricEntity> metrics);
 
     /** Return list of points (values vs time) for selected metric
      * @author Dmitry Latnikov
@@ -139,8 +140,8 @@ public interface DataService extends JaggerService {
      * @details
      * Preferable way to get data. Data will be fetched from database in batch in single request => @n
      * it is faster to get batch of metrics than fetch every metric in for loop @n
-     * @param metrics - set metric entities
+     * @param metrics - metric entities
      * @return map of <metic entity, list of points (value vs time)> for selected metric  */
-    Map<MetricEntity,List<MetricPlotPointEntity>> getMetricPlotData(Set<MetricEntity> metrics);
+    Map<MetricEntity,List<MetricPlotPointEntity>> getMetricPlotData(Collection<MetricEntity> metrics);
 
 }
