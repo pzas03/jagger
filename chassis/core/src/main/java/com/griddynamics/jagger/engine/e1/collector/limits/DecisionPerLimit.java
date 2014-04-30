@@ -4,10 +4,15 @@ import com.griddynamics.jagger.engine.e1.sessioncomparation.Decision;
 
 import java.util.Set;
 
-//??? docu
+/** Class is used to describe result of comparison of metrics to some limit */
 public class DecisionPerLimit {
+    /** Limit we are comparing to */
     private Limit limit;
+
+    /** Results of comparison for metrics. Several metrics can match to metricName in limit (f.e. cpu utilization from different agents) */
     private Set<DecisionPerMetric> decisionsPerMetric;
+
+    /** Results of comparison for this limit */
     private Decision decisionPerLimit;
 
     public DecisionPerLimit(Limit limit, Set<DecisionPerMetric> decisionsPerMetric, Decision decisionPerLimit) {

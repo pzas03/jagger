@@ -91,7 +91,7 @@ public class DecisionMakerDistributionListener implements DistributionListener {
                     }
 
                     // Get data for baseline session
-                    //??? check that sessions match or not
+                    //todo ??? JFG_745 check that tests match when getting baseline values
                     Map<String,Double> metricIdToValuesBaseline = new HashMap<String, Double>();
                     if (needBaselineSessionValue) {
                         String baselineId = workloadTask.getLimits().getBaselineId();
@@ -108,7 +108,7 @@ public class DecisionMakerDistributionListener implements DistributionListener {
                         }
                     }
 
-                    log.info("Making decision for test: {} (baseline session: {})",testName,sessionId);
+                    log.info("Making decision for test: {} (baseline session: {})",testName,workloadTask.getLimits().getBaselineId());
 
                     // Compare
                     Set<DecisionPerLimit> decisionsPerLimit = new HashSet<DecisionPerLimit>();
@@ -142,9 +142,9 @@ public class DecisionMakerDistributionListener implements DistributionListener {
                     new TestGroupDecisionMakerInfo((CompositeTask)task,sessionId,decisionsPerTest);
             Decision decisionPerTestGroup = decisionMakerListener.onDecisionMaking(testGroupDecisionMakerInfo);
 
-            //??? log final decision
+            log.info("Decision for test group {} - {}",task.getTaskName(),decisionPerTestGroup);
 
-            //??? save decision
+            //todo ??? JFG_746 save/update decision
         }
     }
 

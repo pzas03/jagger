@@ -37,7 +37,6 @@ public interface TestGroupDecisionMakerListener {
         public Decision onDecisionMaking(TestGroupDecisionMakerInfo decisionMakerInfo) {
             List<Decision> decisions = new ArrayList<Decision>();
 
-            //??? configurable
             WorstCaseDecisionMaker worstCaseDecisionMaker = new WorstCaseDecisionMaker();
 
             for (TestGroupDecisionMakerListener listener : listenerList){

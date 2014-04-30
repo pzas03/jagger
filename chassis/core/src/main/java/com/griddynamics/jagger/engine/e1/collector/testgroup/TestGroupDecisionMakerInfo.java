@@ -13,7 +13,7 @@ import java.util.Set;
  * @n
  * */
 
- //??? docu
+//todo ??? JFG-744 docu for decision making with use of limits
 public class TestGroupDecisionMakerInfo {
     private CompositeTask testGroup;
     private String sessionId;

@@ -54,9 +54,8 @@ public class WorstCaseDecisionMaker implements DecisionMaker {
         return worstResult;
     }
 
-    //??? docu
-
-    //??? can be part of separate interface
+    /** Returns the worst decision from list of input decisions
+     * @return the worst decision */
     public Decision getDecision(List<Decision> decisions) {
         Decision worstCaseDecision = Decision.OK;
 

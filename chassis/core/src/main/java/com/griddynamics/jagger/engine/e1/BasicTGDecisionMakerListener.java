@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-//??? docu
+//todo ??? JFG-744 docu for decision making with use of limits
 public class BasicTGDecisionMakerListener extends ServicesAware implements Provider<TestGroupDecisionMakerListener> {
     private static final Logger log = LoggerFactory.getLogger(BasicTGDecisionMakerListener.class);
 
