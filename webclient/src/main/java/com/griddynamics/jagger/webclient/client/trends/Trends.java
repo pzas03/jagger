@@ -1279,7 +1279,7 @@ public class Trends extends DefaultActivity {
 
             tempTree.disableEvents();
 
-            tempTree.setCheckedWithParent(result.getSummary().getSessionInfo());
+            tempTree.setCheckedWithParent(result.getSummaryNode().getSessionInfo());
 
             SessionScopePlotsNode sessionScopePlotsNode = result.getDetailsNode().getSessionScopePlotsNode();
             if (sessionScopePlotsNode != null) {
@@ -1425,7 +1425,7 @@ public class Trends extends DefaultActivity {
          * @return null if no Test found
          */
         private TestNode getTestNodeByNameAndSessionIds(String testName, Set<String> selectedSessionIds, RootNode rootNode) {
-            for (TestNode testNode : rootNode.getSummary().getTests()) {
+            for (TestNode testNode : rootNode.getSummaryNode().getTests()) {
                 if (testNode.getDisplayName().equals(testName)) {
                     if (testNode.getTaskDataDto().getSessionIds().containsAll(selectedSessionIds)
                             && selectedSessionIds.containsAll(testNode.getTaskDataDto().getSessionIds()))
@@ -1490,7 +1490,7 @@ public class Trends extends DefaultActivity {
             disableControl();
 
             RootNode rootNode = controlTree.getRootNode();
-            SummaryNode summaryNode = rootNode.getSummary();
+            SummaryNode summaryNode = rootNode.getSummaryNode();
 
             fetchSessionInfoData(summaryNode.getSessionInfo());
             fetchMetricsForTests(summaryNode.getTests());

@@ -27,6 +27,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.Service;
 import com.griddynamics.jagger.agent.model.ManageAgent;
 import com.griddynamics.jagger.coordinator.*;
+import com.griddynamics.jagger.dbapi.DatabaseService;
 import com.griddynamics.jagger.engine.e1.ProviderUtil;
 import com.griddynamics.jagger.engine.e1.aggregator.session.GeneralNodeInfoAggregator;
 import com.griddynamics.jagger.engine.e1.collector.testsuite.TestSuiteInfo;
@@ -88,6 +89,7 @@ public class Master implements Runnable {
     private GeneralNodeInfoAggregator generalNodeInfoAggregator;
     private SessionMetaDataStorage metaDataStorage;
     private DatabaseValidator databaseValidator;
+    private DatabaseService databaseService;
 
 
     @Required
@@ -148,6 +150,10 @@ public class Master implements Runnable {
         this.databaseValidator = databaseValidator;
     }
 
+    public void setDatabaseService(DatabaseService databaseService) {
+        this.databaseService = databaseService;
+    }
+
     @Override
     public void run() {
         databaseValidator.validate();
@@ -171,6 +177,9 @@ public class Master implements Runnable {
                 .addService(SessionMetaDataStorage.class, metaDataStorage);
 
         NodeContext context = contextBuilder.build();
+
+        // add additional listener to configuration
+        configuration.getDistributionListeners().add(new DecisionMakerDistributionListener(context,databaseService));
 
         Map<NodeType, CountDownLatch> countDownLatchMap = Maps.newHashMap();
         CountDownLatch agentCountDownLatch = new CountDownLatch(
@@ -337,7 +346,7 @@ public class Master implements Runnable {
 
         String taskId = taskIdProvider.getTaskId();
 
-        Service distribute = taskDistributor.distribute(executor, sessionIdProvider.getSessionId(), taskId, allNodes, coordinator, task, distributionListener(nodeContext), nodeContext);
+        Service distribute = taskDistributor.distribute(executor, sessionIdProvider.getSessionId(), taskId, allNodes, coordinator, task, distributionListener(), nodeContext);
         try{
             Future<Service.State> start;
             synchronized (terminateConfigurationLock) {
@@ -353,9 +362,7 @@ public class Master implements Runnable {
 
     }
 
-    private DistributionListener distributionListener(NodeContext nodeContext) {
-        DistributionListener decisionMakerListener = new DecisionMakerDistributionListener(nodeContext);
-        configuration.getDistributionListeners().add(decisionMakerListener);
+    private DistributionListener distributionListener() {
         return CompositeDistributionListener.of(Iterables.concat(Arrays.asList(createFlushListener()),
                 configuration.getDistributionListeners()
         ));

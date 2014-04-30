@@ -22,6 +22,7 @@ package com.griddynamics.jagger.engine.e1.reporting;
 import com.griddynamics.jagger.dbapi.DatabaseService;
 import com.griddynamics.jagger.dbapi.dto.*;
 import com.griddynamics.jagger.dbapi.model.*;
+import com.griddynamics.jagger.dbapi.util.SessionMatchingSetup;
 import com.griddynamics.jagger.reporting.AbstractMappedReportProvider;
 import com.griddynamics.jagger.reporting.chart.ChartHelper;
 import com.griddynamics.jagger.util.Pair;
@@ -145,16 +146,19 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
         return new JRBeanCollectionDataSource(Collections.singleton(result));
     }
 
-    // Session scope plots isn't available (JFG-724)
+    // todo Session scope plots isn't supported by code below (JFG-724)
     private void createFromTree() {
 
         plots = new HashMap<Long, MetricPlotDTOs>();
 
         Set<MetricNode> allMetrics = new HashSet<MetricNode>();
 
-        RootNode rootNode = databaseService.getControlTreeForSessions(new HashSet<String>(Arrays.asList(sessionId)));
+        SessionMatchingSetup sessionMatchingSetup = new SessionMatchingSetup(
+                databaseService.getWebClientProperties().isShowOnlyMatchedTests(),
+                EnumSet.of(SessionMatchingSetup.MatchBy.ALL));
+        RootNode rootNode = databaseService.getControlTreeForSessions(new HashSet<String>(Arrays.asList(sessionId)),sessionMatchingSetup);
         DetailsNode detailsNode = rootNode.getDetailsNode();
-        if (detailsNode.getTests().isEmpty() && detailsNode.getChildren().isEmpty())
+        if (detailsNode.getChildren().isEmpty())
             return;
 
         for (TestDetailsNode testDetailsNode : detailsNode.getTests()) {

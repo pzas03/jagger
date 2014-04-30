@@ -325,9 +325,9 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
 
             if (pointsCount > 0) {
                 intervalSize = new CalculatedIntervalSizeProvider(pointsCount).getIntervalSize(minTime, maxTime);
-                if (intervalSize < 1)
-                    intervalSize = 1;
             }
+            if (intervalSize < 1)
+                intervalSize = 1;
 
             if (aggregationInterval > 0) {
                 intervalSize = aggregationInterval;
