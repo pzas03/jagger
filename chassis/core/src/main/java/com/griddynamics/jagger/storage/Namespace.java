@@ -40,8 +40,8 @@ public class Namespace {
 		return new Namespace(Lists.<String> newArrayList());
 	}
 
-	public static Namespace of(String sessionId, String... values) {
-        List<String> list = Lists.asList(sessionId,values);
+	public static Namespace of(String... values) {
+        List<String> list = Lists.newArrayList(values);
 		return new Namespace(list);
 	}
 

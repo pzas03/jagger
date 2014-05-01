@@ -23,6 +23,7 @@ package com.griddynamics.jagger.storage.rdb;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import com.griddynamics.jagger.master.SessionIdProvider;
 import com.griddynamics.jagger.storage.KeyValueStorage;
 import com.griddynamics.jagger.storage.Namespace;
 import com.griddynamics.jagger.util.SerializationUtils;
@@ -40,7 +41,18 @@ public class HibernateKeyValueStorage extends HibernateDaoSupport implements Key
 
     private int hibernateBatchSize;
 
-    private int sessionLimit;
+    private int sessionLimit=50;
+
+    private static SessionIdProvider sessionIdProvider;
+
+
+    public SessionIdProvider getSessionIdProvider() {
+        return sessionIdProvider;
+    }
+
+    public void setSessionIdProvider(SessionIdProvider sessionIdProvider) {
+        this.sessionIdProvider = sessionIdProvider;
+    }
 
     public int getHibernateBatchSize() {
         return hibernateBatchSize;
@@ -173,7 +185,7 @@ public class HibernateKeyValueStorage extends HibernateDaoSupport implements Key
         keyvalue.setNamespace(namespace.toString());
         keyvalue.setKey(key);
         keyvalue.setData(SerializationUtils.serialize(value));
-        keyvalue.setSessionId(namespace.getValues().get(0));
+        keyvalue.setSessionId(getSessionIdProvider().getSessionId());
         return keyvalue;
     }
 }

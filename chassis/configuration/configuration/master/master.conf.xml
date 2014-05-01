@@ -126,9 +126,7 @@
         <property name="minKernelsCount" value="${chassis.conditions.min.kernels.count}"/>
     </bean>
 
-    <bean id="taskIdProvider" class="com.griddynamics.jagger.master.ThreadSafeTaskIdProvider">
-
-    </bean>
+    <bean id="taskIdProvider" class="com.griddynamics.jagger.master.ThreadSafeTaskIdProvider"/>
 
     <bean id="taskStatusProvider" class="com.griddynamics.jagger.master.TaskExecutionStatusProvider"/>
 
@@ -151,8 +149,7 @@
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
 
-    <bean id="metaDataStorage" class="com.griddynamics.jagger.engine.e1.services.SessionMetaDataStorage">
-    </bean>
+    <bean id="metaDataStorage" class="com.griddynamics.jagger.engine.e1.services.SessionMetaDataStorage"/>
 
 
 </beans>
