@@ -45,11 +45,6 @@ public class HibernateKeyValueStorage extends HibernateDaoSupport implements Key
 
     private static SessionIdProvider sessionIdProvider;
 
-
-    public SessionIdProvider getSessionIdProvider() {
-        return sessionIdProvider;
-    }
-
     public void setSessionIdProvider(SessionIdProvider sessionIdProvider) {
         this.sessionIdProvider = sessionIdProvider;
     }
@@ -185,7 +180,7 @@ public class HibernateKeyValueStorage extends HibernateDaoSupport implements Key
         keyvalue.setNamespace(namespace.toString());
         keyvalue.setKey(key);
         keyvalue.setData(SerializationUtils.serialize(value));
-        keyvalue.setSessionId(getSessionIdProvider().getSessionId());
+        keyvalue.setSessionId(sessionIdProvider.getSessionId());
         return keyvalue;
     }
 }
