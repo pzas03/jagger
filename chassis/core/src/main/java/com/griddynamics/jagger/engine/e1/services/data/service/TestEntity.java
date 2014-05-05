@@ -15,7 +15,7 @@ public class TestEntity {
     /** Test name in format [test group name] [test name] */
     private String name;
 
-    /** Test description id */
+    /** Test description */
     private String description;
 
     /** Description of the load for this test */
@@ -24,6 +24,7 @@ public class TestEntity {
     /** Description of the termination strategy for this test */
     private String terminationStrategy;
 
+    /** Get test name in format [test group name] [test name] */
     public String getName() {
         return name;
     }
@@ -32,6 +33,7 @@ public class TestEntity {
         this.name = name;
     }
 
+    /** Get description of the load for this test */
     public String getLoad() {
         return load;
     }
@@ -40,6 +42,7 @@ public class TestEntity {
         this.load = load;
     }
 
+    /** Get description of the termination strategy for this test */
     public String getTerminationStrategy() {
         return terminationStrategy;
     }
@@ -48,6 +51,7 @@ public class TestEntity {
         this.terminationStrategy = terminationStrategy;
     }
 
+    /** Get test id (aka task id) - unique id of this test */
     public Long getId() {
         return id;
     }
@@ -56,6 +60,7 @@ public class TestEntity {
         this.id = id;
     }
 
+    /** Get test description */
     public String getDescription() {
         return description;
     }

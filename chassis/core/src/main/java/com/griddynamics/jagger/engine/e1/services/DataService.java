@@ -10,12 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/** Provides access to tests results, stored in jagger database. Data contains a full information about sessions, tests, metrics and etc.
+/** Service provides access to tests results, stored in jagger database. You can get a full information about sessions, tests, metrics
  * @author Gribov Kirill
  * @n
- *
- * */
-public interface DataService extends JaggerService {
+ * @ingroup Main_Services_group */
+ public interface DataService extends JaggerService {
 
     /** Returns session's entity for specify session's id
      * @author Gribov Kirill
