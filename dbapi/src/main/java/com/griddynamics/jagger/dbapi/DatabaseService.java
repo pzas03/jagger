@@ -6,7 +6,6 @@ import com.griddynamics.jagger.dbapi.model.WebClientProperties;
 import com.griddynamics.jagger.dbapi.model.MetricNode;
 import com.griddynamics.jagger.dbapi.model.RootNode;
 import com.griddynamics.jagger.dbapi.provider.SessionInfoProvider;
-import com.griddynamics.jagger.dbapi.util.FetchUtil;
 import com.griddynamics.jagger.dbapi.util.SessionMatchingSetup;
 
 import java.util.*;
@@ -71,7 +70,9 @@ public interface DatabaseService {
      * @return SessionInfoProvider */
     List<TaskDataDto> getTaskDataForSessions(Set<String> sessionIds, SessionMatchingSetup sessionMatchingSetup);
 
-    /** Returns reference to fetch utils
-     * @return FetchUtil - util to fetch data from DB */
-    FetchUtil getFetchUtil();
-}
+    /** Returns list of session ids corresponding to given task ids
+     * @param taskIds TaskData ids
+     * @return list of session Ids */
+    List<String> getSessionIdsByTaskIds(Set<Long> taskIds);
+
+    }

@@ -32,7 +32,7 @@ public class MetricEntity {
         this.metricNameDto = metricNameDto;
     }
 
-    /** Get internal metric model */
+    /** Get internal metric model. Internal model is point to change in future. No compatibility guaranteed */
     public MetricNameDto getMetricNameDto() {
         return metricNameDto;
     }
@@ -45,11 +45,6 @@ public class MetricEntity {
     /** Get metric display name - label displayed in reports */
     public String getDisplayName() {
         return metricNameDto.getMetricDisplayName();
-    }
-
-    /** Get metric origin - what kind of metric is it (standard, monitoring, custom, etc) */
-    public MetricNameDto.Origin getOrigin() {
-        return metricNameDto.getOrigin();
     }
 
     /** Get flag: is summary value available for this metric */

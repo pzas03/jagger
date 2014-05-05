@@ -25,7 +25,7 @@ public class DefaultDataService implements DataService {
 
     @Override
     public SessionEntity getSession(String sessionId) {
-        Set<SessionEntity> sessions = getSessions(new HashSet<String>(Arrays.asList(sessionId)));
+        Set<SessionEntity> sessions = getSessions(Arrays.asList(sessionId));
         if (sessions.isEmpty()){
             return null;
         }
@@ -33,12 +33,12 @@ public class DefaultDataService implements DataService {
     }
 
     @Override
-    public Set<SessionEntity> getSessions(Set<String> sessionIds) {
+    public Set<SessionEntity> getSessions(Collection<String> sessionIds) {
         if (sessionIds.isEmpty()){
             return Collections.emptySet();
         }
 
-        List<SessionDataDto> sessionDataDtoList = databaseService.getSessionInfoService().getBySessionIds(0,sessionIds.size(),sessionIds);
+        List<SessionDataDto> sessionDataDtoList = databaseService.getSessionInfoService().getBySessionIds(0,sessionIds.size(),new HashSet<String>(sessionIds));
 
         if (sessionDataDtoList.isEmpty()) {
             return Collections.emptySet();
@@ -66,7 +66,7 @@ public class DefaultDataService implements DataService {
 
     @Override
     public Set<TestEntity> getTests(String sessionId){
-        Map<String, Set<TestEntity>> map = getTests(new HashSet<String>(Arrays.asList(sessionId)));
+        Map<String, Set<TestEntity>> map = getTests(Arrays.asList(sessionId));
 
         Set<TestEntity> result = map.get(sessionId);
         if (result != null){
@@ -77,7 +77,7 @@ public class DefaultDataService implements DataService {
     }
 
     @Override
-    public Map<String, Set<TestEntity>> getTests(Set<String> sessionIds){
+    public Map<String, Set<TestEntity>> getTests(Collection<String> sessionIds){
         return getTestsWithName(sessionIds, null);
     }
 
@@ -88,7 +88,7 @@ public class DefaultDataService implements DataService {
 
     @Override
     public TestEntity getTestByName(String sessionId, String testName){
-        Map<String, TestEntity> map = getTestsByName(new HashSet<String>(Arrays.asList(sessionId)), testName);
+        Map<String, TestEntity> map = getTestsByName(Arrays.asList(sessionId), testName);
 
         TestEntity result = map.get(sessionId);
         if (result != null){
@@ -99,7 +99,7 @@ public class DefaultDataService implements DataService {
     }
 
     @Override
-    public Map<String, TestEntity> getTestsByName(Set<String> sessionIds, String testName){
+    public Map<String, TestEntity> getTestsByName(Collection<String> sessionIds, String testName){
         Map<String, Set<TestEntity>> tests = getTestsWithName(sessionIds, testName);
 
         Map<String, TestEntity> result = new HashMap<String, TestEntity>(tests.size());
@@ -114,15 +114,15 @@ public class DefaultDataService implements DataService {
         return result;
     }
 
-    //pass testName=null to ignore it
-    private Map<String, Set<TestEntity>> getTestsWithName(Set<String> sessionIds, String testName){
+    // if testName=null => no filtering for test name => all tests for session(s) will be returned
+    private Map<String, Set<TestEntity>> getTestsWithName(Collection<String> sessionIds, String testName){
         if (sessionIds.isEmpty()){
             return Collections.emptyMap();
         }
 
         // Get all test results without matching
         SessionMatchingSetup sessionMatchingSetup = new SessionMatchingSetup(false,Collections.<SessionMatchingSetup.MatchBy>emptySet());
-        List<TaskDataDto> taskDataDtoList = databaseService.getTaskDataForSessions(sessionIds,sessionMatchingSetup);
+        List<TaskDataDto> taskDataDtoList = databaseService.getTaskDataForSessions(new HashSet<String>(sessionIds),sessionMatchingSetup);
         Map<TaskDataDto,Map<String,TestInfoDto>> testInfoMap = databaseService.getTestInfoByTaskDataDto(taskDataDtoList);
 
         Map<String, Set<TestEntity>> result = new HashMap<String, Set<TestEntity>>();
@@ -139,8 +139,14 @@ public class DefaultDataService implements DataService {
                     testEntity.setDescription(taskDataDto.getDescription());
                     testEntity.setName(taskDataDto.getTaskName());
 
-                    testEntity.setLoad(testInfoMap.get(taskDataDto).entrySet().iterator().next().getValue().getClock());
-                    testEntity.setTerminationStrategy(testInfoMap.get(taskDataDto).entrySet().iterator().next().getValue().getTermination());
+                    if (testInfoMap.containsKey(taskDataDto)) {
+                        testEntity.setLoad(testInfoMap.get(taskDataDto).entrySet().iterator().next().getValue().getClock());
+                        testEntity.setTerminationStrategy(testInfoMap.get(taskDataDto).entrySet().iterator().next().getValue().getTermination());
+                    }
+                    else {
+                        testEntity.setLoad("");
+                        testEntity.setTerminationStrategy("");
+                    }
 
                     if (result.containsKey(taskDataDto.getSessionId())){
                         result.get(taskDataDto.getSessionId()).add(testEntity);
@@ -158,7 +164,7 @@ public class DefaultDataService implements DataService {
 
     @Override
     public Set<MetricEntity> getMetrics(Long testId){
-        Map<Long, Set<MetricEntity>> map = getMetricsByTestIds(new HashSet<Long>(Arrays.asList(testId)));
+        Map<Long, Set<MetricEntity>> map = getMetricsByTestIds(Arrays.asList(testId));
 
         Set<MetricEntity> result = map.get(testId);
         if (result != null){
@@ -170,7 +176,7 @@ public class DefaultDataService implements DataService {
 
     @Override
     public Set<MetricEntity> getMetrics(TestEntity test){
-        Map<TestEntity, Set<MetricEntity>> map = getMetricsByTests(new HashSet<TestEntity>(Arrays.asList(test)));
+        Map<TestEntity, Set<MetricEntity>> map = getMetricsByTests(Arrays.asList(test));
 
         Set<MetricEntity> result = map.get(test);
         if (result != null){
@@ -181,7 +187,7 @@ public class DefaultDataService implements DataService {
     }
 
     @Override
-    public Map<TestEntity, Set<MetricEntity>> getMetricsByTests(Set<TestEntity> tests){
+    public Map<TestEntity, Set<MetricEntity>> getMetricsByTests(Collection<TestEntity> tests){
         Map<Long, TestEntity> map = new HashMap<Long, TestEntity>(tests.size());
         Set<Long> ids = new HashSet<Long>(tests.size());
 
@@ -202,33 +208,32 @@ public class DefaultDataService implements DataService {
     }
 
     @Override
-    public Map<Long, Set<MetricEntity>> getMetricsByTestIds(Set<Long> testIds){
+    public Map<Long, Set<MetricEntity>> getMetricsByTestIds(Collection<Long> testIds){
         if (testIds.isEmpty()){
             return Collections.emptyMap();
         }
 
         // Get
-        List<String> sessionIds = databaseService.getFetchUtil().getSessionIdsByTaskIds(new HashSet<Long>(testIds));
+        List<String> sessionIds = databaseService.getSessionIdsByTaskIds(new HashSet<Long>(testIds));
 
         SessionMatchingSetup sessionMatchingSetup = new SessionMatchingSetup(false,Collections.<SessionMatchingSetup.MatchBy>emptySet());
         RootNode rootNode = databaseService.getControlTreeForSessions(new HashSet<String>(sessionIds),sessionMatchingSetup);
 
         // Filter
-        List<TestNode> summaryNodeTests = rootNode.getSummaryNode().getTests();
-        List<TestDetailsNode> detailsNodeTests = rootNode.getDetailsNode().getTests();
+        List<TestNode> summaryNodeTests = new ArrayList<TestNode>();
+        List<TestDetailsNode> detailsNodeTests= new ArrayList<TestDetailsNode>();
 
-        Iterator<TestNode> iteratorTN = summaryNodeTests.iterator();
-        while (iteratorTN.hasNext()) {
-            Long testId = iteratorTN.next().getTaskDataDto().getId();
-            if (!testIds.contains(testId))
-               iteratorTN.remove();
+        for (TestNode testNode : rootNode.getSummaryNode().getTests()) {
+            Long testId = testNode.getTaskDataDto().getId();
+            if (testIds.contains(testId)) {
+                summaryNodeTests.add(testNode);
             }
-
-        Iterator<TestDetailsNode> iteratorTDN = detailsNodeTests.iterator();
-        while (iteratorTDN.hasNext()) {
-            Long testId = iteratorTDN.next().getTaskDataDto().getId();
-            if (!testIds.contains(testId))
-                iteratorTDN.remove();
+        }
+        for (TestDetailsNode testDetailsNode : rootNode.getDetailsNode().getTests()) {
+            Long testId = testDetailsNode.getTaskDataDto().getId();
+            if (testIds.contains(testId)) {
+                detailsNodeTests.add(testDetailsNode);
+            }
         }
 
         // Join
@@ -289,13 +294,13 @@ public class DefaultDataService implements DataService {
 
     @Override
     public Double getMetricSummary(MetricEntity metric) {
-        Map<MetricEntity, Double> map = getMetricSummary(new HashSet<MetricEntity>(Arrays.asList(metric)));
+        Map<MetricEntity, Double> map = getMetricSummary(Arrays.asList(metric));
 
         return map.get(metric);
     }
 
     @Override
-    public Map<MetricEntity, Double> getMetricSummary(Set<MetricEntity> metrics) {
+    public Map<MetricEntity, Double> getMetricSummary(Collection<MetricEntity> metrics) {
 
         List<MetricNameDto> metricNameDtoList = new ArrayList<MetricNameDto>();
         Map<MetricNameDto,MetricEntity> matchMap = new HashMap<MetricNameDto, MetricEntity>();
@@ -321,13 +326,13 @@ public class DefaultDataService implements DataService {
 
     @Override
     public List<MetricPlotPointEntity> getMetricPlotData(MetricEntity metric) {
-        Map<MetricEntity, List<MetricPlotPointEntity>> map = getMetricPlotData(new HashSet<MetricEntity>(Arrays.asList(metric)));
+        Map<MetricEntity, List<MetricPlotPointEntity>> map = getMetricPlotData(Arrays.asList(metric));
 
         return map.get(metric);
     }
 
     @Override
-    public Map<MetricEntity, List<MetricPlotPointEntity>> getMetricPlotData(Set<MetricEntity> metrics) {
+    public Map<MetricEntity, List<MetricPlotPointEntity>> getMetricPlotData(Collection<MetricEntity> metrics) {
         Set<MetricNameDto> metricNameDtoSet = new HashSet<MetricNameDto>();
         Map<MetricNameDto,MetricEntity> matchMap = new HashMap<MetricNameDto, MetricEntity>();
 
