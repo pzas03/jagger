@@ -28,21 +28,24 @@ import com.google.common.collect.ImmutableList;
 
 /**
  * Presents tree-structured namespace.
- * 
+ *
  * @author Mairbek Khadikov
- * 
+ *
  */
 public class Namespace {
 	private static final String SEPARATOR = "/";
 	private final List<String> values;
 
-	public static Namespace root() {
-		return new Namespace(Lists.<String> newArrayList());
-	}
+    public static Namespace root() {
+        return of(Lists.<String> newArrayList());
+    }
+
+    public static Namespace of(List<String> values) {
+        return new Namespace(values);
+    }
 
 	public static Namespace of(String... values) {
-        List<String> list = Lists.newArrayList(values);
-		return new Namespace(list);
+        return of(Lists.newArrayList(values));
 	}
 
 	private Namespace(List<String> values) {
@@ -52,12 +55,12 @@ public class Namespace {
 	public List<String> getValues() {
 		return values;
 	}
-	
+
 	public Namespace child(List<String> values) {
 		ImmutableList<String> child = ImmutableList.<String>builder().addAll(this.values).addAll(values).build();
-		return new Namespace(child);
+        return Namespace.of(child);
 	}
-	
+
 	public Namespace child(String... values) {
 		return child(Lists.newArrayList(values));
 	}
