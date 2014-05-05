@@ -1,6 +1,6 @@
 package com.griddynamics.jagger.engine.e1.services.data.service;
 
-/** Class is a model of single point id metric detailed results (values vs time)
+/** Class is a model of single point in metric detailed results (values vs time)
  *
  * @details
  * MetricPlotPointEntity is used to get test results from database with use of @ref DataService
@@ -15,6 +15,7 @@ public class MetricPlotPointEntity {
     /** Y value of detailed results - value of the metric */
     private Double value;
 
+    /** Get X value of detailed results - time from start of the measurement */
     public Double getTime() {
         return time;
     }
@@ -23,6 +24,7 @@ public class MetricPlotPointEntity {
         this.time = time;
     }
 
+    /** Get Y value of detailed results - value of the metric */
     public Double getValue() {
         return value;
     }
