@@ -55,12 +55,12 @@ public class Namespace {
 	public List<String> getValues() {
 		return values;
 	}
-
+	
 	public Namespace child(List<String> values) {
 		ImmutableList<String> child = ImmutableList.<String>builder().addAll(this.values).addAll(values).build();
 		return Namespace.of(child);
 	}
-
+	
 	public Namespace child(String... values) {
 		return child(Lists.newArrayList(values));
 	}
