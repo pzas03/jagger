@@ -114,7 +114,7 @@ public class DefaultDataService implements DataService {
         return result;
     }
 
-    //pass testName=null to ignore it
+    // if testName=null => no filtering for test name => all tests for session(s) will be returned
     private Map<String, Set<TestEntity>> getTestsWithName(Collection<String> sessionIds, String testName){
         if (sessionIds.isEmpty()){
             return Collections.emptyMap();
@@ -139,8 +139,14 @@ public class DefaultDataService implements DataService {
                     testEntity.setDescription(taskDataDto.getDescription());
                     testEntity.setName(taskDataDto.getTaskName());
 
-                    testEntity.setLoad(testInfoMap.get(taskDataDto).entrySet().iterator().next().getValue().getClock());
-                    testEntity.setTerminationStrategy(testInfoMap.get(taskDataDto).entrySet().iterator().next().getValue().getTermination());
+                    if (testInfoMap.containsKey(taskDataDto)) {
+                        testEntity.setLoad(testInfoMap.get(taskDataDto).entrySet().iterator().next().getValue().getClock());
+                        testEntity.setTerminationStrategy(testInfoMap.get(taskDataDto).entrySet().iterator().next().getValue().getTermination());
+                    }
+                    else {
+                        testEntity.setLoad("");
+                        testEntity.setTerminationStrategy("");
+                    }
 
                     if (result.containsKey(taskDataDto.getSessionId())){
                         result.get(taskDataDto.getSessionId()).add(testEntity);
