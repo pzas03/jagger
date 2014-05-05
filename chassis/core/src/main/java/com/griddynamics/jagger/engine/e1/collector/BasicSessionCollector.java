@@ -61,7 +61,7 @@ public class BasicSessionCollector implements SessionListener, DistributionListe
     public void onSessionStarted(String sessionId, Multimap<NodeType, NodeId> nodes) {
         taskCounter = 0;
 
-        Namespace namespace = Namespace.of(sessionId,SESSION);
+        Namespace namespace = Namespace.of(SESSION, sessionId);
         Multimap<String, Object> objectsMap = HashMultimap.create();
         objectsMap.put(START_TIME, System.currentTimeMillis());
         Collection<NodeId> kernels = nodes.get(NodeType.KERNEL);
@@ -80,7 +80,7 @@ public class BasicSessionCollector implements SessionListener, DistributionListe
 
     @Override
     public void onSessionExecuted(String sessionId, String sessionComment, SessionExecutionStatus status) {
-        Namespace namespace = Namespace.of(sessionId,SESSION);
+        Namespace namespace = Namespace.of(SESSION, sessionId);
         Multimap<String, Object> objectsMap = HashMultimap.create();
         objectsMap.put(END_TIME, System.currentTimeMillis());
         objectsMap.put(TASK_EXECUTED, taskCounter);

@@ -82,7 +82,7 @@ public class BasicAggregator extends HibernateDaoSupport implements Distribution
     public void onSessionExecuted(String sessionId, String sessionComment, SessionExecutionStatus status) {
         log.debug("onSessionExecuted invoked");
 
-        Namespace namespace = Namespace.of(sessionId,SESSION);
+        Namespace namespace = Namespace.of(SESSION, sessionId);
         Multimap<String, Object> all = keyValueStorage.fetchAll(namespace);
 
         SessionData sessionData = new SessionData();
