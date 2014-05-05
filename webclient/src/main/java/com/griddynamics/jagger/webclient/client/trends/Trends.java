@@ -483,10 +483,11 @@ public class Trends extends DefaultActivity {
     }
 
     private WebClientProperties webClientProperties = new WebClientProperties();
+    private Map<String,Set<String>> defaultMonitoringParameters = Collections.emptyMap();
 
     public void getPropertiesUpdatePlace(final TrendsPlace place){
 
-        CommonDataService.Async.getInstance().getWebClientProperties(new AsyncCallback<WebClientProperties>() {
+        CommonDataService.Async.getInstance().getWebClientStartProperties(new AsyncCallback<WebClientStartProperties>() {
             @Override
             public void onFailure(Throwable caught) {
                 new ExceptionPanel("Default properties will be used. Exception while properties retrieving: " + caught.getMessage());
@@ -494,27 +495,9 @@ public class Trends extends DefaultActivity {
             }
 
             @Override
-            public void onSuccess(WebClientProperties result) {
-                webClientProperties = result;
-                updatePlace(place);
-            }
-        });
-    }
-
-    private Map<String,Set<String>> defaultMonitoringParameters;
-
-    public void loadDefaultMonitoringParameters(){
-
-        CommonDataService.Async.getInstance().getDefaultMonitoringParameters(new AsyncCallback<Map<String, Set<String>>>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                new ExceptionPanel("Failed to get description of default monitoring parameters. Exception while description fetching: " + caught.getMessage());
-                updatePlace(place);
-            }
-
-            @Override
-            public void onSuccess(Map<String, Set<String>> result) {
-                defaultMonitoringParameters = result;
+            public void onSuccess(WebClientStartProperties result) {
+                webClientProperties = result.getWebClientProperties();
+                defaultMonitoringParameters = result.getDefaultMonitoringParameters();
                 updatePlace(place);
             }
         });

@@ -3,6 +3,7 @@ package com.griddynamics.jagger.webclient.server;
 import com.griddynamics.jagger.dbapi.DatabaseService;
 import com.griddynamics.jagger.dbapi.model.WebClientProperties;
 import com.griddynamics.jagger.webclient.client.CommonDataService;
+import com.griddynamics.jagger.webclient.client.dto.WebClientStartProperties;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.util.Map;
@@ -18,12 +19,10 @@ public class CommonDataServiceImpl implements CommonDataService {
     }
 
     @Override
-    public WebClientProperties getWebClientProperties() {
-        return databaseService.getWebClientProperties();
-    }
-
-    @Override
-    public Map<String,Set<String>> getDefaultMonitoringParameters() {
-        return databaseService.getDefaultMonitoringParameters();
+    public WebClientStartProperties getWebClientStartProperties() {
+        WebClientStartProperties startProperties = new WebClientStartProperties();
+        startProperties.setWebClientProperties(databaseService.getWebClientProperties());
+        startProperties.setDefaultMonitoringParameters(databaseService.getDefaultMonitoringParameters());
+        return startProperties;
     }
 }
