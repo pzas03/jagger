@@ -36,16 +36,16 @@ public class Namespace {
 	private static final String SEPARATOR = "/";
 	private final List<String> values;
 
-    public static Namespace root() {
-        return of(Lists.<String> newArrayList());
-    }
+	public static Namespace root() {
+		return of(Lists.<String> newArrayList());
+	}
 
-    public static Namespace of(List<String> values) {
-        return new Namespace(values);
-    }
+	public static Namespace of(List<String> values) {
+		return new Namespace(values);
+	}
 
 	public static Namespace of(String... values) {
-        return of(Lists.newArrayList(values));
+		return of(Lists.newArrayList(values));
 	}
 
 	private Namespace(List<String> values) {
@@ -58,7 +58,7 @@ public class Namespace {
 
 	public Namespace child(List<String> values) {
 		ImmutableList<String> child = ImmutableList.<String>builder().addAll(this.values).addAll(values).build();
-        return Namespace.of(child);
+		return Namespace.of(child);
 	}
 
 	public Namespace child(String... values) {
