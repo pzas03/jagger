@@ -268,8 +268,8 @@ public class Master implements Runnable {
             log.info("Agents stopped");
         } finally {
             try {
-                keyValueStorage.deleteAll();
-                log.info("Temporary data deleted");
+                keyValueStorage.deleteAll(sessionId);
+                log.info("Temporary data for session {} deleted ",sessionId);
             } catch (Exception e){
                 log.warn(e.getMessage(), e);
             }

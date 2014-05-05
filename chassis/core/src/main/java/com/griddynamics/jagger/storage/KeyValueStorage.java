@@ -41,7 +41,7 @@ public interface KeyValueStorage {
 
     void putAll(Namespace namespace, Multimap<String, Object> valuesMap);
 
-    void deleteAll();
+    void deleteAll(String sessionId);
 
     Object fetch(Namespace namespace, String key);
 
