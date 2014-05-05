@@ -93,14 +93,6 @@
                         <![CDATA[(net.sf.jasperreports.engine.JasperReport) $P{context}.getMappedProvider("testTimePlots").getReport( $F{testId} )]]></subreportExpression>
                 </subreport>
                 <subreport>
-                    <reportElement positionType="Float" x="0" y="50" width="550" height="10"/>
-                    <parametersMapExpression><![CDATA[$P{context}.getAsMap()]]></parametersMapExpression>
-                    <dataSourceExpression>
-                        <![CDATA[$P{context}.getMappedProvider("sysUTPlots").getDataSource( $F{testId} )]]></dataSourceExpression>
-                    <subreportExpression class="net.sf.jasperreports.engine.JasperReport">
-                        <![CDATA[(net.sf.jasperreports.engine.JasperReport) $P{context}.getMappedProvider("sysUTPlots").getReport( $F{testId} )]]></subreportExpression>
-                </subreport>
-                <subreport>
                     <reportElement positionType="Float" x="0" y="60" width="550" height="10"/>
                     <parametersMapExpression><![CDATA[$P{context}.getAsMap()]]></parametersMapExpression>
                     <dataSourceExpression>

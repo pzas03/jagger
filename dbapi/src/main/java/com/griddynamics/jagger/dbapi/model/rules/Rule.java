@@ -84,7 +84,7 @@ public class Rule {
 
             if(params.contains(param)) {
                 duplicates.add(o);
-                log.error("Rule with \" + by + \" '\" + param + \"' already exists. New rule will be ignored");
+                log.error("Rule with " + by + " '" + param + "' already exists. New rule will be ignored");
             }
             params.add(param);
         }

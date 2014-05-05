@@ -30,8 +30,7 @@ import com.griddynamics.jagger.util.TimeUnits;
  */
 public class MetricAggregatorSettings {
 
-    /** Empty settings that not affect data processing. Used when no additional settings required for aggregation
-     */
+    /** Empty settings that not affect data processing. Used when no additional settings required for aggregation */
     public static final MetricAggregatorSettings EMPTY_SETTINGS = new MetricAggregatorSettings();
 
     /** Interval of time to normalize values by it */
