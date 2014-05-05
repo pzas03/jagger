@@ -28,9 +28,9 @@ import com.google.common.collect.ImmutableList;
 
 /**
  * Presents tree-structured namespace.
- *
+ * 
  * @author Mairbek Khadikov
- *
+ * 
  */
 public class Namespace {
 	private static final String SEPARATOR = "/";
