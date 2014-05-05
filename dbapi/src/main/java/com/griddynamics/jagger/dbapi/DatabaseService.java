@@ -26,17 +26,27 @@ public interface DatabaseService {
     /** Returns map <metricNode, plot values> for specific metric nodes from control tree
      * @param plots - set of metric nodes
      * @return plot values for metric nodes */
-    Map<MetricNode, PlotSeriesDto> getPlotData(Set<MetricNode> plots) throws IllegalArgumentException;
+    Map<MetricNode, PlotSeriesDto> getPlotDataByMetricNode(Set<MetricNode> plots) throws IllegalArgumentException;
+
+    /** Returns map <metricNameDto, plot values> for specific metric names
+     * @param metricNames - set of metric names
+     * @return plot values for metric names */
+    Map<MetricNameDto, List<PlotDatasetDto>> getPlotDataByMetricNameDto(Set<MetricNameDto> metricNames) throws IllegalArgumentException;
 
     /** Returns summary values for current metrics
      * @param metricNames - metric names
      * @return list of summary values */
-    List<MetricDto> getMetrics(List<MetricNameDto> metricNames);
+    List<MetricDto> getSummaryByMetricNameDto(List<MetricNameDto> metricNames);
 
     /** Returns test info for specify tests
      * @param taskDataDtos - selected tests
-     * @return map of test infos */
-    Map<TaskDataDto, Map<String, TestInfoDto>> getTestInfos(Collection<TaskDataDto> taskDataDtos) throws RuntimeException;
+     * @return map of test info */
+    Map<TaskDataDto, Map<String, TestInfoDto>> getTestInfoByTaskDataDto(Collection<TaskDataDto> taskDataDtos) throws RuntimeException;
+
+    /** Returns test info for specify tests ids
+     * @param taskIds - selected test ids
+     * @return map of test info */
+    Map<Long, Map<String, TestInfoDto>> getTestInfoByTaskIds(Set<Long> taskIds) throws RuntimeException;
 
     /** Return information about session nodes
      * @param sessionIds - selected sessions
@@ -59,4 +69,10 @@ public interface DatabaseService {
      * @param sessionMatchingSetup - setup how to match sessions and what parameters to use for matching
      * @return SessionInfoProvider */
     List<TaskDataDto> getTaskDataForSessions(Set<String> sessionIds, SessionMatchingSetup sessionMatchingSetup);
-}
+
+    /** Returns list of session ids corresponding to given task ids
+     * @param taskIds TaskData ids
+     * @return list of session Ids */
+    List<String> getSessionIdsByTaskIds(Set<Long> taskIds);
+
+    }

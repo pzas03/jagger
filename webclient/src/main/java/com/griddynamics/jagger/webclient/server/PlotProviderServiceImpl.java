@@ -25,12 +25,12 @@ public class PlotProviderServiceImpl implements PlotProviderService {
 
     @Override
     public Map<MetricNode, PlotSeriesDto> getPlotData(Set<MetricNode> plots) throws RuntimeException {
-        return databaseService.getPlotData(plots);
+        return databaseService.getPlotDataByMetricNode(plots);
     }
 
     @Override
     public Map<SessionPlotNameDto, List<PlotSeriesDto>> getSessionScopePlotData(String sessionId, Collection<SessionPlotNameDto> plotType) throws RuntimeException {
-        // @todo create session scope plots for monitoring and test-group metrics
+        //@todo JFG-667 delete this function after creating session scope plots for monitoring and test-group metrics
         return Collections.EMPTY_MAP;
     }
 }
