@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <alias name="sessionIdProviderReadOnly_${report.only}" alias="sessionIdProvider"/>
+    <alias name="sessionIdProviderBean" alias="sessionIdProviderReadOnly_true"/>
+    <alias name="sequenceSessionIdProvider" alias="sessionIdProviderReadOnly_false"/>
+
+    <bean id="sequenceSessionIdProvider" class="com.griddynamics.jagger.master.HibernateSessionIdProvider">
+        <property name="sessionFactory" ref="sessionFactory"/>
+        <property name="sessionName" value="${report.session.name}"/>
+        <property name="sessionComment" value="${report.session.comment}"/>
+
+    </bean>
+
+    <bean id="sessionIdProviderBean" class="com.griddynamics.jagger.master.SessionIdProviderBean">
+        <property name="sessionId" value="${report.session.id}"/>
+        <property name="sessionName" value="${report.session.name}"/>
+        <property name="sessionComment" value="${report.session.comment}"/>
+    </bean>
+
+</beans>
