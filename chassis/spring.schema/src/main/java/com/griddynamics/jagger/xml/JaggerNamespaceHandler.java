@@ -180,6 +180,7 @@ public class JaggerNamespaceHandler extends NamespaceHandlerSupport {
 
         registerBeanDefinitionParser("listener-test-group-decision-maker", findTypeParser);
         registerBeanDefinitionParser("listeners-test-group-decision-maker", listCustomDefinitionParser);
+        registerBeanDefinitionParser("listener-test-group-decision-maker-basic", new BasicTGDecisionMakerListenerDefinitionParser());
 
         //limits
         registerBeanDefinitionParser("limits", new LimitSetDefinitionParser());
