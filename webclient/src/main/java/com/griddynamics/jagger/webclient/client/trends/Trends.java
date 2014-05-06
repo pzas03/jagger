@@ -626,7 +626,7 @@ public class Trends extends DefaultActivity {
         }
 
         plotOptions.addYAxisOptions(AxisOptions.create()
-                .setFont(fontOptions)
+                .setFont(fontOptions).setLabelWidth(35)
                 .setZoomRange(false).setMinimum(yMinimum));
 
         plotOptions.setLegendOptions(LegendOptions.create().setPosition(LegendOptions.LegendPosition.NORTH_EAST)
