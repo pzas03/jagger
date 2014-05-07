@@ -150,7 +150,7 @@ public class CustomMetricNameProvider implements MetricNameProvider {
         try {
             Set<Long> taskIds = CommonUtils.getTestsIds(tests);
 
-            Multimap<Long, Long> testGroupMap = fetchUtil.getTestsInTestGroup(taskIds);
+            Multimap<Long, Long> testGroupMap = fetchUtil.getTestGroupIdsByTestIds(taskIds);
 
             List<Object[]> metricDescriptionEntities = getMetricNames(testGroupMap.keySet());
 

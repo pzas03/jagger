@@ -90,6 +90,7 @@ public class Master implements Runnable {
     private SessionMetaDataStorage metaDataStorage;
     private DatabaseValidator databaseValidator;
     private DatabaseService databaseService;
+    private DecisionMakerDistributionListener decisionMakerDistributionListener;
 
 
     @Required
@@ -154,6 +155,11 @@ public class Master implements Runnable {
         this.databaseService = databaseService;
     }
 
+    @Required
+    public void setDecisionMakerDistributionListener(DecisionMakerDistributionListener decisionMakerDistributionListener) {
+        this.decisionMakerDistributionListener = decisionMakerDistributionListener;
+    }
+
     @Override
     public void run() {
         databaseValidator.validate();
@@ -180,7 +186,9 @@ public class Master implements Runnable {
         NodeContext context = contextBuilder.build();
 
         // add additional listener to configuration
-        configuration.getDistributionListeners().add(new DecisionMakerDistributionListener(context));
+        // done here, because we need to set context
+        decisionMakerDistributionListener.setNodeContext(context);
+        configuration.getDistributionListeners().add(decisionMakerDistributionListener);
 
         Map<NodeType, CountDownLatch> countDownLatchMap = Maps.newHashMap();
         CountDownLatch agentCountDownLatch = new CountDownLatch(

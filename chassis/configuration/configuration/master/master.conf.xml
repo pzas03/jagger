@@ -66,6 +66,7 @@
         <property name="databaseValidator" ref="databaseValidator"/>
         <property name="metaDataStorage" ref="metaDataStorage"/>
         <property name="databaseService" ref="databaseService"/>
+        <property name="decisionMakerDistributionListener" ref="decisionMakerDistributionListener"/>
     </bean>
 
     <bean id="distributionStartTimeTimeout" class="com.griddynamics.jagger.util.Timeout">

@@ -25,7 +25,7 @@ public class CustomTestGroupMetricPlotFetcher extends CustomMetricPlotFetcher {
 
         List<Object[]> resultList = new ArrayList<Object[]>();
 
-        Multimap<Long, Long> testGroupMap = fetchUtil.getTestsInTestGroup(taskIds);
+        Multimap<Long, Long> testGroupMap = fetchUtil.getTestGroupIdsByTestIds(taskIds);
 
         if (testGroupMap.isEmpty()) {
             log.warn("Could not find testGroupTaskData for workloadTask ids {} ", taskIds);

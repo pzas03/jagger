@@ -140,7 +140,7 @@ public class CustomMetricPlotNameProvider {
         try {
             Set<Long> testIds = CommonUtils.getTestsIds(tests);
 
-            Multimap<Long, Long> testGroupMap = fetchUtil.getTestsInTestGroup(testIds);
+            Multimap<Long, Long> testGroupMap = fetchUtil.getTestGroupIdsByTestIds(testIds);
 
             List<Object[]> plotNamesNew = getMetricNames(testGroupMap.keySet());
 

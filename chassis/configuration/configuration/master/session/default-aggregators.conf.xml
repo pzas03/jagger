@@ -35,6 +35,11 @@
         <property name="sessionMetaDataStorage" ref="metaDataStorage"/>
     </bean>
 
+    <!--??? worst case -->
+    <bean id="decisionMakerDistributionListener" class="com.griddynamics.jagger.master.DecisionMakerDistributionListener">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
     <bean id="standardPercentilesGlobal" class="java.util.ArrayList">
         <constructor-arg>
             <list>

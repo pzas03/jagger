@@ -23,7 +23,7 @@ public class FetchUtil {
     /**
      * @return multi map <test-group id, tests ids>
      */
-    public Multimap<Long, Long> getTestsInTestGroup(Set<Long> taskIds){
+    public Multimap<Long, Long> getTestGroupIdsByTestIds(Set<Long> taskIds){
 
         Multimap<Long, Long> resultMap = HashMultimap.create();
 

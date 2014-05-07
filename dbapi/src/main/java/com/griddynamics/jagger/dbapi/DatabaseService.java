@@ -38,12 +38,12 @@ public interface DatabaseService {
      * @return list of summary values */
     List<MetricDto> getSummaryByMetricNameDto(List<MetricNameDto> metricNames);
 
-    /** Returns test info for specify tests
+    /** Returns test info for specified tests
      * @param taskDataDtos - selected tests
      * @return map of test info */
     Map<TaskDataDto, Map<String, TestInfoDto>> getTestInfoByTaskDataDto(Collection<TaskDataDto> taskDataDtos) throws RuntimeException;
 
-    /** Returns test info for specify tests ids
+    /** Returns test info for specified tests ids
      * @param taskIds - selected test ids
      * @return map of test info */
     Map<Long, Map<String, TestInfoDto>> getTestInfoByTaskIds(Set<Long> taskIds) throws RuntimeException;
