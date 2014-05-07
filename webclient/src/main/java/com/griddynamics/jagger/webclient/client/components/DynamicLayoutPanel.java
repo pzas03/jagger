@@ -10,8 +10,8 @@ import java.util.List;
 
 /**
  * Panel that allows to represent child elements with one or two columns
- */
-public class DynamicLayoutPanel extends VerticalPanel {
+ * @param <M> Type of child widgets. To make control from outside more comfortably */
+public class DynamicLayoutPanel<M extends Widget> extends VerticalPanel {
 
     private Layout layout = Layout.ONE_COLUMN;
 
@@ -28,6 +28,11 @@ public class DynamicLayoutPanel extends VerticalPanel {
         this.stub = label;
     }
 
+
+    /**
+     * Change layout by circle
+     * @param layout - possible layout of DynamicLayoutPanel */
+    @SuppressWarnings("unchecked")
     public void changeLayout(Layout layout) {
 
         if (this.layout == layout) // no need to change anything
@@ -35,24 +40,29 @@ public class DynamicLayoutPanel extends VerticalPanel {
 
         this.layout = layout;
 
-        List<Widget> widgets = new ArrayList<Widget>();
+        List<M> widgets = new ArrayList<M>();
         for (int i = 0; i < getWidgetCount(); i++) {
             HorizontalPanel hp = (HorizontalPanel) getWidget(i);
             for (int j = 0; j < hp.getWidgetCount(); j++) {
                 Widget widget = hp.getWidget(j);
-                if (widget != stub)
-                    widgets.add(widget);
+                if (widget != stub) {
+                    // only widgets with type M can appear here
+                    widgets.add((M)widget);
+                }
             }
         }
 
         clear();
 
-        for (Widget widget : widgets) {
+        for (M widget : widgets) {
             addChild(widget);
         }
     }
 
-    public void addChild(Widget widget) {
+    /**
+     * Add child widget
+     * @param widget - child widget */
+    public void addChild(M widget) {
 
         switch (layout) {
             case TWO_COLUMNS: addChildTwoColumns(widget);
@@ -62,7 +72,10 @@ public class DynamicLayoutPanel extends VerticalPanel {
         }
     }
 
-    private void addChildOneColumn(Widget widget) {
+    /**
+     * Add child widget that will take all width of DynamicLayoutPanel
+     * @param widget - child widget */
+    private void addChildOneColumn(M widget) {
         HorizontalPanel newHp = new HorizontalPanel();
         newHp.setHorizontalAlignment(ALIGN_CENTER);
         newHp.setWidth("100%");
@@ -72,6 +85,9 @@ public class DynamicLayoutPanel extends VerticalPanel {
         this.add(newHp);
     }
 
+    /**
+     * Add child widget that will half width of DynamicLayoutPanel
+     * @param widget - child widget */
     private void addChildTwoColumns(Widget widget) {
 
         int totalCount = this.getWidgetCount();
@@ -96,6 +112,10 @@ public class DynamicLayoutPanel extends VerticalPanel {
         this.add(newHp);
     }
 
+
+    /**
+     * Set height for all children
+     * @param plotContainerHeight - height to set */
     public void changeChildrenHeight(String plotContainerHeight) {
         for (int i = 0; i < getWidgetCount(); i ++) {
             HorizontalPanel hp = (HorizontalPanel) getWidget(i);
@@ -107,8 +127,8 @@ public class DynamicLayoutPanel extends VerticalPanel {
     }
 
     /**
-     * @param id id of widget to remove (id of plot container)
-     */
+     * @param id id of widget to remove (id of plot container) */
+    @SuppressWarnings("unchecked")
     public void removeChild(String id) {
         if (layout == Layout.ONE_COLUMN) {
             for (int i = 0; i < getWidgetCount(); i ++) {
@@ -119,23 +139,28 @@ public class DynamicLayoutPanel extends VerticalPanel {
                 }
             }
         } else {
-            List<Widget> containers = new ArrayList<Widget>();
+            List<M> containers = new ArrayList<M>();
             for (int i = 0; i < getWidgetCount(); i ++) {
                 HorizontalPanel hp = (HorizontalPanel) getWidget(i);
                 for (int j = 0; j < hp.getWidgetCount(); j++) {
-                    Widget pc = hp.getWidget(j);
-                    if (!id.equals(pc.getElement().getId()) && pc != stub) {
-                        containers.add(pc);
+                    Widget widget = hp.getWidget(j);
+                    if (!id.equals(widget.getElement().getId()) && widget != stub) {
+                        // only widgets with type M can appear here, except stub.
+                        containers.add((M)widget);
                     }
                 }
             }
             clear();
-            for (Widget pc : containers) {
+            for (M pc : containers) {
                 addChild(pc);
             }
         }
     }
 
+    /**
+     * Check if element with certain id contains in DynamicLayoutPanel
+     * @param plotId - id of element to look for
+     * @return - true if element was found, false - otherwise */
     public boolean containsElementWithId(String plotId) {
 
         for (int i = 0; i < getWidgetCount(); i ++) {
@@ -148,6 +173,40 @@ public class DynamicLayoutPanel extends VerticalPanel {
         }
 
         return false;
+    }
+
+    /**
+     * Get all children of DynamicLayoutPanel
+     * @return All widgets with <M> type*/
+    @SuppressWarnings("unchecked")
+    public List<M> getAllChildren() {
+
+        List<M> result = new ArrayList<M>();
+        for (int i = 0; i < getWidgetCount(); i ++) {
+            HorizontalPanel hp = (HorizontalPanel) getWidget(i);
+            for (int j = 0; j < hp.getWidgetCount(); j++) {
+                Widget widget = hp.getWidget(j);
+                if (widget != stub) {
+                    // only widgets with type M can appear here
+                    result.add((M)widget);
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Get first child of DynamicLayoutPanel
+     * @return first child if contains, null if do not contains any */
+    @SuppressWarnings("unchecked")
+    public M getFirstChild() {
+
+        if (getWidgetCount() == 0)
+            return null;
+
+        HorizontalPanel hp = (HorizontalPanel) getWidget(0);
+        // only widgets with type M can appear here
+        return (M) hp.getWidget(0);
     }
 
     /**
