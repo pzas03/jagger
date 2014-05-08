@@ -22,9 +22,10 @@ public class SessionEntity {
     /** Stop time */
     private String endDate;
 
-    /** Number of used kernels for workload generation */
+    /** Number of kernels used for workload generation */
     private Integer kernels;
 
+    /** Get session id */
     public String getId() {
         return id;
     }
@@ -33,6 +34,7 @@ public class SessionEntity {
         this.id = id;
     }
 
+    /** Get session comment */
     public String getComment() {
         return comment;
     }
@@ -41,6 +43,7 @@ public class SessionEntity {
         this.comment = comment;
     }
 
+    /** Get start time */
     public String getStartDate() {
         return startDate;
     }
@@ -49,6 +52,7 @@ public class SessionEntity {
         this.startDate = startDate;
     }
 
+    /** Get stop time */
     public String getEndDate() {
         return endDate;
     }
@@ -57,6 +61,7 @@ public class SessionEntity {
         this.endDate = endDate;
     }
 
+    /** Get number of kernels used for workload generation */
     public Integer getKernels() {
         return kernels;
     }

@@ -125,8 +125,7 @@ public class Trends extends DefaultActivity {
     private Timer stopTypingSessionIdsTimer;
     private Timer stopTypingSessionTagsTimer;
 
-
-
+    private PlotSaver plotSaver = new PlotSaver();
 
 
     @UiHandler("uncheckSessionsButton")
@@ -484,10 +483,11 @@ public class Trends extends DefaultActivity {
     }
 
     private WebClientProperties webClientProperties = new WebClientProperties();
+    private Map<String,Set<String>> defaultMonitoringParameters = Collections.emptyMap();
 
     public void getPropertiesUpdatePlace(final TrendsPlace place){
 
-        CommonDataService.Async.getInstance().getWebClientProperties(new AsyncCallback<WebClientProperties>() {
+        CommonDataService.Async.getInstance().getWebClientStartProperties(new AsyncCallback<WebClientStartProperties>() {
             @Override
             public void onFailure(Throwable caught) {
                 new ExceptionPanel("Default properties will be used. Exception while properties retrieving: " + caught.getMessage());
@@ -495,27 +495,9 @@ public class Trends extends DefaultActivity {
             }
 
             @Override
-            public void onSuccess(WebClientProperties result) {
-                webClientProperties = result;
-                updatePlace(place);
-            }
-        });
-    }
-
-    private Map<String,Set<String>> defaultMonitoringParameters;
-
-    public void loadDefaultMonitoringParameters(){
-
-        CommonDataService.Async.getInstance().getDefaultMonitoringParameters(new AsyncCallback<Map<String, Set<String>>>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                new ExceptionPanel("Failed to get description of default monitoring parameters. Exception while description fetching: " + caught.getMessage());
-                updatePlace(place);
-            }
-
-            @Override
-            public void onSuccess(Map<String, Set<String>> result) {
-                defaultMonitoringParameters = result;
+            public void onSuccess(WebClientStartProperties result) {
+                webClientProperties = result.getWebClientProperties();
+                defaultMonitoringParameters = result.getDefaultMonitoringParameters();
                 updatePlace(place);
             }
         });
@@ -1082,10 +1064,12 @@ public class Trends extends DefaultActivity {
             }
 
             // Add X axis label
-            Label xLabel = new Label(plotSeriesDto.getXAxisLabel());
+            final String xAxisLabel = plotSeriesDto.getXAxisLabel();
+            Label xLabel = new Label(xAxisLabel);
             xLabel.addStyleName(getResources().css().xAxisLabel());
 
-            Label plotHeader = new Label(plotSeriesDto.getPlotHeader());
+            final String plotHeaderString = plotSeriesDto.getPlotHeader();
+            Label plotHeader = new Label(plotHeaderString);
             plotHeader.addStyleName(getResources().css().plotHeader());
 
             Label plotLegend = new Label("PLOT LEGEND");
@@ -1134,11 +1118,7 @@ public class Trends extends DefaultActivity {
             saveLabel.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    if (plot.isExportAsImageEnabled()) {
-                        plot.saveAsImage();
-                    } else {
-                        new ExceptionPanel("Can not save image in your browser.");
-                    }
+                    plotSaver.saveAsPng(plot, plotHeaderString, xAxisLabel);
                 }
             });
 

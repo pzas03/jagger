@@ -14,7 +14,6 @@ import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
  * Model contains following information about metric: @n
  * @li metric id
  * @li metric display name
- * @li metric origin
  * @li is summary and detailed info available in DB for this metric
  *
  */

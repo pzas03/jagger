@@ -705,6 +705,7 @@ INPUT                  = ./chassis/core/src/main/java/com/griddynamics/jagger/in
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/CumulativeMetricAggregatorProvider.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/services/JaggerService.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/services/MetricService.java \
+                         ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/services/DataService.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/services/SessionInfoService.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/MetricDescription.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/test/TestListener.java \
@@ -719,6 +720,10 @@ INPUT                  = ./chassis/core/src/main/java/com/griddynamics/jagger/in
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/services/ServicesAware.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/Provider.java \
                          ./chassis/util/src/main/java/com/griddynamics/jagger/util/TimeUnits.java \
+                         ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/services/data/service/MetricEntity.java \
+                         ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/services/data/service/MetricPlotPointEntity.java \
+                         ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/services/data/service/SessionEntity.java \
+                         ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/services/data/service/TestEntity.java \
                          ./doc/pages/WebUiUserCommentsAndTags.txt \
                          ./doc/pages/WebUiProperties.txt \
                          ./doc/pages/WebUiOverview.txt \

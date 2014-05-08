@@ -143,10 +143,6 @@ public class DefaultDataService implements DataService {
                         testEntity.setLoad(testInfoMap.get(taskDataDto).entrySet().iterator().next().getValue().getClock());
                         testEntity.setTerminationStrategy(testInfoMap.get(taskDataDto).entrySet().iterator().next().getValue().getTermination());
                     }
-                    else {
-                        testEntity.setLoad("");
-                        testEntity.setTerminationStrategy("");
-                    }
 
                     if (result.containsKey(taskDataDto.getSessionId())){
                         result.get(taskDataDto.getSessionId()).add(testEntity);
@@ -216,6 +212,7 @@ public class DefaultDataService implements DataService {
         // Get
         List<String> sessionIds = databaseService.getSessionIdsByTaskIds(new HashSet<Long>(testIds));
 
+        // Get all test results without matching
         SessionMatchingSetup sessionMatchingSetup = new SessionMatchingSetup(false,Collections.<SessionMatchingSetup.MatchBy>emptySet());
         RootNode rootNode = databaseService.getControlTreeForSessions(new HashSet<String>(sessionIds),sessionMatchingSetup);
 
