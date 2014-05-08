@@ -252,6 +252,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                         break;
                     case SESSION_SCOPE_TG:
                         break;
+                    case SESSION_SCOPE_MONITORING:
+                        break;
 
                     default:  // if anything else
                         log.error("MetricNameDto with origin : {} appears in metric name list for plot retrieving ({})", metricNameDto.getOrigin(), metricNameDto);
@@ -390,6 +392,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                     fetchMap.put(validatorSummaryFetcher, metricName);
                     break;
                 case SESSION_SCOPE_TG:
+                    break;
+                case SESSION_SCOPE_MONITORING:
                     break;
                 default:  // if anything else
                     log.error("MetricNameDto with origin : {} appears in metric name list for summary retrieving ({})", metricName.getOrigin(), metricName);
@@ -705,7 +709,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                     PlotNode ssPlotNode = new PlotNode();
                     id = NameTokens.SESSION_SCOPE_PREFIX + tdd.hashCode() + "_" + monitoringId + "_" + agentId;
                     MetricNameDto metricNameDtoSS = new MetricNameDto(tdd, MonitoringIdUtils.getMonitoringMetricId(monitoringId, agentId));
-                    metricNameDtoSS.setOrigin(MetricNameDto.Origin.SESSION_SCOPE_TG);
+                    metricNameDtoSS.setOrigin(MetricNameDto.Origin.SESSION_SCOPE_MONITORING);
                     metricNameDtoSS.setMetricDisplayName(description);
 
                     ssPlotNode.init(id, id, Arrays.asList(metricNameDtoSS));
@@ -1014,7 +1018,8 @@ public class DatabaseServiceImpl implements DatabaseService {
         for (TaskDataDto taskDataDto : map.keySet()) {
             for (PlotNode plotNode : map.get(taskDataDto)) {
                 for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
-                    if (metricNameDto.getOrigin().equals(MetricNameDto.Origin.SESSION_SCOPE_TG)) {
+                    if (metricNameDto.getOrigin().equals(MetricNameDto.Origin.SESSION_SCOPE_TG)
+                            || metricNameDto.getOrigin().equals(MetricNameDto.Origin.SESSION_SCOPE_MONITORING)) {
 
                         if (!metricNameList.contains(metricNameDto.getMetricName())) {
                             metricNameList.add(metricNameDto.getMetricName());
