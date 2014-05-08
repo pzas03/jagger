@@ -23,7 +23,6 @@ package com.griddynamics.jagger.storage.rdb;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import com.griddynamics.jagger.master.SessionIdProvider;
 import com.griddynamics.jagger.storage.KeyValueStorage;
 import com.griddynamics.jagger.storage.Namespace;
 import com.griddynamics.jagger.util.SerializationUtils;
@@ -33,7 +32,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
 
 public class HibernateKeyValueStorage extends HibernateDaoSupport implements KeyValueStorage {
 
@@ -41,29 +41,8 @@ public class HibernateKeyValueStorage extends HibernateDaoSupport implements Key
 
     private int hibernateBatchSize;
 
-    private int sessionLimit=50;
-
-    private static SessionIdProvider sessionIdProvider;
-
-    public void setSessionIdProvider(SessionIdProvider sessionIdProvider) {
-        this.sessionIdProvider = sessionIdProvider;
-    }
-
     public int getHibernateBatchSize() {
         return hibernateBatchSize;
-    }
-
-    public int getSessionLimit() {
-        return sessionLimit;
-    }
-
-    @Required
-    public void setSessionLimit(int sessionLimit) {
-        if (sessionLimit<0) {
-            log.warn("Session count can't be < 0; was get {}. ", sessionLimit);
-            return;
-        }
-        this.sessionLimit = sessionLimit;
     }
 
     @Required
@@ -111,21 +90,8 @@ public class HibernateKeyValueStorage extends HibernateDaoSupport implements Key
     }
 
     @Override
-    public void deleteAll(String sessionId) {
-        ArrayList<String> sessions = (ArrayList) getHibernateTemplate().find("Select distinct k.sessionId from KeyValue k ORDER by k.sessionId");
-        if (sessions.size() == 0)
-            return;
-        if (sessionLimit == 0) {
-            log.warn("Session count limit is equal '0', all temporary data about sessions will be delete");
-            getHibernateTemplate().bulkUpdate("delete from KeyValue");
-            return;
-        }
-        List<String> sessionForDelete = Lists.newArrayList();
-        sessionForDelete.add(sessionId);
-        if (sessions.size() > sessionLimit) {
-            sessionForDelete.addAll(sessions.subList(0, (sessions.size() - 1) - sessionLimit));
-        }
-        getHibernateTemplate().bulkUpdate("delete from KeyValue where sessionId in (?)", sessionForDelete.toArray());
+    public void deleteAll(){
+        getHibernateTemplate().bulkUpdate("delete from KeyValue");
     }
 
     @SuppressWarnings("unchecked")
@@ -180,7 +146,6 @@ public class HibernateKeyValueStorage extends HibernateDaoSupport implements Key
         keyvalue.setNamespace(namespace.toString());
         keyvalue.setKey(key);
         keyvalue.setData(SerializationUtils.serialize(value));
-        keyvalue.setSessionId(sessionIdProvider.getSessionId());
         return keyvalue;
     }
 }
