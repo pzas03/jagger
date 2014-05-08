@@ -30,7 +30,6 @@ public class KeyValue {
 
 	private String key;
 	private byte[] data;
-    private String sessionId;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -69,12 +68,4 @@ public class KeyValue {
 		this.data = data;
 	}
 
-    @Column(name = "sessionId")
-    public String getSessionId() {
-        return sessionId;
-    }
-
-    public void setSessionId(String sessionId) {
-        this.sessionId = sessionId;
-    }
 }
