@@ -224,9 +224,9 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
                 resultSet.add(testNode.getTaskDataDto());
             }
         }
-        for (TestDetailsNode testNode : rootNode.getDetailsNode().getTests()) {
+        for (MetricGroupNode testNode : rootNode.getDetailsNode().getTests()) {
             if (isChosen(testNode)) {
-                resultSet.add(testNode.getTaskDataDto());
+                resultSet.add(((TestDetailsNode)testNode).getTaskDataDto());
             }
         }
 
@@ -282,8 +282,8 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
     public Set<MetricNode> getCheckedPlots() {
 
         Set<MetricNode> resultSet = new HashSet<MetricNode>();
-        for (TestDetailsNode test : rootNode.getDetailsNode().getTests()) {
-            for (PlotNode plotNode : test.getMetrics()) {
+        for (MetricGroupNode test : rootNode.getDetailsNode().getTests()) {
+            for (PlotNode plotNode : ((TestDetailsNode)test).getMetrics()) {
                 if (isChecked(plotNode)) {
                     resultSet.add(plotNode);
                 }

@@ -13,7 +13,7 @@ public class DetailsNode extends AbstractIdentifyNode {
 
     SessionScopePlotsNode sessionScopePlotsNode;
 
-    List<TestDetailsNode> tests;
+    List<MetricGroupNode> tests;
 
     public DetailsNode() {}
 
@@ -29,14 +29,14 @@ public class DetailsNode extends AbstractIdentifyNode {
         this.sessionScopePlotsNode = sessionScopePlotsNode;
     }
 
-    public List<TestDetailsNode> getTests() {
+    public List<MetricGroupNode> getTests() {
         if (tests == null) {
             return Collections.EMPTY_LIST;
         }
         return tests;
     }
 
-    public void setTests(List<TestDetailsNode> tests) {
+    public void setTests(List<MetricGroupNode> tests) {
         this.tests = tests;
     }
 

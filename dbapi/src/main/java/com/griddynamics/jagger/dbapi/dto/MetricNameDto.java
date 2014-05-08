@@ -79,8 +79,8 @@ public class MetricNameDto extends MetricName {
 
     @Override
     public int hashCode() {
-        int result = test != null ? test.hashCode() : 0;
-        result = 31 * result + (metricName != null ? metricName.hashCode() : 0);
+        int result = origin != null ? origin.hashCode() : 0;
+        result = 31 * result + (test != null ? test.hashCode() : 0);
         return result;
     }
 
@@ -94,6 +94,7 @@ public class MetricNameDto extends MetricName {
         DURATION,
         STANDARD_METRICS,             /* success rate, iterations, etc */
         MONITORING,                    /* monitoring parameters saved in separate DB table */
-        VALIDATOR
+        VALIDATOR,
+        SESSION_SCOPE_TG
     }
 }

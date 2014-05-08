@@ -296,17 +296,17 @@ public class Trends extends DefaultActivity {
         return null;
     }
 
-    private Map<String, List<String>> getTestTrendsMap(List<TestDetailsNode> tests, List<TaskDataDto> taskDataDtos) {
+    private Map<String, List<String>> getTestTrendsMap(List<MetricGroupNode> tests, List<TaskDataDto> taskDataDtos) {
         Map<String, List<String>> resultMap = new LinkedHashMap<String, List<String>>();
 
-        for (TestDetailsNode test : tests) {
+        for (MetricGroupNode test : tests) {
             if (controlTree.isChosen(test)) {
-                if (taskDataDtos.contains(test.getTaskDataDto())) {
+                if (taskDataDtos.contains(((TestDetailsNode)test).getTaskDataDto())) {
 
                     Map<String,Boolean> uniteAgentsForMonitoringNames = new HashMap<String, Boolean>();
                     List<String> trends = new ArrayList<String>();
                     List<String> trendsMonitoring = new ArrayList<String>();
-                    for (PlotNode plotNode : test.getMetrics()) {
+                    for (PlotNode plotNode : ((TestDetailsNode)test).getMetrics()) {
 
                         // temporary work around to make URL shorter starts here
                         // it groups metricNameDtoId|agentName id to old monitoringId|agentName
@@ -369,7 +369,7 @@ public class Trends extends DefaultActivity {
                     // temporary work around to make URL shorter SECOND ROUND ends here
 
                     trends.addAll(trendsMonitoring);
-                    resultMap.put(test.getTaskDataDto().getTaskName(), trends);
+                    resultMap.put(((TestDetailsNode)test).getTaskDataDto().getTaskName(), trends);
                 }
             }
         }
@@ -1416,11 +1416,11 @@ public class Trends extends DefaultActivity {
          */
         public TestDetailsNode getTestDetailsNodeByNameAndSessionIds(String testName, Set<String> selectedSessionIds, RootNode rootNode) {
 
-            for (TestDetailsNode testNode : rootNode.getDetailsNode().getTests()) {
+            for (MetricGroupNode testNode : rootNode.getDetailsNode().getTests()) {
                 if (testNode.getDisplayName().equals(testName)) {
-                    if (testNode.getTaskDataDto().getSessionIds().containsAll(selectedSessionIds)
-                            && selectedSessionIds.containsAll(testNode.getTaskDataDto().getSessionIds()))
-                        return testNode;
+                    if (((TestDetailsNode)testNode).getTaskDataDto().getSessionIds().containsAll(selectedSessionIds)
+                            && selectedSessionIds.containsAll(((TestDetailsNode)testNode).getTaskDataDto().getSessionIds()))
+                        return (TestDetailsNode)testNode;
                 }
             }
             return null;
