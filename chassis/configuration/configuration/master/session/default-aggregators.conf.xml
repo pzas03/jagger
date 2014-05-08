@@ -35,7 +35,6 @@
         <property name="sessionMetaDataStorage" ref="metaDataStorage"/>
     </bean>
 
-    <!--??? worst case -->
     <bean id="decisionMakerDistributionListener" class="com.griddynamics.jagger.master.DecisionMakerDistributionListener">
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>

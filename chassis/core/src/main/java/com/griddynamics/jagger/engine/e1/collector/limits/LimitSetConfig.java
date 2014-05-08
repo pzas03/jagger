@@ -21,6 +21,7 @@
 package com.griddynamics.jagger.engine.e1.collector.limits;
 
 import com.griddynamics.jagger.engine.e1.sessioncomparation.Decision;
+import org.springframework.beans.factory.annotation.Required;
 
 /** Class is used to describe setup for @ref LimitSet */
 public class LimitSetConfig {
@@ -30,10 +31,14 @@ public class LimitSetConfig {
     /** What decision should be taken when baseline value can't be fetched for some metric (f.e. test or metric doesn't exist in baseline session) */
     private Decision decisionWhenNoBaselineForMetric;
 
+    /** What decision should be taken when several limits match same metric (f.e. 'mon_cpu' & 'mon_cpu_user' will match 'mon_cpu_user|agent_007 [127.0.1.1]|-avg') */
+    private Decision decisionWhenSeveralLimitsMatchSingleMetric;
+
     public Decision getDecisionWhenNoMetricForLimit() {
         return decisionWhenNoMetricForLimit;
     }
 
+    @Required
     public void setDecisionWhenNoMetricForLimit(Decision decisionWhenNoMetricForLimit) {
         this.decisionWhenNoMetricForLimit = decisionWhenNoMetricForLimit;
     }
@@ -42,8 +47,19 @@ public class LimitSetConfig {
         return decisionWhenNoBaselineForMetric;
     }
 
+    @Required
     public void setDecisionWhenNoBaselineForMetric(Decision decisionWhenNoBaselineForMetric) {
         this.decisionWhenNoBaselineForMetric = decisionWhenNoBaselineForMetric;
     }
+
+    public Decision getDecisionWhenSeveralLimitsMatchSingleMetric() {
+        return decisionWhenSeveralLimitsMatchSingleMetric;
+    }
+
+    @Required
+    public void setDecisionWhenSeveralLimitsMatchSingleMetric(Decision decisionWhenSeveralLimitsMatchSingleMetric) {
+        this.decisionWhenSeveralLimitsMatchSingleMetric = decisionWhenSeveralLimitsMatchSingleMetric;
+    }
+
 }
 

@@ -123,8 +123,11 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
 
                     // Compare
                     Set<DecisionPerLimit> decisionsPerLimit = new HashSet<DecisionPerLimit>();
+                    Set<MetricEntity> duplicatedMetrics = new HashSet<MetricEntity>();
                     for (Limit limit : workloadTask.getLimits().getLimits()) {
-                        DecisionPerLimit decisionPerLimit = compareMetricsToLimit(limit,limitToEntity.get(limit),
+                        DecisionPerLimit decisionPerLimit = compareMetricsToLimit(limit,
+                                limitToEntity.get(limit),
+                                duplicatedMetrics,
                                 metricValues,metricIdToValuesBaseline,
                                 workloadTask.getLimits().getLimitSetConfig());
 
@@ -142,7 +145,7 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
                     decisionPerTest = worstCaseDecisionMaker.getDecision(decisions);
 
                     DecisionPerTest resultForTest = new DecisionPerTest(testEntity, decisionsPerLimit, decisionPerTest);
-                    log.info(resultForTest.toString());
+                    log.info("\n{}",resultForTest.toString());
 
                     decisionsPerTest.add(resultForTest);
                 }
@@ -158,7 +161,7 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
                     new TestGroupDecisionMakerInfo((CompositeTask)task,sessionId,decisionsPerTest);
             Decision decisionPerTestGroup = decisionMakerListener.onDecisionMaking(testGroupDecisionMakerInfo);
 
-            log.info("Decision for test group {} - {}",task.getTaskName(),decisionPerTestGroup);
+            log.info("\nDecision for test group {} - {}",task.getTaskName(),decisionPerTestGroup);
 
             // Save decisions per test group
             saveDecisionsForTestGroup(sessionId, taskId, decisionPerTestGroup);
@@ -169,8 +172,6 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
     private Set<MetricEntity> getMetricsForLimit(Limit limit, Map<String, MetricEntity> idToEntity) {
         String metricId = limit.getMetricName();
         Set<MetricEntity> metricsForLimit = new HashSet<MetricEntity>();
-
-        //??? remove duplicates
 
         // Strict matching
         if (idToEntity.keySet().contains(metricId)) {
@@ -189,16 +190,51 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
         return metricsForLimit;
     }
 
-    private DecisionPerLimit compareMetricsToLimit(Limit limit, Set<MetricEntity> metricsPerLimit,
+    private DecisionPerLimit compareMetricsToLimit(Limit limit,
+                                                   Set<MetricEntity> metricsPerLimit,
+                                                   Set<MetricEntity> duplicatedMetrics,
                                                    Map<MetricEntity, Double> metricValues,
                                                    Map<String, Double> metricValuesBaseline,
                                                    LimitSetConfig limitSetConfig) {
 
         Set<DecisionPerMetric> decisionsPerMetric = new HashSet<DecisionPerMetric>();
+        List<Decision> allDecisions = new ArrayList<Decision>();
+        Decision decisionWhenMetricWasAlreadyCompared = Decision.OK;
         for (MetricEntity metricEntity : metricsPerLimit) {
             Double refValue = limit.getRefValue();
             Double value = metricValues.get(metricEntity);
             Decision decision = Decision.OK;
+
+            //todo ??? JFG-744 docu for decision making with use of limits
+            // !!! mention in docu
+
+            // if metric entity already was used to take decision we will not use it
+            // 'limit to metric' relation should be 'one to many' or 'one to one'
+            if (duplicatedMetrics.contains(metricEntity)) {
+                String errorText = "Several limits are matching same metric. Decision for this metric was already taken and will be not overwritten. Metric: {},\n" +
+                        "Decision due to error case: {}";
+                switch (limitSetConfig.getDecisionWhenSeveralLimitsMatchSingleMetric()) {
+                    case OK:
+                        decisionWhenMetricWasAlreadyCompared = Decision.OK;
+                        log.info(errorText,metricEntity.toString(), decisionWhenMetricWasAlreadyCompared);
+                        break;
+                    case WARNING:
+                        decisionWhenMetricWasAlreadyCompared = Decision.WARNING;
+                        log.warn(errorText, metricEntity.toString(), decisionWhenMetricWasAlreadyCompared);
+                        break;
+                    default:
+                        decisionWhenMetricWasAlreadyCompared = Decision.FATAL;
+                        log.error(errorText, metricEntity.toString(), decisionWhenMetricWasAlreadyCompared);
+                        break;
+                }
+
+                // case when several limits match single metrics should also influence final decision per limit
+                allDecisions.add(decisionWhenMetricWasAlreadyCompared);
+
+                continue;
+            }
+            duplicatedMetrics.add(metricEntity);
+
 
             // if null - we are comparing to baseline
             if (refValue == null) {
@@ -267,12 +303,11 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
 
         // decisionPerLimit = worst case decisionPerLimit
         Decision decisionPerLimit;
-        List<Decision> decisions = new ArrayList<Decision>();
         for (DecisionPerMetric decisionPerMetric : decisionsPerMetric) {
-            decisions.add(decisionPerMetric.getDecisionPerMetric());
-            log.info(decisionPerMetric.toString());
+            allDecisions.add(decisionPerMetric.getDecisionPerMetric());
+            log.info("\n{}",decisionPerMetric.toString());
         }
-        if (decisions.isEmpty()) {
+        if (allDecisions.isEmpty()) {
             String errorText = "Limit doesn't have any matching metric in current session. Limit {},\n" +
                     "Decision per limit: {}";
             switch (limitSetConfig.getDecisionWhenNoMetricForLimit()) {
@@ -291,7 +326,7 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
             }
         }
         else {
-            decisionPerLimit = worstCaseDecisionMaker.getDecision(decisions);
+            decisionPerLimit = worstCaseDecisionMaker.getDecision(allDecisions);
         }
 
         return new DecisionPerLimit(limit,decisionsPerMetric,decisionPerLimit);
@@ -329,9 +364,10 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
                                 decisionPerMetric.getDecisionPerMetric().toString()));
                     }
                     else {
-                        log.error("Unable to create MetricDescriptionEntity for metricId " + metricId +
+                        log.error("\nUnable to create MetricDescriptionEntity for metricId " + metricId +
                                 ", testId " + testId +
-                                ", testGroupId" + testGroupId);
+                                ", testGroupId " + testGroupId +
+                                "\nMetric will influence decision making, but decision for this metric will be not saved to DB");
                     }
                 }
             }
@@ -393,19 +429,6 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
 
         return null;
     }
-
-//???
-//    private MetricDescriptionEntity getMetricDescriptionEntity(final String metricId, final Long taskId) {
-//        return getHibernateTemplate().execute(new HibernateCallback<MetricDescriptionEntity>() {
-//            @Override
-//            public MetricDescriptionEntity doInHibernate(org.hibernate.Session session) throws HibernateException, SQLException {
-//                return (MetricDescriptionEntity) session.createQuery("select m from MetricDescriptionEntity m where metricId=? and taskData.id=?")
-//                        .setParameter(0, metricId)
-//                        .setParameter(1, taskId)
-//                        .uniqueResult();
-//            }
-//        });
-//    }
 
     private Set<MetricDescriptionEntity> getMetricDescriptionEntitiesPerTest(final Long taskId) {
         return getHibernateTemplate().execute(new HibernateCallback<Set<MetricDescriptionEntity>>() {
