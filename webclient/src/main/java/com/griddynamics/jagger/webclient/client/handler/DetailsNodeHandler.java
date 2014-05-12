@@ -19,7 +19,7 @@ public class DetailsNodeHandler extends TreeAwareHandler<DetailsNode> {
         DetailsNode detailsNode = event.getItem();
 
         Set<MetricNode> testScopePlotNames = new HashSet<MetricNode>();
-        for (MetricGroupNode test: detailsNode.getTests()) {
+        for (TestDetailsNode test: detailsNode.getTests()) {
             testScopePlotNames.addAll(test.getMetrics());
         }
 

@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class DetailsNode extends AbstractIdentifyNode {
 
-    List<MetricGroupNode> tests;
+    List<TestDetailsNode> tests;
     MetricGroupNode sessionScopeNode;
 
     public DetailsNode() {}
@@ -28,14 +28,14 @@ public class DetailsNode extends AbstractIdentifyNode {
         this.sessionScopeNode = sessionScopeNode;
     }
 
-    public List<MetricGroupNode> getTests() {
+    public List<TestDetailsNode> getTests() {
         if (tests == null) {
             return Collections.EMPTY_LIST;
         }
         return tests;
     }
 
-    public void setTests(List<MetricGroupNode> tests) {
+    public void setTests(List<TestDetailsNode> tests) {
         this.tests = tests;
     }
 

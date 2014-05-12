@@ -927,8 +927,8 @@ public class DatabaseServiceImpl implements DatabaseService {
         return tddos;
     }
 
-    private List<MetricGroupNode> getDetailsTaskNodeList(final Set<String> sessionIds, final List<TaskDataDto> taskList) {
-        List<MetricGroupNode> taskDataDtoList = new ArrayList<MetricGroupNode>();
+    private List<TestDetailsNode> getDetailsTaskNodeList(final Set<String> sessionIds, final List<TaskDataDto> taskList) {
+        List<TestDetailsNode> taskDataDtoList = new ArrayList<TestDetailsNode>();
 
         try {
             Future<Map<TaskDataDto, List<PlotNode>>> metricsPlotsMapFuture = threadPool.submit(
@@ -978,9 +978,10 @@ public class DatabaseServiceImpl implements DatabaseService {
                 MetricGroupNode<PlotNode> testDetailsNodeBaseSS = buildTreeAccordingToRules(rootIdSS, agentNames, new ArrayList<PlotNode>(ssPlotNodes));
                 sessionScopeNode = new MetricGroupNode(testDetailsNodeBaseSS);
             }
-            else
+            else        {
                 sessionScopeNode = null;
 
+            }
             // get tree
             for (TaskDataDto tdd : taskList) {
                 List<PlotNode> metricNodeList = map.get(tdd);

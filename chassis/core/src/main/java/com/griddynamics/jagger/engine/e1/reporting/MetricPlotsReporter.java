@@ -157,7 +157,7 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
         if (detailsNode.getChildren().isEmpty())
             return;
 
-        for (MetricGroupNode testDetailsNode : detailsNode.getTests()) {
+        for (TestDetailsNode testDetailsNode : detailsNode.getTests()) {
             allMetrics.addAll(testDetailsNode.getMetrics());
         }
 
@@ -167,8 +167,8 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
             log.error("Unable to get plots information for metrics");
         }
 
-        for (MetricGroupNode testDetailsNode : detailsNode.getTests()) {
-            getReport(testDetailsNode, ((TestDetailsNode)testDetailsNode).getTaskDataDto().getId());
+        for (TestDetailsNode testDetailsNode : detailsNode.getTests()) {
+            getReport(testDetailsNode, testDetailsNode.getTaskDataDto().getId());
         }
     }
 
