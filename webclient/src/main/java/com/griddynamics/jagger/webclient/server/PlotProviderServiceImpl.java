@@ -28,9 +28,4 @@ public class PlotProviderServiceImpl implements PlotProviderService {
         return databaseService.getPlotData(plots);
     }
 
-    @Override
-    public Map<SessionPlotNameDto, List<PlotSeriesDto>> getSessionScopePlotData(String sessionId, Collection<SessionPlotNameDto> plotType) throws RuntimeException {
-        // @todo create session scope plots for monitoring and test-group metrics
-        return Collections.EMPTY_MAP;
-    }
 }

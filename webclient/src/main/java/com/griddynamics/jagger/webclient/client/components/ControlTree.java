@@ -294,25 +294,6 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
 
 
     /**
-     * @return checked MetricNameDto for session scope plots
-     */
-    public Set<SessionPlotNameDto> getCheckedSessionScopePlots() {
-        if (rootNode.getDetailsNode().getSessionScopePlotsNode() == null) {
-            return Collections.EMPTY_SET;
-        }
-        Set<SessionPlotNameDto> resultSet = new HashSet<SessionPlotNameDto>();
-        for (MonitoringSessionScopePlotNode mPlotNode : rootNode.getDetailsNode().getSessionScopePlotsNode().getPlots()) {
-            for (SessionPlotNode plotNode: mPlotNode.getPlots()) {
-                if (isChecked(plotNode)) {
-                    resultSet.add(plotNode.getPlotNameDto());
-                }
-            }
-        }
-        return resultSet;
-    }
-
-
-    /**
      * return false if CheckState = Tree.CheckState.UNCHECKED
      *        true in other cases
      * @param model tree model

@@ -45,6 +45,8 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     private WebClientProperties webClientProperties;
 
+    private MetricGroupNode sessionScopeNode = null;
+
     private ExecutorService threadPool;
     private LegendProvider legendProvider;
 
@@ -971,12 +973,13 @@ public class DatabaseServiceImpl implements DatabaseService {
             // get agent names
             Map<String,Set<String>> agentNames = getAgentNamesForMonitoringParameters(plotNodeList);
 
-            MetricGroupNode sessionScopeNode = null;
             if (sessionIds.size() == 1 && ssPlotNodes.size() > 0) {
                 String rootIdSS = NameTokens.SESSION_SCOPE_PLOTS;
                 MetricGroupNode<PlotNode> testDetailsNodeBaseSS = buildTreeAccordingToRules(rootIdSS, agentNames, new ArrayList<PlotNode>(ssPlotNodes));
                 sessionScopeNode = new MetricGroupNode(testDetailsNodeBaseSS);
             }
+            else
+                sessionScopeNode = null;
 
             // get tree
             for (TaskDataDto tdd : taskList) {
@@ -1000,8 +1003,6 @@ public class DatabaseServiceImpl implements DatabaseService {
             }
 
             MetricRankingProvider.sortPlotNodes(taskDataDtoList);
-            if (sessionScopeNode!=null)
-                taskDataDtoList.add(sessionScopeNode);
             return taskDataDtoList;
 
         } catch (Exception e) {
@@ -1014,21 +1015,35 @@ public class DatabaseServiceImpl implements DatabaseService {
         List<String> metricNameList = new ArrayList<String>();
         Map<String, List<Long>> nameId = new HashMap<String, List<Long>>();
         Set<PlotNode> ssPlotNodes = new HashSet<PlotNode>();
-
+        List<PlotNode> plotNodesForRemove = new ArrayList<PlotNode>();
         for (TaskDataDto taskDataDto : map.keySet()) {
             for (PlotNode plotNode : map.get(taskDataDto)) {
                 for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
                     if (metricNameDto.getOrigin().equals(MetricNameDto.Origin.SESSION_SCOPE_TG)
                             || metricNameDto.getOrigin().equals(MetricNameDto.Origin.SESSION_SCOPE_MONITORING)) {
-
+                        plotNode.setId(NameTokens.SESSION_SCOPE_PREFIX);
+                        plotNodesForRemove.add(plotNode);
                         if (!metricNameList.contains(metricNameDto.getMetricName())) {
                             metricNameList.add(metricNameDto.getMetricName());
                             PlotNode ssPlotNode = new PlotNode();
+
+                            TaskDataDto tempTaskDataDto = new TaskDataDto(taskDataDto.getId(),
+                                    taskDataDto.getTaskName(),
+                                    taskDataDto.getDescription());
+                            tempTaskDataDto.setSessionIds(taskDataDto.getSessionIds());
+
+                            MetricNameDto tempMetricNameDto = new MetricNameDto(tempTaskDataDto,
+                                    metricNameDto.getMetricName(),
+                                    metricNameDto.getMetricDisplayName(),
+                                    metricNameDto.getOrigin());
+
                             ssPlotNode.init(NameTokens.SESSION_SCOPE_PREFIX + metricNameDto.getMetricName(),
                                     plotNode.getDisplayName(),
-                                    Arrays.asList(metricNameDto));
+                                    Arrays.asList(tempMetricNameDto));
+
                             ssPlotNodes.add(ssPlotNode);
                         }
+
                         if (!nameId.containsKey(metricNameDto.getMetricName()))
                             nameId.put(metricNameDto.getMetricName(), new ArrayList<Long>());
                         nameId.get(metricNameDto.getMetricName()).addAll(metricNameDto.getTaskIds());
@@ -1036,6 +1051,9 @@ public class DatabaseServiceImpl implements DatabaseService {
                     }
                 }
             }
+            map.get(taskDataDto).removeAll(plotNodesForRemove);
+            plotNodesForRemove.clear();
+
         }
 
         for (PlotNode plotNode:ssPlotNodes){
@@ -1127,6 +1145,8 @@ public class DatabaseServiceImpl implements DatabaseService {
             if (!taskList.isEmpty()) {
                 dn.setTests(getDetailsTaskNodeList(sessionIds, taskList));
             }
+            if (sessionScopeNode!=null)
+                dn.setSessionScopeNode(sessionScopeNode);
             return dn;
         }
     }
