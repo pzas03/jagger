@@ -20,17 +20,19 @@
 
 package com.griddynamics.jagger.engine.e1.scenario;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
-import com.griddynamics.jagger.util.DecimalUtil;
 import com.griddynamics.jagger.util.Pair;
 import com.griddynamics.jagger.util.TimeUtils;
+import org.apache.commons.math.stat.regression.SimpleRegression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.SortedMap;
 
 import static com.griddynamics.jagger.util.DecimalUtil.areEqual;
 
@@ -90,6 +92,17 @@ public class DefaultWorkloadSuggestionMaker implements WorkloadSuggestionMaker {
             return WorkloadConfiguration.with(currentThreads + maxDiff, 0);
         }
 
+        diff = currentThreads - threadCount;
+        if (diff > maxDiff) {
+            log.debug("Decreasing to {} is required current thread count is {} max allowed diff is {}", new Object[]{threadCount, currentThreads, maxDiff});
+            if ((currentThreads - maxDiff) > 1) {
+                return WorkloadConfiguration.with(currentThreads - maxDiff, 0);
+            }
+            else {
+                return WorkloadConfiguration.with(1, 0);
+            }
+        }
+
         if (noDelays.containsKey(threadCount) && noDelays.get(threadCount).getSecond().compareTo(desiredTps) < 0) {
             if (log.isDebugEnabled()) {
                 log.debug("Statistics for current point has been already calculated and it is less then desired one" +
@@ -123,6 +136,8 @@ public class DefaultWorkloadSuggestionMaker implements WorkloadSuggestionMaker {
     }
 
     private static Integer findClosestPoint(BigDecimal desiredTps, Map<Integer, Pair<Long, BigDecimal>> stats) {
+        final int MAX_POINTS_FOR_REGRESSION = 10;
+
         SortedMap<Long, Integer> map = Maps.newTreeMap(new Comparator<Long>() {
             @Override
             public int compare(Long first, Long second) {
@@ -137,41 +152,52 @@ public class DefaultWorkloadSuggestionMaker implements WorkloadSuggestionMaker {
             throw new IllegalArgumentException("Not enough stats to calculate point");
         }
 
+        // <time><number of threads> - sorted by time
         Iterator<Map.Entry<Long, Integer>> iterator = map.entrySet().iterator();
-        Integer firstPoint = iterator.next().getValue();
-        Integer secondPoint = iterator.next().getValue();
 
+        SimpleRegression regression = new SimpleRegression();
+        Integer tempIndex;
+        double previousNumberOfThreads = -1.0;
+        double numberOfThreads;
+        double measuredTps;
 
-        if (firstPoint > secondPoint) {
-            Integer temp = secondPoint;
-            secondPoint = firstPoint;
-            firstPoint = temp;
+        int indx = 0;
+        while (iterator.hasNext()) {
+
+            tempIndex = iterator.next().getValue();
+
+            if (previousNumberOfThreads < 0.0) {
+                previousNumberOfThreads = tempIndex.floatValue();
+            }
+            numberOfThreads = tempIndex.floatValue();
+            measuredTps = stats.get(tempIndex).getSecond().floatValue();
+
+            regression.addData(numberOfThreads, measuredTps);
+
+            indx++;
+            if (indx > MAX_POINTS_FOR_REGRESSION) {
+                break;
+            }
         }
 
-        BigDecimal x1 = new BigDecimal(firstPoint);
-        BigDecimal z1 = stats.get(firstPoint).getSecond();
+        double intercept = regression.getIntercept();
+        double slope = regression.getSlope();
 
-        BigDecimal x2 = new BigDecimal(secondPoint);
-        BigDecimal z2 = stats.get(secondPoint).getSecond();
+        double approxPoint;
 
-        BigDecimal a = x2.subtract(x1);
-        BigDecimal c = z2.subtract(z1);
-
-        if (areEqual(c, BigDecimal.ZERO)) {
-            return firstPoint;
+        // if no slope => use previous number of threads
+        if (Math.abs(slope) > 1e-12) {
+            approxPoint = (desiredTps.doubleValue() - intercept) / slope;
+        } else {
+            approxPoint = previousNumberOfThreads;
         }
 
-        // Line equation
-        // y - y1 = ((y2 - y1)/(x2 - x1))*(x-x1)
-        BigDecimal approxPoint = desiredTps.subtract(z1).multiply(a).divide(c, 3, BigDecimal.ROUND_HALF_UP)
-                .add(x1);
-
-        Integer result = 0;
-        if (DecimalUtil.compare(approxPoint, BigDecimal.ZERO) > 0) {
-            approxPoint = approxPoint.divide(BigDecimal.ONE, 0, BigDecimal.ROUND_UP);
-            result = approxPoint.intValue();
+        // if approximation point is negative - ignore it
+        if (approxPoint < 0) {
+            approxPoint = previousNumberOfThreads;
         }
-        return result;
+
+        return (int)Math.round(approxPoint);
     }
 
     private static int suggestDelay(BigDecimal tpsFromStat, Integer threadCount, BigDecimal desiredTps) {
@@ -184,40 +210,6 @@ public class DefaultWorkloadSuggestionMaker implements WorkloadSuggestionMaker {
             i = MIN_DELAY;
         }
         return i;
-    }
-
-    private static Integer findClosestPoint(Set<Integer> points, Integer point) {
-        List<Integer> list = Lists.newArrayList(points);
-        Collections.sort(list);
-
-        int index = list.indexOf(point);
-        if (index == -1) {
-            throw new IllegalStateException("Point is not found");
-        }
-
-        Integer left = null;
-        if (index != 0) {
-            left = list.get(index - 1);
-        }
-
-        Integer right = null;
-        if (index != (list.size() - 1)) {
-            right = list.get(index + 1);
-        }
-
-        if (left == null) {
-            return right;
-        }
-
-        if (right == null) {
-            return left;
-        }
-
-        if ((right - index) < (index - left)) {
-            return right;
-        }
-
-        return left;
     }
 
 }

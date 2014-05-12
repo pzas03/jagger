@@ -37,9 +37,10 @@ public class MetricAggregatorSettings {
     private TimeUnits normalizationBy = TimeUnits.NONE;
     /** Size of interval in milliseconds to aggregate values on it */
     private int pointInterval = 0;
-    /**Maximum number of points on plot */
+    /** Maximum number of points on plot */
     private int pointCount = 0;
-
+    /** If false - normalize by time of current aggregation interval, if true - by time elapsed from beginning of the test */
+    private boolean normalizeOnFullMeasuredInterval = false;
 
     /** Getter for normalization interval
      * @return Normalization interval
@@ -60,6 +61,13 @@ public class MetricAggregatorSettings {
      */
     public int getPointCount() {
         return pointCount;
+    }
+
+    /** Getter for normalization strategy (false - normalize by current aggregation interval, true - by time from beginning of the test
+     * @return false if normalizing by aggregation interval, true - by time from test beginning
+     */
+    public boolean isNormalizeOnFullMeasuredInterval() {
+        return normalizeOnFullMeasuredInterval;
     }
 
     /** Setter for normalization interval. Aggregated values will be normalized by this interval. @n
@@ -84,5 +92,12 @@ public class MetricAggregatorSettings {
      */
     public void setPointCount(int pointCount) {
         this.pointCount = pointCount;
+    }
+
+    /** Setter for normalization strategy (false - normalize by current aggregation interval, true - by time from beginning of the test
+     * @param  normalizeOnFullMeasuredInterval - set false if normalizing by aggregation interval, true - by time from test beginning
+     */
+    public void setNormalizeOnFullMeasuredInterval(boolean normalizeOnFullMeasuredInterval) {
+        this.normalizeOnFullMeasuredInterval = normalizeOnFullMeasuredInterval;
     }
 }
