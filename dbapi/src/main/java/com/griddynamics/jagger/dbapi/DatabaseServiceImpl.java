@@ -978,9 +978,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                 MetricGroupNode<PlotNode> testDetailsNodeBaseSS = buildTreeAccordingToRules(rootIdSS, agentNames, new ArrayList<PlotNode>(ssPlotNodes));
                 sessionScopeNode = new MetricGroupNode(testDetailsNodeBaseSS);
             }
-            else        {
+            else {
                 sessionScopeNode = null;
-
             }
             // get tree
             for (TaskDataDto tdd : taskList) {
@@ -1145,9 +1144,9 @@ public class DatabaseServiceImpl implements DatabaseService {
             DetailsNode dn = new DetailsNode(NameTokens.CONTROL_METRICS, NameTokens.CONTROL_METRICS);
             if (!taskList.isEmpty()) {
                 dn.setTests(getDetailsTaskNodeList(sessionIds, taskList));
+                if (sessionScopeNode!=null)
+                    dn.setSessionScopeNode(sessionScopeNode);
             }
-            if (sessionScopeNode!=null)
-                dn.setSessionScopeNode(sessionScopeNode);
             return dn;
         }
     }

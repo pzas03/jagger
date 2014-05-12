@@ -12,7 +12,7 @@ import java.util.List;
 public class DetailsNode extends AbstractIdentifyNode {
 
     List<TestDetailsNode> tests;
-    MetricGroupNode sessionScopeNode;
+    private MetricGroupNode sessionScopeNode;
 
     public DetailsNode() {}
 
