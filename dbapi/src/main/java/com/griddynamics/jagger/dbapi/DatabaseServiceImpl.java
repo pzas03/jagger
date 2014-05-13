@@ -708,6 +708,8 @@ public class DatabaseServiceImpl implements DatabaseService {
 
                     resultMap.get(tdd).add(plotNode);
 
+                    // we should create new PlotNode with new Id and MetricNameDto witch has origin SESSION_SCOPE_MONITORING for Session Scope
+
                     PlotNode ssPlotNode = new PlotNode();
                     id = NameTokens.SESSION_SCOPE_PREFIX + tdd.hashCode() + "_" + monitoringId + "_" + agentId;
                     MetricNameDto metricNameDtoSS = new MetricNameDto(tdd, MonitoringIdUtils.getMonitoringMetricId(monitoringId, agentId));
@@ -1011,59 +1013,6 @@ public class DatabaseServiceImpl implements DatabaseService {
         }
     }
 
-    private Set<PlotNode> getSessionScopeNodes(Map<TaskDataDto,List<PlotNode>> map){
-        List<String> metricNameList = new ArrayList<String>();
-        Map<String, List<Long>> nameId = new HashMap<String, List<Long>>();
-        Set<PlotNode> ssPlotNodes = new HashSet<PlotNode>();
-        List<PlotNode> plotNodesForRemove = new ArrayList<PlotNode>();
-        for (TaskDataDto taskDataDto : map.keySet()) {
-            for (PlotNode plotNode : map.get(taskDataDto)) {
-                for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
-                    if (metricNameDto.getOrigin().equals(MetricNameDto.Origin.SESSION_SCOPE_TG)
-                            || metricNameDto.getOrigin().equals(MetricNameDto.Origin.SESSION_SCOPE_MONITORING)) {
-                        plotNode.setId(NameTokens.SESSION_SCOPE_PREFIX);
-                        plotNodesForRemove.add(plotNode);
-                        if (!metricNameList.contains(metricNameDto.getMetricName())) {
-                            metricNameList.add(metricNameDto.getMetricName());
-                            PlotNode ssPlotNode = new PlotNode();
-
-                            TaskDataDto tempTaskDataDto = new TaskDataDto(taskDataDto.getId(),
-                                    taskDataDto.getTaskName(),
-                                    taskDataDto.getDescription());
-                            tempTaskDataDto.setSessionIds(taskDataDto.getSessionIds());
-
-                            MetricNameDto tempMetricNameDto = new MetricNameDto(tempTaskDataDto,
-                                    metricNameDto.getMetricName(),
-                                    metricNameDto.getMetricDisplayName(),
-                                    metricNameDto.getOrigin());
-
-                            ssPlotNode.init(NameTokens.SESSION_SCOPE_PREFIX + metricNameDto.getMetricName(),
-                                    plotNode.getDisplayName(),
-                                    Arrays.asList(tempMetricNameDto));
-
-                            ssPlotNodes.add(ssPlotNode);
-                        }
-
-                        if (!nameId.containsKey(metricNameDto.getMetricName()))
-                            nameId.put(metricNameDto.getMetricName(), new ArrayList<Long>());
-                        nameId.get(metricNameDto.getMetricName()).addAll(metricNameDto.getTaskIds());
-
-                    }
-                }
-            }
-            map.get(taskDataDto).removeAll(plotNodesForRemove);
-            plotNodesForRemove.clear();
-
-        }
-
-        for (PlotNode plotNode:ssPlotNodes){
-            for (MetricNameDto metricNameDto: plotNode.getMetricNameDtoList()){
-                metricNameDto.getTaskIds().addAll(nameId.get(metricNameDto.getMetricName()));
-            }
-        }
-        return  ssPlotNodes;
-    }
-
     private List<TestNode> getSummaryTaskNodeList(List<TaskDataDto> tasks) {
 
         List<TestNode> taskDataDtoList = new ArrayList<TestNode>();
@@ -1158,8 +1107,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
                 // old monitoring or new monitoring as metrics
                 if ((metricNameDto.getOrigin() == MetricNameDto.Origin.MONITORING) ||
-                        (metricNameDto.getOrigin() == MetricNameDto.Origin.TEST_GROUP_METRIC) ||
-                        (metricNameDto.getOrigin()== MetricNameDto.Origin.SESSION_SCOPE_TG)) {
+                        (metricNameDto.getOrigin() == MetricNameDto.Origin.TEST_GROUP_METRIC)) {
 
                     // if looks like monitoring parameter
                     MonitoringIdUtils.MonitoringId monitoringId = MonitoringIdUtils.splitMonitoringMetricId(metricNameDto.getMetricName());
@@ -1316,6 +1264,59 @@ public class DatabaseServiceImpl implements DatabaseService {
         }
 
         return nodeInfoPerSessionDtoList;
+    }
+
+    private Set<PlotNode> getSessionScopeNodes(Map<TaskDataDto,List<PlotNode>> map){
+        List<String> metricNameList = new ArrayList<String>();
+        Map<String, List<Long>> nameId = new HashMap<String, List<Long>>();
+        Set<PlotNode> ssPlotNodes = new HashSet<PlotNode>();
+        List<PlotNode> plotNodesForRemove = new ArrayList<PlotNode>();
+        for (TaskDataDto taskDataDto : map.keySet()) {
+            for (PlotNode plotNode : map.get(taskDataDto)) {
+                for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
+                    if (metricNameDto.getOrigin().equals(MetricNameDto.Origin.SESSION_SCOPE_TG)
+                            || metricNameDto.getOrigin().equals(MetricNameDto.Origin.SESSION_SCOPE_MONITORING)) {
+                        plotNode.setId(NameTokens.SESSION_SCOPE_PREFIX);
+                        plotNodesForRemove.add(plotNode);
+                        if (!metricNameList.contains(metricNameDto.getMetricName())) {
+                            metricNameList.add(metricNameDto.getMetricName());
+                            PlotNode ssPlotNode = new PlotNode();
+
+                            TaskDataDto tempTaskDataDto = new TaskDataDto(taskDataDto.getId(),
+                                    taskDataDto.getTaskName(),
+                                    taskDataDto.getDescription());
+                            tempTaskDataDto.setSessionIds(taskDataDto.getSessionIds());
+
+                            MetricNameDto tempMetricNameDto = new MetricNameDto(tempTaskDataDto,
+                                    metricNameDto.getMetricName(),
+                                    metricNameDto.getMetricDisplayName(),
+                                    metricNameDto.getOrigin());
+
+                            ssPlotNode.init(NameTokens.SESSION_SCOPE_PREFIX + metricNameDto.getMetricName(),
+                                    plotNode.getDisplayName(),
+                                    Arrays.asList(tempMetricNameDto));
+
+                            ssPlotNodes.add(ssPlotNode);
+                        }
+
+                        if (!nameId.containsKey(metricNameDto.getMetricName()))
+                            nameId.put(metricNameDto.getMetricName(), new ArrayList<Long>());
+                        nameId.get(metricNameDto.getMetricName()).addAll(metricNameDto.getTaskIds());
+
+                    }
+                }
+            }
+            map.get(taskDataDto).removeAll(plotNodesForRemove);
+            plotNodesForRemove.clear();
+
+        }
+
+        for (PlotNode plotNode:ssPlotNodes){
+            for (MetricNameDto metricNameDto: plotNode.getMetricNameDtoList()){
+                metricNameDto.getTaskIds().addAll(nameId.get(metricNameDto.getMetricName()));
+            }
+        }
+        return  ssPlotNodes;
     }
 }
 

@@ -77,12 +77,12 @@ public class MetricNameDto extends MetricName {
         return true;
     }
 
-    @Override
-    public int hashCode() {
-        int result = origin != null ? origin.hashCode() : 0;
-        result = 31 * result + (test != null ? test.hashCode() : 0);
-        return result;
-    }
+//    @Override
+//    public int hashCode() {
+//        int result = origin != null ? origin.hashCode() : 0;
+//        result = 31 * result + (test != null ? test.hashCode() : 0);
+//        return result;
+//    }
 
     public static enum Origin {
         UNKNOWN,                      /* default value - will produce errors during fetching */
@@ -95,7 +95,7 @@ public class MetricNameDto extends MetricName {
         STANDARD_METRICS,             /* success rate, iterations, etc */
         MONITORING,                    /* monitoring parameters saved in separate DB table */
         VALIDATOR,
-        SESSION_SCOPE_TG,
-        SESSION_SCOPE_MONITORING
+        SESSION_SCOPE_TG,             /*custom test-group metrics for session scope*/
+        SESSION_SCOPE_MONITORING      /*monitoring parameters for session scope*/
     }
 }
