@@ -41,6 +41,9 @@ public class DefaultWorkloadSuggestionMaker implements WorkloadSuggestionMaker {
 
     private static final WorkloadConfiguration CALIBRATION_CONFIGURATION = WorkloadConfiguration.with(1, 0);
     private static final int MIN_DELAY = 10;
+    // critical. if delay is too long we are not able to stop threads fast during balancing =>
+    // change workload configuration fails by timeout
+    private static final int MAX_DELAY = 1000;
 
     private final int maxDiff;
 
@@ -73,7 +76,7 @@ public class DefaultWorkloadSuggestionMaker implements WorkloadSuggestionMaker {
 
         Map<Integer, Pair<Long, BigDecimal>> noDelays = threadDelayStats.column(0);
 
-
+        log.debug("Calculate next thread count");
         Integer threadCount = findClosestPoint(desiredTps, noDelays);
 
         if (threadCount == 0) {
@@ -103,34 +106,24 @@ public class DefaultWorkloadSuggestionMaker implements WorkloadSuggestionMaker {
             }
         }
 
-        if (noDelays.containsKey(threadCount) && noDelays.get(threadCount).getSecond().compareTo(desiredTps) < 0) {
-            if (log.isDebugEnabled()) {
-                log.debug("Statistics for current point has been already calculated and it is less then desired one" +
-                        "\nLook like we have achieved maximum for this node." +
-                        "\nGoing to help max tps detector.");
-            }
-            int threads = currentThreads;
-            if (threads < maxThreads) {
-                threads++;
-            }
-            return WorkloadConfiguration.with(threads, 0);
-        }
-
         if (!threadDelayStats.contains(threadCount, 0)) {
             return WorkloadConfiguration.with(threadCount, 0);
         }
 
+        // <delay, <timestamp,tps>>
         Map<Integer, Pair<Long, BigDecimal>> delays = threadDelayStats.row(threadCount);
 
         if (delays.size() == 1) {
             int delay = suggestDelay(delays.get(0).getSecond(), threadCount, desiredTps);
 
+            delay = checkDelayInRange(delay);
             return WorkloadConfiguration.with(threadCount, delay);
         }
 
+        log.debug("Calculate next delay");
         Integer delay = findClosestPoint(desiredTps, threadDelayStats.row(threadCount));
 
-
+        delay = checkDelayInRange(delay);
         return WorkloadConfiguration.with(threadCount, delay);
 
     }
@@ -157,22 +150,25 @@ public class DefaultWorkloadSuggestionMaker implements WorkloadSuggestionMaker {
 
         SimpleRegression regression = new SimpleRegression();
         Integer tempIndex;
-        double previousNumberOfThreads = -1.0;
-        double numberOfThreads;
+        double previousValue = -1.0;
+        double value;
         double measuredTps;
 
+        log.debug("Selecting next point for balancing");
         int indx = 0;
         while (iterator.hasNext()) {
 
             tempIndex = iterator.next().getValue();
 
-            if (previousNumberOfThreads < 0.0) {
-                previousNumberOfThreads = tempIndex.floatValue();
+            if (previousValue < 0.0) {
+                previousValue = tempIndex.floatValue();
             }
-            numberOfThreads = tempIndex.floatValue();
+            value = tempIndex.floatValue();
             measuredTps = stats.get(tempIndex).getSecond().floatValue();
 
-            regression.addData(numberOfThreads, measuredTps);
+            regression.addData(value, measuredTps);
+
+            log.debug(String.format("   %7.2f    %7.2f",value,measuredTps));
 
             indx++;
             if (indx > MAX_POINTS_FOR_REGRESSION) {
@@ -189,13 +185,15 @@ public class DefaultWorkloadSuggestionMaker implements WorkloadSuggestionMaker {
         if (Math.abs(slope) > 1e-12) {
             approxPoint = (desiredTps.doubleValue() - intercept) / slope;
         } else {
-            approxPoint = previousNumberOfThreads;
+            approxPoint = previousValue;
         }
 
         // if approximation point is negative - ignore it
         if (approxPoint < 0) {
-            approxPoint = previousNumberOfThreads;
+            approxPoint = previousValue;
         }
+
+        log.debug(String.format("Next point   %7d    (target tps: %7.2f)",(int)Math.round(approxPoint),desiredTps.doubleValue()));
 
         return (int)Math.round(approxPoint);
     }
@@ -209,7 +207,20 @@ public class DefaultWorkloadSuggestionMaker implements WorkloadSuggestionMaker {
         if (i == 0) {
             i = MIN_DELAY;
         }
+
+        i = checkDelayInRange(i);
+
         return i;
+    }
+
+    private static int checkDelayInRange(int delay) {
+        if (delay < 0) {
+            delay = 0;
+        }
+        if (delay > MAX_DELAY) {
+            delay = MAX_DELAY;
+        }
+        return delay;
     }
 
 }
