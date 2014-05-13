@@ -112,7 +112,7 @@ public class PlotsPanel extends Composite {
 
     /**
      * Zoom all plots in PlotsPanel */
-    public void zoomAll() {
+    public void zoomIn() {
         for (PlotContainer pc : layoutPanel.getAllChildren()) {
             SimplePlot plot = pc.getPlotRepresentation().getSimplePlot();
             plot.zoom();
@@ -121,7 +121,7 @@ public class PlotsPanel extends Composite {
 
     /**
      * Zoom out all plots in PlotsPanel */
-    public void zoomOutAll() {
+    public void zoomOut() {
         for (PlotContainer pc : layoutPanel.getAllChildren()) {
             SimplePlot plot = pc.getPlotRepresentation().getSimplePlot();
             plot.zoomOut();

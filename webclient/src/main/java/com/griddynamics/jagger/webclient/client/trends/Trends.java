@@ -10,6 +10,7 @@ import com.google.gwt.event.logical.shared.*;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.HasDirection;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -632,8 +633,42 @@ public class Trends extends DefaultActivity {
         plotOptions.addXAxisOptions(xAxisOptions);
 
         plotOptions.addYAxisOptions(AxisOptions.create()
-                .setFont(fontOptions).setLabelWidth(35)
-                .setZoomRange(false).setMinimum(yMinimum));
+                .setFont(fontOptions).setLabelWidth(40).setTickFormatter(new TickFormatter() {
+
+                    private NumberFormat format;
+
+                    @Override
+                    public String formatTickValue(double tickValue, Axis axis) {
+                        // decided to show values as 7 positions only
+
+                        if (tickValue == 0) {
+                            return "0";
+                        }
+
+                        if (format == null) {
+                            double tempDouble = tickValue * 5;
+                            format = calculateNumberFormat(tempDouble);
+                        }
+
+                        return format.format(tickValue).replace('E', 'e');
+                    }
+
+                    private NumberFormat calculateNumberFormat(double tickValue) {
+
+                        if (tickValue > 999999) {
+                            return NumberFormat.getFormat("#.###E0#");
+                        } else if (tickValue > 999) {
+                            return NumberFormat.getFormat("######.#");
+                        } else if (tickValue > 1) {
+                            return NumberFormat.getFormat("###.#####");
+                        } else if (tickValue > 0.00001) {
+                            return NumberFormat.getFormat("#.#####");
+                        }
+
+                        return NumberFormat.getFormat("#.###E0#");
+                    }
+                })
+        .setZoomRange(false).setMinimum(yMinimum));
 
         plotOptions.setLegendOptions(LegendOptions.create().setPosition(LegendOptions.LegendPosition.NORTH_EAST)
                 .setNumOfColumns(2)
@@ -1106,7 +1141,7 @@ public class Trends extends DefaultActivity {
             zoomInLabel.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    panel.zoomAll();
+                    panel.zoomIn();
                 }
             });
 
@@ -1115,7 +1150,7 @@ public class Trends extends DefaultActivity {
             zoomOutLabel.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    panel.zoomOutAll();
+                    panel.zoomOut();
                 }
             });
 
