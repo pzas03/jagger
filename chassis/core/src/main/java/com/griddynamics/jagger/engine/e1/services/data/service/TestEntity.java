@@ -95,4 +95,15 @@ public class TestEntity {
         result = 31 * result + (terminationStrategy != null ? terminationStrategy.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "TestEntity{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", load='" + load + '\'' +
+                ", terminationStrategy='" + terminationStrategy + '\'' +
+                '}';
+    }
 }

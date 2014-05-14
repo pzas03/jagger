@@ -180,7 +180,7 @@ public class Master implements Runnable {
         NodeContext context = contextBuilder.build();
 
         // add additional listener to configuration
-        configuration.getDistributionListeners().add(new DecisionMakerDistributionListener(context,databaseService));
+        configuration.getDistributionListeners().add(new DecisionMakerDistributionListener(context));
 
         Map<NodeType, CountDownLatch> countDownLatchMap = Maps.newHashMap();
         CountDownLatch agentCountDownLatch = new CountDownLatch(

@@ -1,8 +1,11 @@
-package com.griddynamics.jagger.engine.e1.sessioncomparation;
+package com.griddynamics.jagger.engine.e1.collector.testgroup;
 
+import com.griddynamics.jagger.engine.e1.sessioncomparation.Decision;
+import com.griddynamics.jagger.engine.e1.sessioncomparation.WorstCaseDecisionMaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /** Listener, executed on decision-making for a test-group
@@ -17,7 +20,7 @@ public interface TestGroupDecisionMakerListener {
 
     /** Executes after test-group information aggregates in the database.
      * @param decisionMakerInfo - describes test-group information */
-    void onDecisionMaking(DecisionMakerInfo decisionMakerInfo);
+    Decision onDecisionMaking(TestGroupDecisionMakerInfo decisionMakerInfo);
 
     /** Class is used by Jagger for sequential execution of several listeners @n
      *  Not required for custom test-group decision maker listeners */
@@ -31,14 +34,20 @@ public interface TestGroupDecisionMakerListener {
         }
 
         @Override
-        public void onDecisionMaking(DecisionMakerInfo decisionMakerInfo) {
+        public Decision onDecisionMaking(TestGroupDecisionMakerInfo decisionMakerInfo) {
+            List<Decision> decisions = new ArrayList<Decision>();
+
+            WorstCaseDecisionMaker worstCaseDecisionMaker = new WorstCaseDecisionMaker();
+
             for (TestGroupDecisionMakerListener listener : listenerList){
                 try{
-                    listener.onDecisionMaking(decisionMakerInfo);
+                    decisions.add(listener.onDecisionMaking(decisionMakerInfo));
                 }catch (RuntimeException ex){
                     log.error("Failed to call on decision making in {} test-group-decision-maker-listener", listener.toString(), ex);
                 }
             }
+
+            return worstCaseDecisionMaker.getDecision(decisions);
         }
         public static TestGroupDecisionMakerListener compose(List<TestGroupDecisionMakerListener> listeners){
             return new Composer(listeners);
