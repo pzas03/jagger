@@ -6,10 +6,15 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.*;
+import com.googlecode.gflot.client.Pan;
+import com.googlecode.gflot.client.SimplePlot;
 import com.sencha.gxt.widget.core.client.Slider;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
 
+/**
+ * Class that hold widgets of type PlotContainer with dynamic layout feature.
+ */
 public class PlotsPanel extends Composite {
 
     interface PlotsPanelUiBinder extends UiBinder<Widget, PlotsPanel> {
@@ -19,7 +24,7 @@ public class PlotsPanel extends Composite {
 
     @UiField
     /* Main layout panel where all children will be */
-    protected DynamicLayoutPanel layoutPanel;
+    protected DynamicLayoutPanel<PlotContainer> layoutPanel;
 
     @UiField
     // temporary layout control panel todo: decide and implement final view of layout control.
@@ -79,15 +84,79 @@ public class PlotsPanel extends Composite {
 
     /**
      * Add widget to layoutPanel
-     * @param w child widget */
-    public void addElement(Widget w) {
-        w.setHeight(plotContainerHeight + "px");
-        layoutPanel.addChild(w);
+     * @param plotContainer child widget */
+    public void addElement(PlotContainer plotContainer) {
+        plotContainer.setHeight(plotContainerHeight + "px");
+        layoutPanel.addChild(plotContainer);
     }
 
+    /**
+     * Check if PlotsPanel contains element with certain id
+     * @param plotId id of element to identify
+     * @return true if element found with given plotId, false otherwise */
     public boolean containsElementWithId(String plotId) {
         return layoutPanel.containsElementWithId(plotId);
     }
+
+
+    /**
+     * Pan All plots that contains in PlotsPanel
+     * @param pan amount to pan left */
+    public void panAllPlots(int pan) {
+        for (PlotContainer pc : layoutPanel.getAllChildren()) {
+            SimplePlot plot = pc.getPlotRepresentation().getSimplePlot();
+            plot.pan(Pan.create().setLeft(pan));
+        }
+    }
+
+
+    /**
+     * Zoom all plots in PlotsPanel */
+    public void zoomIn() {
+        for (PlotContainer pc : layoutPanel.getAllChildren()) {
+            SimplePlot plot = pc.getPlotRepresentation().getSimplePlot();
+            plot.zoom();
+        }
+    }
+
+    /**
+     * Zoom out all plots in PlotsPanel */
+    public void zoomOut() {
+        for (PlotContainer pc : layoutPanel.getAllChildren()) {
+            SimplePlot plot = pc.getPlotRepresentation().getSimplePlot();
+            plot.zoomOut();
+        }
+    }
+
+    /**
+     * Check if PlotsPanel contains any plots.
+     * @return true if it is empty, false otherwise */
+    public boolean isEmpty() {
+        return layoutPanel.getWidgetCount() == 0;
+    }
+
+    /**
+     * @return minimum X axis value */
+    public double getMinXAxisValue() {
+        // no widgets in panel
+        assert layoutPanel.getWidgetCount() > 0;
+
+        SimplePlot plot = layoutPanel.getFirstChild().getPlotRepresentation().getSimplePlot();
+
+        return plot.getAxes().getX().getMinimumValue();
+    }
+
+    /**
+     * @return maximum X axis value */
+    public double getMaxXAxisValue() {
+        // no widgets in panel
+        assert layoutPanel.getWidgetCount() > 0;
+
+        SimplePlot plot = layoutPanel.getFirstChild().getPlotRepresentation().getSimplePlot();
+
+        return plot.getAxes().getX().getMaximumValue();
+    }
+
 
     private class ChangeLayoutHandler implements SelectEvent.SelectHandler {
         @Override
