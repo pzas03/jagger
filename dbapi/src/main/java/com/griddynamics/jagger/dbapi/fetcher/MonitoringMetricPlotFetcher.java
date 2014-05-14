@@ -104,12 +104,12 @@ public class MonitoringMetricPlotFetcher extends AbstractMetricPlotFetcher {
                         "    and (ms.boxIdentifier in (:agentNames) or ms.systemUnderTestUrl in (:agentNames))" +
                         "  ) as ms join " +
                         "  ( " +
-                        "        select test.id, some.taskDataId from " +
+                        "        select test.id, mysome.taskDataId from " +
                         "          ( " +
                         "            select test.id, test.sessionId, test.taskId from TaskData as test where test.sessionId in (:sessionIds)" +
                         "          ) as test join " +
                         "          (" +
-                        "            select some.parentId, pm.monitoringId, some.taskDataId, pm.sessionId from" +
+                        "            select mysome.parentId, pm.monitoringId, mysome.taskDataId, pm.sessionId from" +
                         "              (" +
                         "                select pm.monitoringId, pm.sessionId, pm.parentId from PerformedMonitoring as pm where pm.sessionId in (:sessionIds) " +
                         "              ) as pm join " +
@@ -122,8 +122,8 @@ public class MonitoringMetricPlotFetcher extends AbstractMetricPlotFetcher {
                         "                    on td2.id in (:taskIds)" +
                         "                    and wd.sessionId = td2.sessionId" +
                         "                    and wd.taskId=td2.taskId" +
-                        "              ) as some on pm.sessionId = some.sessionId and pm.parentId=some.parentId" +
-                        "          ) as some on test.sessionId = some.sessionId and test.taskId=some.monitoringId" +
+                        "              ) as mysome on pm.sessionId = mysome.sessionId and pm.parentId=mysome.parentId" +
+                        "          ) as mysome on test.sessionId = mysome.sessionId and test.taskId=mysome.monitoringId" +
                         "  ) as ids on ms.taskData_id = ids.id")
                 .setParameter("sessionIds", sessionIds)
                 .setParameter("taskIds", workloadTaskDataIds)
