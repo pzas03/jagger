@@ -161,7 +161,7 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
                     new TestGroupDecisionMakerInfo((CompositeTask)task,sessionId,decisionsPerTest);
             Decision decisionPerTestGroup = decisionMakerListener.onDecisionMaking(testGroupDecisionMakerInfo);
 
-            log.info("\nDecision for test group {} - {}",task.getTaskName(),decisionPerTestGroup);
+            log.info("\n\nDecision for test group {} - {}\n",task.getTaskName(),decisionPerTestGroup);
 
             // Save decisions per test group
             saveDecisionsForTestGroup(sessionId, taskId, decisionPerTestGroup);
