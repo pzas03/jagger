@@ -10,6 +10,7 @@ import com.google.gwt.event.logical.shared.*;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.HasDirection;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -592,7 +593,7 @@ public class Trends extends DefaultActivity {
     }
 
 
-    private SimplePlot createPlot(final String id, Markings markings, String xAxisLabel,
+    private SimplePlot createPlot(PlotsPanel panel, final String id, Markings markings, String xAxisLabel,
                                   double yMinimum, boolean isMetric, final List<String> sessionIds) {
         PlotOptions plotOptions = PlotOptions.create();
         plotOptions.setZoomOptions(ZoomOptions.create().setAmount(1.02));
@@ -600,34 +601,74 @@ public class Trends extends DefaultActivity {
                 .setLineSeriesOptions(LineSeriesOptions.create().setLineWidth(1).setShow(true).setFill(0.1))
                 .setPointsOptions(PointsSeriesOptions.create().setRadius(1).setShow(true)).setShadowSize(0d));
 
-        plotOptions.setPanOptions(PanOptions.create().setInteractive(true));
         plotOptions.setCanvasEnabled(true);
 
         FontOptions fontOptions = FontOptions.create()
                 .setSize(11D)
                 .setColor("black");
 
-        if (isMetric) {
-            plotOptions.addXAxisOptions(AxisOptions.create().setZoomRange(true)
-                    .setFont(fontOptions)
-                    .setTickDecimals(0)
-                    .setTickFormatter(new TickFormatter() {
-                        @Override
-                        public String formatTickValue(double tickValue, Axis axis) {
-                            if (tickValue >= 0 && tickValue < sessionIds.size())
-                                return sessionIds.get((int) tickValue);
-                            else
-                                return "";
-                        }
-                    }));
+        AxisOptions xAxisOptions = AxisOptions.create().setZoomRange(true)
+                .setFont(fontOptions);
+
+        if (!panel.isEmpty()) {
+            xAxisOptions.setMaximum(panel.getMaxXAxisValue());
+            xAxisOptions.setMinimum(panel.getMinXAxisValue());
         } else {
-            plotOptions.addXAxisOptions(AxisOptions.create().setZoomRange(true).setMinimum(0)
-                    .setFont(fontOptions));
+            xAxisOptions.setMinimum(0);
         }
 
+        if (isMetric) {
+            xAxisOptions
+                .setTickDecimals(0)
+                .setTickFormatter(new TickFormatter() {
+                    @Override
+                    public String formatTickValue(double tickValue, Axis axis) {
+                        if (tickValue >= 0 && tickValue < sessionIds.size())
+                            return sessionIds.get((int) tickValue);
+                        else
+                            return "";
+                    }
+                });
+        }
+        plotOptions.addXAxisOptions(xAxisOptions);
+
         plotOptions.addYAxisOptions(AxisOptions.create()
-                .setFont(fontOptions)
-                .setZoomRange(false).setMinimum(yMinimum));
+                .setFont(fontOptions).setLabelWidth(40).setTickFormatter(new TickFormatter() {
+
+                    private NumberFormat format;
+
+                    @Override
+                    public String formatTickValue(double tickValue, Axis axis) {
+                        // decided to show values as 7 positions only
+
+                        if (tickValue == 0) {
+                            return "0";
+                        }
+
+                        if (format == null) {
+                            double tempDouble = tickValue * 5;
+                            format = calculateNumberFormat(tempDouble);
+                        }
+
+                        return format.format(tickValue).replace('E', 'e');
+                    }
+
+                    private NumberFormat calculateNumberFormat(double tickValue) {
+
+                        if (tickValue > 999999) {
+                            return NumberFormat.getFormat("#.###E0#");
+                        } else if (tickValue > 999) {
+                            return NumberFormat.getFormat("######.#");
+                        } else if (tickValue > 1) {
+                            return NumberFormat.getFormat("###.#####");
+                        } else if (tickValue > 0.00001) {
+                            return NumberFormat.getFormat("#.#####");
+                        }
+
+                        return NumberFormat.getFormat("#.###E0#");
+                    }
+                })
+        .setZoomRange(false).setMinimum(yMinimum));
 
         plotOptions.setLegendOptions(LegendOptions.create().setPosition(LegendOptions.LegendPosition.NORTH_EAST)
                 .setNumOfColumns(2)
@@ -1036,7 +1077,7 @@ public class Trends extends DefaultActivity {
                         sessionIds.add(String.valueOf((int)pointDto.getX()));
                     }
                 }
-                plot = createPlot(id, markings, plotSeriesDto.getXAxisLabel(), yMinimum, isMetric, sessionIds);
+                plot = createPlot(panel, id, markings, plotSeriesDto.getXAxisLabel(), yMinimum, isMetric, sessionIds);
                 plotModel = plot.getModel();
                 redrawingPlot = plot;
                 int iter = 0;
@@ -1049,7 +1090,7 @@ public class Trends extends DefaultActivity {
                     }
                 }
             } else {
-                plot = createPlot(id, markings, plotSeriesDto.getXAxisLabel(), yMinimum, isMetric, null);
+                plot = createPlot(panel, id, markings, plotSeriesDto.getXAxisLabel(), yMinimum, isMetric, null);
                 plotModel = plot.getModel();
                 redrawingPlot = plot;
                 for (PlotDatasetDto plotDatasetDto : plotSeriesDto.getPlotSeries()) {
@@ -1081,7 +1122,7 @@ public class Trends extends DefaultActivity {
             panLeftLabel.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    plot.pan(Pan.create().setLeft(-100));
+                    panel.panAllPlots(-100);
                 }
             });
 
@@ -1091,7 +1132,7 @@ public class Trends extends DefaultActivity {
             panRightLabel.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    plot.pan(Pan.create().setLeft(100));
+                    panel.panAllPlots(100);
                 }
             });
 
@@ -1100,7 +1141,7 @@ public class Trends extends DefaultActivity {
             zoomInLabel.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    plot.zoom();
+                    panel.zoomIn();
                 }
             });
 
@@ -1109,7 +1150,7 @@ public class Trends extends DefaultActivity {
             zoomOutLabel.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    plot.zoomOut();
+                    panel.zoomOut();
                 }
             });
 

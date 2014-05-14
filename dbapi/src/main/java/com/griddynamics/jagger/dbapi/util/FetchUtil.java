@@ -49,7 +49,7 @@ public class FetchUtil {
      * @return pairs as (test group id, test id)
      */
     private List<Object[]> getGroupToTaskIdsList (Collection<String> sessionIds, Collection<Long> taskIds) {
-        return entityManager.createNativeQuery("select grTaskData.id, some.taskDataId from" +
+        return entityManager.createNativeQuery("select grTaskData.id, mysome.taskDataId from" +
                 "  (" +
                 "    select * from TaskData as td where td.sessionId in (:sessionIds) " +
                 "  ) as grTaskData join" +
@@ -62,8 +62,8 @@ public class FetchUtil {
                 "          on td2.id in (:taskIds)" +
                 "          and wd.sessionId = td2.sessionId" +
                 "          and wd.taskId=td2.taskId" +
-                "  ) as some " +
-                "      on grTaskData.sessionId = some.sessionId and grTaskData.taskId=some.parentId")
+                "  ) as mysome " +
+                "      on grTaskData.sessionId = mysome.sessionId and grTaskData.taskId=mysome.parentId")
                 .setParameter("sessionIds", sessionIds)
                 .setParameter("taskIds", taskIds)
                 .getResultList();

@@ -213,6 +213,7 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
 
                 TimeUnits normalizeByIntervalValue = aggregatorSettings.getNormalizationBy();
                 boolean normalizeByTimeRequired = (normalizeByIntervalValue != TimeUnits.NONE);
+                boolean normalizeByFullTimeIntervalRequired = aggregatorSettings.isNormalizeOnFullMeasuredInterval();
                 long normalizeByInterval = normalizeByIntervalValue.getMilliseconds();
                 long intervalSize = getIntervalSize(intervalSizeProvider, aggregatorSettings, aggregationInfo);
 
@@ -254,9 +255,21 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
                                         // we have some info in interval aggregator
                                         // we need to save it
                                         double value = aggregated.doubleValue();
+
+                                        // normalize result
                                         if (normalizeByTimeRequired) {
-                                            value = value * normalizeByInterval * 1d / extendedInterval;
+                                            long intervalForNormalization;
+                                            if (!normalizeByFullTimeIntervalRequired) {
+                                                // normalize by current aggregation interval
+                                                intervalForNormalization = extendedInterval;
+                                            }
+                                            else {
+                                                // normalize by time from beginning of the test
+                                                intervalForNormalization = time;
+                                            }
+                                            value = value * normalizeByInterval * 1d / intervalForNormalization;
                                         }
+
                                         statistics.add(new MetricPointEntity(time - extendedInterval / 2, value, metricDescriptionEntity));
                                         intervalAggregator.reset();
 
@@ -284,8 +297,20 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
                             Number aggregated = intervalAggregator.getAggregated();
                             if (aggregated != null){
                                 double value = aggregated.doubleValue();
+
+                                // normalize result
                                 if (normalizeByTimeRequired) {
-                                    value = value * normalizeByInterval * 1d / extendedInterval;
+                                    long intervalForNormalization;
+                                    if (!normalizeByFullTimeIntervalRequired) {
+                                        // normalize by current aggregation interval
+                                        intervalForNormalization = extendedInterval;
+                                    }
+                                    else {
+                                        // normalize by time from beginning of the test
+                                        intervalForNormalization = time;
+                                    }
+                                    value = value * normalizeByInterval * 1d / intervalForNormalization;
+
                                 }
                                 statistics.add(new MetricPointEntity(time - extendedInterval / 2, value, metricDescriptionEntity));
                                 intervalAggregator.reset();
@@ -419,6 +444,6 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
             result += "]";
             return result;
         }
-        
+
     }
 }
