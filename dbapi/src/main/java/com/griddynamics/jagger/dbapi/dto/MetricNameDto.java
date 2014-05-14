@@ -77,12 +77,13 @@ public class MetricNameDto extends MetricName {
         return true;
     }
 
-//    @Override
-//    public int hashCode() {
-//        int result = origin != null ? origin.hashCode() : 0;
-//        result = 31 * result + (test != null ? test.hashCode() : 0);
-//        return result;
-//    }
+    @Override
+    public int hashCode() {
+        int result = origin != null ? origin.hashCode() : 0;
+        result = 31 * result + (test != null ? test.hashCode() : 0);
+        result = 31 * result + (metricName != null ? metricName.hashCode() : 0);
+        return result;
+    }
 
     public static enum Origin {
         UNKNOWN,                      /* default value - will produce errors during fetching */
