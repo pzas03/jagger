@@ -17,7 +17,7 @@ import java.util.*;
 public class DefaultDataService implements DataService {
     private static final Logger log = LoggerFactory.getLogger(DefaultDataService.class);
 
-    DatabaseService databaseService;
+    private DatabaseService databaseService;
 
     public DefaultDataService(NodeContext context) {
         databaseService = context.getService(DatabaseService.class);

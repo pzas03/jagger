@@ -1,6 +1,6 @@
 package com.griddynamics.jagger.engine.e1.collector.limits;
 
-import com.griddynamics.jagger.engine.e1.sessioncomparation.Decision;
+import com.griddynamics.jagger.util.Decision;
 
 import java.util.Set;
 

@@ -1,6 +1,6 @@
 package com.griddynamics.jagger.engine.e1.collector.testgroup;
 
-import com.griddynamics.jagger.engine.e1.sessioncomparation.Decision;
+import com.griddynamics.jagger.util.Decision;
 import com.griddynamics.jagger.engine.e1.sessioncomparation.WorstCaseDecisionMaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,7 +1,7 @@
 package com.griddynamics.jagger.engine.e1.collector.limits;
 
 import com.griddynamics.jagger.engine.e1.services.data.service.MetricEntity;
-import com.griddynamics.jagger.engine.e1.sessioncomparation.Decision;
+import com.griddynamics.jagger.util.Decision;
 
 /** Class is used to describe result of comparison of particular metric to some limit */
 public class DecisionPerMetric {

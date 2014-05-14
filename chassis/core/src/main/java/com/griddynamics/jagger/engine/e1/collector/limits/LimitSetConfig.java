@@ -20,7 +20,7 @@
 
 package com.griddynamics.jagger.engine.e1.collector.limits;
 
-import com.griddynamics.jagger.engine.e1.sessioncomparation.Decision;
+import com.griddynamics.jagger.util.Decision;
 import org.springframework.beans.factory.annotation.Required;
 
 /** Class is used to describe setup for @ref LimitSet */
