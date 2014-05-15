@@ -45,6 +45,16 @@ public interface JaggerResources extends ClientBundle {
     @Source("pencil.png")
     ImageResource getPencilImage();
 
+    @Source("icons/times.png")
+    ImageResource getCrossImage();
+
+    @Source("icons/download.png")
+    @ImageResource.ImageOptions(height = 16, width = 16)
+    ImageResource getDownloadImage();
+
+    @Source("icons/cog.png")
+    ImageResource getGearImage();
+
     @Source("JaggerWebClient.css")
     @CssResource.NotStrict
     JaggerStyle css();
@@ -108,8 +118,12 @@ public interface JaggerResources extends ClientBundle {
 
         String dragLabel();
 
-        String saveLabel();
-
         String mainTabPanel();
+
+        String pointer();
+
+        String plotSettingsMenu();
+
+        String draggable();
     }
 }

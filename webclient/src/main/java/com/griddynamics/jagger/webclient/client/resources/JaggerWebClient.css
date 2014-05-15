@@ -124,13 +124,18 @@ input[type="text"] {
     border-radius: 3px;
 }
 
-.plotHeader, .plotLegend {
+.plotLegend {
     text-align: center;
     font: normal 11px arial, tahoma, helvetica, sans-serif !important;
 }
 
 .plotHeader {
     font: bold 13px arial, tahoma, helvetica, sans-serif !important;
+    vertical-align: middle;
+    float: left;
+    background-color: transparent;
+    width: 100%;
+    border: transparent !important;
 }
 
 .plotLegend {
@@ -289,18 +294,14 @@ input[type="text"] {
 
 .dragLabel {
     background: #d0e4f6;
-    cursor: move;
+    height: 20px;
+    width: 100%;
 }
 
-.saveLabel {
-
-    color: #999;
-    background-color: #eee;
-    padding: .2em .5em .4em .5em;
-    cursor: pointer;
-    display: inline-block;
-    height: 16px;
-    font: normal 13px arial, tahoma, helvetica, sans-serif !important;
+.dragLabel img {
+    float: left;
+    width: 19px;
+    height: 19px;
 }
 
 .mainTabPanel {
@@ -309,4 +310,16 @@ input[type="text"] {
 
     color : black;
     vertical-align: middle;
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+.draggable {
+    cursor: move;
+}
+
+.plotSettingsMenu {
+
 }

@@ -11,6 +11,7 @@ import com.googlecode.gflot.client.SimplePlot;
 import com.sencha.gxt.widget.core.client.Slider;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
+import com.sencha.gxt.widget.core.client.tree.Tree;
 
 /**
  * Class that hold widgets of type PlotContainer with dynamic layout feature.
@@ -34,10 +35,16 @@ public class PlotsPanel extends Composite {
      * default value for container height */
     private Integer plotContainerHeight = 150;
 
+    private ControlTree<String> controlTree;
+
     public PlotsPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
 
         setUpButtonPanel();
+    }
+
+    public void setControlTree(ControlTree<String> controlTree) {
+        this.controlTree = controlTree;
     }
 
     /**
@@ -74,6 +81,7 @@ public class PlotsPanel extends Composite {
      * @param elementId Id of widget element (Widget.getElement.getId())*/
     public void removeElementById(String elementId) {
         layoutPanel.removeChild(elementId);
+        controlTree.setChecked(elementId, Tree.CheckState.UNCHECKED);
     }
 
     /**
@@ -87,6 +95,7 @@ public class PlotsPanel extends Composite {
      * @param plotContainer child widget */
     public void addElement(PlotContainer plotContainer) {
         plotContainer.setHeight(plotContainerHeight + "px");
+        plotContainer.setPlotsPanel(this);
         layoutPanel.addChild(plotContainer);
     }
 

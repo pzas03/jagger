@@ -590,6 +590,9 @@ public class Trends extends DefaultActivity {
         tree.setWidth("100%");
         tree.setHeight("100%");
         CheckHandlerMap.setTree(tree);
+
+        plotPanel.setControlTree(tree);
+        plotTrendsPanel.setControlTree(tree);
     }
 
 
@@ -1109,10 +1112,6 @@ public class Trends extends DefaultActivity {
             Label xLabel = new Label(xAxisLabel);
             xLabel.addStyleName(getResources().css().xAxisLabel());
 
-            final String plotHeaderString = plotSeriesDto.getPlotHeader();
-            Label plotHeader = new Label(plotHeaderString);
-            plotHeader.addStyleName(getResources().css().plotHeader());
-
             Label plotLegend = new Label("PLOT LEGEND");
             plotLegend.addStyleName(getResources().css().plotLegend());
 
@@ -1154,26 +1153,16 @@ public class Trends extends DefaultActivity {
                 }
             });
 
-            Label saveLabel = new Label("Save");
-            saveLabel.addStyleName(getResources().css().saveLabel());
-            saveLabel.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    plotSaver.saveAsPng(plot, plotHeaderString, xAxisLabel);
-                }
-            });
-
             FlowPanel zoomPanel = new FlowPanel();
             zoomPanel.addStyleName(getResources().css().zoomPanel());
             zoomPanel.add(panLeftLabel);
             zoomPanel.add(panRightLabel);
             zoomPanel.add(zoomInLabel);
             zoomPanel.add(zoomOutLabel);
-            zoomPanel.add(saveLabel);
 
             PlotRepresentation plotRepresentation = new PlotRepresentation(zoomPanel, plot, xLabel);
 
-            PlotContainer pc = new PlotContainer(id, plotHeader, plotRepresentation);
+            PlotContainer pc = new PlotContainer(id, plotSeriesDto.getPlotHeader(), plotRepresentation, plotSaver);
 
             panel.addElement(pc);
         }
@@ -1742,17 +1731,14 @@ public class Trends extends DefaultActivity {
                     @Override
                     public void onSuccess(Map<MetricNode, PlotSeriesDto> result) {
                         for (MetricNode metricNode : result.keySet()) {
-                            final String id;
-                            // Generate DOM id for plot
-                            // metricNode.Id - is unique key
-                            id = generatePlotId(metricNode);
 
+                            // DOM id for plot = metricNode.Id - is unique key
                             // If plot has already displayed, then pass it
-                            if (chosenPlots.containsKey(id)) {
+                            if (chosenPlots.containsKey(metricNode.getId())) {
                                 continue;
                             }
 
-                            chosenPlots.put(id, Arrays.asList(result.get(metricNode)));
+                            chosenPlots.put(metricNode.getId(), Arrays.asList(result.get(metricNode)));
 
                         }
                         if (mainTabPanel.getSelectedIndex() == tabMetrics.getTabIndex()) {
@@ -1770,17 +1756,9 @@ public class Trends extends DefaultActivity {
          */
         public void removePlots(Set<MetricNode> metricNodes) {
 
-            if (metricNodes.isEmpty()) {
-                return;
-            }
-
-            Set<String> widgetIds = new HashSet<String>();
             for (MetricNode metricNode : metricNodes) {
-                widgetIds.add(generatePlotId(metricNode));
-            }
-            for (String elementId : widgetIds) {
-                plotPanel.removeElementById(elementId);
-                chosenPlots.remove(elementId);
+                plotPanel.removeElementById(metricNode.getId());
+                chosenPlots.remove(metricNode.getId());
             }
         }
     }
