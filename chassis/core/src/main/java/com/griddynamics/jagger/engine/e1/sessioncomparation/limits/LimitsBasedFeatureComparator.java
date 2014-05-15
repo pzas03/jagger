@@ -64,7 +64,7 @@ public class LimitsBasedFeatureComparator extends HibernateDaoSupport implements
         Set<Long> testGroupIds = databaseService.getTestGroupIdsByTestIds(testIds).keySet();
 
         // Get decisions for test groups
-        Set<TaskDecisionDto> taskDecisionDtoSet = databaseService.getDecisionsByTaskIds(testGroupIds);
+        Set<TaskDecisionDto> taskDecisionDtoSet = databaseService.getDecisionsPerTask(testGroupIds);
         List<Decision> testGroupDecisions = new ArrayList<Decision>();
         for (TaskDecisionDto taskDecisionDto : taskDecisionDtoSet) {
             testGroupDecisions.add(taskDecisionDto.getDecision());

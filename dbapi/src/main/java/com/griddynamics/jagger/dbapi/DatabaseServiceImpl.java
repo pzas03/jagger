@@ -2,6 +2,7 @@ package com.griddynamics.jagger.dbapi;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import com.griddynamics.jagger.dbapi.entity.DecisionPerMetricEntity;
 import com.griddynamics.jagger.dbapi.entity.DecisionPerTaskEntity;
 import com.griddynamics.jagger.dbapi.entity.NodeInfoEntity;
 import com.griddynamics.jagger.dbapi.entity.NodePropertyEntity;
@@ -460,6 +461,26 @@ public class DatabaseServiceImpl implements DatabaseService {
             log.error("Exception while summary retrieving", th);
             throw new RuntimeException("Exception while summary retrieving" + th.getMessage());
         }
+
+        // Find what decisions were taken for metrics
+        Map<MetricNameDto,Map<String,Decision>> metricDecisions = getDecisionsPerMetric(new HashSet<MetricNameDto>(metricNames));
+        if (!metricDecisions.isEmpty()) {
+            for (MetricDto metricDto : result) {
+                MetricNameDto metricName = metricDto.getMetricName();
+
+                if (metricDecisions.containsKey(metricName)) {
+                    Map<String,Decision> decisionPerSession = metricDecisions.get(metricName);
+                    for (MetricValueDto metricValueDto : metricDto.getValues()) {
+                        String sessionId = Long.toString(metricValueDto.getSessionId());
+
+                        if (decisionPerSession.containsKey(sessionId)) {
+                            metricValueDto.setDecision(decisionPerSession.get(sessionId));
+                        }
+                    }
+                }
+            }
+        }
+
         log.debug("{} ms spent for fetching summary data for {} metrics", System.currentTimeMillis() - temp, metricNames.size());
 
         return result;
@@ -1360,7 +1381,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     @Override
-    public Set<TaskDecisionDto> getDecisionsByTaskIds(Set<Long> taskIds) {
+    public Set<TaskDecisionDto> getDecisionsPerTask(Set<Long> taskIds) {
         Long time = System.currentTimeMillis();
         Set<TaskDecisionDto> taskDecisionDtoSet = new HashSet<TaskDecisionDto>();
 
@@ -1394,6 +1415,95 @@ public class DatabaseServiceImpl implements DatabaseService {
         }
 
         return taskDecisionDtoSet;
+    }
+
+    @Override
+    public Map<MetricNameDto,Map<String,Decision>> getDecisionsPerMetric(Set<MetricNameDto> metricNames) {
+
+        Long time = System.currentTimeMillis();
+
+        Map<MetricNameDto,Map<String,Decision>> result = new HashMap<MetricNameDto, Map<String, Decision>>();
+
+        Set<String> metricIds = new HashSet<String>();
+        Set<Long> taskIds = new HashSet<Long>();
+        Set<Long> taskIdsWhereParentIdIsRequired = new HashSet<Long>();
+
+        for (MetricNameDto metricName : metricNames) {
+            metricIds.add(metricName.getMetricName());
+            taskIds.addAll(metricName.getTaskIds());
+            if (metricName.getOrigin() == MetricNameDto.Origin.TEST_GROUP_METRIC) {
+                taskIdsWhereParentIdIsRequired.addAll(metricName.getTaskIds());
+            }
+        }
+
+        // add test group task ids when necessary
+        Multimap<Long,Long> testGroupPerTest = null;
+        if (!taskIdsWhereParentIdIsRequired.isEmpty()) {
+            testGroupPerTest = fetchUtil.getTestGroupIdsByTestIds(taskIdsWhereParentIdIsRequired);
+            taskIds.addAll(testGroupPerTest.keySet());
+        }
+
+        try {
+            List<DecisionPerMetricEntity> decisionPerMetricEntityList = (List<DecisionPerMetricEntity>)
+                    entityManager.createQuery("select dpm from DecisionPerMetricEntity as dpm" +
+                            " where dpm.metricDescriptionEntity.taskData.id in (:taskIds) and dpm.metricDescriptionEntity.metricId in (:metricIds)")
+                            .setParameter("taskIds", taskIds)
+                            .setParameter("metricIds", metricIds)
+                            .getResultList();
+
+
+            Map<Long, Map<String, MetricNameDto>> mappedMetricDtos = MetricNameUtil.getMappedMetricDtos(metricNames);
+
+            for (DecisionPerMetricEntity decisionPerMetricEntity : decisionPerMetricEntityList) {
+                Set<Long> taskIdsForEntity = new HashSet<Long>();
+                Long taskId = decisionPerMetricEntity.getMetricDescriptionEntity().getTaskData().getId();
+                String sessionId = decisionPerMetricEntity.getMetricDescriptionEntity().getTaskData().getSessionId();
+                String metricId = decisionPerMetricEntity.getMetricDescriptionEntity().getMetricId();
+
+                if ((testGroupPerTest != null) && (testGroupPerTest.containsKey(taskId))) {
+                    // this is test group task id => we will use tests from this test group
+                    for (Long testTaskId : testGroupPerTest.get(taskId)) {
+                        taskIdsForEntity.add(testTaskId);
+                    }
+                }
+                else {
+                    taskIdsForEntity.add(taskId);
+                }
+
+                for (Long testTaskId : taskIdsForEntity) {
+                    MetricNameDto metricNameDto;
+                    try {
+                        metricNameDto = mappedMetricDtos.get(testTaskId).get(metricId);
+                        if (metricNameDto == null) {   // means that we fetched data that we had not wanted to fetch
+                            continue;
+                        }
+                    } catch (NullPointerException e) {
+                        throw new IllegalArgumentException("Could not find appropriate MetricDto with taskId: " + testTaskId + ", metricId: " + metricId);
+                    }
+
+                    if (!result.containsKey(metricNameDto)) {
+                        result.put(metricNameDto,new HashMap<String, Decision>());
+                    }
+                    result.get(metricNameDto).put(sessionId, Decision.valueOf(decisionPerMetricEntity.getDecision()));
+                }
+            }
+
+            log.info("For metrics " + metricNames + " were found decisions in " + (System.currentTimeMillis() - time) + " ms");
+        }
+        catch (NoResultException ex) {
+            log.debug("No decisions were found for metrics " + metricNames, ex);
+            return Collections.emptyMap();
+        }
+        catch (PersistenceException ex) {
+            log.debug("No decisions were found for metrics " + metricNames, ex);
+            return Collections.emptyMap();
+        }
+        catch (Exception ex) {
+            log.error("Error occurred during loading decisions for metrics " + metricNames, ex);
+            throw new RuntimeException("Error occurred during loading decisions for metrics " + metricNames, ex);
+        }
+
+        return result;
     }
 }
 

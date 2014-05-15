@@ -7,6 +7,7 @@ import com.griddynamics.jagger.dbapi.model.MetricNode;
 import com.griddynamics.jagger.dbapi.model.RootNode;
 import com.griddynamics.jagger.dbapi.provider.SessionInfoProvider;
 import com.griddynamics.jagger.dbapi.util.SessionMatchingSetup;
+import com.griddynamics.jagger.util.Decision;
 
 import java.util.*;
 
@@ -85,6 +86,12 @@ public interface DatabaseService {
      * @param taskIds TaskData ids
      * @return set of decisions
      */
-    Set<TaskDecisionDto> getDecisionsByTaskIds(Set<Long> taskIds);
+    Set<TaskDecisionDto> getDecisionsPerTask(Set<Long> taskIds);
+
+    /** Returns map of decisions per metric corresponding to given metricId, sessionId
+     * @param metricNames - set of metric names
+     * @return map <metric, map <sessionId, decision>> of decisions
+     */
+    Map<MetricNameDto,Map<String,Decision>> getDecisionsPerMetric(Set<MetricNameDto> metricNames);
 
 }

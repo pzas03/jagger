@@ -8,6 +8,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.griddynamics.jagger.dbapi.dto.SessionDataDto;
 import com.griddynamics.jagger.dbapi.dto.*;
 import com.griddynamics.jagger.dbapi.model.WebClientProperties;
+import com.griddynamics.jagger.util.Decision;
 import com.griddynamics.jagger.webclient.client.SessionDataService;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
@@ -62,6 +63,8 @@ public class SessionComparisonPanel extends VerticalPanel {
     private final String TASKS_FAILED = "Tasks Failed";
     private final String TEST_INFO = "Test Info";
     private final double METRIC_COLUMN_WIDTH_FACTOR = 1.5;
+
+    private final String DECISION = "Decision";
 
     private final UserCommentBox userCommentBox;
     private final TagBox tagBox;
@@ -513,16 +516,6 @@ public class SessionComparisonPanel extends VerticalPanel {
         return tdd.getDescription() + tdd.getTaskName() + sessionIds.toString();
     }
 
-    private TreeItem getTestDescriptionItemIfExists(String descriptionStr) {
-        for (TreeItem item : treeStore.getRootItems()) {
-            if (descriptionStr.equals(item.get(NAME))) {
-                return item;
-            }
-        }
-        return null;
-    }
-
-
     private class NoIconsTreeGrid extends TreeGrid<TreeItem> {
 
 
@@ -561,6 +554,9 @@ public class SessionComparisonPanel extends VerticalPanel {
 
             for (MetricValueDto metricValue : metricDto.getValues()) {
                 put(SESSION_HEADER + metricValue.getSessionId(), metricValue.getValueRepresentation());
+                if (metricValue.getDecision() != null) {
+                    put(DECISION + SESSION_HEADER + metricValue.getSessionId(), metricValue.getDecision().toString());
+                }
             }
         }
     }
@@ -577,18 +573,35 @@ public class SessionComparisonPanel extends VerticalPanel {
             String penImageResource = "<img src=\"" + JaggerResources.INSTANCE.getPencilImage().getSafeUri().asString() + "\" height=\"15\" width=\"15\">"
                     + "<ins font-size='10px'>double click to edit</ins><br><br>";
             String toShow;
-            if (webClientProperties.isUserCommentEditAvailable()) {
-                if (object.get(NAME).equals(USER_COMMENT) && !field.equals(NAME)) {
-                    toShow = object.get(field).replaceAll("\n", "<br>");
-                    return penImageResource + toShow;
+
+            // Only for columns with data
+            if (!field.equals(NAME)) {
+                if (webClientProperties.isUserCommentEditAvailable()) {
+                    if (object.get(NAME).equals(USER_COMMENT)) {
+                        toShow = object.get(field).replaceAll("\n", "<br>");
+                        return penImageResource + toShow;
+                    }
+                }
+                if (webClientProperties.isTagsAvailable()) {
+                    if (object.get(NAME).equals(SESSION_TAGS)) {
+                        toShow = object.get(field).replaceAll("\n", "<br>");
+                        return penImageResource + toShow;
+                    }
+                }
+                if (object.containsKey(DECISION + field)) {
+                    Decision decision = Decision.valueOf(object.get(DECISION + field));
+                    String toolTip = "Decision for metric during test run. Green - value in limits. Yellow - value crossed warning limits. Red - value outside limits";
+                    switch (decision) {
+                        case OK:
+                            return "<p title=\"" + toolTip + "\" style=\"color:green;font-weight:700;display:inline;\">" + object.get(field) + "</p>";
+                        case WARNING:
+                            return "<p title=\"" + toolTip + "\" style=\"color:#B8860B;font-weight:700;display:inline;\">" + object.get(field) + "</p>";
+                        default:
+                            return "<p title=\"" + toolTip + "\" style=\"color:red;font-weight:700;display:inline;\">" + object.get(field) + "</p>";
+                    }
                 }
             }
-            if (webClientProperties.isTagsAvailable()) {
-                if (object.get(NAME).equals(SESSION_TAGS) && !field.equals(NAME)) {
-                    toShow = object.get(field).replaceAll("\n", "<br>");
-                    return penImageResource + toShow;
-                }
-            }
+
             return object.get(field);
         }
 

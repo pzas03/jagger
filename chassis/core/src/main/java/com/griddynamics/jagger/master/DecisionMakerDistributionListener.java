@@ -313,7 +313,7 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
             switch (limitSetConfig.getDecisionWhenNoMetricForLimit()) {
                 case OK:
                     decisionPerLimit = Decision.OK;
-                    log.info(errorText,limit, decisionPerLimit);
+                    log.debug(errorText,limit, decisionPerLimit);
                     break;
                 case WARNING:
                     decisionPerLimit = Decision.WARNING;
