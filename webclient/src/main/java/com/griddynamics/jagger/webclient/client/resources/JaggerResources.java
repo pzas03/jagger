@@ -48,6 +48,12 @@ public interface JaggerResources extends ClientBundle {
     @Source("icons/times.png")
     ImageResource getCrossImage();
 
+    @Source("icons/times_gray.png")
+    ImageResource getCrossGrayImage();
+
+    @Source("icons/times_red.png")
+    ImageResource getCrossRedImage();
+
     @Source("icons/download.png")
     @ImageResource.ImageOptions(height = 16, width = 16)
     ImageResource getDownloadImage();

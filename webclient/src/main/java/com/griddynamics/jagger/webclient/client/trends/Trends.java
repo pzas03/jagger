@@ -1161,8 +1161,8 @@ public class Trends extends DefaultActivity {
             zoomPanel.add(zoomOutLabel);
 
             PlotRepresentation plotRepresentation = new PlotRepresentation(zoomPanel, plot, xLabel);
-
-            PlotContainer pc = new PlotContainer(id, plotSeriesDto.getPlotHeader(), plotRepresentation, plotSaver);
+                                                                                     // if it is metric -> this is trend plot
+            PlotContainer pc = new PlotContainer(id, plotSeriesDto.getPlotHeader(), plotRepresentation, plotSaver, !isMetric);
 
             panel.addElement(pc);
         }
