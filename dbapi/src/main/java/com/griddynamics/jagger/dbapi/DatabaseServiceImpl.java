@@ -45,8 +45,6 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     private WebClientProperties webClientProperties;
 
-    private MetricGroupNode sessionScopeNode = null;
-
     private ExecutorService threadPool;
     private LegendProvider legendProvider;
 
@@ -931,7 +929,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     private List<TestDetailsNode> getDetailsTaskNodeList(final Set<String> sessionIds, final List<TaskDataDto> taskList) {
         List<TestDetailsNode> taskDataDtoList = new ArrayList<TestDetailsNode>();
-
+        TestDetailsNode sessionScopeNode;
         try {
             Future<Map<TaskDataDto, List<PlotNode>>> metricsPlotsMapFuture = threadPool.submit(
                     new Callable<Map<TaskDataDto, List<PlotNode>>>() {
@@ -983,7 +981,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             if (sessionIds.size() == 1 && ssPlotNodes.size() > 0) {
                 String rootIdSS = NameTokens.SESSION_SCOPE_PLOTS;
                 MetricGroupNode<PlotNode> testDetailsNodeBaseSS = buildTreeAccordingToRules(rootIdSS, agentNames, new ArrayList<PlotNode>(ssPlotNodes));
-                sessionScopeNode = new MetricGroupNode(testDetailsNodeBaseSS);
+                sessionScopeNode = new TestDetailsNode(testDetailsNodeBaseSS);
             }
             else
                 sessionScopeNode = null;
@@ -1010,6 +1008,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             }
 
             MetricRankingProvider.sortPlotNodes(taskDataDtoList);
+            taskDataDtoList.add(sessionScopeNode);
             return taskDataDtoList;
 
         } catch (Exception e) {
@@ -1096,10 +1095,22 @@ public class DatabaseServiceImpl implements DatabaseService {
 
         public DetailsNode call() {
             DetailsNode dn = new DetailsNode(NameTokens.CONTROL_METRICS, NameTokens.CONTROL_METRICS);
+            TestDetailsNode testDetailsNode;
+            List<TestDetailsNode> testDetailsNodeList;
             if (!taskList.isEmpty()) {
-                dn.setTests(getDetailsTaskNodeList(sessionIds, taskList));
-                if (sessionScopeNode!=null)
+
+                testDetailsNodeList = getDetailsTaskNodeList(sessionIds, taskList);
+                testDetailsNode = testDetailsNodeList.remove(testDetailsNodeList.size()-1);
+                if (testDetailsNode != null) {
+                    MetricGroupNode sessionScopeNode = new MetricGroupNode();
+                    sessionScopeNode.setMetricGroupNodeList(testDetailsNode.getMetricGroupNodeList());
+                    if (testDetailsNode.getMetricsWithoutChildren() != null)
+                        sessionScopeNode.setMetrics(testDetailsNode.getMetricsWithoutChildren());
+                    sessionScopeNode.setDisplayName("Session scope");
+                    sessionScopeNode.setId(testDetailsNode.getId());
                     dn.setSessionScopeNode(sessionScopeNode);
+                }
+                dn.setTests(testDetailsNodeList);
             }
             return dn;
         }
