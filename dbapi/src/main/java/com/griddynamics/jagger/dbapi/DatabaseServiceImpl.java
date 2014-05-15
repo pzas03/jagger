@@ -630,10 +630,11 @@ public class DatabaseServiceImpl implements DatabaseService {
                 }
                 else {
                     for (TaskDataDto tdd : taskList) {
+                        if (!result.containsKey(tdd)) {
+                            result.put(tdd, new ArrayList<PlotNode>());
+                        }
                         if (tdd.getIds().containsAll(pnd.getTaskIds())) {
-                            if (!result.containsKey(tdd)) {
-                                result.put(tdd, new ArrayList<PlotNode>());
-                            }
+
                             PlotNode pn = new PlotNode();
                             String id = NameTokens.METRICS_PREFIX + tdd.hashCode() + pnd.getMetricName() + pnd.getOrigin();
                             pn.init(id, pnd.getMetricDisplayName(), Arrays.asList(pnd));
@@ -675,11 +676,10 @@ public class DatabaseServiceImpl implements DatabaseService {
         for (Object[] objects : agentIdentifierObjects) {
             BigInteger testId = (BigInteger)objects[2];
             for (TaskDataDto tdd : taskSet) {
+                if (!resultMap.containsKey(tdd)) {
+                    resultMap.put(tdd, new HashSet<PlotNode>());
+                }
                 if (monitoringIdsMap.get(tdd).contains(testId)) {
-                    if (!resultMap.containsKey(tdd)) {
-                        resultMap.put(tdd, new HashSet<PlotNode>());
-                    }
-
                     String description = (String) objects[3];
                     String monitoringId = null;     // Id of particular metric
                     for (Map.Entry<GroupKey, DefaultMonitoringParameters[]> entry : monitoringParameters) {
@@ -934,7 +934,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             return detailsNode;
 
         List<TestDetailsNode> taskDataDtoList = new ArrayList<TestDetailsNode>();
-        MetricGroupNode sessionScopeNode;
+        MetricGroupNode sessionScopeNode = null;
 
         try {
             Future<Map<TaskDataDto, List<PlotNode>>> metricsPlotsMapFuture = threadPool.submit(
@@ -959,6 +959,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             //a first list element is a map with test nodes
             //a second is a map with nodes for session scope
+            //This is actually for both lists
             List<Map<TaskDataDto, List<PlotNode>>> maps= separateTestAndSessionScope(metricsPlotsMapFuture.get());
             List<Map<TaskDataDto, List<PlotNode>>> monitoringMaps= separateTestAndSessionScope(monitoringNewPlotsMapFuture.get());
 
@@ -981,20 +982,20 @@ public class DatabaseServiceImpl implements DatabaseService {
             Map<String,Set<String>> agentNames = getAgentNamesForMonitoringParameters(plotNodeList);
 
 
-            //get nodes for session scope
+            //get nodes for session scope and Session Scope Node
             Set<PlotNode> ssPlotNodes = new HashSet<PlotNode>();
             if (sessionIds.size() == 1) {
                 ssPlotNodes = getSessionScopeNodes(mapSS);
                 if (!monitoringMap.isEmpty()) {
                     ssPlotNodes.addAll(getSessionScopeNodes(monitoringMapSS));
                 }
-            }
-            if (sessionIds.size() == 1 && ssPlotNodes.size() > 0) {
-                String rootIdSS = NameTokens.SESSION_SCOPE_PLOTS;
-                MetricGroupNode<PlotNode> testDetailsNodeBaseSS = buildTreeAccordingToRules(rootIdSS, agentNames, new ArrayList<PlotNode>(ssPlotNodes));
-                sessionScopeNode = new MetricGroupNode(testDetailsNodeBaseSS);
-            }
-            else
+
+                if (ssPlotNodes.size() > 0) {
+                    String rootIdSS = NameTokens.SESSION_SCOPE_PLOTS;
+                    MetricGroupNode<PlotNode> testDetailsNodeBaseSS = buildTreeAccordingToRules(rootIdSS, agentNames, new ArrayList<PlotNode>(ssPlotNodes));
+                    sessionScopeNode = new MetricGroupNode(testDetailsNodeBaseSS);
+                }
+            } else
                 sessionScopeNode = null;
 
             // get tree
@@ -1006,7 +1007,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
                 String rootId = NameTokens.METRICS_PREFIX + tdd.hashCode();
 
-                if (metricNodeList.size() > 0) {
+                if (metricNodeList!=null && metricNodeList.size() > 0) {
                     // apply rules how to build tree
                     MetricGroupNode<PlotNode> testDetailsNodeBase = buildTreeAccordingToRules(rootId, agentNames, metricNodeList);
 
