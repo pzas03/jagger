@@ -463,18 +463,20 @@ public class DatabaseServiceImpl implements DatabaseService {
         }
 
         // Find what decisions were taken for metrics
-        Map<MetricNameDto,Map<String,Decision>> metricDecisions = getDecisionsPerMetric(new HashSet<MetricNameDto>(metricNames));
-        if (!metricDecisions.isEmpty()) {
-            for (MetricDto metricDto : result) {
-                MetricNameDto metricName = metricDto.getMetricName();
+        if (webClientProperties.isEnableDecisionsPerMetricHighlighting()) {
+            Map<MetricNameDto,Map<String,Decision>> metricDecisions = getDecisionsPerMetric(new HashSet<MetricNameDto>(metricNames));
+            if (!metricDecisions.isEmpty()) {
+                for (MetricDto metricDto : result) {
+                    MetricNameDto metricName = metricDto.getMetricName();
 
-                if (metricDecisions.containsKey(metricName)) {
-                    Map<String,Decision> decisionPerSession = metricDecisions.get(metricName);
-                    for (MetricValueDto metricValueDto : metricDto.getValues()) {
-                        String sessionId = Long.toString(metricValueDto.getSessionId());
+                    if (metricDecisions.containsKey(metricName)) {
+                        Map<String,Decision> decisionPerSession = metricDecisions.get(metricName);
+                        for (MetricValueDto metricValueDto : metricDto.getValues()) {
+                            String sessionId = Long.toString(metricValueDto.getSessionId());
 
-                        if (decisionPerSession.containsKey(sessionId)) {
-                            metricValueDto.setDecision(decisionPerSession.get(sessionId));
+                            if (decisionPerSession.containsKey(sessionId)) {
+                                metricValueDto.setDecision(decisionPerSession.get(sessionId));
+                            }
                         }
                     }
                 }
