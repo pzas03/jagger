@@ -20,7 +20,7 @@ public class NameTokens {
     public static final String CONTROL_METRICS = "Metrics";
     public static final String SESSION_INFO = "Session Info";
     public static final String TEST_INFO = "Test Info";
-    public static final String SESSION_SCOPE_PLOTS = "Session_Scope";
+    public static final String SESSION_SCOPE_PLOTS = "Session scope plots";
 
     // used to understand if test from summary subtree or from metrics subtree
     public static final String SUMMARY_PREFIX = "sum-";
