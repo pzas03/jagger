@@ -4,7 +4,7 @@ import com.griddynamics.jagger.engine.e1.Provider;
 import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupDecisionMakerInfo;
 import com.griddynamics.jagger.engine.e1.services.ServicesAware;
 import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupDecisionMakerListener;
-import com.griddynamics.jagger.engine.e1.sessioncomparation.Decision;
+import com.griddynamics.jagger.util.Decision;
 
 /**
  * Created with IntelliJ IDEA.

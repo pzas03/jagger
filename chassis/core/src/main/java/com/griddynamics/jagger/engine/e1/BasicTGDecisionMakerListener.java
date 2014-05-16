@@ -4,7 +4,7 @@ import com.griddynamics.jagger.engine.e1.collector.limits.DecisionPerTest;
 import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupDecisionMakerInfo;
 import com.griddynamics.jagger.engine.e1.services.ServicesAware;
 import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupDecisionMakerListener;
-import com.griddynamics.jagger.engine.e1.sessioncomparation.Decision;
+import com.griddynamics.jagger.util.Decision;
 import com.griddynamics.jagger.engine.e1.sessioncomparation.WorstCaseDecisionMaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +36,7 @@ public class BasicTGDecisionMakerListener extends ServicesAware implements Provi
 
                 decisionPerTestGroup = worstCaseDecisionMaker.getDecision(decisions);
 
-                log.info("\nDecision for test group {} - {}",decisionMakerInfo.getTestGroup().getTaskName(),decisionPerTestGroup);
+                log.debug("\nDecision for test group {} - {}",decisionMakerInfo.getTestGroup().getTaskName(),decisionPerTestGroup);
 
                 return decisionPerTestGroup;
             }

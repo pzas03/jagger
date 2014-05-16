@@ -21,6 +21,7 @@
 package com.griddynamics.jagger.engine.e1.sessioncomparation;
 
 import com.google.common.collect.Multimap;
+import com.griddynamics.jagger.util.Decision;
 
 import java.util.List;
 

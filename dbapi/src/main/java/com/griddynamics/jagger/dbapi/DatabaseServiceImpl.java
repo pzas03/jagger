@@ -3,6 +3,7 @@ package com.griddynamics.jagger.dbapi;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import com.griddynamics.jagger.dbapi.entity.DecisionPerTaskEntity;
 import com.griddynamics.jagger.dbapi.entity.NodeInfoEntity;
 import com.griddynamics.jagger.dbapi.entity.NodePropertyEntity;
 import com.griddynamics.jagger.dbapi.fetcher.*;
@@ -15,6 +16,7 @@ import com.griddynamics.jagger.dbapi.parameter.DefaultWorkloadParameters;
 import com.griddynamics.jagger.dbapi.parameter.GroupKey;
 import com.griddynamics.jagger.dbapi.provider.*;
 import com.griddynamics.jagger.dbapi.util.*;
+import com.griddynamics.jagger.util.Decision;
 import com.griddynamics.jagger.util.MonitoringIdUtils;
 import com.griddynamics.jagger.util.Pair;
 import com.griddynamics.jagger.dbapi.model.*;
@@ -1367,6 +1369,56 @@ public class DatabaseServiceImpl implements DatabaseService {
     @Override
     public List<String> getSessionIdsByTaskIds(Set<Long> taskIds) {
         return fetchUtil.getSessionIdsByTaskIds(taskIds);
+    }
+
+    @Override
+    public Map<Long, Set<Long>> getTestGroupIdsByTestIds(Set<Long> taskIds) {
+        Map<Long,Set<Long>> result = new HashMap<Long, Set<Long>>();
+
+        Multimap<Long,Long> tempResult = fetchUtil.getTestGroupIdsByTestIds(taskIds);
+
+        for (Long testGroupId : tempResult.keySet()) {
+            result.put(testGroupId,new HashSet<Long>(tempResult.get(testGroupId)));
+        }
+
+        return result;
+    }
+
+    @Override
+    public Set<TaskDecisionDto> getDecisionsByTaskIds(Set<Long> taskIds) {
+        Long time = System.currentTimeMillis();
+        Set<TaskDecisionDto> taskDecisionDtoSet = new HashSet<TaskDecisionDto>();
+
+        try {
+            List<DecisionPerTaskEntity> decisionPerTaskEntityList = (List<DecisionPerTaskEntity>)
+                    entityManager.createQuery("select dpt from DecisionPerTaskEntity as dpt where dpt.taskData.id in (:taskIds)").
+                            setParameter("taskIds", taskIds).
+                            getResultList();
+
+            for (DecisionPerTaskEntity decisionPerTaskEntity : decisionPerTaskEntityList) {
+                TaskDecisionDto taskDecisionDto = new TaskDecisionDto();
+                taskDecisionDto.setTaskId(decisionPerTaskEntity.getTaskData().getId());
+                taskDecisionDto.setDecision(Decision.valueOf(decisionPerTaskEntity.getDecision()));
+
+                taskDecisionDtoSet.add(taskDecisionDto);
+            }
+
+            log.info("For task ids " + taskIds + " were found decisions in " + (System.currentTimeMillis() - time) + " ms");
+        }
+        catch (NoResultException ex) {
+            log.debug("No decisions were found for task ids " + taskIds, ex);
+            return Collections.emptySet();
+        }
+        catch (PersistenceException ex) {
+            log.debug("No decisions were found for task ids " + taskIds, ex);
+            return Collections.emptySet();
+        }
+        catch (Exception ex) {
+            log.error("Error occurred during loading decisions for task ids " + taskIds, ex);
+            throw new RuntimeException("Error occurred during loading decisions for task ids " + taskIds,ex);
+        }
+
+        return taskDecisionDtoSet;
     }
 
 

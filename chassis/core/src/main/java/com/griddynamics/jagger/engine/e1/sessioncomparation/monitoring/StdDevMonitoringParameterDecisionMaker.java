@@ -22,7 +22,7 @@ package com.griddynamics.jagger.engine.e1.sessioncomparation.monitoring;
 
 import com.google.common.base.Preconditions;
 import com.griddynamics.jagger.engine.e1.sessioncomparation.ComparisonUtil;
-import com.griddynamics.jagger.engine.e1.sessioncomparation.Decision;
+import com.griddynamics.jagger.util.Decision;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;

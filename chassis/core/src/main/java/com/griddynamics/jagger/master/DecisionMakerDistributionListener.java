@@ -15,7 +15,7 @@ import com.griddynamics.jagger.engine.e1.services.DefaultDataService;
 import com.griddynamics.jagger.engine.e1.services.JaggerPlace;
 import com.griddynamics.jagger.engine.e1.services.data.service.MetricEntity;
 import com.griddynamics.jagger.engine.e1.services.data.service.TestEntity;
-import com.griddynamics.jagger.engine.e1.sessioncomparation.Decision;
+import com.griddynamics.jagger.util.Decision;
 import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupDecisionMakerListener;
 import com.griddynamics.jagger.engine.e1.sessioncomparation.WorstCaseDecisionMaker;
 import com.griddynamics.jagger.master.configuration.Task;
@@ -161,7 +161,7 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
                     new TestGroupDecisionMakerInfo((CompositeTask)task,sessionId,decisionsPerTest);
             Decision decisionPerTestGroup = decisionMakerListener.onDecisionMaking(testGroupDecisionMakerInfo);
 
-            log.info("\nDecision for test group {} - {}",task.getTaskName(),decisionPerTestGroup);
+            log.info("\n\nDecision for test group {} - {}\n",task.getTaskName(),decisionPerTestGroup);
 
             // Save decisions per test group
             saveDecisionsForTestGroup(sessionId, taskId, decisionPerTestGroup);

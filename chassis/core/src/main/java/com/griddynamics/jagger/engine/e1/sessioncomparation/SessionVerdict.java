@@ -23,6 +23,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+import com.griddynamics.jagger.util.Decision;
 
 public class SessionVerdict {
     private final Decision decision;

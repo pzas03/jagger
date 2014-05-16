@@ -17,12 +17,47 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.griddynamics.jagger.engine.e1.sessioncomparation.workload;
+package com.griddynamics.jagger.dbapi.entity;
 
-import com.griddynamics.jagger.util.Decision;
+import javax.persistence.*;
 
-public interface WorkloadDecisionMaker {
+@Entity
+public class DecisionPerSessionEntity {
 
-    Decision makeDecision(WorkloadComparisonResult result);
+    @Id
+    // Identity strategy is not supported by Oracle DB from the box
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column
+    private Long id;
+
+    @Column
+    private String sessionId;
+
+    @Column
+    private String decision;
+
+    public DecisionPerSessionEntity() {
+    }
+
+    public DecisionPerSessionEntity(String sessionId, String decision) {
+        this.sessionId = sessionId;
+        this.decision = decision;
+    }
+
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
+
+    public String getDecision() {
+        return decision;
+    }
+
+    public void setDecision(String decision) {
+        this.decision = decision;
+    }
 
 }

@@ -21,6 +21,7 @@ package com.griddynamics.jagger.engine.e1.sessioncomparation;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import com.griddynamics.jagger.util.Decision;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;

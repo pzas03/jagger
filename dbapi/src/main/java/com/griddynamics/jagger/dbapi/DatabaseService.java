@@ -67,7 +67,7 @@ public interface DatabaseService {
     /** Returns tests for specified session ids
      * @param sessionIds - selected sessions
      * @param sessionMatchingSetup - setup how to match sessions and what parameters to use for matching
-     * @return SessionInfoProvider */
+     * @return list of test info */
     List<TaskDataDto> getTaskDataForSessions(Set<String> sessionIds, SessionMatchingSetup sessionMatchingSetup);
 
     /** Returns list of session ids corresponding to given task ids
@@ -75,4 +75,16 @@ public interface DatabaseService {
      * @return list of session Ids */
     List<String> getSessionIdsByTaskIds(Set<Long> taskIds);
 
-    }
+    /** Returns list of test group task ids corresponding to given test task ids
+     * @param taskIds TaskData ids
+     * @return map <test-group id, set<tests ids>>
+     */
+    Map<Long, Set<Long>> getTestGroupIdsByTestIds(Set<Long> taskIds);
+
+    /** Returns list of decisions (per test, test group) corresponding to given task ids
+     * @param taskIds TaskData ids
+     * @return set of decisions
+     */
+    Set<TaskDecisionDto> getDecisionsByTaskIds(Set<Long> taskIds);
+
+}

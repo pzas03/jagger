@@ -26,7 +26,7 @@ import com.griddynamics.jagger.dbapi.entity.WorkloadData;
 import com.griddynamics.jagger.dbapi.entity.WorkloadProcessDescriptiveStatistics;
 import com.griddynamics.jagger.dbapi.entity.WorkloadProcessLatencyPercentile;
 import com.griddynamics.jagger.dbapi.entity.WorkloadTaskData;
-import com.griddynamics.jagger.engine.e1.sessioncomparation.Decision;
+import com.griddynamics.jagger.util.Decision;
 import com.griddynamics.jagger.reporting.AbstractReportProvider;
 import com.griddynamics.jagger.util.TimeUtils;
 import net.sf.jasperreports.engine.JRDataSource;
