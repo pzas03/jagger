@@ -186,7 +186,7 @@ public class Master implements Runnable {
         NodeContext context = contextBuilder.build();
 
         // add additional listener to configuration
-        // done here, because we need to set context
+        // done here (not in spring like other listeners), because we need to set context to this listener
         decisionMakerDistributionListener.setNodeContext(context);
         configuration.getDistributionListeners().add(decisionMakerDistributionListener);
 
