@@ -36,7 +36,7 @@ public class BasicTGDecisionMakerListener extends ServicesAware implements Provi
 
                 decisionPerTestGroup = worstCaseDecisionMaker.getDecision(decisions);
 
-                log.info("Decision for test group {} - {}",decisionMakerInfo.getTestGroup().getTaskName(),decisionPerTestGroup);
+                log.info("\nDecision for test group {} - {}",decisionMakerInfo.getTestGroup().getTaskName(),decisionPerTestGroup);
 
                 return decisionPerTestGroup;
             }
