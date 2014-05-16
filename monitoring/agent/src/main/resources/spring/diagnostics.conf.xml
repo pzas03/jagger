@@ -64,11 +64,16 @@
     </bean>
 
     <bean id="jmxConnector" class="com.griddynamics.jagger.agent.impl.JmxConnector">
-        <!--??? variable -->
-        <property name="connectionTimeout" value="30000"/>
-        <property name="connectionPeriod" value="5000"/>
+        <property name="connectionTimeout" ref="jmxConnectionTimeout"/>
+        <property name="connectionPeriod" value="${jmx.connection.retry.period}"/>
         <property name="urlFormat" value="${jmx.url.format}"/>
         <property name="jmxServices" value="${jmx.services}"/>
     </bean>
+
+    <bean id="jmxConnectionTimeout" class="com.griddynamics.jagger.util.Timeout">
+        <property name="value" value="${jmx.connection.timeout}"/>
+        <property name="name"  value="jmx.connection.timeout"/>
+    </bean>
+
 
 </beans>

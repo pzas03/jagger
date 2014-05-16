@@ -58,10 +58,7 @@ public class RemoteMultiThreadInfoProvider implements ThreadInfoProvider {
 
     @Override
     public Set<String> getIdentifiersSuT() {
-        //???
-        //contained in connections key set
-        //???return Sets.newHashSet(AgentUtils.splitServices(this.jmxServices));
-        return null;
+        return connections.keySet();
     }
 
     @Override

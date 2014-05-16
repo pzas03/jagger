@@ -2,6 +2,7 @@ package com.griddynamics.jagger.agent.impl;
 
 import com.google.common.collect.Maps;
 import com.griddynamics.jagger.util.AgentUtils;
+import com.griddynamics.jagger.util.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -13,19 +14,17 @@ import java.util.Map;
 public class JmxConnector {
     private final static Logger log = LoggerFactory.getLogger(JMXSystemUnderTestImpl.class);
 
-    //??? use timeout class
-    private long connectionTimeout;
+    private Timeout connectionTimeout = new Timeout(1,"");
     private long connectionPeriod;
     private String jmxServices;
     private String urlFormat;
 
-
-    public long getConnectionTimeout() {
+    public Timeout getConnectionTimeout() {
         return connectionTimeout;
     }
 
     @Required
-    public void setConnectionTimeout(long connectionTimeout) {
+    public void setConnectionTimeout(Timeout connectionTimeout) {
         this.connectionTimeout = connectionTimeout;
     }
 
@@ -63,7 +62,7 @@ public class JmxConnector {
         long startTime = System.currentTimeMillis();
         long lifeTime = 0;
 
-        while (lifeTime < connectionTimeout) {
+        while (lifeTime < connectionTimeout.getValue()) {
             try {
                 exception = null;
 
@@ -92,7 +91,8 @@ public class JmxConnector {
         }
 
         if (connections.size() == 0) {
-            log.error("JMX connection was not established in {} ms",lifeTime);
+            log.error("Timeout. JMX connection was not established in {} ms. Timeout setup {}",
+                    lifeTime,connectionTimeout.toString());
             if (exception != null) {
                 log.error("Error during JMX initializing",exception);
             }
