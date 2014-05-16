@@ -11,9 +11,8 @@ import java.util.List;
  */
 public class DetailsNode extends AbstractIdentifyNode {
 
-    SessionScopePlotsNode sessionScopePlotsNode;
-
     List<TestDetailsNode> tests;
+    private MetricGroupNode sessionScopeNode;
 
     public DetailsNode() {}
 
@@ -21,12 +20,12 @@ public class DetailsNode extends AbstractIdentifyNode {
         super(id, displayName);
     }
 
-    public SessionScopePlotsNode getSessionScopePlotsNode() {
-        return sessionScopePlotsNode;
+    public MetricGroupNode getSessionScopeNode() {
+        return sessionScopeNode;
     }
 
-    public void setSessionScopePlotsNode(SessionScopePlotsNode sessionScopePlotsNode) {
-        this.sessionScopePlotsNode = sessionScopePlotsNode;
+    public void setSessionScopeNode(MetricGroupNode sessionScopeNode) {
+        this.sessionScopeNode = sessionScopeNode;
     }
 
     public List<TestDetailsNode> getTests() {
@@ -43,7 +42,7 @@ public class DetailsNode extends AbstractIdentifyNode {
     @Override
     public List<? extends AbstractIdentifyNode> getChildren() {
         List<AbstractIdentifyNode> result = new ArrayList<AbstractIdentifyNode>();
-        if (sessionScopePlotsNode != null) result.add(sessionScopePlotsNode);
+        if (sessionScopeNode != null) result.add(sessionScopeNode);
         if (tests != null && !tests.isEmpty()) result.addAll(tests);
         return result;
     }

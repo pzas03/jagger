@@ -17,8 +17,4 @@ public abstract class PlotsServingBase {
         return "" + metricNameDto.getTest().hashCode() + "#metric-scope-plot-" + metricNameDto.getMetricName().toLowerCase().replaceAll("\\s+", "-");
     }
 
-    protected String generateSessionScopePlotId(String sessionId, String plotName) {
-        return sessionId + "#session-scope-plot-" + plotName.toLowerCase().replaceAll("\\s+", "-");
-    }
-
 }

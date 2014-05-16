@@ -23,20 +23,10 @@ public class DetailsNodeHandler extends TreeAwareHandler<DetailsNode> {
             testScopePlotNames.addAll(test.getMetrics());
         }
 
-        Set<SessionPlotNameDto> sessionScopePlotNames = new HashSet<SessionPlotNameDto>();
-        if (detailsNode.getSessionScopePlotsNode() != null) {
-            for (MonitoringSessionScopePlotNode monitoringPlotNode: detailsNode.getSessionScopePlotsNode().getPlots()) {
-                for (SessionPlotNode plotNode : monitoringPlotNode.getPlots()) {
-                    sessionScopePlotNames.add(plotNode.getPlotNameDto());
-                }
-            }
-        }
 
         if (Tree.CheckState.CHECKED.equals(event.getChecked())) {
-            sessionScopePlotFetcher.fetchPlots(sessionScopePlotNames, false);
             testPlotFetcher.fetchPlots(testScopePlotNames);
         } else {
-            sessionScopePlotFetcher.removePlots(sessionScopePlotNames);
             testPlotFetcher.removePlots(testScopePlotNames);
         }
     }

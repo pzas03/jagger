@@ -17,7 +17,6 @@ public abstract class TreeAwareHandler<T> extends PlotsServingBase implements Ch
     protected Trends.MetricFetcher metricFetcher;
     protected SessionComparisonPanel sessionComparisonPanel;
     protected Trends.TestPlotFetcher testPlotFetcher;
-    protected Trends.SessionScopePlotFetcher sessionScopePlotFetcher;
     protected Trends.TestInfoFetcher testInfoFetcher;
 
     public void setTree(ControlTree<String> tree) {
@@ -34,10 +33,6 @@ public abstract class TreeAwareHandler<T> extends PlotsServingBase implements Ch
 
     public void setTestPlotFetcher(Trends.TestPlotFetcher testPlotFetcher) {
         this.testPlotFetcher = testPlotFetcher;
-    }
-
-    public void setSessionScopePlotFetcher(Trends.SessionScopePlotFetcher sessionScopePlotFetcher) {
-        this.sessionScopePlotFetcher = sessionScopePlotFetcher;
     }
 
     public void setTestInfoFetcher(Trends.TestInfoFetcher testInfoFetcher) {

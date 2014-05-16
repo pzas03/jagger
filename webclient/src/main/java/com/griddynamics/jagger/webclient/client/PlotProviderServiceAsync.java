@@ -16,7 +16,5 @@ import java.util.Set;
  */
 public interface PlotProviderServiceAsync {
 
-    void getSessionScopePlotData(String sessionId, Collection<SessionPlotNameDto> plotType, AsyncCallback<Map<SessionPlotNameDto, List<PlotSeriesDto>>> async);
-
     void getPlotData(Set<MetricNode> plots, AsyncCallback<Map<MetricNode,PlotSeriesDto>> async);
 }
