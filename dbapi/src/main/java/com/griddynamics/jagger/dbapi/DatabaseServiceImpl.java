@@ -314,6 +314,10 @@ public class DatabaseServiceImpl implements DatabaseService {
                 case THROUGHPUT:
                     fetchMap.put(throughputMetricPlotFetcher, metricNameDto);
                     break;
+                case SESSION_SCOPE_MONITORING:
+                    break;
+                case SESSION_SCOPE_TG:
+                    break;
                 default:  // if anything else
                     log.error("MetricNameDto with origin : {} appears in metric name list for plot retrieving ({})", metricNameDto.getOrigin(), metricNameDto);
                     throw new RuntimeException("Unable to get plot for metric " + metricNameDto.getMetricName() +
