@@ -1,19 +1,30 @@
-package com.griddynamics.jagger.dbapi.entity;
+package com.griddynamics.jagger.engine.e1.services.data.service;
 
-/**
- * Created with IntelliJ IDEA.
- * User: kgribov
- * Date: 12/5/13
- * Time: 12:26 PM
- * To change this template use File | Settings | File Templates.
+/** Class is a model of test
+ *
+ * @details
+ * TestEntity is used to get test results from database with use of @ref DataService
+ *
+ * @author
+ * Gribov Kirill
  */
 public class TestEntity {
+    /** Test id (aka task id) - unique id of this test */
     private Long id;
+
+    /** Test name in format [test group name] [test name] */
     private String name;
+
+    /** Test description */
     private String description;
+
+    /** Description of the load for this test */
     private String load;
+
+    /** Description of the termination strategy for this test */
     private String terminationStrategy;
 
+    /** Get test name in format [test group name] [test name] */
     public String getName() {
         return name;
     }
@@ -22,6 +33,7 @@ public class TestEntity {
         this.name = name;
     }
 
+    /** Get description of the load for this test */
     public String getLoad() {
         return load;
     }
@@ -30,6 +42,7 @@ public class TestEntity {
         this.load = load;
     }
 
+    /** Get description of the termination strategy for this test */
     public String getTerminationStrategy() {
         return terminationStrategy;
     }
@@ -38,6 +51,7 @@ public class TestEntity {
         this.terminationStrategy = terminationStrategy;
     }
 
+    /** Get test id (aka task id) - unique id of this test */
     public Long getId() {
         return id;
     }
@@ -46,6 +60,7 @@ public class TestEntity {
         this.id = id;
     }
 
+    /** Get test description */
     public String getDescription() {
         return description;
     }
@@ -79,5 +94,16 @@ public class TestEntity {
         result = 31 * result + (load != null ? load.hashCode() : 0);
         result = 31 * result + (terminationStrategy != null ? terminationStrategy.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "TestEntity{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", load='" + load + '\'' +
+                ", terminationStrategy='" + terminationStrategy + '\'' +
+                '}';
     }
 }

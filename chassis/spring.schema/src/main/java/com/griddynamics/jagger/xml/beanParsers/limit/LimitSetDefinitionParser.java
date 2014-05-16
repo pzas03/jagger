@@ -22,6 +22,10 @@ public class LimitSetDefinitionParser extends CustomBeanDefinitionParser {
     protected void parse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
         List<Element> limits = DomUtils.getChildElementsByTagName(element, XMLConstants.LIMIT);
         builder.addPropertyValue(XMLConstants.LIMITS, parseCustomElements(limits, parserContext, builder.getBeanDefinition()));
+        // inject bean of baseline session provider
+        builder.addPropertyReference("baselineSessionProvider","baselineSessionProvider");
+        // inject config bean
+        builder.addPropertyReference("limitSetConfig","limitSetConfig");
     }
 
     @Override

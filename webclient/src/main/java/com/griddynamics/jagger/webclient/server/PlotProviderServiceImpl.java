@@ -2,7 +2,6 @@ package com.griddynamics.jagger.webclient.server;
 
 import com.griddynamics.jagger.dbapi.DatabaseService;
 import com.griddynamics.jagger.dbapi.dto.PlotSeriesDto;
-import com.griddynamics.jagger.dbapi.dto.SessionPlotNameDto;
 import com.griddynamics.jagger.webclient.client.PlotProviderService;
 import com.griddynamics.jagger.dbapi.model.MetricNode;
 import org.springframework.beans.factory.annotation.Required;
@@ -25,7 +24,7 @@ public class PlotProviderServiceImpl implements PlotProviderService {
 
     @Override
     public Map<MetricNode, PlotSeriesDto> getPlotData(Set<MetricNode> plots) throws RuntimeException {
-        return databaseService.getPlotData(plots);
+        return databaseService.getPlotDataByMetricNode(plots);
     }
 
 }

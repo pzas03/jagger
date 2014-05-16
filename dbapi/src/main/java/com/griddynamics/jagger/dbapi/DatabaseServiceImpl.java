@@ -77,6 +77,8 @@ public class DatabaseServiceImpl implements DatabaseService {
     private CustomTestGroupMetricSummaryFetcher customTestGroupMetricSummaryFetcher;
     private ValidatorSummaryFetcher validatorSummaryFetcher;
 
+    private FetchUtil fetchUtil;
+
     //==========Setters
 
     @PersistenceContext
@@ -220,47 +222,102 @@ public class DatabaseServiceImpl implements DatabaseService {
         this.validatorNamesProvider = validatorNamesProvider;
     }
 
+    @Required
+    public void setFetchUtil(FetchUtil fetchUtil) {
+        this.fetchUtil = fetchUtil;
+    }
+
     //===========================
     //=======Get plot data=======
     //===========================
 
-    public Map<MetricNode, PlotSeriesDto> getPlotData(Set<MetricNode> plots) throws IllegalArgumentException{
+    @Override
+    public Map<MetricNode, PlotSeriesDto> getPlotDataByMetricNode(Set<MetricNode> plots) throws IllegalArgumentException{
+
+        if (plots.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        long temp = System.currentTimeMillis();
+
+        Set<MetricNameDto> metricNameDtoSet = new HashSet<MetricNameDto>();
+
+        for (MetricNode metricNode : plots) {
+            metricNameDtoSet.addAll(metricNode.getMetricNameDtoList());
+        }
+
+        Map<MetricNameDto,List<PlotDatasetDto>> resultMap = getPlotDataByMetricNameDto(metricNameDtoSet);
+
+        Multimap<MetricNode, PlotDatasetDto> tempMultiMap = ArrayListMultimap.create();
+
+        for (Map.Entry<MetricNameDto,List<PlotDatasetDto>> entry : resultMap.entrySet()) {
+            for (MetricNode metricNode : plots) {
+                if (metricNode.getMetricNameDtoList().contains(entry.getKey())) {
+                    tempMultiMap.putAll(metricNode, entry.getValue());
+                    break;
+                }
+            }
+        }
+
+        Map<MetricNode, PlotSeriesDto> result = new HashMap<MetricNode, PlotSeriesDto>();
+
+        for (MetricNode metricNode : plots) {
+            List<PlotDatasetDto> plotDatasetDtoList = new ArrayList<PlotDatasetDto>(tempMultiMap.get(metricNode));
+
+            // Sort lines by legend
+            Collections.sort(plotDatasetDtoList, new Comparator<PlotDatasetDto>() {
+                @Override
+                public int compare(PlotDatasetDto o1, PlotDatasetDto o2) {
+                    String param1 = o1.getLegend();
+                    String param2 = o2.getLegend();
+                    int res = String.CASE_INSENSITIVE_ORDER.compare(param1,param2);
+                    return (res != 0) ? res : param1.compareTo(param2);
+                }
+            });
+
+            // at the moment all MetricNameDtos in MetricNode have same taskIds => it is valid to use first one for legend provider
+            result.put(metricNode, new PlotSeriesDto(plotDatasetDtoList,"Time, sec", "",legendProvider.getPlotHeader(metricNode.getMetricNameDtoList().get(0).getTaskIds(), metricNode.getDisplayName())));
+        }
+
+        log.debug("Total time of plots for metricNodes retrieving : " + (System.currentTimeMillis() - temp));
+        return result;
+    }
+
+    @Override
+    public Map<MetricNameDto, List<PlotDatasetDto>> getPlotDataByMetricNameDto(Set<MetricNameDto> metricNames) throws IllegalArgumentException {
+
+        if (metricNames.isEmpty()) {
+            return Collections.emptyMap();
+        }
 
         long temp = System.currentTimeMillis();
 
         final Multimap<PlotsDbMetricDataFetcher, MetricNameDto> fetchMap = ArrayListMultimap.create();
 
-        for (MetricNode metricNode : plots) {
-            for (MetricNameDto metricNameDto : metricNode.getMetricNameDtoList()) {
-                switch (metricNameDto.getOrigin()) {
-                    case METRIC:
-                        fetchMap.put(customMetricPlotFetcher, metricNameDto);
-                        break;
-                    case TEST_GROUP_METRIC:
-                        fetchMap.put(customTestGroupMetricPlotFetcher, metricNameDto);
-                        break;
-                    case MONITORING:
-                        fetchMap.put(monitoringMetricPlotFetcher, metricNameDto);
-                        break;
-                    case LATENCY:
-                        fetchMap.put(latencyMetricPlotFetcher, metricNameDto);
-                        break;
-                    case LATENCY_PERCENTILE:
-                        fetchMap.put(timeLatencyPercentileMetricPlotFetcher, metricNameDto);
-                        break;
-                    case THROUGHPUT:
-                        fetchMap.put(throughputMetricPlotFetcher, metricNameDto);
-                        break;
-                    case SESSION_SCOPE_TG:
-                        break;
-                    case SESSION_SCOPE_MONITORING:
-                        break;
-
-                    default:  // if anything else
-                        log.error("MetricNameDto with origin : {} appears in metric name list for plot retrieving ({})", metricNameDto.getOrigin(), metricNameDto);
-                        throw new RuntimeException("Unable to get plot for metric " + metricNameDto.getMetricName() +
-                                " with origin: " + metricNameDto.getOrigin());
-                }
+        for (MetricNameDto metricNameDto : metricNames) {
+            switch (metricNameDto.getOrigin()) {
+                case METRIC:
+                    fetchMap.put(customMetricPlotFetcher, metricNameDto);
+                    break;
+                case TEST_GROUP_METRIC:
+                    fetchMap.put(customTestGroupMetricPlotFetcher, metricNameDto);
+                    break;
+                case MONITORING:
+                    fetchMap.put(monitoringMetricPlotFetcher, metricNameDto);
+                    break;
+                case LATENCY:
+                    fetchMap.put(latencyMetricPlotFetcher, metricNameDto);
+                    break;
+                case LATENCY_PERCENTILE:
+                    fetchMap.put(timeLatencyPercentileMetricPlotFetcher, metricNameDto);
+                    break;
+                case THROUGHPUT:
+                    fetchMap.put(throughputMetricPlotFetcher, metricNameDto);
+                    break;
+                default:  // if anything else
+                    log.error("MetricNameDto with origin : {} appears in metric name list for plot retrieving ({})", metricNameDto.getOrigin(), metricNameDto);
+                    throw new RuntimeException("Unable to get plot for metric " + metricNameDto.getMetricName() +
+                            " with origin: " + metricNameDto.getOrigin());
             }
         }
 
@@ -289,45 +346,23 @@ public class DatabaseServiceImpl implements DatabaseService {
             throw new RuntimeException("Exception while plots retrieving", th);
         }
 
-        Multimap<MetricNode, PlotDatasetDto> tempMultiMap = ArrayListMultimap.create();
+        Map<MetricNameDto, List<PlotDatasetDto>> result = new HashMap<MetricNameDto, List<PlotDatasetDto>>();
 
         for (Pair<MetricNameDto, List<PlotDatasetDto>> pair : resultSet) {
-            for (MetricNode metricNode : plots) {
-                if (metricNode.getMetricNameDtoList().contains(pair.getFirst())) {
-                    tempMultiMap.putAll(metricNode, pair.getSecond());
-                    break;
-                }
-            }
+            result.put(pair.getFirst(),pair.getSecond());
         }
 
-        Map<MetricNode, PlotSeriesDto> result = new HashMap<MetricNode, PlotSeriesDto>();
+        log.debug("Total time of plots for metricNameDtos retrieving : " + (System.currentTimeMillis() - temp));
 
-        for (MetricNode metricNode : plots) {
-            List<PlotDatasetDto> plotDatasetDtoList = new ArrayList<PlotDatasetDto>(tempMultiMap.get(metricNode));
-
-            // Sort lines by legend
-            Collections.sort(plotDatasetDtoList, new Comparator<PlotDatasetDto>() {
-                @Override
-                public int compare(PlotDatasetDto o1, PlotDatasetDto o2) {
-                    String param1 = o1.getLegend();
-                    String param2 = o2.getLegend();
-                    int res = String.CASE_INSENSITIVE_ORDER.compare(param1,param2);
-                    return (res != 0) ? res : param1.compareTo(param2);
-                }
-            });
-
-            // at the moment all MetricNameDtos in MetricNode have same taskIds => it is valid to use first one for legend provider
-            result.put(metricNode, new PlotSeriesDto(plotDatasetDtoList,"Time, sec", "",legendProvider.getPlotHeader(metricNode.getMetricNameDtoList().get(0).getTaskIds(), metricNode.getDisplayName())));
-        }
-
-        log.debug("Total time of plots retrieving : " + (System.currentTimeMillis() - temp));
         return result;
     }
 
     //===========================
     //=====Get control tree======
     //===========================
-    public RootNode getControlTreeForSessions(Set<String> sessionIds) throws RuntimeException {
+
+    @Override
+    public RootNode getControlTreeForSessions(Set<String> sessionIds, SessionMatchingSetup sessionMatchingSetup) throws RuntimeException {
 
         try {
 
@@ -335,10 +370,10 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             RootNode rootNode = new RootNode();
 
-            List<TaskDataDto> taskList = fetchTaskDatas(sessionIds);
+            List<TaskDataDto> taskList = fetchTaskDatas(sessionIds,sessionMatchingSetup);
 
-            Future<SummaryNode> summaryFuture = threadPool.submit(new SummaryNodeFetcherTread(sessionIds, taskList));
-            Future<DetailsNode> detailsNodeFuture = threadPool.submit(new DetailsNodeFetcherTread(sessionIds, taskList));
+            Future<SummaryNode> summaryFuture = threadPool.submit(new SummaryNodeFetcherThread(sessionIds, taskList));
+            Future<DetailsNode> detailsNodeFuture = threadPool.submit(new DetailsNodeFetcherThread(sessionIds, taskList));
 
             SummaryNode summaryNode = summaryFuture.get();
             DetailsNode detailsNode = detailsNodeFuture.get();
@@ -359,7 +394,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     //===========================
     //=====Get summary data======
     //===========================
-    public List<MetricDto> getMetrics(List<MetricNameDto> metricNames) {
+
+    @Override
+    public List<MetricDto> getSummaryByMetricNameDto(List<MetricNameDto> metricNames) {
 
         long temp = System.currentTimeMillis();
         List<MetricDto> result = new ArrayList<MetricDto>(metricNames.size());
@@ -425,6 +462,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         return result;
     }
 
+    @Override
     public Map<String,Set<String>> getDefaultMonitoringParameters() {
         return defaultMonitoringParams;
     }
@@ -465,12 +503,12 @@ public class DatabaseServiceImpl implements DatabaseService {
 
         long temp = System.currentTimeMillis();
         List<Object[]> monitoringTaskIds = entityManager.createNativeQuery(
-                "select test.id, some.taskDataId from " +
+                "select test.id, mysome.taskDataId from " +
                         "  ( " +
                         "    select test.id, test.sessionId, test.taskId from TaskData as test where test.sessionId in (:sessionIds)" +
                         "  ) as test join " +
                         "  (" +
-                        "    select some.parentId, pm.monitoringId, some.taskDataId, pm.sessionId from" +
+                        "    select mysome.parentId, pm.monitoringId, mysome.taskDataId, pm.sessionId from" +
                         "      (" +
                         "        select pm.monitoringId, pm.sessionId, pm.parentId from PerformedMonitoring as pm where pm.sessionId in (:sessionIds) " +
                         "      ) as pm join " +
@@ -483,8 +521,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                         "            on td2.id in (:taskIds)" +
                         "            and wd.sessionId = td2.sessionId" +
                         "            and wd.taskId=td2.taskId" +
-                        "      ) as some on pm.sessionId = some.sessionId and pm.parentId=some.parentId" +
-                        "  ) as some on test.sessionId = some.sessionId and test.taskId=some.monitoringId"
+                        "      ) as mysome on pm.sessionId = mysome.sessionId and pm.parentId=mysome.parentId" +
+                        "  ) as mysome on test.sessionId = mysome.sessionId and test.taskId=mysome.monitoringId"
         )
                 .setParameter("taskIds", taskIds)
                 .setParameter("sessionIds", sessionIds)
@@ -764,12 +802,13 @@ public class DatabaseServiceImpl implements DatabaseService {
         return resultMap;
     }
 
-    private List<TaskDataDto> getTaskDataForSessions(Set<String> sessionIds) {
+    @Override
+    public List<TaskDataDto> getTaskDataForSessions(Set<String> sessionIds, SessionMatchingSetup sessionMatchingSetup) {
 
         long timestamp = System.currentTimeMillis();
 
         int havingCount = 0;
-        if (webClientProperties.isShowOnlyMatchedTests()) {
+        if (sessionMatchingSetup.isShowOnlyMatchedTests()) {
             havingCount = sessionIds.size();
         }
 
@@ -823,6 +862,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         //group tests by description
         HashMap<String, TaskDataDto> map = new HashMap<String, TaskDataDto>(list.size());
         HashMap<String, Integer> mapIds = new HashMap<String, Integer>(list.size());
+        int i = 0;
         for (Object[] testData : list){
             BigInteger id = (BigInteger)testData[0];
             String name = (String) testData[1];
@@ -838,25 +878,66 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             int taskIdInt = Integer.parseInt(taskId.substring(5));
 
-            // todo: it should be configurable in future (task about matching strategy).
-            String key = description+name+termination+clock+clockValue;
-            if (map.containsKey(key)){
-                map.get(key).getIds().add(id.longValue());
-                map.get(key).getSessionIds().add(sessionId);
+            // key - defines how to match tests when several sessions are selected
+            StringBuilder key = new StringBuilder(255);
+            // uniqueIdParams - is used to generate unique Ids for nodes in control tree depending on session matching strategy
+            List<String> uniqueIdParams = new ArrayList<String>();
 
-                Integer oldValue = mapIds.get(key);
-                mapIds.put(key, (oldValue==null ? 0 : oldValue)+taskIdInt);
+            // Define matching setup
+            Set<SessionMatchingSetup.MatchBy> matchingSetup = sessionMatchingSetup.getMatchingSetup();
+            if (matchingSetup.isEmpty()) {
+                // no matching at all
+
+                key.append(i++);
+
+                uniqueIdParams.add(description);
+                uniqueIdParams.add(name);
+                uniqueIdParams.add(termination);
+                uniqueIdParams.add(clock);
+                uniqueIdParams.add(clockValue.toString());
+                // sessionId is required to display tests with all equal attributes (description, name, etc)
+                uniqueIdParams.add(sessionId);
+            }
+            else {
+                if (matchingSetup.contains(SessionMatchingSetup.MatchBy.DESCRIPTION) || (matchingSetup.contains(SessionMatchingSetup.MatchBy.ALL))) {
+                    key.append(description);
+                    uniqueIdParams.add(description);
+                }
+                if (matchingSetup.contains(SessionMatchingSetup.MatchBy.NAME) || (matchingSetup.contains(SessionMatchingSetup.MatchBy.ALL))) {
+                    key.append(name);
+                    uniqueIdParams.add(name);
+                }
+                if (matchingSetup.contains(SessionMatchingSetup.MatchBy.TERMINATION) || (matchingSetup.contains(SessionMatchingSetup.MatchBy.ALL))) {
+                    key.append(termination);
+                    uniqueIdParams.add(termination);
+                }
+                if (matchingSetup.contains(SessionMatchingSetup.MatchBy.CLOCK) || (matchingSetup.contains(SessionMatchingSetup.MatchBy.ALL))) {
+                    key.append(clock);
+                    uniqueIdParams.add(clock);
+                }
+                if (matchingSetup.contains(SessionMatchingSetup.MatchBy.CLOCK_VALUE) || (matchingSetup.contains(SessionMatchingSetup.MatchBy.ALL))) {
+                    key.append(clockValue);
+                    uniqueIdParams.add(clockValue.toString());
+                }
+            }
+
+            // Provide matching
+            if (map.containsKey(key.toString())){
+                map.get(key.toString()).getIds().add(id.longValue());
+                map.get(key.toString()).getSessionIds().add(sessionId);
+
+                Integer oldValue = mapIds.get(key.toString());
+                mapIds.put(key.toString(), (oldValue==null ? 0 : oldValue)+taskIdInt);
             }else{
                 TaskDataDto taskDataDto = new TaskDataDto(id.longValue(), name, description);
                 Set<String> sessionIdList = new TreeSet<String>();
                 sessionIdList.add(sessionId);
                 taskDataDto.setSessionIds(sessionIdList);
-                // generate unique to make difference between tests with different matching parameters.
-                int uniqueId = CommonUtils.generateUniqueId(name, description, taskId, clock, clockValue, termination);
-                taskDataDto.setUniqueId(uniqueId);
+                // generate unique id to make difference between tests with different matching parameters.
+                taskDataDto.setUniqueId(CommonUtils.generateUniqueId(uniqueIdParams));
 
-                map.put(key, taskDataDto);
-                mapIds.put(key, taskIdInt);
+                map.put(key.toString(), taskDataDto);
+                mapIds.put(key.toString(), taskIdInt);
             }
         }
 
@@ -914,9 +995,9 @@ public class DatabaseServiceImpl implements DatabaseService {
         return false;
     }
 
-    private List<TaskDataDto> fetchTaskDatas(Set<String> sessionIds) {
+    private List<TaskDataDto> fetchTaskDatas(Set<String> sessionIds, SessionMatchingSetup sessionMatchingSetup) {
         long temp = System.currentTimeMillis();
-        List<TaskDataDto> tddos = getTaskDataForSessions(sessionIds);
+        List<TaskDataDto> tddos = getTaskDataForSessions(sessionIds, sessionMatchingSetup);
         log.debug("load tests : {} for summary with {} ms", tddos, System.currentTimeMillis() - temp);
         return tddos;
     }
@@ -1072,10 +1153,10 @@ public class DatabaseServiceImpl implements DatabaseService {
         }
     }
 
-    public class SummaryNodeFetcherTread implements Callable<SummaryNode> {
+    public class SummaryNodeFetcherThread implements Callable<SummaryNode> {
         private Set<String> sessionIds;
         private List<TaskDataDto> taskList;
-        public SummaryNodeFetcherTread(Set<String> sessionIds, List<TaskDataDto> taskList) {
+        public SummaryNodeFetcherThread(Set<String> sessionIds, List<TaskDataDto> taskList) {
             this.sessionIds = sessionIds;
             this.taskList = taskList;
         }
@@ -1091,10 +1172,10 @@ public class DatabaseServiceImpl implements DatabaseService {
         }
     }
 
-    public class DetailsNodeFetcherTread implements Callable<DetailsNode> {
+    public class DetailsNodeFetcherThread implements Callable<DetailsNode> {
         private Set<String> sessionIds;
         private List<TaskDataDto> taskList;
-        public DetailsNodeFetcherTread(Set<String> sessionIds, List<TaskDataDto> taskList) {
+        public DetailsNodeFetcherThread(Set<String> sessionIds, List<TaskDataDto> taskList) {
             this.sessionIds = sessionIds;
             this.taskList = taskList;
         }
@@ -1151,19 +1232,50 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     @Override
-    public Map<TaskDataDto, Map<String, TestInfoDto>> getTestInfos(Collection<TaskDataDto> taskDataDtos) throws RuntimeException {
+    public Map<TaskDataDto, Map<String, TestInfoDto>> getTestInfoByTaskDataDto(Collection<TaskDataDto> taskDataDtos) throws RuntimeException {
 
         if (taskDataDtos.isEmpty()) {
-            return Collections.EMPTY_MAP;
+            return Collections.emptyMap();
         }
 
-        List<Long> taskDataIds = new ArrayList<Long>();
+        long temp = System.currentTimeMillis();
+
+        Set<Long> taskDataIds = new HashSet<Long>();
         for (TaskDataDto taskDataDto : taskDataDtos) {
             taskDataIds.addAll(taskDataDto.getIds());
         }
 
+        Map<Long,Map<String,TestInfoDto>> preliminaryResult = getTestInfoByTaskIds(taskDataIds);
+
+        Map<TaskDataDto, Map<String, TestInfoDto>> resultMap = new HashMap<TaskDataDto, Map<String, TestInfoDto>>(taskDataDtos.size());
+
+        for (Map.Entry<Long,Map<String,TestInfoDto>> entry : preliminaryResult.entrySet()) {
+            for (TaskDataDto td : taskDataDtos) {
+                if (td.getIds().contains(entry.getKey())) {
+                    if (!resultMap.containsKey(td)) {
+                        resultMap.put(td, new HashMap<String, TestInfoDto>());
+                    }
+
+                    resultMap.get(td).putAll(entry.getValue());
+                    break;
+                }
+            }
+        }
+
+        log.debug("Time spent for testInfo fetching for {} taskDataDtos : {}ms", new Object[]{taskDataDtos.size(), System.currentTimeMillis() - temp});
+
+        return resultMap;
+    }
+
+    @Override
+    public Map<Long, Map<String, TestInfoDto>> getTestInfoByTaskIds(Set<Long> taskIds) throws RuntimeException {
+
+        if (taskIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
 
         long temp = System.currentTimeMillis();
+
         @SuppressWarnings("all")
         List<Object[]> objectsList = (List<Object[]>)entityManager.createNativeQuery(
                 "select wtd.sessionId, wtd.clock, wtd.clockValue, wtd.termination, taskData.id " +
@@ -1171,11 +1283,10 @@ public class DatabaseServiceImpl implements DatabaseService {
                         "( select  td.id, td.sessionId, td.taskId from TaskData td where td.id in (:taskDataIds) " +
                         ") as taskData " +
                         "on wtd.sessionId=taskData.sessionId and wtd.taskId=taskData.taskId")
-                .setParameter("taskDataIds", taskDataIds)
+                .setParameter("taskDataIds", taskIds)
                 .getResultList();
-        log.debug("Time spent for testInfo fetching for {} tests : {}ms", new Object[]{taskDataDtos.size(), System.currentTimeMillis() - temp});
 
-        Map<TaskDataDto, Map<String, TestInfoDto>> resultMap = new HashMap<TaskDataDto, Map<String, TestInfoDto>>(taskDataDtos.size());
+        Map<Long, Map<String, TestInfoDto>> resultMap = new HashMap<Long, Map<String, TestInfoDto>>(taskIds.size());
 
         for (Object[] objects : objectsList) {
 
@@ -1184,20 +1295,17 @@ public class DatabaseServiceImpl implements DatabaseService {
             String termination = (String)objects[3];
             String sessionId = (String)objects[0];
 
-            for (TaskDataDto td : taskDataDtos) {
-                if (td.getIds().contains(taskId)) {
-                    if (!resultMap.containsKey(td)) {
-                        resultMap.put(td, new HashMap<String, TestInfoDto>());
-                    }
-
-                    TestInfoDto testInfo = new TestInfoDto();
-                    testInfo.setClock(clock);
-                    testInfo.setTermination(termination);
-                    resultMap.get(td).put(sessionId, testInfo);
-                    break;
-                }
+            if (!resultMap.containsKey(taskId)) {
+                resultMap.put(taskId,new HashMap<String, TestInfoDto>());
             }
+            TestInfoDto testInfo = new TestInfoDto();
+            testInfo.setClock(clock);
+            testInfo.setTermination(termination);
+
+            resultMap.get(taskId).put(sessionId,testInfo);
         }
+
+        log.debug("Time spent for testInfo fetching for {} tests ids: {}ms", new Object[]{taskIds.size(), System.currentTimeMillis() - temp});
 
         return resultMap;
     }
@@ -1268,6 +1376,11 @@ public class DatabaseServiceImpl implements DatabaseService {
         }
 
         return nodeInfoPerSessionDtoList;
+    }
+
+    @Override
+    public List<String> getSessionIdsByTaskIds(Set<Long> taskIds) {
+        return fetchUtil.getSessionIdsByTaskIds(taskIds);
     }
 
 
