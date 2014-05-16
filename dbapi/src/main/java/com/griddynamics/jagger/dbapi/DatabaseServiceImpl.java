@@ -371,7 +371,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             List<TaskDataDto> taskList = fetchTaskDatas(sessionIds,sessionMatchingSetup);
 
-            Future<SummaryNode> summaryFuture = threadPool.submit(new SummaryNodeFetcherThread(sessionIds, taskList));
+            Future<SummaryNode> summaryFuture = threadPool.submit(new SummaryNodeFetcherThread(taskList));
             Future<DetailsNode> detailsNodeFuture = threadPool.submit(new DetailsNodeFetcherThread(sessionIds, taskList));
             //Future<SessionScopePlotsNode> sessionScopePlotsNodeFuture = threadPool.submit(new SessionScopePlotsNodeFetcherThread(sessionIds));
 
@@ -640,14 +640,12 @@ public class DatabaseServiceImpl implements DatabaseService {
         List<MetricNameDto> metricNameDtoList = new ArrayList<MetricNameDto>();
         try {
 
-            Map<TaskDataDto, Boolean> isWorkloadMap = isWorkloadStatisticsAvailable(taskList);
-            for (Map.Entry<TaskDataDto, Boolean> entry: isWorkloadMap.entrySet()) {
-                if (entry.getValue()) {
-                    for (Map.Entry<GroupKey, DefaultWorkloadParameters[]> monitoringPlot : workloadPlotGroups.entrySet()) {
-                        MetricNameDto metricNameDto = new MetricNameDto(entry.getKey(), monitoringPlot.getKey().getUpperName());
-                        metricNameDto.setOrigin(monitoringPlot.getValue()[0].getOrigin());
-                        metricNameDtoList.add(metricNameDto);
-                    }
+            Set<TaskDataDto> tasksWithWorkload = getTasksWithWorkloadStatistics(taskList);
+            for (TaskDataDto taskDataDto : tasksWithWorkload) {
+                for (Map.Entry<GroupKey, DefaultWorkloadParameters[]> monitoringPlot : workloadPlotGroups.entrySet()) {
+                    MetricNameDto metricNameDto = new MetricNameDto(taskDataDto, monitoringPlot.getKey().getUpperName());
+                    metricNameDto.setOrigin(monitoringPlot.getValue()[0].getOrigin());
+                    metricNameDtoList.add(metricNameDto);
                 }
             }
 
@@ -753,7 +751,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         return newResultMap;
     }
 
-    private Map<TaskDataDto, Boolean> isWorkloadStatisticsAvailable(List<TaskDataDto> tests) {
+    private Set<TaskDataDto> getTasksWithWorkloadStatistics(List<TaskDataDto> tests) {
 
         List<Long> testsIds = new ArrayList<Long>();
         for (TaskDataDto tdd : tests) {
@@ -761,36 +759,21 @@ public class DatabaseServiceImpl implements DatabaseService {
         }
 
         long temp = System.currentTimeMillis();
-        List<Object[]> objects  = entityManager.createQuery("select tis.taskData.id, count(tis.id) from TimeInvocationStatistics as tis where tis.taskData.id in (:tests)")
-                .setParameter("tests", testsIds)
+        List<Long> availableTestIds  = (List<Long>)entityManager.createQuery("select distinct tis.taskData.id from TimeInvocationStatistics as tis where tis.taskData.id in (:testsIds)")
+                .setParameter("testsIds", testsIds)
                 .getResultList();
-        log.debug("db call to check if WorkloadStatisticsAvailable in {} ms (size: {})", System.currentTimeMillis() - temp, objects.size());
+        log.debug("db call to check if WorkloadStatisticsAvailable in {} ms (size: {})", System.currentTimeMillis() - temp, availableTestIds.size());
 
-
-        if (objects.isEmpty()) {
-            return Collections.EMPTY_MAP;
-        }
-
-        Map<TaskDataDto, Integer> tempMap = new HashMap<TaskDataDto, Integer>(tests.size());
-        for (TaskDataDto tdd : tests) {
-            tempMap.put(tdd, 0);
-        }
-
-        for (Object[] object : objects) {
-            for (TaskDataDto tdd : tests) {
-                if (tdd.getIds().contains((Long) object[1])) {
-                    int value = tempMap.get(tdd);
-                    tempMap.put(tdd, ++value);
+        Set<TaskDataDto> result = new HashSet<TaskDataDto>();
+        for (Long availableId : availableTestIds) {
+            for (TaskDataDto taskDataDto : tests) {
+                if (taskDataDto.getIds().contains(availableId)) {
+                    result.add(taskDataDto);
                 }
             }
         }
 
-        Map<TaskDataDto, Boolean> resultMap = new HashMap<TaskDataDto, Boolean>(tests.size());
-        for (Map.Entry<TaskDataDto, Integer> entry : tempMap.entrySet()) {
-            resultMap.put(entry.getKey(), entry.getValue() < entry.getKey().getIds().size());
-        }
-
-        return resultMap;
+        return result;
     }
 
     @Override
@@ -1111,10 +1094,8 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     public class SummaryNodeFetcherThread implements Callable<SummaryNode> {
-        private Set<String> sessionIds;
         private List<TaskDataDto> taskList;
-        public SummaryNodeFetcherThread(Set<String> sessionIds, List<TaskDataDto> taskList) {
-            this.sessionIds = sessionIds;
+        public SummaryNodeFetcherThread(List<TaskDataDto> taskList) {
             this.taskList = taskList;
         }
 
