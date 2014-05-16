@@ -27,12 +27,12 @@
           class="com.griddynamics.jagger.diagnostics.thread.sampling.SelfThreadInfoProvider"/>
 
     <bean id="threadInfoProviderStub" lazy-init="true"
-          class="com.griddynamics.jagger.diagnostics.thread.sampling.StubThreadInfoProvider"/>
+          class="com.griddynamics.jagger.agent.impl.StubThreadInfoProvider"/>
 
     <bean id="multiThreadInfoProviderRemote" lazy-init="true"
-          class="com.griddynamics.jagger.diagnostics.thread.sampling.RemoteMultiThreadInfoProvider" init-method="init">
-        <property name="urlFormat" value="${jmx.url.format}"/>
-        <property name="jmxServices" value="${jmx.services}"/>
+          class="com.griddynamics.jagger.agent.impl.RemoteMultiThreadInfoProvider" init-method="init">
+        <property name="executor" ref="agentExecutor"/>
+        <property name="jmxConnector" ref="jmxConnector"/>
     </bean>
 
     <alias name="multiThreadInfoProviderRemote" alias="trueThreadInfoProvider"/>
@@ -61,6 +61,14 @@
         </property>
         <property name="threadInfoProvider" ref="threadInfoProvider"/>
         <property name="jmxTimeout" ref="samplingProfilerTimeout"/>
+    </bean>
+
+    <bean id="jmxConnector" class="com.griddynamics.jagger.agent.impl.JmxConnector">
+        <!--??? variable -->
+        <property name="connectionTimeout" value="30000"/>
+        <property name="connectionPeriod" value="5000"/>
+        <property name="urlFormat" value="${jmx.url.format}"/>
+        <property name="jmxServices" value="${jmx.services}"/>
     </bean>
 
 </beans>
