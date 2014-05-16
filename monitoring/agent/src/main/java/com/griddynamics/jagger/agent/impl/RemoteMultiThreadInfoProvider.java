@@ -50,7 +50,6 @@ public class RemoteMultiThreadInfoProvider implements ThreadInfoProvider {
 
 
     private ConfigurableExecutor executor;
-    //    private JmxConnectorThread jmxConnectorThread;
     private JmxConnector jmxConnector;
     Future<Map<String, MBeanServerConnection>> future;
 
