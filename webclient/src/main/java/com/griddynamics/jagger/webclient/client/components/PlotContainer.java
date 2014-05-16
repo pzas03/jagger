@@ -115,13 +115,24 @@ public class PlotContainer extends VerticalPanel {
                 settingsMenu.show(settingsImageButton);
             }
         });
+        settingsImageButton.addMouseOverHandler(new MouseOverHandler() {
+            @Override
+            public void onMouseOver(MouseOverEvent event) {
+                settingsImageButton.setUrl(JaggerResources.INSTANCE.getGearBlueImage().getSafeUri());
+            }
+        });
+        settingsImageButton.addMouseOutHandler(new MouseOutHandler() {
+            @Override
+            public void onMouseOut(MouseOutEvent event) {
+                settingsImageButton.setUrl(JaggerResources.INSTANCE.getGearImage().getSafeUri());
+            }
+        });
 
 
         // todo : JFG-759
         // It is not working for Treands in current solution, as ids of trends plot generating on metricNameDto object bases.
-        final Image closeImageButton;
+        final Image closeImageButton = new Image(JaggerResources.INSTANCE.getCrossImage().getSafeUri());
         if (closeEnabled) {
-            closeImageButton = new Image(JaggerResources.INSTANCE.getCrossImage().getSafeUri());
             closeImageButton.addStyleName(JaggerResources.INSTANCE.css().pointer());
             closeImageButton.addClickHandler(new ClickHandler() {
                 @Override
@@ -132,7 +143,7 @@ public class PlotContainer extends VerticalPanel {
             closeImageButton.addMouseOverHandler(new MouseOverHandler() {
                 @Override
                 public void onMouseOver(MouseOverEvent event) {
-                    closeImageButton.setUrl(JaggerResources.INSTANCE.getCrossRedImage().getSafeUri());
+                    closeImageButton.setUrl(JaggerResources.INSTANCE.getCrossBlueImage().getSafeUri());
                 }
             });
             closeImageButton.addMouseOutHandler(new MouseOutHandler() {
@@ -141,8 +152,6 @@ public class PlotContainer extends VerticalPanel {
                     closeImageButton.setUrl(JaggerResources.INSTANCE.getCrossImage().getSafeUri());
                 }
             });
-        } else {
-            closeImageButton = new Image(JaggerResources.INSTANCE.getCrossGrayImage().getSafeUri());
         }
 
 
@@ -169,7 +178,7 @@ public class PlotContainer extends VerticalPanel {
 
         Menu settingsMenu = new Menu();
         settingsMenu.addStyleName(JaggerResources.INSTANCE.css().plotSettingsMenu());
-        MenuItem saveMenuItem = new MenuItem("Save");
+        MenuItem saveMenuItem = new MenuItem("Download as .png");
         if (plotSaver == null) {
             saveMenuItem.setEnabled(false);
         } else {

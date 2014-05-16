@@ -45,21 +45,22 @@ public interface JaggerResources extends ClientBundle {
     @Source("pencil.png")
     ImageResource getPencilImage();
 
-    @Source("icons/times.png")
+    // icons downloaded from http://www.iconsdb.com/gray-icons
+    @Source("icons/cross-2-24.png")
     ImageResource getCrossImage();
 
-    @Source("icons/times_gray.png")
-    ImageResource getCrossGrayImage();
+    @Source("icons/cross-blue-2-24.png")
+    ImageResource getCrossBlueImage();
 
-    @Source("icons/times_red.png")
-    ImageResource getCrossRedImage();
-
-    @Source("icons/download.png")
+    @Source("icons/download-24.png")
     @ImageResource.ImageOptions(height = 16, width = 16)
     ImageResource getDownloadImage();
 
-    @Source("icons/cog.png")
+    @Source("icons/settings-with-triangle-4-24.png")
     ImageResource getGearImage();
+
+    @Source("icons/settings-with-triangle-blue-4-24.png")
+    ImageResource getGearBlueImage();
 
     @Source("JaggerWebClient.css")
     @CssResource.NotStrict
