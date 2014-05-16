@@ -157,6 +157,8 @@ public class CustomMetricPlotNameProvider {
                     Collection<Long> allTestsInGroup = testGroupMap.get((Long)mde[2]);
                     if (CommonUtils.containsAtLeastOne(td.getIds(), allTestsInGroup)){
                         result.add(new MetricNameDto(td, (String)mde[0], (String)mde[1], MetricNameDto.Origin.TEST_GROUP_METRIC));
+                        // we should create new MetricNameDto with another origin, because we need it for Session Scope plots
+                        result.add(new MetricNameDto(td, (String)mde[0], (String)mde[1], MetricNameDto.Origin.SESSION_SCOPE_TG));
                     }
                 }
             }

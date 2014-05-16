@@ -201,14 +201,6 @@ public class Trends extends DefaultActivity {
 
             LinkFragment linkFragment = new LinkFragment();
 
-            if (sessionModel.getSelectedSet().size() == 1) {
-                Set<String> sessionScopePlots = new HashSet<String>();
-                for (String plotName : getLinkRepresentationForSessionScopePlots(controlTree.getRootNode().getDetailsNode().getSessionScopePlotsNode())) {
-                    sessionScopePlots.add(plotName);
-                }
-                linkFragment.setSessionTrends(sessionScopePlots);
-            }
-
             if (tests == null) { // this is fragment with no tests chosen
                 linkFragment.setSelectedSessionIds(sessionsToTestsEntry.getKey());
                 linkFragments.add(linkFragment);
@@ -376,25 +368,6 @@ public class Trends extends DefaultActivity {
         return resultMap;
     }
 
-    private List<String> getLinkRepresentationForSessionScopePlots(SessionScopePlotsNode sessionScopePlotsNode) {
-
-        if (sessionScopePlotsNode == null) {
-            return Collections.EMPTY_LIST;
-        }
-        List<String> result = new ArrayList<String>();
-        for (MonitoringSessionScopePlotNode monitoringSessionScopePlotNode : sessionScopePlotsNode.getPlots()) {
-            if (controlTree.isChecked(monitoringSessionScopePlotNode)) {
-                result.add(monitoringSessionScopePlotNode.getDisplayName());
-            } else if (controlTree.isChosen(monitoringSessionScopePlotNode)) {
-                for (SessionPlotNode spn : monitoringSessionScopePlotNode.getPlots()) {
-                    if (controlTree.isChecked(spn)) {
-                        result.add(spn.getPlotNameDto().getMetricName());
-                    }
-                }
-            }
-        }
-        return result;
-    }
 
     private final Map<String, Set<MarkingDto>> markingsMap = new HashMap<String, Set<MarkingDto>>();
 
@@ -1224,7 +1197,6 @@ public class Trends extends DefaultActivity {
             CheckHandlerMap.setTestInfoFetcher(testInfoFetcher);
             CheckHandlerMap.setMetricFetcher(metricFetcher);
             CheckHandlerMap.setTestPlotFetcher(testPlotFetcher);
-            CheckHandlerMap.setSessionScopePlotFetcher(sessionScopePlotFetcher);
             CheckHandlerMap.setSessionComparisonPanel(summaryPanel.getSessionComparisonPanel());
 
             // Clear plots display
@@ -1301,22 +1273,6 @@ public class Trends extends DefaultActivity {
             tempTree.disableEvents();
 
             tempTree.setCheckedWithParent(result.getSummaryNode().getSessionInfo());
-
-            SessionScopePlotsNode sessionScopePlotsNode = result.getDetailsNode().getSessionScopePlotsNode();
-            if (sessionScopePlotsNode != null) {
-                for (MonitoringSessionScopePlotNode monitoringSessionScopePlotNode : sessionScopePlotsNode.getPlots()) {
-                    if (place.getSessionTrends().contains(monitoringSessionScopePlotNode.getDisplayName())) {
-                        tempTree.setCheckedWithParent(monitoringSessionScopePlotNode);
-                        tempTree.setExpanded(sessionScopePlotsNode, true, false);
-                    } else {
-                        for (SessionPlotNode plotNode: monitoringSessionScopePlotNode.getPlots()) {
-                            if (place.getSessionTrends().contains(plotNode.getPlotNameDto().getMetricName())) {
-                                tempTree.setCheckedExpandedWithParent(plotNode);
-                            }
-                        }
-                    }
-                }
-            }
 
 
             for (LinkFragment linkFragment : place.getLinkFragments()) {
@@ -1515,14 +1471,8 @@ public class Trends extends DefaultActivity {
 
             fetchSessionInfoData(summaryNode.getSessionInfo());
             fetchMetricsForTests(summaryNode.getTests());
-
-            fetchSessionScopePlots();
             fetchPlotsForTests();
 
-        }
-
-        private void fetchSessionScopePlots() {
-            sessionScopePlotFetcher.fetchPlots(controlTree.getCheckedSessionScopePlots(), true);
         }
 
         private void fetchPlotsForTests() {
@@ -1785,105 +1735,6 @@ public class Trends extends DefaultActivity {
         }
     }
 
-    /**
-     * make server calls to fetch session scope plot data
-     */
-    private SessionScopePlotFetcher sessionScopePlotFetcher = new SessionScopePlotFetcher();
-
-    public class SessionScopePlotFetcher extends PlotsServingBase {
-
-
-        /**
-         * Fetch selected plots
-         * @param selected plotNames to fetch and render
-         * @param enableTree tells return control or not
-         */
-        public void fetchPlots(Set<SessionPlotNameDto> selected, final boolean enableTree) {
-            if (selected.isEmpty()) {
-                if (enableTree)
-                    enableControl();
-            } else {
-                disableControl();
-                PlotProviderService.Async.getInstance().getSessionScopePlotData
-                        (chosenSessions.get(0), selected,
-                                new AsyncCallback<Map<SessionPlotNameDto, List<PlotSeriesDto>>>() {
-
-                                    @Override
-                                    public void onFailure(Throwable caught) {
-                                        caught.printStackTrace();
-                                        if (enableTree)
-                                            enableControl();
-                                        new ExceptionPanel(place, caught.toString());
-                                    }
-
-                                    @Override
-                                    public void onSuccess(Map<SessionPlotNameDto, List<PlotSeriesDto>> result) {
-                                        for (SessionPlotNameDto plotName : result.keySet()) {
-                                            final String id = generateSessionScopePlotId(chosenSessions.get(0), plotName.getMetricName());
-
-                                            // If plot has already displayed, then pass it
-                                            if (chosenPlots.containsKey(id)) {
-                                                continue;
-                                            }
-
-                                            chosenPlots.put(id, result.get(plotName));
-                                        }
-                                        if (mainTabPanel.getSelectedIndex() == tabMetrics.getTabIndex()) {
-                                            onMetricsTabSelected();
-                                        }
-                                        if (enableTree)
-                                            enableControl();
-                                    }
-
-                                }
-                        );
-            }
-        }
-
-        public void fetchPlot(SessionPlotNameDto plotName, final boolean enableTree) {
-            Set<SessionPlotNameDto> set = new HashSet<SessionPlotNameDto>();
-            set.add(plotName);
-            fetchPlots(set, enableTree);
-        }
-
-
-        /**
-         * Removes plots
-         * @param plotNames plotNames to remove
-         */
-        public void removePlots(Set<? extends MetricName> plotNames) {
-
-            if (plotNames.isEmpty()) {
-                return;
-            }
-
-            if (plotNames.isEmpty()) {
-                return;
-            }
-
-            Set<String> widgetIdsToRemove = generateSessionPlotIds(plotNames);
-            for(String elementId : widgetIdsToRemove) {
-                plotPanel.removeElementById(elementId);
-                chosenPlots.remove(elementId);
-            }
-        }
-
-        public void removePlot(MetricName metricNameDto) {
-            Set<MetricName> set = new HashSet<MetricName>();
-            set.add(metricNameDto);
-            removePlots(set);
-        }
-
-
-        private Set<String> generateSessionPlotIds(Set<? extends MetricName> selected) {
-            HashSet<String> idSet = new HashSet<String>();
-            for (MetricName plotName : selected) {
-                idSet.add(generateSessionScopePlotId(chosenSessions.get(0), plotName.getMetricName()));
-            }
-            return idSet;
-        }
-
-    }
 
     private void allTags() {
 

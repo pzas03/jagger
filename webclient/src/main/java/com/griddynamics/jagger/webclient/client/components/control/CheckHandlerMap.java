@@ -29,11 +29,8 @@ public class CheckHandlerMap {
                 put(MetricGroupNode.class, new MetricGroupNodeHandler());
 
                 put(DetailsNode.class, new DetailsNodeHandler());
-                put(SessionScopePlotsNode.class, new SessionScopePlotsNodeHandler());
                 put(TestDetailsNode.class, new TestDetailsNodeHandler());
                 put(PlotNode.class, new PlotNodeHandler());
-                put(SessionPlotNode.class, new SessionPlotNodeHandler());
-                put(MonitoringSessionScopePlotNode.class, new MonitoringSessionScopePlotNodeHandler());
             }
         };
 
@@ -67,12 +64,6 @@ public class CheckHandlerMap {
     public static void setTestPlotFetcher(Trends.TestPlotFetcher testPlotFetcher) {
         for (TreeAwareHandler tah : handlers.values()) {
             tah.setTestPlotFetcher(testPlotFetcher);
-        }
-    }
-
-    public static void setSessionScopePlotFetcher(Trends.SessionScopePlotFetcher sessionScopePlotFetcher) {
-        for (TreeAwareHandler tah : handlers.values()) {
-            tah.setSessionScopePlotFetcher(sessionScopePlotFetcher);
         }
     }
 
