@@ -71,7 +71,7 @@ public class LatencyMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
         }
 
         for (MetricDto md : resultMap.values()) {
-            md.setPlotSeriesDtos(generatePlotSeriesDto(md));
+            md.setPlotDatasetDto(generatePlotDatasetDto(md));
         }
 
         return new HashSet<MetricDto>(resultMap.values());

@@ -25,17 +25,13 @@ public class PlotContainer extends VerticalPanel {
 
     private HorizontalPanel dragPanel;
 
-    // temporary solution JFG-759 uncheck trends from tree
-    private boolean closeEnabled = true;
-
-    public PlotContainer(String id, String plotHeader, PlotRepresentation chart, PlotSaver plotSaver, boolean closeEnabled) {
+    public PlotContainer(String id, String plotHeader, PlotRepresentation chart, PlotSaver plotSaver/*, boolean closeEnabled*/) {
         super();
         this.getElement().setId(id);
         this.plotRepresentation = chart;
         this.plotSaver = plotSaver;
         this.plotHeader = new TextBox();
         this.plotHeader.setText(plotHeader);
-        this.closeEnabled = closeEnabled;
         initContainer();
     }
 
@@ -129,30 +125,26 @@ public class PlotContainer extends VerticalPanel {
         });
 
 
-        // todo : JFG-759
-        // It is not working for Treands in current solution, as ids of trends plot generating on metricNameDto object bases.
         final Image closeImageButton = new Image(JaggerResources.INSTANCE.getCrossImage().getSafeUri());
-        if (closeEnabled) {
-            closeImageButton.addStyleName(JaggerResources.INSTANCE.css().pointer());
-            closeImageButton.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    plotsPanel.removeElementById(PlotContainer.this.getElement().getId());
-                }
-            });
-            closeImageButton.addMouseOverHandler(new MouseOverHandler() {
-                @Override
-                public void onMouseOver(MouseOverEvent event) {
-                    closeImageButton.setUrl(JaggerResources.INSTANCE.getCrossBlueImage().getSafeUri());
-                }
-            });
-            closeImageButton.addMouseOutHandler(new MouseOutHandler() {
-                @Override
-                public void onMouseOut(MouseOutEvent event) {
-                    closeImageButton.setUrl(JaggerResources.INSTANCE.getCrossImage().getSafeUri());
-                }
-            });
-        }
+        closeImageButton.addStyleName(JaggerResources.INSTANCE.css().pointer());
+        closeImageButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                plotsPanel.removeElementById(PlotContainer.this.getElement().getId());
+            }
+        });
+        closeImageButton.addMouseOverHandler(new MouseOverHandler() {
+            @Override
+            public void onMouseOver(MouseOverEvent event) {
+                closeImageButton.setUrl(JaggerResources.INSTANCE.getCrossBlueImage().getSafeUri());
+            }
+        });
+        closeImageButton.addMouseOutHandler(new MouseOutHandler() {
+            @Override
+            public void onMouseOut(MouseOutEvent event) {
+                closeImageButton.setUrl(JaggerResources.INSTANCE.getCrossImage().getSafeUri());
+            }
+        });
 
 
 

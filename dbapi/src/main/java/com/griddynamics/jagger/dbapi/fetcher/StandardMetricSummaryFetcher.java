@@ -80,7 +80,7 @@ public class StandardMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
                     }
                 }
             }
-            metricDto.setPlotSeriesDtos(generatePlotSeriesDto(metricDto));
+            metricDto.setPlotDatasetDto(generatePlotDatasetDto(metricDto));
         }
 
         return resultSet;

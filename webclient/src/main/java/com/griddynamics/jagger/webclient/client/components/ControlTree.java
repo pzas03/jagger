@@ -237,9 +237,9 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
     /**
      * @return MetricNameDto from all Tests
      */
-    public Set<MetricNameDto> getCheckedMetrics() {
+    public Set<MetricNode> getCheckedMetrics() {
 
-        Set<MetricNameDto> resultSet = new HashSet<MetricNameDto>();
+        Set<MetricNode> resultSet = new HashSet<MetricNode>();
         for (TestNode test : rootNode.getSummaryNode().getTests()) {
             resultSet.addAll(getCheckedMetrics(test));
         }
@@ -251,12 +251,12 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
      * @param testNode /
      * @return MetricNameDto from 'TestNode' test
      */
-    public Set<MetricNameDto> getCheckedMetrics(TestNode testNode) {
+    public Set<MetricNode> getCheckedMetrics(TestNode testNode) {
 
-        Set<MetricNameDto> resultSet = new HashSet<MetricNameDto>();
+        Set<MetricNode> resultSet = new HashSet<MetricNode>();
             for (MetricNode metricNode : testNode.getMetrics()) {
                 if (isChecked(metricNode)) {
-                    resultSet.addAll(metricNode.getMetricNameDtoList());
+                    resultSet.add(metricNode);
                 }
             }
         return resultSet;

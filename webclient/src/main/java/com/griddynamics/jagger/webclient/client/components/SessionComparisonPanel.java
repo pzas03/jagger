@@ -7,6 +7,8 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.griddynamics.jagger.dbapi.dto.SessionDataDto;
 import com.griddynamics.jagger.dbapi.dto.*;
+import com.griddynamics.jagger.dbapi.model.MetricNode;
+import com.griddynamics.jagger.dbapi.model.MetricRankingProvider;
 import com.griddynamics.jagger.dbapi.model.WebClientProperties;
 import com.griddynamics.jagger.webclient.client.SessionDataService;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -78,7 +80,7 @@ public class SessionComparisonPanel extends VerticalPanel {
         }
     });
 
-    private HashMap<MetricNameDto, MetricDto> cache = new HashMap<MetricNameDto, MetricDto>();
+    private HashMap<MetricNode, List<MetricDto>> cache = new HashMap<MetricNode, List<MetricDto>>();
 
     private WebClientProperties webClientProperties;
 
@@ -86,7 +88,7 @@ public class SessionComparisonPanel extends VerticalPanel {
 
     private boolean allTagsLoadComplete = false;
 
-    public HashMap<MetricNameDto, MetricDto> getCachedMetrics() {
+    public HashMap<MetricNode, List<MetricDto>> getCachedMetrics() {
         return cache;
     }
 
@@ -358,15 +360,25 @@ public class SessionComparisonPanel extends VerticalPanel {
 
     public void addMetricRecord(MetricDto metricDto) {
 
-        cache.put(metricDto.getMetricName(), metricDto);
         TreeItem record = new TreeItem(metricDto);
         addItemToStore(record, metricDto);
     }
 
 
-    public void addMetricRecords(List<MetricDto> loaded) {
-        for (MetricDto metric : loaded) {
-            addMetricRecord(metric);
+    public void addMetricRecords(Map<MetricNode, List<MetricDto>> loaded) {
+
+        cache.putAll(loaded);
+
+        List<MetricDto> loadedSorted = new ArrayList<MetricDto>();
+        for (List<MetricDto> metricDtos : loaded.values()) {
+            for (MetricDto metricDto : metricDtos) {
+                loadedSorted.add(metricDto);
+            }
+        }
+
+        MetricRankingProvider.sortMetrics(loadedSorted);
+        for (MetricDto metricDto : loadedSorted) {
+            addMetricRecord(metricDto);
         }
     }
 
