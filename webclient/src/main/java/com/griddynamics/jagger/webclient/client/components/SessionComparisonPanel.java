@@ -8,7 +8,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.griddynamics.jagger.dbapi.dto.SessionDataDto;
 import com.griddynamics.jagger.dbapi.dto.*;
 import com.griddynamics.jagger.dbapi.model.WebClientProperties;
-import com.griddynamics.jagger.util.Decision;
 import com.griddynamics.jagger.webclient.client.SessionDataService;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
@@ -63,8 +62,6 @@ public class SessionComparisonPanel extends VerticalPanel {
     private final String TASKS_FAILED = "Tasks Failed";
     private final String TEST_INFO = "Test Info";
     private final double METRIC_COLUMN_WIDTH_FACTOR = 1.5;
-
-    private final String DECISION = "Decision";
 
     private final UserCommentBox userCommentBox;
     private final TagBox tagBox;
@@ -553,10 +550,25 @@ public class SessionComparisonPanel extends VerticalPanel {
             put(TEST_NAME, getItemKey(metricName));
 
             for (MetricValueDto metricValue : metricDto.getValues()) {
-                put(SESSION_HEADER + metricValue.getSessionId(), metricValue.getValueRepresentation());
+                String value    = metricValue.getValueRepresentation();
+
+                // highlight results according to decision when available
                 if (metricValue.getDecision() != null) {
-                    put(DECISION + SESSION_HEADER + metricValue.getSessionId(), metricValue.getDecision().toString());
+                    String toolTip = "Decision for metric during test run. Green - value in limits. Yellow - value crossed warning limits. Red - value outside limits";
+                    switch (metricValue.getDecision()) {
+                        case OK:
+                            value = "<p title=\"" + toolTip + "\" style=\"color:green;font-weight:700;display:inline;\">" + value + "</p>";
+                            break;
+                        case WARNING:
+                            value = "<p title=\"" + toolTip + "\" style=\"color:#B8860B;font-weight:700;display:inline;\">" + value + "</p>";
+                            break;
+                        default:
+                            value = "<p title=\"" + toolTip + "\" style=\"color:red;font-weight:700;display:inline;\">" + value + "</p>";
+                            break;
+                        }
                 }
+
+                put(SESSION_HEADER + metricValue.getSessionId(),value);
             }
         }
     }
@@ -586,18 +598,6 @@ public class SessionComparisonPanel extends VerticalPanel {
                     if (object.get(NAME).equals(SESSION_TAGS)) {
                         toShow = object.get(field).replaceAll("\n", "<br>");
                         return penImageResource + toShow;
-                    }
-                }
-                if (object.containsKey(DECISION + field)) {
-                    Decision decision = Decision.valueOf(object.get(DECISION + field));
-                    String toolTip = "Decision for metric during test run. Green - value in limits. Yellow - value crossed warning limits. Red - value outside limits";
-                    switch (decision) {
-                        case OK:
-                            return "<p title=\"" + toolTip + "\" style=\"color:green;font-weight:700;display:inline;\">" + object.get(field) + "</p>";
-                        case WARNING:
-                            return "<p title=\"" + toolTip + "\" style=\"color:#B8860B;font-weight:700;display:inline;\">" + object.get(field) + "</p>";
-                        default:
-                            return "<p title=\"" + toolTip + "\" style=\"color:red;font-weight:700;display:inline;\">" + object.get(field) + "</p>";
                     }
                 }
             }
