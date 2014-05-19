@@ -199,13 +199,22 @@ public class DefaultWorkloadSuggestionMaker implements WorkloadSuggestionMaker {
     }
 
     private static int suggestDelay(BigDecimal tpsFromStat, Integer threadCount, BigDecimal desiredTps) {
-        BigDecimal oneSecond = new BigDecimal(TimeUtils.secondsToMillis(1));
-        BigDecimal result = oneSecond.multiply(new BigDecimal(threadCount)).divide(desiredTps, 3, BigDecimal.ROUND_HALF_UP);
-        result = result.subtract(oneSecond.multiply(new BigDecimal(threadCount)).divide(tpsFromStat, 3, BigDecimal.ROUND_HALF_UP));
+        int i;
 
-        int i = result.intValue();
-        if (i == 0) {
-            i = MIN_DELAY;
+        // tpsFromStat can be zero if no statistics was captured till this time
+        if ((tpsFromStat.equals(BigDecimal.ZERO)) ||
+                (desiredTps.equals(BigDecimal.ZERO))) {
+            i = 0;
+        }
+        else {
+            BigDecimal oneSecond = new BigDecimal(TimeUtils.secondsToMillis(1));
+            BigDecimal result = oneSecond.multiply(new BigDecimal(threadCount)).divide(desiredTps, 3, BigDecimal.ROUND_HALF_UP);
+            result = result.subtract(oneSecond.multiply(new BigDecimal(threadCount)).divide(tpsFromStat, 3, BigDecimal.ROUND_HALF_UP));
+
+            i = result.intValue();
+            if (i == 0) {
+                i = MIN_DELAY;
+            }
         }
 
         i = checkDelayInRange(i);
