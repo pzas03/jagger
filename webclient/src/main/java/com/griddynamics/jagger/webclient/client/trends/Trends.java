@@ -443,7 +443,7 @@ public class Trends extends DefaultActivity {
      * fields that contain gid/plot information
      * to provide rendering in time of choosing special tab(mainTab) to avoid view problems
      */
-    HashMap<String, List<MetricDto>> chosenMetrics = new HashMap<String, List<MetricDto>>();
+    HashMap<MetricNode, List<MetricDto>> chosenMetrics = new HashMap<MetricNode, List<MetricDto>>();
     Map<String, List<PlotSeriesDto>> chosenPlots = new TreeMap<String, List<PlotSeriesDto>>();
 
     /**
@@ -778,25 +778,28 @@ public class Trends extends DefaultActivity {
         mainTabPanel.forceLayout();
         controlTree.onSummaryTrendsTab();
         if (!chosenMetrics.isEmpty() && hasChanged) {
-            for(Map.Entry<String, List<MetricDto>> entry : chosenMetrics.entrySet()) {
+            for(Map.Entry<MetricNode, List<MetricDto>> entry : chosenMetrics.entrySet()) {
 
-                if (plotTrendsPanel.containsElementWithId(entry.getKey())) {
+                String plotId = entry.getKey().getId();
+                if (plotTrendsPanel.containsElementWithId(plotId)) {
                     // plot already presented on trends panel
                     continue;
                 }
 
                 List<PlotDatasetDto> plotDatasets = new ArrayList<PlotDatasetDto>(entry.getValue().size());
                 List<MetricDto> metricDtos = entry.getValue();
+                if (metricDtos == null || metricDtos.isEmpty()) {
+                    new ExceptionPanel("No trend plot found for " + entry.getKey().getDisplayName());
+                    continue;
+                }
                 // sort trends plots
                 MetricRankingProvider.sortMetrics(metricDtos);
 
-                StringBuilder headerBuilder = new StringBuilder();
-                headerBuilder.append(metricDtos.get(0).getMetricName().getTest().getTaskName());
+                String plotHeader = metricDtos.get(0).getMetricName().getTest().getTaskName() + ", " +
+                        entry.getKey().getDisplayName();
 
                 double yMin = Double.MAX_VALUE;
                 for (MetricDto metricDto : metricDtos) {
-                    headerBuilder.append(", ").
-                    append(metricDto.getMetricName().getMetricName());
                     PlotDatasetDto plotDataSet = metricDto.getPlotDatasetDto();
                     plotDatasets.add(plotDataSet);
                     for (PointDto point : plotDataSet.getPlotData()) {
@@ -806,12 +809,12 @@ public class Trends extends DefaultActivity {
                     }
                 }
 
-                PlotSeriesDto plotSeriesDto = new PlotSeriesDto(plotDatasets, "Sessions", "", headerBuilder.toString());
+                PlotSeriesDto plotSeriesDto = new PlotSeriesDto(plotDatasets, "Sessions", "", plotHeader);
 
                 renderPlots(
                         plotTrendsPanel,
                         Collections.singletonList(plotSeriesDto),
-                        entry.getKey(),
+                        plotId,
                         yMin,
                         true
                 );
@@ -1680,12 +1683,12 @@ public class Trends extends DefaultActivity {
 
                 List<MetricDto> toRemoveFromTable = new ArrayList<MetricDto>();
                 // Remove plots from display which were unchecked
-                Set<String> metricIdsSet = new HashSet<String>(chosenMetrics.keySet());
-                for (String plotId : metricIdsSet) {
-                    if (!selectedMetricsIds.contains(plotId)) {
-                        toRemoveFromTable.addAll(chosenMetrics.get(plotId));
-                        chosenMetrics.remove(plotId);
-                        plotTrendsPanel.removeElementById(plotId);
+                Set<MetricNode> metricIdsSet = new HashSet<MetricNode>(chosenMetrics.keySet());
+                for (MetricNode metricNode : metricIdsSet) {
+                    if (!selectedMetricsIds.contains(metricNode.getId())) {
+                        toRemoveFromTable.addAll(chosenMetrics.get(metricNode));
+                        chosenMetrics.remove(metricNode);
+                        plotTrendsPanel.removeElementById(metricNode.getId());
                     }
                 }
 
@@ -1728,8 +1731,8 @@ public class Trends extends DefaultActivity {
                 // Generate DOM id for plot
                 final String id = metricNode.getId();
 
-                if (!chosenMetrics.containsKey(id)) {
-                    chosenMetrics.put(id, result.get(metricNode));
+                if (!chosenMetrics.containsKey(metricNode)) {
+                    chosenMetrics.put(metricNode, result.get(metricNode));
                 }
             }
             if (mainTabPanel.getSelectedIndex() == tabTrends.getTabIndex()) {
