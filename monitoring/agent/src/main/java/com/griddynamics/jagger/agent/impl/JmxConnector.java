@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.Map;
 
 public class JmxConnector {
-    private final static Logger log = LoggerFactory.getLogger(JMXSystemUnderTestImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(JmxConnector.class);
 
     private Timeout connectionTimeout = new Timeout(1,"");
     private long connectionPeriod;
