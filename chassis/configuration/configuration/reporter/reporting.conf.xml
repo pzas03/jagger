@@ -203,7 +203,9 @@
         </property>
     </bean>
 
-    <bean id="webClientProperties" class="com.griddynamics.jagger.dbapi.model.WebClientProperties"/>
+    <bean id="webClientProperties" class="com.griddynamics.jagger.dbapi.model.WebClientProperties">
+        <property name="enableDecisionsPerMetricHighlighting" value="${webui.enable.decisions.per.metric.highlighting:true}"/>
+    </bean>
 
     <bean id="reportingContext" class="com.griddynamics.jagger.reporting.ReportingContext">
         <property name="providerRegistry" ref="reporterExtensionRegistry"/>

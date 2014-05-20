@@ -52,13 +52,4 @@ public class MetricValueDto implements Serializable {
     public void setDecision(Decision decision) {
         this.decision = decision;
     }
-
-    public Decision getDecision() {
-        return decision;
-    }
-
-    public void setDecision(Decision decision) {
-        this.decision = decision;
-    }
-
 }
