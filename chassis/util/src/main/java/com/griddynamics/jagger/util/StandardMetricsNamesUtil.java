@@ -18,31 +18,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.griddynamics.jagger.engine.e1.reporting;
+package com.griddynamics.jagger.util;
 
-import com.griddynamics.jagger.reporting.AbstractMappedReportProvider;
-import net.sf.jasperreports.engine.JRDataSource;
-import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import org.springframework.beans.factory.annotation.Required;
-
-import java.util.List;
-
-public class WorkloadProcessDetailsReporter extends AbstractMappedReportProvider<String> {
-
-    private SummaryReporter summaryReporter;
-
-    @Override
-    public JRDataSource getDataSource(String id) {
-
-        String sessionId = getSessionIdProvider().getSessionId();
-        List<SummaryDto> result = summaryReporter.getLatencyPercentile(sessionId,id);
-
-        return new JRBeanCollectionDataSource(result);
-    }
-
-    @Required
-    public void setSummaryReporter(SummaryReporter summaryReporter) {
-        this.summaryReporter = summaryReporter;
-    }
-
+/**
+ * Class is used in chassis, web UI server and web UI client
+ * to use it in web UI client - keep it simple (use only standard java libraries)
+ */
+public class StandardMetricsNamesUtil {
+    public static final String THROUGHPUT_TPS_REGEX = "^Throughput, tps";
+    public static final String THROUGHPUT_REGEX = "^Throughput";
+    public static final String LATENCY_SEC_REGEX = "^Latency, sec";
+    public static final String LATENCY_REGEX = "^Latency";
+    public static final String LATENCY_PERCENTILE_REGEX = "^Latency\\s\\S+\\s%";
+    public static final String ITERATIONS_SAMPLES_REGEX = "^Iterations, samples";
+    public static final String SUCCESS_RATE_REGEX = "^Success rate";
+    public static final String DURATION_SEC_REGEX = "^Duration, sec";
+    public static final String TIME_LATENCY_PERCENTILE_REGEX = "^Time Latency Percentile";
 }

@@ -14,6 +14,7 @@ import com.griddynamics.jagger.engine.e1.services.DataService;
 import com.griddynamics.jagger.engine.e1.services.DefaultDataService;
 import com.griddynamics.jagger.engine.e1.services.JaggerPlace;
 import com.griddynamics.jagger.engine.e1.services.data.service.MetricEntity;
+import com.griddynamics.jagger.engine.e1.services.data.service.MetricSummaryValueEntity;
 import com.griddynamics.jagger.engine.e1.services.data.service.TestEntity;
 import com.griddynamics.jagger.util.Decision;
 import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupDecisionMakerListener;
@@ -82,7 +83,7 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
                     // Get data for current session
                     TestEntity testEntity = dataService.getTestByName(sessionId,testName);
                     Set<MetricEntity> metricEntitySet = dataService.getMetrics(testEntity);
-                    Map<MetricEntity,Double> metricValues = dataService.getMetricSummary(metricEntitySet);
+                    Map<MetricEntity,MetricSummaryValueEntity> metricValues = dataService.getMetricSummary(metricEntitySet);
 
                     Map<String,MetricEntity> idToEntity = new HashMap<String, MetricEntity>();
                     for (MetricEntity metricEntity : metricValues.keySet()) {
@@ -109,9 +110,9 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
                         TestEntity testEntityBaseline = dataService.getTestByName(baselineId, testName);
                         if (testEntityBaseline != null) {
                             Set<MetricEntity> metricEntitySetBaseline = dataService.getMetrics(testEntityBaseline);
-                            Map<MetricEntity,Double> metricValuesBaseline = dataService.getMetricSummary(metricEntitySetBaseline);
-                            for (Map.Entry<MetricEntity,Double> entry : metricValuesBaseline.entrySet()) {
-                                metricIdToValuesBaseline.put(entry.getKey().getMetricId(),entry.getValue());
+                            Map<MetricEntity,MetricSummaryValueEntity> metricValuesBaseline = dataService.getMetricSummary(metricEntitySetBaseline);
+                            for (Map.Entry<MetricEntity,MetricSummaryValueEntity> entry : metricValuesBaseline.entrySet()) {
+                                metricIdToValuesBaseline.put(entry.getKey().getMetricId(),entry.getValue().getValue());
                             }
                         }
                         else {
@@ -193,7 +194,7 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
     private DecisionPerLimit compareMetricsToLimit(Limit limit,
                                                    Set<MetricEntity> metricsPerLimit,
                                                    Set<MetricEntity> duplicatedMetrics,
-                                                   Map<MetricEntity, Double> metricValues,
+                                                   Map<MetricEntity, MetricSummaryValueEntity> metricValues,
                                                    Map<String, Double> metricValuesBaseline,
                                                    LimitSetConfig limitSetConfig) {
 
@@ -202,7 +203,7 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
         Decision decisionWhenMetricWasAlreadyCompared = Decision.OK;
         for (MetricEntity metricEntity : metricsPerLimit) {
             Double refValue = limit.getRefValue();
-            Double value = metricValues.get(metricEntity);
+            Double value = metricValues.get(metricEntity).getValue();
             Decision decision = Decision.OK;
 
             //todo ??? JFG-744 docu for decision making with use of limits
@@ -313,7 +314,7 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
             switch (limitSetConfig.getDecisionWhenNoMetricForLimit()) {
                 case OK:
                     decisionPerLimit = Decision.OK;
-                    log.info(errorText,limit, decisionPerLimit);
+                    log.info(errorText, limit, decisionPerLimit);
                     break;
                 case WARNING:
                     decisionPerLimit = Decision.WARNING;

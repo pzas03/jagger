@@ -4,5 +4,7 @@
     <!--necessary to use util on webui client side-->
     <source path="util" >
         <include name="**/MonitoringIdUtils.java"/>
+        <include name="**/Decision.java"/>
+        <include name="**/MetricNamesRankingProvider.java"/>
     </source>
 </module>

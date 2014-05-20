@@ -148,6 +148,7 @@
                 <entry key="diagnosticResults">
                     <bean class="com.griddynamics.jagger.engine.e1.reporting.DiagnosticReporter" parent="abstractReportProviderBean">
                         <property name="template" value="configuration/reporting/diagnostics-report.jrxml"/>
+                        <property name="summaryReporter" ref="summaryReporter"/>
                     </bean>
                 </entry>
 
@@ -168,6 +169,7 @@
                 <entry key="workloadProcessDetails">
                     <bean class="com.griddynamics.jagger.engine.e1.reporting.WorkloadProcessDetailsReporter" parent="abstractReportProviderBean">
                         <property name="template" value="configuration/reporting/workload-process-details.jrxml"/>
+                        <property name="summaryReporter" ref="summaryReporter"/>
                     </bean>
                 </entry>
                 <entry key="validationResults">
@@ -225,6 +227,10 @@
     <bean id="fetchUtil" class="com.griddynamics.jagger.dbapi.util.FetchUtil"/>
 
     <bean id= "dataSaverService" class="com.griddynamics.jagger.dbapi.DataSaverServiceImpl"/>
+
+    <bean id="summaryReporter" class="com.griddynamics.jagger.engine.e1.reporting.SummaryReporter">
+        <property name="databaseService" ref="databaseService"/>
+    </bean>
 
     <!--==========Control tree creation rules==========-->
     <bean id="ruleProvider_TreeViewGroupMetricsToNode" class="com.griddynamics.jagger.dbapi.model.rules.TreeViewGroupMetricsToNodeRuleProvider">

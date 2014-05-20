@@ -1,5 +1,7 @@
 package com.griddynamics.jagger.dbapi.dto;
 
+import com.griddynamics.jagger.util.Decision;
+
 import java.io.Serializable;
 
 /**
@@ -15,6 +17,7 @@ public class MetricValueDto implements Serializable {
     private long sessionId;
     private String value;
     private String valueRepresentation;
+    private Decision decision = null; //null => no decision
 
     public String getValueRepresentation() {
         return valueRepresentation;
@@ -49,5 +52,13 @@ public class MetricValueDto implements Serializable {
 
     public void setSessionId(long sessionId) {
         this.sessionId = sessionId;
+    }
+
+    public Decision getDecision() {
+        return decision;
+    }
+
+    public void setDecision(Decision decision) {
+        this.decision = decision;
     }
 }
