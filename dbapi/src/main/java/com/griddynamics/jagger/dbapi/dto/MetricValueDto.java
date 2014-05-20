@@ -13,7 +13,6 @@ import java.io.Serializable;
  */
 public class MetricValueDto implements Serializable {
 
-    private long testId;
     private long sessionId;
     private String value;
     private String valueRepresentation;
@@ -25,14 +24,6 @@ public class MetricValueDto implements Serializable {
 
     public void setValueRepresentation(String valueRepresentation) {
         this.valueRepresentation = valueRepresentation;
-    }
-
-    public long getTestId() {
-        return testId;
-    }
-
-    public void setTestId(long testId) {
-        this.testId = testId;
     }
 
     public String getValue() {
@@ -61,4 +52,13 @@ public class MetricValueDto implements Serializable {
     public void setDecision(Decision decision) {
         this.decision = decision;
     }
+
+    public Decision getDecision() {
+        return decision;
+    }
+
+    public void setDecision(Decision decision) {
+        this.decision = decision;
+    }
+
 }
