@@ -30,7 +30,6 @@ import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.awt.*;
-import java.math.BigDecimal;
 import java.util.List;
 
 public class WorkloadReporter extends AbstractReportProvider {
@@ -72,7 +71,6 @@ public class WorkloadReporter extends AbstractReportProvider {
 				throw new IllegalStateException("Result data is not specified");
 			}
 
-			reportData.setThroughput(resultData.getThroughput());
             reportData.setStatusImage(statusImageProvider.getImageByDecision(decisionMaker.decideOnTest(resultData)));
 
             for(TaskData taskData: taskDatas) {
@@ -104,7 +102,6 @@ public class WorkloadReporter extends AbstractReportProvider {
 		private String sessionId;
         private String number;
 		private String scenarioName;
-		private BigDecimal throughput;
         private String Id;
 
         private Image statusImage;
@@ -132,14 +129,6 @@ public class WorkloadReporter extends AbstractReportProvider {
 
 		public void setScenarioName(String scenarioName) {
 			this.scenarioName = scenarioName;
-		}
-
-		public BigDecimal getThroughput() {
-			return throughput;
-		}
-
-		public void setThroughput(BigDecimal throughput) {
-			this.throughput = throughput;
 		}
 
         public Image getStatusImage() {

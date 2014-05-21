@@ -67,12 +67,12 @@
     <detail>
         <band height="10" splitType="Stretch">
             <textField>
-                <reportElement style="Compact_Header_Bold" x="0" y="0" width="170" height="10" forecolor="#AAAAAA"/>
+                <reportElement style="Compact_Header_Bold" x="0" y="0" width="200" height="10" forecolor="#AAAAAA"/>
                 <textElement textAlignment="Left"/>
                 <textFieldExpression><![CDATA[$F{key}]]></textFieldExpression>
             </textField>
             <textField>
-                <reportElement style="Compact_Header_Bold_Alternative" x="180" y="0" width="150" height="10"/>
+                <reportElement style="Compact_Header_Bold_Alternative" x="210" y="0" width="180" height="10"/>
                 <textElement/>
                 <textFieldExpression><![CDATA[$F{value}]]></textFieldExpression>
             </textField>
