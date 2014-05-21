@@ -3,10 +3,7 @@ package com.griddynamics.jagger.dbapi;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import com.griddynamics.jagger.dbapi.entity.DecisionPerMetricEntity;
-import com.griddynamics.jagger.dbapi.entity.DecisionPerTaskEntity;
-import com.griddynamics.jagger.dbapi.entity.NodeInfoEntity;
-import com.griddynamics.jagger.dbapi.entity.NodePropertyEntity;
+import com.griddynamics.jagger.dbapi.entity.*;
 import com.griddynamics.jagger.dbapi.fetcher.*;
 import com.griddynamics.jagger.dbapi.model.rules.TreeViewGroupMetricsToNodeRule;
 import com.griddynamics.jagger.dbapi.model.rules.TreeViewGroupMetricsToNodeRuleProvider;
@@ -1409,6 +1406,11 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     @Override
     public Set<TaskDecisionDto> getDecisionsPerTask(Set<Long> taskIds) {
+
+        if (taskIds.isEmpty()) {
+            return Collections.emptySet();
+        }
+
         Long time = System.currentTimeMillis();
         Set<TaskDecisionDto> taskDecisionDtoSet = new HashSet<TaskDecisionDto>();
 
@@ -1426,7 +1428,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                 taskDecisionDtoSet.add(taskDecisionDto);
             }
 
-            log.info("For task ids " + taskIds + " were found decisions in " + (System.currentTimeMillis() - time) + " ms");
+            log.debug("For task ids " + taskIds + " were found decisions in " + (System.currentTimeMillis() - time) + " ms");
         }
         catch (NoResultException ex) {
             log.debug("No decisions were found for task ids " + taskIds, ex);
@@ -1446,6 +1448,10 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     @Override
     public Map<MetricNameDto,Map<String,Decision>> getDecisionsPerMetric(Set<MetricNameDto> metricNames) {
+
+        if (metricNames.isEmpty()) {
+            return Collections.emptyMap();
+        }
 
         Long time = System.currentTimeMillis();
 
@@ -1528,6 +1534,47 @@ public class DatabaseServiceImpl implements DatabaseService {
         catch (Exception ex) {
             log.error("Error occurred during loading decisions for metrics " + metricNames, ex);
             throw new RuntimeException("Error occurred during loading decisions for metrics " + metricNames, ex);
+        }
+
+        return result;
+    }
+
+    @Override
+    public Map<String, Decision> getDecisionsPerSession(Set<String> sessionIds) {
+        if (sessionIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        Long time = System.currentTimeMillis();
+
+        Map<String,Decision> result = new HashMap<String, Decision>();
+
+        try {
+            List<DecisionPerSessionEntity> decisionPerSessionEntityList = (List<DecisionPerSessionEntity>)
+                    entityManager.createQuery("select dps from DecisionPerSessionEntity as dps" +
+                            " where dps.sessionId in (:sessionIds)")
+                            .setParameter("sessionIds", sessionIds)
+                            .getResultList();
+
+
+            for (DecisionPerSessionEntity decisionPerSessionEntity : decisionPerSessionEntityList) {
+                result.put(decisionPerSessionEntity.getSessionId(),
+                        Decision.valueOf(decisionPerSessionEntity.getDecision()));
+            }
+
+            log.debug("For session ids " + sessionIds + " were found decisions in " + (System.currentTimeMillis() - time) + " ms");
+        }
+        catch (NoResultException ex) {
+            log.debug("No decisions were found for session ids " + sessionIds, ex);
+            return Collections.emptyMap();
+        }
+        catch (PersistenceException ex) {
+            log.debug("No decisions were found for session ids " + sessionIds, ex);
+            return Collections.emptyMap();
+        }
+        catch (Exception ex) {
+            log.error("Error occurred during loading decisions for session ids " + sessionIds, ex);
+            throw new RuntimeException("Error occurred during loading decisions for session ids " + sessionIds, ex);
         }
 
         return result;
