@@ -513,16 +513,6 @@ public class SessionComparisonPanel extends VerticalPanel {
         return tdd.getDescription() + tdd.getTaskName() + sessionIds.toString();
     }
 
-    private TreeItem getTestDescriptionItemIfExists(String descriptionStr) {
-        for (TreeItem item : treeStore.getRootItems()) {
-            if (descriptionStr.equals(item.get(NAME))) {
-                return item;
-            }
-        }
-        return null;
-    }
-
-
     private class NoIconsTreeGrid extends TreeGrid<TreeItem> {
 
 
@@ -560,7 +550,25 @@ public class SessionComparisonPanel extends VerticalPanel {
             put(TEST_NAME, getItemKey(metricName));
 
             for (MetricValueDto metricValue : metricDto.getValues()) {
-                put(SESSION_HEADER + metricValue.getSessionId(), metricValue.getValueRepresentation());
+                String value    = metricValue.getValueRepresentation();
+
+                // highlight results according to decision when available
+                if (metricValue.getDecision() != null) {
+                    String toolTip = "Decision for metric during test run. Green - value in limits. Yellow - value crossed warning limits. Red - value outside limits";
+                    switch (metricValue.getDecision()) {
+                        case OK:
+                            value = "<p title=\"" + toolTip + "\" style=\"color:green;font-weight:700;display:inline;\">" + value + "</p>";
+                            break;
+                        case WARNING:
+                            value = "<p title=\"" + toolTip + "\" style=\"color:#B8860B;font-weight:700;display:inline;\">" + value + "</p>";
+                            break;
+                        default:
+                            value = "<p title=\"" + toolTip + "\" style=\"color:red;font-weight:700;display:inline;\">" + value + "</p>";
+                            break;
+                        }
+                }
+
+                put(SESSION_HEADER + metricValue.getSessionId(),value);
             }
         }
     }
@@ -577,18 +585,23 @@ public class SessionComparisonPanel extends VerticalPanel {
             String penImageResource = "<img src=\"" + JaggerResources.INSTANCE.getPencilImage().getSafeUri().asString() + "\" height=\"15\" width=\"15\">"
                     + "<ins font-size='10px'>double click to edit</ins><br><br>";
             String toShow;
-            if (webClientProperties.isUserCommentEditAvailable()) {
-                if (object.get(NAME).equals(USER_COMMENT) && !field.equals(NAME)) {
-                    toShow = object.get(field).replaceAll("\n", "<br>");
-                    return penImageResource + toShow;
+
+            // Only for columns with data
+            if (!field.equals(NAME)) {
+                if (webClientProperties.isUserCommentEditAvailable()) {
+                    if (object.get(NAME).equals(USER_COMMENT)) {
+                        toShow = object.get(field).replaceAll("\n", "<br>");
+                        return penImageResource + toShow;
+                    }
+                }
+                if (webClientProperties.isTagsAvailable()) {
+                    if (object.get(NAME).equals(SESSION_TAGS)) {
+                        toShow = object.get(field).replaceAll("\n", "<br>");
+                        return penImageResource + toShow;
+                    }
                 }
             }
-            if (webClientProperties.isTagsAvailable()) {
-                if (object.get(NAME).equals(SESSION_TAGS) && !field.equals(NAME)) {
-                    toShow = object.get(field).replaceAll("\n", "<br>");
-                    return penImageResource + toShow;
-                }
-            }
+
             return object.get(field);
         }
 
