@@ -1,22 +1,22 @@
 package com.griddynamics.jagger.engine.e1.services.data.service;
 
-//??? docu
-
 import com.griddynamics.jagger.util.Decision;
 
-/** Class is a model of single point in metric detailed results (values vs time)
+/** Class is a model of summary for some metric
  *
  * @details
- * MetricPlotPointEntity is used to get test results from database with use of @ref DataService
+ * MetricSummaryValueEntity is used to describe metric summary value
  *
  * @author
- * Gribov Kirill
+ * Latnikov Dmitry
  */
 public class MetricSummaryValueEntity {
+    /** Summary value for this metric */
     private Double value;
-    //??? null => no decision
+    /** DecisionPerMetric if this metric was compared to some limits to take decision. If not - equal to null */
     private Decision decision = null;
 
+    /** Get decision per metric */
     public Decision getDecision() {
         return decision;
     }
@@ -25,6 +25,7 @@ public class MetricSummaryValueEntity {
         this.decision = decision;
     }
 
+    /** Get summary value */
     public Double getValue() {
         return value;
     }

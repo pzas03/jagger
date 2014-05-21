@@ -22,22 +22,19 @@ public class TreeViewGroupRuleProvider {
 
         // Filter for Jagger main metrics. Space in display name will help to keep main parameters in the
         // top of alphabetic sorting
-        //??? string
-        StringBuilder builder = new StringBuilder(255);
-        builder.append("(");
-        builder.append(StandardMetricsNamesUtil.THROUGHPUT_TPS_REGEX).append("$|");
-        builder.append(StandardMetricsNamesUtil.THROUGHPUT_REGEX).append("$|");
-        builder.append(StandardMetricsNamesUtil.LATENCY_SEC_REGEX).append("$|");
-        builder.append(StandardMetricsNamesUtil.LATENCY_REGEX).append("$|");
-        builder.append(StandardMetricsNamesUtil.LATENCY_PERCENTILE_REGEX).append("$|");
-        builder.append(StandardMetricsNamesUtil.ITERATIONS_SAMPLES_REGEX).append("$|");
-        builder.append(StandardMetricsNamesUtil.SUCCESS_RATE_REGEX).append("$|");
-        builder.append(StandardMetricsNamesUtil.DURATION_SEC_REGEX).append("$|");
-        builder.append(StandardMetricsNamesUtil.TIME_LATENCY_PERCENTILE_REGEX).append("$|");
-        builder.append(")");
+        String filterRegex = "(" +
+        StandardMetricsNamesUtil.THROUGHPUT_TPS_REGEX + "$|" +
+        StandardMetricsNamesUtil.THROUGHPUT_REGEX + "$|" +
+        StandardMetricsNamesUtil.LATENCY_SEC_REGEX + "$|" +
+        StandardMetricsNamesUtil.LATENCY_REGEX + "$|" +
+        StandardMetricsNamesUtil.LATENCY_PERCENTILE_REGEX + "$|" +
+        StandardMetricsNamesUtil.ITERATIONS_SAMPLES_REGEX + "$|" +
+        StandardMetricsNamesUtil.SUCCESS_RATE_REGEX + "$|" +
+        StandardMetricsNamesUtil.DURATION_SEC_REGEX + "$|" +
+        StandardMetricsNamesUtil.TIME_LATENCY_PERCENTILE_REGEX + "$|" +
+        ")";
 
-        TreeViewGroupRule mainParams_FirstLevelFilter = new TreeViewGroupRule(Rule.By.DISPLAY_NAME,"main"," Main parameters",
-                builder.toString());
+        TreeViewGroupRule mainParams_FirstLevelFilter = new TreeViewGroupRule(Rule.By.DISPLAY_NAME,"main"," Main parameters",filterRegex);
         firstLevelFilters.add(mainParams_FirstLevelFilter);
 
         // Filters for Jagger monitoring parameters

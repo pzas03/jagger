@@ -1515,7 +1515,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                 }
             }
 
-            log.info("For metrics " + metricNames + " were found decisions in " + (System.currentTimeMillis() - time) + " ms");
+            log.debug("For metrics " + metricNames + " were found decisions in " + (System.currentTimeMillis() - time) + " ms");
         }
         catch (NoResultException ex) {
             log.debug("No decisions were found for metrics " + metricNames, ex);

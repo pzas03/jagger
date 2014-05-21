@@ -27,17 +27,14 @@ import com.griddynamics.jagger.engine.e1.services.data.service.MetricEntity;
 import com.griddynamics.jagger.engine.e1.services.data.service.MetricSummaryValueEntity;
 import com.griddynamics.jagger.engine.e1.services.data.service.TestEntity;
 import com.griddynamics.jagger.util.MetricNamesRankingProvider;
+import com.griddynamics.jagger.util.NumberFormatCalculator;
 import com.griddynamics.jagger.util.StandardMetricsNamesUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
+import java.text.DecimalFormat;
 import java.util.*;
 
 public class SummaryReporter {
-    //???
-    private static final Logger log = LoggerFactory.getLogger(SummaryReporter.class);
-
     private DatabaseService databaseService;
     private String sessionId;
     private Map<TestEntity, Set<MetricEntity>> metricsPerTest;
@@ -70,9 +67,6 @@ public class SummaryReporter {
 
     private void getData(String sessionId) {
 
-        //???
-        String decision = null;
-
         // Remember what session id was set for cashed data
         if (this.sessionId == null) {
             this.sessionId = sessionId;
@@ -96,21 +90,19 @@ public class SummaryReporter {
                 List<SummaryDto> summaryList = new ArrayList<SummaryDto>();
                 List<SummaryDto> latencyPercentilesList = new ArrayList<SummaryDto>();
 
+                // Metrics
                 Map<MetricEntity,MetricSummaryValueEntity> summary = dataService.getMetricSummary(entry.getValue());
 
                 for (MetricEntity metricEntity : summary.keySet()) {
                     SummaryDto value = new SummaryDto();
                     value.setKey(metricEntity.getDisplayName());
-                    // ??? different format
-                    value.setValue(String.format("%7.4f",summary.get(metricEntity).getValue()));
 
-                    //???
-                    if (decision == null) {
-                        decision = "OK";
-                        value.setDecision(decision);
-                    }
-                    else {
-                        decision = null;
+                    MetricSummaryValueEntity metricSummaryValueEntity = summary.get(metricEntity);
+
+                    Double summaryValue = metricSummaryValueEntity.getValue();
+                    value.setValue(new DecimalFormat(NumberFormatCalculator.getNumberFormat(summaryValue)).format(summaryValue));
+                    if (metricSummaryValueEntity.getDecision() != null) {
+                        value.setDecision(metricSummaryValueEntity.getDecision().toString());
                     }
 
                     if (metricEntity.getMetricId().matches(StandardMetricsNamesUtil.LATENCY_PERCENTILE_REGEX)) {
@@ -125,6 +117,22 @@ public class SummaryReporter {
 
                 localRankingProvider.sortSummaryDto(summaryList);
                 localRankingProvider.sortSummaryDto(latencyPercentilesList);
+
+                // Test info
+                SummaryDto description = new SummaryDto();
+                description.setKey("Test description");
+                description.setValue(entry.getKey().getDescription());
+                summaryList.add(0,description);
+
+                SummaryDto termination = new SummaryDto();
+                termination.setKey("Termination");
+                termination.setValue(entry.getKey().getTerminationStrategy());
+                summaryList.add(0,termination);
+
+                SummaryDto load = new SummaryDto();
+                load.setKey("Load");
+                load.setValue(entry.getKey().getLoad());
+                summaryList.add(0,load);
 
                 summaryMap.put(entry.getKey().getId().toString(), summaryList);
                 latencyPercentilesMap.put(entry.getKey().getId().toString(), latencyPercentilesList);

@@ -20,31 +20,22 @@
 package com.griddynamics.jagger.engine.e1.reporting;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.griddynamics.jagger.dbapi.entity.TaskData;
 import com.griddynamics.jagger.dbapi.entity.WorkloadData;
-import com.griddynamics.jagger.dbapi.entity.WorkloadProcessDescriptiveStatistics;
-import com.griddynamics.jagger.dbapi.entity.WorkloadProcessLatencyPercentile;
 import com.griddynamics.jagger.dbapi.entity.WorkloadTaskData;
-import com.griddynamics.jagger.util.Decision;
 import com.griddynamics.jagger.reporting.AbstractReportProvider;
-import com.griddynamics.jagger.util.TimeUtils;
+import com.griddynamics.jagger.util.Decision;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.awt.*;
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 public class WorkloadReporter extends AbstractReportProvider {
     private SessionStatusDecisionMaker decisionMaker;
     private StatusImageProvider statusImageProvider;
-    private final static Logger log = LoggerFactory.getLogger(WorkloadReporter.class);
 
 	@Override
 	public JRDataSource getDataSource() {
@@ -56,21 +47,9 @@ public class WorkloadReporter extends AbstractReportProvider {
 		List<WorkloadTaskData> allWorkloadTasks = getHibernateTemplate().find("from WorkloadTaskData d where d.sessionId=? order by d.number asc, d.scenario.name asc",
                 getSessionIdProvider().getSessionId());
 
-        //???
-//        @SuppressWarnings({"unchecked"}) List<WorkloadProcessDescriptiveStatistics> statistics = getHibernateTemplate().find(
-//                "select s from WorkloadProcessDescriptiveStatistics s where s.taskData.sessionId=?",
-//                getSessionIdProvider().getSessionId());
-
         @SuppressWarnings({"unchecked"}) List<TaskData> taskDatas = getHibernateTemplate().find(
                 "select d from TaskData d where d.sessionId=?",
                 getSessionIdProvider().getSessionId());
-
-//        Map<String, WorkloadProcessDescriptiveStatistics> statisticsByTasks = Maps.newHashMap();
-//        if (statistics != null) {
-//            for (WorkloadProcessDescriptiveStatistics statistic : statistics) {
-//                statisticsByTasks.put(statistic.getTaskData().getTaskId(), statistic);
-//            }
-//        }
 
 
 		List<E1ScenarioReportData> result = Lists.newLinkedList();
@@ -78,15 +57,8 @@ public class WorkloadReporter extends AbstractReportProvider {
 		for (WorkloadData workloadData : testData) {
 			E1ScenarioReportData reportData = new E1ScenarioReportData();
 			reportData.setSessionId(workloadData.getSessionId());
-//            reportData.setTestId(workloadData.getTaskId());
             reportData.setNumber(workloadData.getNumber().toString());
 			reportData.setScenarioName(workloadData.getScenario().getName());
-//			reportData.setVersion(workloadData.getScenario().getVersion());
-//			BigDecimal duration = new BigDecimal(workloadData.getEndTime().getTime()
-//					- workloadData.getStartTime().getTime()).divide(new BigDecimal(1000));
-//			reportData.setDuration(TimeUtils.formatDuration(duration));
-
-            reportData.setStartTime(workloadData.getStartTime());
 
 			WorkloadTaskData resultData = null;
 			for (WorkloadTaskData workloadTaskData : allWorkloadTasks) {
@@ -100,16 +72,7 @@ public class WorkloadReporter extends AbstractReportProvider {
 				throw new IllegalStateException("Result data is not specified");
 			}
 
-//			reportData.setSamples(resultData.getSamples());
-			reportData.setClock(resultData.getClock());
-			reportData.setTermination(resultData.getTermination());
 			reportData.setThroughput(resultData.getThroughput());
-			reportData.setFailuresCount(resultData.getFailuresCount());
-//			reportData.setSuccessRate(resultData.getSuccessRate());
-//			reportData.setAvgLatency(resultData.getAvgLatency());
-//			reportData.setStdDevLatency(resultData.getStdDevLatency());
-//            reportData.setLatency85(getLatency85(statisticsByTasks, workloadData.getTaskId()));
-
             reportData.setStatusImage(statusImageProvider.getImageByDecision(decisionMaker.decideOnTest(resultData)));
 
             for(TaskData taskData: taskDatas) {
@@ -128,22 +91,6 @@ public class WorkloadReporter extends AbstractReportProvider {
 		return new JRBeanCollectionDataSource(result);
 	}
 
-//    private String getLatency85(Map<String, WorkloadProcessDescriptiveStatistics> statisticsByTasks, String taskId) {
-//        WorkloadProcessDescriptiveStatistics statistics = statisticsByTasks.get(taskId);
-//        String ret = "Unknown";
-//        if (statistics != null && statistics.getPercentiles() != null) {
-//            for (WorkloadProcessLatencyPercentile workloadProcessLatencyPercentile : statistics.getPercentiles()) {
-//                if (workloadProcessLatencyPercentile.getPercentileKey().equals(85D)) {
-//                    ret = String.format("%.3fs", workloadProcessLatencyPercentile.getPercentileValue() / 1000);
-//                    break;
-//                }
-//            }
-//        } else {
-//            log.warn("Statistics unavailable for task {}", taskId);
-//        }
-//        return ret;
-//	}
-
     @Required
     public void setDecisionMaker(SessionStatusDecisionMaker decisionMaker) {
         this.decisionMaker = decisionMaker;
@@ -155,21 +102,9 @@ public class WorkloadReporter extends AbstractReportProvider {
 
     public static class E1ScenarioReportData {
 		private String sessionId;
-//        private String testId;
         private String number;
 		private String scenarioName;
-//		private String version;
-		private String clock;
-        private String termination;
-//        private Integer samples;
-//        private String duration;
-        private Date startTime;
 		private BigDecimal throughput;
-//        private String latency85;
-		private Integer failuresCount;
-//		private BigDecimal successRate;
-//		private BigDecimal avgLatency;
-//		private BigDecimal stdDevLatency;
         private String Id;
 
         private Image statusImage;
@@ -182,21 +117,6 @@ public class WorkloadReporter extends AbstractReportProvider {
 			this.sessionId = sessionId;
 		}
 
-        public Date getStartTime() {
-            return startTime;
-        }
-
-        public void setStartTime(Date startTime) {
-            this.startTime = startTime;
-        }
-
-//        public String getTestId() {
-//            return testId;
-//        }
-//
-//        public void setTestId(String testId) {
-//            this.testId = testId;
-//        }
 
         public String getNumber() {
             return number;
@@ -214,31 +134,6 @@ public class WorkloadReporter extends AbstractReportProvider {
 			this.scenarioName = scenarioName;
 		}
 
-//		public String getVersion() {
-//			return version;
-//		}
-//
-//		public void setVersion(String version) {
-//			this.version = version;
-//		}
-
-
-//		public String getDuration() {
-//			return duration;
-//		}
-//
-//		public void setDuration(String duration) {
-//			this.duration = duration;
-//		}
-//
-//		public Integer getSamples() {
-//			return samples;
-//		}
-//
-//		public void setSamples(Integer samples) {
-//			this.samples = samples;
-//		}
-
 		public BigDecimal getThroughput() {
 			return throughput;
 		}
@@ -247,38 +142,6 @@ public class WorkloadReporter extends AbstractReportProvider {
 			this.throughput = throughput;
 		}
 
-		public Integer getFailuresCount() {
-			return failuresCount;
-		}
-
-		public void setFailuresCount(Integer failuresCount) {
-			this.failuresCount = failuresCount;
-		}
-
-//		public BigDecimal getSuccessRate() {
-//			return successRate;
-//		}
-//
-//		public void setSuccessRate(BigDecimal successRate) {
-//			this.successRate = successRate;
-//		}
-//
-//		public BigDecimal getAvgLatency() {
-//			return avgLatency;
-//		}
-//
-//		public void setAvgLatency(BigDecimal avgLatency) {
-//			this.avgLatency = avgLatency;
-//		}
-//
-//		public BigDecimal getStdDevLatency() {
-//			return stdDevLatency;
-//		}
-//
-//		public void setStdDevLatency(BigDecimal stdDevLatency) {
-//			this.stdDevLatency = stdDevLatency;
-//		}
-
         public Image getStatusImage() {
             return statusImage;
         }
@@ -286,30 +149,6 @@ public class WorkloadReporter extends AbstractReportProvider {
         public void setStatusImage(Image statusImage) {
             this.statusImage = statusImage;
         }
-
-        public String getClock() {
-            return clock;
-        }
-
-        public void setClock(String clock) {
-            this.clock = clock;
-        }
-
-        public String getTermination() {
-            return termination;
-        }
-
-        public void setTermination(String termination) {
-            this.termination = termination;
-        }
-
-//        public String getLatency85() {
-//            return latency85;
-//        }
-//
-//        public void setLatency85(String latency85) {
-//            this.latency85 = latency85;
-//        }
 
         public String getId() {
             return Id;

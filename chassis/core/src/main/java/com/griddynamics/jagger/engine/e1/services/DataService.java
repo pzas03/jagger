@@ -111,7 +111,6 @@ import java.util.Set;
      * @return map of <test id, list of metric entity> pairs*/
     Map<Long, Set<MetricEntity>> getMetricsByTestIds(Collection<Long> testIds);
 
-    //    //??? docu
     /** Return summary value for selected metric
      * @author Dmitry Latnikov
      * @n
@@ -119,7 +118,7 @@ import java.util.Set;
      * !Note: It is faster to get summary for set of metrics than fetch every metric in for loop @n
      * See docu for overloaded function with set of metrics @n
      * @param metric - metric entity
-     * @return summary value for selected metric  */
+     * @return summary for selected metric  */
     MetricSummaryValueEntity getMetricSummary(MetricEntity metric);
 
     /** Return summary values for selected metrics
@@ -129,7 +128,7 @@ import java.util.Set;
      * Preferable way to get data. Data will be fetched from database in batch in single request => @n
      * it is faster to get batch of metrics than fetch every metric in for loop @n
      * @param metrics - metric entities
-     * @return map of <metric entity, summary value> */
+     * @return map of <metric entity, summary> */
     Map<MetricEntity,MetricSummaryValueEntity> getMetricSummary(Collection<MetricEntity> metrics);
 
     /** Return list of points (values vs time) for selected metric
