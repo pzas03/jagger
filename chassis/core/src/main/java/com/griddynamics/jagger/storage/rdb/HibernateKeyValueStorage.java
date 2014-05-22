@@ -116,7 +116,7 @@ public class HibernateKeyValueStorage extends HibernateDaoSupport implements Key
         if (sessions.size() == 0)
             return;
         if (sessionTempDataCount == 0) {
-            log.warn("Session count limit is equal '0', all temporary data about sessions will be delete");
+            log.warn("Session count limit is equal '0', all temporary data about sessions in KeyValue will be delete");
             getHibernateTemplate().bulkUpdate("delete from KeyValue");
             return;
         }
