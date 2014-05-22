@@ -8,7 +8,6 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Composite;
 import com.googlecode.gflot.client.Series;
@@ -86,6 +85,7 @@ public class PlotsPanel extends Composite {
      */
     public void removeElementById(String elementId) {
         layoutPanel.removeChild(elementId);
+        childrenCount = layoutPanel.getAllChildren().size();
         setMaxRange();
     }
 
@@ -94,6 +94,7 @@ public class PlotsPanel extends Composite {
      */
     public void clear() {
         layoutPanel.clear();
+        childrenCount = 0;
     }
 
     /**
@@ -106,7 +107,12 @@ public class PlotsPanel extends Composite {
         scrollCalculations(plotContainer);
 
         layoutPanel.addChild(plotContainer);
+        childrenCount = layoutPanel.getAllChildren().size();
         setMaxRange();
+
+        // do not fire calculating of percent for new plot
+        avalancheScrollEventsCount++;
+        plotContainer.getPlotRepresentation().panToPercent(percent);
     }
 
     private void panAllPlots(double percent) {
@@ -117,7 +123,7 @@ public class PlotsPanel extends Composite {
     }
 
 
-    private void scrollCalculations(PlotContainer plotContainer) {
+    private void scrollCalculations(final PlotContainer plotContainer) {
 
         double maxX = Double.MIN_VALUE;
         JsArray<Series> series = plotContainer.getPlotRepresentation().getSimplePlot().getModel().getSeries();
@@ -143,37 +149,43 @@ public class PlotsPanel extends Composite {
 
         plotContainer.getPlotRepresentation().setMaxRange(maxRange);
 
-        NativeHorizontalScrollbar scrollBar = plotContainer.getPlotRepresentation().getScrollbar();
+        final NativeHorizontalScrollbar scrollBar = plotContainer.getPlotRepresentation().getScrollbar();
         scrollBar.setVisible(true);
-        scrollBar.addScrollHandler(scrollHandler.setScrollBar(scrollBar));
+        scrollBar.addScrollHandler(new ScrollHandler() {
+            @Override
+            public void onScroll(ScrollEvent event) {
+
+                avalancheScrollEventsCount = avalancheScrollEventsCount - 1;
+
+                if (avalancheScrollEventsCount > 0)
+                    return;
+
+                avalancheScrollEventsCount = childrenCount;
+
+                int currentPosition = scrollBar.getHorizontalScrollPosition();
+                double percent = 1D * (currentPosition - scrollBar.getMinimumHorizontalScrollPosition()) /
+                        (scrollBar.getMaximumHorizontalScrollPosition() - scrollBar.getMinimumHorizontalScrollPosition());
+                PlotsPanel.this.percent = percent;
+                panAllPlots(percent);
+            }
+        });
 
     }
 
-    private ScrollBarHandler scrollHandler = new ScrollBarHandler();
+    /**
+     * Global counter to see how many avalanche scroll events hav not been finished */
+    int avalancheScrollEventsCount = 0;
 
-    private class ScrollBarHandler implements ScrollHandler {
+    /**
+     * To avoid calculating on every scroll  event */
+    private int childrenCount = 0;
 
-        public ScrollHandler setScrollBar(NativeHorizontalScrollbar scrollBar) {
-            this.scrollBar = scrollBar;
-            return this;
-        }
-
-        private NativeHorizontalScrollbar scrollBar;
-
-        @Override
-        public void onScroll(ScrollEvent event) {
-            event.stopPropagation();
-
-            int currentPosition = scrollBar.getHorizontalScrollPosition();
-            double percent = 1D * (currentPosition - scrollBar.getMinimumHorizontalScrollPosition()) /
-                    (scrollBar.getMaximumHorizontalScrollPosition() - scrollBar.getMinimumHorizontalScrollPosition());
-            panAllPlots(percent);
-        }
-    }
+    /**
+     * Current state of plot`s scrolls */
+    private double percent = 0;
 
     private void setMaxRange() {
         for (PlotContainer pc : layoutPanel.getAllChildren()) {
-            pc.getPlotRepresentation().getScrollbar().unsinkEvents(Event.ONSCROLL);
             pc.getPlotRepresentation().setMaxRange(getMaxXAxisValue());
         }
     }

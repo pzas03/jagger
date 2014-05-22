@@ -1,9 +1,6 @@
 package com.griddynamics.jagger.webclient.client.components;
 
-import com.google.gwt.dom.client.NativeEvent;
-import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.logical.shared.AttachEvent;
-import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.*;
 import com.googlecode.gflot.client.Pan;
 import com.googlecode.gflot.client.SimplePlot;
