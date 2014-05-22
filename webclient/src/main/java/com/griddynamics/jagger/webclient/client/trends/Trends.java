@@ -305,8 +305,8 @@ public class Trends extends DefaultActivity {
                         if (plotNode.getMetricNameDtoList().size() > 0) {
                             MetricNameDto metricNameDto = plotNode.getMetricNameDtoList().get(0);
 
-                            if ((metricNameDto.getOrigin() == MetricNameDto.Origin.MONITORING) ||
-                                (metricNameDto.getOrigin() == MetricNameDto.Origin.TEST_GROUP_METRIC)) {
+                            if ((metricNameDto.getOrigin().equals(MetricNameDto.Origin.MONITORING)) ||
+                                (metricNameDto.getOrigin().equals(MetricNameDto.Origin.TEST_GROUP_METRIC))) {
 
                                 MonitoringIdUtils.MonitoringId monitoringId= MonitoringIdUtils.splitMonitoringMetricId(metricNameDto.getMetricName());
                                 if (monitoringId != null) {

@@ -20,28 +20,44 @@
 
 package com.griddynamics.jagger.engine.e1.reporting;
 
-import com.griddynamics.jagger.dbapi.entity.TaskData;
-import com.griddynamics.jagger.dbapi.entity.WorkloadTaskData;
+import com.griddynamics.jagger.dbapi.DatabaseService;
+import com.griddynamics.jagger.engine.e1.services.DataService;
+import com.griddynamics.jagger.engine.e1.services.DefaultDataService;
+import com.griddynamics.jagger.engine.e1.services.data.service.TestEntity;
 import com.griddynamics.jagger.reporting.AbstractReportProvider;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import org.springframework.beans.factory.annotation.Required;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class TestDetailsReporter extends AbstractReportProvider {
+    private DatabaseService databaseService;
+
+    @Override
+    public JRDataSource getDataSource() {
+        String sessionId = getSessionIdProvider().getSessionId();
+
+        DataService dataService = new DefaultDataService(databaseService);
+        Set<TestEntity> testEntities = dataService.getTests(sessionId);
+
+        List<TestDetailsDTO> result = new ArrayList<TestDetailsDTO>();
+
+        for(TestEntity testEntity : testEntities) {
+            TestDetailsDTO testDetailsDTO = new TestDetailsDTO();
+            testDetailsDTO.setTestName(testEntity.getName());
+            testDetailsDTO.setId(testEntity.getId().toString());
+            result.add(testDetailsDTO);
+        }
+
+        return new JRBeanCollectionDataSource(result);
+    }
+
     public static class TestDetailsDTO {
-        private String testId;
         private String testName;
         private String id;
-
-        public String getTestId() {
-            return testId;
-        }
-
-        public void setTestId(String testId) {
-            this.testId = testId;
-        }
 
         public String getTestName() {
             return testName;
@@ -60,35 +76,9 @@ public class TestDetailsReporter extends AbstractReportProvider {
         }
     }
 
-    //todo JFG-722 We should delete all queries from reporting-part jagger
-    @Override
-    public JRDataSource getDataSource() {
-        @SuppressWarnings("unchecked")
-        List<WorkloadTaskData> tests = getHibernateTemplate().find("from WorkloadTaskData d where d.sessionId=? order by d.number asc, d.scenario.name asc",
-				getSessionIdProvider().getSessionId());
-
-        @SuppressWarnings("unchecked")
-        List<TaskData>  taskDatas = getHibernateTemplate().find("from TaskData d where d.sessionId=? order by d.number asc",
-                getSessionIdProvider().getSessionId());
-
-
-        List<TestDetailsDTO> result = new ArrayList<TestDetailsDTO>();
-
-        for(WorkloadTaskData test : tests) {
-            TestDetailsDTO testDetailsDTO = new TestDetailsDTO();
-            testDetailsDTO.setTestId(test.getTaskId());
-            testDetailsDTO.setTestName(getTestHumanReadableName(test));
-            for (TaskData taskData: taskDatas){
-                if (taskData.getTaskId().equals(test.getTaskId()))
-                    testDetailsDTO.setId(taskData.getId().toString());
-            }
-            result.add(testDetailsDTO);
-        }
-
-        return new JRBeanCollectionDataSource(result);
+    @Required
+    public void setDatabaseService(DatabaseService databaseService) {
+        this.databaseService = databaseService;
     }
 
-    private static String getTestHumanReadableName(WorkloadTaskData workloadTaskData) {
-        return workloadTaskData.getNumber() + ") " + workloadTaskData.getScenario().getName() + ", " + workloadTaskData.getClock();
-    }
 }

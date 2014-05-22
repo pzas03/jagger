@@ -1199,8 +1199,8 @@ public class DatabaseServiceImpl implements DatabaseService {
         for (PlotNode plotNode : plotNodeList) {
             for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
                 // old monitoring or new monitoring as metrics
-                if ((metricNameDto.getOrigin() == MetricNameDto.Origin.MONITORING) ||
-                        (metricNameDto.getOrigin() == MetricNameDto.Origin.TEST_GROUP_METRIC)) {
+                if ((metricNameDto.getOrigin().equals(MetricNameDto.Origin.MONITORING)) ||
+                        (metricNameDto.getOrigin().equals(MetricNameDto.Origin.TEST_GROUP_METRIC))) {
 
                     // if looks like monitoring parameter
                     MonitoringIdUtils.MonitoringId monitoringId = MonitoringIdUtils.splitMonitoringMetricId(metricNameDto.getMetricName());
@@ -1464,7 +1464,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         for (MetricNameDto metricName : metricNames) {
             metricIds.add(metricName.getMetricName());
             taskIds.addAll(metricName.getTaskIds());
-            if (metricName.getOrigin() == MetricNameDto.Origin.TEST_GROUP_METRIC) {
+            if (metricName.getOrigin().equals(MetricNameDto.Origin.TEST_GROUP_METRIC)) {
                 taskIdsWhereParentIdIsRequired.addAll(metricName.getTaskIds());
             }
         }
