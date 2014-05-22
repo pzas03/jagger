@@ -584,8 +584,8 @@ public class Trends extends DefaultActivity {
                 .setFont(fontOptions);
 
         if (!panel.isEmpty()) {
-            xAxisOptions.setMaximum(panel.getMaxXAxisValue());
-            xAxisOptions.setMinimum(panel.getMinXAxisValue());
+            xAxisOptions.setMaximum(panel.getMaxXAxisVisibleValue());
+            xAxisOptions.setMinimum(panel.getMinXAxisVisibleValue());
         } else {
             xAxisOptions.setMinimum(0);
         }
@@ -1077,7 +1077,6 @@ public class Trends extends DefaultActivity {
                 }
             }
 
-            // Add X axis label
             final String xAxisLabel = plotSeriesDto.getXAxisLabel();
             Label xLabel = new Label(xAxisLabel);
             xLabel.addStyleName(getResources().css().xAxisLabel());
@@ -1095,7 +1094,7 @@ public class Trends extends DefaultActivity {
             panLeftLabel.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    panel.panAllPlots(-100);
+              //      panel.panAllPlots(-100);
                 }
             });
 
@@ -1105,7 +1104,7 @@ public class Trends extends DefaultActivity {
             panRightLabel.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    panel.panAllPlots(100);
+               //     panel.panAllPlots(100);
                 }
             });
 
