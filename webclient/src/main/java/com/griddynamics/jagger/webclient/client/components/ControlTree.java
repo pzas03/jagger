@@ -337,7 +337,7 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
         }
     }
 
-    public void setChecked(String elementId, CheckState checkState) {
+    public void setCheckState(String elementId, CheckState checkState) {
 
         AbstractIdentifyNode abstractIdentifyNode = getStore().findModelWithKey(elementId);
         setChecked(abstractIdentifyNode, checkState);

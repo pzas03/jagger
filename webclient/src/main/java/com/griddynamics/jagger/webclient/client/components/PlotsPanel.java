@@ -81,7 +81,7 @@ public class PlotsPanel extends Composite {
      * @param elementId Id of widget element (Widget.getElement.getId())*/
     public void removeElementById(String elementId) {
         layoutPanel.removeChild(elementId);
-        controlTree.setChecked(elementId, Tree.CheckState.UNCHECKED);
+        controlTree.setCheckState(elementId, Tree.CheckState.UNCHECKED);
     }
 
     /**
