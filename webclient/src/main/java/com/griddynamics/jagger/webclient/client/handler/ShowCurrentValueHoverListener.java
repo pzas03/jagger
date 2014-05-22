@@ -19,9 +19,9 @@ public class ShowCurrentValueHoverListener implements PlotHoverListener {
     private final PopupPanel popup;
     private final HTML popupPanelContent;
     private final String xAxisLabel;
-    private final List<String> chosenSessions;
+    private final List<Integer> chosenSessions;
 
-    public ShowCurrentValueHoverListener(PopupPanel popup, HTML popupPanelContent, String xAxisLabel, List<String> chosenSessions) {
+    public ShowCurrentValueHoverListener(PopupPanel popup, HTML popupPanelContent, String xAxisLabel, List<Integer> chosenSessions) {
         this.popup = popup;
         this.popupPanelContent = popupPanelContent;
         this.xAxisLabel = xAxisLabel;

@@ -85,7 +85,7 @@ public class ValidatorSummaryFetcher extends SummaryDbMetricDataFetcher {
 
 
         for (MetricDto metricDto: resultMap.values()) {
-            metricDto.setPlotSeriesDtos(generatePlotSeriesDto(metricDto));
+            metricDto.setPlotDatasetDto(generatePlotDatasetDto(metricDto));
         }
 
         return new HashSet<MetricDto>(resultMap.values());

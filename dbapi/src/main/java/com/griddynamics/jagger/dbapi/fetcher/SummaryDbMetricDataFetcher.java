@@ -7,9 +7,7 @@ import java.util.*;
 
 public abstract class SummaryDbMetricDataFetcher extends DbMetricDataFetcher<MetricDto> {
 
-    protected PlotSeriesDto generatePlotSeriesDto(MetricDto metricDto) {
-        double yMinimum = Double.MAX_VALUE;
-
+    protected PlotDatasetDto generatePlotDatasetDto(MetricDto metricDto) {
         //So plot draws as {(0, val0),(1, val1), (2, val2), ... (n, valn)}
         List<PointDto> list = new ArrayList<PointDto>();
 
@@ -29,32 +27,14 @@ public abstract class SummaryDbMetricDataFetcher extends DbMetricDataFetcher<Met
         for (MetricValueDto value: metricList) {
             double temp = Double.parseDouble(value.getValue());
             list.add(new PointDto(value.getSessionId(), temp));
-            if (yMinimum == Double.MAX_VALUE || temp < yMinimum)
-                yMinimum = temp;
         }
 
         String legend = metricDto.getMetricName().getMetricDisplayName();
 
-        PlotDatasetDto pdd = new PlotDatasetDto(
+        return new PlotDatasetDto(
                 list,
                 legend,
                 ColorCodeGenerator.getHexColorCode()
         );
-
-        StringBuilder headerBuilder = new StringBuilder();
-        headerBuilder.append(metricDto.getMetricName().getTest().getTaskName()).
-                append(", ").
-                append(metricDto.getMetricName().getMetricName());
-
-        PlotSeriesDto psd = new PlotSeriesDto(
-                Arrays.asList(pdd),
-                "Sessions" ,
-                metricDto.getMetricName().getMetricName(),
-                headerBuilder.toString()
-        );
-
-        psd.setYAxisMin(yMinimum);
-
-        return psd;
     }
 }
