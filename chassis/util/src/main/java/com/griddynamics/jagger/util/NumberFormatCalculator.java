@@ -18,31 +18,24 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.griddynamics.jagger.engine.e1.reporting;
+package com.griddynamics.jagger.util;
 
-import com.griddynamics.jagger.reporting.AbstractMappedReportProvider;
-import net.sf.jasperreports.engine.JRDataSource;
-import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import org.springframework.beans.factory.annotation.Required;
+public class NumberFormatCalculator {
 
-import java.util.List;
+    public static String getNumberFormat(double value) {
+        value = Math.abs(value);
 
-public class WorkloadProcessDetailsReporter extends AbstractMappedReportProvider<String> {
+        if (value > 999999) {
+            return "#.###E0#";
+        } else if (value > 999) {
+            return "######.#";
+        } else if (value > 1) {
+            return "###.#####";
+        } else if (value > 0.00001) {
+            return "#.#####";
+        }
 
-    private SummaryReporter summaryReporter;
-
-    @Override
-    public JRDataSource getDataSource(String id) {
-
-        String sessionId = getSessionIdProvider().getSessionId();
-        List<SummaryDto> result = summaryReporter.getLatencyPercentile(sessionId,id);
-
-        return new JRBeanCollectionDataSource(result);
-    }
-
-    @Required
-    public void setSummaryReporter(SummaryReporter summaryReporter) {
-        this.summaryReporter = summaryReporter;
+        return "#.###E0#";
     }
 
 }
