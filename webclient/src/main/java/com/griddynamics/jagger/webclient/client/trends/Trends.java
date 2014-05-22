@@ -627,6 +627,7 @@ public class Trends extends DefaultActivity {
                     }
 
                     private NumberFormat calculateNumberFormat(double tickValue) {
+                        tickValue = Math.abs(tickValue);
 
                         if (tickValue > 999999) {
                             return NumberFormat.getFormat("#.###E0#");
