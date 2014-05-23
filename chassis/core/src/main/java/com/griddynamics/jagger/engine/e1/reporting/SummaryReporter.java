@@ -105,7 +105,7 @@ public class SummaryReporter {
                         value.setDecision(metricSummaryValueEntity.getDecision().toString());
                     }
 
-                    if (metricEntity.getMetricId().matches(StandardMetricsNamesUtil.LATENCY_PERCENTILE_REGEX)) {
+                    if (metricEntity.getMetricId().matches("^" + StandardMetricsNamesUtil.LATENCY_PERCENTILE_REGEX)) {
                         // change key (name) for back compatibility
                         value.setKey(metricEntity.getDisplayName().replace("Latency ","").concat("  -  "));
                         latencyPercentilesList.add(value);
