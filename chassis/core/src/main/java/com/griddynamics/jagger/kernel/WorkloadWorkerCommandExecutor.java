@@ -15,15 +15,15 @@ import java.io.Serializable;
  * To change this template use File | Settings | File Templates.
  */
 
-abstract public class WorkloadWorkerCommandExecutor<C extends Command<R>, R extends Serializable> implements CommandExecutor {
+abstract public class WorkloadWorkerCommandExecutor<C extends Command<R>, R extends Serializable> implements CommandExecutor <C,R> {
 
     @Override
-    public R execute(Command command, NodeContext nodeContext) {
+    public R execute(C command, NodeContext nodeContext) {
         KeyValueStorage keyValueStorage = nodeContext.getService(KeyValueStorage.class);
         if (keyValueStorage != null)
             nodeContext.getService(KeyValueStorage.class).setSessionId(command.getSessionId());
         return doExecute(command, nodeContext);
     }
 
-    abstract public R doExecute(Command command, NodeContext nodeContext);
+    abstract public R doExecute(C command, NodeContext nodeContext);
 }

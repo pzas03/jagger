@@ -77,17 +77,16 @@ public class WorkloadWorker extends ConfigurableWorker {
                 return Qualifier.of(StartWorkloadProcess.class);
             }
 
-            public String doExecute(Command command, NodeContext nodeContext) {
-                StartWorkloadProcess specificCommand = (StartWorkloadProcess) command;
-                log.debug("Processing command {}", specificCommand);
+            public String doExecute(StartWorkloadProcess command, NodeContext nodeContext) {
+                log.debug("Processing command {}", command);
                 nodeContext.getService(KeyValueStorage.class).setSessionId(command.getSessionId());
-                int poolSize = specificCommand.getPoolSize();
+                int poolSize = command.getPoolSize();
 
-                if (poolSize < specificCommand.getThreads()) {
+                if (poolSize < command.getThreads()) {
                     throw new IllegalStateException("Error! Pool size is less then thread count");
                 }
 
-                WorkloadProcess process = new WorkloadProcess(specificCommand.getSessionId(), specificCommand, nodeContext,
+                WorkloadProcess process = new WorkloadProcess(command.getSessionId(), command, nodeContext,
                         Executors.newFixedThreadPool(poolSize,
                                 new ThreadFactoryBuilder()
                                         .setNameFormat("workload-thread %d")
@@ -110,18 +109,17 @@ public class WorkloadWorker extends ConfigurableWorker {
             }
 
             @Override
-            public Boolean doExecute(Command command, NodeContext nodeContext) {
-                ChangeWorkloadConfiguration specificCommand = (ChangeWorkloadConfiguration) command;
-                Preconditions.checkArgument(specificCommand.getProcessId() != null, "Process id cannot be null");
+            public Boolean doExecute(ChangeWorkloadConfiguration command, NodeContext nodeContext) {
+                Preconditions.checkArgument(command.getProcessId() != null, "Process id cannot be null");
 
-                Integer poolSize = pools.get(specificCommand.getProcessId());
-                if (poolSize < specificCommand.getConfiguration().getThreads()) {
+                Integer poolSize = pools.get(command.getProcessId());
+                if (poolSize < command.getConfiguration().getThreads()) {
                     throw new IllegalStateException("Error! Pool size is less then thread count");
                 }
 
-                WorkloadProcess process = getProcess(specificCommand.getProcessId());
+                WorkloadProcess process = getProcess(command.getProcessId());
 
-                process.changeConfiguration(specificCommand.getConfiguration());
+                process.changeConfiguration(command.getConfiguration());
 
                 return true;
             }
@@ -135,11 +133,10 @@ public class WorkloadWorker extends ConfigurableWorker {
             }
 
             @Override
-            public WorkloadStatus doExecute(Command command, NodeContext nodeContext) {
-                PollWorkloadProcessStatus specificCommand = (PollWorkloadProcessStatus) command;
-                Preconditions.checkArgument(specificCommand.getProcessId() != null, "Process id cannot be null");
+            public WorkloadStatus doExecute(PollWorkloadProcessStatus command, NodeContext nodeContext) {
+                Preconditions.checkArgument(command.getProcessId() != null, "Process id cannot be null");
 
-                WorkloadProcess process = getProcess(specificCommand.getProcessId());
+                WorkloadProcess process = getProcess(command.getProcessId());
                 return process.getStatus();
             }
         }
@@ -150,15 +147,14 @@ public class WorkloadWorker extends ConfigurableWorker {
                 return Qualifier.of(StopWorkloadProcess.class);
             }
 
-            public WorkloadStatus doExecute(Command command, NodeContext nodeContext) {
-                StopWorkloadProcess specificCommand = (StopWorkloadProcess) command;
-                log.debug("Going to stop process {} on kernel {}", specificCommand.getProcessId(), nodeContext.getId().getIdentifier());
+            public WorkloadStatus doExecute(StopWorkloadProcess command, NodeContext nodeContext) {
+                log.debug("Going to stop process {} on kernel {}", command.getProcessId(), nodeContext.getId().getIdentifier());
 
-                Preconditions.checkArgument(specificCommand.getProcessId() != null, "Process id cannot be null");
+                Preconditions.checkArgument(command.getProcessId() != null, "Process id cannot be null");
 
-                WorkloadProcess process = getProcess(specificCommand.getProcessId());
+                WorkloadProcess process = getProcess(command.getProcessId());
                 process.stop();
-                processes.remove(specificCommand.getProcessId());
+                processes.remove(command.getProcessId());
                 logWriter.flush();
                 return process.getStatus();
             }
@@ -171,15 +167,14 @@ public class WorkloadWorker extends ConfigurableWorker {
             }
 
             @Override
-            public Boolean doExecute(Command command, NodeContext nodeContext) {
-                PerformCalibration specificCommand = (PerformCalibration) command;
-                ScenarioFactory<Object, Object, Object> scenarioFactory = specificCommand.getScenarioFactory();
+            public Boolean doExecute(PerformCalibration command, NodeContext nodeContext) {
+                ScenarioFactory<Object, Object, Object> scenarioFactory = command.getScenarioFactory();
 
                 Scenario<Object, Object, Object> scenario = scenarioFactory.get(nodeContext);
                 int calibrationSamplesCount = scenarioFactory.getCalibrationSamplesCount();
 
                 CalibrationInfoCollector calibrationInfoCollector = new CalibrationInfoCollector(command.getSessionId(),
-                        specificCommand.getTaskId(),
+                        command.getTaskId(),
                         nodeContext);
 
                 ExecutorService executor = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
@@ -218,7 +213,7 @@ public class WorkloadWorker extends ConfigurableWorker {
                     }
 
                     @Override
-                    public GeneralNodeInfo doExecute(Command command, NodeContext nodeContext) {
+                    public GeneralNodeInfo doExecute(GetGeneralNodeInfo command, NodeContext nodeContext) {
                         long startTime = System.currentTimeMillis();
                         log.debug("start GetGeneralNodeInfo on kernel {}", nodeContext.getId());
                         GeneralNodeInfo generalNodeInfo = generalInfoCollector.getGeneralNodeInfo();
