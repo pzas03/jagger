@@ -1286,7 +1286,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
         @SuppressWarnings("all")
         List<Object[]> objectsList = (List<Object[]>)entityManager.createNativeQuery(
-            "select wtd.sessionId, wtd.clock, wtd.clockValue, wtd.termination, finalTaskData.id, finalTaskData.startTime " +
+            "select wtd.sessionId, wtd.clock, wtd.clockValue, wtd.termination, finalTaskData.id, finalTaskData.startTime, wtd.number " +
             "from WorkloadTaskData as wtd join " +
                 "(select wd.startTime, wd.taskId, wd.sessionId, taskData.id from WorkloadData " +
                 "as wd join " +
@@ -1308,6 +1308,10 @@ public class DatabaseServiceImpl implements DatabaseService {
             String sessionId = (String)objects[0];
             Date date = (Date)objects[5];
             String startTime = date.toString();
+            Integer number = (Integer)objects[6];
+            if (number == null) {
+                number = 0;
+            }
 
             if (!resultMap.containsKey(taskId)) {
                 resultMap.put(taskId,new HashMap<String, TestInfoDto>());
@@ -1316,6 +1320,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             testInfo.setClock(clock);
             testInfo.setTermination(termination);
             testInfo.setStartTime(startTime);
+            testInfo.setNumber(number);
 
             resultMap.get(taskId).put(sessionId,testInfo);
         }

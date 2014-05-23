@@ -11,6 +11,8 @@ public class TestInfoDto implements Serializable {
     private String termination;
     private String clock;
     private String startTime;
+    // index of test group where this test was executed
+    private Integer number;
 
     public String getTermination() {
         return termination;
@@ -34,6 +36,14 @@ public class TestInfoDto implements Serializable {
 
     public void setStartTime(String startTime) {
         this.startTime = startTime;
+    }
+
+    public Integer getNumber() {
+        return number;
+    }
+
+    public void setNumber(Integer number) {
+        this.number = number;
     }
 
 }
