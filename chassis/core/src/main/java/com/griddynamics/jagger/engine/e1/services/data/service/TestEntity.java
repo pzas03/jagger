@@ -27,6 +27,9 @@ public class TestEntity {
     /** Start date of the test */
     private String startDate;
 
+    /** Index of test group where this test belongs */
+    private Integer testGroupIndex;
+
     /** Get test name in format [test group name] [test name] */
     public String getName() {
         return name;
@@ -81,6 +84,15 @@ public class TestEntity {
         this.startDate = startDate;
     }
 
+    /** Get index of test group where this test was executed */
+    public Integer getTestGroupIndex() {
+        return testGroupIndex;
+    }
+
+    public void setTestGroupIndex(Integer testGroupIndex) {
+        this.testGroupIndex = testGroupIndex;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -95,6 +107,8 @@ public class TestEntity {
         if (startDate != null ? !startDate.equals(that.startDate) : that.startDate != null) return false;
         if (terminationStrategy != null ? !terminationStrategy.equals(that.terminationStrategy) : that.terminationStrategy != null)
             return false;
+        if (testGroupIndex != null ? !testGroupIndex.equals(that.testGroupIndex) : that.testGroupIndex != null)
+            return false;
 
         return true;
     }
@@ -107,6 +121,7 @@ public class TestEntity {
         result = 31 * result + (load != null ? load.hashCode() : 0);
         result = 31 * result + (terminationStrategy != null ? terminationStrategy.hashCode() : 0);
         result = 31 * result + (startDate != null ? startDate.hashCode() : 0);
+        result = 31 * result + (testGroupIndex != null ? testGroupIndex.hashCode() : 0);
         return result;
     }
 
@@ -119,6 +134,7 @@ public class TestEntity {
                 ", load='" + load + '\'' +
                 ", terminationStrategy='" + terminationStrategy + '\'' +
                 ", startDate='" + startDate + '\'' +
+                ", testGroupIndex=" + testGroupIndex +
                 '}';
     }
 }
