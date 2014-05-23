@@ -4,6 +4,7 @@ import com.griddynamics.jagger.dbapi.dto.MetricDto;
 import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
 import com.griddynamics.jagger.dbapi.dto.MetricValueDto;
 import com.griddynamics.jagger.dbapi.util.MetricNameUtil;
+import com.griddynamics.jagger.util.StandardMetricsNamesUtil;
 import com.griddynamics.jagger.util.TimeUtils;
 
 import java.math.BigInteger;
@@ -38,8 +39,6 @@ public class DurationMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
         return processDurationDataFromDatabase(result, durationMetricNames);
     }
 
-    private static final String DURATION_METRIC_ID = "duration";
-
     private Set<MetricDto> processDurationDataFromDatabase(List<Object[]> rawData, List<MetricNameDto> durationMetricNames) {
 
         Map<Long, Map<String, MetricNameDto>> mappedMetricDtos = MetricNameUtil.getMappedMetricDtos(durationMetricNames);
@@ -52,7 +51,7 @@ public class DurationMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
             if (metricIdMap == null) {
                 throw new IllegalArgumentException("unknown task id in mapped metrics : " + taskId.longValue());
             }
-            MetricNameDto metricNameDto = metricIdMap.get(DURATION_METRIC_ID);
+            MetricNameDto metricNameDto = metricIdMap.get(StandardMetricsNamesUtil.DURATION_ID);
             if (metricNameDto == null) {
                 continue;
             }
@@ -77,7 +76,7 @@ public class DurationMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
         }
 
         for (MetricDto md : resultMap.values()) {
-            md.setPlotSeriesDtos(generatePlotSeriesDto(md));
+            md.setPlotDatasetDto(generatePlotDatasetDto(md));
         }
 
         return new HashSet<MetricDto>(resultMap.values());

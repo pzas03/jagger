@@ -4,15 +4,11 @@ import com.griddynamics.jagger.dbapi.dto.MetricDto;
 import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
 import com.griddynamics.jagger.dbapi.dto.MetricValueDto;
 import com.griddynamics.jagger.dbapi.entity.WorkloadTaskData;
+import com.griddynamics.jagger.util.StandardMetricsNamesUtil;
 
 import java.util.*;
 
 public class StandardMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
-
-    private static final String THROUGHPUT = "throughput";
-    private static final String AVG_LATENCY = "avgLatency";
-    private static final String SUCCESS_RATE = "successRate";
-    private static final String SAMPLES = "samples";
 
     @Override
     protected Set<MetricDto> fetchData(List<MetricNameDto> standardMetricNames) {
@@ -27,7 +23,7 @@ public class StandardMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
     private Collection<? extends MetricDto> getRestMetrics(List<MetricNameDto> restMetricNames) {
 
         if (restMetricNames.isEmpty()) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         Set<Long> taskIds = new HashSet<Long>();
@@ -43,7 +39,7 @@ public class StandardMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
 
         if (workloadTaskDatas.isEmpty()) {
             log.warn("Could not find data for {}", restMetricNames);
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         Set<MetricDto> resultSet = new HashSet<MetricDto>();
@@ -64,14 +60,18 @@ public class StandardMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
                     String metricId = metricName.getMetricName();
 
                     String value = null;
-                    if (AVG_LATENCY.equals(metricId)) {
+                    if (metricId.equals(StandardMetricsNamesUtil.LATENCY_ID)) {
                         value = workloadTaskData.getAvgLatency().toString();
-                    } else if (SAMPLES.equals(metricId)) {
+                    } else if (metricId.equals(StandardMetricsNamesUtil.ITERATION_SAMPLES_ID)) {
                         value = workloadTaskData.getSamples().toString();
-                    } else if (SUCCESS_RATE.equals(metricId)) {
+                    } else if (metricId.equals(StandardMetricsNamesUtil.SUCCESS_RATE_ID)) {
                         value = workloadTaskData.getSuccessRate().toString();
-                    } else if (THROUGHPUT.equals(metricId)) {
+                    } else if (metricId.equals(StandardMetricsNamesUtil.THROUGHPUT_ID)) {
                         value = workloadTaskData.getThroughput().toString();
+                    } else if (metricId.equals(StandardMetricsNamesUtil.FAIL_COUNT_ID)) {
+                        value = workloadTaskData.getFailuresCount().toString();
+                    } else if (metricId.equals(StandardMetricsNamesUtil.LATENCY_STD_DEV_ID)) {
+                        value = workloadTaskData.getStdDevLatency().toString();
                     }
 
                     if (value != null)  {
@@ -80,7 +80,7 @@ public class StandardMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
                     }
                 }
             }
-            metricDto.setPlotSeriesDtos(generatePlotSeriesDto(metricDto));
+            metricDto.setPlotDatasetDto(generatePlotDatasetDto(metricDto));
         }
 
         return resultSet;

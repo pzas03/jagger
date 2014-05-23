@@ -128,7 +128,7 @@ public class SummaryReporter {
                     }
 
                     // Latency percentiles
-                    if (metricEntity.getMetricId().matches(StandardMetricsNamesUtil.LATENCY_PERCENTILE_REGEX)) {
+                    if (metricEntity.getMetricId().matches("^" + StandardMetricsNamesUtil.LATENCY_PERCENTILE_REGEX)) {
                         // change key (name) for back compatibility
                         value.setKey(metricEntity.getDisplayName().replace("Latency ","").concat("  -  "));
                         latencyPercentilesList.add(value);
@@ -147,6 +147,11 @@ public class SummaryReporter {
                 description.setKey("Test description");
                 description.setValue(entry.getKey().getDescription());
                 summaryList.add(0,description);
+
+                SummaryDto startTime = new SummaryDto();
+                startTime.setKey("Start time");
+                startTime.setValue(entry.getKey().getStartDate());
+                summaryList.add(0,startTime);
 
                 SummaryDto termination = new SummaryDto();
                 termination.setKey("Termination");

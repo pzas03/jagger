@@ -25,13 +25,23 @@ package com.griddynamics.jagger.util;
  * to use it in web UI client - keep it simple (use only standard java libraries)
  */
 public class StandardMetricsNamesUtil {
-    public static final String THROUGHPUT_TPS_REGEX = "^Throughput, tps";
-    public static final String THROUGHPUT_REGEX = "^Throughput";
-    public static final String LATENCY_SEC_REGEX = "^Latency, sec";
-    public static final String LATENCY_REGEX = "^Latency";
-    public static final String LATENCY_PERCENTILE_REGEX = "^Latency\\s\\S+\\s%";
-    public static final String ITERATIONS_SAMPLES_REGEX = "^Iterations, samples";
-    public static final String SUCCESS_RATE_REGEX = "^Success rate";
-    public static final String DURATION_SEC_REGEX = "^Duration, sec";
-    public static final String TIME_LATENCY_PERCENTILE_REGEX = "^Time Latency Percentile";
+    public static final String THROUGHPUT_TPS = "Throughput, tps";
+    public static final String THROUGHPUT = "Throughput";
+    public static final String LATENCY_SEC = "Latency, sec";
+    public static final String LATENCY_STD_DEV_SEC = "Latency std dev, sec";
+    public static final String LATENCY = "Latency";
+    public static final String LATENCY_PERCENTILE_REGEX = "Latency\\s\\S+\\s%";
+    public static final String ITERATIONS_SAMPLES = "Iterations, samples";
+    public static final String SUCCESS_RATE = "Success rate";
+    public static final String DURATION_SEC = "Duration, sec";
+    public static final String TIME_LATENCY_PERCENTILE = "Time Latency Percentile";
+    public static final String FAIL_COUNT = "Number of failures";
+
+    public static final String THROUGHPUT_ID = "throughput";
+    public static final String LATENCY_ID = "avgLatency";
+    public static final String LATENCY_STD_DEV_ID = "stdDevLatency";
+    public static final String FAIL_COUNT_ID = "failureCount";
+    public static final String SUCCESS_RATE_ID = "successRate";
+    public static final String DURATION_ID = "duration";
+    public static final String ITERATION_SAMPLES_ID = "samples";
 }

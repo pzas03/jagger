@@ -14,16 +14,16 @@ public class MetricDto implements Serializable {
 
     private MetricNameDto metricName;
 
-    private PlotSeriesDto plotSeriesDto;
+    private PlotDatasetDto plotDatasetDto;
 
     private Set<MetricValueDto> values;
 
-    public PlotSeriesDto getPlotSeriesDto() {
-        return plotSeriesDto;
+    public PlotDatasetDto getPlotDatasetDto() {
+        return plotDatasetDto;
     }
 
-    public void setPlotSeriesDtos(PlotSeriesDto plotSeriesDto) {
-        this.plotSeriesDto = plotSeriesDto;
+    public void setPlotDatasetDto(PlotDatasetDto plotDatasetDto) {
+        this.plotDatasetDto = plotDatasetDto;
     }
 
     public Set<MetricValueDto> getValues() {

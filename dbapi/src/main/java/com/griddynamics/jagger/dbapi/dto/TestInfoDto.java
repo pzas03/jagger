@@ -10,6 +10,7 @@ public class TestInfoDto implements Serializable {
 
     private String termination;
     private String clock;
+    private String startTime;
 
     public String getTermination() {
         return termination;
@@ -26,4 +27,13 @@ public class TestInfoDto implements Serializable {
     public void setClock(String clock) {
         this.clock = clock;
     }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
 }

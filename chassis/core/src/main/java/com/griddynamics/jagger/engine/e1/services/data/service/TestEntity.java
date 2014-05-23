@@ -24,6 +24,9 @@ public class TestEntity {
     /** Description of the termination strategy for this test */
     private String terminationStrategy;
 
+    /** Start date of the test */
+    private String startDate;
+
     /** Get test name in format [test group name] [test name] */
     public String getName() {
         return name;
@@ -69,6 +72,15 @@ public class TestEntity {
         this.description = description;
     }
 
+    /** Get start date */
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -80,6 +92,7 @@ public class TestEntity {
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (load != null ? !load.equals(that.load) : that.load != null) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (startDate != null ? !startDate.equals(that.startDate) : that.startDate != null) return false;
         if (terminationStrategy != null ? !terminationStrategy.equals(that.terminationStrategy) : that.terminationStrategy != null)
             return false;
 
@@ -93,6 +106,7 @@ public class TestEntity {
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + (load != null ? load.hashCode() : 0);
         result = 31 * result + (terminationStrategy != null ? terminationStrategy.hashCode() : 0);
+        result = 31 * result + (startDate != null ? startDate.hashCode() : 0);
         return result;
     }
 
@@ -104,6 +118,7 @@ public class TestEntity {
                 ", description='" + description + '\'' +
                 ", load='" + load + '\'' +
                 ", terminationStrategy='" + terminationStrategy + '\'' +
+                ", startDate='" + startDate + '\'' +
                 '}';
     }
 }
