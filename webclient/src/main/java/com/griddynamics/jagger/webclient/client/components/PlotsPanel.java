@@ -17,12 +17,12 @@ import com.googlecode.gflot.client.Zoom;
 import com.sencha.gxt.widget.core.client.Slider;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
+import com.sencha.gxt.widget.core.client.tree.Tree;
 
 /**
  * Class that hold widgets of type PlotContainer with dynamic layout feature.
  */
 public class PlotsPanel extends Composite {
-
 
     interface PlotsPanelUiBinder extends UiBinder<Widget, PlotsPanel> {
     }
@@ -37,16 +37,20 @@ public class PlotsPanel extends Composite {
     // temporary layout control panel todo: decide and implement final view of layout control.
     protected HorizontalPanel buttonPanel;
 
-
     /**
-     * default value for container height
-     */
+     * default value for container height */
     private Integer plotContainerHeight = 150;
+
+    private ControlTree<String> controlTree;
 
     public PlotsPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
 
         setUpButtonPanel();
+    }
+
+    public void setControlTree(ControlTree<String> controlTree) {
+        this.controlTree = controlTree;
     }
 
     /**
@@ -80,18 +84,16 @@ public class PlotsPanel extends Composite {
 
     /**
      * Remove widget from layoutPanel by element id
-     *
-     * @param elementId Id of widget element (Widget.getElement.getId())
-     */
+     * @param elementId Id of widget element (Widget.getElement.getId())*/
     public void removeElementById(String elementId) {
         layoutPanel.removeChild(elementId);
         childrenCount = layoutPanel.getAllChildren().size();
         setMaxRange();
+        controlTree.setCheckState(elementId, Tree.CheckState.UNCHECKED);
     }
 
     /**
-     * Remove all widgets from layoutPanel
-     */
+     * Remove all widgets from layoutPanel */
     public void clear() {
         layoutPanel.clear();
         childrenCount = 0;
@@ -99,11 +101,10 @@ public class PlotsPanel extends Composite {
 
     /**
      * Add widget to layoutPanel
-     *
-     * @param plotContainer child widget
-     */
-    public void addElement(final PlotContainer plotContainer) {
+     * @param plotContainer child widget */
+    public void addElement(PlotContainer plotContainer) {
         plotContainer.setHeight(plotContainerHeight + "px");
+        plotContainer.setPlotsPanel(this);
         scrollCalculations(plotContainer);
 
         layoutPanel.addChild(plotContainer);
@@ -194,21 +195,18 @@ public class PlotsPanel extends Composite {
     /**
      * Check if PlotsPanel contains element with certain id
      * @param plotId id of element to identify
-     * @return true if element found with given plotId, false otherwise
-     */
+     * @return true if element found with given plotId, false otherwise */
     public boolean containsElementWithId(String plotId) {
         return layoutPanel.containsElementWithId(plotId);
     }
 
 
     /**
-     * boolean to disable ZoomOut when visible range of plot more then maximum range
-     */
+     * boolean to disable ZoomOut when visible range of plot more then maximum range */
     boolean zoomOutEnabled = true;
 
     /**
-     * Zoom all plots in PlotsPanel
-     */
+     * Zoom all plots in PlotsPanel */
     public void zoomIn() {
 
         if (!zoomOutEnabled) {

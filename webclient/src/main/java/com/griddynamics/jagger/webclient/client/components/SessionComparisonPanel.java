@@ -7,6 +7,8 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.griddynamics.jagger.dbapi.dto.SessionDataDto;
 import com.griddynamics.jagger.dbapi.dto.*;
+import com.griddynamics.jagger.dbapi.model.MetricNode;
+import com.griddynamics.jagger.dbapi.model.MetricRankingProvider;
 import com.griddynamics.jagger.dbapi.model.WebClientProperties;
 import com.griddynamics.jagger.webclient.client.SessionDataService;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -78,7 +80,7 @@ public class SessionComparisonPanel extends VerticalPanel {
         }
     });
 
-    private HashMap<MetricNameDto, MetricDto> cache = new HashMap<MetricNameDto, MetricDto>();
+    private HashMap<MetricNode, List<MetricDto>> cache = new HashMap<MetricNode, List<MetricDto>>();
 
     private WebClientProperties webClientProperties;
 
@@ -86,7 +88,7 @@ public class SessionComparisonPanel extends VerticalPanel {
 
     private boolean allTagsLoadComplete = false;
 
-    public HashMap<MetricNameDto, MetricDto> getCachedMetrics() {
+    public HashMap<MetricNode, List<MetricDto>> getCachedMetrics() {
         return cache;
     }
 
@@ -358,15 +360,25 @@ public class SessionComparisonPanel extends VerticalPanel {
 
     public void addMetricRecord(MetricDto metricDto) {
 
-        cache.put(metricDto.getMetricName(), metricDto);
         TreeItem record = new TreeItem(metricDto);
         addItemToStore(record, metricDto);
     }
 
 
-    public void addMetricRecords(List<MetricDto> loaded) {
-        for (MetricDto metric : loaded) {
-            addMetricRecord(metric);
+    public void addMetricRecords(Map<MetricNode, List<MetricDto>> loaded) {
+
+        cache.putAll(loaded);
+
+        List<MetricDto> loadedSorted = new ArrayList<MetricDto>();
+        for (List<MetricDto> metricDtos : loaded.values()) {
+            for (MetricDto metricDto : metricDtos) {
+                loadedSorted.add(metricDto);
+            }
+        }
+
+        MetricRankingProvider.sortMetrics(loadedSorted);
+        for (MetricDto metricDto : loadedSorted) {
+            addMetricRecord(metricDto);
         }
     }
 
@@ -513,16 +525,6 @@ public class SessionComparisonPanel extends VerticalPanel {
         return tdd.getDescription() + tdd.getTaskName() + sessionIds.toString();
     }
 
-    private TreeItem getTestDescriptionItemIfExists(String descriptionStr) {
-        for (TreeItem item : treeStore.getRootItems()) {
-            if (descriptionStr.equals(item.get(NAME))) {
-                return item;
-            }
-        }
-        return null;
-    }
-
-
     private class NoIconsTreeGrid extends TreeGrid<TreeItem> {
 
 
@@ -560,7 +562,25 @@ public class SessionComparisonPanel extends VerticalPanel {
             put(TEST_NAME, getItemKey(metricName));
 
             for (MetricValueDto metricValue : metricDto.getValues()) {
-                put(SESSION_HEADER + metricValue.getSessionId(), metricValue.getValueRepresentation());
+                String value    = metricValue.getValueRepresentation();
+
+                // highlight results according to decision when available
+                if (metricValue.getDecision() != null) {
+                    String toolTip = "Decision for metric during test run. Green - value in limits. Yellow - value crossed warning limits. Red - value outside limits";
+                    switch (metricValue.getDecision()) {
+                        case OK:
+                            value = "<p title=\"" + toolTip + "\" style=\"color:green;font-weight:700;display:inline;\">" + value + "</p>";
+                            break;
+                        case WARNING:
+                            value = "<p title=\"" + toolTip + "\" style=\"color:#B8860B;font-weight:700;display:inline;\">" + value + "</p>";
+                            break;
+                        default:
+                            value = "<p title=\"" + toolTip + "\" style=\"color:red;font-weight:700;display:inline;\">" + value + "</p>";
+                            break;
+                        }
+                }
+
+                put(SESSION_HEADER + metricValue.getSessionId(),value);
             }
         }
     }
@@ -577,18 +597,23 @@ public class SessionComparisonPanel extends VerticalPanel {
             String penImageResource = "<img src=\"" + JaggerResources.INSTANCE.getPencilImage().getSafeUri().asString() + "\" height=\"15\" width=\"15\">"
                     + "<ins font-size='10px'>double click to edit</ins><br><br>";
             String toShow;
-            if (webClientProperties.isUserCommentEditAvailable()) {
-                if (object.get(NAME).equals(USER_COMMENT) && !field.equals(NAME)) {
-                    toShow = object.get(field).replaceAll("\n", "<br>");
-                    return penImageResource + toShow;
+
+            // Only for columns with data
+            if (!field.equals(NAME)) {
+                if (webClientProperties.isUserCommentEditAvailable()) {
+                    if (object.get(NAME).equals(USER_COMMENT)) {
+                        toShow = object.get(field).replaceAll("\n", "<br>");
+                        return penImageResource + toShow;
+                    }
+                }
+                if (webClientProperties.isTagsAvailable()) {
+                    if (object.get(NAME).equals(SESSION_TAGS)) {
+                        toShow = object.get(field).replaceAll("\n", "<br>");
+                        return penImageResource + toShow;
+                    }
                 }
             }
-            if (webClientProperties.isTagsAvailable()) {
-                if (object.get(NAME).equals(SESSION_TAGS) && !field.equals(NAME)) {
-                    toShow = object.get(field).replaceAll("\n", "<br>");
-                    return penImageResource + toShow;
-                }
-            }
+
             return object.get(field);
         }
 
