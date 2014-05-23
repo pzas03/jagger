@@ -124,6 +124,11 @@ public class SummaryReporter {
                 description.setValue(entry.getKey().getDescription());
                 summaryList.add(0,description);
 
+                SummaryDto startTime = new SummaryDto();
+                startTime.setKey("Start time");
+                startTime.setValue(entry.getKey().getStartDate());
+                summaryList.add(0,startTime);
+
                 SummaryDto termination = new SummaryDto();
                 termination.setKey("Termination");
                 termination.setValue(entry.getKey().getTerminationStrategy());
