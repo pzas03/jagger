@@ -1088,32 +1088,21 @@ public class Trends extends DefaultActivity {
             Label plotLegend = new Label("PLOT LEGEND");
             plotLegend.addStyleName(getResources().css().plotLegend());
 
-            Label panLeftLabel = new Label();
-            panLeftLabel.addStyleName(getResources().css().panLabel());
-            panLeftLabel.getElement().appendChild(new Image(getResources().getArrowLeft()).getElement());
-            panLeftLabel.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-              //      panel.panAllPlots(-100);
-                }
-            });
-
-            Label panRightLabel = new Label();
-            panRightLabel.addStyleName(getResources().css().panLabel());
-            panRightLabel.getElement().appendChild(new Image(getResources().getArrowRight()).getElement());
-            panRightLabel.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-               //     panel.panAllPlots(100);
-                }
-            });
-
             Label zoomInLabel = new Label("Zoom In");
             zoomInLabel.addStyleName(getResources().css().zoomLabel());
             zoomInLabel.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
                     panel.zoomIn();
+                }
+            });
+
+            Label zoomBack = new Label("Zoom back");
+            zoomBack.addStyleName(getResources().css().zoomLabel());
+            zoomBack.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    panel.zoomBackTo(plot);
                 }
             });
 
@@ -1137,10 +1126,9 @@ public class Trends extends DefaultActivity {
 
             FlowPanel zoomPanel = new FlowPanel();
             zoomPanel.addStyleName(getResources().css().zoomPanel());
-            zoomPanel.add(panLeftLabel);
-            zoomPanel.add(panRightLabel);
             zoomPanel.add(zoomInLabel);
             zoomPanel.add(zoomOutLabel);
+            zoomPanel.add(zoomBack);
             zoomPanel.add(saveLabel);
 
             PlotRepresentation plotRepresentation = new PlotRepresentation(zoomPanel, plot, xLabel);

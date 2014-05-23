@@ -264,6 +264,38 @@ public class PlotsPanel extends Composite {
         }
     }
 
+
+    /**
+     * Zoom to size of given plot;
+     * @param plot - given plot */
+    public void zoomBackTo(SimplePlot plot) {
+
+        JsArray<Series> seriesArray = plot.getModel().getSeries();
+        double maxValue = Double.MIN_VALUE;
+        for (int i = 0; i < seriesArray.length(); i ++) {
+            // get curve
+            SeriesData curve = seriesArray.get(i).getData();
+            int pointCount = curve.length();
+
+            double temp = curve.getX(pointCount - 1);
+            if (maxValue < temp) {
+                maxValue = temp;
+            }
+        }
+
+        for (PlotContainer pc : layoutPanel.getAllChildren()) {
+            SimplePlot currentPlot = pc.getPlotRepresentation().getSimplePlot();
+            // currently we always start xAxis with zero
+            currentPlot.getOptions().getXAxisOptions().setMinimum(0).setMaximum(maxValue);
+            currentPlot.setupGrid();
+            currentPlot.redraw();
+            pc.getPlotRepresentation().calculateScrollWidth();
+
+            avalancheScrollEventsCount ++;
+            pc.getPlotRepresentation().panToPercent(0);
+        }
+    }
+
     /**
      * Check if PlotsPanel contains any plots.
      * @return true if it is empty, false otherwise */
