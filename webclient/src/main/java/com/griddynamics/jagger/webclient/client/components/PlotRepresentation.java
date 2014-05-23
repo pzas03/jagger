@@ -1,6 +1,5 @@
 package com.griddynamics.jagger.webclient.client.components;
 
-import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.user.client.ui.*;
 import com.googlecode.gflot.client.Pan;
 import com.googlecode.gflot.client.SimplePlot;
@@ -14,10 +13,6 @@ public class PlotRepresentation extends VerticalPanel {
     private Label xLabel;
 
     private MyScroll scrollbar;
-
-    /**
-     * Plot know where should it be. It is useful when change layouts for example*/
-    double percent = 0;
 
     /**
      * Range to scroll to */
@@ -39,25 +34,17 @@ public class PlotRepresentation extends VerticalPanel {
         scrollbar.setVisible(false);
         scrollbar.setHorizontalScrollPosition(0);
 
-        SimplePanel sp = new SimplePanel(); sp.setVisible(false);
+        // simple div
+        SimplePanel sp = new SimplePanel();
+        sp.setVisible(false);
         hp.add(sp);
-        hp.setCellWidth(sp, "40px");
+        hp.setCellWidth(sp, simplePlot.getOptions().getYAxisOptions().getLabelWidth().intValue() + "px");
         hp.add(scrollbar);
 
         this.add(hp);
         this.add(xLabel);
         this.setWidth("100%");
         simplePlot.setSize("100%", "100%");
-
-        addAttachHandler(new AttachEvent.Handler() {
-            @Override
-            public void onAttachOrDetach(AttachEvent event) {
-                // executes when plot have been loaded
-
-                calculateScrollWidth();
-                panToPercent(percent);
-            }
-        });
     }
 
     public double getMaxRange() {
@@ -96,9 +83,6 @@ public class PlotRepresentation extends VerticalPanel {
 
     public void panToPercent(double percent) {
 
-        if (this.percent == percent)
-            return;
-
         double minVisible = simplePlot.getAxes().getX().getMinimumValue();
         double maxVisible = simplePlot.getAxes().getX().getMaximumValue();
 
@@ -111,6 +95,5 @@ public class PlotRepresentation extends VerticalPanel {
         simplePlot.pan(pan);
 
         scrollbar.setHorizontalScrollPosition((int) ((scrollbar.getMaximumHorizontalScrollPosition() - scrollbar.getMinimumHorizontalScrollPosition()) * percent));
-        this.percent = percent;
     }
 }

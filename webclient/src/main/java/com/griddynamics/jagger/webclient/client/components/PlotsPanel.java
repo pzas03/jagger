@@ -4,6 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
+import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -102,25 +103,35 @@ public class PlotsPanel extends Composite {
     /**
      * Add widget to layoutPanel
      * @param plotContainer child widget */
-    public void addElement(PlotContainer plotContainer) {
+    public void addElement(final PlotContainer plotContainer) {
         plotContainer.setHeight(plotContainerHeight + "px");
         plotContainer.setPlotsPanel(this);
         scrollCalculations(plotContainer);
+
+        plotContainer.getPlotRepresentation().addAttachHandler(new AttachEvent.Handler() {
+            @Override
+            public void onAttachOrDetach(AttachEvent event) {
+                // executes when plot have been loaded
+                plotContainer.getPlotRepresentation().calculateScrollWidth();
+                panOnePlot(plotContainer.getPlotRepresentation(), percent);
+            }
+        });
 
         layoutPanel.addChild(plotContainer);
         childrenCount = layoutPanel.getAllChildren().size();
         setMaxRange();
 
         // do not fire calculating of percent for new plot
-        avalancheScrollEventsCount++;
-        plotContainer.getPlotRepresentation().panToPercent(percent);
+        panOnePlot(plotContainer.getPlotRepresentation(), percent);
     }
 
     private void panAllPlots(double percent) {
 
         for (PlotContainer pc : layoutPanel.getAllChildren()) {
+            avalancheScrollEventsCount ++;
             pc.getPlotRepresentation().panToPercent(percent);
         }
+        avalancheScrollEventsCount --;
     }
 
 
@@ -156,12 +167,10 @@ public class PlotsPanel extends Composite {
             @Override
             public void onScroll(ScrollEvent event) {
 
-                avalancheScrollEventsCount = avalancheScrollEventsCount - 1;
-
-                if (avalancheScrollEventsCount > 0)
+                if (avalancheScrollEventsCount > 0) {
+                    avalancheScrollEventsCount --;
                     return;
-
-                avalancheScrollEventsCount = childrenCount;
+                }
 
                 int currentPosition = scrollBar.getHorizontalScrollPosition();
                 double percent = 1D * (currentPosition - scrollBar.getMinimumHorizontalScrollPosition()) /
@@ -220,13 +229,16 @@ public class PlotsPanel extends Composite {
             plot.zoom(zoom);
 
             pc.getPlotRepresentation().calculateScrollWidth();
-            double percent;
-            double minVisible = plot.getAxes().getX().getMinimumValue();
-            double maxVisible = plot.getAxes().getX().getMaximumValue();
-
-            percent = minVisible / (maxRange - maxVisible + minVisible);
-            pc.getPlotRepresentation().panToPercent(percent);
         }
+
+        PlotRepresentation plotRepresentation = layoutPanel.getFirstChild().getPlotRepresentation();
+        double percent;
+        double minVisible = plotRepresentation.getSimplePlot().getAxes().getX().getMinimumValue();
+        double maxVisible = plotRepresentation.getSimplePlot().getAxes().getX().getMaximumValue();
+
+        percent = minVisible / (maxRange - maxVisible + minVisible);
+
+        panAllPlots(percent);
     }
 
     /**
@@ -240,28 +252,26 @@ public class PlotsPanel extends Composite {
             SimplePlot plot = pc.getPlotRepresentation().getSimplePlot();
             Zoom zoom = Zoom.create().setAmount(1.1);
             plot.zoomOut(zoom);
-
             pc.getPlotRepresentation().calculateScrollWidth();
-
-            double minVisible = plot.getAxes().getX().getMinimumValue();
-            double maxVisible = plot.getAxes().getX().getMaximumValue();
-
-            if (maxVisible - minVisible >= maxRange) {
-                zoomOutEnabled = false;
-            } else {
-                double percent;
-                if (maxVisible > maxRange) {
-                    percent = 1;
-                } else if (minVisible < 0) {
-                    percent = 0;
-                } else {
-                    percent = minVisible / (maxRange - maxVisible + minVisible);
-                }
-                pc.getPlotRepresentation().panToPercent(percent);
-            }
         }
-    }
 
+        PlotRepresentation plotRepresentation = layoutPanel.getFirstChild().getPlotRepresentation();
+        double minVisible = plotRepresentation.getSimplePlot().getAxes().getX().getMinimumValue();
+        double maxVisible = plotRepresentation.getSimplePlot().getAxes().getX().getMaximumValue();
+
+        double percent;
+        if (maxVisible >= maxRange) {
+            percent = 1;
+        } else if (minVisible <= 0) {
+            percent = 0;
+        } else {
+            percent = minVisible / (maxRange - maxVisible + minVisible);
+        }
+
+        panAllPlots(percent);
+        if (maxVisible - minVisible >= maxRange)
+            zoomOutEnabled = false;
+    }
 
     /**
      * Zoom to size of given plot;
@@ -273,9 +283,7 @@ public class PlotsPanel extends Composite {
         for (int i = 0; i < seriesArray.length(); i ++) {
             // get curve
             SeriesData curve = seriesArray.get(i).getData();
-            int pointCount = curve.length();
-
-            double temp = curve.getX(pointCount - 1);
+            double temp = curve.getX(curve.length() - 1);
             if (maxValue < temp) {
                 maxValue = temp;
             }
@@ -288,11 +296,17 @@ public class PlotsPanel extends Composite {
             currentPlot.setupGrid();
             currentPlot.redraw();
             pc.getPlotRepresentation().calculateScrollWidth();
-
-            avalancheScrollEventsCount ++;
-            pc.getPlotRepresentation().panToPercent(0);
         }
+
+        // all plots start with zero
+        panAllPlots(0);
     }
+
+    private void panOnePlot(PlotRepresentation plotRepresentation, double percent) {
+        avalancheScrollEventsCount ++;
+        plotRepresentation.panToPercent(percent);
+    }
+
 
     /**
      * Check if PlotsPanel contains any plots.
