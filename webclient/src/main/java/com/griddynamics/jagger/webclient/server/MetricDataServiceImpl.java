@@ -3,9 +3,8 @@ package com.griddynamics.jagger.webclient.server;
 import com.griddynamics.jagger.dbapi.DatabaseService;
 import com.griddynamics.jagger.dbapi.dto.MetricDto;
 import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
+import com.griddynamics.jagger.dbapi.model.MetricNode;
 import com.griddynamics.jagger.webclient.client.MetricDataService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.util.*;
@@ -19,8 +18,6 @@ import java.util.*;
  */
 public class MetricDataServiceImpl implements MetricDataService {
 
-    private static final Logger log = LoggerFactory.getLogger(MetricDataServiceImpl.class);
-
     private DatabaseService databaseService;
 
     @Required
@@ -29,7 +26,27 @@ public class MetricDataServiceImpl implements MetricDataService {
     }
 
     @Override
-    public List<MetricDto> getMetrics(List<MetricNameDto> metricNames) throws RuntimeException {
-        return databaseService.getMetrics(metricNames);
+    public Map<MetricNode, List<MetricDto>> getMetrics(List<MetricNode> metricNodes) throws RuntimeException {
+
+        List<MetricNameDto> metricNameDtos = new ArrayList<MetricNameDto>();
+        for (MetricNode metricNode : metricNodes) {
+            metricNameDtos.addAll(metricNode.getMetricNameDtoList());
+        }
+        List<MetricDto> allMetricDto = databaseService.getSummaryByMetricNameDto(metricNameDtos);
+
+        Map<MetricNode, List<MetricDto>> resultMap = new HashMap<MetricNode, List<MetricDto>>();
+        for (MetricDto metricDto : allMetricDto) {
+            for (MetricNode metricNode : metricNodes) {
+                if (metricNode.getMetricNameDtoList().contains(metricDto.getMetricName())) {
+                    if (!resultMap.containsKey(metricNode)) {
+                        resultMap.put(metricNode, new ArrayList<MetricDto>());
+                    }
+                    resultMap.get(metricNode).add(metricDto);
+                    break;
+                }
+            }
+        }
+
+        return resultMap;
     }
 }

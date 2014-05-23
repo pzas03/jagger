@@ -21,6 +21,9 @@
 package com.griddynamics.jagger.engine.e1.sessioncomparation;
 
 import com.google.common.collect.Multimap;
+import com.griddynamics.jagger.util.Decision;
+
+import java.util.List;
 
 /** Returns the worst decision of comparisons
  * @author Dmitry Kotlyarov
@@ -52,4 +55,17 @@ public class WorstCaseDecisionMaker implements DecisionMaker {
         return worstResult;
     }
 
+    /** Returns the worst decision from list of input decisions
+     * @return the worst decision */
+    public Decision getDecision(List<Decision> decisions) {
+        Decision worstCaseDecision = Decision.OK;
+
+        for (Decision decision : decisions) {
+            if (decision.ordinal() > worstCaseDecision.ordinal()) {
+                worstCaseDecision = decision;
+            }
+        }
+
+        return worstCaseDecision;
+    }
 }

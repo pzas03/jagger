@@ -1,12 +1,12 @@
 package com.griddynamics.jagger.webclient.client.handler;
 
-import ca.nanometrics.gflot.client.event.PlotClickListener;
-import ca.nanometrics.gflot.client.event.PlotItem;
-import ca.nanometrics.gflot.client.event.PlotPosition;
-import ca.nanometrics.gflot.client.jsni.Plot;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.PopupPanel;
+import com.googlecode.gflot.client.event.PlotClickListener;
+import com.googlecode.gflot.client.event.PlotItem;
+import com.googlecode.gflot.client.event.PlotPosition;
+import com.googlecode.gflot.client.jsni.Plot;
 import com.griddynamics.jagger.dbapi.dto.MarkingDto;
 
 import java.math.BigDecimal;

@@ -27,7 +27,7 @@ public class CustomTestGroupMetricSummaryFetcher extends CustomMetricSummaryFetc
 
     @Override
     protected List<Object[]> getCustomMetricsDataNewModel(Set<Long> taskIds, Set<String> metricId) {
-        Multimap<Long, Long> testGroupMap = fetchUtil.getTestsInTestGroup(taskIds);
+        Multimap<Long, Long> testGroupMap = fetchUtil.getTestGroupIdsByTestIds(taskIds);
 
         List<Object[]> testGroupsSummary = super.getCustomMetricsDataNewModel(testGroupMap.keySet(), metricId);
 

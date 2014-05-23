@@ -6,7 +6,6 @@ import com.google.common.collect.Multimap;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -24,11 +23,11 @@ public class FetchUtil {
     /**
      * @return multi map <test-group id, tests ids>
      */
-    public Multimap<Long, Long> getTestsInTestGroup(Set<Long> taskIds){
+    public Multimap<Long, Long> getTestGroupIdsByTestIds(Set<Long> taskIds){
 
         Multimap<Long, Long> resultMap = HashMultimap.create();
 
-        List<String> sessionIds = getSessionIds(taskIds);
+        List<String> sessionIds = getSessionIdsByTaskIds(taskIds);
         if (sessionIds.isEmpty()) {
             // return empty Map, as we did not find any data we wanted
             return resultMap;
@@ -50,7 +49,7 @@ public class FetchUtil {
      * @return pairs as (test group id, test id)
      */
     private List<Object[]> getGroupToTaskIdsList (Collection<String> sessionIds, Collection<Long> taskIds) {
-        return entityManager.createNativeQuery("select grTaskData.id, some.taskDataId from" +
+        return entityManager.createNativeQuery("select grTaskData.id, mysome.taskDataId from" +
                 "  (" +
                 "    select * from TaskData as td where td.sessionId in (:sessionIds) " +
                 "  ) as grTaskData join" +
@@ -63,14 +62,18 @@ public class FetchUtil {
                 "          on td2.id in (:taskIds)" +
                 "          and wd.sessionId = td2.sessionId" +
                 "          and wd.taskId=td2.taskId" +
-                "  ) as some " +
-                "      on grTaskData.sessionId = some.sessionId and grTaskData.taskId=some.parentId")
+                "  ) as mysome " +
+                "      on grTaskData.sessionId = mysome.sessionId and grTaskData.taskId=mysome.parentId")
                 .setParameter("sessionIds", sessionIds)
                 .setParameter("taskIds", taskIds)
                 .getResultList();
     }
 
-    private List<String> getSessionIds(Set<Long> taskIds) {
+    /**
+     * @param taskIds TaskData ids for required sessions
+     * @return list of session Ids
+     */
+    public List<String> getSessionIdsByTaskIds(Set<Long> taskIds) {
         return entityManager.createNativeQuery("select distinct taskData.sessionId from TaskData taskData " +
                 "where taskData.id in (:ids)")
                 .setParameter("ids", taskIds)

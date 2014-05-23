@@ -23,7 +23,8 @@ package com.griddynamics.jagger.engine.e1.collector.limits;
 /** Class is used to describe individual limits for some metric. Limits are used for decision making
  *
  * @details
- * Metric comparison will be provided by ??? decision maker @n
+ * Metric comparison will be provided by @ref BasicTGDecisionMakerListener decision maker or @n
+ * by custom implementation of @ref TestGroupDecisionMakerListener @n
  * Metric value will be compared with some reference: ref, where ref is: @n
  * @li value from baseline when refValue = null @n
  * @li refValue in all other cases @n
@@ -110,6 +111,19 @@ public class Limit {
 
     public void setUpperErrorThreshold(Double upperErrorThreshold) {
         this.upperErrorThreshold = upperErrorThreshold;
+    }
+
+    @Override
+    public String toString() {
+        return "Limit{" +
+                "metricName='" + metricName + '\'' +
+                ", limitDescription='" + limitDescription + '\'' +
+                ", refValue=" + refValue +
+                ", lowerWarningThreshold=" + lowerWarningThreshold +
+                ", upperWarningThreshold=" + upperWarningThreshold +
+                ", lowerErrorThreshold=" + lowerErrorThreshold +
+                ", upperErrorThreshold=" + upperErrorThreshold +
+                '}';
     }
 }
 

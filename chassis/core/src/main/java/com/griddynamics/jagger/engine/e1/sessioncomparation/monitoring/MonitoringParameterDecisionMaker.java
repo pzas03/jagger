@@ -20,7 +20,7 @@
 
 package com.griddynamics.jagger.engine.e1.sessioncomparation.monitoring;
 
-import com.griddynamics.jagger.engine.e1.sessioncomparation.Decision;
+import com.griddynamics.jagger.util.Decision;
 
 public interface MonitoringParameterDecisionMaker {
 

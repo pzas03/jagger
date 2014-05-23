@@ -21,6 +21,7 @@ package com.griddynamics.jagger.engine.e1.sessioncomparation;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.griddynamics.jagger.util.Decision;
 
 public class Verdict<T> {
     private final String description;

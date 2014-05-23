@@ -40,10 +40,12 @@
     <util:list id="comparators_true">
         <ref bean="workloadFeatureComparator"/>
         <ref bean="monitoringFeatureComparator"/>
+        <ref bean="limitsBasedFeatureComparator"/>
     </util:list>
 
     <util:list id="comparators_false">
         <ref bean="workloadFeatureComparator"/>
+        <ref bean="limitsBasedFeatureComparator"/>
     </util:list>
 
 
@@ -71,6 +73,11 @@
         <property name="sessionIdProvider" ref="sessionIdProvider"/>
     </bean>
 
+    <bean id="limitSetConfig" class="com.griddynamics.jagger.engine.e1.collector.limits.LimitSetConfig">
+        <property name="decisionWhenNoMetricForLimit" value="${chassis.decision.maker.with.limits.decisionWhenNoMetricForLimit}"/>
+        <property name="decisionWhenNoBaselineForMetric" value="${chassis.decision.maker.with.limits.decisionWhenNoBaselineForMetric}"/>
+        <property name="decisionWhenSeveralLimitsMatchSingleMetric" value="${chassis.decision.maker.with.limits.decisionWhenSeveralLimitsMatchSingleMetric}"/>
+    </bean>
 
     <!-- Monitoring -->
 
@@ -92,6 +99,12 @@
     <bean id="monitoringSummaryRetriever"
           class="com.griddynamics.jagger.engine.e1.sessioncomparation.monitoring.DefaultMonitoringSummaryRetriever">
         <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <!-- Limits -->
+    <bean id="limitsBasedFeatureComparator" class="com.griddynamics.jagger.engine.e1.sessioncomparation.limits.LimitsBasedFeatureComparator">
+        <property name="sessionFactory" ref="sessionFactory"/>
+        <property name="databaseService" ref="databaseService"/>
     </bean>
 
 </beans>

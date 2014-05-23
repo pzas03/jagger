@@ -31,6 +31,10 @@
         <class>com.griddynamics.jagger.dbapi.entity.NodeInfoEntity</class>
         <class>com.griddynamics.jagger.dbapi.entity.NodePropertyEntity</class>
 
+        <class>com.griddynamics.jagger.dbapi.entity.DecisionPerSessionEntity</class>
+        <class>com.griddynamics.jagger.dbapi.entity.DecisionPerTaskEntity</class>
+        <class>com.griddynamics.jagger.dbapi.entity.DecisionPerMetricEntity</class>
+
         <validation-mode>NONE</validation-mode>
 
         <properties>

@@ -98,6 +98,7 @@
 .xAxisLabel {
     text-align: center;
     color: #545454;
+    font: normal 13px arial, tahoma, helvetica, sans-serif !important;
 }
 
 .taskDetailsTree div div div div div {
@@ -123,17 +124,24 @@ input[type="text"] {
     border-radius: 3px;
 }
 
-.plotHeader, .plotLegend {
+.plotLegend {
     text-align: center;
+    font: normal 11px arial, tahoma, helvetica, sans-serif !important;
 }
 
 .plotHeader {
-    font-weight: bold;
+    font: bold 13px arial, tahoma, helvetica, sans-serif !important;
+    vertical-align: middle;
+    float: left;
+    background-color: transparent;
+    width: 100%;
+    border: transparent !important;
 }
 
 .plotLegend {
     border: 1px solid #575757;
     margin-bottom: .3em;
+    font: normal 13px arial, tahoma, helvetica, sans-serif !important;
 }
 
 .centered {
@@ -146,20 +154,23 @@ input[type="text"] {
 }
 
 .zoomLabel {
-    font-size: smaller;
     color: #999;
     background-color: #eee;
     padding: .2em .5em .4em .5em;
     cursor: pointer;
     display: inline-block;
+    height: 16px;
+    font: normal 13px arial, tahoma, helvetica, sans-serif !important;
 }
 
 .panLabel {
     color: #999;
     background-color: #eee;
-    padding: 0 .5em .2em .5em;
+    padding: .2em .5em .4em .5em;
     cursor: pointer;
+    height: 16px;
     display: inline-block;
+    font: normal 13px arial, tahoma, helvetica, sans-serif !important;
 }
 
 .panLabel img {
@@ -279,4 +290,35 @@ input[type="text"] {
     padding: 4px 8px 4px 4px;
     cursor: default;
     font-size: 14px;
+}
+
+.dragLabel {
+    background: #d0e4f6;
+    height: 20px;
+    width: 100%;
+}
+
+.dragLabel img {
+    float: left;
+    height: 19px;
+}
+
+.mainTabPanel {
+    font: normal 13px arial;
+    border-spacing: 0;
+
+    color : black;
+    vertical-align: middle;
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+.draggable {
+    cursor: move;
+}
+
+.plotSettingsMenu {
+
 }

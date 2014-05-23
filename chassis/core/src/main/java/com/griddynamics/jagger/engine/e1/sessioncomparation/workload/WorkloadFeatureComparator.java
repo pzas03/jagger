@@ -21,7 +21,7 @@ package com.griddynamics.jagger.engine.e1.sessioncomparation.workload;
 
 import com.google.common.collect.Lists;
 import com.griddynamics.jagger.dbapi.entity.WorkloadTaskData;
-import com.griddynamics.jagger.engine.e1.sessioncomparation.Decision;
+import com.griddynamics.jagger.util.Decision;
 import com.griddynamics.jagger.engine.e1.sessioncomparation.FeatureComparator;
 import com.griddynamics.jagger.engine.e1.sessioncomparation.Verdict;
 import org.slf4j.Logger;

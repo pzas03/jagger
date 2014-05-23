@@ -23,7 +23,7 @@ package com.griddynamics.jagger.reporting;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.griddynamics.jagger.engine.e1.reporting.OverallSessionComparisonReporter;
-import com.griddynamics.jagger.engine.e1.sessioncomparation.Decision;
+import com.griddynamics.jagger.util.Decision;
 import com.griddynamics.jagger.engine.e1.sessioncomparation.SessionVerdict;
 import com.griddynamics.jagger.engine.e1.sessioncomparation.Verdict;
 import org.springframework.context.ApplicationContext;

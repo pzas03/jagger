@@ -10,6 +10,7 @@ public class WebClientProperties implements Serializable {
     private boolean userCommentStoreAvailable = false;
     private boolean showOnlyMatchedTests = true;
     private int userCommentMaxLength = 1000;
+    private boolean enableDecisionsPerMetricHighlighting = true;
 
     public boolean isTagsAvailable() {
         return tagsAvailable;
@@ -57,5 +58,13 @@ public class WebClientProperties implements Serializable {
 
     public void setShowOnlyMatchedTests(boolean showOnlyMatchedTests) {
         this.showOnlyMatchedTests = showOnlyMatchedTests;
+    }
+
+    public boolean isEnableDecisionsPerMetricHighlighting() {
+        return enableDecisionsPerMetricHighlighting;
+    }
+
+    public void setEnableDecisionsPerMetricHighlighting(boolean enableDecisionsPerMetricHighlighting) {
+        this.enableDecisionsPerMetricHighlighting = enableDecisionsPerMetricHighlighting;
     }
 }

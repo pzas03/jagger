@@ -65,13 +65,12 @@ public class LatencyMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
 
             MetricValueDto value = new MetricValueDto();
             value.setValue(String.format("%.3f", (Double)temp[0] / 1000));
-            value.setTestId(Long.parseLong(temp[1].toString()));
             value.setSessionId(Long.parseLong(temp[2].toString()));
             metricDto.getValues().add(value);
         }
 
         for (MetricDto md : resultMap.values()) {
-            md.setPlotSeriesDtos(generatePlotSeriesDto(md));
+            md.setPlotDatasetDto(generatePlotDatasetDto(md));
         }
 
         return new HashSet<MetricDto>(resultMap.values());

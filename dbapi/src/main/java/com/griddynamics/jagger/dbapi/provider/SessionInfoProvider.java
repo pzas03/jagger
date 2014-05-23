@@ -22,7 +22,7 @@ public interface SessionInfoProvider {
      * @return number of sessions */
     Long getTotalSize() throws RuntimeException;
 
-    /** Returns the number of sessions in jagger db in specify date period
+    /** Returns the number of sessions in jagger db in specified date period
      * @return number of sessions */
     Long getTotalSizeByDate(Date from, Date to);
 
@@ -31,7 +31,7 @@ public interface SessionInfoProvider {
      * @return number of sessions */
     Long getTotalSizeByIds(Set<String> sessionIds);
 
-    /** Returns the number of sessions in jagger db with specify tags
+    /** Returns the number of sessions in jagger db with specified tags
      * @param sessionTagNames - a set of sessions tags
      * @return number of sessions */
     Long getTotalSizeByTags(Set<String> sessionTagNames);
@@ -42,7 +42,7 @@ public interface SessionInfoProvider {
      * @return list of SessionDataDto */
     List<SessionDataDto> getAll(int offset, int maxResult) throws RuntimeException;
 
-    /** Returns a list of sessions in specify date period
+    /** Returns a list of sessions in specified date period
      * @param offset - select sessions from this position
      * @param maxResult - a number of max results
      * @param from - low date limit
@@ -50,14 +50,14 @@ public interface SessionInfoProvider {
      * @return list of SessionDataDto */
     List<SessionDataDto> getByDatePeriod(int offset, int maxResult, Date from, Date to) throws RuntimeException;
 
-    /** Returns a list of sessions with specify ids
+    /** Returns a list of sessions with specified ids
      * @param offset - select sessions from this position
      * @param maxResult - a number of max results
      * @param sessionIds - - a set of sessions ids
      * @return list of SessionDataDto */
     List<SessionDataDto> getBySessionIds(int offset, int maxResult, Set<String> sessionIds) throws RuntimeException;
 
-    /** Returns a list of sessions with specify tags
+    /** Returns a list of sessions with specified tags
      * @param offset - select sessions from this position
      * @param maxResult - a number of max results
      * @param sessionTagNames - - a set of sessions tags

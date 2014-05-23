@@ -19,7 +19,7 @@
  */
 package com.griddynamics.jagger.engine.e1.sessioncomparation.workload;
 
-import com.griddynamics.jagger.engine.e1.sessioncomparation.Decision;
+import com.griddynamics.jagger.util.Decision;
 
 public interface WorkloadDecisionMaker {
 
