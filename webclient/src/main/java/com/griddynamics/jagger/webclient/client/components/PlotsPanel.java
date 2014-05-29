@@ -26,10 +26,6 @@ import com.sencha.gxt.widget.core.client.tree.Tree;
  */
 public class PlotsPanel extends Composite {
 
-    public MetricNode getNode(String metricNodeId) {
-        return controlTree.findNode(metricNodeId);
-    }
-
     interface PlotsPanelUiBinder extends UiBinder<Widget, PlotsPanel> {
     }
 
@@ -85,17 +81,17 @@ public class PlotsPanel extends Composite {
         buttonPanel.add(oneColumnLButton);
         buttonPanel.add(twoColumnsLButton);
         buttonPanel.add(heightSlider);
-
     }
 
     /**
-     * Remove widget from layoutPanel by element id
-     * @param elementId Id of widget element (Widget.getElement.getId())*/
-    public void removeElementById(String elementId) {
-        layoutPanel.removeChild(elementId);
+     * Remove widget from layout panel by metric node
+     * @param metricNode metric node */
+    public void removeByMetricNode(MetricNode metricNode) {
+
+        layoutPanel.removeChild(metricNode.getId());
         childrenCount = layoutPanel.getAllChildren().size();
+        controlTree.setChecked(metricNode, Tree.CheckState.UNCHECKED);
         setMaxRange();
-        controlTree.setCheckState(elementId, Tree.CheckState.UNCHECKED);
     }
 
     /**

@@ -3,6 +3,7 @@ package com.griddynamics.jagger.webclient.client.components;
 import com.google.gwt.user.client.ui.*;
 import com.googlecode.gflot.client.Pan;
 import com.googlecode.gflot.client.SimplePlot;
+import com.griddynamics.jagger.dbapi.model.MetricNode;
 
 /**
  * class that represents plot with all its functionality */
@@ -11,6 +12,7 @@ public class PlotRepresentation extends VerticalPanel {
     private FlowPanel zoomPanel;
     private SimplePlot simplePlot;
     private Label xLabel;
+    private MetricNode metricNode;
 
     private MyScroll scrollbar;
 
@@ -18,10 +20,11 @@ public class PlotRepresentation extends VerticalPanel {
      * Range to scroll to */
     private double maxRange = 1;
 
-    public PlotRepresentation(FlowPanel zoomPanel, final SimplePlot simplePlot, Label xLabel) {
+    public PlotRepresentation(MetricNode metricNode, FlowPanel zoomPanel, SimplePlot simplePlot, Label xLabel) {
         super();
         this.zoomPanel = zoomPanel;
         this.simplePlot = simplePlot;
+        this.metricNode = metricNode;
         this.xLabel = xLabel;
         this.add(zoomPanel);
         this.add(simplePlot);
@@ -79,6 +82,10 @@ public class PlotRepresentation extends VerticalPanel {
 
     public Label getxLabel() {
         return xLabel;
+    }
+
+    public MetricNode getMetricNode() {
+        return metricNode;
     }
 
     public void panToPercent(double percent) {

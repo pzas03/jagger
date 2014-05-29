@@ -131,7 +131,7 @@ public class PlotContainer extends VerticalPanel {
         closeImageButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                plotsPanel.removeElementById(PlotContainer.this.getElement().getId());
+                plotsPanel.removeByMetricNode(PlotContainer.this.getPlotRepresentation().getMetricNode());
             }
         });
         closeImageButton.addMouseOverHandler(new MouseOverHandler() {
@@ -184,14 +184,9 @@ public class PlotContainer extends VerticalPanel {
         menuItem.addSelectionHandler(new SelectionHandler<Item>() {
             @Override
             public void onSelection(SelectionEvent<Item> event) {
-                String metricNodeId = getElement().getId();
-                MetricNode mn = plotsPanel.getNode(metricNodeId);
-                if (mn != null) {
+                MetricNode mn = plotRepresentation.getMetricNode();
 
-                   FileDownLoader.downloadPlotInCsv(mn);
-                } else {
-                    new ExceptionPanel("can't find appropriate MetricNode in tree for PlotContainer");
-                }
+                FileDownLoader.downloadPlotInCsv(mn);
             }
         });
 
