@@ -323,4 +323,15 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
         AbstractIdentifyNode abstractIdentifyNode = getStore().findModelWithKey(elementId);
         setChecked(abstractIdentifyNode, checkState);
     }
+
+    public MetricNode findNode(String metricNodeId) {
+        AbstractIdentifyNode metricNode =  store.findModelWithKey(metricNodeId);
+        if (metricNode != null) {
+            // todo : put MetricNode in every plotContainer
+            if (metricNode instanceof MetricNode) {
+                return (MetricNode) metricNode;
+            }
+        }
+        return null;
+    }
 }

@@ -15,6 +15,7 @@ import com.googlecode.gflot.client.Series;
 import com.googlecode.gflot.client.SeriesData;
 import com.googlecode.gflot.client.SimplePlot;
 import com.googlecode.gflot.client.Zoom;
+import com.griddynamics.jagger.dbapi.model.MetricNode;
 import com.sencha.gxt.widget.core.client.Slider;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
@@ -24,6 +25,10 @@ import com.sencha.gxt.widget.core.client.tree.Tree;
  * Class that hold widgets of type PlotContainer with dynamic layout feature.
  */
 public class PlotsPanel extends Composite {
+
+    public MetricNode getNode(String metricNodeId) {
+        return controlTree.findNode(metricNodeId);
+    }
 
     interface PlotsPanelUiBinder extends UiBinder<Widget, PlotsPanel> {
     }

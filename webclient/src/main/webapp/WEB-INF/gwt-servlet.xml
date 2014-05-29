@@ -64,6 +64,7 @@
 
     <bean id="plotProviderService" class="com.griddynamics.jagger.webclient.server.PlotProviderServiceImpl">
         <property name="databaseService" ref="databaseService"/>
+        <property name="fileStorage" ref="fileStore"/>
     </bean>
 
     <bean id="sessionDataService" class="com.griddynamics.jagger.webclient.server.SessionDataServiceImpl">
