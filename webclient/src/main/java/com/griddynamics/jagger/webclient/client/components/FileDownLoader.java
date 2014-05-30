@@ -30,7 +30,7 @@ public class FileDownLoader {
 
                 String url = GWT.getHostPageBaseURL() + DOWNLOAD_SERVLET_PATH + "?fileKey=" + result;
                 // start downloading
-                Window.open(url, "_blank", "status=0,toolbar=0,menubar=0,location=0");
+                Window.Location.assign(url);
             }
         });
     }
