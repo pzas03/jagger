@@ -166,13 +166,12 @@ public class Master implements Runnable {
 
         validateConfiguration();
 
-        if (!keyValueStorage.isAvailable()) {
-            keyValueStorage.initialize();
-        }
-
         String sessionId = sessionIdProvider.getSessionId();
 
-        keyValueStorage.setSessionId(sessionId);
+        if (!keyValueStorage.isAvailable()) {
+            keyValueStorage.initialize();
+            keyValueStorage.setSessionId(sessionId);
+        }
 
         metaDataStorage.setComment(sessionIdProvider.getSessionComment());
 
@@ -279,7 +278,7 @@ public class Master implements Runnable {
             log.info("Agents stopped");
         } finally {
             try {
-                keyValueStorage.deleteAll(sessionId);
+                keyValueStorage.deleteAll();
                 log.info("Temporary data for session {} deleted ",sessionId);
             } catch (Exception e){
                 log.warn(e.getMessage(), e);

@@ -85,6 +85,7 @@ public class HibernateKeyValueStorage extends HibernateDaoSupport implements Key
         getHibernateTemplate().persist(createKeyValue(namespace, key, value));
     }
 
+    @Override
     public void putAll(Namespace namespace, Multimap<String, Object> valuesMap) {
         Session session = null;
         int count = 0;
@@ -111,7 +112,7 @@ public class HibernateKeyValueStorage extends HibernateDaoSupport implements Key
     }
 
     @Override
-    public void deleteAll(String sessionId) {
+    public void deleteAll() {
         ArrayList<String> sessions = (ArrayList) getHibernateTemplate().find("Select distinct k.sessionId from KeyValue k ORDER by k.sessionId");
         if (sessions.size() == 0)
             return;
@@ -142,8 +143,8 @@ public class HibernateKeyValueStorage extends HibernateDaoSupport implements Key
         return SerializationUtils.deserialize(values.get(0).getData());
     }
 
-    @Override
     @SuppressWarnings("unchecked")
+    @Override
     public Collection<Object> fetchAll(Namespace namespace, String key) {
         List<KeyValue> entities = (List<KeyValue>) getHibernateTemplate().find(
                 "from KeyValue kv where kv.namespace = ? and kv.key = ?", namespace.toString(), key);

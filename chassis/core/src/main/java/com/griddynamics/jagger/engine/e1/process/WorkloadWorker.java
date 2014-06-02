@@ -70,16 +70,17 @@ public class WorkloadWorker extends ConfigurableWorker {
 
     @Override
     public void configure() {
-        onCommandReceived(StartWorkloadProcess.class).execute(new WorkloadWorkerCommandExecutor<StartWorkloadProcess, String>() {
+        onCommandReceived(StartWorkloadProcess.class).execute(
+                new WorkloadWorkerCommandExecutor<StartWorkloadProcess, String>() {
 
             @Override
             public Qualifier<StartWorkloadProcess> getQualifier() {
                 return Qualifier.of(StartWorkloadProcess.class);
             }
 
+            @Override
             public String doExecute(StartWorkloadProcess command, NodeContext nodeContext) {
                 log.debug("Processing command {}", command);
-                nodeContext.getService(KeyValueStorage.class).setSessionId(command.getSessionId());
                 int poolSize = command.getPoolSize();
 
                 if (poolSize < command.getThreads()) {
@@ -102,7 +103,9 @@ public class WorkloadWorker extends ConfigurableWorker {
         }
         );
 
-        onCommandReceived(ChangeWorkloadConfiguration.class).execute(new WorkloadWorkerCommandExecutor<ChangeWorkloadConfiguration, Boolean>() {
+        onCommandReceived(ChangeWorkloadConfiguration.class).execute(
+                new WorkloadWorkerCommandExecutor<ChangeWorkloadConfiguration, Boolean>() {
+
             @Override
             public Qualifier<ChangeWorkloadConfiguration> getQualifier() {
                 return Qualifier.of(ChangeWorkloadConfiguration.class);
@@ -126,7 +129,9 @@ public class WorkloadWorker extends ConfigurableWorker {
         }
         );
 
-        onCommandReceived(PollWorkloadProcessStatus.class).execute(new WorkloadWorkerCommandExecutor<PollWorkloadProcessStatus, WorkloadStatus>() {
+        onCommandReceived(PollWorkloadProcessStatus.class).execute(
+                new WorkloadWorkerCommandExecutor<PollWorkloadProcessStatus, WorkloadStatus>() {
+
             @Override
             public Qualifier getQualifier() {
                 return Qualifier.of(PollWorkloadProcessStatus.class);
@@ -142,11 +147,15 @@ public class WorkloadWorker extends ConfigurableWorker {
         }
         );
 
-        onCommandReceived(StopWorkloadProcess.class).execute(new WorkloadWorkerCommandExecutor<StopWorkloadProcess, WorkloadStatus>() {
+        onCommandReceived(StopWorkloadProcess.class).execute(
+                new WorkloadWorkerCommandExecutor<StopWorkloadProcess, WorkloadStatus>() {
+
+            @Override
             public Qualifier<StopWorkloadProcess> getQualifier() {
                 return Qualifier.of(StopWorkloadProcess.class);
             }
 
+            @Override
             public WorkloadStatus doExecute(StopWorkloadProcess command, NodeContext nodeContext) {
                 log.debug("Going to stop process {} on kernel {}", command.getProcessId(), nodeContext.getId().getIdentifier());
 
@@ -160,7 +169,9 @@ public class WorkloadWorker extends ConfigurableWorker {
             }
         });
 
-        onCommandReceived(PerformCalibration.class).execute(new WorkloadWorkerCommandExecutor<PerformCalibration, Boolean>() {
+        onCommandReceived(PerformCalibration.class).execute(
+                new WorkloadWorkerCommandExecutor<PerformCalibration, Boolean>() {
+
             @Override
             public Qualifier<PerformCalibration> getQualifier() {
                 return Qualifier.of(PerformCalibration.class);
@@ -208,6 +219,7 @@ public class WorkloadWorker extends ConfigurableWorker {
         onCommandReceived(GetGeneralNodeInfo.class).execute(
                 new WorkloadWorkerCommandExecutor<GetGeneralNodeInfo, GeneralNodeInfo>() {
 
+                    @Override
                     public Qualifier<GetGeneralNodeInfo> getQualifier() {
                         return Qualifier.of(GetGeneralNodeInfo.class);
                     }

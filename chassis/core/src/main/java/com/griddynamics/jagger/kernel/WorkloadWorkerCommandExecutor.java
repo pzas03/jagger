@@ -15,6 +15,15 @@ import java.io.Serializable;
  * To change this template use File | Settings | File Templates.
  */
 
+
+/**
+ * This class is required for setting sessionId into class KeyValueStorage for every kernel.
+ * We implemented "execute(...)" for this purpose. It is called "doExecute()" which is should be implement for every received command.
+ *
+ * @param <C> is a some command
+ * @param <R> is a result of the execution
+ */
+
 abstract public class WorkloadWorkerCommandExecutor<C extends Command<R>, R extends Serializable> implements CommandExecutor <C,R> {
 
     @Override
