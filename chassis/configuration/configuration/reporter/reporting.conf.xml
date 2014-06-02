@@ -112,6 +112,7 @@
 
                         <property name="decisionMaker" ref="sessionStatusDecisionMaker"/>
                         <property name="statusImageProvider" ref="statusImageProvider"/>
+                        <property name="summaryReporter" ref="summaryReporter"/>
                     </bean>
                 </entry>
 

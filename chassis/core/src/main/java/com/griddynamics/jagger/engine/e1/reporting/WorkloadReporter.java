@@ -23,6 +23,10 @@ import com.google.common.collect.Lists;
 import com.griddynamics.jagger.dbapi.entity.TaskData;
 import com.griddynamics.jagger.dbapi.entity.WorkloadData;
 import com.griddynamics.jagger.dbapi.entity.WorkloadTaskData;
+import com.griddynamics.jagger.engine.e1.services.DataService;
+import com.griddynamics.jagger.engine.e1.services.DefaultDataService;
+import com.griddynamics.jagger.engine.e1.services.data.service.MetricEntity;
+import com.griddynamics.jagger.engine.e1.services.data.service.TestEntity;
 import com.griddynamics.jagger.reporting.AbstractReportProvider;
 import com.griddynamics.jagger.util.Decision;
 import net.sf.jasperreports.engine.JRDataSource;
@@ -31,60 +35,81 @@ import org.springframework.beans.factory.annotation.Required;
 
 import java.awt.*;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class WorkloadReporter extends AbstractReportProvider {
+    private SummaryReporter summaryReporter;
     private SessionStatusDecisionMaker decisionMaker;
     private StatusImageProvider statusImageProvider;
 
 	@Override
 	public JRDataSource getDataSource() {
-		@SuppressWarnings("unchecked")
-		List<WorkloadData> testData = getHibernateTemplate().find("from WorkloadData d where d.sessionId=? order by d.number asc, d.scenario.name asc",
-                getSessionIdProvider().getSessionId());
+        String sessionId = getSessionIdProvider().getSessionId();
+        Set<TestEntity> testEntitySet = summaryReporter.getTestInfo(sessionId);
 
-		@SuppressWarnings("unchecked")
-		List<WorkloadTaskData> allWorkloadTasks = getHibernateTemplate().find("from WorkloadTaskData d where d.sessionId=? order by d.number asc, d.scenario.name asc",
-                getSessionIdProvider().getSessionId());
-
-        @SuppressWarnings({"unchecked"}) List<TaskData> taskDatas = getHibernateTemplate().find(
-                "select d from TaskData d where d.sessionId=?",
-                getSessionIdProvider().getSessionId());
+//        DataService dataService = new DefaultDataService(summaryReporter.getDatabaseService());
+//        Map<TestEntity,Set<MetricEntity>> allMetrics = dataService.getMetricsByTests(testEntitySet);
+//        Map<TestEntity,MetricEntity> successRateMetrics;
+//        for (TestEntity testEntity : allMetrics.keySet())
 
 
-		List<E1ScenarioReportData> result = Lists.newLinkedList();
+        //
+        //		@SuppressWarnings("unchecked")
+        //		List<WorkloadData> testData = getHibernateTemplate().find("from WorkloadData d where d.sessionId=? order by d.number asc, d.scenario.name asc",
+        //                getSessionIdProvider().getSessionId());
+        //
+        //		@SuppressWarnings("unchecked")
+        //		List<WorkloadTaskData> allWorkloadTasks =
+        //                getHibernateTemplate().find("from WorkloadTaskData d where d.sessionId=? order by d.number asc, d.scenario.name asc",
+        //                sessionId);
+        //
+        //        @SuppressWarnings({"unchecked"}) List<TaskData> taskDatas = getHibernateTemplate().find(
+        //                "select d from TaskData d where d.sessionId=?",
+        //                getSessionIdProvider().getSessionId());
+        //
 
-		for (WorkloadData workloadData : testData) {
+                List<E1ScenarioReportData> result = Lists.newLinkedList();
+
+//		for (WorkloadData workloadData : testData) {
+        for (TestEntity testEntity : testEntitySet) {
 			E1ScenarioReportData reportData = new E1ScenarioReportData();
-			reportData.setSessionId(workloadData.getSessionId());
-            reportData.setNumber(workloadData.getNumber().toString());
-			reportData.setScenarioName(workloadData.getScenario().getName());
+			reportData.setSessionId(sessionId);
+            reportData.setNumber(testEntity.getTestGroupIndex().toString());
+			reportData.setScenarioName(testEntity.getName());
 
-			WorkloadTaskData resultData = null;
-			for (WorkloadTaskData workloadTaskData : allWorkloadTasks) {
-				if (workloadTaskData.getTaskId().equals(workloadData.getTaskId())) {
-					resultData = workloadTaskData;
-					break;
-				}
-			}
+            //??? decision - how to take
+//			WorkloadTaskData resultData = null;
+//			for (WorkloadTaskData workloadTaskData : allWorkloadTasks) {
+//				if (workloadTaskData.getTaskId().equals(workloadData.getTaskId())) {
+//					resultData = workloadTaskData;
+//					break;
+//				}
+//			}
+//
+//			if (resultData == null) {
+//				throw new IllegalStateException("Result data is not specified");
+//			}
 
-			if (resultData == null) {
-				throw new IllegalStateException("Result data is not specified");
-			}
+            //???
+            //reportData.setStatusImage(statusImageProvider.getImageByDecision(decisionMaker.decideOnTest(resultData)));
+            reportData.setStatusImage(statusImageProvider.getImageByDecision(Decision.OK));   //??? temp - OK
 
-            reportData.setStatusImage(statusImageProvider.getImageByDecision(decisionMaker.decideOnTest(resultData)));
-
-            for(TaskData taskData: taskDatas) {
-                if(workloadData.getTaskId().equals(taskData.getTaskId())) {
-                    if(TaskData.ExecutionStatus.FAILED.equals(taskData.getStatus())) {
-                        reportData.setStatusImage(statusImageProvider.getImageByDecision(Decision.ERROR));
-                    }
-                    reportData.setId(taskData.getId().toString());
-                }
-            }
+//            for(TaskData taskData: taskDatas) {
+//                if(workloadData.getTaskId().equals(taskData.getTaskId())) {
+//                    if(TaskData.ExecutionStatus.FAILED.equals(taskData.getStatus())) {
+//                        reportData.setStatusImage(statusImageProvider.getImageByDecision(Decision.ERROR));
+//                    }
+//                    reportData.setId(taskData.getId().toString());
+//                }
+//            }
+            reportData.setId(testEntity.getId().toString());
 
 
 			result.add(reportData);
 		}
+
+        //??? sort result by number
 
 		return new JRBeanCollectionDataSource(result);
 	}
@@ -113,7 +138,6 @@ public class WorkloadReporter extends AbstractReportProvider {
 		public void setSessionId(String sessionId) {
 			this.sessionId = sessionId;
 		}
-
 
         public String getNumber() {
             return number;
@@ -147,4 +171,10 @@ public class WorkloadReporter extends AbstractReportProvider {
             Id = id;
         }
     }
+
+    @Required
+    public void setSummaryReporter(SummaryReporter summaryReporter) {
+        this.summaryReporter = summaryReporter;
+    }
+
 }

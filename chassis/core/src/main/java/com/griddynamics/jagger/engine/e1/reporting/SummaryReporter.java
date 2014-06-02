@@ -79,6 +79,13 @@ public class SummaryReporter {
         }
     }
 
+    public Set<TestEntity> getTestInfo(String sessionId) {
+
+        getData(sessionId);
+
+        return metricsPerTest.keySet();
+    }
+
     private void getData(String sessionId) {
 
         // Remember what session id was set for cashed data
@@ -88,7 +95,6 @@ public class SummaryReporter {
 
         // Reset data if new session id arrived
         if (!sessionId.equals(this.sessionId)) {
-            metricsPerTest.clear();
             metricsPerTest = null;
             this.sessionId = sessionId;
         }
@@ -146,17 +152,17 @@ public class SummaryReporter {
                 SummaryDto description = new SummaryDto();
                 description.setKey("Test description");
                 description.setValue(entry.getKey().getDescription());
-                summaryList.add(0,description);
+                summaryList.add(0, description);
 
                 SummaryDto startTime = new SummaryDto();
                 startTime.setKey("Start time");
                 startTime.setValue(entry.getKey().getStartDate());
-                summaryList.add(0,startTime);
+                summaryList.add(0, startTime);
 
                 SummaryDto termination = new SummaryDto();
                 termination.setKey("Termination");
                 termination.setValue(entry.getKey().getTerminationStrategy());
-                summaryList.add(0,termination);
+                summaryList.add(0, termination);
 
                 SummaryDto load = new SummaryDto();
                 load.setKey("Load");
@@ -179,6 +185,11 @@ public class SummaryReporter {
                 }
             });
         }
+    }
+
+    //??? really necessary?
+    public DatabaseService getDatabaseService() {
+        return databaseService;
     }
 
     @Required
