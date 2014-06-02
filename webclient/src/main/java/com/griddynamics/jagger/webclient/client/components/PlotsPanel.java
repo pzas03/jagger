@@ -113,16 +113,14 @@ public class PlotsPanel extends Composite {
             public void onAttachOrDetach(AttachEvent event) {
                 // executes when plot have been loaded
                 plotContainer.getPlotRepresentation().calculateScrollWidth();
-                panOnePlot(plotContainer.getPlotRepresentation(), percent);
+                avalancheScrollEventsCount ++;
+                plotContainer.getPlotRepresentation().panToPercent(percent);
             }
         });
 
         layoutPanel.addChild(plotContainer);
         childrenCount = layoutPanel.getAllChildren().size();
         setMaxRange();
-
-        // do not fire calculating of percent for new plot
-        panOnePlot(plotContainer.getPlotRepresentation(), percent);
     }
 
     private void panAllPlots(double percent) {
@@ -170,7 +168,7 @@ public class PlotsPanel extends Composite {
                     return;
                 }
 
-                avalancheScrollEventsCount = childrenCount - 1;
+                avalancheScrollEventsCount = childrenCount;
                 int currentPosition = scrollBar.getHorizontalScrollPosition();
                 double percent = 1D * (currentPosition - scrollBar.getMinimumHorizontalScrollPosition()) /
                         (scrollBar.getMaximumHorizontalScrollPosition() - scrollBar.getMinimumHorizontalScrollPosition());
@@ -198,7 +196,6 @@ public class PlotsPanel extends Composite {
             pc.getPlotRepresentation().setMaxRange(getMaxXAxisValue());
         }
     }
-
 
     /**
      * Check if PlotsPanel contains element with certain id
@@ -237,7 +234,7 @@ public class PlotsPanel extends Composite {
 
         percent = minVisible / (maxRange - maxVisible + minVisible);
 
-        panAllPlots(percent);
+        plotRepresentation.panToPercent(percent);
     }
 
     /**
@@ -270,7 +267,7 @@ public class PlotsPanel extends Composite {
             percent = minVisible / (maxRange - maxVisible + minVisible);
         }
 
-        panAllPlots(percent);
+        plotRepresentation.panToPercent(percent);
     }
 
     /**
@@ -299,11 +296,8 @@ public class PlotsPanel extends Composite {
         }
 
         // all plots start with zero
-        panAllPlots(0);
-    }
-
-    private void panOnePlot(PlotRepresentation plotRepresentation, double percent) {
-        plotRepresentation.panToPercent(percent);
+        PlotRepresentation plotRepresentation = layoutPanel.getFirstChild().getPlotRepresentation();
+        plotRepresentation.panToPercent(0);
     }
 
 
@@ -311,7 +305,7 @@ public class PlotsPanel extends Composite {
      * Check if PlotsPanel contains any plots.
      * @return true if it is empty, false otherwise */
     public boolean isEmpty() {
-        return layoutPanel.getWidgetCount() == 0;
+        return childrenCount == 0;
     }
 
 

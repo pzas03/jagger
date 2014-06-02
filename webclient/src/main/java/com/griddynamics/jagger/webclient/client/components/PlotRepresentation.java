@@ -1,5 +1,8 @@
 package com.griddynamics.jagger.webclient.client.components;
 
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.user.client.ui.*;
 import com.googlecode.gflot.client.Pan;
 import com.googlecode.gflot.client.SimplePlot;
@@ -94,6 +97,13 @@ public class PlotRepresentation extends VerticalPanel {
         Pan pan = Pan.create().setLeft(deltaInScale * pixelsToScale).setPreventEvent(true);
         simplePlot.pan(pan);
 
-        scrollbar.setHorizontalScrollPosition((int) ((scrollbar.getMaximumHorizontalScrollPosition() - scrollbar.getMinimumHorizontalScrollPosition()) * percent));
+        int newHorizontalPosition = (int) ((scrollbar.getMaximumHorizontalScrollPosition() - scrollbar.getMinimumHorizontalScrollPosition()) * percent);
+        if (newHorizontalPosition == scrollbar.getHorizontalScrollPosition()) {
+            // fire scroll event anyway
+            NativeEvent event = Document.get().createScrollEvent();
+            DomEvent.fireNativeEvent(event, scrollbar);
+        } else {
+            scrollbar.setHorizontalScrollPosition(newHorizontalPosition);
+        }
     }
 }
