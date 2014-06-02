@@ -1,9 +1,6 @@
 package com.griddynamics.jagger.engine.e1.services;
 
-import com.griddynamics.jagger.engine.e1.services.data.service.MetricEntity;
-import com.griddynamics.jagger.engine.e1.services.data.service.MetricPlotPointEntity;
-import com.griddynamics.jagger.engine.e1.services.data.service.SessionEntity;
-import com.griddynamics.jagger.engine.e1.services.data.service.TestEntity;
+import com.griddynamics.jagger.engine.e1.services.data.service.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -121,8 +118,8 @@ import java.util.Set;
      * !Note: It is faster to get summary for set of metrics than fetch every metric in for loop @n
      * See docu for overloaded function with set of metrics @n
      * @param metric - metric entity
-     * @return summary value for selected metric  */
-    Double getMetricSummary(MetricEntity metric);
+     * @return summary for selected metric  */
+    MetricSummaryValueEntity getMetricSummary(MetricEntity metric);
 
     /** Return summary values for selected metrics
      * @author Dmitry Latnikov
@@ -131,8 +128,8 @@ import java.util.Set;
      * Preferable way to get data. Data will be fetched from database in batch in single request => @n
      * it is faster to get batch of metrics than fetch every metric in for loop @n
      * @param metrics - metric entities
-     * @return map of <metric entity, summary value> */
-    Map<MetricEntity,Double> getMetricSummary(Collection<MetricEntity> metrics);
+     * @return map of <metric entity, summary> */
+    Map<MetricEntity,MetricSummaryValueEntity> getMetricSummary(Collection<MetricEntity> metrics);
 
     /** Return list of points (values vs time) for selected metric
      * @author Dmitry Latnikov

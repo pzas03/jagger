@@ -20,113 +20,28 @@
 
 package com.griddynamics.jagger.engine.e1.reporting;
 
-import com.griddynamics.jagger.dbapi.entity.DiagnosticResultEntity;
-import com.griddynamics.jagger.dbapi.entity.MetricSummaryEntity;
 import com.griddynamics.jagger.reporting.AbstractMappedReportProvider;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Required;
 
-import java.util.*;
+import java.util.List;
 
 public class DiagnosticReporter extends AbstractMappedReportProvider<String> {
-    private static final Logger log = LoggerFactory.getLogger(DiagnosticReporter.class);
 
-    public static class DiagnosticResult {
-        private double total;
-        private String name;
-
-        public double getTotal() {
-            return total;
-        }
-
-        public void setTotal(double total) {
-            this.total = total;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-    }
+    private SummaryReporter summaryReporter;
 
     @Override
-    public JRDataSource getDataSource(String key) {
+    public JRDataSource getDataSource(String id) {
         String sessionId = getSessionIdProvider().getSessionId();
+        List<SummaryDto> result = summaryReporter.getSummary(sessionId,id);
 
-
-        // check new model
-        List<MetricSummaryEntity> metricSummaryEntities = getHibernateTemplate().find(
-                "select d from MetricSummaryEntity d where d.metricDescription.taskData.taskId=? and d.metricDescription.taskData.sessionId=?",
-                key, sessionId);
-
-        if (metricSummaryEntities != null && !metricSummaryEntities.isEmpty()) {
-
-
-            TreeSet<DiagnosticResult> treeSet = new TreeSet<DiagnosticResult>(new Comparator<DiagnosticResult>() {
-                @Override
-                public int compare(DiagnosticResult o1, DiagnosticResult o2) {
-                    return o1.getName().compareTo(o2.getName());
-                }
-            });
-
-            for (MetricSummaryEntity mse : metricSummaryEntities) {
-                treeSet.add(convert(mse));
-            }
-
-            return new JRBeanCollectionDataSource(treeSet);
-        } else {
-
-            // check old model
-            List<DiagnosticResultEntity> diagnosticResults = getHibernateTemplate().find(
-                    "select v from DiagnosticResultEntity v where v.workloadData.taskId=? and v.workloadData.sessionId=?",
-                    key, sessionId);
-
-
-            if (diagnosticResults == null || diagnosticResults.isEmpty()) {
-                log.info("Diagnostic info for task id " + key + "] not found");
-                return null;
-            }
-
-            TreeSet<DiagnosticResult> treeSet = new TreeSet<DiagnosticResult>(new Comparator<DiagnosticResult>() {
-                @Override
-                public int compare(DiagnosticResult o1, DiagnosticResult o2) {
-                    return o1.getName().compareTo(o2.getName());
-                }
-            });
-
-            for (DiagnosticResultEntity entity : diagnosticResults) {
-                treeSet.add(convert(entity));
-            }
-
-            return new JRBeanCollectionDataSource(treeSet);
-        }
+        return new JRBeanCollectionDataSource(result);
     }
 
-    private DiagnosticResult convert(DiagnosticResultEntity entity) {
-        String name  = entity.getName();
-        Double total = entity.getTotal();
-
-        DiagnosticResult result = new DiagnosticResult();
-        result.setTotal(total);
-        result.setName(name);
-
-        return result;
+    @Required
+    public void setSummaryReporter(SummaryReporter summaryReporter) {
+        this.summaryReporter = summaryReporter;
     }
 
-    private DiagnosticResult convert(MetricSummaryEntity entity) {
-        String name  = entity.getDisplay();
-        Double total = entity.getTotal();
-
-        DiagnosticResult result = new DiagnosticResult();
-        result.setTotal(total);
-        result.setName(name);
-
-        return result;
-    }
 }
