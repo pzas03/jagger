@@ -1019,7 +1019,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             return detailsNode;
 
         List<TestDetailsNode> taskDataDtoList = new ArrayList<TestDetailsNode>();
-        MetricGroupNode sessionScopeNode = null;
+        MetricGroupNode<PlotNode> sessionScopeNode = null;
 
         try {
             Future<Map<TaskDataDto, List<PlotNode>>> metricsPlotsMapFuture = threadPool.submit(
@@ -1076,8 +1076,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
                 if (ssPlotNodes.size() > 0) {
                     String rootIdSS = NameTokens.SESSION_SCOPE_PLOTS;
-                    MetricGroupNode<PlotNode> testDetailsNodeBaseSS = buildTreeAccordingToRules(rootIdSS, agentNames, new ArrayList<PlotNode>(ssPlotNodes));
-                    sessionScopeNode = new MetricGroupNode(testDetailsNodeBaseSS);
+                    sessionScopeNode = buildTreeAccordingToRules(rootIdSS, agentNames, new ArrayList<PlotNode>(ssPlotNodes));
                 }
             }
 
@@ -1119,13 +1118,21 @@ public class DatabaseServiceImpl implements DatabaseService {
         List<TestNode> taskDataDtoList = new ArrayList<TestNode>();
 
         Map<TaskDataDto, List<MetricNode>> map = getTestMetricsMap(tasks);
+
+        // get agent names
+        Set<MetricNode> metricNodeListForAgentNames = new HashSet<MetricNode>();
+        for (TaskDataDto taskDataDto : map.keySet()) {
+            metricNodeListForAgentNames.addAll(map.get(taskDataDto));
+        }
+        Map<String, Set<String>> agentNames = getAgentNamesForMonitoringParameters(metricNodeListForAgentNames);
+
         for (TaskDataDto tdd : map.keySet()) {
             List<MetricNode> metricNodeList = map.get(tdd);
             String rootId = NameTokens.SUMMARY_PREFIX + tdd.hashCode();
 
             if (metricNodeList.size() > 0) {
                 // apply rules how to build tree
-                MetricGroupNode<MetricNode> testNodeBase = buildTreeAccordingToRules(rootId, null, metricNodeList);
+                MetricGroupNode<MetricNode> testNodeBase = buildTreeAccordingToRules(rootId, agentNames, metricNodeList);
 
                 // full test node with info data
                 TestNode testNode = new TestNode(testNodeBase);
@@ -1193,11 +1200,11 @@ public class DatabaseServiceImpl implements DatabaseService {
         }
     }
 
-    private Map<String,Set<String>> getAgentNamesForMonitoringParameters(Set<PlotNode> plotNodeList) {
+    private Map<String,Set<String>> getAgentNamesForMonitoringParameters(Set<? extends MetricNode> nodeList) {
         Map<String,Set<String>> agentNames = new HashMap<String, Set<String>>();
 
-        for (PlotNode plotNode : plotNodeList) {
-            for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
+        for (MetricNode node : nodeList) {
+            for (MetricNameDto metricNameDto : node.getMetricNameDtoList()) {
                 // old monitoring or new monitoring as metrics
                 if ((metricNameDto.getOrigin().equals(MetricNameDto.Origin.MONITORING)) ||
                         (metricNameDto.getOrigin().equals(MetricNameDto.Origin.TEST_GROUP_METRIC))) {
