@@ -1293,11 +1293,11 @@ public class DatabaseServiceImpl implements DatabaseService {
 
         @SuppressWarnings("all")
         List<Object[]> objectsList = (List<Object[]>)entityManager.createNativeQuery(
-            "select wtd.sessionId, wtd.clock, wtd.clockValue, wtd.termination, finalTaskData.id, finalTaskData.startTime, wtd.number " +
+            "select wtd.sessionId, wtd.clock, wtd.clockValue, wtd.termination, finalTaskData.id, finalTaskData.startTime, wtd.number, finalTaskData.status " +
             "from WorkloadTaskData as wtd join " +
-                "(select wd.startTime, wd.taskId, wd.sessionId, taskData.id from WorkloadData " +
+                "(select wd.startTime, wd.taskId, wd.sessionId, taskData.id, taskData.status from WorkloadData " +
                 "as wd join " +
-                    "( select  td.id, td.sessionId, td.taskId from TaskData td where td.id in (:taskDataIds) " +
+                    "( select  td.id, td.sessionId, td.taskId, td.status from TaskData td where td.id in (:taskDataIds) " +
                     ") as taskData " +
                 "on wd.taskId=taskData.taskId and wd.sessionId=taskData.sessionId" +
                 ") as finalTaskData " +
@@ -1319,6 +1319,11 @@ public class DatabaseServiceImpl implements DatabaseService {
             if (number == null) {
                 number = 0;
             }
+            TaskData.ExecutionStatus executionStatus = TaskData.ExecutionStatus.valueOf((String) objects[7]);
+            Decision status = Decision.OK;
+            if (TaskData.ExecutionStatus.FAILED.equals(executionStatus)) {
+                status = Decision.FATAL;
+            }
 
             if (!resultMap.containsKey(taskId)) {
                 resultMap.put(taskId,new HashMap<String, TestInfoDto>());
@@ -1328,6 +1333,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             testInfo.setTermination(termination);
             testInfo.setStartTime(startTime);
             testInfo.setNumber(number);
+            testInfo.setStatus(status);
 
             resultMap.get(taskId).put(sessionId,testInfo);
         }

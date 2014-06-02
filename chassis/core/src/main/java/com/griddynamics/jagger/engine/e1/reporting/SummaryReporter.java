@@ -42,6 +42,7 @@ public class SummaryReporter {
     private Map<String,List<SummaryDto>> summaryMap = new HashMap<String, List<SummaryDto>>();
     private Map<String,List<SummaryDto>> latencyPercentilesMap = new HashMap<String, List<SummaryDto>>();
     private Map<String,List<SummaryDto>> validatorsMap = new HashMap<String, List<SummaryDto>>();
+    private Map<TestEntity, Map<MetricEntity,MetricSummaryValueEntity>> standardMetricsMap = new HashMap<TestEntity, Map<MetricEntity, MetricSummaryValueEntity>>();
 
     public List<SummaryDto> getSummary(String sessionId, String taskId) {
 
@@ -79,11 +80,11 @@ public class SummaryReporter {
         }
     }
 
-    public Set<TestEntity> getTestInfo(String sessionId) {
+    public Map<TestEntity, Map<MetricEntity,MetricSummaryValueEntity>> getStandardMetricsPerTest(String sessionId) {
 
         getData(sessionId);
 
-        return metricsPerTest.keySet();
+        return standardMetricsMap;
     }
 
     private void getData(String sessionId) {
@@ -101,6 +102,13 @@ public class SummaryReporter {
 
         if (metricsPerTest == null) {
 
+            Set<String> standardMetricsIds = new HashSet<String>();
+            standardMetricsIds.add(StandardMetricsNamesUtil.THROUGHPUT_ID);
+            standardMetricsIds.add(StandardMetricsNamesUtil.FAIL_COUNT_ID);
+            standardMetricsIds.add(StandardMetricsNamesUtil.SUCCESS_RATE_ID);
+            standardMetricsIds.add(StandardMetricsNamesUtil.LATENCY_ID);
+            standardMetricsIds.add(StandardMetricsNamesUtil.LATENCY_STD_DEV_ID);
+
             LocalRankingProvider localRankingProvider = new LocalRankingProvider();
             DataService dataService = new DefaultDataService(databaseService);
             Set<TestEntity> testEntities = dataService.getTests(sessionId);
@@ -110,6 +118,7 @@ public class SummaryReporter {
                 List<SummaryDto> summaryList = new ArrayList<SummaryDto>();
                 List<SummaryDto> latencyPercentilesList = new ArrayList<SummaryDto>();
                 List<SummaryDto> validatorsList = new ArrayList<SummaryDto>();
+                Map<MetricEntity, MetricSummaryValueEntity> standardMetricsPerTest = new HashMap<MetricEntity, MetricSummaryValueEntity>();
 
                 // Metrics
                 Map<MetricEntity,MetricSummaryValueEntity> summary = dataService.getMetricSummary(entry.getValue());
@@ -142,6 +151,11 @@ public class SummaryReporter {
                     else {
                         summaryList.add(value);
                     }
+
+                    // Standard metrics
+                    if (standardMetricsIds.contains(metricEntity.getMetricId())) {
+                        standardMetricsPerTest.put(metricEntity,summary.get(metricEntity));
+                    }
                 }
 
                 localRankingProvider.sortSummaryDto(summaryList);
@@ -172,6 +186,7 @@ public class SummaryReporter {
                 summaryMap.put(entry.getKey().getId().toString(), summaryList);
                 latencyPercentilesMap.put(entry.getKey().getId().toString(), latencyPercentilesList);
                 validatorsMap.put(entry.getKey().getId().toString(), validatorsList);
+                standardMetricsMap.put(entry.getKey(),standardMetricsPerTest);
             }
         }
     }
@@ -185,11 +200,6 @@ public class SummaryReporter {
                 }
             });
         }
-    }
-
-    //??? really necessary?
-    public DatabaseService getDatabaseService() {
-        return databaseService;
     }
 
     @Required

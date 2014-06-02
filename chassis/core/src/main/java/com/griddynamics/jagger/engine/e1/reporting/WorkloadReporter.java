@@ -20,23 +20,23 @@
 package com.griddynamics.jagger.engine.e1.reporting;
 
 import com.google.common.collect.Lists;
-import com.griddynamics.jagger.dbapi.entity.TaskData;
-import com.griddynamics.jagger.dbapi.entity.WorkloadData;
 import com.griddynamics.jagger.dbapi.entity.WorkloadTaskData;
-import com.griddynamics.jagger.engine.e1.services.DataService;
-import com.griddynamics.jagger.engine.e1.services.DefaultDataService;
 import com.griddynamics.jagger.engine.e1.services.data.service.MetricEntity;
+import com.griddynamics.jagger.engine.e1.services.data.service.MetricSummaryValueEntity;
 import com.griddynamics.jagger.engine.e1.services.data.service.TestEntity;
 import com.griddynamics.jagger.reporting.AbstractReportProvider;
 import com.griddynamics.jagger.util.Decision;
+import com.griddynamics.jagger.util.StandardMetricsNamesUtil;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.awt.*;
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class WorkloadReporter extends AbstractReportProvider {
     private SummaryReporter summaryReporter;
@@ -46,72 +46,62 @@ public class WorkloadReporter extends AbstractReportProvider {
 	@Override
 	public JRDataSource getDataSource() {
         String sessionId = getSessionIdProvider().getSessionId();
-        Set<TestEntity> testEntitySet = summaryReporter.getTestInfo(sessionId);
+        Map<TestEntity, Map<MetricEntity,MetricSummaryValueEntity>> metricsPerTest =
+                summaryReporter.getStandardMetricsPerTest(sessionId);
 
-//        DataService dataService = new DefaultDataService(summaryReporter.getDatabaseService());
-//        Map<TestEntity,Set<MetricEntity>> allMetrics = dataService.getMetricsByTests(testEntitySet);
-//        Map<TestEntity,MetricEntity> successRateMetrics;
-//        for (TestEntity testEntity : allMetrics.keySet())
+        List<E1ScenarioReportData> result = Lists.newLinkedList();
 
-
-        //
-        //		@SuppressWarnings("unchecked")
-        //		List<WorkloadData> testData = getHibernateTemplate().find("from WorkloadData d where d.sessionId=? order by d.number asc, d.scenario.name asc",
-        //                getSessionIdProvider().getSessionId());
-        //
-        //		@SuppressWarnings("unchecked")
-        //		List<WorkloadTaskData> allWorkloadTasks =
-        //                getHibernateTemplate().find("from WorkloadTaskData d where d.sessionId=? order by d.number asc, d.scenario.name asc",
-        //                sessionId);
-        //
-        //        @SuppressWarnings({"unchecked"}) List<TaskData> taskDatas = getHibernateTemplate().find(
-        //                "select d from TaskData d where d.sessionId=?",
-        //                getSessionIdProvider().getSessionId());
-        //
-
-                List<E1ScenarioReportData> result = Lists.newLinkedList();
-
-//		for (WorkloadData workloadData : testData) {
-        for (TestEntity testEntity : testEntitySet) {
+        for (TestEntity testEntity : metricsPerTest.keySet()) {
 			E1ScenarioReportData reportData = new E1ScenarioReportData();
 			reportData.setSessionId(sessionId);
             reportData.setNumber(testEntity.getTestGroupIndex().toString());
 			reportData.setScenarioName(testEntity.getName());
-
-            //??? decision - how to take
-//			WorkloadTaskData resultData = null;
-//			for (WorkloadTaskData workloadTaskData : allWorkloadTasks) {
-//				if (workloadTaskData.getTaskId().equals(workloadData.getTaskId())) {
-//					resultData = workloadTaskData;
-//					break;
-//				}
-//			}
-//
-//			if (resultData == null) {
-//				throw new IllegalStateException("Result data is not specified");
-//			}
-
-            //???
-            //reportData.setStatusImage(statusImageProvider.getImageByDecision(decisionMaker.decideOnTest(resultData)));
-            reportData.setStatusImage(statusImageProvider.getImageByDecision(Decision.OK));   //??? temp - OK
-
-//            for(TaskData taskData: taskDatas) {
-//                if(workloadData.getTaskId().equals(taskData.getTaskId())) {
-//                    if(TaskData.ExecutionStatus.FAILED.equals(taskData.getStatus())) {
-//                        reportData.setStatusImage(statusImageProvider.getImageByDecision(Decision.ERROR));
-//                    }
-//                    reportData.setId(taskData.getId().toString());
-//                }
-//            }
             reportData.setId(testEntity.getId().toString());
 
+            //??? todo JFG_777 - decide how to provide session comparison and decision making for back compatibility
+            // workaround for back compatibility
+            // create dummy workloadTaskData entity for decision maker
+            WorkloadTaskData workloadTaskData = new WorkloadTaskData();
+            Map<MetricEntity,MetricSummaryValueEntity> metricsForThisTest = metricsPerTest.get(testEntity);
+            for (MetricEntity metricEntity : metricsForThisTest.keySet()) {
+                if (metricEntity.getMetricId().equals(StandardMetricsNamesUtil.THROUGHPUT_ID)) {
+                    workloadTaskData.setThroughput(new BigDecimal(metricsForThisTest.get(metricEntity).getValue()));
+                }
+                if (metricEntity.getMetricId().equals(StandardMetricsNamesUtil.FAIL_COUNT_ID)) {
+                    workloadTaskData.setFailuresCount(metricsForThisTest.get(metricEntity).getValue().intValue());
+                }
+                if (metricEntity.getMetricId().equals(StandardMetricsNamesUtil.SUCCESS_RATE_ID)) {
+                    workloadTaskData.setSuccessRate(new BigDecimal(metricsForThisTest.get(metricEntity).getValue()));
+                }
+                if (metricEntity.getMetricId().equals(StandardMetricsNamesUtil.LATENCY_ID)) {
+                    workloadTaskData.setAvgLatency(new BigDecimal(metricsForThisTest.get(metricEntity).getValue()));
+                }
+                if (metricEntity.getMetricId().equals(StandardMetricsNamesUtil.LATENCY_STD_DEV_ID)) {
+                    workloadTaskData.setStdDevLatency(new BigDecimal(metricsForThisTest.get(metricEntity).getValue()));
+                }
+            }
+
+            reportData.setStatusImage(statusImageProvider.getImageByDecision(decisionMaker.decideOnTest(workloadTaskData)));
+
+            // check if there were errors during workload configuration
+            Decision testExecutionStatus = testEntity.getTestExecutionStatus();
+            if (testExecutionStatus != Decision.OK) {
+                reportData.setStatusImage(statusImageProvider.getImageByDecision(testExecutionStatus));
+            }
 
 			result.add(reportData);
 		}
 
-        //??? sort result by number
+        Collections.sort(result, new Comparator<E1ScenarioReportData>() {
+            @Override
+            public int compare(final E1ScenarioReportData result1, final E1ScenarioReportData result2) {
+                int val1 = Integer.parseInt(result1.getNumber());
+                int val2 = Integer.parseInt(result2.getNumber());
+                return val1 > val2 ? 1 : val1 < val2 ? -1 : 0;
+            }
+        } );
 
-		return new JRBeanCollectionDataSource(result);
+        return new JRBeanCollectionDataSource(result);
 	}
 
     @Required
