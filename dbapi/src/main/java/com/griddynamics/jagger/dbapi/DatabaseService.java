@@ -94,4 +94,10 @@ public interface DatabaseService {
      */
     Map<MetricNameDto,Map<String,Decision>> getDecisionsPerMetric(Set<MetricNameDto> metricNames);
 
+    /** Returns map of decisions per session corresponding to given sessionIds
+     * @param sessionIds - selected sessions
+     * @return map <sessionId, decision> of decisions
+     */
+    Map<String,Decision> getDecisionsPerSession(Set<String> sessionIds);
+
 }

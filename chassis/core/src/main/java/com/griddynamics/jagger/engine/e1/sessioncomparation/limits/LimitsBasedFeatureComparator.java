@@ -48,42 +48,56 @@ public class LimitsBasedFeatureComparator extends HibernateDaoSupport implements
 
     @Override
     public List<Verdict<String>> compare(String currentSession, String baselineSession) {
-        WorstCaseDecisionMaker worstCaseDecisionMaker = new WorstCaseDecisionMaker();
 
-        // Get tests ids
-        // matching setup = no matching
-        SessionMatchingSetup sessionMatchingSetup = new SessionMatchingSetup(false, Collections.<SessionMatchingSetup.MatchBy>emptySet());
-        List<TaskDataDto> taskDataDtoList =
-                databaseService.getTaskDataForSessions(new HashSet<String>(Arrays.asList(currentSession)),sessionMatchingSetup);
-        Set<Long> testIds = new HashSet<Long>();
-        for (TaskDataDto taskDataDto : taskDataDtoList) {
-            testIds.addAll(taskDataDto.getIds());
+        Decision decisionPerSession;
+
+        // If decision already taken => use it
+        // Such case can occur, f.e. when Jagger is running in reporter mode
+        Map<String,Decision> decisionPerSessionMap = databaseService.getDecisionsPerSession(new HashSet<String>(Arrays.asList(currentSession)));
+        if (decisionPerSessionMap.containsKey(currentSession)) {
+            decisionPerSession = decisionPerSessionMap.get(currentSession);
+            log.info("Decision '{}' was fetched from database for session {}",decisionPerSession,currentSession);
         }
+        else {
 
-        // Get test group ids
-        Set<Long> testGroupIds = databaseService.getTestGroupIdsByTestIds(testIds).keySet();
+            WorstCaseDecisionMaker worstCaseDecisionMaker = new WorstCaseDecisionMaker();
 
-        // Get decisions for test groups
-        Set<TaskDecisionDto> taskDecisionDtoSet = databaseService.getDecisionsPerTask(testGroupIds);
-        List<Decision> testGroupDecisions = new ArrayList<Decision>();
-        for (TaskDecisionDto taskDecisionDto : taskDecisionDtoSet) {
-            testGroupDecisions.add(taskDecisionDto.getDecision());
-        }
-
-        // Make decision per session
-        Decision decisionPerSession = worstCaseDecisionMaker.getDecision(testGroupDecisions);
-
-        // Save decision per session
-        final DecisionPerSessionEntity decisionPerSessionEntity = new DecisionPerSessionEntity(currentSession,decisionPerSession.toString());
-
-        getHibernateTemplate().execute(new HibernateCallback<Void>() {
-            @Override
-            public Void doInHibernate(Session session) throws HibernateException, SQLException {
-                session.persist(decisionPerSessionEntity);
-                session.flush();
-                return null;
+            // Get tests ids
+            // matching setup = no matching
+            SessionMatchingSetup sessionMatchingSetup = new SessionMatchingSetup(false, Collections.<SessionMatchingSetup.MatchBy>emptySet());
+            List<TaskDataDto> taskDataDtoList =
+                    databaseService.getTaskDataForSessions(new HashSet<String>(Arrays.asList(currentSession)),sessionMatchingSetup);
+            Set<Long> testIds = new HashSet<Long>();
+            for (TaskDataDto taskDataDto : taskDataDtoList) {
+                testIds.addAll(taskDataDto.getIds());
             }
-        });
+
+            // Get test group ids
+            Set<Long> testGroupIds = databaseService.getTestGroupIdsByTestIds(testIds).keySet();
+
+            // Get decisions for test groups
+            Set<TaskDecisionDto> taskDecisionDtoSet = databaseService.getDecisionsPerTask(testGroupIds);
+            List<Decision> testGroupDecisions = new ArrayList<Decision>();
+            for (TaskDecisionDto taskDecisionDto : taskDecisionDtoSet) {
+                testGroupDecisions.add(taskDecisionDto.getDecision());
+            }
+
+            // Make decision per session
+            decisionPerSession = worstCaseDecisionMaker.getDecision(testGroupDecisions);
+            log.info("Decision '{}' was made for session {}",decisionPerSession,currentSession);
+
+            // Save decision per session
+            final DecisionPerSessionEntity decisionPerSessionEntity = new DecisionPerSessionEntity(currentSession,decisionPerSession.toString());
+
+            getHibernateTemplate().execute(new HibernateCallback<Void>() {
+                @Override
+                public Void doInHibernate(Session session) throws HibernateException, SQLException {
+                    session.persist(decisionPerSessionEntity);
+                    session.flush();
+                    return null;
+                }
+            });
+        }
 
         List<Verdict<String>> verdicts = Lists.newArrayList();
         verdicts.add(new Verdict<String>("Decision per session based on comparing metrics to limits",
