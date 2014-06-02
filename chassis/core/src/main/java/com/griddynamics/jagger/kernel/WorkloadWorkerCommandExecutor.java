@@ -30,7 +30,7 @@ abstract public class WorkloadWorkerCommandExecutor<C extends Command<R>, R exte
     public R execute(C command, NodeContext nodeContext) {
         KeyValueStorage keyValueStorage = nodeContext.getService(KeyValueStorage.class);
         if (keyValueStorage != null)
-            nodeContext.getService(KeyValueStorage.class).setSessionId(command.getSessionId());
+            keyValueStorage.setSessionId(command.getSessionId());
         return doExecute(command, nodeContext);
     }
 
