@@ -13,7 +13,5 @@ import java.util.Set;
  */
 public interface PlotProviderServiceAsync {
 
-    void getPlotData(Set<MetricNode> plots, AsyncCallback<Map<MetricNode,PlotSeriesDto>> async);
-
-    void downloadInCsv(MetricNode metricNode, AsyncCallback<String> async);
+    void getPlotData(Set<MetricNode> plots, AsyncCallback<Map<MetricNode, PlotSeriesDto>> async);
 }

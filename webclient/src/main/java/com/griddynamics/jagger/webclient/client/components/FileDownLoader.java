@@ -4,7 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.griddynamics.jagger.dbapi.model.MetricNode;
-import com.griddynamics.jagger.webclient.client.PlotProviderService;
+import com.griddynamics.jagger.webclient.client.DownloadService;
 
 /**
  * Class to contain all methods for file downloading.
@@ -18,7 +18,7 @@ public class FileDownLoader {
      * download plot in csv for MetricNode */
     public static void downloadPlotInCsv(MetricNode metricNode) {
 
-        PlotProviderService.Async.getInstance().downloadInCsv(metricNode, new AsyncCallback<String>() {
+        DownloadService.Async.getInstance().createPlotCsvFile(metricNode, new AsyncCallback<String>() {
             @Override
             public void onFailure(Throwable caught) {
                 // or any other message

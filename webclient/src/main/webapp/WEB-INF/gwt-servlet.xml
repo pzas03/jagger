@@ -58,13 +58,20 @@
                 <entry key="/NodeInfoService" value-ref="nodeInfoService"/>
                 <entry key="/CommonDataService" value-ref="commonDataService"/>
                 <entry key="/TestInfoService" value-ref="testInfoService"/>
+                <entry key="/DownloadService" value-ref="downloadService"/>
             </map>
         </property>
     </bean>
 
+    <bean id="downloadService" class="com.griddynamics.jagger.webclient.server.DownloadServiceImpl">
+
+        <property name="plotProviderService" ref="plotProviderService"/>
+        <property name="metricDataService" ref="metricDataService"/>
+        <property name="fileStorage" ref="fileStore"/>
+    </bean>
+
     <bean id="plotProviderService" class="com.griddynamics.jagger.webclient.server.PlotProviderServiceImpl">
         <property name="databaseService" ref="databaseService"/>
-        <property name="fileStorage" ref="fileStore"/>
     </bean>
 
     <bean id="sessionDataService" class="com.griddynamics.jagger.webclient.server.SessionDataServiceImpl">

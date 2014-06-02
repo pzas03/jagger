@@ -1589,7 +1589,7 @@ public class Trends extends DefaultActivity {
                     enableControl();
             } else {
 
-                final ArrayList<MetricNode> notLoaded = new ArrayList<MetricNode>();
+                final Set<MetricNode> notLoaded = new HashSet<MetricNode>();
                 final Map<MetricNode, List<MetricDto>> loaded = new HashMap<MetricNode, List<MetricDto>>();
 
                 for (MetricNode metricNode : metrics){
