@@ -55,7 +55,7 @@ public class HibernateKeyValueStorage extends HibernateDaoSupport implements Key
     @Required
     public void setSessionTempDataCount(int sessionTempDataCount) {
         if (sessionTempDataCount <0) {
-            log.warn("Session count can't be < 0; user setting chassis.storage.temporary.data.session.count in {}.", sessionTempDataCount);
+            log.warn("Session count can't be < 0; chassis.storage.temporary.data.session.count is equal {}.", sessionTempDataCount);
             return;
         }
         this.sessionTempDataCount = sessionTempDataCount;
