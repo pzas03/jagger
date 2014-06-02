@@ -55,7 +55,6 @@ public class WorkloadReporter extends AbstractReportProvider {
 			E1ScenarioReportData reportData = new E1ScenarioReportData();
 			reportData.setSessionId(sessionId);
             reportData.setNumber(testEntity.getTestGroupIndex().toString());
-			reportData.setScenarioName(testEntity.getName());
             reportData.setId(testEntity.getId().toString());
 
             //??? todo JFG_777 - decide how to provide session comparison and decision making for back compatibility
@@ -81,15 +80,26 @@ public class WorkloadReporter extends AbstractReportProvider {
                 }
             }
 
-            reportData.setStatusImage(statusImageProvider.getImageByDecision(decisionMaker.decideOnTest(workloadTaskData)));
+            String testStatusComment = "";
+            Decision testStatus = Decision.OK;
 
-            // check if there were errors during workload configuration
-            Decision testExecutionStatus = testEntity.getTestExecutionStatus();
-            if (testExecutionStatus != Decision.OK) {
-                reportData.setStatusImage(statusImageProvider.getImageByDecision(testExecutionStatus));
+            // Success rate
+            Decision testSuccessRateStatus = decisionMaker.decideOnTest(workloadTaskData);
+            if (testSuccessRateStatus.ordinal() > testStatus.ordinal()) {
+                testStatusComment = "Status is based on success rate. Success rate is below threshold defined by property: 'chassis.master.reporting.successrate.threshold'";
+                testStatus = testSuccessRateStatus;
             }
 
-			result.add(reportData);
+            // Errors during workload configuration
+            Decision testExecutionStatus = testEntity.getTestExecutionStatus();
+            if (testExecutionStatus.ordinal() > testStatus.ordinal()) {
+                testStatusComment = "Status is based on test execution status. There were errors during test execution (f.e. timeouts)";
+                testStatus = testExecutionStatus;
+            }
+
+            reportData.setStatusImage(statusImageProvider.getImageByDecision(testStatus));
+            reportData.setScenarioName(testEntity.getName() + "\n\n\n" + testStatusComment);
+            result.add(reportData);
 		}
 
         Collections.sort(result, new Comparator<E1ScenarioReportData>() {
