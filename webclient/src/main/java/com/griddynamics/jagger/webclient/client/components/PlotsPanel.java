@@ -133,16 +133,7 @@ public class PlotsPanel extends Composite {
 
     private void scrollCalculations(final PlotContainer plotContainer) {
 
-        double maxX = Double.MIN_VALUE;
-        JsArray<Series> series = plotContainer.getPlotRepresentation().getSimplePlot().getModel().getSeries();
-        for (int i = 0; i < series.length(); i++) {
-            Series s = series.get(i);
-            SeriesData sd = s.getData();
-            double curMax = sd.getX(sd.length() - 1);
-            if (maxX < curMax) {
-                maxX = curMax;
-            }
-        }
+        double maxX = calculateMaxXAxisValue(plotContainer.getPlotRepresentation().getSimplePlot());
 
         double maxRange;
         if (this.isEmpty()) {
@@ -181,7 +172,7 @@ public class PlotsPanel extends Composite {
 
     /**
      * Global counter to see how many avalanche scroll events hav not been finished */
-    int avalancheScrollEventsCount = 0;
+    private int avalancheScrollEventsCount = 0;
 
     /**
      * To avoid calculating on every scroll  event */
@@ -207,73 +198,87 @@ public class PlotsPanel extends Composite {
 
 
     /**
-     * boolean to disable ZoomOut when visible range of plot more then maximum range */
-    boolean zoomOutEnabled = true;
-
-    /**
      * Zoom all plots in PlotsPanel */
     public void zoomIn() {
 
-        if (!zoomOutEnabled) {
-            zoomOutEnabled = true;
-        }
-
-        double maxRange = layoutPanel.getFirstChild().getPlotRepresentation().getMaxRange();
-        for (PlotContainer pc : layoutPanel.getAllChildren()) {
-            SimplePlot plot = pc.getPlotRepresentation().getSimplePlot();
-            Zoom zoom = Zoom.create().setAmount(1.1);
-            plot.zoom(zoom);
-
-            pc.getPlotRepresentation().calculateScrollWidth();
-        }
-
-        PlotRepresentation plotRepresentation = layoutPanel.getFirstChild().getPlotRepresentation();
-        double percent;
-        double minVisible = plotRepresentation.getSimplePlot().getAxes().getX().getMinimumValue();
-        double maxVisible = plotRepresentation.getSimplePlot().getAxes().getX().getMaximumValue();
-
-        percent = minVisible / (maxRange - maxVisible + minVisible);
-
-        plotRepresentation.panToPercent(percent);
+       zoom(false);
     }
 
     /**
      * Zoom out all plots in PlotsPanel */
     public void zoomOut() {
 
+       zoom(true);
+    }
+
+    /**
+     * Zoom in if param is false, zoom out otherwise.
+     * @param out defines whether zoom in or out.
+     */
+    private void zoom(boolean out) {
+
         double maxRange = layoutPanel.getFirstChild().getPlotRepresentation().getMaxRange();
         for (PlotContainer pc : layoutPanel.getAllChildren()) {
             SimplePlot plot = pc.getPlotRepresentation().getSimplePlot();
             Zoom zoom = Zoom.create().setAmount(1.1);
-            plot.zoomOut(zoom);
+
+            if (out) {
+                plot.zoomOut(zoom);
+            } else {
+                plot.zoom(zoom);
+            }
+
             pc.getPlotRepresentation().calculateScrollWidth();
         }
 
         PlotRepresentation plotRepresentation = layoutPanel.getFirstChild().getPlotRepresentation();
+        double percent;
         double minVisible = plotRepresentation.getSimplePlot().getAxes().getX().getMinimumValue();
         double maxVisible = plotRepresentation.getSimplePlot().getAxes().getX().getMaximumValue();
 
-        if (maxVisible > maxRange && minVisible < 0) {
-            // do nothing
-            return;
+        if (out) {
+            if (maxVisible >= maxRange) {
+                // to the end
+                plotRepresentation.panToPercent(1);
+                return;
+            } else if (minVisible <= 0) {
+                // to very start
+                plotRepresentation.panToPercent(0);
+                return;
+            }
         }
 
-        double percent;
-        if (maxVisible >= maxRange) {
-            percent = 1;
-        } else if (minVisible <= 0) {
-            percent = 0;
-        } else {
-            percent = minVisible / (maxRange - maxVisible + minVisible);
-        }
-
+        percent = minVisible / (maxRange - maxVisible + minVisible);
         plotRepresentation.panToPercent(percent);
     }
 
     /**
      * Zoom to size of given plot;
      * @param plot - given plot */
-    public void zoomBackTo(SimplePlot plot) {
+    public void zoomDefault(SimplePlot plot) {
+
+        double xMaxValue = calculateMaxXAxisValue(plot);
+
+        for (PlotContainer pc : layoutPanel.getAllChildren()) {
+            SimplePlot currentPlot = pc.getPlotRepresentation().getSimplePlot();
+            // currently we always start xAxis with zero
+            currentPlot.getOptions().getXAxisOptions().setMinimum(0).setMaximum(xMaxValue);
+            currentPlot.setupGrid();
+            currentPlot.redraw();
+            pc.getPlotRepresentation().calculateScrollWidth();
+        }
+
+        // all plots start with zero
+        PlotRepresentation plotRepresentation = layoutPanel.getFirstChild().getPlotRepresentation();
+        plotRepresentation.panToPercent(0);
+    }
+
+
+    /**
+     * Returns max X axis value on plot
+     * @param plot plot
+     * @return max X axis value */
+    private double calculateMaxXAxisValue (SimplePlot plot) {
 
         JsArray<Series> seriesArray = plot.getModel().getSeries();
         double maxValue = Double.MIN_VALUE;
@@ -285,21 +290,8 @@ public class PlotsPanel extends Composite {
                 maxValue = temp;
             }
         }
-
-        for (PlotContainer pc : layoutPanel.getAllChildren()) {
-            SimplePlot currentPlot = pc.getPlotRepresentation().getSimplePlot();
-            // currently we always start xAxis with zero
-            currentPlot.getOptions().getXAxisOptions().setMinimum(0).setMaximum(maxValue);
-            currentPlot.setupGrid();
-            currentPlot.redraw();
-            pc.getPlotRepresentation().calculateScrollWidth();
-        }
-
-        // all plots start with zero
-        PlotRepresentation plotRepresentation = layoutPanel.getFirstChild().getPlotRepresentation();
-        plotRepresentation.panToPercent(0);
+        return maxValue;
     }
-
 
     /**
      * Check if PlotsPanel contains any plots.
@@ -315,20 +307,17 @@ public class PlotsPanel extends Composite {
         // no widgets in panel
         assert layoutPanel.getWidgetCount() > 0;
 
-        double maxValue = Integer.MIN_VALUE;
+        double xMaxValue = Integer.MIN_VALUE;
         for (PlotContainer pc : layoutPanel.getAllChildren()) {
 
-            JsArray<Series> curves = pc.getPlotRepresentation().getSimplePlot().getModel().getSeries();
-            for (int i = 0; i < curves.length(); i ++) {
-                Series curve = curves.get(i);
-                double curveMaxX = curve.getData().getX(curve.getData().length() - 1);
-                if (curveMaxX > maxValue) {
-                    maxValue = curveMaxX;
-                }
+            double curveMaxX = calculateMaxXAxisValue(pc.getPlotRepresentation().getSimplePlot());
+
+            if (curveMaxX > xMaxValue) {
+                xMaxValue = curveMaxX;
             }
         }
 
-        return maxValue;
+        return xMaxValue;
     }
 
     /**

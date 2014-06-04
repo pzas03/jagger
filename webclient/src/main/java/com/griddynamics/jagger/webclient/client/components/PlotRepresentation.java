@@ -17,6 +17,7 @@ public class PlotRepresentation extends VerticalPanel {
 
     private MyScroll scrollbar;
 
+    private final int TOTAL_BORDERS_WIDTH = 4;
     /**
      * Range to scroll to */
     private double maxRange = 1;
@@ -56,7 +57,7 @@ public class PlotRepresentation extends VerticalPanel {
 
     public void calculateScrollWidth() {
         if (scrollbar.isAttached()) {
-            double plotWidth = simplePlot.getOffsetWidth() - simplePlot.getOptions().getYAxisOptions().getLabelWidth() - 4;
+            double plotWidth = simplePlot.getOffsetWidth() - simplePlot.getOptions().getYAxisOptions().getLabelWidth() - TOTAL_BORDERS_WIDTH;
             double visibleRange = simplePlot.getAxes().getX().getMaximumValue() - simplePlot.getAxes().getX().getMinimumValue();
             double ratio = maxRange / visibleRange;
             scrollbar.setScrollWidth((int) (plotWidth * ratio));
@@ -92,7 +93,7 @@ public class PlotRepresentation extends VerticalPanel {
         double valueOnScaleShouldBe = percent * (maxRange - maxVisible + minVisible);
 
         double deltaInScale = valueOnScaleShouldBe - minVisible;
-        double pixelsToScale = (simplePlot.getOffsetWidth() - simplePlot.getOptions().getYAxisOptions().getLabelWidth()) / (maxVisible - minVisible);
+        double pixelsToScale = getPlotWidth() / (maxVisible - minVisible);
 
         Pan pan = Pan.create().setLeft(deltaInScale * pixelsToScale).setPreventEvent(true);
         simplePlot.pan(pan);
@@ -105,5 +106,9 @@ public class PlotRepresentation extends VerticalPanel {
         } else {
             scrollbar.setHorizontalScrollPosition(newHorizontalPosition);
         }
+    }
+
+    private double getPlotWidth() {
+        return simplePlot.getOffsetWidth() - simplePlot.getOptions().getYAxisOptions().getLabelWidth();
     }
 }

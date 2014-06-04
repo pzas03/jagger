@@ -1137,12 +1137,12 @@ public class Trends extends DefaultActivity {
                 }
             });
 
-            Label zoomBack = new Label("Zoom back");
+            Label zoomBack = new Label("Zoom default");
             zoomBack.addStyleName(getResources().css().zoomLabel());
             zoomBack.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    panel.zoomBackTo(plot);
+                    panel.zoomDefault(plot);
                 }
             });
 
