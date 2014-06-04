@@ -10,6 +10,7 @@ import com.griddynamics.jagger.dbapi.dto.MetricDto;
 import com.griddynamics.jagger.dbapi.model.MetricNode;
 import com.griddynamics.jagger.dbapi.model.WebClientProperties;
 import com.griddynamics.jagger.dbapi.dto.SessionDataDto;
+import com.griddynamics.jagger.webclient.client.dto.SummaryMetricDto;
 
 import java.util.*;
 
@@ -38,7 +39,7 @@ public class SummaryPanel extends Composite {
         initWidget(ourUiBinder.createAndBindUi(this));
     }
 
-    public HashMap<MetricNode, List<MetricDto>> getCachedMetrics() {
+    public HashMap<MetricNode, SummaryMetricDto> getCachedMetrics() {
         return sessionComparisonPanel.getCachedMetrics();
     }
 

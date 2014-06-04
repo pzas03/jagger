@@ -12,6 +12,7 @@ import com.griddynamics.jagger.dbapi.model.MetricRankingProvider;
 import com.griddynamics.jagger.dbapi.model.WebClientProperties;
 import com.griddynamics.jagger.webclient.client.SessionDataService;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.griddynamics.jagger.webclient.client.dto.SummaryMetricDto;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
 import com.sencha.gxt.core.client.ValueProvider;
 import com.sencha.gxt.data.shared.ModelKeyProvider;
@@ -80,7 +81,7 @@ public class SessionComparisonPanel extends VerticalPanel {
         }
     });
 
-    private HashMap<MetricNode, List<MetricDto>> cache = new HashMap<MetricNode, List<MetricDto>>();
+    private HashMap<MetricNode, SummaryMetricDto> cache = new HashMap<MetricNode, SummaryMetricDto>();
 
     private WebClientProperties webClientProperties;
 
@@ -88,7 +89,7 @@ public class SessionComparisonPanel extends VerticalPanel {
 
     private boolean allTagsLoadComplete = false;
 
-    public HashMap<MetricNode, List<MetricDto>> getCachedMetrics() {
+    public HashMap<MetricNode, SummaryMetricDto> getCachedMetrics() {
         return cache;
     }
 
@@ -365,13 +366,13 @@ public class SessionComparisonPanel extends VerticalPanel {
     }
 
 
-    public void addMetricRecords(Map<MetricNode, List<MetricDto>> loaded) {
+    public void addMetricRecords(Map<MetricNode, SummaryMetricDto> loaded) {
 
         cache.putAll(loaded);
 
         List<MetricDto> loadedSorted = new ArrayList<MetricDto>();
-        for (List<MetricDto> metricDtos : loaded.values()) {
-            for (MetricDto metricDto : metricDtos) {
+        for (SummaryMetricDto summaryMetricDto : loaded.values()) {
+            for (MetricDto metricDto : summaryMetricDto.getMetricDtoList()) {
                 loadedSorted.add(metricDto);
             }
         }
@@ -394,9 +395,14 @@ public class SessionComparisonPanel extends VerticalPanel {
     }
 
 
-    public void removeRecords(List<MetricDto> list) {
+    public void removeRecords(List<SummaryMetricDto> list) {
 
-        for (MetricDto metric : list) {
+        List<MetricDto> list2 = new ArrayList<MetricDto>(list.size());
+        for (SummaryMetricDto smd : list) {
+            list2.addAll(smd.getMetricDtoList());
+        }
+
+        for (MetricDto metric : list2) {
             removeRecord(metric);
         }
     }

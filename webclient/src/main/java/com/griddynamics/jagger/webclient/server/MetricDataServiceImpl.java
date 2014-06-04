@@ -1,10 +1,11 @@
 package com.griddynamics.jagger.webclient.server;
 
 import com.griddynamics.jagger.dbapi.DatabaseService;
-import com.griddynamics.jagger.dbapi.dto.MetricDto;
-import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
+import com.griddynamics.jagger.dbapi.dto.*;
 import com.griddynamics.jagger.dbapi.model.MetricNode;
+import com.griddynamics.jagger.dbapi.model.MetricRankingProvider;
 import com.griddynamics.jagger.webclient.client.MetricDataService;
+import com.griddynamics.jagger.webclient.client.dto.SummaryMetricDto;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.util.*;
@@ -26,7 +27,7 @@ public class MetricDataServiceImpl implements MetricDataService {
     }
 
     @Override
-    public Map<MetricNode, List<MetricDto>> getMetrics(List<MetricNode> metricNodes) throws RuntimeException {
+    public Map<MetricNode, SummaryMetricDto> getMetrics(List<MetricNode> metricNodes) throws RuntimeException {
 
         List<MetricNameDto> metricNameDtos = new ArrayList<MetricNameDto>();
         for (MetricNode metricNode : metricNodes) {
@@ -34,19 +35,46 @@ public class MetricDataServiceImpl implements MetricDataService {
         }
         List<MetricDto> allMetricDto = databaseService.getSummaryByMetricNameDto(metricNameDtos);
 
-        Map<MetricNode, List<MetricDto>> resultMap = new HashMap<MetricNode, List<MetricDto>>();
+        Map<MetricNode, SummaryMetricDto> resultMap = new HashMap<MetricNode, SummaryMetricDto>();
         for (MetricDto metricDto : allMetricDto) {
             for (MetricNode metricNode : metricNodes) {
                 if (metricNode.getMetricNameDtoList().contains(metricDto.getMetricName())) {
                     if (!resultMap.containsKey(metricNode)) {
-                        resultMap.put(metricNode, new ArrayList<MetricDto>());
+                        resultMap.put(metricNode, new SummaryMetricDto());
                     }
-                    resultMap.get(metricNode).add(metricDto);
+                    resultMap.get(metricNode).getMetricDtoList().add(metricDto);
                     break;
                 }
             }
         }
 
+        // generate plotSeriesDto
+        for (MetricNode metricNode : resultMap.keySet()) {
+            SummaryMetricDto current = resultMap.get(metricNode);
+
+            PlotSeriesDto plotSeriesDto = generatePlotSeriesDto(metricNode.getDisplayName(), current.getMetricDtoList());
+            current.setPlotSeriesDto(plotSeriesDto);
+        }
+
+
         return resultMap;
+    }
+
+    private PlotSeriesDto generatePlotSeriesDto(String displayName, List<MetricDto> metricDtos) {
+
+        List<PlotDatasetDto> plotDatasets = new ArrayList<PlotDatasetDto>(metricDtos.size());
+
+        // sort trends plots
+        MetricRankingProvider.sortMetrics(metricDtos);
+
+        String plotHeader = metricDtos.get(0).getMetricName().getTest().getTaskName() + ", " +
+                displayName;
+
+        for (MetricDto metricDto : metricDtos) {
+            PlotDatasetDto plotDataSet = metricDto.getPlotDatasetDto();
+            plotDatasets.add(plotDataSet);
+        }
+
+        return new PlotSeriesDto(plotDatasets, "Sessions", "", plotHeader);
     }
 }

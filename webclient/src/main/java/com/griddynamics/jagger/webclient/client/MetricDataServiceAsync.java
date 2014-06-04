@@ -1,8 +1,8 @@
 package com.griddynamics.jagger.webclient.client;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.griddynamics.jagger.dbapi.dto.MetricDto;
 import com.griddynamics.jagger.dbapi.model.MetricNode;
+import com.griddynamics.jagger.webclient.client.dto.SummaryMetricDto;
 
 
 import java.util.List;
@@ -16,5 +16,5 @@ import java.util.Map;
  * To change this template use File | Settings | File Templates.
  */
 public interface MetricDataServiceAsync {
-    void getMetrics(List<MetricNode> metricNames, AsyncCallback<Map<MetricNode, List<MetricDto>>> async);
+    void getMetrics(List<MetricNode> metricNames, AsyncCallback<Map<MetricNode, SummaryMetricDto>> async);
 }
