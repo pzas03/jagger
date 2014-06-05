@@ -34,7 +34,7 @@ public class UserGroupsClockConfiguration implements WorkloadClockConfiguration 
     private static final Logger log = LoggerFactory.getLogger(UserGroupsClockConfiguration.class);
 
     private int tickInterval;
-    private final InvocationDelayConfiguration delay = FixedDelay.noDelay();
+    private InvocationDelayConfiguration delay = FixedDelay.noDelay();
     private AtomicBoolean shutdown;
     private List<ProcessingConfig.Test.Task.User> users;
 
@@ -51,6 +51,10 @@ public class UserGroupsClockConfiguration implements WorkloadClockConfiguration 
 
     public void setUsers(List<ProcessingConfig.Test.Task.User> users) {
         this.users = users;
+    }
+
+    public void setDelay(InvocationDelayConfiguration delay) {
+        this.delay = delay;
     }
 
     public List<ProcessingConfig.Test.Task.User> getUsers(){
@@ -73,8 +77,7 @@ public class UserGroupsClockConfiguration implements WorkloadClockConfiguration 
 
     @Override
     public WorkloadClock getClock() {
-        // TODO add delay to User configuration
-        return new UserClock(users, 0, tickInterval, shutdown);
+        return new UserClock(users, delay.getInvocationDelay().getValue(), tickInterval, shutdown);
     }
 
     @Override

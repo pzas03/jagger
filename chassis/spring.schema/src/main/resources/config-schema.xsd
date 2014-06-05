@@ -591,12 +591,15 @@
             startBy - interval (milliseconds) between starting new thread(s),
             startCount describes how many threads to start during every iteration,
             life describes how long threads will be alive (string of type "1m" or "1h", etc).
+            Optional:
+            delay - delay in milliseconds between invocations
         </xsd:documentation></xsd:annotation>
         <xsd:complexContent>
             <xsd:extension base="loadAbstract">
                 <xsd:choice>
                     <xsd:element name="user" type="userGroupIn" minOccurs="1" maxOccurs="unbounded"/>
                 </xsd:choice>
+                <xsd:attributeGroup ref="delayAttribute"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -611,6 +614,8 @@
             startBy - interval (milliseconds) between starting new thread(s),
             startCount describes how many threads to start during every iteration,
             life describes how long threads will be alive (string of type "1m" or "1h", etc).
+            Optional:
+            delay - delay in milliseconds between invocations
         </xsd:documentation></xsd:annotation>
         <xsd:complexContent>
             <xsd:extension base="loadAbstract">
@@ -625,6 +630,7 @@
         </xsd:documentation></xsd:annotation>
         <xsd:complexContent>
             <xsd:extension base="loadAbstract">
+                <xsd:attributeGroup ref="delayAttribute"/>
                 <xsd:attributeGroup ref="userAttributes"/>
             </xsd:extension>
         </xsd:complexContent>
@@ -633,9 +639,13 @@
     <xsd:complexType name="load-threads">
         <xsd:annotation><xsd:documentation>
             This type of load provides an exact count of threads, which will load your targets.
+            count - goal number of threads
+            Optional:
+            delay - delay in milliseconds between invocations
         </xsd:documentation></xsd:annotation>
         <xsd:complexContent>
             <xsd:extension base="loadAbstract">
+                <xsd:attributeGroup ref="delayAttribute"/>
                 <xsd:attributeGroup ref="virtualUserAttributes"/>
             </xsd:extension>
         </xsd:complexContent>
@@ -650,6 +660,7 @@
         </xsd:documentation></xsd:annotation>
         <xsd:complexContent>
             <xsd:extension base="loadAbstract">
+                <xsd:attributeGroup ref="delayAttribute"/>
                 <xsd:attributeGroup ref="invocationAttributes"/>
             </xsd:extension>
         </xsd:complexContent>
@@ -694,6 +705,14 @@
         </xsd:complexContent>
     </xsd:complexType>
 
+    <xsd:attributeGroup name="delayAttribute">
+        <xsd:attribute name="delay" type="xsd:string" use="optional">
+            <xsd:annotation><xsd:documentation>
+                Is a time(milliseconds) between invocations. By default it equals 0.
+            </xsd:documentation></xsd:annotation>
+        </xsd:attribute>
+    </xsd:attributeGroup>
+
     <xsd:attributeGroup name="userAttributes">
         <xsd:attribute name="count" type="xsd:string" use="required"/>
         <xsd:attribute name="startCount" type="xsd:string" use="required"/>
@@ -704,7 +723,6 @@
 
     <xsd:attributeGroup name="virtualUserAttributes">
         <xsd:attribute name="count" type="xsd:string" use="required"/>
-        <xsd:attribute name="delay" type="xsd:string" use="optional"/>
     </xsd:attributeGroup>
 
     <xsd:attributeGroup name="invocationAttributes">
@@ -716,11 +734,6 @@
         <xsd:attribute name="threads" type="xsd:string" use="required">
             <xsd:annotation><xsd:documentation>
                 Says how much threads jagger will use.
-            </xsd:documentation></xsd:annotation>
-        </xsd:attribute>
-        <xsd:attribute name="delay" type="xsd:string" default="0">
-            <xsd:annotation><xsd:documentation>
-                Is a time(milliseconds) between invocations. By default it equals 0.
             </xsd:documentation></xsd:annotation>
         </xsd:attribute>
         <xsd:attribute name="period" type="xsd:string" use="optional">
