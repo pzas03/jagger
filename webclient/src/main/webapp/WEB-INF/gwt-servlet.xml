@@ -101,6 +101,8 @@
 
     <bean id="fetchUtil" class="com.griddynamics.jagger.dbapi.util.FetchUtil"/>
 
+    <bean id="sessionScopeDataUtil" class="com.griddynamics.jagger.dbapi.util.SessionScopeDataUtil"/>
+
     <bean id= "dataSaverService" class="com.griddynamics.jagger.dbapi.DataSaverServiceImpl"/>
 
     <bean id="webClientProperties" class="com.griddynamics.jagger.dbapi.model.WebClientProperties">
@@ -145,6 +147,8 @@
         <property name="customMetricPlotFetcher" ref="customMetricPlotFetcher"/>
         <property name="customTestGroupMetricPlotFetcher" ref="customTestGroupMetricPlotFetcher"/>
         <property name="monitoringMetricPlotFetcher" ref="monitoringMetricPlotFetcher"/>
+        <property name="sessionScopeTestGroupMetricPlotFetcher" ref="sessionScopeTestGroupMetricPlotFetcher"/>
+        <property name="sessionScopeMonitoringMetricPlotFetcher" ref="sessionScopeMonitoringMetricPlotFetcher"/>
 
         <property name="standardMetricSummaryFetcher" ref="standardMetricSummaryFetcher"/>
         <property name="durationMetricSummaryFetcher" ref="durationMetricSummaryFetcher"/>
@@ -195,6 +199,22 @@
         <property name="threadPool" ref="executorService"/>
         <property name="monitoringPlotGroups" ref="monitoringPlotGroups"/>
     </bean>
+
+    <bean id="sessionScopeTestGroupMetricPlotFetcher" class="com.griddynamics.jagger.dbapi.fetcher.SessionScopeTestGroupMetricPlotFetcher">
+        <property name="legendProvider" ref="legendProvider"/>
+        <property name="threadPool" ref="executorService"/>
+        <property name="fetchUtil" ref="fetchUtil"/>
+        <property name="sessionScopeDataUtil" ref="sessionScopeDataUtil"/>
+    </bean>
+
+    <bean id="sessionScopeMonitoringMetricPlotFetcher" class="com.griddynamics.jagger.dbapi.fetcher.SessionScopeMonitoringMetricPlotFetcher" init-method="init">
+        <property name="legendProvider" ref="legendProvider"/>
+        <property name="threadPool" ref="executorService"/>
+        <property name="monitoringPlotGroups" ref="monitoringPlotGroups"/>
+        <property name="sessionScopeDataUtil" ref="sessionScopeDataUtil"/>
+    </bean>
+
+
 
     <!--=======Fetching data for Summary table=========-->
 

@@ -30,6 +30,10 @@ public abstract class AbstractMetricPlotFetcher extends PlotsDbMetricDataFetcher
             log.warn("No plot data found for metrics : {}", metricNames);
             return Collections.emptySet();
         }
+        return getResult(allRawData, metricNames);
+    }
+
+    protected Set<Pair<MetricNameDto, List<PlotDatasetDto>>> getResult(Collection<MetricRawData> allRawData, List<MetricNameDto> metricNames) {
 
         Map<Long, Multimap<String, MetricRawData>> taskIdMetricIdRawMap = createMappedPlotDatasets(metricNames);
 
@@ -120,13 +124,13 @@ public abstract class AbstractMetricPlotFetcher extends PlotsDbMetricDataFetcher
     }
 
 
-    protected static class MetricRawData {
+    public static class MetricRawData {
 
-        String metricId;
-        Long workloadTaskDataId;
-        String sessionId;
-        Long time;
-        Double value;
+        private String metricId;
+        private Long workloadTaskDataId;
+        private String sessionId;
+        private Long time;
+        private Double value;
 
         public void setMetricId(String metricId) {
             this.metricId = metricId;

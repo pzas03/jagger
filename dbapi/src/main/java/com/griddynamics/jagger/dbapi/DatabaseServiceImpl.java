@@ -72,6 +72,8 @@ public class DatabaseServiceImpl implements DatabaseService {
     private CustomMetricPlotFetcher customMetricPlotFetcher;
     private CustomTestGroupMetricPlotFetcher customTestGroupMetricPlotFetcher;
     private MonitoringMetricPlotFetcher monitoringMetricPlotFetcher;
+    private SessionScopeTestGroupMetricPlotFetcher sessionScopeTestGroupMetricPlotFetcher;
+    private SessionScopeMonitoringMetricPlotFetcher sessionScopeMonitoringMetricPlotFetcher;
 
     private StandardMetricSummaryFetcher standardMetricSummaryFetcher;
     private DurationMetricSummaryFetcher durationMetricSummaryFetcher;
@@ -152,6 +154,16 @@ public class DatabaseServiceImpl implements DatabaseService {
     @Required
     public void setMonitoringMetricPlotFetcher(MonitoringMetricPlotFetcher monitoringMetricPlotFetcher) {
         this.monitoringMetricPlotFetcher = monitoringMetricPlotFetcher;
+    }
+
+    @Required
+    public void setSessionScopeTestGroupMetricPlotFetcher(SessionScopeTestGroupMetricPlotFetcher sessionScopeTestGroupMetricPlotFetcher) {
+        this.sessionScopeTestGroupMetricPlotFetcher = sessionScopeTestGroupMetricPlotFetcher;
+    }
+
+    @Required
+    public void setSessionScopeMonitoringMetricPlotFetcher(SessionScopeMonitoringMetricPlotFetcher sessionScopeMonitoringMetricPlotFetcher) {
+        this.sessionScopeMonitoringMetricPlotFetcher = sessionScopeMonitoringMetricPlotFetcher;
     }
 
     @Required
@@ -319,8 +331,10 @@ public class DatabaseServiceImpl implements DatabaseService {
                     fetchMap.put(throughputMetricPlotFetcher, metricNameDto);
                     break;
                 case SESSION_SCOPE_MONITORING:
+                    fetchMap.put(sessionScopeMonitoringMetricPlotFetcher, metricNameDto);
                     break;
                 case SESSION_SCOPE_TG:
+                    fetchMap.put(sessionScopeTestGroupMetricPlotFetcher, metricNameDto);
                     break;
                 default:  // if anything else
                     log.error("MetricNameDto with origin : {} appears in metric name list for plot retrieving ({})", metricNameDto.getOrigin(), metricNameDto);
@@ -1086,7 +1100,10 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             // get tree
             for (TaskDataDto tdd : taskList) {
-                List<PlotNode> metricNodeList = map.get(tdd);
+                List<PlotNode> metricNodeList = new ArrayList<PlotNode>();
+                if (map.containsKey(tdd)) {
+                    metricNodeList.addAll(map.get(tdd));
+                }
                 if (monitoringMap.containsKey(tdd)) {
                     metricNodeList.addAll(monitoringMap.get(tdd));
                 }
