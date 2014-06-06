@@ -228,7 +228,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     //===========================
 
     @Override
-    public Map<MetricNode, PlotSeriesDto> getPlotDataByMetricNode(Set<MetricNode> plots) throws IllegalArgumentException{
+    public Map<MetricNode, PlotSeriesDto> getPlotDataByMetricNode(Set<MetricNode> plots) {
 
         if (plots.isEmpty()) {
             return Collections.emptyMap();
@@ -236,11 +236,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
         long temp = System.currentTimeMillis();
 
-        Set<MetricNameDto> metricNameDtoSet = new HashSet<MetricNameDto>();
-
-        for (MetricNode metricNode : plots) {
-            metricNameDtoSet.addAll(metricNode.getMetricNameDtoList());
-        }
+        Set<MetricNameDto> metricNameDtoSet = MetricNameUtil.getMetricNameDtoSet(plots);
 
         Map<MetricNameDto,List<PlotDatasetDto>> resultMap = getPlotDataByMetricNameDto(metricNameDtoSet);
 
@@ -286,6 +282,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                 = new HashMap<String, List<MetricNodeWithAttachment<PlotDatasetDto>>>();
         Set<String> legendGroups = new HashSet<String>();
 
+        // used to allow grouping identical legends
         int i = 1;
         for (PlotDatasetDto curve : curves) {
 
@@ -452,7 +449,51 @@ public class DatabaseServiceImpl implements DatabaseService {
     //===========================
 
     @Override
-    public List<MetricDto> getSummaryByMetricNameDto(List<MetricNameDto> metricNames) {
+    public Map<MetricNode, SummaryMetricDto> getSummaryMetricDataByMetricNodes(List<MetricNode> metricNodes) {
+
+        if (metricNodes.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        long temp = System.currentTimeMillis();
+        Set<MetricNameDto> metricNameDtoSet = MetricNameUtil.getMetricNameDtoSet(metricNodes);
+
+        List<MetricDto> allMetricDto = getSummaryByMetricNameDto(metricNameDtoSet);
+
+        Map<MetricNode, SummaryMetricDto> resultMap = new HashMap<MetricNode, SummaryMetricDto>();
+        for (MetricDto metricDto : allMetricDto) {
+            for (MetricNode metricNode : metricNodes) {
+                if (metricNode.getMetricNameDtoList().contains(metricDto.getMetricName())) {
+                    if (!resultMap.containsKey(metricNode)) {
+                        resultMap.put(metricNode, new SummaryMetricDto());
+                    }
+                    resultMap.get(metricNode).getMetricDtoList().add(metricDto);
+                    break;
+                }
+            }
+        }
+
+        // generate plotSeriesDto
+        for (MetricNode metricNode : resultMap.keySet()) {
+            SummaryMetricDto currentSummaryDto = resultMap.get(metricNode);
+            List<PlotDatasetDto> datasetDtos = new ArrayList<PlotDatasetDto>(currentSummaryDto.getMetricDtoList().size());
+
+            MetricRankingProvider.sortMetrics(currentSummaryDto.getMetricDtoList());
+            for (MetricDto metricDto : currentSummaryDto.getMetricDtoList()) {
+                datasetDtos.add(DataProcessingUtil.generatePlotDatasetDto(metricDto));
+            }
+
+            currentSummaryDto.setPlotSeriesDto(generatePlotSeriesDto(metricNode, datasetDtos));
+        }
+
+        log.debug("Total time of Summary Data retrieving for " + metricNodes.size() + " metric nodes : " + (System.currentTimeMillis() - temp));
+
+        return resultMap;
+    }
+
+
+    @Override
+    public List<MetricDto> getSummaryByMetricNameDto(Set<MetricNameDto> metricNames) {
 
         long temp = System.currentTimeMillis();
         List<MetricDto> result = new ArrayList<MetricDto>(metricNames.size());

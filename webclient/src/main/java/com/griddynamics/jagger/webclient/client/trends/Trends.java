@@ -549,7 +549,13 @@ public class Trends extends DefaultActivity {
 
     private void setupControlTree() {
 
-        controlTree = new ControlTree<String>(new TreeStore<AbstractIdentifyNode>(modelKeyProvider), new SimpleNodeValueProvider());
+        controlTree = new ControlTree<String>(new TreeStore<AbstractIdentifyNode>(new ModelKeyProvider<AbstractIdentifyNode>() {
+
+            @Override
+            public String getKey(AbstractIdentifyNode item) {
+                return item.getId();
+            }
+        }), new SimpleNodeValueProvider());
         setupControlTree(controlTree);
 
         Label label = new Label("Choose at least One session");
@@ -562,9 +568,6 @@ public class Trends extends DefaultActivity {
 
     private void setupControlTree(ControlTree<String> tree) {
         tree.setTitle("Control Tree");
-        tree.setCheckable(true);
-        tree.setCheckStyle(Tree.CheckCascade.NONE);
-        tree.setCheckNodes(Tree.CheckNodes.BOTH);
         tree.setWidth("100%");
         tree.setHeight("100%");
         CheckHandlerMap.setTree(tree);
@@ -1165,13 +1168,22 @@ public class Trends extends DefaultActivity {
 
     private ControlTree<String> createControlTree(AbstractIdentifyNode result) {
 
-        TreeStore<AbstractIdentifyNode> temporaryStore = new TreeStore<AbstractIdentifyNode>(modelKeyProvider);
+        TreeStore<AbstractIdentifyNode> temporaryStore = new TreeStore<AbstractIdentifyNode>(new ModelKeyProvider<AbstractIdentifyNode>() {
+
+            @Override
+            public String getKey(AbstractIdentifyNode item) {
+                return item.getId();
+            }
+        });
         ControlTree<String> newTree = new ControlTree<String>(temporaryStore, new SimpleNodeValueProvider());
-        setupControlTree(newTree);
 
         for (AbstractIdentifyNode node : result.getChildren()) {
             addToStore(temporaryStore, node);
         }
+
+        newTree.setCheckable(true);
+        newTree.setCheckStyle(Tree.CheckCascade.NONE);
+        newTree.setCheckNodes(Tree.CheckNodes.BOTH);
 
         return newTree;
     }
@@ -1284,6 +1296,7 @@ public class Trends extends DefaultActivity {
 
                     } else if (controlTree.getStore().getAllItemsCount() == 0) {
                         controlTree = createControlTree(result);
+                        setupControlTree(controlTree);
 
                         controlTree.setRootNode(result);
                         controlTreePanel.clear();
@@ -1471,7 +1484,7 @@ public class Trends extends DefaultActivity {
 
        private void updateControlTree(RootNode result) {
             ControlTree<String> tempTree = createControlTree(result);
-
+            setupControlTree(tempTree);
             tempTree.disableEvents();
             for (AbstractIdentifyNode s : controlTree.getStore().getAll()) {
                 AbstractIdentifyNode model = tempTree.getStore().findModelWithKey(s.getId());

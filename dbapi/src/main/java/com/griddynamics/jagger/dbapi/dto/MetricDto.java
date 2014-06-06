@@ -14,17 +14,7 @@ public class MetricDto implements Serializable {
 
     private MetricNameDto metricName;
 
-    private PlotDatasetDto plotDatasetDto;
-
     private Set<MetricValueDto> values;
-
-    public PlotDatasetDto getPlotDatasetDto() {
-        return plotDatasetDto;
-    }
-
-    public void setPlotDatasetDto(PlotDatasetDto plotDatasetDto) {
-        this.plotDatasetDto = plotDatasetDto;
-    }
 
     public Set<MetricValueDto> getValues() {
         return values;

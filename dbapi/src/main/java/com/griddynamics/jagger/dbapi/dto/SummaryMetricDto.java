@@ -1,7 +1,4 @@
-package com.griddynamics.jagger.webclient.client.dto;
-
-import com.griddynamics.jagger.dbapi.dto.MetricDto;
-import com.griddynamics.jagger.dbapi.dto.PlotSeriesDto;
+package com.griddynamics.jagger.dbapi.dto;
 
 import java.io.Serializable;
 import java.util.ArrayList;

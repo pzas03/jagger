@@ -11,7 +11,7 @@ import javax.persistence.PersistenceException;
 import java.text.DecimalFormat;
 import java.util.*;
 
-public class CustomMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
+public class CustomMetricSummaryFetcher extends DbMetricDataFetcher<MetricDto> {
 
     @Override
     protected Set<MetricDto> fetchData(List<MetricNameDto> metricNames) {
@@ -71,10 +71,6 @@ public class CustomMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
 
             value.setSessionId(Long.parseLong((String)mas[1]));
             metricDto.getValues().add(value);
-        }
-
-        for (MetricDto md : resultMap.values()) {
-            md.setPlotDatasetDto(generatePlotDatasetDto(md));
         }
 
         return new HashSet<MetricDto>(resultMap.values());

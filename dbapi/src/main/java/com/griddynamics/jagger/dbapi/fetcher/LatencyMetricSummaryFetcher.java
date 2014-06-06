@@ -8,7 +8,7 @@ import com.griddynamics.jagger.dbapi.util.MetricNameUtil;
 
 import java.util.*;
 
-public class LatencyMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
+public class LatencyMetricSummaryFetcher extends DbMetricDataFetcher<MetricDto> {
 
     @Override
     protected Set<MetricDto> fetchData(List<MetricNameDto> metricNames) {
@@ -67,10 +67,6 @@ public class LatencyMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
             value.setValue(String.format("%.3f", (Double)temp[0] / 1000));
             value.setSessionId(Long.parseLong(temp[2].toString()));
             metricDto.getValues().add(value);
-        }
-
-        for (MetricDto md : resultMap.values()) {
-            md.setPlotDatasetDto(generatePlotDatasetDto(md));
         }
 
         return new HashSet<MetricDto>(resultMap.values());

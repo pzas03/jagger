@@ -303,7 +303,7 @@ public class DefaultDataService implements DataService {
     @Override
     public Map<MetricEntity, MetricSummaryValueEntity> getMetricSummary(Collection<MetricEntity> metrics) {
 
-        List<MetricNameDto> metricNameDtoList = new ArrayList<MetricNameDto>();
+        Set<MetricNameDto> metricNameDtoList = new HashSet<MetricNameDto>();
         Map<MetricNameDto,MetricEntity> matchMap = new HashMap<MetricNameDto, MetricEntity>();
 
         for (MetricEntity metric : metrics) {

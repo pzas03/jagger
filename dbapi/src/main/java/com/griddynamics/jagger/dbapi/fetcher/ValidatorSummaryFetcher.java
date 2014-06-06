@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 
-public class ValidatorSummaryFetcher extends SummaryDbMetricDataFetcher {
+public class ValidatorSummaryFetcher extends DbMetricDataFetcher<MetricDto> {
     @Override
     protected Set<MetricDto> fetchData(List<MetricNameDto> metricNames) {
 
@@ -81,11 +81,6 @@ public class ValidatorSummaryFetcher extends SummaryDbMetricDataFetcher {
             value.setSessionId(Long.parseLong((String)mas[3]));
 
             metricDto.getValues().add(value);
-        }
-
-
-        for (MetricDto metricDto: resultMap.values()) {
-            metricDto.setPlotDatasetDto(generatePlotDatasetDto(metricDto));
         }
 
         return new HashSet<MetricDto>(resultMap.values());

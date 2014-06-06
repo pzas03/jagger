@@ -7,7 +7,7 @@ import com.griddynamics.jagger.dbapi.entity.WorkloadTaskData;
 
 import java.util.*;
 
-public class StandardMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
+public class StandardMetricSummaryFetcher extends DbMetricDataFetcher<MetricDto> {
 
     private static final String THROUGHPUT = "throughput";
     private static final String AVG_LATENCY = "avgLatency";
@@ -80,7 +80,6 @@ public class StandardMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
                     }
                 }
             }
-            metricDto.setPlotDatasetDto(generatePlotDatasetDto(metricDto));
         }
 
         return resultSet;

@@ -12,7 +12,7 @@ import com.griddynamics.jagger.dbapi.model.MetricRankingProvider;
 import com.griddynamics.jagger.dbapi.model.WebClientProperties;
 import com.griddynamics.jagger.webclient.client.SessionDataService;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.griddynamics.jagger.webclient.client.dto.SummaryMetricDto;
+import com.griddynamics.jagger.dbapi.dto.SummaryMetricDto;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
 import com.sencha.gxt.core.client.ValueProvider;
 import com.sencha.gxt.data.shared.ModelKeyProvider;

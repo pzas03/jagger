@@ -9,7 +9,7 @@ import com.griddynamics.jagger.util.TimeUtils;
 import java.math.BigInteger;
 import java.util.*;
 
-public class DurationMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
+public class DurationMetricSummaryFetcher extends DbMetricDataFetcher<MetricDto> {
 
     @Override
     protected Set<MetricDto> fetchData(List<MetricNameDto> durationMetricNames) {
@@ -74,10 +74,6 @@ public class DurationMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
             value.setValue(String.valueOf((date[0].getTime() - date[1].getTime()) / 1000));
             value.setSessionId(Long.parseLong(String.valueOf(entry[0])));
             metricDto.getValues().add(value);
-        }
-
-        for (MetricDto md : resultMap.values()) {
-            md.setPlotDatasetDto(generatePlotDatasetDto(md));
         }
 
         return new HashSet<MetricDto>(resultMap.values());

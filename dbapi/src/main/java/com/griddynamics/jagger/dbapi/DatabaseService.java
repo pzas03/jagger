@@ -34,10 +34,15 @@ public interface DatabaseService {
      * @return plot values for metric names */
     Map<MetricNameDto, List<PlotDatasetDto>> getPlotDataByMetricNameDto(Set<MetricNameDto> metricNames) throws IllegalArgumentException;
 
+    /** Returns map <metricNode, plot values> for specific metric nodes from control tree
+     * @param metricNodes - set of metric nodes
+     * @return plot values for metric nodes */
+    Map<MetricNode, SummaryMetricDto> getSummaryMetricDataByMetricNodes(List<MetricNode> metricNodes) throws IllegalArgumentException;
+
     /** Returns summary values for current metrics
      * @param metricNames - metric names
      * @return list of summary values */
-    List<MetricDto> getSummaryByMetricNameDto(List<MetricNameDto> metricNames);
+    List<MetricDto> getSummaryByMetricNameDto(Set<MetricNameDto> metricNames);
 
     /** Returns test info for specified tests
      * @param taskDataDtos - selected tests

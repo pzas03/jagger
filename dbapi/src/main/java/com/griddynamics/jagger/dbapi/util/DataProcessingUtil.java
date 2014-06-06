@@ -1,14 +1,14 @@
 package com.griddynamics.jagger.dbapi.util;
 
 
+import com.griddynamics.jagger.dbapi.dto.MetricDto;
+import com.griddynamics.jagger.dbapi.dto.MetricValueDto;
+import com.griddynamics.jagger.dbapi.dto.PlotDatasetDto;
 import com.griddynamics.jagger.dbapi.dto.PointDto;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
@@ -45,6 +45,43 @@ public class DataProcessingUtil {
             return getMessageFromLastCause(th.getCause());
 
         return th.getMessage();
+    }
+
+    /**
+     * Generate Curve from values in MetricDto object as
+     * {(sessionId1, val1),(sessionId2, val2), ... (sessionIdn, valn)}
+     *
+     * @param metricDto contains values to generate curve
+     * @return curve
+     */
+    public static PlotDatasetDto generatePlotDatasetDto(MetricDto metricDto) {
+        List<PointDto> list = new ArrayList<PointDto>();
+
+        List<MetricValueDto> metricList = new ArrayList<MetricValueDto>();
+        for(MetricValueDto value :metricDto.getValues()) {
+            metricList.add(value);
+        }
+
+        Collections.sort(metricList, new Comparator<MetricValueDto>() {
+
+            @Override
+            public int compare(MetricValueDto o1, MetricValueDto o2) {
+                return  o2.getSessionId() < o1.getSessionId() ? 1 : -1;
+            }
+        });
+
+        for (MetricValueDto value: metricList) {
+            double temp = Double.parseDouble(value.getValue());
+            list.add(new PointDto(value.getSessionId(), temp));
+        }
+
+        String legend = metricDto.getMetricName().getMetricDisplayName();
+
+        return new PlotDatasetDto(
+                list,
+                legend,
+                ColorCodeGenerator.getHexColorCode()
+        );
     }
 }
 
