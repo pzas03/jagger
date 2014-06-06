@@ -7,6 +7,6 @@
         <property name="fileStorage" ref="fileStore"/>
     </bean>
 
-    <bean id="fileStore" class="com.griddynamics.jagger.webclient.server.InMemoryNewFileStorage"/>
+    <bean id="fileStore" class="com.griddynamics.jagger.webclient.server.InMemoryFileStorage"/>
 
 </beans>

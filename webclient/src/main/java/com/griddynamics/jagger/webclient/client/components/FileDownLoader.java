@@ -16,13 +16,12 @@ public class FileDownLoader {
 
     /**
      * download plot in csv for MetricNode */
-    public static void downloadPlotInCsv(MetricNode metricNode) {
+    public static void downloadPlotInCsv(final MetricNode metricNode) {
 
         DownloadService.Async.getInstance().createPlotCsvFile(metricNode, new AsyncCallback<String>() {
             @Override
             public void onFailure(Throwable caught) {
-                // or any other message
-                new ExceptionPanel(caught.getMessage());
+                new ExceptionPanel("Failed to create cvs file for " + metricNode.getDisplayName() + " :\n" + caught.getMessage());
             }
 
             @Override

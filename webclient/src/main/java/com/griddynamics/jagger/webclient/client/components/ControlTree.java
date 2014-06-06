@@ -2,11 +2,9 @@ package com.griddynamics.jagger.webclient.client.components;
 
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.uibinder.client.UiConstructor;
-import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
 import com.griddynamics.jagger.dbapi.dto.TaskDataDto;
 import com.griddynamics.jagger.webclient.client.components.control.CheckHandlerMap;
 import com.griddynamics.jagger.dbapi.model.*;
-import com.griddynamics.jagger.dbapi.dto.SessionPlotNameDto;
 import com.sencha.gxt.core.client.ValueProvider;
 import com.sencha.gxt.data.shared.TreeStore;
 import com.sencha.gxt.widget.core.client.event.BeforeCheckChangeEvent;
@@ -15,7 +13,6 @@ import com.sencha.gxt.widget.core.client.event.BeforeExpandItemEvent;
 import com.sencha.gxt.widget.core.client.event.CheckChangeEvent;
 import com.sencha.gxt.widget.core.client.tree.Tree;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -316,22 +313,5 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
             setExpanded(rootNode.getSummaryNode(), !boo);
             setExpanded(rootNode.getDetailsNode(), boo);
         }
-    }
-
-    public void setCheckState(String elementId, CheckState checkState) {
-
-        AbstractIdentifyNode abstractIdentifyNode = getStore().findModelWithKey(elementId);
-        setChecked(abstractIdentifyNode, checkState);
-    }
-
-    public MetricNode findNode(String metricNodeId) {
-        AbstractIdentifyNode metricNode =  store.findModelWithKey(metricNodeId);
-        if (metricNode != null) {
-            // todo : put MetricNode in every plotContainer
-            if (metricNode instanceof MetricNode) {
-                return (MetricNode) metricNode;
-            }
-        }
-        return null;
     }
 }

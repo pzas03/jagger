@@ -1,14 +1,11 @@
 package com.griddynamics.jagger.webclient.server;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class InMemoryNewFileStorage implements NewFileStorage {
+public class InMemoryFileStorage implements NewFileStorage {
 
     private Map<String, ByteArray> store = new HashMap<String, ByteArray>();
 
@@ -43,6 +40,7 @@ public class InMemoryNewFileStorage implements NewFileStorage {
 
     /**
      * Wrapper of byte array
+     * Needs to store the state of byte buffer.
      */
     private static class ByteArray {
 
@@ -73,6 +71,7 @@ public class InMemoryNewFileStorage implements NewFileStorage {
     /**
      * ByteArrayOutputStream that write to external byte array
      * Note that it is total copy of ByteArrayOutputStream, except wrapped buffer.
+     * This extension allows to store byte buffer current state into external ByteArray object.
      */
     private static class ExternalByteArrayOutputStream extends OutputStream {
 

@@ -9,6 +9,8 @@ import com.griddynamics.jagger.dbapi.model.PlotNode;
 import com.griddynamics.jagger.webclient.client.DownloadService;
 import com.griddynamics.jagger.webclient.client.MetricDataService;
 import com.griddynamics.jagger.webclient.client.PlotProviderService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.io.OutputStream;
@@ -21,6 +23,8 @@ public class DownloadServiceImpl implements DownloadService {
     private MetricDataService metricDataService;
 
     private NewFileStorage fileStorage;
+
+    private Logger log = LoggerFactory.getLogger(DownloadServiceImpl.class);
 
     @Required
     public void setPlotProviderService(PlotProviderService plotProviderService) {
@@ -45,9 +49,13 @@ public class DownloadServiceImpl implements DownloadService {
             PlotSeriesDto plot;
 
             if (metricNode instanceof PlotNode) {
+                // processing metric plots
+
                 Map<MetricNode, PlotSeriesDto> plotsMap = plotProviderService.getPlotData(metricNodeSet);
                 plot = plotsMap.get(metricNode);
             } else {
+                // processing trends plots
+
                 Map<MetricNode, List<MetricDto>> map = metricDataService.getMetrics(metricNodeSet);
 
                 List<MetricDto> metricDtos = map.get(metricNode);
@@ -78,7 +86,7 @@ public class DownloadServiceImpl implements DownloadService {
 
             String sessionsPrefix = getSessionPrefix(metricNode.getMetricNameDtoList());
 
-            String fileKey = sessionsPrefix + ':' + plot.getPlotHeader();
+            String fileKey = sessionsPrefix + '-' + plot.getPlotHeader().replaceAll(",", "_");
 
             if (fileStorage.exists(fileKey)) {
                 // return same object
@@ -92,7 +100,8 @@ public class DownloadServiceImpl implements DownloadService {
 
             return fileKey;
         } catch (Exception e) {
-            throw new RuntimeException("errors while creating csv file", e);
+            log.error("Errors while creating csv file for " + metricNode, e);
+            throw new RuntimeException("Errors while creating csv file for " + metricNode, e);
         }
     }
 
@@ -104,7 +113,7 @@ public class DownloadServiceImpl implements DownloadService {
             sessionIds.addAll(metricNameDto.getTest().getSessionIds());
         }
 
-        Joiner joiner = Joiner.on(", ");
+        Joiner joiner = Joiner.on("_");
         return joiner.join(sessionIds);
     }
 }
