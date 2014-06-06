@@ -238,6 +238,7 @@ public class PlotsPanel extends Composite {
 
         if (out) {
             if (maxVisible >= maxRange && minVisible <= 0) {
+                // do nothing when plot in visible range
                 return;
             }
 
