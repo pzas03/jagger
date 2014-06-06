@@ -58,7 +58,7 @@ public class PlotRepresentation extends VerticalPanel {
     public void calculateScrollWidth() {
         if (scrollbar.isAttached()) {
             double plotWidth = getPlotWidth() - TOTAL_BORDERS_WIDTH;
-            double visibleRange = simplePlot.getAxes().getX().getMaximumValue() - simplePlot.getAxes().getX().getMinimumValue();
+            double visibleRange = getVisibleRange();
             double ratio = maxRange / visibleRange;
             scrollbar.setScrollWidth((int) (plotWidth * ratio));
         }
@@ -88,12 +88,12 @@ public class PlotRepresentation extends VerticalPanel {
     public void panToPercent(double percent) {
 
         double minVisible = simplePlot.getAxes().getX().getMinimumValue();
-        double maxVisible = simplePlot.getAxes().getX().getMaximumValue();
+        double visibleRange = getVisibleRange();
 
-        double valueOnScaleShouldBe = percent * (maxRange - maxVisible + minVisible);
+        double valueOnScaleShouldBe = percent * (maxRange - visibleRange);
 
         double deltaInScale = valueOnScaleShouldBe - minVisible;
-        double pixelsToScale = getPlotWidth() / (maxVisible - minVisible);
+        double pixelsToScale = getPlotWidth() / visibleRange;
 
         Pan pan = Pan.create().setLeft(deltaInScale * pixelsToScale).setPreventEvent(true);
         simplePlot.pan(pan);
@@ -110,5 +110,9 @@ public class PlotRepresentation extends VerticalPanel {
 
     private double getPlotWidth() {
         return simplePlot.getOffsetWidth() - simplePlot.getOptions().getYAxisOptions().getLabelWidth();
+    }
+
+    private double getVisibleRange() {
+        return simplePlot.getAxes().getX().getMaximumValue() - simplePlot.getAxes().getX().getMinimumValue();
     }
 }
