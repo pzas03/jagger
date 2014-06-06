@@ -1,5 +1,8 @@
 package com.griddynamics.jagger.dbapi.dto;
 
+import com.griddynamics.jagger.dbapi.model.MetricGroupNode;
+import com.griddynamics.jagger.dbapi.model.MetricNodeWithAttachment;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
@@ -15,6 +18,16 @@ public class PlotSeriesDto implements Serializable {
     private String yAxisLabel;
     private String plotHeader;
     private double yAxisMin;
+
+    private MetricGroupNode<MetricNodeWithAttachment<PlotDatasetDto>> legendTree;
+
+    public MetricGroupNode<MetricNodeWithAttachment<PlotDatasetDto>> getLegendTree() {
+        return legendTree;
+    }
+
+    public void setLegendTree(MetricGroupNode<MetricNodeWithAttachment<PlotDatasetDto>> legendTree) {
+        this.legendTree = legendTree;
+    }
 
     public PlotSeriesDto() {
     }

@@ -2,6 +2,7 @@ package com.griddynamics.jagger.webclient.client.components;
 
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.googlecode.gflot.client.SimplePlot;
 
@@ -13,6 +14,8 @@ public class PlotRepresentation extends VerticalPanel {
     private SimplePlot simplePlot;
     private Label xLabel;
 
+   // private Panel legendPanel;
+
     public PlotRepresentation(FlowPanel zoomPanel, SimplePlot simplePlot, Label xLabel) {
         super();
         this.zoomPanel = zoomPanel;
@@ -23,6 +26,11 @@ public class PlotRepresentation extends VerticalPanel {
         this.add(xLabel);
         this.setWidth("100%");
         simplePlot.setSize("100%", "100%");
+    }
+
+    public void setLegendPanel(Panel legendPanel) {
+   //     this.legendPanel = legendPanel;
+        this.add(legendPanel);
     }
 
     public FlowPanel getZoomPanel() {

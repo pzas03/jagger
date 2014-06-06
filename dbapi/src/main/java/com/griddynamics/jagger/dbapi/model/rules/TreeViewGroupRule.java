@@ -103,6 +103,87 @@ public class TreeViewGroupRule extends Rule{
         }
     }
 
+
+    /**
+     * Filter Nodes without looking at inner MetricNameDto
+     * @param parentId id of parent node
+     * @param metricNodeList List of nodes to be filtered
+     * @param <M> extends MetricNode
+     * @return grouped metricNodeList
+     */
+    public <M extends MetricNode> MetricGroupNode<M> filterByNode(String parentId, List<M> metricNodeList) {
+
+        MetricGroupNode<M> result = new MetricGroupNode<M>(displayName);
+        boolean returnResult = false;
+
+        // null is required only for root node
+        // when no parent available
+        String id;
+        if (parentId == null) {
+            id = this.id;
+        }
+        else {
+            // depth of tree is not limited => be careful with long id. They will concatenate
+            // G goes for group
+            id = parentId + "G_" + this.id;
+        }
+
+        // unique Id for metric group
+        result.setId(id);
+
+        // first ask all children to filter
+        List<MetricGroupNode> metricGroupNodeListFromChildren = new ArrayList<MetricGroupNode>();
+        if (children != null) {
+            for (TreeViewGroupRule child : children) {
+                MetricGroupNode childResult = child.filterByNode(id, metricNodeList);
+                if (childResult != null) {
+                    metricGroupNodeListFromChildren.add(childResult);
+                }
+            }
+            if (metricGroupNodeListFromChildren.size() > 0) {
+                result.setMetricGroupNodeList(metricGroupNodeListFromChildren);
+                returnResult = true;
+            }
+        }
+
+
+        // apply own filter
+        if (rule != null) {
+            List<M> metricsPerRule = new ArrayList<M>();
+            Iterator<M> i = metricNodeList.iterator();
+            while (i.hasNext()) {
+                M metricNode = i.next();
+
+                // match
+                String metric;
+                // node can contain more than single metric
+                // current strategy: if at least one metric match => add node to group
+                if (filterBy == By.DISPLAY_NAME) {
+                    metric = metricNode.getDisplayName();
+                }
+                else {
+                    metric = metricNode.getId();
+                }
+                if (metric.matches(rule)) {
+                    metricsPerRule.add(metricNode);
+                    i.remove();
+                    //break;
+                }
+            }
+            if (metricsPerRule.size() > 0) {
+                result.setMetrics(metricsPerRule);
+                returnResult = true;
+            }
+        }
+
+        if (returnResult) {
+            return result;
+        }
+        else {
+            return null;
+        }
+    }
+
     public List<TreeViewGroupRule> getChildren() {
         return children;
     }

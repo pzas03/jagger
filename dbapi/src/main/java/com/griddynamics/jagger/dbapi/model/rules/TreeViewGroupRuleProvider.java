@@ -5,6 +5,7 @@ import com.griddynamics.jagger.dbapi.parameter.GroupKey;
 import com.griddynamics.jagger.util.StandardMetricsNamesUtil;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -55,6 +56,21 @@ public class TreeViewGroupRuleProvider {
             regex += ").*";
 
             firstLevelFilters.add(new TreeViewGroupRule(Rule.By.ID,groupDisplayName,groupDisplayName,regex));
+        }
+
+        // Root filter - will match all metrics
+        return new TreeViewGroupRule(Rule.By.ID,rootId,rootName,".*",firstLevelFilters);
+    }
+
+    public TreeViewGroupRule provideWithPredefinedGroups(String rootId, String rootName,
+                                                         Collection<String> legendGroups, String idFormatRegex) {
+
+        List<TreeViewGroupRule> firstLevelFilters = new ArrayList<TreeViewGroupRule>();
+
+        for (String legendGroup: legendGroups) {
+
+            String regex = String.format(idFormatRegex, legendGroup);
+            firstLevelFilters.add(new TreeViewGroupRule(Rule.By.ID, legendGroup, legendGroup, regex));
         }
 
         // Root filter - will match all metrics

@@ -102,7 +102,10 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
                 }
 
                 tree.enableEvents();
-                CheckHandlerMap.getHandler(item.getClass()).onCheckChange(new CheckChangeEvent(item, state));
+                if (CheckHandlerMap.getHandler(item.getClass()) != null) {
+                    CheckHandlerMap.getHandler(item.getClass())
+                            .onCheckChange(new CheckChangeEvent(item, state));
+                }
             }
 
             private Tree<AbstractIdentifyNode, C> tree = ControlTree.this;

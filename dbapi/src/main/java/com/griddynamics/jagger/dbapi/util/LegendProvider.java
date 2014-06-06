@@ -2,8 +2,7 @@ package com.griddynamics.jagger.dbapi.util;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
@@ -69,5 +68,19 @@ public class LegendProvider {
                 .append(plotName);
 
         return builder.toString();
+    }
+
+    public static String parseMetricName(String legend) {
+        if (legend.startsWith("#")) {
+            return legend.substring(legend.indexOf(':') + 2);
+        }
+        return legend;
+    }
+
+    public static String parseSessionId(String legend) {
+        if (legend.startsWith("#")) {
+            return legend.substring(legend.indexOf('#'), legend.indexOf(':'));
+        }
+        return "";
     }
 }

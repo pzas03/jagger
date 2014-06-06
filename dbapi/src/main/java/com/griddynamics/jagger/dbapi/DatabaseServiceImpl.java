@@ -86,10 +86,6 @@ public class DatabaseServiceImpl implements DatabaseService {
         this.entityManager = entityManager;
     }
 
-    public Map<GroupKey, DefaultMonitoringParameters[]> getMonitoringPlotGroups() {
-        return monitoringPlotGroups;
-    }
-
     @Required
     public void setMonitoringPlotGroups(Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups) {
         this.monitoringPlotGroups = monitoringPlotGroups;
@@ -277,12 +273,67 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             // at the moment all MetricNameDtos in MetricNode have same taskIds => it is valid to use first one for legend provider
             // TODO for session scope plot headers and legend will available after JFG-738
-            result.put(metricNode, new PlotSeriesDto(plotDatasetDtoList,"Time, sec", "",legendProvider.getPlotHeader(metricNode.getMetricNameDtoList().get(0).getTaskIds(), metricNode.getDisplayName())));
+            result.put(metricNode, generatePlotSeriesDto(metricNode, plotDatasetDtoList));
         }
 
         log.debug("Total time of plots for metricNodes retrieving : " + (System.currentTimeMillis() - temp));
         return result;
     }
+
+    private PlotSeriesDto generatePlotSeriesDto(MetricNode metricNode, List<PlotDatasetDto> curves) {
+
+        Map<String, List<MetricNodeWithAttachment<PlotDatasetDto> >> legendGroupsMap
+                = new HashMap<String, List<MetricNodeWithAttachment<PlotDatasetDto>>>();
+        Set<String> legendGroups = new HashSet<String>();
+
+        int i = 1;
+        for (PlotDatasetDto curve : curves) {
+
+            MetricNodeWithAttachment<PlotDatasetDto> mn = new MetricNodeWithAttachment<PlotDatasetDto>();
+            String legend = curve.getLegend();
+
+            mn.setId((i++) + legend);
+            mn.setDisplayName(legend);
+            mn.setAttachment(curve);
+
+            String metricName = LegendProvider.parseMetricName(legend);
+            if (!legendGroupsMap.containsKey(metricName)) {
+                legendGroupsMap.put(metricName, new ArrayList<MetricNodeWithAttachment<PlotDatasetDto> >());
+            }
+
+            legendGroupsMap.get(metricName).add(mn);
+        }
+
+        List<MetricNodeWithAttachment<PlotDatasetDto> > metricNodeList = new ArrayList<MetricNodeWithAttachment<PlotDatasetDto> >();
+        for (Map.Entry<String, List<MetricNodeWithAttachment<PlotDatasetDto>>> entry : legendGroupsMap.entrySet()) {
+            metricNodeList.addAll(entry.getValue());
+            if (entry.getValue().size() > 1) {
+                for (MetricNode mn : entry.getValue()) {
+                    mn.setDisplayName(LegendProvider.parseSessionId(mn.getDisplayName()));
+                }
+                legendGroups.add(entry.getKey());
+            }
+        }
+
+        // only legends with sessions should be grouped
+        // first '[0-9]+' used to escape first number, used to enable grouping identical legends.
+        String legendFormat = "[0-9]+" + legendProvider.generatePlotLegend("[0-9]+", "%s", true);
+
+        // rules to create legend tree view
+        TreeViewGroupRule groupedNodesRule = treeViewGroupRuleProvider.provideWithPredefinedGroups(
+                metricNode.getId(),
+                metricNode.getId(),
+                legendGroups,
+                legendFormat);
+
+        // tree with metrics distributed by groups
+        MetricGroupNode<MetricNodeWithAttachment<PlotDatasetDto>> legendNodeBase = groupedNodesRule.filterByNode(null, metricNodeList);
+
+        PlotSeriesDto psd = new PlotSeriesDto(curves,"Time, sec", "",legendProvider.getPlotHeader(metricNode.getMetricNameDtoList().get(0).getTaskIds(), metricNode.getDisplayName()));
+        psd.setLegendTree(legendNodeBase);
+        return psd;
+    }
+
 
     @Override
     public Map<MetricNameDto, List<PlotDatasetDto>> getPlotDataByMetricNameDto(Set<MetricNameDto> metricNames) throws IllegalArgumentException {
