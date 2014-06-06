@@ -1,5 +1,7 @@
 package com.griddynamics.jagger.engine.e1.services.data.service;
 
+import com.griddynamics.jagger.util.Decision;
+
 /** Class is a model of test
  *
  * @details
@@ -23,6 +25,15 @@ public class TestEntity {
 
     /** Description of the termination strategy for this test */
     private String terminationStrategy;
+
+    /** Start date of the test */
+    private String startDate;
+
+    /** Index of test group where this test belongs */
+    private Integer testGroupIndex;
+
+    /** Status of execution of this test. FATAL when test failed during execution (f.e. due to some workload configuration timeout) */
+    private Decision testExecutionStatus;
 
     /** Get test name in format [test group name] [test name] */
     public String getName() {
@@ -69,6 +80,33 @@ public class TestEntity {
         this.description = description;
     }
 
+    /** Get start date */
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    /** Get index of test group where this test was executed */
+    public Integer getTestGroupIndex() {
+        return testGroupIndex;
+    }
+
+    public void setTestGroupIndex(Integer testGroupIndex) {
+        this.testGroupIndex = testGroupIndex;
+    }
+
+    /** Get status of this test execution */
+    public Decision getTestExecutionStatus() {
+        return testExecutionStatus;
+    }
+
+    public void setTestExecutionStatus(Decision testExecutionStatus) {
+        this.testExecutionStatus = testExecutionStatus;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -80,7 +118,11 @@ public class TestEntity {
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (load != null ? !load.equals(that.load) : that.load != null) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (startDate != null ? !startDate.equals(that.startDate) : that.startDate != null) return false;
         if (terminationStrategy != null ? !terminationStrategy.equals(that.terminationStrategy) : that.terminationStrategy != null)
+            return false;
+        if (testExecutionStatus != that.testExecutionStatus) return false;
+        if (testGroupIndex != null ? !testGroupIndex.equals(that.testGroupIndex) : that.testGroupIndex != null)
             return false;
 
         return true;
@@ -93,6 +135,9 @@ public class TestEntity {
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + (load != null ? load.hashCode() : 0);
         result = 31 * result + (terminationStrategy != null ? terminationStrategy.hashCode() : 0);
+        result = 31 * result + (startDate != null ? startDate.hashCode() : 0);
+        result = 31 * result + (testGroupIndex != null ? testGroupIndex.hashCode() : 0);
+        result = 31 * result + (testExecutionStatus != null ? testExecutionStatus.hashCode() : 0);
         return result;
     }
 
@@ -104,6 +149,9 @@ public class TestEntity {
                 ", description='" + description + '\'' +
                 ", load='" + load + '\'' +
                 ", terminationStrategy='" + terminationStrategy + '\'' +
+                ", startDate='" + startDate + '\'' +
+                ", testGroupIndex=" + testGroupIndex +
+                ", testExecutionStatus=" + testExecutionStatus +
                 '}';
     }
 }

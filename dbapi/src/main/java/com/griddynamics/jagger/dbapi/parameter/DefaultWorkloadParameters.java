@@ -1,15 +1,16 @@
 package com.griddynamics.jagger.dbapi.parameter;
 
 import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
+import com.griddynamics.jagger.util.StandardMetricsNamesUtil;
 
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
  * @since 6/4/12
  */
 public enum DefaultWorkloadParameters {
-    LATENCY("Latency, sec", false, MetricNameDto.Origin.LATENCY),
-    LATENCY_STD_DEV("Latency std dev, sec", false, MetricNameDto.Origin.LATENCY),
-    THROUGHPUT("Throughput, tps", false, MetricNameDto.Origin.THROUGHPUT),
+    LATENCY(StandardMetricsNamesUtil.LATENCY_SEC, false, MetricNameDto.Origin.LATENCY),
+    LATENCY_STD_DEV(StandardMetricsNamesUtil.LATENCY_STD_DEV_SEC, false, MetricNameDto.Origin.LATENCY),
+    THROUGHPUT(StandardMetricsNamesUtil.THROUGHPUT_TPS, false, MetricNameDto.Origin.THROUGHPUT),
     TIME_LATENCY_PERCENTILE_40("40.0", true, MetricNameDto.Origin.LATENCY_PERCENTILE),
     TIME_LATENCY_PERCENTILE_50("50.0", true, MetricNameDto.Origin.LATENCY_PERCENTILE),
     TIME_LATENCY_PERCENTILE_60("60.0", true, MetricNameDto.Origin.LATENCY_PERCENTILE),

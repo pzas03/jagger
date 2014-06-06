@@ -23,6 +23,7 @@ package com.griddynamics.jagger.diagnostics.reporting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.griddynamics.jagger.agent.model.MethodElement;
+import com.griddynamics.jagger.dbapi.entity.TaskData;
 import com.griddynamics.jagger.diagnostics.thread.sampling.InvocationProfile;
 import com.griddynamics.jagger.diagnostics.thread.sampling.MethodProfile;
 import com.griddynamics.jagger.diagnostics.thread.sampling.RuntimeGraph;
@@ -113,7 +114,7 @@ public class ProfileReporter extends AbstractMonitoringReportProvider<String> {
     }
 
     @Override
-    public JRDataSource getDataSource(String testId) {
+    public JRDataSource getDataSource(String id) {
         if (!enable) {
             return new JRBeanCollectionDataSource(Collections.emptySet());
         }
@@ -124,16 +125,21 @@ public class ProfileReporter extends AbstractMonitoringReportProvider<String> {
 
         loadMonitoringMap();
 
-        List<SysUnderTestDTO> data = sysUnderTests.get(testId);
+        List<SysUnderTestDTO> data = null;
+        String taskId = getTaskIdById(id);
 
+        if (taskId != null) {
 
-        if (data == null) {
-            data = sysUnderTests.get(relatedMonitoringTask(testId));
-        }
+             data = sysUnderTests.get(taskId);
 
-        // required after monitoring moved to metrics
-        if (data == null) {
-            data = sysUnderTests.get(parentOf(testId));
+            if (data == null) {
+                data = sysUnderTests.get(relatedMonitoringTask(taskId));
+            }
+
+            // required after monitoring moved to metrics
+            if (data == null) {
+                data = sysUnderTests.get(parentOf(taskId));
+            }
         }
 
         return new JRBeanCollectionDataSource(data);
@@ -142,6 +148,8 @@ public class ProfileReporter extends AbstractMonitoringReportProvider<String> {
     private Map<String, List<SysUnderTestDTO>> loadData() {
         final String sessionId = getSessionIdProvider().getSessionId();
         Map<String, List<SysUnderTestDTO>> result = Maps.newHashMap();
+
+        //todo JFG-722 We should delete all queries from reporting-part jagger
         @SuppressWarnings("unchecked")
         List<ProfilingSuT> profilingSuTListFull =
                 getHibernateTemplate().find("from ProfilingSuT where sessionId=? and taskData_id is not null order by taskData, sysUnderTestUrl", sessionId);
@@ -291,5 +299,19 @@ public class ProfileReporter extends AbstractMonitoringReportProvider<String> {
         dto.setOnTopRatio(profile.getOnTopRatio());
 
         return dto;
+    }
+
+    private String getTaskIdById(String id) {
+        //todo JFG-722 We should delete all queries from reporting-part jagger
+
+        @SuppressWarnings("unchecked")
+        List<TaskData> taskDataList = getHibernateTemplate().find("from TaskData t where t.id=?",Long.valueOf(id));
+
+        if(taskDataList.size()==1){
+            return taskDataList.get(0).getTaskId();
+        } else{
+            log.warn("TaskData list has unexpected size: {} while size of 1 was expected",taskDataList.size());
+        }
+        return null;
     }
 }

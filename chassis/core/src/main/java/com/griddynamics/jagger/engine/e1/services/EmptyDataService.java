@@ -1,9 +1,6 @@
 package com.griddynamics.jagger.engine.e1.services;
 
-import com.griddynamics.jagger.engine.e1.services.data.service.MetricEntity;
-import com.griddynamics.jagger.engine.e1.services.data.service.MetricPlotPointEntity;
-import com.griddynamics.jagger.engine.e1.services.data.service.SessionEntity;
-import com.griddynamics.jagger.engine.e1.services.data.service.TestEntity;
+import com.griddynamics.jagger.engine.e1.services.data.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,13 +94,13 @@ public class EmptyDataService implements DataService {
     }
 
     @Override
-    public Double getMetricSummary(MetricEntity metric) {
+    public MetricSummaryValueEntity getMetricSummary(MetricEntity metric) {
         log.warn("Can't get summary value for metric {}. DataService is not supported in {}", metric, jaggerPlace);
         return null;
     }
 
     @Override
-    public Map<MetricEntity, Double> getMetricSummary(Collection<MetricEntity> metrics) {
+    public Map<MetricEntity, MetricSummaryValueEntity> getMetricSummary(Collection<MetricEntity> metrics) {
         log.warn("Can't get summary values for metrics {}. DataService is not supported in {}", metrics, jaggerPlace);
         return null;
     }

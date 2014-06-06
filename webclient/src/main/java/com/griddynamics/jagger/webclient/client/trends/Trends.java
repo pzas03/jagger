@@ -29,6 +29,7 @@ import com.googlecode.gflot.client.options.*;
 import com.griddynamics.jagger.dbapi.dto.*;
 import com.griddynamics.jagger.dbapi.model.*;
 import com.griddynamics.jagger.util.MonitoringIdUtils;
+import com.griddynamics.jagger.util.NumberFormatCalculator;
 import com.griddynamics.jagger.webclient.client.*;
 import com.griddynamics.jagger.webclient.client.components.*;
 import com.griddynamics.jagger.webclient.client.components.control.CheckHandlerMap;
@@ -308,8 +309,8 @@ public class Trends extends DefaultActivity {
                         if (plotNode.getMetricNameDtoList().size() > 0) {
                             MetricNameDto metricNameDto = plotNode.getMetricNameDtoList().get(0);
 
-                            if ((metricNameDto.getOrigin() == MetricNameDto.Origin.MONITORING) ||
-                                (metricNameDto.getOrigin() == MetricNameDto.Origin.TEST_GROUP_METRIC)) {
+                            if ((metricNameDto.getOrigin().equals(MetricNameDto.Origin.MONITORING)) ||
+                                (metricNameDto.getOrigin().equals(MetricNameDto.Origin.TEST_GROUP_METRIC))) {
 
                                 MonitoringIdUtils.MonitoringId monitoringId= MonitoringIdUtils.splitMonitoringMetricId(metricNameDto.getMetricName());
                                 if (monitoringId != null) {
@@ -628,26 +629,10 @@ public class Trends extends DefaultActivity {
 
                         if (format == null) {
                             double tempDouble = tickValue * 5;
-                            format = calculateNumberFormat(tempDouble);
+                            format = NumberFormat.getFormat(NumberFormatCalculator.getNumberFormat(tempDouble));
                         }
 
                         return format.format(tickValue).replace('E', 'e');
-                    }
-
-                    private NumberFormat calculateNumberFormat(double tickValue) {
-                        tickValue = Math.abs(tickValue);
-
-                        if (tickValue > 999999) {
-                            return NumberFormat.getFormat("#.###E0#");
-                        } else if (tickValue > 999) {
-                            return NumberFormat.getFormat("######.#");
-                        } else if (tickValue > 1) {
-                            return NumberFormat.getFormat("###.#####");
-                        } else if (tickValue > 0.00001) {
-                            return NumberFormat.getFormat("#.#####");
-                        }
-
-                        return NumberFormat.getFormat("#.###E0#");
                     }
                 })
         .setZoomRange(false).setMinimum(yMinimum));
@@ -1036,7 +1021,7 @@ public class Trends extends DefaultActivity {
             @Override
             public void onKeyUp(KeyUpEvent event) {
                 sessionsTo.setValue(null, true);
-                sessionsFrom.setValue(null,true);
+                sessionsFrom.setValue(null, true);
                 sessionIdsTextBox.setValue(null, true);
                 tagNames.clear();
                 stopTypingSessionTagsTimer.schedule(500);

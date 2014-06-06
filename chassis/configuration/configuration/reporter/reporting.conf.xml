@@ -112,6 +112,7 @@
 
                         <property name="decisionMaker" ref="sessionStatusDecisionMaker"/>
                         <property name="statusImageProvider" ref="statusImageProvider"/>
+                        <property name="summaryReporter" ref="summaryReporter"/>
                     </bean>
                 </entry>
 
@@ -131,6 +132,7 @@
                 <entry key="testDetailsContainer">
                     <bean class="com.griddynamics.jagger.engine.e1.reporting.TestDetailsReporter" parent="abstractReportProviderBean">
                         <property name="template" value="configuration/reporting/test-details-container.jrxml"/>
+                        <property name="databaseService" ref="databaseService"/>
                     </bean>
                 </entry>
 
@@ -148,6 +150,7 @@
                 <entry key="diagnosticResults">
                     <bean class="com.griddynamics.jagger.engine.e1.reporting.DiagnosticReporter" parent="abstractReportProviderBean">
                         <property name="template" value="configuration/reporting/diagnostics-report.jrxml"/>
+                        <property name="summaryReporter" ref="summaryReporter"/>
                     </bean>
                 </entry>
 
@@ -168,11 +171,13 @@
                 <entry key="workloadProcessDetails">
                     <bean class="com.griddynamics.jagger.engine.e1.reporting.WorkloadProcessDetailsReporter" parent="abstractReportProviderBean">
                         <property name="template" value="configuration/reporting/workload-process-details.jrxml"/>
+                        <property name="summaryReporter" ref="summaryReporter"/>
                     </bean>
                 </entry>
                 <entry key="validationResults">
                     <bean class="com.griddynamics.jagger.engine.e1.reporting.WorkloadValidationReporter" parent="abstractReportProviderBean">
                         <property name="template" value="configuration/reporting/workload-validation-results.jrxml"/>
+                        <property name="summaryReporter" ref="summaryReporter"/>
                     </bean>
                 </entry>
 
@@ -201,7 +206,9 @@
         </property>
     </bean>
 
-    <bean id="webClientProperties" class="com.griddynamics.jagger.dbapi.model.WebClientProperties"/>
+    <bean id="webClientProperties" class="com.griddynamics.jagger.dbapi.model.WebClientProperties">
+        <property name="enableDecisionsPerMetricHighlighting" value="${webui.enable.decisions.per.metric.highlighting:true}"/>
+    </bean>
 
     <bean id="reportingContext" class="com.griddynamics.jagger.reporting.ReportingContext">
         <property name="providerRegistry" ref="reporterExtensionRegistry"/>
@@ -227,6 +234,10 @@
     <bean id="sessionScopeDataUtil" class="com.griddynamics.jagger.dbapi.util.SessionScopeDataUtil"/>
 
     <bean id= "dataSaverService" class="com.griddynamics.jagger.dbapi.DataSaverServiceImpl"/>
+
+    <bean id="summaryReporter" class="com.griddynamics.jagger.engine.e1.reporting.SummaryReporter">
+        <property name="databaseService" ref="databaseService"/>
+    </bean>
 
     <!--==========Control tree creation rules==========-->
     <bean id="ruleProvider_TreeViewGroupMetricsToNode" class="com.griddynamics.jagger.dbapi.model.rules.TreeViewGroupMetricsToNodeRuleProvider">
@@ -380,19 +391,26 @@
     <bean id="validatorNameProvider" class="com.griddynamics.jagger.dbapi.provider.ValidatorNamesProvider"/>
 
     <bean id="throughputMetricNameDto" class="com.griddynamics.jagger.dbapi.dto.MetricNameDto">
-        <property name="metricName" value="throughput"/>
-        <property name="metricDisplayName" value="Throughput, tps"/>
+        <property name="metricName">
+            <util:constant static-field="com.griddynamics.jagger.util.StandardMetricsNamesUtil.THROUGHPUT_ID"/>
+        </property>
+        <property name="metricDisplayName">
+            <util:constant static-field="com.griddynamics.jagger.util.StandardMetricsNamesUtil.THROUGHPUT_TPS"/>
+        </property>
         <property name="origin"  value="STANDARD_METRICS"/>
         <property name="metricNameSynonyms">
             <list value-type="java.lang.String">
                 <value>Throughput</value>
             </list>
         </property>
-
     </bean>
     <bean id="latencyMetricNameDto" class="com.griddynamics.jagger.dbapi.dto.MetricNameDto">
-        <property name="metricName" value="avgLatency"/>
-        <property name="metricDisplayName" value="Latency, sec"/>
+        <property name="metricName">
+            <util:constant static-field="com.griddynamics.jagger.util.StandardMetricsNamesUtil.LATENCY_ID"/>
+        </property>
+        <property name="metricDisplayName">
+            <util:constant static-field="com.griddynamics.jagger.util.StandardMetricsNamesUtil.LATENCY_SEC"/>
+        </property>
         <property name="origin"  value="STANDARD_METRICS"/>
         <property name="metricNameSynonyms">
             <list value-type="java.lang.String">
@@ -401,8 +419,12 @@
         </property>
     </bean>
     <bean id="durationMetricNameDto" class="com.griddynamics.jagger.dbapi.dto.MetricNameDto">
-        <property name="metricName" value="duration"/>
-        <property name="metricDisplayName" value="Duration, sec"/>
+        <property name="metricName">
+            <util:constant static-field="com.griddynamics.jagger.util.StandardMetricsNamesUtil.DURATION_ID"/>
+        </property>
+        <property name="metricDisplayName">
+            <util:constant static-field="com.griddynamics.jagger.util.StandardMetricsNamesUtil.DURATION_SEC"/>
+        </property>
         <property name="origin"  value="DURATION"/>
         <property name="metricNameSynonyms">
             <list value-type="java.lang.String">
@@ -411,8 +433,12 @@
         </property>
     </bean>
     <bean id="successRateMetricNameDto" class="com.griddynamics.jagger.dbapi.dto.MetricNameDto">
-        <property name="metricName" value="successRate"/>
-        <property name="metricDisplayName" value="Success rate"/>
+        <property name="metricName">
+            <util:constant static-field="com.griddynamics.jagger.util.StandardMetricsNamesUtil.SUCCESS_RATE_ID"/>
+        </property>
+        <property name="metricDisplayName">
+            <util:constant static-field="com.griddynamics.jagger.util.StandardMetricsNamesUtil.SUCCESS_RATE"/>
+        </property>
         <property name="origin"  value="STANDARD_METRICS"/>
         <property name="metricNameSynonyms">
             <list value-type="java.lang.String">
@@ -421,8 +447,12 @@
         </property>
     </bean>
     <bean id="samplesMetricNameDto" class="com.griddynamics.jagger.dbapi.dto.MetricNameDto">
-        <property name="metricName" value="samples"/>
-        <property name="metricDisplayName" value="Iterations, samples"/>
+        <property name="metricName">
+            <util:constant static-field="com.griddynamics.jagger.util.StandardMetricsNamesUtil.ITERATION_SAMPLES_ID"/>
+        </property>
+        <property name="metricDisplayName">
+            <util:constant static-field="com.griddynamics.jagger.util.StandardMetricsNamesUtil.ITERATIONS_SAMPLES"/>
+        </property>
         <property name="origin"  value="STANDARD_METRICS"/>
         <property name="metricNameSynonyms">
             <list value-type="java.lang.String">
@@ -430,13 +460,32 @@
             </list>
         </property>
     </bean>
-
+    <bean id="latencyStdDevMetricNameDto" class="com.griddynamics.jagger.dbapi.dto.MetricNameDto">
+        <property name="metricName">
+            <util:constant static-field="com.griddynamics.jagger.util.StandardMetricsNamesUtil.LATENCY_STD_DEV_ID"/>
+        </property>
+        <property name="metricDisplayName">
+            <util:constant static-field="com.griddynamics.jagger.util.StandardMetricsNamesUtil.LATENCY_STD_DEV_SEC"/>
+        </property>
+        <property name="origin"  value="STANDARD_METRICS"/>
+    </bean>
+    <bean id="failsMetricNameDto" class="com.griddynamics.jagger.dbapi.dto.MetricNameDto">
+        <property name="metricName">
+            <util:constant static-field="com.griddynamics.jagger.util.StandardMetricsNamesUtil.FAIL_COUNT_ID"/>
+        </property>
+        <property name="metricDisplayName">
+            <util:constant static-field="com.griddynamics.jagger.util.StandardMetricsNamesUtil.FAIL_COUNT"/>
+        </property>
+        <property name="origin"  value="STANDARD_METRICS"/>
+    </bean>
     <util:list id="standardMetricNameDtoList">
         <ref bean = "throughputMetricNameDto"/>
         <ref bean = "latencyMetricNameDto"/>
         <ref bean = "durationMetricNameDto"/>
         <ref bean = "successRateMetricNameDto"/>
         <ref bean = "samplesMetricNameDto"/>
+        <ref bean = "latencyStdDevMetricNameDto"/>
+        <ref bean = "failsMetricNameDto"/>
     </util:list>
 
     <bean id="workloadPlotGroups" class="java.util.LinkedHashMap">
@@ -445,7 +494,9 @@
                 <entry>
                     <key>
                         <bean class="com.griddynamics.jagger.dbapi.parameter.GroupKey">
-                            <constructor-arg index="0" value="Throughput"/>
+                            <constructor-arg index="0">
+                                <util:constant static-field="com.griddynamics.jagger.util.StandardMetricsNamesUtil.THROUGHPUT"/>
+                            </constructor-arg>
                         </bean>
                     </key>
                     <list value-type="com.griddynamics.jagger.dbapi.parameter.DefaultWorkloadParameters">
@@ -456,7 +507,9 @@
                 <entry>
                     <key>
                         <bean class="com.griddynamics.jagger.dbapi.parameter.GroupKey">
-                            <constructor-arg index="0" value="Latency"/>
+                            <constructor-arg index="0">
+                                <util:constant static-field="com.griddynamics.jagger.util.StandardMetricsNamesUtil.LATENCY"/>
+                            </constructor-arg>
                         </bean>
                     </key>
                     <list value-type="com.griddynamics.jagger.dbapi.parameter.DefaultWorkloadParameters">
@@ -468,7 +521,9 @@
                 <entry>
                     <key>
                         <bean class="com.griddynamics.jagger.dbapi.parameter.GroupKey">
-                            <constructor-arg index="0" value="Time Latency Percentile"/>
+                            <constructor-arg index="0">
+                                <util:constant static-field="com.griddynamics.jagger.util.StandardMetricsNamesUtil.TIME_LATENCY_PERCENTILE"/>
+                            </constructor-arg>
                         </bean>
                     </key>
                     <list value-type="com.griddynamics.jagger.dbapi.parameter.DefaultWorkloadParameters">
