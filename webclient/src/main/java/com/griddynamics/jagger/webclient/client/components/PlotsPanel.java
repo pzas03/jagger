@@ -307,7 +307,7 @@ public class PlotsPanel extends Composite {
         // no widgets in panel
         assert layoutPanel.getWidgetCount() > 0;
 
-        double xMaxValue = Integer.MIN_VALUE;
+        double xMaxValue = Double.MIN_VALUE;
         for (PlotContainer pc : layoutPanel.getAllChildren()) {
 
             double curveMaxX = calculateMaxXAxisValue(pc.getPlotRepresentation().getSimplePlot());

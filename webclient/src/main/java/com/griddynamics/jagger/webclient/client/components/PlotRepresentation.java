@@ -57,7 +57,7 @@ public class PlotRepresentation extends VerticalPanel {
 
     public void calculateScrollWidth() {
         if (scrollbar.isAttached()) {
-            double plotWidth = simplePlot.getOffsetWidth() - simplePlot.getOptions().getYAxisOptions().getLabelWidth() - TOTAL_BORDERS_WIDTH;
+            double plotWidth = getPlotWidth() - TOTAL_BORDERS_WIDTH;
             double visibleRange = simplePlot.getAxes().getX().getMaximumValue() - simplePlot.getAxes().getX().getMinimumValue();
             double ratio = maxRange / visibleRange;
             scrollbar.setScrollWidth((int) (plotWidth * ratio));
