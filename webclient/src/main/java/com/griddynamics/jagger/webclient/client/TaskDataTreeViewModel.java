@@ -15,12 +15,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+//??? delete - npt used
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
  * @since 5/29/12
  */
 public class TaskDataTreeViewModel implements TreeViewModel {
-    private static final TaskDataDto NO_TASKS_DUMMY_NODE = new TaskDataDto(-1, "Select at least one session and one test", "");
+    private static final TaskDataDto NO_TASKS_DUMMY_NODE = new TaskDataDto(-1, "", "Select at least one session and one test", "");
 
     private final ListDataProvider<TaskDataDto> taskDataProvider = new ListDataProvider<TaskDataDto>();
     private final MultiSelectionModel<MetricNameDto> selectionModel;

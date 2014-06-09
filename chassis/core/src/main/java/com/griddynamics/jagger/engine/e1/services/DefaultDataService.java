@@ -19,6 +19,9 @@ public class DefaultDataService implements DataService {
 
     private DatabaseService databaseService;
 
+    // For all user operations  - get all test results without matching
+    private final SessionMatchingSetup SESSION_MATCHING_SETUP = new SessionMatchingSetup(false,Collections.<SessionMatchingSetup.MatchBy>emptySet());
+
     public DefaultDataService(NodeContext context) {
         databaseService = context.getService(DatabaseService.class);
     }
@@ -82,7 +85,7 @@ public class DefaultDataService implements DataService {
 
     @Override
     public Map<String, Set<TestEntity>> getTests(Collection<String> sessionIds){
-        return getTestsWithName(sessionIds, null);
+        return getTestsWithName(sessionIds, null, SESSION_MATCHING_SETUP);
     }
 
     @Override
@@ -104,7 +107,7 @@ public class DefaultDataService implements DataService {
 
     @Override
     public Map<String, TestEntity> getTestsByName(Collection<String> sessionIds, String testName){
-        Map<String, Set<TestEntity>> tests = getTestsWithName(sessionIds, testName);
+        Map<String, Set<TestEntity>> tests = getTestsWithName(sessionIds, testName, SESSION_MATCHING_SETUP);
 
         Map<String, TestEntity> result = new HashMap<String, TestEntity>(tests.size());
 
@@ -119,19 +122,48 @@ public class DefaultDataService implements DataService {
     }
 
     // if testName=null => no filtering for test name => all tests for session(s) will be returned
-    private Map<String, Set<TestEntity>> getTestsWithName(Collection<String> sessionIds, String testName){
+    // @return map <sessionId, set<test>>
+    public Map<String, Set<TestEntity>> getTestsWithName(Collection<String> sessionIds, String testName, SessionMatchingSetup sessionMatchingSetup){
         if (sessionIds.isEmpty()){
             return Collections.emptyMap();
         }
 
-        // Get all test results without matching
-        SessionMatchingSetup sessionMatchingSetup = new SessionMatchingSetup(false,Collections.<SessionMatchingSetup.MatchBy>emptySet());
         List<TaskDataDto> taskDataDtoList = databaseService.getTaskDataForSessions(new HashSet<String>(sessionIds),sessionMatchingSetup);
         Map<TaskDataDto,Map<String,TestInfoDto>> testInfoMap = databaseService.getTestInfoByTaskDataDto(taskDataDtoList);
 
         Map<String, Set<TestEntity>> result = new HashMap<String, Set<TestEntity>>();
 
         for (TaskDataDto taskDataDto : taskDataDtoList) {
+
+
+            //???
+//            for (int i = 0; i < taskDataDto.getSessionIds().size(); i++) {
+//                if (((testName != null) && (testName.equals(taskDataDto.getTaskName()))) ||
+//                        (testName == null)) {
+//
+//                    TestEntity testEntity = new TestEntity();
+//                    testEntity.setId(taskDataDto.getIds().);
+//                    testEntity.setDescription(taskDataDto.getDescription());
+//                    testEntity.setName(taskDataDto.getTaskName());
+//
+////                    if (testInfoMap.containsKey(taskDataDto)) {
+////                        testEntity.setLoad(testInfoMap.get(taskDataDto).entrySet().iterator().next().getValue().getClock());
+////                        testEntity.setTerminationStrategy(testInfoMap.get(taskDataDto).entrySet().iterator().next().getValue().getTermination());
+////                    }
+////
+////                    if (result.containsKey(taskDataDto.getSessionId())){
+////                        result.get(taskDataDto.getSessionId()).add(testEntity);
+////                    }else{
+////                        Set<TestEntity> list = new HashSet<TestEntity>();
+////                        list.add(testEntity);
+////                        result.put(taskDataDto.getSessionId(), list);
+////                    }
+//                }
+//
+//            }
+
+
+
             if (taskDataDto.getSessionIds().size() > 1) {
                 log.error("TaskDataDto contains data for more that one session. This is unexpected result. {}", taskDataDto);
             }

@@ -41,12 +41,12 @@ public interface DatabaseService {
 
     /** Returns test info for specified tests
      * @param taskDataDtos - selected tests
-     * @return map of test info */
+     * @return map <taskDataDto, map <sessionId, test info>> */
     Map<TaskDataDto, Map<String, TestInfoDto>> getTestInfoByTaskDataDto(Collection<TaskDataDto> taskDataDtos) throws RuntimeException;
 
     /** Returns test info for specified tests ids
      * @param taskIds - selected test ids
-     * @return map of test info */
+     * @return map <testId, map <sessionId, test info>> */
     Map<Long, Map<String, TestInfoDto>> getTestInfoByTaskIds(Set<Long> taskIds) throws RuntimeException;
 
     /** Return information about session nodes

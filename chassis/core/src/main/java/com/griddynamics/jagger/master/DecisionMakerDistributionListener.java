@@ -6,6 +6,7 @@ import com.griddynamics.jagger.dbapi.entity.DecisionPerMetricEntity;
 import com.griddynamics.jagger.dbapi.entity.DecisionPerTaskEntity;
 import com.griddynamics.jagger.dbapi.entity.MetricDescriptionEntity;
 import com.griddynamics.jagger.dbapi.entity.TaskData;
+import com.griddynamics.jagger.dbapi.util.SessionMatchingSetup;
 import com.griddynamics.jagger.engine.e1.ProviderUtil;
 import com.griddynamics.jagger.engine.e1.collector.limits.*;
 import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupDecisionMakerInfo;
@@ -106,8 +107,14 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
                     //todo ??? JFG_745 check that tests match when getting baseline values
                     Map<String,Double> metricIdToValuesBaseline = new HashMap<String, Double>();
                     if (needBaselineSessionValue) {
+                        // Strategy to match sessions - we will use baseline when all test parameters are matching
+                        SessionMatchingSetup sessionMatchingSetup = new SessionMatchingSetup(true,
+                                EnumSet.of(SessionMatchingSetup.MatchBy.ALL));
+
                         String baselineId = workloadTask.getLimits().getBaselineId();
                         TestEntity testEntityBaseline = dataService.getTestByName(baselineId, testName);
+                        //???Map<String, Set<TestEntity>> ??? getTestsWithName(Collection<String> sessionIds, String testName, SessionMatchingSetup sessionMatchingSetup)
+
                         if (testEntityBaseline != null) {
                             Set<MetricEntity> metricEntitySetBaseline = dataService.getMetrics(testEntityBaseline);
                             Map<MetricEntity,MetricSummaryValueEntity> metricValuesBaseline = dataService.getMetricSummary(metricEntitySetBaseline);
@@ -116,7 +123,7 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
                             }
                         }
                         else {
-                            log.error("Was not able to find test {} in baseline session {}",testName,baselineId);
+                            log.error("Was not able to find matching test {} in baseline session {}",testName,baselineId);
                         }
                     }
 

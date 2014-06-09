@@ -933,16 +933,12 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             // Provide matching
             if (map.containsKey(key.toString())){
-                map.get(key.toString()).getIds().add(id.longValue());
-                map.get(key.toString()).getSessionIds().add(sessionId);
+                map.get(key.toString()).getIdToSessionId().put(id.longValue(),sessionId);
 
                 Integer oldValue = mapIds.get(key.toString());
                 mapIds.put(key.toString(), (oldValue==null ? 0 : oldValue)+taskIdInt);
             }else{
-                TaskDataDto taskDataDto = new TaskDataDto(id.longValue(), name, description);
-                Set<String> sessionIdList = new TreeSet<String>();
-                sessionIdList.add(sessionId);
-                taskDataDto.setSessionIds(sessionIdList);
+                TaskDataDto taskDataDto = new TaskDataDto(id.longValue(), sessionId, name, description);
                 // generate unique id to make difference between tests with different matching parameters.
                 taskDataDto.setUniqueId(CommonUtils.generateUniqueId(uniqueIdParams));
 
@@ -1602,10 +1598,9 @@ public class DatabaseServiceImpl implements DatabaseService {
                         metricNameList.add(metricNameDto.getMetricName());
                         PlotNode ssPlotNode = new PlotNode();
 
-                        TaskDataDto tempTaskDataDto = new TaskDataDto(taskDataDto.getId(),
+                        TaskDataDto tempTaskDataDto = new TaskDataDto(taskDataDto.getIdToSessionId(),
                                 taskDataDto.getTaskName(),
                                 taskDataDto.getDescription());
-                        tempTaskDataDto.setSessionIds(taskDataDto.getSessionIds());
 
                         MetricNameDto tempMetricNameDto = new MetricNameDto(tempTaskDataDto,
                                 metricNameDto.getMetricName(),
