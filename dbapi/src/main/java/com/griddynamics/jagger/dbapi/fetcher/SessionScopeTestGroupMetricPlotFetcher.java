@@ -6,6 +6,7 @@ import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
 import com.griddynamics.jagger.dbapi.dto.PlotDatasetDto;
 import com.griddynamics.jagger.dbapi.util.SessionScopeDataUtil;
 import com.griddynamics.jagger.util.Pair;
+import org.springframework.beans.factory.annotation.Required;
 
 import java.util.*;
 
@@ -20,6 +21,7 @@ public class SessionScopeTestGroupMetricPlotFetcher extends CustomTestGroupMetri
 
     private SessionScopeDataUtil sessionScopeDataUtil;
 
+    @Required
     public void setSessionScopeDataUtil(SessionScopeDataUtil sessionScopeDataUtil) {
         this.sessionScopeDataUtil = sessionScopeDataUtil;
     }
@@ -27,7 +29,12 @@ public class SessionScopeTestGroupMetricPlotFetcher extends CustomTestGroupMetri
     @Override
     protected Set<Pair<MetricNameDto, List<PlotDatasetDto>>> getResult(Collection<MetricRawData> allRawData, List<MetricNameDto> metricNames) {
 
-        Multimap<String, MetricRawData> metricIdRawMap = sessionScopeDataUtil.getMetricIdRawMap(allRawData, allRawData.iterator().next().getSessionId());
+        Set<Long> taskIds = new HashSet<Long>();
+        for (MetricNameDto metricName : metricNames) {
+            taskIds.addAll(metricName.getTaskIds());
+        }
+
+        Multimap<String, MetricRawData> metricIdRawMap = sessionScopeDataUtil.getMetricIdRawMap(allRawData, taskIds);
 
         Multimap<MetricNameDto, PlotDatasetDto> metricNamePlotMap = ArrayListMultimap.create();
         for (MetricNameDto metricName : metricNames) {

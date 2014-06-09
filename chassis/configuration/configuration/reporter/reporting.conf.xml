@@ -231,7 +231,9 @@
 
     <bean id="fetchUtil" class="com.griddynamics.jagger.dbapi.util.FetchUtil"/>
 
-    <bean id="sessionScopeDataUtil" class="com.griddynamics.jagger.dbapi.util.SessionScopeDataUtil"/>
+    <bean id="sessionScopeDataUtil" class="com.griddynamics.jagger.dbapi.util.SessionScopeDataUtil">
+        <property name="fetchUtil" ref="fetchUtil"/>
+    </bean>
 
     <bean id= "dataSaverService" class="com.griddynamics.jagger.dbapi.DataSaverServiceImpl"/>
 
@@ -309,7 +311,6 @@
     </bean>
 
     <bean id="customMetricPlotFetcher" class="com.griddynamics.jagger.dbapi.fetcher.CustomMetricPlotFetcher">
-        <property name="fetchUtil" ref="fetchUtil"/>
         <property name="legendProvider" ref="legendProvider"/>
         <property name="threadPool" ref="executorService"/>
     </bean>

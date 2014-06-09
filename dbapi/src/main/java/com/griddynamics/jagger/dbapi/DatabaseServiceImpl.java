@@ -29,6 +29,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
+import java.sql.Timestamp;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -1301,64 +1302,9 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     @Override
     public Map<Long, Map<String, TestInfoDto>> getTestInfoByTaskIds(Set<Long> taskIds) throws RuntimeException {
-
-        if (taskIds.isEmpty()) {
-            return Collections.emptyMap();
-        }
-
-        long temp = System.currentTimeMillis();
-
-        @SuppressWarnings("all")
-        List<Object[]> objectsList = (List<Object[]>)entityManager.createNativeQuery(
-            "select wtd.sessionId, wtd.clock, wtd.clockValue, wtd.termination, finalTaskData.id, finalTaskData.startTime, wtd.number, finalTaskData.status " +
-            "from WorkloadTaskData as wtd join " +
-                "(select wd.startTime, wd.taskId, wd.sessionId, taskData.id, taskData.status from WorkloadData " +
-                "as wd join " +
-                    "( select  td.id, td.sessionId, td.taskId, td.status from TaskData td where td.id in (:taskDataIds) " +
-                    ") as taskData " +
-                "on wd.taskId=taskData.taskId and wd.sessionId=taskData.sessionId" +
-                ") as finalTaskData " +
-            "on wtd.sessionId=finalTaskData.sessionId and wtd.taskId=finalTaskData.taskId")
-            .setParameter("taskDataIds", taskIds)
-            .getResultList();
-
-        Map<Long, Map<String, TestInfoDto>> resultMap = new HashMap<Long, Map<String, TestInfoDto>>(taskIds.size());
-
-        for (Object[] objects : objectsList) {
-
-            Long taskId = ((BigInteger)objects[4]).longValue();
-            String clock = objects[1] + " (" + objects[2] + ')';
-            String termination = (String)objects[3];
-            String sessionId = (String)objects[0];
-            Date date = (Date)objects[5];
-            String startTime = date.toString();
-            Integer number = (Integer)objects[6];
-            if (number == null) {
-                number = 0;
-            }
-            TaskData.ExecutionStatus executionStatus = TaskData.ExecutionStatus.valueOf((String) objects[7]);
-            Decision status = Decision.OK;
-            if (TaskData.ExecutionStatus.FAILED.equals(executionStatus)) {
-                status = Decision.FATAL;
-            }
-
-            if (!resultMap.containsKey(taskId)) {
-                resultMap.put(taskId,new HashMap<String, TestInfoDto>());
-            }
-            TestInfoDto testInfo = new TestInfoDto();
-            testInfo.setClock(clock);
-            testInfo.setTermination(termination);
-            testInfo.setStartTime(startTime);
-            testInfo.setNumber(number);
-            testInfo.setStatus(status);
-
-            resultMap.get(taskId).put(sessionId,testInfo);
-        }
-
-        log.debug("Time spent for testInfo fetching for {} tests ids: {}ms", new Object[]{taskIds.size(), System.currentTimeMillis() - temp});
-
-        return resultMap;
+        return fetchUtil.getTestInfoByTaskIds(taskIds);
     }
+
 
     @Override
     public SessionInfoProvider getSessionInfoService(){

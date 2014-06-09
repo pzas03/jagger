@@ -147,7 +147,7 @@ public class DefaultDataService implements DataService {
                         TestInfoDto testInfoDto = testInfoMap.get(taskDataDto).entrySet().iterator().next().getValue();
                         testEntity.setLoad(testInfoDto.getClock());
                         testEntity.setTerminationStrategy(testInfoDto.getTermination());
-                        testEntity.setStartDate(testInfoDto.getStartTime());
+                        testEntity.setStartDate(testInfoDto.getFormattedStartTime());
                         testEntity.setTestGroupIndex(testInfoDto.getNumber());
                         testEntity.setTestExecutionStatus(testInfoDto.getStatus());
                     }

@@ -101,7 +101,10 @@
 
     <bean id="fetchUtil" class="com.griddynamics.jagger.dbapi.util.FetchUtil"/>
 
-    <bean id="sessionScopeDataUtil" class="com.griddynamics.jagger.dbapi.util.SessionScopeDataUtil"/>
+    <bean id="sessionScopeDataUtil" class="com.griddynamics.jagger.dbapi.util.SessionScopeDataUtil">
+        <property name="fetchUtil" ref="fetchUtil"/>
+    </bean>
+
 
     <bean id= "dataSaverService" class="com.griddynamics.jagger.dbapi.DataSaverServiceImpl"/>
 
@@ -194,6 +197,7 @@
         <property name="fetchUtil" ref="fetchUtil"/>
     </bean>
 
+
     <bean id="monitoringMetricPlotFetcher" class="com.griddynamics.jagger.dbapi.fetcher.MonitoringMetricPlotFetcher" init-method="init">
         <property name="legendProvider" ref="legendProvider"/>
         <property name="threadPool" ref="executorService"/>
@@ -213,8 +217,6 @@
         <property name="monitoringPlotGroups" ref="monitoringPlotGroups"/>
         <property name="sessionScopeDataUtil" ref="sessionScopeDataUtil"/>
     </bean>
-
-
 
     <!--=======Fetching data for Summary table=========-->
 
