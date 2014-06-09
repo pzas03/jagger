@@ -9,13 +9,10 @@ import com.griddynamics.jagger.dbapi.model.TestDetailsNode;
 import com.griddynamics.jagger.dbapi.model.TestNode;
 import com.griddynamics.jagger.dbapi.util.SessionMatchingSetup;
 import com.griddynamics.jagger.engine.e1.services.data.service.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class DefaultDataService implements DataService {
-    private static final Logger log = LoggerFactory.getLogger(DefaultDataService.class);
 
     private DatabaseService databaseService;
 
@@ -134,60 +131,37 @@ public class DefaultDataService implements DataService {
         Map<String, Set<TestEntity>> result = new HashMap<String, Set<TestEntity>>();
 
         for (TaskDataDto taskDataDto : taskDataDtoList) {
-
-
-            //???
-//            for (int i = 0; i < taskDataDto.getSessionIds().size(); i++) {
-//                if (((testName != null) && (testName.equals(taskDataDto.getTaskName()))) ||
-//                        (testName == null)) {
-//
-//                    TestEntity testEntity = new TestEntity();
-//                    testEntity.setId(taskDataDto.getIds().);
-//                    testEntity.setDescription(taskDataDto.getDescription());
-//                    testEntity.setName(taskDataDto.getTaskName());
-//
-////                    if (testInfoMap.containsKey(taskDataDto)) {
-////                        testEntity.setLoad(testInfoMap.get(taskDataDto).entrySet().iterator().next().getValue().getClock());
-////                        testEntity.setTerminationStrategy(testInfoMap.get(taskDataDto).entrySet().iterator().next().getValue().getTermination());
-////                    }
-////
-////                    if (result.containsKey(taskDataDto.getSessionId())){
-////                        result.get(taskDataDto.getSessionId()).add(testEntity);
-////                    }else{
-////                        Set<TestEntity> list = new HashSet<TestEntity>();
-////                        list.add(testEntity);
-////                        result.put(taskDataDto.getSessionId(), list);
-////                    }
-//                }
-//
-//            }
-
-
-
-            if (taskDataDto.getSessionIds().size() > 1) {
-                log.error("TaskDataDto contains data for more that one session. This is unexpected result. {}", taskDataDto);
-            }
-            else {
+            for (Map.Entry<Long,String> entry : taskDataDto.getIdToSessionId().entrySet()) {
                 if (((testName != null) && (testName.equals(taskDataDto.getTaskName()))) ||
                         (testName == null)) {
+                    Long testId = entry.getKey();
+                    String sessionId = entry.getValue();
+
                     TestEntity testEntity = new TestEntity();
-                    testEntity.setId(taskDataDto.getId());
+                    testEntity.setId(testId);
                     testEntity.setDescription(taskDataDto.getDescription());
                     testEntity.setName(taskDataDto.getTaskName());
 
                     if (testInfoMap.containsKey(taskDataDto)) {
-                        testEntity.setLoad(testInfoMap.get(taskDataDto).entrySet().iterator().next().getValue().getClock());
-                        testEntity.setTerminationStrategy(testInfoMap.get(taskDataDto).entrySet().iterator().next().getValue().getTermination());
+                        testEntity.setLoad(testInfoMap.get(taskDataDto).get(sessionId).getClock());
+                        testEntity.setTerminationStrategy(testInfoMap.get(taskDataDto).get(sessionId).getTermination());
                     }
 
-                    if (result.containsKey(taskDataDto.getSessionId())){
-                        result.get(taskDataDto.getSessionId()).add(testEntity);
+                    if (result.containsKey(sessionId)){
+                        result.get(sessionId).add(testEntity);
                     }else{
-                        Set<TestEntity> list = new HashSet<TestEntity>();
-                        list.add(testEntity);
-                        result.put(taskDataDto.getSessionId(), list);
+                        Set<TestEntity> testEntitySet = new HashSet<TestEntity>();
+                        testEntitySet.add(testEntity);
+                        result.put(sessionId, testEntitySet);
                     }
                 }
+            }
+        }
+
+        // add empty results when not found
+        for (String sessionId : sessionIds) {
+            if (!result.containsKey(sessionId)) {
+                result.put(sessionId,Collections.<TestEntity>emptySet());
             }
         }
 

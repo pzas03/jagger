@@ -104,16 +104,20 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
                     }
 
                     // Get data for baseline session
-                    //todo ??? JFG_745 check that tests match when getting baseline values
                     Map<String,Double> metricIdToValuesBaseline = new HashMap<String, Double>();
                     if (needBaselineSessionValue) {
-                        // Strategy to match sessions - we will use baseline when all test parameters are matching
+                        String baselineId = workloadTask.getLimits().getBaselineId();
+                        TestEntity testEntityBaseline = null;
+
+                        // Strategy to match sessions - we will use baseline only when all test parameters are matching
                         SessionMatchingSetup sessionMatchingSetup = new SessionMatchingSetup(true,
                                 EnumSet.of(SessionMatchingSetup.MatchBy.ALL));
-
-                        String baselineId = workloadTask.getLimits().getBaselineId();
-                        TestEntity testEntityBaseline = dataService.getTestByName(baselineId, testName);
-                        //???Map<String, Set<TestEntity>> ??? getTestsWithName(Collection<String> sessionIds, String testName, SessionMatchingSetup sessionMatchingSetup)
+                        DefaultDataService defaultDataService = (DefaultDataService) dataService;
+                        Map<String, Set<TestEntity>> matchingTestEntities =
+                                defaultDataService.getTestsWithName(Arrays.asList(sessionId,baselineId), testName, sessionMatchingSetup);
+                        if (!matchingTestEntities.get(baselineId).isEmpty()) {
+                            testEntityBaseline = matchingTestEntities.get(baselineId).iterator().next();
+                        }
 
                         if (testEntityBaseline != null) {
                             Set<MetricEntity> metricEntitySetBaseline = dataService.getMetrics(testEntityBaseline);
