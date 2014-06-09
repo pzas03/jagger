@@ -39,10 +39,10 @@ public class SummaryReporter {
     private DatabaseService databaseService;
     private String sessionId;
     private Map<TestEntity, Set<MetricEntity>> metricsPerTest;
-    private Map<String,List<SummaryDto>> summaryMap = new HashMap<String, List<SummaryDto>>();
-    private Map<String,List<SummaryDto>> latencyPercentilesMap = new HashMap<String, List<SummaryDto>>();
-    private Map<String,List<SummaryDto>> validatorsMap = new HashMap<String, List<SummaryDto>>();
-    private Map<TestEntity, Map<MetricEntity,MetricSummaryValueEntity>> standardMetricsMap = new HashMap<TestEntity, Map<MetricEntity, MetricSummaryValueEntity>>();
+    private Map<String, List<SummaryDto>> summaryMap = new HashMap<String, List<SummaryDto>>();
+    private Map<String, List<SummaryDto>> latencyPercentilesMap = new HashMap<String, List<SummaryDto>>();
+    private Map<String, List<SummaryDto>> validatorsMap = new HashMap<String, List<SummaryDto>>();
+    private Map<TestEntity, Map<MetricEntity, MetricSummaryValueEntity>> standardMetricsMap = new HashMap<TestEntity, Map<MetricEntity, MetricSummaryValueEntity>>();
 
     public List<SummaryDto> getSummary(String sessionId, String taskId) {
 
@@ -50,8 +50,7 @@ public class SummaryReporter {
 
         if (summaryMap.containsKey(taskId)) {
             return summaryMap.get(taskId);
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -62,8 +61,7 @@ public class SummaryReporter {
 
         if (validatorsMap.containsKey(taskId)) {
             return validatorsMap.get(taskId);
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -74,13 +72,12 @@ public class SummaryReporter {
 
         if (latencyPercentilesMap.containsKey(taskId)) {
             return latencyPercentilesMap.get(taskId);
-        }
-        else {
+        } else {
             return null;
         }
     }
 
-    public Map<TestEntity, Map<MetricEntity,MetricSummaryValueEntity>> getStandardMetricsPerTest(String sessionId) {
+    public Map<TestEntity, Map<MetricEntity, MetricSummaryValueEntity>> getStandardMetricsPerTest(String sessionId) {
 
         getData(sessionId);
 
@@ -121,7 +118,7 @@ public class SummaryReporter {
                 Map<MetricEntity, MetricSummaryValueEntity> standardMetricsPerTest = new HashMap<MetricEntity, MetricSummaryValueEntity>();
 
                 // Metrics
-                Map<MetricEntity,MetricSummaryValueEntity> summary = dataService.getMetricSummary(entry.getValue());
+                Map<MetricEntity, MetricSummaryValueEntity> summary = dataService.getMetricSummary(entry.getValue());
 
                 for (MetricEntity metricEntity : summary.keySet()) {
                     SummaryDto value = new SummaryDto();
@@ -145,16 +142,15 @@ public class SummaryReporter {
                     // Latency percentiles
                     if (metricEntity.getMetricId().matches("^" + StandardMetricsNamesUtil.LATENCY_PERCENTILE_REGEX)) {
                         // change key (name) for back compatibility
-                        value.setKey(metricEntity.getDisplayName().replace("Latency ","").concat("  -  "));
+                        value.setKey(metricEntity.getDisplayName().replace("Latency ", "").concat("  -  "));
                         latencyPercentilesList.add(value);
-                    }
-                    else {
+                    } else {
                         summaryList.add(value);
                     }
 
                     // Standard metrics
                     if (standardMetricsIds.contains(metricEntity.getMetricId())) {
-                        standardMetricsPerTest.put(metricEntity,summary.get(metricEntity));
+                        standardMetricsPerTest.put(metricEntity, summary.get(metricEntity));
                     }
                 }
 
@@ -181,18 +177,18 @@ public class SummaryReporter {
                 SummaryDto load = new SummaryDto();
                 load.setKey("Load");
                 load.setValue(entry.getKey().getLoad());
-                summaryList.add(0,load);
+                summaryList.add(0, load);
 
                 summaryMap.put(entry.getKey().getId().toString(), summaryList);
                 latencyPercentilesMap.put(entry.getKey().getId().toString(), latencyPercentilesList);
                 validatorsMap.put(entry.getKey().getId().toString(), validatorsList);
-                standardMetricsMap.put(entry.getKey(),standardMetricsPerTest);
+                standardMetricsMap.put(entry.getKey(), standardMetricsPerTest);
             }
         }
     }
 
     private class LocalRankingProvider extends MetricNamesRankingProvider {
-        public void sortSummaryDto(List<SummaryDto> list){
+        public void sortSummaryDto(List<SummaryDto> list) {
             Collections.sort(list, new Comparator<SummaryDto>() {
                 @Override
                 public int compare(SummaryDto o, SummaryDto o2) {
