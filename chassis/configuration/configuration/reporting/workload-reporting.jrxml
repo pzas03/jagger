@@ -62,7 +62,7 @@
                 <reportElement style="Compact_Header_Bold" mode="Opaque" x="30" y="0" width="120" height="30"
                                forecolor="#000000" backcolor="#D7FFB0"/>
                 <textElement textAlignment="Center" verticalAlignment="Middle"/>
-                <text><![CDATA[Scenario Name]]></text>
+                <text><![CDATA[Test Name]]></text>
             </staticText>
             <staticText>
                 <reportElement style="Compact_Header_Bold" mode="Opaque" x="150" y="0" width="50" height="30"

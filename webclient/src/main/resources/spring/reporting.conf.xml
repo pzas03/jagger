@@ -20,8 +20,8 @@
   -->
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
     <!--==========Workload Plot Groups==========-->
 
@@ -31,7 +31,9 @@
                 <entry>
                     <key>
                         <bean class="com.griddynamics.jagger.dbapi.parameter.GroupKey">
-                            <constructor-arg index="0" value="Throughput"/>
+                            <constructor-arg index="0">
+                                <util:constant static-field="com.griddynamics.jagger.util.StandardMetricsNamesUtil.THROUGHPUT"/>
+                            </constructor-arg>
                         </bean>
                     </key>
                     <list value-type="com.griddynamics.jagger.dbapi.parameter.DefaultWorkloadParameters">
@@ -42,7 +44,9 @@
                 <entry>
                     <key>
                         <bean class="com.griddynamics.jagger.dbapi.parameter.GroupKey">
-                            <constructor-arg index="0" value="Latency"/>
+                            <constructor-arg index="0">
+                                <util:constant static-field="com.griddynamics.jagger.util.StandardMetricsNamesUtil.LATENCY"/>
+                            </constructor-arg>
                         </bean>
                     </key>
                     <list value-type="com.griddynamics.jagger.dbapi.parameter.DefaultWorkloadParameters">
@@ -54,7 +58,9 @@
                 <entry>
                     <key>
                         <bean class="com.griddynamics.jagger.dbapi.parameter.GroupKey">
-                            <constructor-arg index="0" value="Time Latency Percentile"/>
+                            <constructor-arg index="0">
+                                <util:constant static-field="com.griddynamics.jagger.util.StandardMetricsNamesUtil.TIME_LATENCY_PERCENTILE"/>
+                            </constructor-arg>
                         </bean>
                     </key>
                     <list value-type="com.griddynamics.jagger.dbapi.parameter.DefaultWorkloadParameters">

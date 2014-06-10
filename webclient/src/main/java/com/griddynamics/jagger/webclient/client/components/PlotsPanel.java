@@ -1,13 +1,20 @@
 package com.griddynamics.jagger.webclient.client.components;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JsArray;
+import com.google.gwt.event.dom.client.ScrollEvent;
+import com.google.gwt.event.dom.client.ScrollHandler;
+import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.*;
-import com.googlecode.gflot.client.Pan;
+import com.google.gwt.user.client.ui.Composite;
+import com.googlecode.gflot.client.Series;
+import com.googlecode.gflot.client.SeriesData;
 import com.googlecode.gflot.client.SimplePlot;
+import com.googlecode.gflot.client.Zoom;
 import com.sencha.gxt.widget.core.client.Slider;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
@@ -81,6 +88,8 @@ public class PlotsPanel extends Composite {
      * @param elementId Id of widget element (Widget.getElement.getId())*/
     public void removeElementById(String elementId) {
         layoutPanel.removeChild(elementId);
+        childrenCount = layoutPanel.getAllChildren().size();
+        setMaxRange();
         controlTree.setCheckState(elementId, Tree.CheckState.UNCHECKED);
     }
 
@@ -88,15 +97,95 @@ public class PlotsPanel extends Composite {
      * Remove all widgets from layoutPanel */
     public void clear() {
         layoutPanel.clear();
+        childrenCount = 0;
     }
 
     /**
      * Add widget to layoutPanel
      * @param plotContainer child widget */
-    public void addElement(PlotContainer plotContainer) {
+    public void addElement(final PlotContainer plotContainer) {
         plotContainer.setHeight(plotContainerHeight + "px");
         plotContainer.setPlotsPanel(this);
+        scrollCalculations(plotContainer);
+
+        plotContainer.getPlotRepresentation().addAttachHandler(new AttachEvent.Handler() {
+            @Override
+            public void onAttachOrDetach(AttachEvent event) {
+                // executes when plot have been loaded
+                plotContainer.getPlotRepresentation().calculateScrollWidth();
+                avalancheScrollEventsCount ++;
+                plotContainer.getPlotRepresentation().panToPercent(percent);
+            }
+        });
+
         layoutPanel.addChild(plotContainer);
+        childrenCount = layoutPanel.getAllChildren().size();
+        setMaxRange();
+    }
+
+    private void panAllPlots(double percent) {
+
+        for (PlotContainer pc : layoutPanel.getAllChildren()) {
+            pc.getPlotRepresentation().panToPercent(percent);
+        }
+    }
+
+
+    private void scrollCalculations(final PlotContainer plotContainer) {
+
+        double maxX = calculateMaxXAxisValue(plotContainer.getPlotRepresentation().getSimplePlot());
+
+        double maxRange;
+        if (this.isEmpty()) {
+            maxRange = maxX;
+        } else {
+            if (maxX > getMaxXAxisValue()) {
+                maxRange = maxX;
+            } else {
+                maxRange = getMaxXAxisValue();
+            }
+        }
+
+        plotContainer.getPlotRepresentation().setMaxRange(maxRange);
+
+        final NativeHorizontalScrollbar scrollBar = plotContainer.getPlotRepresentation().getScrollbar();
+        scrollBar.setVisible(true);
+        scrollBar.addScrollHandler(new ScrollHandler() {
+            @Override
+            public void onScroll(ScrollEvent event) {
+
+                if (avalancheScrollEventsCount > 0) {
+                    avalancheScrollEventsCount --;
+                    return;
+                }
+
+                avalancheScrollEventsCount = childrenCount;
+                int currentPosition = scrollBar.getHorizontalScrollPosition();
+                double percent = 1D * (currentPosition - scrollBar.getMinimumHorizontalScrollPosition()) /
+                        (scrollBar.getMaximumHorizontalScrollPosition() - scrollBar.getMinimumHorizontalScrollPosition());
+                PlotsPanel.this.percent = percent;
+                panAllPlots(percent);
+            }
+        });
+
+    }
+
+    /**
+     * Global counter to see how many avalanche scroll events hav not been finished */
+    private int avalancheScrollEventsCount = 0;
+
+    /**
+     * To avoid calculating on every scroll  event */
+    private int childrenCount = 0;
+
+    /**
+     * Current state of plot`s scrolls */
+    private double percent = 0;
+
+    private void setMaxRange() {
+        for (PlotContainer pc : layoutPanel.getAllChildren()) {
+            pc.getPlotRepresentation().setMaxRange(getMaxXAxisValue());
+        }
     }
 
     /**
@@ -109,51 +198,113 @@ public class PlotsPanel extends Composite {
 
 
     /**
-     * Pan All plots that contains in PlotsPanel
-     * @param pan amount to pan left */
-    public void panAllPlots(int pan) {
-        for (PlotContainer pc : layoutPanel.getAllChildren()) {
-            SimplePlot plot = pc.getPlotRepresentation().getSimplePlot();
-            plot.pan(Pan.create().setLeft(pan));
-        }
-    }
-
-
-    /**
      * Zoom all plots in PlotsPanel */
     public void zoomIn() {
-        for (PlotContainer pc : layoutPanel.getAllChildren()) {
-            SimplePlot plot = pc.getPlotRepresentation().getSimplePlot();
-            plot.zoom();
-        }
+
+       zoom(false);
     }
 
     /**
      * Zoom out all plots in PlotsPanel */
     public void zoomOut() {
+
+       zoom(true);
+    }
+
+    /**
+     * Zoom in if param is false, zoom out otherwise.
+     * @param out defines whether zoom in or out.
+     */
+    private void zoom(boolean out) {
+
+        double maxRange = layoutPanel.getFirstChild().getPlotRepresentation().getMaxRange();
         for (PlotContainer pc : layoutPanel.getAllChildren()) {
             SimplePlot plot = pc.getPlotRepresentation().getSimplePlot();
-            plot.zoomOut();
+            Zoom zoom = Zoom.create().setAmount(1.1);
+
+            if (out) {
+                plot.zoomOut(zoom);
+            } else {
+                plot.zoom(zoom);
+            }
+
+            pc.getPlotRepresentation().calculateScrollWidth();
         }
+
+        PlotRepresentation plotRepresentation = layoutPanel.getFirstChild().getPlotRepresentation();
+        double percent;
+        double minVisible = plotRepresentation.getSimplePlot().getAxes().getX().getMinimumValue();
+        double maxVisible = plotRepresentation.getSimplePlot().getAxes().getX().getMaximumValue();
+
+        if (out) {
+            if (maxVisible >= maxRange && minVisible <= 0) {
+                // do nothing when plot in visible range
+                return;
+            }
+
+            if (maxVisible >= maxRange) {
+                // to the end
+                plotRepresentation.panToPercent(1);
+                return;
+            } else if (minVisible <= 0) {
+                // to very start
+                plotRepresentation.panToPercent(0);
+                return;
+            }
+        }
+
+        percent = minVisible / (maxRange - maxVisible + minVisible);
+        plotRepresentation.panToPercent(percent);
+    }
+
+    /**
+     * Zoom to size of given plot;
+     * @param plot - given plot */
+    public void zoomDefault(SimplePlot plot) {
+
+        double xMaxValue = calculateMaxXAxisValue(plot);
+
+        for (PlotContainer pc : layoutPanel.getAllChildren()) {
+            SimplePlot currentPlot = pc.getPlotRepresentation().getSimplePlot();
+            // currently we always start xAxis with zero
+            currentPlot.getOptions().getXAxisOptions().setMinimum(0).setMaximum(xMaxValue);
+            currentPlot.setupGrid();
+            currentPlot.redraw();
+            pc.getPlotRepresentation().calculateScrollWidth();
+        }
+
+        // all plots start with zero
+        PlotRepresentation plotRepresentation = layoutPanel.getFirstChild().getPlotRepresentation();
+        plotRepresentation.panToPercent(0);
+    }
+
+
+    /**
+     * Returns max X axis value on plot
+     * @param plot plot
+     * @return max X axis value */
+    private double calculateMaxXAxisValue (SimplePlot plot) {
+
+        JsArray<Series> seriesArray = plot.getModel().getSeries();
+        double maxValue = Double.MIN_VALUE;
+        for (int i = 0; i < seriesArray.length(); i ++) {
+            // get curve
+            SeriesData curve = seriesArray.get(i).getData();
+            double temp = curve.getX(curve.length() - 1);
+            if (maxValue < temp) {
+                maxValue = temp;
+            }
+        }
+        return maxValue;
     }
 
     /**
      * Check if PlotsPanel contains any plots.
      * @return true if it is empty, false otherwise */
     public boolean isEmpty() {
-        return layoutPanel.getWidgetCount() == 0;
+        return childrenCount == 0;
     }
 
-    /**
-     * @return minimum X axis value */
-    public double getMinXAxisValue() {
-        // no widgets in panel
-        assert layoutPanel.getWidgetCount() > 0;
-
-        SimplePlot plot = layoutPanel.getFirstChild().getPlotRepresentation().getSimplePlot();
-
-        return plot.getAxes().getX().getMinimumValue();
-    }
 
     /**
      * @return maximum X axis value */
@@ -161,11 +312,39 @@ public class PlotsPanel extends Composite {
         // no widgets in panel
         assert layoutPanel.getWidgetCount() > 0;
 
-        SimplePlot plot = layoutPanel.getFirstChild().getPlotRepresentation().getSimplePlot();
+        double xMaxValue = Double.MIN_VALUE;
+        for (PlotContainer pc : layoutPanel.getAllChildren()) {
 
+            double curveMaxX = calculateMaxXAxisValue(pc.getPlotRepresentation().getSimplePlot());
+
+            if (curveMaxX > xMaxValue) {
+                xMaxValue = curveMaxX;
+            }
+        }
+
+        return xMaxValue;
+    }
+
+    /**
+     * @return maximum visible X axis value */
+    public double getMaxXAxisVisibleValue() {
+        // no widgets in panel
+        assert layoutPanel.getWidgetCount() > 0;
+
+        SimplePlot plot = layoutPanel.getFirstChild().getPlotRepresentation().getSimplePlot();
         return plot.getAxes().getX().getMaximumValue();
     }
 
+
+    /**
+     * @return minimum visible X axis value */
+    public double getMinXAxisVisibleValue() {
+        // no widgets in panel
+        assert layoutPanel.getWidgetCount() > 0;
+
+        SimplePlot plot = layoutPanel.getFirstChild().getPlotRepresentation().getSimplePlot();
+        return plot.getAxes().getX().getMinimumValue();
+    }
 
     private class ChangeLayoutHandler implements SelectEvent.SelectHandler {
         @Override

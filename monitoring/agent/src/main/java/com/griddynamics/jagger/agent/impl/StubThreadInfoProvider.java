@@ -18,29 +18,23 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.griddynamics.jagger.engine.e1.reporting;
+package com.griddynamics.jagger.agent.impl;
 
-import com.griddynamics.jagger.reporting.AbstractMappedReportProvider;
-import net.sf.jasperreports.engine.JRDataSource;
-import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import org.springframework.beans.factory.annotation.Required;
+import com.griddynamics.jagger.diagnostics.thread.sampling.ThreadInfoProvider;
 
-import java.util.List;
+import java.lang.management.ThreadInfo;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 
-public class WorkloadValidationReporter extends AbstractMappedReportProvider<String> {
-    private SummaryReporter summaryReporter;
+public class StubThreadInfoProvider implements ThreadInfoProvider {
+    @Override
+    public Set<String> getIdentifiersSuT() {
+        return Collections.singleton("STUB");
+    }
 
     @Override
-    public JRDataSource getDataSource(String id) {
-        String sessionId = getSessionIdProvider().getSessionId();
-        List<SummaryDto> result = summaryReporter.getValidators(sessionId, id);
-
-        return new JRBeanCollectionDataSource(result);
+    public Map<String, ThreadInfo[]> getThreadInfo() {
+        return Collections.emptyMap();
     }
-
-    @Required
-    public void setSummaryReporter(SummaryReporter summaryReporter) {
-        this.summaryReporter = summaryReporter;
-    }
-
 }
