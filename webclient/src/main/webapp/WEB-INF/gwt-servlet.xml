@@ -207,15 +207,15 @@
     <bean id="sessionScopeTestGroupMetricPlotFetcher" class="com.griddynamics.jagger.dbapi.fetcher.SessionScopeTestGroupMetricPlotFetcher">
         <property name="legendProvider" ref="legendProvider"/>
         <property name="threadPool" ref="executorService"/>
-        <property name="fetchUtil" ref="fetchUtil"/>
-        <property name="sessionScopeDataUtil" ref="sessionScopeDataUtil"/>
+        <property name="abstractMetricPlotFetcher" ref="customTestGroupMetricPlotFetcher"/>
+        <property name="sessionScopeDataUtil" ref = "sessionScopeDataUtil"/>
     </bean>
 
-    <bean id="sessionScopeMonitoringMetricPlotFetcher" class="com.griddynamics.jagger.dbapi.fetcher.SessionScopeMonitoringMetricPlotFetcher" init-method="init">
+    <bean id="sessionScopeMonitoringMetricPlotFetcher" class="com.griddynamics.jagger.dbapi.fetcher.SessionScopeMonitoringMetricPlotFetcher">
         <property name="legendProvider" ref="legendProvider"/>
         <property name="threadPool" ref="executorService"/>
-        <property name="monitoringPlotGroups" ref="monitoringPlotGroups"/>
-        <property name="sessionScopeDataUtil" ref="sessionScopeDataUtil"/>
+        <property name="abstractMetricPlotFetcher" ref="monitoringMetricPlotFetcher"/>
+        <property name="sessionScopeDataUtil" ref = "sessionScopeDataUtil"/>
     </bean>
 
     <!--=======Fetching data for Summary table=========-->

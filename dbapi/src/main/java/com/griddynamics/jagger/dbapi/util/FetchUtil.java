@@ -87,7 +87,8 @@ public class FetchUtil {
 
     /** Returns test info for specified tests ids
      * @param taskIds - selected test ids
-     * @return map of test info */
+     * @return map <testId, map <sessionId, test info>> of test info
+     * */
     public Map<Long, Map<String, TestInfoDto>> getTestInfoByTaskIds(Set<Long> taskIds) throws RuntimeException {
 
         if (taskIds.isEmpty()) {

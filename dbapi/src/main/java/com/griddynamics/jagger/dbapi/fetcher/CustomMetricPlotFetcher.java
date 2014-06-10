@@ -3,8 +3,6 @@ package com.griddynamics.jagger.dbapi.fetcher;
 
 import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
 import com.griddynamics.jagger.dbapi.util.DataProcessingUtil;
-import com.griddynamics.jagger.dbapi.util.FetchUtil;
-import org.springframework.beans.factory.annotation.Required;
 
 import java.util.*;
 

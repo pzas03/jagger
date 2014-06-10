@@ -15,6 +15,7 @@ import java.util.*;
  * Abstract class that deal with MetricRawData data to create PlotDatasetDto object
  * todo : all PlotFetchers can be refactored to extend this abstract class
  */
+
 public abstract class AbstractMetricPlotFetcher extends PlotsDbMetricDataFetcher {
 
     @Override
@@ -122,7 +123,6 @@ public abstract class AbstractMetricPlotFetcher extends PlotsDbMetricDataFetcher
         }
         return taskIdMap;
     }
-
 
     public static class MetricRawData {
 
