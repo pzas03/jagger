@@ -1,34 +1,15 @@
 package com.griddynamics.jagger.dbapi.util;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import java.util.*;
-
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
  * @since 5/31/12
  */
 public class LegendProvider {
-    private EntityManager entityManager;
+
+    private static final String SESSION_PREFIX = "#";
+    private static final String LEGEND_DESCRIPTION_SEPARATOR = ": ";
 
     public LegendProvider() {
-    }
-
-    @PersistenceContext
-    public void setEntityManager(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
-
-    public String getPlotHeader(Set<Long> taskIds, String plotName) {
-        @SuppressWarnings("unchecked")
-        List<String> sessionList = (List<String>) entityManager.createQuery("select distinct td.sessionId from TaskData as td where td.id in (:taskIds)").
-                setParameter("taskIds", taskIds).getResultList();
-
-        String taskName = (String) entityManager.createQuery("select td.taskName from TaskData as td where td.id=(:taskId)")
-                .setParameter("taskId", taskIds.iterator().next())
-                .getSingleResult();
-
-        return generatePlotHeader(sessionList, taskName, plotName);
     }
 
     public String generatePlotLegend(String sessionId, String description, boolean addSessionPrefix) {
@@ -36,50 +17,24 @@ public class LegendProvider {
             return description;
         }
 
-        StringBuilder builder = new StringBuilder();
-        builder.append("#").append(sessionId).append(": ").append(description);
-
-        return builder.toString();
+        return SESSION_PREFIX + sessionId + LEGEND_DESCRIPTION_SEPARATOR + description;
     }
 
-    //============================
-    //===========Auxiliary Methods
-    //============================
+    public String generatePlotHeader(String taskName, String plotName) {
 
-    private String generatePlotHeader(String sessionId, String taskName, String plotName) {
-        StringBuilder builder = new StringBuilder();
-        builder
-                .append(taskName)
-                .append(", ")
-                .append(plotName);
-
-        return builder.toString();
-    }
-
-    private String generatePlotHeader(List<String> sessionIds, String taskName, String plotName) {
-        if (sessionIds == null || sessionIds.isEmpty()) {
-            return plotName;
-        }
-
-        StringBuilder builder = new StringBuilder();
-        builder
-                .append(taskName)
-                .append(", ")
-                .append(plotName);
-
-        return builder.toString();
+        return taskName + ", " + plotName;
     }
 
     public static String parseMetricName(String legend) {
-        if (legend.startsWith("#")) {
-            return legend.substring(legend.indexOf(':') + 2);
+        if (legend.startsWith(SESSION_PREFIX)) {
+            return legend.substring(legend.indexOf(LEGEND_DESCRIPTION_SEPARATOR) + LEGEND_DESCRIPTION_SEPARATOR.length());
         }
         return legend;
     }
 
     public static String parseSessionId(String legend) {
-        if (legend.startsWith("#")) {
-            return legend.substring(legend.indexOf('#'), legend.indexOf(':'));
+        if (legend.startsWith(SESSION_PREFIX)) {
+            return legend.substring(legend.indexOf(SESSION_PREFIX), legend.indexOf(LEGEND_DESCRIPTION_SEPARATOR));
         }
         return "";
     }

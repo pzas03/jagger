@@ -1,8 +1,8 @@
 package com.griddynamics.jagger.dbapi.fetcher;
 
 
+import com.griddynamics.jagger.dbapi.dto.PlotSingleDto;
 import com.griddynamics.jagger.dbapi.util.ColorCodeGenerator;
-import com.griddynamics.jagger.dbapi.dto.PlotDatasetDto;
 import com.griddynamics.jagger.dbapi.dto.PointDto;
 import com.griddynamics.jagger.dbapi.parameter.DefaultWorkloadParameters;
 import com.griddynamics.jagger.dbapi.util.DataProcessingUtil;
@@ -13,9 +13,9 @@ public class LatencyMetricPlotFetcher extends StandardMetricPlotFetcher<LatencyM
 
 
     @Override
-    protected Iterable<? extends PlotDatasetDto> assemble(Collection<LatencyRawData> rawDataList) {
+    protected Iterable<? extends PlotSingleDto> assemble(Collection<LatencyRawData> rawDataList) {
 
-        List<PlotDatasetDto> plotDatasetDtoList = new ArrayList<PlotDatasetDto>(2);
+        List<PlotSingleDto> plotDatasetDtoList = new ArrayList<PlotSingleDto>(2);
 
         String sessionId = rawDataList.iterator().next().getSessionId();
 
@@ -31,11 +31,11 @@ public class LatencyMetricPlotFetcher extends StandardMetricPlotFetcher<LatencyM
         }
 
         String legend = legendProvider.generatePlotLegend(sessionId, DefaultWorkloadParameters.LATENCY.getDescription(), true);
-        PlotDatasetDto plotDatasetDto = new PlotDatasetDto(pointDtoLatencyList, legend, ColorCodeGenerator.getHexColorCode());
+        PlotSingleDto plotDatasetDto = new PlotSingleDto(pointDtoLatencyList, legend, ColorCodeGenerator.getHexColorCode());
         plotDatasetDtoList.add(plotDatasetDto);
 
         legend = legendProvider.generatePlotLegend(sessionId, DefaultWorkloadParameters.LATENCY_STD_DEV.getDescription(), true);
-        plotDatasetDto = new PlotDatasetDto(pointDtoLatencyStdDevList, legend, ColorCodeGenerator.getHexColorCode());
+        plotDatasetDto = new PlotSingleDto(pointDtoLatencyStdDevList, legend, ColorCodeGenerator.getHexColorCode());
         plotDatasetDtoList.add(plotDatasetDto);
 
         return plotDatasetDtoList;

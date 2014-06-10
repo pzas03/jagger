@@ -1,9 +1,9 @@
 package com.griddynamics.jagger.webclient.server;
 
 import com.griddynamics.jagger.dbapi.DatabaseService;
+import com.griddynamics.jagger.dbapi.dto.SummaryIntegratedDto;
 import com.griddynamics.jagger.dbapi.model.MetricNode;
 import com.griddynamics.jagger.webclient.client.MetricDataService;
-import com.griddynamics.jagger.dbapi.dto.SummaryMetricDto;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.util.*;
@@ -25,7 +25,7 @@ public class MetricDataServiceImpl implements MetricDataService {
     }
 
     @Override
-    public Map<MetricNode, SummaryMetricDto> getMetrics(List<MetricNode> metricNodes) throws RuntimeException {
-        return databaseService.getSummaryMetricDataByMetricNodes(metricNodes);
+    public Map<MetricNode, SummaryIntegratedDto> getMetrics(Set<MetricNode> metricNodes) throws RuntimeException {
+        return databaseService.getSummaryByMetricNodes(metricNodes);
     }
 }

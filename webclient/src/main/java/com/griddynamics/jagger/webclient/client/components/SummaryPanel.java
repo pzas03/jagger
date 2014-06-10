@@ -6,10 +6,10 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.griddynamics.jagger.dbapi.dto.SummaryIntegratedDto;
 import com.griddynamics.jagger.dbapi.model.MetricNode;
 import com.griddynamics.jagger.dbapi.model.WebClientProperties;
 import com.griddynamics.jagger.dbapi.dto.SessionDataDto;
-import com.griddynamics.jagger.dbapi.dto.SummaryMetricDto;
 
 import java.util.*;
 
@@ -38,7 +38,7 @@ public class SummaryPanel extends Composite {
         initWidget(ourUiBinder.createAndBindUi(this));
     }
 
-    public HashMap<MetricNode, SummaryMetricDto> getCachedMetrics() {
+    public HashMap<MetricNode, SummaryIntegratedDto> getCachedMetrics() {
         return sessionComparisonPanel.getCachedMetrics();
     }
 

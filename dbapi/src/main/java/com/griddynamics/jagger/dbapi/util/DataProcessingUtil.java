@@ -1,9 +1,9 @@
 package com.griddynamics.jagger.dbapi.util;
 
 
-import com.griddynamics.jagger.dbapi.dto.MetricDto;
-import com.griddynamics.jagger.dbapi.dto.MetricValueDto;
-import com.griddynamics.jagger.dbapi.dto.PlotDatasetDto;
+import com.griddynamics.jagger.dbapi.dto.PlotSingleDto;
+import com.griddynamics.jagger.dbapi.dto.SummaryMetricValueDto;
+import com.griddynamics.jagger.dbapi.dto.SummarySingleDto;
 import com.griddynamics.jagger.dbapi.dto.PointDto;
 
 import java.math.BigDecimal;
@@ -54,30 +54,30 @@ public class DataProcessingUtil {
      * @param metricDto contains values to generate curve
      * @return curve
      */
-    public static PlotDatasetDto generatePlotDatasetDto(MetricDto metricDto) {
+    public static PlotSingleDto generatePlotSingleDto(SummarySingleDto metricDto) {
         List<PointDto> list = new ArrayList<PointDto>();
 
-        List<MetricValueDto> metricList = new ArrayList<MetricValueDto>();
-        for(MetricValueDto value :metricDto.getValues()) {
+        List<SummaryMetricValueDto> metricList = new ArrayList<SummaryMetricValueDto>();
+        for(SummaryMetricValueDto value: metricDto.getValues()) {
             metricList.add(value);
         }
 
-        Collections.sort(metricList, new Comparator<MetricValueDto>() {
+        Collections.sort(metricList, new Comparator<SummaryMetricValueDto>() {
 
             @Override
-            public int compare(MetricValueDto o1, MetricValueDto o2) {
+            public int compare(SummaryMetricValueDto o1, SummaryMetricValueDto o2) {
                 return  o2.getSessionId() < o1.getSessionId() ? 1 : -1;
             }
         });
 
-        for (MetricValueDto value: metricList) {
+        for (SummaryMetricValueDto value: metricList) {
             double temp = Double.parseDouble(value.getValue());
             list.add(new PointDto(value.getSessionId(), temp));
         }
 
         String legend = metricDto.getMetricName().getMetricDisplayName();
 
-        return new PlotDatasetDto(
+        return new PlotSingleDto(
                 list,
                 legend,
                 ColorCodeGenerator.getHexColorCode()

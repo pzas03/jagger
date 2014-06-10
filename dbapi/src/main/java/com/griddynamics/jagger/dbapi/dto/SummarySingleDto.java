@@ -4,23 +4,23 @@ import java.io.Serializable;
 import java.util.Set;
 
 /**
- * Created with IntelliJ IDEA.
- * User: kirilkadurilka
- * Date: 04.04.13
- * Time: 14:12
- * To change this template use File | Settings | File Templates.
+ * Represent single raw in summary table for one metric.
+ * Refers to MetricNameDto
+ *
+ * @author kirilkadurilka
+ * @since 04/04/13
  */
-public class MetricDto implements Serializable {
+public class SummarySingleDto implements Serializable {
 
     private MetricNameDto metricName;
 
-    private Set<MetricValueDto> values;
+    private Set<SummaryMetricValueDto> values;
 
-    public Set<MetricValueDto> getValues() {
+    public Set<SummaryMetricValueDto> getValues() {
         return values;
     }
 
-    public void setValues(Set<MetricValueDto> values) {
+    public void setValues(Set<SummaryMetricValueDto> values) {
         this.values = values;
     }
 

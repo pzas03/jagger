@@ -1,17 +1,17 @@
 package com.griddynamics.jagger.dbapi.fetcher;
 
 
-import com.griddynamics.jagger.dbapi.dto.MetricDto;
+import com.griddynamics.jagger.dbapi.dto.SummaryMetricValueDto;
+import com.griddynamics.jagger.dbapi.dto.SummarySingleDto;
 import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
-import com.griddynamics.jagger.dbapi.dto.MetricValueDto;
 import com.griddynamics.jagger.dbapi.util.MetricNameUtil;
 
 import java.util.*;
 
-public class LatencyMetricSummaryFetcher extends DbMetricDataFetcher<MetricDto> {
+public class LatencyMetricSummaryFetcher extends DbMetricDataFetcher<SummarySingleDto> {
 
     @Override
-    protected Set<MetricDto> fetchData(List<MetricNameDto> metricNames) {
+    protected Set<SummarySingleDto> fetchData(List<MetricNameDto> metricNames) {
 
         if (metricNames.isEmpty()) {
             return Collections.EMPTY_SET;
@@ -38,7 +38,7 @@ public class LatencyMetricSummaryFetcher extends DbMetricDataFetcher<MetricDto> 
 
         Map<Long, Map<String, MetricNameDto>> mappedMetricNames = MetricNameUtil.getMappedMetricDtos(metricNames);
 
-        Map<MetricNameDto, MetricDto> resultMap = new HashMap<MetricNameDto, MetricDto>();
+        Map<MetricNameDto, SummarySingleDto> resultMap = new HashMap<MetricNameDto, SummarySingleDto>();
 
         for (Object[] temp : latency){
 
@@ -55,20 +55,20 @@ public class LatencyMetricSummaryFetcher extends DbMetricDataFetcher<MetricDto> 
             }
 
             if (!resultMap.containsKey(metricNameDto)) {
-                MetricDto metricDto = new MetricDto();
+                SummarySingleDto metricDto = new SummarySingleDto();
                 metricDto.setMetricName(metricNameDto);
-                metricDto.setValues(new HashSet<MetricValueDto>());
+                metricDto.setValues(new HashSet<SummaryMetricValueDto>());
                 resultMap.put(metricNameDto, metricDto);
             }
 
-            MetricDto metricDto = resultMap.get(metricNameDto);
+            SummarySingleDto metricDto = resultMap.get(metricNameDto);
 
-            MetricValueDto value = new MetricValueDto();
+            SummaryMetricValueDto value = new SummaryMetricValueDto();
             value.setValue(String.format("%.3f", (Double)temp[0] / 1000));
             value.setSessionId(Long.parseLong(temp[2].toString()));
             metricDto.getValues().add(value);
         }
 
-        return new HashSet<MetricDto>(resultMap.values());
+        return new HashSet<SummarySingleDto>(resultMap.values());
     }
 }

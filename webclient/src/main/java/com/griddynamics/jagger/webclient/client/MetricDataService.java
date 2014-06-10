@@ -3,12 +3,12 @@ package com.griddynamics.jagger.webclient.client;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import com.google.gwt.core.client.GWT;
+import com.griddynamics.jagger.dbapi.dto.SummaryIntegratedDto;
 import com.griddynamics.jagger.dbapi.model.MetricNode;
-import com.griddynamics.jagger.dbapi.dto.SummaryMetricDto;
 
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -31,5 +31,5 @@ public interface MetricDataService extends RemoteService {
         }
     }
 
-    public Map<MetricNode, SummaryMetricDto> getMetrics(List<MetricNode> metricNames) throws RuntimeException;
+    public Map<MetricNode, SummaryIntegratedDto> getMetrics(Set<MetricNode> metricNames) throws RuntimeException;
 }

@@ -12,7 +12,7 @@ import com.griddynamics.jagger.dbapi.model.MetricRankingProvider;
 import com.griddynamics.jagger.dbapi.model.WebClientProperties;
 import com.griddynamics.jagger.webclient.client.SessionDataService;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.griddynamics.jagger.dbapi.dto.SummaryMetricDto;
+import com.griddynamics.jagger.dbapi.dto.SummaryIntegratedDto;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
 import com.sencha.gxt.core.client.ValueProvider;
 import com.sencha.gxt.data.shared.ModelKeyProvider;
@@ -81,7 +81,7 @@ public class SessionComparisonPanel extends VerticalPanel {
         }
     });
 
-    private HashMap<MetricNode, SummaryMetricDto> cache = new HashMap<MetricNode, SummaryMetricDto>();
+    private HashMap<MetricNode, SummaryIntegratedDto> cache = new HashMap<MetricNode, SummaryIntegratedDto>();
 
     private WebClientProperties webClientProperties;
 
@@ -89,7 +89,7 @@ public class SessionComparisonPanel extends VerticalPanel {
 
     private boolean allTagsLoadComplete = false;
 
-    public HashMap<MetricNode, SummaryMetricDto> getCachedMetrics() {
+    public HashMap<MetricNode, SummaryIntegratedDto> getCachedMetrics() {
         return cache;
     }
 
@@ -359,31 +359,31 @@ public class SessionComparisonPanel extends VerticalPanel {
     }
 
 
-    public void addMetricRecord(MetricDto metricDto) {
+    public void addMetricRecord(SummarySingleDto metricDto) {
 
         TreeItem record = new TreeItem(metricDto);
         addItemToStore(record, metricDto);
     }
 
 
-    public void addMetricRecords(Map<MetricNode, SummaryMetricDto> loaded) {
+    public void addMetricRecords(Map<MetricNode, SummaryIntegratedDto> loaded) {
 
         cache.putAll(loaded);
 
-        List<MetricDto> loadedSorted = new ArrayList<MetricDto>();
-        for (SummaryMetricDto summaryMetricDto : loaded.values()) {
-            for (MetricDto metricDto : summaryMetricDto.getMetricDtoList()) {
+        List<SummarySingleDto> loadedSorted = new ArrayList<SummarySingleDto>();
+        for (SummaryIntegratedDto summaryMetricDto : loaded.values()) {
+            for (SummarySingleDto metricDto : summaryMetricDto.getSummarySingleDtoList()) {
                 loadedSorted.add(metricDto);
             }
         }
 
         MetricRankingProvider.sortMetrics(loadedSorted);
-        for (MetricDto metricDto : loadedSorted) {
+        for (SummarySingleDto metricDto : loadedSorted) {
             addMetricRecord(metricDto);
         }
     }
 
-    private void addItemToStore(TreeItem record, MetricDto metricDto) {
+    private void addItemToStore(TreeItem record, SummarySingleDto metricDto) {
 
         TreeItem taskItem = getTestItem(metricDto.getMetricName().getTest());
         for (TreeItem rec : treeStore.getChildren(taskItem)) {
@@ -395,19 +395,19 @@ public class SessionComparisonPanel extends VerticalPanel {
     }
 
 
-    public void removeRecords(List<SummaryMetricDto> list) {
+    public void removeRecords(List<SummaryIntegratedDto> list) {
 
-        List<MetricDto> list2 = new ArrayList<MetricDto>(list.size());
-        for (SummaryMetricDto smd : list) {
-            list2.addAll(smd.getMetricDtoList());
+        List<SummarySingleDto> list2 = new ArrayList<SummarySingleDto>(list.size());
+        for (SummaryIntegratedDto smd : list) {
+            list2.addAll(smd.getSummarySingleDtoList());
         }
 
-        for (MetricDto metric : list2) {
+        for (SummarySingleDto metric : list2) {
             removeRecord(metric);
         }
     }
 
-    private void removeRecord(MetricDto metric) {
+    private void removeRecord(SummarySingleDto metric) {
 
         TreeItem testItem = getTestItem(metric.getMetricName().getTest());
         String key = testItem.getKey() + metric.getMetricName().getMetricName();
@@ -570,7 +570,7 @@ public class SessionComparisonPanel extends VerticalPanel {
             this.key = key;
         }
 
-        public TreeItem(MetricDto metricDto) {
+        public TreeItem(SummarySingleDto metricDto) {
 
             MetricNameDto metricName = metricDto.getMetricName();
             this.key =   getTestItemId(metricDto.getMetricName().getTest()) + metricDto.getMetricName().getMetricName();
@@ -578,7 +578,7 @@ public class SessionComparisonPanel extends VerticalPanel {
             put(TEST_DESCRIPTION, metricName.getTest().getDescription());
             put(TEST_NAME, getItemKey(metricName));
 
-            for (MetricValueDto metricValue : metricDto.getValues()) {
+            for (SummaryMetricValueDto metricValue : metricDto.getValues()) {
                 String value    = metricValue.getValueRepresentation();
 
                 // highlight results according to decision when available
