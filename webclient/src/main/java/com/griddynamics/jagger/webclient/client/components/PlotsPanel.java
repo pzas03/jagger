@@ -237,6 +237,11 @@ public class PlotsPanel extends Composite {
         double maxVisible = plotRepresentation.getSimplePlot().getAxes().getX().getMaximumValue();
 
         if (out) {
+            if (maxVisible >= maxRange && minVisible <= 0) {
+                // do nothing when plot in visible range
+                return;
+            }
+
             if (maxVisible >= maxRange) {
                 // to the end
                 plotRepresentation.panToPercent(1);
