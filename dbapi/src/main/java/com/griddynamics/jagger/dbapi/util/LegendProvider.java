@@ -1,6 +1,8 @@
 package com.griddynamics.jagger.dbapi.util;
 
 /**
+ * Class contains methods to create legends for metric`s curves and plot headers for plots.
+ *
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
  * @since 5/31/12
  */
@@ -12,6 +14,15 @@ public class LegendProvider {
     public LegendProvider() {
     }
 
+    /**
+     * Creates legend for curve(single metric).
+     *
+     * @param sessionId session id
+     * @param description description of metric (displayName)
+     * @param addSessionPrefix defines whether adds session prefix or not.@n
+     *                         For example trends do not need session prefix
+     * @return legend for single metric
+     */
     public String generatePlotLegend(String sessionId, String description, boolean addSessionPrefix) {
         if (!addSessionPrefix) {
             return description;
@@ -20,11 +31,25 @@ public class LegendProvider {
         return SESSION_PREFIX + sessionId + LEGEND_DESCRIPTION_SEPARATOR + description;
     }
 
+    /**
+     * Creates plot header for the plot
+     *
+     * @param taskName name of task
+     * @param plotName displayName of PlotNode for witch plot plot-header should be created
+     * @return plot header of the plot
+     */
     public String generatePlotHeader(String taskName, String plotName) {
 
         return taskName + ", " + plotName;
     }
 
+
+    /**
+     * Get metric description(displayName) from legend
+     *
+     * @param legend legend string
+     * @return metric description(displayName)
+     */
     public static String parseMetricName(String legend) {
         if (legend.startsWith(SESSION_PREFIX)) {
             return legend.substring(legend.indexOf(LEGEND_DESCRIPTION_SEPARATOR) + LEGEND_DESCRIPTION_SEPARATOR.length());
@@ -32,6 +57,12 @@ public class LegendProvider {
         return legend;
     }
 
+    /**
+     * Get session id from legend
+     *
+     * @param legend legend string
+     * @return session id
+     */
     public static String parseSessionId(String legend) {
         if (legend.startsWith(SESSION_PREFIX)) {
             return legend.substring(legend.indexOf(SESSION_PREFIX), legend.indexOf(LEGEND_DESCRIPTION_SEPARATOR));

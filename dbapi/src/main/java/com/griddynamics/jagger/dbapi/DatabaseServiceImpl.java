@@ -270,7 +270,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                 }
             });
 
-            result.put(metricNode, createPlotIntegrateDto(metricNode, plotDatasetDtoList));
+            result.put(metricNode, createPlotIntegratedDto(metricNode, plotDatasetDtoList));
         }
 
         log.debug("Total time of plots for metricNodes retrieving : " + (System.currentTimeMillis() - temp));
@@ -283,7 +283,7 @@ public class DatabaseServiceImpl implements DatabaseService {
      * @param metricNode metric node for witch plot should be created
      * @param curves lines of plot
      * @return plot for given MetricNode */
-    private PlotIntegratedDto createPlotIntegrateDto(MetricNode metricNode, List<PlotSingleDto> curves) {
+    private PlotIntegratedDto createPlotIntegratedDto(MetricNode metricNode, List<PlotSingleDto> curves) {
 
         // at the moment all MetricNameDtos in MetricNode have same taskIds => it is valid to use first one for legend provider
         // TODO for session scope plot headers and legend will available after JFG-738
@@ -316,7 +316,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             mn.setDisplayName(legend);
             mn.setLine(curve);
 
-            // needs only to use same method of grouping nodes (TreeViewGroupRule.filter())
+            // dummy metricNameDto is needed only to use same method of grouping nodes (TreeViewGroupRule.filter())
             MetricNameDto metricNameDto = new MetricNameDto(null, mn.getId(), mn.getDisplayName());
             mn.setMetricNameDtoList(Collections.singletonList(metricNameDto));
 
@@ -344,8 +344,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         String legendFormat = "[0-9]+" + legendProvider.generatePlotLegend("[0-9]+", "%s", true);
 
         // rules to create legend tree view
-        TreeViewGroupRule groupedNodesRule = legendTreeViewGroupRuleProvider.provideWithPredefinedGroups(
-                metricNode.getId(),
+        TreeViewGroupRule groupedNodesRule = legendTreeViewGroupRuleProvider.provide(
                 metricNode.getId(),
                 legendGroups,
                 legendFormat);
@@ -507,7 +506,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             SummaryIntegratedDto summaryDto = new SummaryIntegratedDto();
             summaryDto.setSummarySingleDtoList(sumCollection);
-            summaryDto.setPlotIntegratedDto(createPlotIntegrateDto(metricNode, plotSingleDtos));
+            summaryDto.setPlotIntegratedDto(createPlotIntegratedDto(metricNode, plotSingleDtos));
             resultMap.put(metricNode, summaryDto);
         }
 

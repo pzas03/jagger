@@ -6,12 +6,12 @@ import java.util.List;
 
 /**
  * Provides TreeGroupRule with predefined groups.
- * Requires format to group.
+ * Requires format for group.
  */
 public class LegendTreeViewGroupRuleProvider {
 
-    public TreeViewGroupRule provideWithPredefinedGroups(String rootId, String rootName,
-                                                         Collection<String> legendGroups, String idFormatRegex) {
+    public TreeViewGroupRule provide(String rootId,
+                                     Collection<String> legendGroups, String idFormatRegex) {
 
         List<TreeViewGroupRule> firstLevelFilters = new ArrayList<TreeViewGroupRule>();
 
@@ -22,6 +22,6 @@ public class LegendTreeViewGroupRuleProvider {
         }
 
         // Root filter - will match all metrics
-        return new TreeViewGroupRule(Rule.By.ID,rootId,rootName,".*",firstLevelFilters);
+        return new TreeViewGroupRule(Rule.By.ID,rootId,rootId,".*",firstLevelFilters);
     }
 }
