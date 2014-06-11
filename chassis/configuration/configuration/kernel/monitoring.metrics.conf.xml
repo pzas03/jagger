@@ -68,6 +68,9 @@
         <entry key="mon_nonheap_used" value-ref="mon_nonheap_used_bean"/>
         <entry key="mon_nonheap_committed" value-ref="mon_nonheap_committed_bean"/>
         <entry key="mon_nonheap_max" value-ref="mon_nonheap_max_bean"/>
+
+        <entry key="mon_thread_count" value-ref="mon_thread_count_bean"/>
+        <entry key="mon_thread_peak_count" value-ref="mon_thread_peak_count_bean"/>
     </util:map>
 
     <!--monitoring parameters are described by DefaultMonitoringParameters class-->
@@ -469,6 +472,28 @@
         <property name="aggregatorsWithSettings">
             <map>
                 <entry key-ref="averageAggregator" value-ref="normalizationBy_${chassis.monitoring.mon_nonheap_max.normalizationBy}"/>
+            </map>
+        </property>
+    </bean>
+    <bean id="mon_thread_count_bean" class="com.griddynamics.jagger.engine.e1.collector.MetricDescription">
+        <constructor-arg index="0" type="java.lang.String" value="mon_thread_count"/>
+        <property name="plotData" value="${chassis.monitoring.mon_thread_count.plotData}"/>
+        <property name="showSummary" value="${chassis.monitoring.mon_thread_count.showSummary}"/>
+        <property name="displayName" value="Live threads"/>
+        <property name="aggregatorsWithSettings">
+            <map>
+                <entry key-ref="averageAggregator" value-ref="normalizationBy_${chassis.monitoring.mon_thread_count.normalizationBy}"/>
+            </map>
+        </property>
+    </bean>
+    <bean id="mon_thread_peak_count_bean" class="com.griddynamics.jagger.engine.e1.collector.MetricDescription">
+        <constructor-arg index="0" type="java.lang.String" value="mon_thread_peak_count"/>
+        <property name="plotData" value="${chassis.monitoring.mon_thread_peak_count.plotData}"/>
+        <property name="showSummary" value="${chassis.monitoring.mon_thread_peak_count.showSummary}"/>
+        <property name="displayName" value="Peak thread count"/>
+        <property name="aggregatorsWithSettings">
+            <map>
+                <entry key-ref="averageAggregator" value-ref="normalizationBy_${chassis.monitoring.mon_thread_peak_count.normalizationBy}"/>
             </map>
         </property>
     </bean>
