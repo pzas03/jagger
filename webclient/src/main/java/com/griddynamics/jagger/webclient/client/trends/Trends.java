@@ -411,8 +411,8 @@ public class Trends extends DefaultActivity {
      * fields that contain gid/plot information
      * to provide rendering in time of choosing special tab(mainTab) to avoid view problems
      */
-    HashMap<MetricNode, List<MetricDto>> chosenMetrics = new HashMap<MetricNode, List<MetricDto>>();
-    Map<String, List<PlotSeriesDto>> chosenPlots = new TreeMap<String, List<PlotSeriesDto>>();
+    private Map<MetricNode, List<MetricDto>> chosenMetrics = new HashMap<MetricNode, List<MetricDto>>();
+    private Map<MetricNode, PlotSeriesDto> chosenPlots = new HashMap<MetricNode, PlotSeriesDto>();
 
     /**
      * Field to hold number of sessions that were chosen.
@@ -1568,7 +1568,7 @@ public class Trends extends DefaultActivity {
                     enableControl();
             } else {
 
-                final ArrayList<MetricNode> notLoaded = new ArrayList<MetricNode>();
+                final Set<MetricNode> notLoaded = new HashSet<MetricNode>();
                 final Map<MetricNode, List<MetricDto>> loaded = new HashMap<MetricNode, List<MetricDto>>();
 
                 for (MetricNode metricNode : metrics){
@@ -1592,7 +1592,7 @@ public class Trends extends DefaultActivity {
                     if (!selectedMetricsIds.contains(metricNode.getId())) {
                         toRemoveFromTable.addAll(chosenMetrics.get(metricNode));
                         chosenMetrics.remove(metricNode);
-                        plotTrendsPanel.removeElementById(metricNode.getId());
+                        plotTrendsPanel.removeByMetricNode(metricNode);
                     }
                 }
 
@@ -1631,9 +1631,6 @@ public class Trends extends DefaultActivity {
 
         private void renderMetricPlots(Map<MetricNode, List<MetricDto>> result) {
             for (MetricNode metricNode : result.keySet()) {
-
-                // Generate DOM id for plot
-                final String id = metricNode.getId();
 
                 if (!chosenMetrics.containsKey(metricNode)) {
                     chosenMetrics.put(metricNode, result.get(metricNode));
@@ -1674,11 +1671,11 @@ public class Trends extends DefaultActivity {
 
                             // DOM id for plot = metricNode.Id - is unique key
                             // If plot has already displayed, then pass it
-                            if (chosenPlots.containsKey(metricNode.getId())) {
+                            if (chosenPlots.containsKey(metricNode)) {
                                 continue;
                             }
 
-                            chosenPlots.put(metricNode.getId(), Arrays.asList(result.get(metricNode)));
+                            chosenPlots.put(metricNode, result.get(metricNode));
 
                         }
                         if (mainTabPanel.getSelectedIndex() == tabMetrics.getTabIndex()) {
@@ -1697,8 +1694,8 @@ public class Trends extends DefaultActivity {
         public void removePlots(Set<MetricNode> metricNodes) {
 
             for (MetricNode metricNode : metricNodes) {
-                plotPanel.removeElementById(metricNode.getId());
-                chosenPlots.remove(metricNode.getId());
+                plotPanel.removeByMetricNode(metricNode);
+                chosenPlots.remove(metricNode);
             }
         }
     }
