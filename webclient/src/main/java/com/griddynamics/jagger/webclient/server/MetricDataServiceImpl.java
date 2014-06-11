@@ -26,7 +26,7 @@ public class MetricDataServiceImpl implements MetricDataService {
     }
 
     @Override
-    public Map<MetricNode, List<MetricDto>> getMetrics(List<MetricNode> metricNodes) throws RuntimeException {
+    public Map<MetricNode, List<MetricDto>> getMetrics(Set<MetricNode> metricNodes) throws RuntimeException {
 
         List<MetricNameDto> metricNameDtos = new ArrayList<MetricNameDto>();
         for (MetricNode metricNode : metricNodes) {

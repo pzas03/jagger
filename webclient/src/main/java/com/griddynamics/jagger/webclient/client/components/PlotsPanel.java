@@ -15,6 +15,7 @@ import com.googlecode.gflot.client.Series;
 import com.googlecode.gflot.client.SeriesData;
 import com.googlecode.gflot.client.SimplePlot;
 import com.googlecode.gflot.client.Zoom;
+import com.griddynamics.jagger.dbapi.model.MetricNode;
 import com.sencha.gxt.widget.core.client.Slider;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
@@ -55,13 +56,14 @@ public class PlotsPanel extends Composite {
     }
 
     /**
-     * Remove widget from layoutPanel by element id
-     * @param elementId Id of widget element (Widget.getElement.getId())*/
-    public void removeElementById(String elementId) {
-        layoutPanel.removeChild(elementId);
+     * Remove widget from layout panel by metric node
+     * @param metricNode metric node */
+    public void removeByMetricNode(MetricNode metricNode) {
+
+        layoutPanel.removeChild(metricNode.getId());
         childrenCount = layoutPanel.getAllChildren().size();
+        controlTree.setChecked(metricNode, Tree.CheckState.UNCHECKED);
         setMaxRange();
-        controlTree.setCheckState(elementId, Tree.CheckState.UNCHECKED);
     }
 
     /**

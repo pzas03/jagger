@@ -4,6 +4,7 @@ import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.*;
+import com.griddynamics.jagger.dbapi.model.MetricNode;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
 import com.sencha.gxt.dnd.core.client.*;
 import com.sencha.gxt.widget.core.client.menu.Item;
@@ -25,7 +26,7 @@ public class PlotContainer extends VerticalPanel {
 
     private HorizontalPanel dragPanel;
 
-    public PlotContainer(String id, String plotHeader, PlotRepresentation chart, PlotSaver plotSaver/*, boolean closeEnabled*/) {
+    public PlotContainer(String id, String plotHeader, PlotRepresentation chart, PlotSaver plotSaver) {
         super();
         this.getElement().setId(id);
         this.plotRepresentation = chart;
@@ -130,7 +131,7 @@ public class PlotContainer extends VerticalPanel {
         closeImageButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                plotsPanel.removeElementById(PlotContainer.this.getElement().getId());
+                plotsPanel.removeByMetricNode(PlotContainer.this.getPlotRepresentation().getMetricNode());
             }
         });
         closeImageButton.addMouseOverHandler(new MouseOverHandler() {
@@ -170,11 +171,36 @@ public class PlotContainer extends VerticalPanel {
 
         Menu settingsMenu = new Menu();
         settingsMenu.addStyleName(JaggerResources.INSTANCE.css().plotSettingsMenu());
-        MenuItem saveMenuItem = new MenuItem("Download as .png");
+
+        settingsMenu.add(createDownloadPngMenuItem());
+        settingsMenu.add(createDownloadCsvMenuItem());
+
+        return settingsMenu;
+    }
+
+    private MenuItem createDownloadCsvMenuItem() {
+
+        MenuItem menuItem = new MenuItem("Download as .cvs");
+        menuItem.addSelectionHandler(new SelectionHandler<Item>() {
+            @Override
+            public void onSelection(SelectionEvent<Item> event) {
+                MetricNode mn = plotRepresentation.getMetricNode();
+
+                FileDownLoader.downloadPlotInCsv(mn);
+            }
+        });
+
+        menuItem.setIcon(JaggerResources.INSTANCE.getDownloadImage());
+        return menuItem;
+    }
+
+    private MenuItem createDownloadPngMenuItem() {
+
+        MenuItem menuItem = new MenuItem("Download as .png");
         if (plotSaver == null) {
-            saveMenuItem.setEnabled(false);
+            menuItem.setEnabled(false);
         } else {
-            saveMenuItem.addSelectionHandler(new SelectionHandler<Item>() {
+            menuItem.addSelectionHandler(new SelectionHandler<Item>() {
                 @Override
                 public void onSelection(SelectionEvent<Item> event) {
                     plotSaver.saveAsPng(
@@ -184,11 +210,8 @@ public class PlotContainer extends VerticalPanel {
                 }
             });
         }
-        saveMenuItem.setIcon(JaggerResources.INSTANCE.getDownloadImage());
-
-        settingsMenu.add(saveMenuItem);
-
-        return settingsMenu;
+        menuItem.setIcon(JaggerResources.INSTANCE.getDownloadImage());
+        return menuItem;
     }
 
     public void setPlotRepresentation(PlotRepresentation plotRepresentation) {

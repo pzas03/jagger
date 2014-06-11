@@ -26,5 +26,4 @@ public class PlotProviderServiceImpl implements PlotProviderService {
     public Map<MetricNode, PlotSeriesDto> getPlotData(Set<MetricNode> plots) throws RuntimeException {
         return databaseService.getPlotDataByMetricNode(plots);
     }
-
 }
