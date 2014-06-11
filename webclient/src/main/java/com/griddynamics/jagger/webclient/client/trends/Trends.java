@@ -29,6 +29,7 @@ import com.googlecode.gflot.client.options.*;
 import com.griddynamics.jagger.dbapi.dto.*;
 import com.griddynamics.jagger.dbapi.model.*;
 import com.griddynamics.jagger.util.MonitoringIdUtils;
+import com.griddynamics.jagger.util.NumberFormatCalculator;
 import com.griddynamics.jagger.webclient.client.*;
 import com.griddynamics.jagger.webclient.client.components.*;
 import com.griddynamics.jagger.webclient.client.components.control.CheckHandlerMap;
@@ -84,12 +85,6 @@ public class Trends extends DefaultActivity {
 
     @UiField(provided = true)
     SimplePager sessionsPager;
-
-    @UiField
-    ScrollPanel scrollPanelTrends;
-
-    @UiField
-    ScrollPanel scrollPanelMetrics;
 
     @UiField
     PlotsPanel plotTrendsPanel;
@@ -308,8 +303,8 @@ public class Trends extends DefaultActivity {
                         if (plotNode.getMetricNameDtoList().size() > 0) {
                             MetricNameDto metricNameDto = plotNode.getMetricNameDtoList().get(0);
 
-                            if ((metricNameDto.getOrigin() == MetricNameDto.Origin.MONITORING) ||
-                                (metricNameDto.getOrigin() == MetricNameDto.Origin.TEST_GROUP_METRIC)) {
+                            if ((metricNameDto.getOrigin().equals(MetricNameDto.Origin.MONITORING)) ||
+                                (metricNameDto.getOrigin().equals(MetricNameDto.Origin.TEST_GROUP_METRIC))) {
 
                                 MonitoringIdUtils.MonitoringId monitoringId= MonitoringIdUtils.splitMonitoringMetricId(metricNameDto.getMetricName());
                                 if (monitoringId != null) {
@@ -416,8 +411,8 @@ public class Trends extends DefaultActivity {
      * fields that contain gid/plot information
      * to provide rendering in time of choosing special tab(mainTab) to avoid view problems
      */
-    private Map<MetricNode, List<MetricDto>> chosenMetrics = new HashMap<MetricNode, List<MetricDto>>();
-    private Map<MetricNode, PlotSeriesDto> chosenPlots = new HashMap<MetricNode, PlotSeriesDto>();
+    HashMap<MetricNode, List<MetricDto>> chosenMetrics = new HashMap<MetricNode, List<MetricDto>>();
+    Map<String, List<PlotSeriesDto>> chosenPlots = new TreeMap<String, List<PlotSeriesDto>>();
 
     /**
      * Field to hold number of sessions that were chosen.
@@ -628,26 +623,10 @@ public class Trends extends DefaultActivity {
 
                         if (format == null) {
                             double tempDouble = tickValue * 5;
-                            format = calculateNumberFormat(tempDouble);
+                            format = NumberFormat.getFormat(NumberFormatCalculator.getNumberFormat(tempDouble));
                         }
 
                         return format.format(tickValue).replace('E', 'e');
-                    }
-
-                    private NumberFormat calculateNumberFormat(double tickValue) {
-                        tickValue = Math.abs(tickValue);
-
-                        if (tickValue > 999999) {
-                            return NumberFormat.getFormat("#.###E0#");
-                        } else if (tickValue > 999) {
-                            return NumberFormat.getFormat("######.#");
-                        } else if (tickValue > 1) {
-                            return NumberFormat.getFormat("###.#####");
-                        } else if (tickValue > 0.00001) {
-                            return NumberFormat.getFormat("#.#####");
-                        }
-
-                        return NumberFormat.getFormat("#.###E0#");
                     }
                 })
         .setZoomRange(false).setMinimum(yMinimum));
@@ -793,8 +772,8 @@ public class Trends extends DefaultActivity {
                         yMin,
                         true
                 );
+                plotTrendsPanel.scrollToBottom();
             }
-            scrollPanelTrends.scrollToBottom();
             hasChanged = false;
         }
     }
@@ -807,7 +786,7 @@ public class Trends extends DefaultActivity {
             String id = metricNode.getId();
             if (!plotPanel.containsElementWithId(id)) {
                 renderPlots(plotPanel, metricNode, chosenPlots.get(metricNode), id);
-                scrollPanelMetrics.scrollToBottom();
+                plotPanel.scrollToBottom();
             }
         }
     }
@@ -1038,7 +1017,7 @@ public class Trends extends DefaultActivity {
             @Override
             public void onKeyUp(KeyUpEvent event) {
                 sessionsTo.setValue(null, true);
-                sessionsFrom.setValue(null,true);
+                sessionsFrom.setValue(null, true);
                 sessionIdsTextBox.setValue(null, true);
                 tagNames.clear();
                 stopTypingSessionTagsTimer.schedule(500);
@@ -1130,12 +1109,12 @@ public class Trends extends DefaultActivity {
             }
         });
 
-        Label zoomBack = new Label("Zoom back");
+        Label zoomBack = new Label("Zoom default");
         zoomBack.addStyleName(getResources().css().zoomLabel());
         zoomBack.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                panel.zoomBackTo(plot);
+                panel.zoomDefault(plot);
             }
         });
 
@@ -1589,7 +1568,7 @@ public class Trends extends DefaultActivity {
                     enableControl();
             } else {
 
-                final Set<MetricNode> notLoaded = new HashSet<MetricNode>();
+                final ArrayList<MetricNode> notLoaded = new ArrayList<MetricNode>();
                 final Map<MetricNode, List<MetricDto>> loaded = new HashMap<MetricNode, List<MetricDto>>();
 
                 for (MetricNode metricNode : metrics){
@@ -1613,7 +1592,7 @@ public class Trends extends DefaultActivity {
                     if (!selectedMetricsIds.contains(metricNode.getId())) {
                         toRemoveFromTable.addAll(chosenMetrics.get(metricNode));
                         chosenMetrics.remove(metricNode);
-                        plotTrendsPanel.removeByMetricNode(metricNode);
+                        plotTrendsPanel.removeElementById(metricNode.getId());
                     }
                 }
 
@@ -1652,6 +1631,9 @@ public class Trends extends DefaultActivity {
 
         private void renderMetricPlots(Map<MetricNode, List<MetricDto>> result) {
             for (MetricNode metricNode : result.keySet()) {
+
+                // Generate DOM id for plot
+                final String id = metricNode.getId();
 
                 if (!chosenMetrics.containsKey(metricNode)) {
                     chosenMetrics.put(metricNode, result.get(metricNode));
@@ -1692,11 +1674,11 @@ public class Trends extends DefaultActivity {
 
                             // DOM id for plot = metricNode.Id - is unique key
                             // If plot has already displayed, then pass it
-                            if (chosenPlots.containsKey(metricNode)) {
+                            if (chosenPlots.containsKey(metricNode.getId())) {
                                 continue;
                             }
 
-                            chosenPlots.put(metricNode, result.get(metricNode));
+                            chosenPlots.put(metricNode.getId(), Arrays.asList(result.get(metricNode)));
 
                         }
                         if (mainTabPanel.getSelectedIndex() == tabMetrics.getTabIndex()) {
@@ -1715,8 +1697,8 @@ public class Trends extends DefaultActivity {
         public void removePlots(Set<MetricNode> metricNodes) {
 
             for (MetricNode metricNode : metricNodes) {
-                plotPanel.removeByMetricNode(metricNode);
-                chosenPlots.remove(metricNode);
+                plotPanel.removeElementById(metricNode.getId());
+                chosenPlots.remove(metricNode.getId());
             }
         }
     }

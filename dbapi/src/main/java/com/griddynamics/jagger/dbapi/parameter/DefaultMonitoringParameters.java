@@ -65,18 +65,15 @@ public enum DefaultMonitoringParameters implements MonitoringParameter {
     NON_HEAP_MEMORY_COMMITTED("mon_nonheap_committed","Non heap committed memory, MiB", false, MonitoringParameterLevel.SUT),
     NON_HEAP_MEMORY_MAX("mon_nonheap_max","Non heap max memory, MiB", false, MonitoringParameterLevel.SUT),
 
-    OPEN_FILE_DESCRIPTOR_COUNT("mon_file_descriptors","Count of open file descriptors", false, MonitoringParameterLevel.SUT);
+    OPEN_FILE_DESCRIPTOR_COUNT("mon_file_descriptors","Count of open file descriptors", false, MonitoringParameterLevel.SUT),
+
+    THREAD_COUNT("mon_thread_count","Live threads", false, MonitoringParameterLevel.SUT),
+    THREAD_PEAK_COUNT("mon_thread_peak_count","Peak thread count", false, MonitoringParameterLevel.SUT);
 
     private String id = "";
     private String description;
     private boolean isCumulativeCounter;
     private MonitoringParameterLevel level;
-
-    DefaultMonitoringParameters(String description, boolean isCumulativeCounter, MonitoringParameterLevel level) {
-        this.description = description;
-        this.isCumulativeCounter = isCumulativeCounter;
-        this.level = level;
-    }
 
     DefaultMonitoringParameters(String id, String description, boolean isCumulativeCounter, MonitoringParameterLevel level) {
         this.id = id;

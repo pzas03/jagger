@@ -3,10 +3,7 @@ package com.griddynamics.jagger.dbapi;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import com.griddynamics.jagger.dbapi.entity.DecisionPerMetricEntity;
-import com.griddynamics.jagger.dbapi.entity.DecisionPerTaskEntity;
-import com.griddynamics.jagger.dbapi.entity.NodeInfoEntity;
-import com.griddynamics.jagger.dbapi.entity.NodePropertyEntity;
+import com.griddynamics.jagger.dbapi.entity.*;
 import com.griddynamics.jagger.dbapi.fetcher.*;
 import com.griddynamics.jagger.dbapi.model.rules.TreeViewGroupMetricsToNodeRule;
 import com.griddynamics.jagger.dbapi.model.rules.TreeViewGroupMetricsToNodeRuleProvider;
@@ -1022,7 +1019,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             return detailsNode;
 
         List<TestDetailsNode> taskDataDtoList = new ArrayList<TestDetailsNode>();
-        MetricGroupNode sessionScopeNode = null;
+        MetricGroupNode<PlotNode> sessionScopeNode = null;
 
         try {
             Future<Map<TaskDataDto, List<PlotNode>>> metricsPlotsMapFuture = threadPool.submit(
@@ -1079,8 +1076,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
                 if (ssPlotNodes.size() > 0) {
                     String rootIdSS = NameTokens.SESSION_SCOPE_PLOTS;
-                    MetricGroupNode<PlotNode> testDetailsNodeBaseSS = buildTreeAccordingToRules(rootIdSS, agentNames, new ArrayList<PlotNode>(ssPlotNodes));
-                    sessionScopeNode = new MetricGroupNode(testDetailsNodeBaseSS);
+                    sessionScopeNode = buildTreeAccordingToRules(rootIdSS, agentNames, new ArrayList<PlotNode>(ssPlotNodes));
                 }
             }
 
@@ -1122,13 +1118,21 @@ public class DatabaseServiceImpl implements DatabaseService {
         List<TestNode> taskDataDtoList = new ArrayList<TestNode>();
 
         Map<TaskDataDto, List<MetricNode>> map = getTestMetricsMap(tasks);
+
+        // get agent names
+        Set<MetricNode> metricNodeListForAgentNames = new HashSet<MetricNode>();
+        for (TaskDataDto taskDataDto : map.keySet()) {
+            metricNodeListForAgentNames.addAll(map.get(taskDataDto));
+        }
+        Map<String, Set<String>> agentNames = getAgentNamesForMonitoringParameters(metricNodeListForAgentNames);
+
         for (TaskDataDto tdd : map.keySet()) {
             List<MetricNode> metricNodeList = map.get(tdd);
             String rootId = NameTokens.SUMMARY_PREFIX + tdd.hashCode();
 
             if (metricNodeList.size() > 0) {
                 // apply rules how to build tree
-                MetricGroupNode<MetricNode> testNodeBase = buildTreeAccordingToRules(rootId, null, metricNodeList);
+                MetricGroupNode<MetricNode> testNodeBase = buildTreeAccordingToRules(rootId, agentNames, metricNodeList);
 
                 // full test node with info data
                 TestNode testNode = new TestNode(testNodeBase);
@@ -1196,14 +1200,14 @@ public class DatabaseServiceImpl implements DatabaseService {
         }
     }
 
-    private Map<String,Set<String>> getAgentNamesForMonitoringParameters(Set<PlotNode> plotNodeList) {
+    private Map<String,Set<String>> getAgentNamesForMonitoringParameters(Set<? extends MetricNode> nodeList) {
         Map<String,Set<String>> agentNames = new HashMap<String, Set<String>>();
 
-        for (PlotNode plotNode : plotNodeList) {
-            for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
+        for (MetricNode node : nodeList) {
+            for (MetricNameDto metricNameDto : node.getMetricNameDtoList()) {
                 // old monitoring or new monitoring as metrics
-                if ((metricNameDto.getOrigin() == MetricNameDto.Origin.MONITORING) ||
-                        (metricNameDto.getOrigin() == MetricNameDto.Origin.TEST_GROUP_METRIC)) {
+                if ((metricNameDto.getOrigin().equals(MetricNameDto.Origin.MONITORING)) ||
+                        (metricNameDto.getOrigin().equals(MetricNameDto.Origin.TEST_GROUP_METRIC))) {
 
                     // if looks like monitoring parameter
                     MonitoringIdUtils.MonitoringId monitoringId = MonitoringIdUtils.splitMonitoringMetricId(metricNameDto.getMetricName());
@@ -1289,13 +1293,17 @@ public class DatabaseServiceImpl implements DatabaseService {
 
         @SuppressWarnings("all")
         List<Object[]> objectsList = (List<Object[]>)entityManager.createNativeQuery(
-                "select wtd.sessionId, wtd.clock, wtd.clockValue, wtd.termination, taskData.id " +
-                        "from WorkloadTaskData as wtd join " +
-                        "( select  td.id, td.sessionId, td.taskId from TaskData td where td.id in (:taskDataIds) " +
-                        ") as taskData " +
-                        "on wtd.sessionId=taskData.sessionId and wtd.taskId=taskData.taskId")
-                .setParameter("taskDataIds", taskIds)
-                .getResultList();
+            "select wtd.sessionId, wtd.clock, wtd.clockValue, wtd.termination, finalTaskData.id, finalTaskData.startTime, wtd.number, finalTaskData.status " +
+            "from WorkloadTaskData as wtd join " +
+                "(select wd.startTime, wd.taskId, wd.sessionId, taskData.id, taskData.status from WorkloadData " +
+                "as wd join " +
+                    "( select  td.id, td.sessionId, td.taskId, td.status from TaskData td where td.id in (:taskDataIds) " +
+                    ") as taskData " +
+                "on wd.taskId=taskData.taskId and wd.sessionId=taskData.sessionId" +
+                ") as finalTaskData " +
+            "on wtd.sessionId=finalTaskData.sessionId and wtd.taskId=finalTaskData.taskId")
+            .setParameter("taskDataIds", taskIds)
+            .getResultList();
 
         Map<Long, Map<String, TestInfoDto>> resultMap = new HashMap<Long, Map<String, TestInfoDto>>(taskIds.size());
 
@@ -1305,6 +1313,17 @@ public class DatabaseServiceImpl implements DatabaseService {
             String clock = objects[1] + " (" + objects[2] + ')';
             String termination = (String)objects[3];
             String sessionId = (String)objects[0];
+            Date date = (Date)objects[5];
+            String startTime = date.toString();
+            Integer number = (Integer)objects[6];
+            if (number == null) {
+                number = 0;
+            }
+            TaskData.ExecutionStatus executionStatus = TaskData.ExecutionStatus.valueOf((String) objects[7]);
+            Decision status = Decision.OK;
+            if (TaskData.ExecutionStatus.FAILED.equals(executionStatus)) {
+                status = Decision.FATAL;
+            }
 
             if (!resultMap.containsKey(taskId)) {
                 resultMap.put(taskId,new HashMap<String, TestInfoDto>());
@@ -1312,6 +1331,9 @@ public class DatabaseServiceImpl implements DatabaseService {
             TestInfoDto testInfo = new TestInfoDto();
             testInfo.setClock(clock);
             testInfo.setTermination(termination);
+            testInfo.setStartTime(startTime);
+            testInfo.setNumber(number);
+            testInfo.setStatus(status);
 
             resultMap.get(taskId).put(sessionId,testInfo);
         }
@@ -1409,6 +1431,11 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     @Override
     public Set<TaskDecisionDto> getDecisionsPerTask(Set<Long> taskIds) {
+
+        if (taskIds.isEmpty()) {
+            return Collections.emptySet();
+        }
+
         Long time = System.currentTimeMillis();
         Set<TaskDecisionDto> taskDecisionDtoSet = new HashSet<TaskDecisionDto>();
 
@@ -1426,7 +1453,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                 taskDecisionDtoSet.add(taskDecisionDto);
             }
 
-            log.info("For task ids " + taskIds + " were found decisions in " + (System.currentTimeMillis() - time) + " ms");
+            log.debug("For task ids " + taskIds + " were found decisions in " + (System.currentTimeMillis() - time) + " ms");
         }
         catch (NoResultException ex) {
             log.debug("No decisions were found for task ids " + taskIds, ex);
@@ -1447,6 +1474,10 @@ public class DatabaseServiceImpl implements DatabaseService {
     @Override
     public Map<MetricNameDto,Map<String,Decision>> getDecisionsPerMetric(Set<MetricNameDto> metricNames) {
 
+        if (metricNames.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
         Long time = System.currentTimeMillis();
 
         Map<MetricNameDto,Map<String,Decision>> result = new HashMap<MetricNameDto, Map<String, Decision>>();
@@ -1458,7 +1489,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         for (MetricNameDto metricName : metricNames) {
             metricIds.add(metricName.getMetricName());
             taskIds.addAll(metricName.getTaskIds());
-            if (metricName.getOrigin() == MetricNameDto.Origin.TEST_GROUP_METRIC) {
+            if (metricName.getOrigin().equals(MetricNameDto.Origin.TEST_GROUP_METRIC)) {
                 taskIdsWhereParentIdIsRequired.addAll(metricName.getTaskIds());
             }
         }
@@ -1515,7 +1546,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                 }
             }
 
-            log.info("For metrics " + metricNames + " were found decisions in " + (System.currentTimeMillis() - time) + " ms");
+            log.debug("For metrics " + metricNames + " were found decisions in " + (System.currentTimeMillis() - time) + " ms");
         }
         catch (NoResultException ex) {
             log.debug("No decisions were found for metrics " + metricNames, ex);
@@ -1528,6 +1559,47 @@ public class DatabaseServiceImpl implements DatabaseService {
         catch (Exception ex) {
             log.error("Error occurred during loading decisions for metrics " + metricNames, ex);
             throw new RuntimeException("Error occurred during loading decisions for metrics " + metricNames, ex);
+        }
+
+        return result;
+    }
+
+    @Override
+    public Map<String, Decision> getDecisionsPerSession(Set<String> sessionIds) {
+        if (sessionIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        Long time = System.currentTimeMillis();
+
+        Map<String,Decision> result = new HashMap<String, Decision>();
+
+        try {
+            List<DecisionPerSessionEntity> decisionPerSessionEntityList = (List<DecisionPerSessionEntity>)
+                    entityManager.createQuery("select dps from DecisionPerSessionEntity as dps" +
+                            " where dps.sessionId in (:sessionIds)")
+                            .setParameter("sessionIds", sessionIds)
+                            .getResultList();
+
+
+            for (DecisionPerSessionEntity decisionPerSessionEntity : decisionPerSessionEntityList) {
+                result.put(decisionPerSessionEntity.getSessionId(),
+                        Decision.valueOf(decisionPerSessionEntity.getDecision()));
+            }
+
+            log.debug("For session ids " + sessionIds + " were found decisions in " + (System.currentTimeMillis() - time) + " ms");
+        }
+        catch (NoResultException ex) {
+            log.debug("No decisions were found for session ids " + sessionIds, ex);
+            return Collections.emptyMap();
+        }
+        catch (PersistenceException ex) {
+            log.debug("No decisions were found for session ids " + sessionIds, ex);
+            return Collections.emptyMap();
+        }
+        catch (Exception ex) {
+            log.error("Error occurred during loading decisions for session ids " + sessionIds, ex);
+            throw new RuntimeException("Error occurred during loading decisions for session ids " + sessionIds, ex);
         }
 
         return result;

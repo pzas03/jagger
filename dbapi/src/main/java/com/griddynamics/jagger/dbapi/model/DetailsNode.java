@@ -12,7 +12,7 @@ import java.util.List;
 public class DetailsNode extends AbstractIdentifyNode {
 
     List<TestDetailsNode> tests;
-    private MetricGroupNode sessionScopeNode;
+    private MetricGroupNode<PlotNode> sessionScopeNode;
 
     public DetailsNode() {}
 
@@ -20,17 +20,17 @@ public class DetailsNode extends AbstractIdentifyNode {
         super(id, displayName);
     }
 
-    public MetricGroupNode getSessionScopeNode() {
+    public MetricGroupNode<PlotNode> getSessionScopeNode() {
         return sessionScopeNode;
     }
 
-    public void setSessionScopeNode(MetricGroupNode sessionScopeNode) {
+    public void setSessionScopeNode(MetricGroupNode<PlotNode> sessionScopeNode) {
         this.sessionScopeNode = sessionScopeNode;
     }
 
     public List<TestDetailsNode> getTests() {
         if (tests == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         return tests;
     }

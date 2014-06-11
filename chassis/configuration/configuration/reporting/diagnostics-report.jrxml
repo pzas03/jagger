@@ -29,20 +29,52 @@
     <property name="ireport.y" value="0"/>
     <template class="java.io.InputStream">
         <![CDATA[$P{context}.getResource("configuration/reporting/styles/default-styles.xml")]]></template>
+
+    <style name="Compact_Header_Bold_Alternative" isDefault="false" fontName="sans-serif"
+        fontSize="6" isBold="true" isItalic="false" isUnderline="false"
+        isStrikeThrough="false" pdfFontName="Helvetica-Bold"
+        pdfEncoding="Cp1252" isPdfEmbedded="false">
+        <conditionalStyle>
+            <conditionExpression>
+                <![CDATA[new Boolean(String.valueOf($F{decision}).equals(com.griddynamics.jagger.util.Decision.OK.toString()))]]>
+            </conditionExpression>
+            <style forecolor="#008000" />
+        </conditionalStyle>
+        <conditionalStyle>
+            <conditionExpression>
+                <![CDATA[new Boolean(String.valueOf($F{decision}).equals(com.griddynamics.jagger.util.Decision.WARNING.toString()))]]>
+            </conditionExpression>
+            <style forecolor="#B8860B" />
+        </conditionalStyle>
+        <conditionalStyle>
+            <conditionExpression>
+                <![CDATA[new Boolean(String.valueOf($F{decision}).equals(com.griddynamics.jagger.util.Decision.ERROR.toString()))]]>
+            </conditionExpression>
+            <style forecolor="#FF0000" />
+        </conditionalStyle>
+        <conditionalStyle>
+            <conditionExpression>
+                <![CDATA[new Boolean(String.valueOf($F{decision}).equals(com.griddynamics.jagger.util.Decision.FATAL.toString()))]]>
+            </conditionExpression>
+            <style forecolor="#FF0000" />
+        </conditionalStyle>
+    </style>
+
     <parameter name="context" class="com.griddynamics.jagger.reporting.ReportingContext"/>
-    <field name="name" class="java.lang.String"/>
-    <field name="total" class="java.lang.Double"/>
+    <field name="key" class="java.lang.String"/>
+    <field name="value" class="java.lang.String"/>
+    <field name="decision" class="java.lang.String"/>
     <detail>
         <band height="10" splitType="Stretch">
             <textField>
-                <reportElement style="Compact_Header_Bold" x="0" y="0" width="100" height="10" forecolor="#AAAAAA"/>
+                <reportElement style="Compact_Header_Bold" x="0" y="0" width="200" height="10" forecolor="#AAAAAA"/>
                 <textElement textAlignment="Left"/>
-                <textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
+                <textFieldExpression><![CDATA[$F{key}]]></textFieldExpression>
             </textField>
             <textField>
-                <reportElement style="Compact_Header_Bold" x="110" y="0" width="300" height="10"/>
+                <reportElement style="Compact_Header_Bold_Alternative" x="210" y="0" width="180" height="10"/>
                 <textElement/>
-                <textFieldExpression><![CDATA[new java.text.DecimalFormat("0.0###").format(Double.valueOf($F{total}))]]></textFieldExpression>
+                <textFieldExpression><![CDATA[$F{value}]]></textFieldExpression>
             </textField>
         </band>
     </detail>

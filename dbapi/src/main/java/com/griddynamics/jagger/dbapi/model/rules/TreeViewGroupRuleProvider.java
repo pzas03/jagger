@@ -2,6 +2,7 @@ package com.griddynamics.jagger.dbapi.model.rules;
 
 import com.griddynamics.jagger.dbapi.parameter.DefaultMonitoringParameters;
 import com.griddynamics.jagger.dbapi.parameter.GroupKey;
+import com.griddynamics.jagger.util.StandardMetricsNamesUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,11 +20,23 @@ public class TreeViewGroupRuleProvider {
 
         List<TreeViewGroupRule> firstLevelFilters = new ArrayList<TreeViewGroupRule>();
 
+        String filterRegex = "(" +
+        "^" + StandardMetricsNamesUtil.THROUGHPUT_TPS + "$|" +
+        "^" + StandardMetricsNamesUtil.THROUGHPUT + "$|" +
+        "^" + StandardMetricsNamesUtil.LATENCY_SEC + "$|" +
+        "^" + StandardMetricsNamesUtil.LATENCY_STD_DEV_SEC + "$|" +
+        "^" + StandardMetricsNamesUtil.LATENCY + "$|" +
+        "^" + StandardMetricsNamesUtil.LATENCY_PERCENTILE_REGEX + "$|" +
+        "^" + StandardMetricsNamesUtil.ITERATIONS_SAMPLES + "$|" +
+        "^" + StandardMetricsNamesUtil.SUCCESS_RATE + "$|" +
+        "^" + StandardMetricsNamesUtil.DURATION_SEC + "$|" +
+        "^" + StandardMetricsNamesUtil.TIME_LATENCY_PERCENTILE + "$|" +
+        "^" + StandardMetricsNamesUtil.FAIL_COUNT + "$|" +
+        ")";
+
         // Filter for Jagger main metrics. Space in display name will help to keep main parameters in the
         // top of alphabetic sorting
-        TreeViewGroupRule mainParams_FirstLevelFilter = new TreeViewGroupRule(Rule.By.DISPLAY_NAME,"main"," Main parameters",
-                "(^Throughput, tps$|^Throughput$|^Latency, sec$|^Latency$" +
-                "|^Iterations, samples$|^Success rate$|^Duration, sec$|^Latency\\s\\S+\\s%$|^Time Latency Percentile$)");
+        TreeViewGroupRule mainParams_FirstLevelFilter = new TreeViewGroupRule(Rule.By.DISPLAY_NAME,"main"," Main parameters",filterRegex);
         firstLevelFilters.add(mainParams_FirstLevelFilter);
 
         // Filters for Jagger monitoring parameters

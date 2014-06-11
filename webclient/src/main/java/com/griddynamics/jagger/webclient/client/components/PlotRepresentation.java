@@ -1,5 +1,8 @@
 package com.griddynamics.jagger.webclient.client.components;
 
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.user.client.ui.*;
 import com.googlecode.gflot.client.Pan;
 import com.googlecode.gflot.client.SimplePlot;
@@ -16,6 +19,7 @@ public class PlotRepresentation extends VerticalPanel {
 
     private MyScroll scrollbar;
 
+    private final int TOTAL_BORDERS_WIDTH = 4;
     /**
      * Range to scroll to */
     private double maxRange = 1;
@@ -56,8 +60,8 @@ public class PlotRepresentation extends VerticalPanel {
 
     public void calculateScrollWidth() {
         if (scrollbar.isAttached()) {
-            double plotWidth = simplePlot.getOffsetWidth() - simplePlot.getOptions().getYAxisOptions().getLabelWidth() - 4;
-            double visibleRange = simplePlot.getAxes().getX().getMaximumValue() - simplePlot.getAxes().getX().getMinimumValue();
+            double plotWidth = getPlotWidth() - TOTAL_BORDERS_WIDTH;
+            double visibleRange = getVisibleRange();
             double ratio = maxRange / visibleRange;
             scrollbar.setScrollWidth((int) (plotWidth * ratio));
         }
@@ -91,16 +95,31 @@ public class PlotRepresentation extends VerticalPanel {
     public void panToPercent(double percent) {
 
         double minVisible = simplePlot.getAxes().getX().getMinimumValue();
-        double maxVisible = simplePlot.getAxes().getX().getMaximumValue();
+        double visibleRange = getVisibleRange();
 
-        double valueOnScaleShouldBe = percent * (maxRange - maxVisible + minVisible);
+        double valueOnScaleShouldBe = percent * (maxRange - visibleRange);
 
         double deltaInScale = valueOnScaleShouldBe - minVisible;
-        double pixelsToScale = (simplePlot.getOffsetWidth() - simplePlot.getOptions().getYAxisOptions().getLabelWidth()) / (maxVisible - minVisible);
+        double pixelsToScale = getPlotWidth() / visibleRange;
 
         Pan pan = Pan.create().setLeft(deltaInScale * pixelsToScale).setPreventEvent(true);
         simplePlot.pan(pan);
 
-        scrollbar.setHorizontalScrollPosition((int) ((scrollbar.getMaximumHorizontalScrollPosition() - scrollbar.getMinimumHorizontalScrollPosition()) * percent));
+        int newHorizontalPosition = (int) ((scrollbar.getMaximumHorizontalScrollPosition() - scrollbar.getMinimumHorizontalScrollPosition()) * percent);
+        if (newHorizontalPosition == scrollbar.getHorizontalScrollPosition()) {
+            // fire scroll event anyway
+            NativeEvent event = Document.get().createScrollEvent();
+            DomEvent.fireNativeEvent(event, scrollbar);
+        } else {
+            scrollbar.setHorizontalScrollPosition(newHorizontalPosition);
+        }
+    }
+
+    private double getPlotWidth() {
+        return simplePlot.getOffsetWidth() - simplePlot.getOptions().getYAxisOptions().getLabelWidth();
+    }
+
+    private double getVisibleRange() {
+        return simplePlot.getAxes().getX().getMaximumValue() - simplePlot.getAxes().getX().getMinimumValue();
     }
 }

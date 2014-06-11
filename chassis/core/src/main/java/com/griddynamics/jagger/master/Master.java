@@ -166,11 +166,13 @@ public class Master implements Runnable {
 
         validateConfiguration();
 
+        String sessionId = sessionIdProvider.getSessionId();
+
         if (!keyValueStorage.isAvailable()) {
             keyValueStorage.initialize();
+            keyValueStorage.setSessionId(sessionId);
         }
 
-        String sessionId = sessionIdProvider.getSessionId();
         metaDataStorage.setComment(sessionIdProvider.getSessionComment());
 
         Multimap<NodeType, NodeId> allNodes = HashMultimap.create();
@@ -277,7 +279,7 @@ public class Master implements Runnable {
         } finally {
             try {
                 keyValueStorage.deleteAll();
-                log.info("Temporary data deleted");
+                log.info("Temporary data for session {} deleted ",sessionId);
             } catch (Exception e){
                 log.warn(e.getMessage(), e);
             }

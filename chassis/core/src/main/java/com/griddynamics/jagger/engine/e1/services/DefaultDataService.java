@@ -23,6 +23,10 @@ public class DefaultDataService implements DataService {
         databaseService = context.getService(DatabaseService.class);
     }
 
+    public DefaultDataService(DatabaseService databaseService) {
+        this.databaseService = databaseService;
+    }
+
     @Override
     public SessionEntity getSession(String sessionId) {
         Set<SessionEntity> sessions = getSessions(Arrays.asList(sessionId));
@@ -140,8 +144,12 @@ public class DefaultDataService implements DataService {
                     testEntity.setName(taskDataDto.getTaskName());
 
                     if (testInfoMap.containsKey(taskDataDto)) {
-                        testEntity.setLoad(testInfoMap.get(taskDataDto).entrySet().iterator().next().getValue().getClock());
-                        testEntity.setTerminationStrategy(testInfoMap.get(taskDataDto).entrySet().iterator().next().getValue().getTermination());
+                        TestInfoDto testInfoDto = testInfoMap.get(taskDataDto).entrySet().iterator().next().getValue();
+                        testEntity.setLoad(testInfoDto.getClock());
+                        testEntity.setTerminationStrategy(testInfoDto.getTermination());
+                        testEntity.setStartDate(testInfoDto.getStartTime());
+                        testEntity.setTestGroupIndex(testInfoDto.getNumber());
+                        testEntity.setTestExecutionStatus(testInfoDto.getStatus());
                     }
 
                     if (result.containsKey(taskDataDto.getSessionId())){
@@ -290,14 +298,14 @@ public class DefaultDataService implements DataService {
     }
 
     @Override
-    public Double getMetricSummary(MetricEntity metric) {
-        Map<MetricEntity, Double> map = getMetricSummary(Arrays.asList(metric));
+    public MetricSummaryValueEntity getMetricSummary(MetricEntity metric) {
+        Map<MetricEntity, MetricSummaryValueEntity> map = getMetricSummary(Arrays.asList(metric));
 
         return map.get(metric);
     }
 
     @Override
-    public Map<MetricEntity, Double> getMetricSummary(Collection<MetricEntity> metrics) {
+    public Map<MetricEntity, MetricSummaryValueEntity> getMetricSummary(Collection<MetricEntity> metrics) {
 
         List<MetricNameDto> metricNameDtoList = new ArrayList<MetricNameDto>();
         Map<MetricNameDto,MetricEntity> matchMap = new HashMap<MetricNameDto, MetricEntity>();
@@ -311,10 +319,12 @@ public class DefaultDataService implements DataService {
 
         List<MetricDto> metricDtoList = databaseService.getSummaryByMetricNameDto(metricNameDtoList);
 
-        Map<MetricEntity,Double> result = new HashMap<MetricEntity, Double>();
+        Map<MetricEntity,MetricSummaryValueEntity> result = new HashMap<MetricEntity,MetricSummaryValueEntity>();
         for (MetricDto metricDto : metricDtoList) {
             MetricEntity metricEntity = matchMap.get(metricDto.getMetricName());
-            Double value = Double.parseDouble(metricDto.getValues().iterator().next().getValue());
+            MetricSummaryValueEntity value = new MetricSummaryValueEntity();
+            value.setValue(Double.parseDouble(metricDto.getValues().iterator().next().getValue()));
+            value.setDecision(metricDto.getValues().iterator().next().getDecision());
             result.put(metricEntity,value);
         }
 

@@ -143,7 +143,7 @@ public class WorkloadScalabilityPlotsReporter extends AbstractReportProvider {
 
     private XYDataset getThroughputData(List<WorkloadTaskData> resultData) {
 
-        XYSeries throughput = new XYSeries("Througput");
+        XYSeries throughput = new XYSeries("Throughput");
         throughput.add(0, 0);
         for (WorkloadTaskData workloadTaskData : resultData) {
             throughput.add(workloadTaskData.getClockValue(), workloadTaskData.getThroughput());
