@@ -13,10 +13,10 @@ import java.io.*;
  */
 public class FileDownloadRequestHandler implements HttpRequestHandler {
 
-    private NewFileStorage fileStorage;
+    private InMemoryFileStorage fileStorage;
 
     @Required
-    public void setFileStorage(NewFileStorage fileStorage) {
+    public void setFileStorage(InMemoryFileStorage fileStorage) {
         this.fileStorage = fileStorage;
     }
 
@@ -33,24 +33,17 @@ public class FileDownloadRequestHandler implements HttpRequestHandler {
             return;
         }
 
-        InputStream inputStream = fileStorage.open(fileKey);
-        int fileLength = fileStorage.fileLength(fileKey);
+        byte[] fileInBytes = fileStorage.getFile(fileKey);
 
         resp.setContentType("application/octet-stream");
         resp.setHeader("Content-Disposition:", "attachment;filename=" + "\"" + fileKey + ".csv\"");
         OutputStream outputStream = resp.getOutputStream();
 
         resp.setBufferSize(BUFFER);
-        resp.setContentLength(fileLength);
+        resp.setContentLength(fileInBytes.length);
 
-        int bytesRead;
-        byte[] bytes = new byte[BUFFER];
+        outputStream.write(fileInBytes);
 
-        while ((bytesRead = inputStream.read(bytes)) != -1) {
-            outputStream.write(bytes, 0, bytesRead);
-        }
-
-        inputStream.close();
         outputStream.close();
 
         // delete file if necessary

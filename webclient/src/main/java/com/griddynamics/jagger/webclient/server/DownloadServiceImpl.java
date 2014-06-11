@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
-import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.*;
 
 public class DownloadServiceImpl implements DownloadService {
@@ -22,7 +22,7 @@ public class DownloadServiceImpl implements DownloadService {
 
     private MetricDataService metricDataService;
 
-    private NewFileStorage fileStorage;
+    private InMemoryFileStorage fileStorage;
 
     private Logger log = LoggerFactory.getLogger(DownloadServiceImpl.class);
 
@@ -37,7 +37,7 @@ public class DownloadServiceImpl implements DownloadService {
     }
 
     @Required
-    public void setFileStorage(NewFileStorage fileStorage) {
+    public void setFileStorage(InMemoryFileStorage fileStorage) {
         this.fileStorage = fileStorage;
     }
 
@@ -93,10 +93,14 @@ public class DownloadServiceImpl implements DownloadService {
                 return fileKey;
             }
 
-            OutputStream out = fileStorage.create(fileKey);
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
             // create csv file
-            PlotToCsvGenerator.generateCsvFile(plot, out);
+            PlotToCsvGenerator.generateCsvFile(plot, byteArrayOutputStream);
+
+            byte[] fileInBytes = byteArrayOutputStream.toByteArray();
+
+            fileStorage.store(fileKey, fileInBytes);
 
             return fileKey;
         } catch (Exception e) {
