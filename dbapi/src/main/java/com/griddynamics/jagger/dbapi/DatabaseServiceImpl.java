@@ -288,6 +288,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             });
 
             // at the moment all MetricNameDtos in MetricNode have same taskIds => it is valid to use first one for legend provider
+            // TODO for session scope plot headers and legend will available after JFG-738
             result.put(metricNode, new PlotSeriesDto(plotDatasetDtoList,"Time, sec", "",legendProvider.getPlotHeader(metricNode.getMetricNameDtoList().get(0).getTaskIds(), metricNode.getDisplayName())));
         }
 

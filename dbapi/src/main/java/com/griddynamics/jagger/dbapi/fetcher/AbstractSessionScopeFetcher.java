@@ -15,7 +15,10 @@ import java.util.*;
  * User: mnovozhilov
  * Date: 6/10/14
  * Time: 4:07 PM
- * To change this template use File | Settings | File Templates.
+ *
+ * This is class is needed because session scope processing of data for test group metrics equal
+ * processing monitoring parameters. We use delegates required classes.
+ *
  */
 
 public class AbstractSessionScopeFetcher<F extends AbstractMetricPlotFetcher> extends PlotsDbMetricDataFetcher{
