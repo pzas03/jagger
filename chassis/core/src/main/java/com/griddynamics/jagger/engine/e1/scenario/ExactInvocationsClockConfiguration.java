@@ -8,7 +8,7 @@ public class ExactInvocationsClockConfiguration implements WorkloadClockConfigur
 
     private int samplesCount;
 
-    private int delay;
+    private int delay = 0;
 
     private String period = "-1";
 

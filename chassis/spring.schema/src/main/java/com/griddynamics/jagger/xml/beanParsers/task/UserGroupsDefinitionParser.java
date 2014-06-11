@@ -1,5 +1,6 @@
 package com.griddynamics.jagger.xml.beanParsers.task;
 
+import com.griddynamics.jagger.engine.e1.scenario.FixedDelay;
 import com.griddynamics.jagger.engine.e1.scenario.UserGroupsClockConfiguration;
 import com.griddynamics.jagger.user.ProcessingConfig;
 import com.griddynamics.jagger.xml.beanParsers.CustomBeanDefinitionParser;
@@ -22,6 +23,10 @@ public class UserGroupsDefinitionParser extends CustomBeanDefinitionParser {
         if (element.getAttribute(XMLConstants.TICK_INTERVAL).isEmpty()){
             builder.addPropertyValue(XMLConstants.TICK_INTERVAL, XMLConstants.DEFAULT_TICK_INTERVAL);
         }
+        if (!element.getAttribute(XMLConstants.DELAY).isEmpty()){
+            builder.addPropertyValue(XMLConstants.DELAY, new FixedDelay(Integer.parseInt(element.getAttribute(XMLConstants.DELAY))));
+        }
+        element.removeAttribute(XMLConstants.DELAY);
     }
 
     @Override

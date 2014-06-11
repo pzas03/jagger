@@ -87,12 +87,6 @@ public class Trends extends DefaultActivity {
     SimplePager sessionsPager;
 
     @UiField
-    ScrollPanel scrollPanelTrends;
-
-    @UiField
-    ScrollPanel scrollPanelMetrics;
-
-    @UiField
     PlotsPanel plotTrendsPanel;
 
     @UiField
@@ -309,8 +303,8 @@ public class Trends extends DefaultActivity {
                         if (plotNode.getMetricNameDtoList().size() > 0) {
                             MetricNameDto metricNameDto = plotNode.getMetricNameDtoList().get(0);
 
-                            if ((metricNameDto.getOrigin() == MetricNameDto.Origin.MONITORING) ||
-                                (metricNameDto.getOrigin() == MetricNameDto.Origin.TEST_GROUP_METRIC)) {
+                            if ((metricNameDto.getOrigin().equals(MetricNameDto.Origin.MONITORING)) ||
+                                (metricNameDto.getOrigin().equals(MetricNameDto.Origin.TEST_GROUP_METRIC))) {
 
                                 MonitoringIdUtils.MonitoringId monitoringId= MonitoringIdUtils.splitMonitoringMetricId(metricNameDto.getMetricName());
                                 if (monitoringId != null) {
@@ -777,8 +771,8 @@ public class Trends extends DefaultActivity {
                         yMin,
                         true
                 );
+                plotTrendsPanel.scrollToBottom();
             }
-            scrollPanelTrends.scrollToBottom();
             hasChanged = false;
         }
     }
@@ -790,7 +784,7 @@ public class Trends extends DefaultActivity {
         for (String plotId : chosenPlots.keySet()) {
             if (!plotPanel.containsElementWithId(plotId)) {
                 renderPlots(plotPanel, chosenPlots.get(plotId), plotId);
-                scrollPanelMetrics.scrollToBottom();
+                plotPanel.scrollToBottom();
             }
         }
     }
