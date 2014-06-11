@@ -60,7 +60,7 @@ public class JMXSystemUnderTestImpl implements SystemUnderTestService {
     private Map<String, MBeanServerConnection> connections = Maps.newHashMap();
     private ConfigurableExecutor executor;
     private JmxConnector jmxConnector;
-    Future<Map<String, MBeanServerConnection>> future;
+    private Future<Map<String, MBeanServerConnection>> future;
 
     public String getName() {
         return name;

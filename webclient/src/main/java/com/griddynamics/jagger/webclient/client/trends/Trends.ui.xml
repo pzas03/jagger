@@ -95,17 +95,21 @@
                     <g:header>
                         <b>Trends</b>
                     </g:header>
-                    <g:ScrollPanel ui:field="scrollPanelTrends">
-                        <custom:PlotsPanel addStyleNames="{res.css.plotPanel}" ui:field="plotTrendsPanel"/>
-                    </g:ScrollPanel>
+                    <g:DockLayoutPanel>
+                        <g:center>
+                            <custom:PlotsPanel ui:field="plotTrendsPanel"/>
+                        </g:center>
+                    </g:DockLayoutPanel>
                 </g:tab>
                 <g:tab>
                     <g:header>
                         <b>Metrics</b>
                     </g:header>
-                    <g:ScrollPanel ui:field="scrollPanelMetrics">
-                        <custom:PlotsPanel addStyleNames="{res.css.plotPanel}" ui:field="plotPanel"/>
-                    </g:ScrollPanel>
+                    <g:DockLayoutPanel>
+                        <g:center>
+                            <custom:PlotsPanel ui:field="plotPanel"/>
+                        </g:center>
+                    </g:DockLayoutPanel>
                 </g:tab>
                 <g:tab>
                     <g:header>

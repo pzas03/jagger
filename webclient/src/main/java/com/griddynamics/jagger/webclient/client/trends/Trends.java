@@ -87,12 +87,6 @@ public class Trends extends DefaultActivity {
     SimplePager sessionsPager;
 
     @UiField
-    ScrollPanel scrollPanelTrends;
-
-    @UiField
-    ScrollPanel scrollPanelMetrics;
-
-    @UiField
     PlotsPanel plotTrendsPanel;
 
     @UiField
@@ -777,8 +771,8 @@ public class Trends extends DefaultActivity {
                         yMin,
                         true
                 );
+                plotTrendsPanel.scrollToBottom();
             }
-            scrollPanelTrends.scrollToBottom();
             hasChanged = false;
         }
     }
@@ -790,7 +784,7 @@ public class Trends extends DefaultActivity {
         for (String plotId : chosenPlots.keySet()) {
             if (!plotPanel.containsElementWithId(plotId)) {
                 renderPlots(plotPanel, chosenPlots.get(plotId), plotId);
-                scrollPanelMetrics.scrollToBottom();
+                plotPanel.scrollToBottom();
             }
         }
     }
