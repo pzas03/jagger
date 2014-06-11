@@ -5,7 +5,6 @@ import com.griddynamics.jagger.dbapi.dto.SummaryIntegratedDto;
 import com.griddynamics.jagger.dbapi.model.MetricNode;
 
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 

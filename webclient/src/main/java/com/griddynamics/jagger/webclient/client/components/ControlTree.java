@@ -2,9 +2,11 @@ package com.griddynamics.jagger.webclient.client.components;
 
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.uibinder.client.UiConstructor;
+import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
 import com.griddynamics.jagger.dbapi.dto.TaskDataDto;
 import com.griddynamics.jagger.webclient.client.components.control.CheckHandlerMap;
 import com.griddynamics.jagger.dbapi.model.*;
+import com.griddynamics.jagger.dbapi.dto.SessionPlotNameDto;
 import com.sencha.gxt.core.client.ValueProvider;
 import com.sencha.gxt.data.shared.TreeStore;
 import com.sencha.gxt.widget.core.client.event.BeforeCheckChangeEvent;
@@ -13,6 +15,7 @@ import com.sencha.gxt.widget.core.client.event.BeforeExpandItemEvent;
 import com.sencha.gxt.widget.core.client.event.CheckChangeEvent;
 import com.sencha.gxt.widget.core.client.tree.Tree;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -99,10 +102,7 @@ public class ControlTree<C> extends Tree <AbstractIdentifyNode, C> {
                 }
 
                 tree.enableEvents();
-                if (CheckHandlerMap.getHandler(item.getClass()) != null) {
-                    CheckHandlerMap.getHandler(item.getClass())
-                            .onCheckChange(new CheckChangeEvent(item, state));
-                }
+                CheckHandlerMap.getHandler(item.getClass()).onCheckChange(new CheckChangeEvent(item, state));
             }
 
             private Tree<AbstractIdentifyNode, C> tree = ControlTree.this;

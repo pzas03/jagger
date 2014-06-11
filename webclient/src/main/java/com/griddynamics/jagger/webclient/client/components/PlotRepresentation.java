@@ -51,11 +51,6 @@ public class PlotRepresentation extends VerticalPanel {
         simplePlot.setSize("100%", "100%");
     }
 
-    // ??? temporary method
-    public void setLegendPanel(Panel legendPanel) {
-        this.add(legendPanel);
-    }
-
     public double getMaxRange() {
         return maxRange;
     }

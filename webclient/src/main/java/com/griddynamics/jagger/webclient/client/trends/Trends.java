@@ -549,13 +549,7 @@ public class Trends extends DefaultActivity {
 
     private void setupControlTree() {
 
-        controlTree = new ControlTree<String>(new TreeStore<AbstractIdentifyNode>(new ModelKeyProvider<AbstractIdentifyNode>() {
-
-            @Override
-            public String getKey(AbstractIdentifyNode item) {
-                return item.getId();
-            }
-        }), new SimpleNodeValueProvider());
+        controlTree = new ControlTree<String>(new TreeStore<AbstractIdentifyNode>(modelKeyProvider), new SimpleNodeValueProvider());
         setupControlTree(controlTree);
 
         Label label = new Label("Choose at least One session");
@@ -568,6 +562,9 @@ public class Trends extends DefaultActivity {
 
     private void setupControlTree(ControlTree<String> tree) {
         tree.setTitle("Control Tree");
+        tree.setCheckable(true);
+        tree.setCheckStyle(Tree.CheckCascade.NONE);
+        tree.setCheckNodes(Tree.CheckNodes.BOTH);
         tree.setWidth("100%");
         tree.setHeight("100%");
         CheckHandlerMap.setTree(tree);
@@ -1127,12 +1124,7 @@ public class Trends extends DefaultActivity {
             zoomPanel.add(zoomOutLabel);
             zoomPanel.add(zoomBack);
 
-            ControlTree legendTree = createLegendTree(plotSeriesDto);
-            SimplePanel sp = new SimplePanel();
-            sp.setWidget(legendTree);
-
             PlotRepresentation plotRepresentation = new PlotRepresentation(zoomPanel, plot, xLabel);
-            plotRepresentation.setLegendPanel(sp);
             PlotContainer pc = new PlotContainer(id, plotSeriesDto.getPlotHeader(), plotRepresentation, plotSaver);
 
             panel.addElement(pc);
@@ -1142,59 +1134,6 @@ public class Trends extends DefaultActivity {
         // Redraw plot
         if (redrawingPlot != null) {
             redrawingPlot.redraw();
-        }
-    }
-
-    private ControlTree createLegendTree(PlotIntegratedDto plotSeriesDto) {
-
-        if (plotSeriesDto.getLegendTree() == null)
-            return null;
-
-        return createControlTree(plotSeriesDto.getLegendTree());
-    }
-
-
-    private ControlTree<String> createControlTree(AbstractIdentifyNode result) {
-
-        TreeStore<AbstractIdentifyNode> temporaryStore = new TreeStore<AbstractIdentifyNode>(new ModelKeyProvider<AbstractIdentifyNode>() {
-
-            @Override
-            public String getKey(AbstractIdentifyNode item) {
-                return item.getId();
-            }
-        });
-        ControlTree<String> newTree = new ControlTree<String>(temporaryStore, new SimpleNodeValueProvider());
-
-        for (AbstractIdentifyNode node : result.getChildren()) {
-            addToStore(temporaryStore, node);
-        }
-
-        newTree.setCheckable(true);
-        newTree.setCheckStyle(Tree.CheckCascade.NONE);
-        newTree.setCheckNodes(Tree.CheckNodes.BOTH);
-
-        return newTree;
-    }
-
-    private void addToStore(TreeStore<AbstractIdentifyNode> store, AbstractIdentifyNode node) {
-        store.add(node);
-
-        for (AbstractIdentifyNode child : node.getChildren()) {
-            addToStore(store, child, node);
-        }
-    }
-
-    private void addToStore(TreeStore<AbstractIdentifyNode> store, AbstractIdentifyNode node, AbstractIdentifyNode parent) {
-        store.add(parent, node);
-        for (AbstractIdentifyNode child : node.getChildren()) {
-
-            try {
-                addToStore(store, child, node);
-            }
-            catch (AssertionError e) {
-                new ExceptionPanel(place, "Was not able to insert node with id '" + child.getId() + "' and name '"
-                        + child.getDisplayName() + "' into control tree. Id is already in use. Error message:\n" + e.getMessage());
-            }
         }
     }
 
@@ -1284,7 +1223,6 @@ public class Trends extends DefaultActivity {
 
                     } else if (controlTree.getStore().getAllItemsCount() == 0) {
                         controlTree = createControlTree(result);
-                        setupControlTree(controlTree);
 
                         controlTree.setRootNode(result);
                         controlTreePanel.clear();
@@ -1472,7 +1410,7 @@ public class Trends extends DefaultActivity {
 
        private void updateControlTree(RootNode result) {
             ControlTree<String> tempTree = createControlTree(result);
-            setupControlTree(tempTree);
+
             tempTree.disableEvents();
             for (AbstractIdentifyNode s : controlTree.getStore().getAll()) {
                 AbstractIdentifyNode model = tempTree.getStore().findModelWithKey(s.getId());
@@ -1536,6 +1474,41 @@ public class Trends extends DefaultActivity {
         private void fetchSessionInfoData(SessionInfoNode sessionInfoNode) {
             if (Tree.CheckState.CHECKED.equals(controlTree.getChecked(sessionInfoNode))) {
                 summaryPanel.getSessionComparisonPanel().addSessionInfo();
+            }
+        }
+
+        private ControlTree<String> createControlTree(RootNode result) {
+
+            TreeStore<AbstractIdentifyNode> temporaryStore = new TreeStore<AbstractIdentifyNode>(modelKeyProvider);
+            ControlTree<String> newTree = new ControlTree<String>(temporaryStore, new SimpleNodeValueProvider());
+            setupControlTree(newTree);
+
+            for (AbstractIdentifyNode node : result.getChildren()) {
+                addToStore(temporaryStore, node);
+            }
+
+           return newTree;
+        }
+
+        private void addToStore(TreeStore<AbstractIdentifyNode> store, AbstractIdentifyNode node) {
+            store.add(node);
+
+            for (AbstractIdentifyNode child : node.getChildren()) {
+                addToStore(store, child, node);
+            }
+        }
+
+        private void addToStore(TreeStore<AbstractIdentifyNode> store, AbstractIdentifyNode node, AbstractIdentifyNode parent) {
+            store.add(parent, node);
+            for (AbstractIdentifyNode child : node.getChildren()) {
+
+                try {
+                    addToStore(store, child, node);
+                }
+                catch (AssertionError e) {
+                    new ExceptionPanel(place, "Was not able to insert node with id '" + child.getId() + "' and name '"
+                            + child.getDisplayName() + "' into control tree. Id is already in use. Error message:\n" + e.getMessage());
+                }
             }
         }
     }
