@@ -87,7 +87,7 @@ public class LegendTree extends AbstractTree<LegendNode, LegendNode> {
 
             if (state == CheckState.CHECKED) {
 
-                Series series = Series.create().setId(item.getId()).setColor(plotSingleDto.getColor());
+                Series series = Series.create().setId(item.getId()).setColor(plotSingleDto.getColor()).setLabel(plotSingleDto.getLegend());
                 SeriesHandler sh = plot.getModel().addSeries(series);
                 for (PointDto point: plotSingleDto.getPlotData()) {
                     sh.add(DataPoint.of(point.getX(), point.getY()));
