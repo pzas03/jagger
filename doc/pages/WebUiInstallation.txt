@@ -50,6 +50,10 @@
 /// @li Now open link `localhost:8080` in your favorite browser. Web client is ready for use!
 ///    @image html webUI_sessions.png "Compare sessions"
 /// @n
+/// @li @b Note: Web client will write logs to path defined in log properties `/ROOT/WEB-INF/classes/log4j.properties` @n
+///     By default logs will be stored in the same directory where Web client is installed. If you don't have permissions @n
+///     to write there - redefine path @n
+/// @n
 /// @n
 /// It is possible to store Web client properties file in separate file to simplify updating of Web Client. @ref WebUiProperties "[More ...]" @n
 /// @n
