@@ -282,14 +282,20 @@ public class DatabaseServiceImpl implements DatabaseService {
                 public int compare(PlotDatasetDto o1, PlotDatasetDto o2) {
                     String param1 = o1.getLegend();
                     String param2 = o2.getLegend();
-                    int res = String.CASE_INSENSITIVE_ORDER.compare(param1,param2);
+                    int res = String.CASE_INSENSITIVE_ORDER.compare(param1, param2);
                     return (res != 0) ? res : param1.compareTo(param2);
                 }
             });
 
             // at the moment all MetricNameDtos in MetricNode have same taskIds => it is valid to use first one for legend provider
-            // TODO for session scope plot headers and legend will available after JFG-738
-            result.put(metricNode, new PlotSeriesDto(plotDatasetDtoList,"Time, sec", "",legendProvider.getPlotHeader(metricNode.getMetricNameDtoList().get(0).getTaskIds(), metricNode.getDisplayName())));
+            // TODO legend will available after JFG-738
+            MetricNameDto firstMetricNameDto = metricNode.getMetricNameDtoList().get(0);
+            String plotHeader;
+            if (isSessionScopeMetric(firstMetricNameDto))
+                plotHeader = legendProvider.getSessionScopePlotHeader(metricNode.getDisplayName());
+            else
+                plotHeader = legendProvider.getPlotHeader(firstMetricNameDto.getTaskIds(), metricNode.getDisplayName());
+            result.put(metricNode, new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", plotHeader));
         }
 
         log.debug("Total time of plots for metricNodes retrieving : " + (System.currentTimeMillis() - temp));
@@ -1622,8 +1628,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         for (TaskDataDto taskDataDto : map.keySet()) {
             for (PlotNode plotNode : map.get(taskDataDto)) {
                 for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
-                    if (metricNameDto.getOrigin().equals(MetricNameDto.Origin.SESSION_SCOPE_TG)
-                            || metricNameDto.getOrigin().equals(MetricNameDto.Origin.SESSION_SCOPE_MONITORING)) {
+                    if (isSessionScopeMetric(metricNameDto)) {
                         if (mapForSessionScope.get(taskDataDto) == null)
                             mapForSessionScope.put(taskDataDto, new ArrayList<PlotNode>());
                         mapForSessionScope.get(taskDataDto).add(plotNode);
@@ -1636,6 +1641,11 @@ public class DatabaseServiceImpl implements DatabaseService {
             }
         }
         return Lists.newArrayList(mapForTests, mapForSessionScope);
+    }
+
+    private boolean isSessionScopeMetric(MetricNameDto metricNameDto){
+        return  (metricNameDto.getOrigin().equals(MetricNameDto.Origin.SESSION_SCOPE_TG)
+                || metricNameDto.getOrigin().equals(MetricNameDto.Origin.SESSION_SCOPE_MONITORING));
     }
 
 
