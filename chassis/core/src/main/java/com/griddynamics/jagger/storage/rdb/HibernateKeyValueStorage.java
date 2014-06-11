@@ -32,8 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 public class HibernateKeyValueStorage extends HibernateDaoSupport implements KeyValueStorage {
 
@@ -41,8 +40,25 @@ public class HibernateKeyValueStorage extends HibernateDaoSupport implements Key
 
     private int hibernateBatchSize;
 
+    private int sessionTempDataCount=50;
+
+    private String sessionId;
+
     public int getHibernateBatchSize() {
         return hibernateBatchSize;
+    }
+
+    public int getSessionTempDataCount() {
+        return sessionTempDataCount;
+    }
+
+    @Required
+    public void setSessionTempDataCount(int sessionTempDataCount) {
+        if (sessionTempDataCount <0) {
+            log.warn("Session count can't be < 0; chassis.storage.temporary.data.session.count is equal {}.", sessionTempDataCount);
+            return;
+        }
+        this.sessionTempDataCount = sessionTempDataCount;
     }
 
     @Required
@@ -60,10 +76,16 @@ public class HibernateKeyValueStorage extends HibernateDaoSupport implements Key
     }
 
     @Override
+    public void setSessionId(String sessionId) {
+        this.sessionId=sessionId;
+    }
+
+    @Override
     public void put(Namespace namespace, String key, Object value) {
         getHibernateTemplate().persist(createKeyValue(namespace, key, value));
     }
 
+    @Override
     public void putAll(Namespace namespace, Multimap<String, Object> valuesMap) {
         Session session = null;
         int count = 0;
@@ -90,8 +112,21 @@ public class HibernateKeyValueStorage extends HibernateDaoSupport implements Key
     }
 
     @Override
-    public void deleteAll(){
-        getHibernateTemplate().bulkUpdate("delete from KeyValue");
+    public void deleteAll() {
+        ArrayList<String> sessions = (ArrayList) getHibernateTemplate().find("Select distinct k.sessionId from KeyValue k ORDER by k.sessionId");
+        if (sessions.size() == 0)
+            return;
+        if (sessionTempDataCount == 0) {
+            log.warn("Session count limit is equal '0', all temporary data about sessions in KeyValue will be delete");
+            getHibernateTemplate().bulkUpdate("delete from KeyValue");
+            return;
+        }
+        List<String> sessionForDelete = Lists.newArrayList();
+        sessionForDelete.add(sessionId);
+        if (sessions.size() > sessionTempDataCount) {
+            sessionForDelete.addAll(sessions.subList(0, (sessions.size() - 1) - sessionTempDataCount));
+        }
+        getHibernateTemplate().bulkUpdate("delete from KeyValue where sessionId in (?)", sessionForDelete.toArray());
     }
 
     @SuppressWarnings("unchecked")
@@ -108,8 +143,8 @@ public class HibernateKeyValueStorage extends HibernateDaoSupport implements Key
         return SerializationUtils.deserialize(values.get(0).getData());
     }
 
-    @Override
     @SuppressWarnings("unchecked")
+    @Override
     public Collection<Object> fetchAll(Namespace namespace, String key) {
         List<KeyValue> entities = (List<KeyValue>) getHibernateTemplate().find(
                 "from KeyValue kv where kv.namespace = ? and kv.key = ?", namespace.toString(), key);
@@ -146,6 +181,7 @@ public class HibernateKeyValueStorage extends HibernateDaoSupport implements Key
         keyvalue.setNamespace(namespace.toString());
         keyvalue.setKey(key);
         keyvalue.setData(SerializationUtils.serialize(value));
+        keyvalue.setSessionId(sessionId);
         return keyvalue;
     }
 }

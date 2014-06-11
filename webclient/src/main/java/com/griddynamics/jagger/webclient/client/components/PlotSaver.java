@@ -4,13 +4,24 @@ import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.ImageElement;
-import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.*;
 import com.googlecode.gflot.client.Series;
 import com.googlecode.gflot.client.SimplePlot;
 
 /**
  * Class that enables to save plots */
 public class PlotSaver {
+
+    /**
+     * Frame to fire download */
+    private Frame hiddenFrame;
+
+    {
+        hiddenFrame = new Frame();
+        hiddenFrame.setVisible(false);
+        hiddenFrame.setPixelSize(0, 0);
+        RootPanel.get().add(hiddenFrame);
+    }
 
     /**
      * Saves plot as png
@@ -134,8 +145,9 @@ public class PlotSaver {
 
             // get url of png data created from canvas
             String url = canvasTmp.toDataUrl("image/png");
+
             // fire browser event to download png
-            Window.Location.assign(url.replace("image/png", "image/octet-stream"));
+            hiddenFrame.setUrl(url.replace("image/png", "image/octet-stream"));
 
         } else {
             alert("Can not save image in your browser.");

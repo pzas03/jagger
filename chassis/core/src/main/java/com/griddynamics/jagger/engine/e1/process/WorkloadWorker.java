@@ -26,13 +26,12 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.Service;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.griddynamics.jagger.agent.model.GetGeneralNodeInfo;
-import com.griddynamics.jagger.coordinator.CommandExecutor;
-import com.griddynamics.jagger.coordinator.ConfigurableWorker;
-import com.griddynamics.jagger.coordinator.NodeContext;
-import com.griddynamics.jagger.coordinator.Qualifier;
+import com.griddynamics.jagger.coordinator.*;
 import com.griddynamics.jagger.engine.e1.scenario.CalibrationInfoCollector;
 import com.griddynamics.jagger.invoker.Scenario;
 import com.griddynamics.jagger.invoker.ScenarioFactory;
+import com.griddynamics.jagger.kernel.WorkloadWorkerCommandExecutor;
+import com.griddynamics.jagger.storage.KeyValueStorage;
 import com.griddynamics.jagger.storage.fs.logging.LogWriter;
 import com.griddynamics.jagger.util.*;
 import org.slf4j.Logger;
@@ -71,12 +70,16 @@ public class WorkloadWorker extends ConfigurableWorker {
 
     @Override
     public void configure() {
-        onCommandReceived(StartWorkloadProcess.class).execute(new CommandExecutor<StartWorkloadProcess, String>() {
+        onCommandReceived(StartWorkloadProcess.class).execute(
+                new WorkloadWorkerCommandExecutor<StartWorkloadProcess, String>() {
+
+            @Override
             public Qualifier<StartWorkloadProcess> getQualifier() {
                 return Qualifier.of(StartWorkloadProcess.class);
             }
 
-            public String execute(StartWorkloadProcess command, NodeContext nodeContext) {
+            @Override
+            public String doExecute(StartWorkloadProcess command, NodeContext nodeContext) {
                 log.debug("Processing command {}", command);
                 int poolSize = command.getPoolSize();
 
@@ -100,12 +103,16 @@ public class WorkloadWorker extends ConfigurableWorker {
         }
         );
 
-        onCommandReceived(ChangeWorkloadConfiguration.class).execute(new CommandExecutor<ChangeWorkloadConfiguration, Boolean>() {
+        onCommandReceived(ChangeWorkloadConfiguration.class).execute(
+                new WorkloadWorkerCommandExecutor<ChangeWorkloadConfiguration, Boolean>() {
+
+            @Override
             public Qualifier<ChangeWorkloadConfiguration> getQualifier() {
                 return Qualifier.of(ChangeWorkloadConfiguration.class);
             }
 
-            public Boolean execute(ChangeWorkloadConfiguration command, NodeContext nodeContext) {
+            @Override
+            public Boolean doExecute(ChangeWorkloadConfiguration command, NodeContext nodeContext) {
                 Preconditions.checkArgument(command.getProcessId() != null, "Process id cannot be null");
 
                 Integer poolSize = pools.get(command.getProcessId());
@@ -122,13 +129,16 @@ public class WorkloadWorker extends ConfigurableWorker {
         }
         );
 
-        onCommandReceived(PollWorkloadProcessStatus.class).execute(new CommandExecutor<PollWorkloadProcessStatus, WorkloadStatus>() {
+        onCommandReceived(PollWorkloadProcessStatus.class).execute(
+                new WorkloadWorkerCommandExecutor<PollWorkloadProcessStatus, WorkloadStatus>() {
 
-            public Qualifier<PollWorkloadProcessStatus> getQualifier() {
+            @Override
+            public Qualifier getQualifier() {
                 return Qualifier.of(PollWorkloadProcessStatus.class);
             }
 
-            public WorkloadStatus execute(PollWorkloadProcessStatus command, NodeContext nodeContext) {
+            @Override
+            public WorkloadStatus doExecute(PollWorkloadProcessStatus command, NodeContext nodeContext) {
                 Preconditions.checkArgument(command.getProcessId() != null, "Process id cannot be null");
 
                 WorkloadProcess process = getProcess(command.getProcessId());
@@ -137,12 +147,16 @@ public class WorkloadWorker extends ConfigurableWorker {
         }
         );
 
-        onCommandReceived(StopWorkloadProcess.class).execute(new CommandExecutor<StopWorkloadProcess, WorkloadStatus>() {
+        onCommandReceived(StopWorkloadProcess.class).execute(
+                new WorkloadWorkerCommandExecutor<StopWorkloadProcess, WorkloadStatus>() {
+
+            @Override
             public Qualifier<StopWorkloadProcess> getQualifier() {
                 return Qualifier.of(StopWorkloadProcess.class);
             }
 
-            public WorkloadStatus execute(StopWorkloadProcess command, NodeContext nodeContext) {
+            @Override
+            public WorkloadStatus doExecute(StopWorkloadProcess command, NodeContext nodeContext) {
                 log.debug("Going to stop process {} on kernel {}", command.getProcessId(), nodeContext.getId().getIdentifier());
 
                 Preconditions.checkArgument(command.getProcessId() != null, "Process id cannot be null");
@@ -155,14 +169,16 @@ public class WorkloadWorker extends ConfigurableWorker {
             }
         });
 
-        onCommandReceived(PerformCalibration.class).execute(new CommandExecutor<PerformCalibration, Boolean>() {
+        onCommandReceived(PerformCalibration.class).execute(
+                new WorkloadWorkerCommandExecutor<PerformCalibration, Boolean>() {
+
             @Override
             public Qualifier<PerformCalibration> getQualifier() {
                 return Qualifier.of(PerformCalibration.class);
             }
 
             @Override
-            public Boolean execute(PerformCalibration command, NodeContext nodeContext) {
+            public Boolean doExecute(PerformCalibration command, NodeContext nodeContext) {
                 ScenarioFactory<Object, Object, Object> scenarioFactory = command.getScenarioFactory();
 
                 Scenario<Object, Object, Object> scenario = scenarioFactory.get(nodeContext);
@@ -201,21 +217,22 @@ public class WorkloadWorker extends ConfigurableWorker {
         });
 
         onCommandReceived(GetGeneralNodeInfo.class).execute(
-            new CommandExecutor<GetGeneralNodeInfo, GeneralNodeInfo>() {
-                @Override
-                public Qualifier<GetGeneralNodeInfo> getQualifier() {
-                    return Qualifier.of(GetGeneralNodeInfo.class);
-                }
+                new WorkloadWorkerCommandExecutor<GetGeneralNodeInfo, GeneralNodeInfo>() {
 
-                @Override
-                public GeneralNodeInfo execute(GetGeneralNodeInfo command, NodeContext nodeContext) {
-                    long startTime = System.currentTimeMillis();
-                    log.debug("start GetGeneralNodeInfo on kernel {}", nodeContext.getId());
-                    GeneralNodeInfo generalNodeInfo = generalInfoCollector.getGeneralNodeInfo();
-                    log.debug("finish GetGeneralNodeInfo on kernel {} time {} ms", nodeContext.getId(), System.currentTimeMillis() - startTime);
-                    return generalNodeInfo;
-           }
-        });
+                    @Override
+                    public Qualifier<GetGeneralNodeInfo> getQualifier() {
+                        return Qualifier.of(GetGeneralNodeInfo.class);
+                    }
+
+                    @Override
+                    public GeneralNodeInfo doExecute(GetGeneralNodeInfo command, NodeContext nodeContext) {
+                        long startTime = System.currentTimeMillis();
+                        log.debug("start GetGeneralNodeInfo on kernel {}", nodeContext.getId());
+                        GeneralNodeInfo generalNodeInfo = generalInfoCollector.getGeneralNodeInfo();
+                        log.debug("finish GetGeneralNodeInfo on kernel {} time {} ms", nodeContext.getId(), System.currentTimeMillis() - startTime);
+                        return generalNodeInfo;
+                    }
+                });
 
     }
 

@@ -34,13 +34,12 @@ import java.util.List;
 import java.util.Set;
 
 public class TestDetailsReporter extends AbstractReportProvider {
-    private DatabaseService databaseService;
+    private DataService dataService;
 
     @Override
     public JRDataSource getDataSource() {
         String sessionId = getSessionIdProvider().getSessionId();
 
-        DataService dataService = new DefaultDataService(databaseService);
         Set<TestEntity> testEntities = dataService.getTests(sessionId);
 
         List<TestDetailsDTO> result = new ArrayList<TestDetailsDTO>();
@@ -78,7 +77,7 @@ public class TestDetailsReporter extends AbstractReportProvider {
 
     @Required
     public void setDatabaseService(DatabaseService databaseService) {
-        this.databaseService = databaseService;
+        this.dataService = new DefaultDataService(databaseService);
     }
 
 }

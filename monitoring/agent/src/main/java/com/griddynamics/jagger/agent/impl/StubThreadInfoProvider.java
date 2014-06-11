@@ -18,38 +18,23 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.griddynamics.jagger.storage;
+package com.griddynamics.jagger.agent.impl;
 
-import java.util.Collection;
+import com.griddynamics.jagger.diagnostics.thread.sampling.ThreadInfoProvider;
+
+import java.lang.management.ThreadInfo;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
-import com.google.common.collect.Multimap;
+public class StubThreadInfoProvider implements ThreadInfoProvider {
+    @Override
+    public Set<String> getIdentifiersSuT() {
+        return Collections.singleton("STUB");
+    }
 
-/**
- * Used for storing data in key-value format.
- *
- * @author Mairbek Khadikov
- *
- */
-public interface KeyValueStorage {
-
-    boolean isAvailable();
-
-    void initialize();
-
-    void setSessionId(String sessionId);
-
-    void put(Namespace namespace, String key, Object value);
-
-    void putAll(Namespace namespace, Multimap<String, Object> valuesMap);
-
-    void deleteAll();
-
-    Object fetch(Namespace namespace, String key);
-
-    Object fetchNotNull(Namespace namespace, String key);
-
-    Collection<Object> fetchAll(Namespace namespace, String key);
-
-    Multimap<String, Object> fetchAll(Namespace namespace);
+    @Override
+    public Map<String, ThreadInfo[]> getThreadInfo() {
+        return Collections.emptyMap();
+    }
 }
