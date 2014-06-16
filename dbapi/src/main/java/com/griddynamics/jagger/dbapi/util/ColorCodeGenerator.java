@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableList;
 
 import static com.griddynamics.jagger.util.MonitoringIdUtils.*;
 
-import java.util.Map;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -17,37 +17,25 @@ public class ColorCodeGenerator {
     public static final int LATENCY_COLOR_ID_2 = 8;
     public static final int THROUGHPUT_COLOR_ID = 9;
     private static AtomicInteger counter = new AtomicInteger(0);
-    private static Map<String, Integer> sessionsMap = new HashMap<String, Integer>();
+    private static ConcurrentMap<String, Integer> sessionsMap = new ConcurrentHashMap<String, Integer>();
     private static final  ImmutableList<String> colorsHexCodes = ImmutableList.of(
-        "#FFD700",
-        "#0000FF",
-        "#8A2BE2",
-        "#A52A2A",
-        "#FF1493",
-        "#000000",
-        "#00BFFF",
-        "#66CC33",
-        "#FF7F50",
-        "#FFCC33",
-        "#DC143C",
-        "#B8860B",
-        "#006400",
-        "#8B008B",
-        "#FF8C00",
-        "#FFFF00",
-        "#5F9EA0",
-        "#FF69B4",
-        "#1E90FF",
-        "#CD5C5C",
-        "#FF0000",
-        "#008000",
-        "#D2691E",
-        "#4B0082",
-        "#9932CC",
-        "#FF00FF",
-        "#800000",
-        "#00FF00",
-        "#6495ED"
+            "#000000",
+            "#FF8C00",
+            "#800000",
+            "#FF4500",
+            "#808000",
+            "#00FF00",
+            "#008000",
+            "#00FFFF",
+            "#008080",
+            "#0000FF",
+            "#000080",
+            "#FF00FF",
+            "#800080",
+            "#D2691E",
+            "#FF0000",
+            "#00BFFF",
+            "#9ACD32"
     );
     protected ColorCodeGenerator() {
     }
