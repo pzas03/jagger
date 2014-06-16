@@ -13,6 +13,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @since 5/31/12
  */
 public class ColorCodeGenerator {
+    public static final int LATENCY_COLOR_ID_1 = 7;
+    public static final int LATENCY_COLOR_ID_2 = 8;
+    public static final int THROUGHPUT_COLOR_ID = 9;
     private static AtomicInteger counter = new AtomicInteger(0);
     private static List<String> sessions = new Vector<String>();
     private static final  ImmutableList<String> colorsHexCodes = ImmutableList.of(
@@ -56,19 +59,26 @@ public class ColorCodeGenerator {
 
     public static String getHexColorCode(int id, String sessionId) {
         String colorId = id + sessionId;
-        if (!sessions.contains(colorId))
-            sessions.add(colorId);
+        synchronized (sessions) {
+            if (!sessions.contains(colorId)) {
+                sessions.add(colorId);
+            }
+        }
         return colorsHexCodes.get(sessions.indexOf(colorId) % colorsHexCodes.size());
     }
 
     public static String getHexColorCode(String metricId, String sessionId) {
         String monitoringName = null;
         MonitoringId monitoringId = splitMonitoringMetricId(metricId);
-        if (monitoringId != null)
+        if (monitoringId != null) {
             monitoringName = monitoringId.getMonitoringName();
+        }
         String colorId = monitoringName + sessionId;
-        if (!sessions.contains(colorId))
-            sessions.add(colorId);
+        synchronized (sessions) {
+            if (!sessions.contains(colorId)) {
+                sessions.add(colorId);
+            }
+        }
         return colorsHexCodes.get(sessions.indexOf(colorId) % colorsHexCodes.size());
     }
 

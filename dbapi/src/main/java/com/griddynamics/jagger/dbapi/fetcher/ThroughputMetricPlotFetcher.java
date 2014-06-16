@@ -9,7 +9,6 @@ import com.griddynamics.jagger.dbapi.util.DataProcessingUtil;
 import java.util.*;
 
 public class ThroughputMetricPlotFetcher extends StandardMetricPlotFetcher<ThroughputMetricPlotFetcher.ThroughputRawData> {
-    private final int COLOR_ID = 9;
 
     @Override
     protected Iterable<? extends PlotDatasetDto> assemble(Collection<ThroughputRawData> rawData) {
@@ -24,7 +23,8 @@ public class ThroughputMetricPlotFetcher extends StandardMetricPlotFetcher<Throu
         }
 
         String legend = legendProvider.generatePlotLegend(sessionId, DefaultWorkloadParameters.THROUGHPUT.getDescription(), true);
-        return Arrays.asList(new PlotDatasetDto(pointDtoList, legend, ColorCodeGenerator.getHexColorCode(COLOR_ID, sessionId)));
+        return Arrays.asList(new PlotDatasetDto(pointDtoList, legend,
+                ColorCodeGenerator.getHexColorCode(ColorCodeGenerator.THROUGHPUT_COLOR_ID , sessionId)));
     }
 
     @Override
