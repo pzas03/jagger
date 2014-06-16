@@ -60,7 +60,7 @@ public class JMXSystemUnderTestImpl implements SystemUnderTestService {
     private Map<String, MBeanServerConnection> connections = Maps.newHashMap();
     private ConfigurableExecutor executor;
     private JmxConnector jmxConnector;
-    Future<Map<String, MBeanServerConnection>> future;
+    private Future<Map<String, MBeanServerConnection>> future;
 
     public String getName() {
         return name;
@@ -173,10 +173,8 @@ public class JMXSystemUnderTestImpl implements SystemUnderTestService {
         try {
             MBeanServerConnection connection = connections.get(identifier);
 
-            MemoryMXBean memoryMXBean = ManagementFactory.newPlatformMXBeanProxy(connection,
-                    ManagementFactory.MEMORY_MXBEAN_NAME, MemoryMXBean.class);
-            MemoryUsage heapMemoryUsage = memoryMXBean.getHeapMemoryUsage();
 
+            // File descriptors
             try {
                 UnixOperatingSystemMXBean unixOperatingSystemMXBean = ManagementFactory.newPlatformMXBeanProxy(connection,
                         ManagementFactory.OPERATING_SYSTEM_MXBEAN_NAME, UnixOperatingSystemMXBean.class);
@@ -185,6 +183,11 @@ public class JMXSystemUnderTestImpl implements SystemUnderTestService {
             } catch (Exception e) {
                 log.warn("Can not get count of open file descriptors from '{}' ", identifier, e);
             }
+
+            // Heap
+            MemoryMXBean memoryMXBean = ManagementFactory.newPlatformMXBeanProxy(connection,
+                    ManagementFactory.MEMORY_MXBEAN_NAME, MemoryMXBean.class);
+            MemoryUsage heapMemoryUsage = memoryMXBean.getHeapMemoryUsage();
 
             result.putSysUTEntry(DefaultMonitoringParameters.HEAP_MEMORY_MAX, bytesToMiB(heapMemoryUsage.getMax()));
             result.putSysUTEntry(DefaultMonitoringParameters.HEAP_MEMORY_COMMITTED, bytesToMiB(heapMemoryUsage.getCommitted()));
@@ -197,6 +200,7 @@ public class JMXSystemUnderTestImpl implements SystemUnderTestService {
             result.putSysUTEntry(DefaultMonitoringParameters.NON_HEAP_MEMORY_USED, bytesToMiB(nonHeapMemoryUsage.getUsed()));
             result.putSysUTEntry(DefaultMonitoringParameters.NON_HEAP_MEMORY_INIT, bytesToMiB(nonHeapMemoryUsage.getInit()));
 
+            // Garbage collection
             Set<ObjectName> srvMemMgrNames = connection.queryNames(
                     new ObjectName(ManagementFactory.GARBAGE_COLLECTOR_MXBEAN_DOMAIN_TYPE + ",*"), null);
             for (ObjectName gcMgr : srvMemMgrNames) {
@@ -224,6 +228,13 @@ public class JMXSystemUnderTestImpl implements SystemUnderTestService {
             result.putSysUTEntry(DefaultMonitoringParameters.JMX_GC_MINOR_TIME, (double) minor_time);
             result.putSysUTEntry(DefaultMonitoringParameters.JMX_GC_MINOR_UNIT, (double) minor_units);
 
+            // Threads
+            ThreadMXBean threadMXBean = ManagementFactory.newPlatformMXBeanProxy(connection,
+                    ManagementFactory.THREAD_MXBEAN_NAME, ThreadMXBean.class);
+            result.putSysUTEntry(DefaultMonitoringParameters.THREAD_COUNT, (double) threadMXBean.getThreadCount());
+            result.putSysUTEntry(DefaultMonitoringParameters.THREAD_PEAK_COUNT, (double) threadMXBean.getPeakThreadCount());
+
+            // Custom
             if (context != null) {
                 List<JmxMetric> jmxMetricList = (List<JmxMetric>) context.getProperty(AgentContext.AgentContextProperty.JMX_METRICS);
                 if (jmxMetricList != null) {
