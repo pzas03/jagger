@@ -89,7 +89,7 @@ public abstract class AbstractMetricPlotFetcher extends PlotsDbMetricDataFetcher
                         sessionId,
                         metricNameDto.getMetricDisplayName(),
                         true),
-                ColorCodeGenerator.getHexColorCode());
+                ColorCodeGenerator.getHexColorCode(metricNameDto.getMetricName(), sessionId));
     }
 
 
