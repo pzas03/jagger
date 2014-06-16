@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableList;
 
 import static com.griddynamics.jagger.util.MonitoringIdUtils.*;
 
-import java.util.List;
-import java.util.Vector;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -17,7 +17,7 @@ public class ColorCodeGenerator {
     public static final int LATENCY_COLOR_ID_2 = 8;
     public static final int THROUGHPUT_COLOR_ID = 9;
     private static AtomicInteger counter = new AtomicInteger(0);
-    private static List<String> sessions = new Vector<String>();
+    private static Map<String, Integer> sessionsMap = new HashMap<String, Integer>();
     private static final  ImmutableList<String> colorsHexCodes = ImmutableList.of(
         "#FFD700",
         "#0000FF",
@@ -59,12 +59,10 @@ public class ColorCodeGenerator {
 
     public static String getHexColorCode(int id, String sessionId) {
         String colorId = id + sessionId;
-        synchronized (sessions) {
-            if (!sessions.contains(colorId)) {
-                sessions.add(colorId);
-            }
+        if (!sessionsMap.containsKey(colorId)) {
+            sessionsMap.put(colorId, counter.getAndIncrement());
         }
-        return colorsHexCodes.get(sessions.indexOf(colorId) % colorsHexCodes.size());
+        return colorsHexCodes.get(sessionsMap.get(colorId) % colorsHexCodes.size());
     }
 
     public static String getHexColorCode(String metricId, String sessionId) {
@@ -74,12 +72,10 @@ public class ColorCodeGenerator {
             monitoringName = monitoringId.getMonitoringName();
         }
         String colorId = monitoringName + sessionId;
-        synchronized (sessions) {
-            if (!sessions.contains(colorId)) {
-                sessions.add(colorId);
-            }
+        if (!sessionsMap.containsKey(colorId)) {
+            sessionsMap.put(colorId, counter.getAndIncrement());
         }
-        return colorsHexCodes.get(sessions.indexOf(colorId) % colorsHexCodes.size());
+        return colorsHexCodes.get(sessionsMap.get(colorId) % colorsHexCodes.size());
     }
 
 }
