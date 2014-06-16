@@ -287,8 +287,6 @@ public class DatabaseServiceImpl implements DatabaseService {
                 }
             });
 
-            // at the moment all MetricNameDtos in MetricNode have same taskIds => it is valid to use first one for legend provider
-            // TODO legend will available after JFG-738
             MetricNameDto firstMetricNameDto = metricNode.getMetricNameDtoList().get(0);
             String plotHeader;
             if (isSessionScopeMetric(firstMetricNameDto))
