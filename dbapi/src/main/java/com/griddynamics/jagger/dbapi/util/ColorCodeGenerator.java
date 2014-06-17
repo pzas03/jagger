@@ -54,12 +54,13 @@ public class ColorCodeGenerator {
     }
 
     public static String getHexColorCode(String metricId, String sessionId) {
-        String monitoringName = null;
+        String colorId;
         MonitoringId monitoringId = splitMonitoringMetricId(metricId);
         if (monitoringId != null) {
-            monitoringName = monitoringId.getMonitoringName();
+            colorId = monitoringId.getMonitoringName() + sessionId;
+        } else {
+            colorId = metricId + sessionId;
         }
-        String colorId = monitoringName + sessionId;
         if (!sessionsMap.containsKey(colorId)) {
             sessionsMap.put(colorId, counter.getAndIncrement());
         }
