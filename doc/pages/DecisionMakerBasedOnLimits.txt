@@ -1,0 +1,11 @@
+/// @page DecisionMakerBasedOnLimits Making decision based on limits
+/// @n
+///
+/// @section section_dm_intro Scope
+/// @n
+/// This section describes how to compare your results with predefined reference values or baseline session values @n
+/// and decide whether performance of your system meet acceptance criteria or not. As result of comparison you @n
+/// can make decision and mark this test session with status flag (OK, WARNING, FATAL, ERROR). This status will be visible @n
+/// to Jagger Jenkins plugin.@n
+/// @n
+///
