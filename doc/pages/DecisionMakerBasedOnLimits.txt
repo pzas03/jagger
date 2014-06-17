@@ -1,11 +1,69 @@
-/// @page DecisionMakerBasedOnLimits Making decision based on limits
+/// @page DecisionMakerBasedOnLimits Making decision based on limits for measured parameters
 /// @n
+/// ??? contents
+/// @section section_dm_declaimer Beta state
+/// @n
+/// @e @htmlonly <font color="#FF0000">BETA: </font>@endhtmlonly @n
+/// This page describes new functionality in beta state. Functionality is introduced in ver 1.2.5 and is feature complete. @n
+/// We keep our right to introduce incompatible changes to this functionality @n
+/// @n
+///
 ///
 /// @section section_dm_intro Scope
 /// @n
 /// This section describes how to compare your results with predefined reference values or baseline session values @n
 /// and decide whether performance of your system meet acceptance criteria or not. As result of comparison you @n
-/// can make decision and mark this test session with status flag (OK, WARNING, FATAL, ERROR). This status will be visible @n
-/// to Jagger Jenkins plugin.@n
+/// can make decision and mark this test session with status flag (OK, WARNING, FATAL, ERROR). Session status will be visible @n
+/// to Jagger Jenkins plugin. In WebUI and PDF report summary values will be highlighted according to results of comparison @n
+/// @n
+/// @image html webUI_metrics_highlighting.png "Example of result highlighting in WebUI after comparison with limits"
 /// @n
 ///
+///
+/// @section section_dm_overview Overview
+/// @n
+/// Steps to go: @n
+/// ??? setup refs
+/// @li @ref section_dm_setup_properties
+/// @li @ref section_dm_describe_limits
+/// @li Attach limits to particular test(s)
+/// @li Enable verification of results vs limits
+/// @li View results in WebUI and PDF report
+///
+/// @n
+///
+///
+/// @section section_dm_setup_properties Setup properties
+/// @n
+/// To provide comparison of your results to baseline values it is necessary to select baseline session Id @n
+/// It is also recommended to disable deprecated methods of decision making. @n
+/// Set following properties in you environment.properties file or via system properties: @n
+/// @dontinclude  environment.properties
+/// @skip  begin: following section is used for docu generation - Decision making by limits main
+/// @until end: following section is used for docu generation - Decision making by limits main
+/// @n
+/// @n
+/// @b Optional: additional setting to define behavior in case of errors: @n
+/// @dontinclude  environment.properties
+/// @skip  begin: following section is used for docu generation - Decision making by limits aux
+/// @until end: following section is used for docu generation - Decision making by limits aux
+/// @n
+/// Back to @ref section_dm_overview
+///
+///
+/// @section section_dm_describe_limits Describe limits for measured parameters
+/// @n
+/// To provide comparison of your results to baseline values it is necessary to select baseline session Id @n
+/// It is also recommended to disable deprecated methods of decision making. @n
+/// Set following properties in you environment.properties file or via system properties: @n
+/// @dontinclude  environment.properties
+/// @skip  begin: following section is used for docu generation - Decision making by limits main
+/// @until end: following section is used for docu generation - Decision making by limits main
+/// @n
+/// @n
+/// @b Optional: additional setting to define behavior in case of errors: @n
+/// @dontinclude  environment.properties
+/// @skip  begin: following section is used for docu generation - Decision making by limits aux
+/// @until end: following section is used for docu generation - Decision making by limits aux
+/// @n
+/// Back to @ref section_dm_overview

@@ -49,6 +49,14 @@ public class BasicTGDecisionMakerListener extends ServicesAware implements Provi
 /// @defgroup Main_Decision_Maker_General_group Decision Maker main page
 ///
 ///
+/// @li Approach to make decision: @ref DecisionMakerBasedOnLimits
+/// @n
+/// @n
+/// @details
+/// @par General info
+/// Decision maker is required to provide result of performance test execution. It decides if measured parameters @n
+/// meet acceptance criteria or not. Result provided by decision maker can be used by CI tool to rise alert when @n
+/// measured results are below expectations. @n
 
 
 //???
