@@ -30,6 +30,7 @@
 /// @li Enable verification of results vs limits
 /// @li View results in WebUI and PDF report
 ///
+/// Code presented in detailed description below is available in Jagger @e archetype-examples @n
 /// @n
 ///
 ///
@@ -37,7 +38,7 @@
 /// @n
 /// To provide comparison of your results to baseline values it is necessary to select baseline session Id @n
 /// It is also recommended to disable deprecated methods of decision making. @n
-/// Set following properties in you environment.properties file or via system properties: @n
+/// Set following properties in you @e environment.properties file or via system properties: @n
 /// @dontinclude  environment.properties
 /// @skip  begin: following section is used for docu generation - Decision making by limits main
 /// @until end: following section is used for docu generation - Decision making by limits main
@@ -48,12 +49,20 @@
 /// @skip  begin: following section is used for docu generation - Decision making by limits aux
 /// @until end: following section is used for docu generation - Decision making by limits aux
 /// @n
-/// Back to @ref section_dm_overview
+/// Back to @ref section_dm_overview @n
+/// @n
 ///
 ///
 /// @section section_dm_describe_limits Describe limits for measured parameters
 /// @n
-/// To provide comparison of your results to baseline values it is necessary to select baseline session Id @n
+/// You can apply limits to all measured parameters (aka metrics):
+/// @li standard metrics (throughput, latency, percentiles) @n
+/// @li monitoring metrics (resource utilization measured by Jagger agents) @n
+/// @li custom metrics, validators @n
+///
+/// Summary values of these parameters will be compared to limits. @n
+/// @n
+/// ???
 /// It is also recommended to disable deprecated methods of decision making. @n
 /// Set following properties in you environment.properties file or via system properties: @n
 /// @dontinclude  environment.properties
@@ -66,4 +75,5 @@
 /// @skip  begin: following section is used for docu generation - Decision making by limits aux
 /// @until end: following section is used for docu generation - Decision making by limits aux
 /// @n
-/// Back to @ref section_dm_overview
+/// Back to @ref section_dm_overview @n
+/// @n

@@ -51,11 +51,16 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
     public void onTaskDistributionCompleted(String sessionId, String taskId, Task task) {
 
         if (task instanceof CompositeTask) {
-            TestGroupDecisionMakerListener decisionMakerListener = TestGroupDecisionMakerListener.Composer.compose(ProviderUtil.provideElements(((CompositeTask) task).getDecisionMakerListeners(),
-                    sessionId,
-                    taskId,
-                    nodeContext,
-                    JaggerPlace.TEST_GROUP_DECISION_MAKER_LISTENER));
+            //??? what happens when there is no decision maker listener
+            TestGroupDecisionMakerListener decisionMakerListener = TestGroupDecisionMakerListener.Composer.compose(
+                    ProviderUtil.provideElements(
+                            ((CompositeTask) task).getDecisionMakerListeners(),
+                            sessionId,
+                            taskId,
+                            nodeContext,
+                            JaggerPlace.TEST_GROUP_DECISION_MAKER_LISTENER
+                    )
+            );
 
             DataService dataService = new DefaultDataService(nodeContext);
 
