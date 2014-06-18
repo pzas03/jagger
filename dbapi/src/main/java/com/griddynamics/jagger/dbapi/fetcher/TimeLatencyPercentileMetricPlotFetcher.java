@@ -36,7 +36,7 @@ public class TimeLatencyPercentileMetricPlotFetcher extends StandardMetricPlotFe
             DefaultWorkloadParameters parameter = DefaultWorkloadParameters.fromDescription(entry.getKey().toString());
             String description = (parameter == null ? entry.getKey().toString() : parameter.getDescription());
             String legend = legendProvider.generatePlotLegend(sessionId, description, true);
-            plotDatasetDtoList.add(new PlotDatasetDto(entry.getValue(), legend, ColorCodeGenerator.getHexColorCode(colorId++, sessionId)));
+            plotDatasetDtoList.add(new PlotDatasetDto(entry.getValue(), legend, ColorCodeGenerator.getHexColorCode(String.valueOf(colorId++), sessionId)));
         }
 
         return plotDatasetDtoList;

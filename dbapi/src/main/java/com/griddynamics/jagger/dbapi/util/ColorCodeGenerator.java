@@ -13,9 +13,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @since 5/31/12
  */
 public class ColorCodeGenerator {
-    public static final int LATENCY_COLOR_ID_1 = 7;
-    public static final int LATENCY_COLOR_ID_2 = 8;
-    public static final int THROUGHPUT_COLOR_ID = 9;
+    public static final String LATENCY_COLOR = "LATENCY";
+    public static final String LATENCY_STD_DEV_COLOR = "LATENCY_STD_DEV";
+    public static final String THROUGHPUT_COLOR = "THROUGHPUT";
     private static AtomicInteger counter = new AtomicInteger(0);
     private static ConcurrentMap<String, Integer> sessionsMap = new ConcurrentHashMap<String, Integer>();
     private static final  ImmutableList<String> colorsHexCodes = ImmutableList.of(
@@ -40,19 +40,6 @@ public class ColorCodeGenerator {
     protected ColorCodeGenerator() {
     }
 
-    public static String getHexColorCode() {
-        int index = counter.getAndIncrement();
-        return colorsHexCodes.get(index % colorsHexCodes.size());
-    }
-
-    public static String getHexColorCode(int id, String sessionId) {
-        String colorId = id + sessionId;
-        if (!sessionsMap.containsKey(colorId)) {
-            sessionsMap.put(colorId, counter.getAndIncrement());
-        }
-        return colorsHexCodes.get(sessionsMap.get(colorId) % colorsHexCodes.size());
-    }
-
     public static String getHexColorCode(String metricId, String sessionId) {
         String colorId;
         MonitoringId monitoringId = splitMonitoringMetricId(metricId);
@@ -61,10 +48,13 @@ public class ColorCodeGenerator {
         } else {
             colorId = metricId + sessionId;
         }
-        if (!sessionsMap.containsKey(colorId)) {
-            sessionsMap.put(colorId, counter.getAndIncrement());
+        int index = Math.abs(counter.getAndIncrement() % colorsHexCodes.size());
+        Integer result = sessionsMap.putIfAbsent(colorId, index);
+        if (result == null) {
+            return colorsHexCodes.get(index);
+        } else {
+            return colorsHexCodes.get(result);
         }
-        return colorsHexCodes.get(sessionsMap.get(colorId) % colorsHexCodes.size());
     }
 
 }
