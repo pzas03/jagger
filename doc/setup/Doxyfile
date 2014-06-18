@@ -805,7 +805,8 @@ EXAMPLE_PATH           = ./archetype-examples/src/main/resources/archetype-resou
                          ./monitoring/agent/src/main/resources/spring/agent.properties \
                          ./test/jagger-test/src/main/java/metric/aggregator/MaxMetricAggregatorProvider.java \
                          ./test/jagger-test/src/main/resources/configuration/master/metric/calculatorsAndAggregators.conf.xml \
-                         ./chassis/configuration/configuration/basic/default.environment.properties
+                         ./chassis/configuration/configuration/basic/default.environment.properties \
+                         ./chassis/util/src/main/java/com/griddynamics/jagger/util/StandardMetricsNamesUtil.java
 
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the

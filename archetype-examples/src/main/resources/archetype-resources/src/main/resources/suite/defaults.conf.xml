@@ -36,6 +36,8 @@
         >
     <beans:import resource="collectors.conf.xml"/>
 
+    <!--??? check after renaming-->
+
     <test-description id="td_default" version="1">
         <!-- begin: following section is used for docu generation - metric calculator usage-->
         <info-collectors id="defaultCollectors">

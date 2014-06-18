@@ -26,7 +26,7 @@
 /// ??? setup refs
 /// @li @ref section_dm_setup_properties
 /// @li @ref section_dm_describe_limits
-/// @li Attach limits to particular test(s)
+/// @li ???
 /// @li Enable verification of results vs limits
 /// @li View results in WebUI and PDF report
 ///
@@ -55,6 +55,7 @@
 ///
 /// @section section_dm_describe_limits Describe limits for measured parameters
 /// @n
+/// @par What metrics can be compared to limits
 /// You can apply limits to all measured parameters (aka metrics):
 /// @li standard metrics (throughput, latency, percentiles) @n
 /// @li monitoring metrics (resource utilization measured by Jagger agents) @n
@@ -62,9 +63,68 @@
 ///
 /// Summary values of these parameters will be compared to limits. @n
 /// @n
-/// ???
+/// @par How to describe limits
+/// You can describe limits in any configuration XML file. Best practice - use separate file for this (f.e. @e limits.conf.xml) @n
+/// On example below you can see one set of limits. There can be as many sets of limits as you need. @n
+/// Example of limits description: @n
+/// @dontinclude  limits.conf.xml
+/// @skip  begin: following section is used for docu generation - description of limits for metrics
+/// @until end: following section is used for docu generation - description of limits for metrics
+/// @n
+/// There can be following types of limits. See description of XML schema under type name links: @n
+/// @xlink_complex{limit-vs-value} - metric will be compared with defined value @n
+/// @xlink_complex{limit-vs-baseline} - metric will be compared with value from baseline session @n
+/// @n
+/// @par Where to get ids of standard and monitoring metrics
+/// To define limit for metric you need to know id of metrics. @n
+/// @li standard metrics ids. Use values from list below: @n
+/// @dontinclude  StandardMetricsNamesUtil.java
+/// @skip  begin: following section is used for docu generation - standard metrics ids
+/// @until end: following section is used for docu generation - standard metrics ids
+/// @li monitoring metrics ids: @n
+/// @dontinclude  environment.properties
+/// @skip  begin: following section is used for docu generation - Monitoring metrics ids
+/// @until end: following section is used for docu generation - Monitoring metrics ids
+/// @li custom metrics ids - you should know them. They are custom @n
+///
+/// @n
+/// @par How limits and measured values are matched
+/// How limits will match to metrics: @n
+/// @li First exact match will be checked. Metric id from database will be compared to @e metricName attribute of limit @n
+/// @li If first will not match, metric id from database will be compared to regular expression @b "^metricName.*"@n
+///
+/// This means limit with @e metricName 'mon_cpula_' will match metrics with ids: @n
+/// <i> mon_cpula_1|jagger_connect_57 [127.0.1.1]|-avg </i> @n
+/// <i> mon_cpula_5|jagger_connect_57 [127.0.1.1]|-avg </i> @n
+/// <i> mon_cpula_15|jagger_connect_57 [127.0.1.1]|-avg </i> @n
+/// @n
+/// @par How to enable summary calculation for monitoring metrics
+/// @b NOTE: Pay attention that summary is not calculated for monitoring parameters by default. You need to enable this calculation @n
+/// in property file. Like on example below: @n
+/// @dontinclude  environment.properties
+/// @skip  begin: following section is used for docu generation - How to enable summary calculation for monitoring metrics
+/// @until end: following section is used for docu generation - How to enable summary calculation for monitoring metrics
+/// @n
+/// Back to @ref section_dm_overview @n
+/// @n
+///
+///
+/// @section section_dm_attach_limits Attach limits to particular test(s)
+/// @n
+/// After describing limits you can attach them to some test or tests. That means your limits will be used @n
+/// to verify results of some test(s) and make decision. Single set of limits can be attached to several tests. @n
+/// It is convenient when same acceptance criteria are used for different tests. @n
+/// Example: @n
+/// @dontinclude  suite.conf.xml
+/// @skip  begin: following section is used for docu generation - attaching limits to test
+/// @until end: following section is used for docu generation - attaching limits to test
+/// @n
+/// Another option is to define limits directly in the test, like on example below: @n
+
+???
+/// To provide comparison of your results to baseline values it is necessary to select baseline session Id @n
 /// It is also recommended to disable deprecated methods of decision making. @n
-/// Set following properties in you environment.properties file or via system properties: @n
+/// Set following properties in you @e environment.properties file or via system properties: @n
 /// @dontinclude  environment.properties
 /// @skip  begin: following section is used for docu generation - Decision making by limits main
 /// @until end: following section is used for docu generation - Decision making by limits main
