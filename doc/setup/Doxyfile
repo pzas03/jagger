@@ -711,6 +711,7 @@ INPUT                  = ./chassis/core/src/main/java/com/griddynamics/jagger/in
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/test/TestListener.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/testsuite/TestSuiteListener.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/testgroup/TestGroupListener.java \
+                         ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/testgroup/TestGroupDecisionMakerListener.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/CollectThreadsTestListener.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/invocation/InvocationListener.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/invocation/InvocationInfo.java \
@@ -725,6 +726,12 @@ INPUT                  = ./chassis/core/src/main/java/com/griddynamics/jagger/in
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/services/data/service/SessionEntity.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/services/data/service/TestEntity.java \
                          ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/BasicTGDecisionMakerListener.java \
+                         ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/limits/Limit.java \
+                         ./chassis/util/src/main/java/com/griddynamics/jagger/util/Decision.java \
+                         ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/testgroup/TestGroupDecisionMakerInfo.java \
+                         ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/limits/DecisionPerTest.java \
+                         ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/limits/DecisionPerLimit.java \
+                         ./chassis/core/src/main/java/com/griddynamics/jagger/engine/e1/collector/limits/DecisionPerMetric.java \
                          ./doc/pages/WebUiUserCommentsAndTags.txt \
                          ./doc/pages/WebUiProperties.txt \
                          ./doc/pages/WebUiOverview.txt \

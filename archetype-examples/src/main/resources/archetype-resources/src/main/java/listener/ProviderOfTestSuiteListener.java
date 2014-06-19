@@ -11,6 +11,7 @@ import com.griddynamics.jagger.engine.e1.collector.testsuite.TestSuiteListener;
 import com.griddynamics.jagger.engine.e1.services.ServicesAware;
 import com.griddynamics.jagger.engine.e1.services.data.service.MetricEntity;
 import com.griddynamics.jagger.engine.e1.services.data.service.SessionEntity;
+import com.griddynamics.jagger.engine.e1.services.data.service.MetricSummaryValueEntity;
 import com.griddynamics.jagger.engine.e1.services.data.service.TestEntity;
 import com.griddynamics.jagger.util.GeneralNodeInfo;
 import org.apache.maven.model.Model;
@@ -101,7 +102,6 @@ public class ProviderOfTestSuiteListener extends ServicesAware implements Provid
                 // Get all metrics for every test
                 Map<TestEntity,Set<MetricEntity>> metricsPerTest = getDataService().getMetricsByTests(testEntities);
 
-                //??? check  MetricSummaryValueEntity!!!
                 // Get summary values for metrics
                 for (Map.Entry<TestEntity,Set<MetricEntity>> entry : metricsPerTest.entrySet()) {
                     //System.out.println("\nTest " + entry.getKey().getName() + " from session " + testSuiteInfo.getSessionId());

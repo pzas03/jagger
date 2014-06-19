@@ -1,8 +1,5 @@
 /// @page DecisionMakerBasedOnLimits Making decision based on limits for measured parameters
 /// @n
-/// ??? contents
-/// @section section_dm_declaimer Beta state
-/// @n
 /// @e @htmlonly <font color="#FF0000">BETA: </font>@endhtmlonly @n
 /// This page describes new functionality in beta state. Functionality is introduced in ver 1.2.5 and is feature complete. @n
 /// We keep our right to introduce incompatible changes to this functionality @n
@@ -23,12 +20,10 @@
 /// @section section_dm_overview Overview
 /// @n
 /// Steps to go: @n
-/// ??? setup refs
 /// @li @ref section_dm_setup_properties
 /// @li @ref section_dm_describe_limits
-/// @li ???
-/// @li Enable verification of results vs limits
-/// @li View results in WebUI and PDF report
+/// @li @ref section_dm_attach_limits
+/// @li @ref section_dm_display
 ///
 /// Code presented in detailed description below is available in Jagger @e archetype-examples @n
 /// @n
@@ -71,7 +66,7 @@
 /// @skip  begin: following section is used for docu generation - description of limits for metrics
 /// @until end: following section is used for docu generation - description of limits for metrics
 /// @n
-/// There can be following types of limits. See description of XML schema under type name links: @n
+/// There can be following types of limits. See description of XML attributes under type name links or in the description of @ref com.griddynamics.jagger.engine.e1.collector.limits.Limit "Limit" class. @n
 /// @xlink_complex{limit-vs-value} - metric will be compared with defined value @n
 /// @xlink_complex{limit-vs-baseline} - metric will be compared with value from baseline session @n
 /// @n
@@ -91,7 +86,7 @@
 /// @par How limits and measured values are matched
 /// How limits will match to metrics: @n
 /// @li First exact match will be checked. Metric id from database will be compared to @e metricName attribute of limit @n
-/// @li If first will not match, metric id from database will be compared to regular expression @b "^metricName.*"@n
+/// @li If first will not match, metric id from database will be compared to regular expression @b "^metricName.*" @n
 ///
 /// This means limit with @e metricName 'mon_cpula_' will match metrics with ids: @n
 /// <i> mon_cpula_1|jagger_connect_57 [127.0.1.1]|-avg </i> @n
@@ -104,6 +99,7 @@
 /// @dontinclude  environment.properties
 /// @skip  begin: following section is used for docu generation - How to enable summary calculation for monitoring metrics
 /// @until end: following section is used for docu generation - How to enable summary calculation for monitoring metrics
+///
 /// @n
 /// Back to @ref section_dm_overview @n
 /// @n
@@ -111,29 +107,56 @@
 ///
 /// @section section_dm_attach_limits Attach limits to particular test(s)
 /// @n
+/// @par How to attach limits to test
 /// After describing limits you can attach them to some test or tests. That means your limits will be used @n
 /// to verify results of some test(s) and make decision. Single set of limits can be attached to several tests. @n
 /// It is convenient when same acceptance criteria are used for different tests. @n
-/// Example: @n
+/// <i> Example. Attaching set of limits to the test: </i> @n
 /// @dontinclude  suite.conf.xml
 /// @skip  begin: following section is used for docu generation - attaching limits to test
 /// @until end: following section is used for docu generation - attaching limits to test
 /// @n
-/// Another option is to define limits directly in the test, like on example below: @n
-
-???
-/// To provide comparison of your results to baseline values it is necessary to select baseline session Id @n
-/// It is also recommended to disable deprecated methods of decision making. @n
-/// Set following properties in you @e environment.properties file or via system properties: @n
-/// @dontinclude  environment.properties
-/// @skip  begin: following section is used for docu generation - Decision making by limits main
-/// @until end: following section is used for docu generation - Decision making by limits main
+/// Another option is to define limits directly in the test, like on example below. @n
+/// It is useful when you are not planing to reuse limit set. @n
+/// <i> Example. Define set of limits in the test: </i> @n
+/// @dontinclude  suite.conf.xml
+/// @skip  begin: following section is used for docu generation - description of limits for metrics directly in test
+/// @until end: following section is used for docu generation - description of limits for metrics directly in test
 /// @n
+/// @par How limits based decision is made
+/// 1. Metrics for one test are compared with limits => decision per metric @n
+/// 2. Decision per test = worst decision for metrics belonging to this test @n
+/// 3. Decision per test group = worst decision for tests belonging to this test @n
+/// 4. Decision per session = worst decision for tests groups belonging to this test @n
 /// @n
-/// @b Optional: additional setting to define behavior in case of errors: @n
-/// @dontinclude  environment.properties
-/// @skip  begin: following section is used for docu generation - Decision making by limits aux
-/// @until end: following section is used for docu generation - Decision making by limits aux
+/// @b NOTE: Step #3 by default is executed by @ref com.griddynamics.jagger.engine.e1.BasicTGDecisionMakerListener "BasicTGDecisionMakerListener" class.
+/// You can override it with your own @ref com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupDecisionMakerListener "TestGroupDecisionMakerListener" @n
+/// How to implement custom listeners you can read here: @ref Main_HowToCustomizeListeners_group @n
+///
 /// @n
 /// Back to @ref section_dm_overview @n
 /// @n
+///
+///
+/// @section section_dm_display View results in WebUI and PDF report
+/// @n
+/// Summary value for metrics compared to limits will be highlighted in PDF report and WebUi according to result of comparison @n
+/// @li OK - @b @htmlonly <font color="#008000">green</font>@endhtmlonly
+/// @li WARNING - @b @htmlonly <font color="#B8860B">yellow</font>@endhtmlonly
+/// @li FATAL or ERROR - @b @htmlonly <font color="#FF0000">red</font>@endhtmlonly
+///
+/// @b NOTE: Currently highlighting is supported only for:
+/// @li monitoring metrics
+/// @li custom metrics
+///
+/// <i> Standard metrics </i> and <i> validators </i> will be compared to limits and influence decision, but not highlighted @n
+/// @n
+/// To switch off highlighting - set following property to false: @n
+/// @dontinclude  webclient.properties
+/// @skipline webui.enable.decisions.per.metric.highlighting
+/// @n
+/// Back to @ref section_dm_overview @n
+/// @n
+
+
+

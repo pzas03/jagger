@@ -13,7 +13,6 @@ import com.griddynamics.jagger.engine.e1.ProviderUtil;
 import com.griddynamics.jagger.engine.e1.collector.limits.*;
 import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupDecisionMakerInfo;
 import com.griddynamics.jagger.engine.e1.scenario.WorkloadTask;
-import com.griddynamics.jagger.engine.e1.services.DataService;
 import com.griddynamics.jagger.engine.e1.services.DefaultDataService;
 import com.griddynamics.jagger.engine.e1.services.JaggerPlace;
 import com.griddynamics.jagger.engine.e1.services.data.service.MetricEntity;
@@ -225,9 +224,6 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
             Double refValue = limit.getRefValue();
             Double value = metricValues.get(metricEntity).getValue();
             Decision decision = Decision.OK;
-
-            //todo ??? JFG-744 docu for decision making with use of limits
-            // !!! mention in docu
 
             // if metric entity already was used to take decision we will not use it
             // 'limit to metric' relation should be 'one to many' or 'one to one'

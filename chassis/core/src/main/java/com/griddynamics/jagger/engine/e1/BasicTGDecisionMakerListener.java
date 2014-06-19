@@ -12,18 +12,29 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-//todo ??? JFG-744 docu for decision making with use of limits
+/** Listener, after test group to make decision about test group execution status
+ * @author Dmitry Latnikov
+ * @n
+ * @par Details:
+ * @details It is executed when decision making based on limits is used. Details: @ref DecisionMakerBasedOnLimits @n
+ * It is used by default as soon as limit set is attached to test
+ * @n
+ * @ingroup Main_Listeners_group */
 public class BasicTGDecisionMakerListener extends ServicesAware implements Provider<TestGroupDecisionMakerListener> {
     private static final Logger log = LoggerFactory.getLogger(BasicTGDecisionMakerListener.class);
 
+    /** Method is executed single time when listener is created */
     @Override
     protected void init() {
 
     }
 
+    /** Method is providing listener to Jagger that will make decision for test group */
     @Override
     public TestGroupDecisionMakerListener provide() {
         return new TestGroupDecisionMakerListener() {
+
+            /** Returns worst decision from list of decisions per test from input parameter */
             @Override
             public Decision onDecisionMaking(TestGroupDecisionMakerInfo decisionMakerInfo) {
                 Decision decisionPerTestGroup;
@@ -57,68 +68,3 @@ public class BasicTGDecisionMakerListener extends ServicesAware implements Provi
 /// Decision maker is required to provide result of performance test execution. It decides if measured parameters @n
 /// meet acceptance criteria or not. Result provided by decision maker can be used by CI tool to rise alert when @n
 /// measured results are below expectations. @n
-
-
-//???
-/// @li General information about interfaces: @ref Main_Aggregators_Base_group
-/// @li Available implementations: @ref Main_Aggregators_group
-/// @li How to customize: @ref Main_HowToCustomizeAggregators_group
-/// @li @ref Section_aggregators_time_intervals
-/// @n
-/// @n
-/// @details
-/// @par General info
-/// Aggregators are processing raw data to get final measurement results that will be saved to database. @n
-/// Aggregators are executed after all measurements are finished. Main goal for them is to reduce number of data values available after measurement @n
-/// Simplest example: after measurement there are 1000 points, but you want to save only 200 points to database @n
-/// So you are applying averaging aggregator that takes average value for every 5 points from raw data and saves it to DB as single value. @n
-///
-/// @par Example of aggregators setup in XML:
-/// @dontinclude  tasks-new.conf.xml
-/// @skip  begin: following section is used for docu generation - standard aggregator usage
-/// @until end: following section is used for docu generation - standard aggregator usage
-///
-/// @par Aggregators XML elements
-/// @xlink_complex{metricAggregatorAbstract} - what aggregators can be used in XML elements. See <b> 'Sub Types' </b> section of man page @n
-/// How aggregators mentioned above are implemented you can see in section: @ref Main_Aggregators_group @n
-/// @n
-///
-/// @section Section_aggregators_time_intervals Aggregation interval
-/// Aggregation interval defines how many values will be saved to database and displayed in plots. @n
-/// In property file you can decide what parameter you will set.@n
-/// You can set either number of points on the plot or directly aggregation interval. @n
-/// @dontinclude  environment.properties
-/// @skip  begin: following section is used for docu generation - Aggregation interval
-/// @until end: following section is used for docu generation - Aggregation interval
-/// @n
-/// In the picture below you can see comparison of both settings:@n
-/// for session 26 - point count was set @n
-/// for session 29 - interval @n
-/// @image html jagger_point_count_vs_time_interval.png "Aggregation interval setup"
-
-
-/* **************** How to customize aggregators ************************* */
-/// @defgroup Main_HowToCustomizeAggregators_group Custom aggregators
-///
-/// @details
-/// @ref Main_Aggregators_General_group
-/// @n
-/// @n
-/// 1. Create class which implements @ref MetricAggregatorProvider @n
-/// This class should provide instance of your aggregator - class that implements interface @ref MetricAggregator<C extends Number> @n
-/// @dontinclude  MaxMetricAggregatorProvider.java
-/// @skip  begin: following section is used for docu generation - custom aggregator source
-/// @until end: following section is used for docu generation - custom aggregator source
-/// @n
-///
-/// 2. Create bean of this class in some configuration file. Put some id for it.
-/// @dontinclude  calculatorsAndAggregators.conf.xml
-/// @skip  begin: following section is used for docu generation - custom aggregator
-/// @until end: following section is used for docu generation - custom aggregator
-/// @n
-///
-/// 3. Add metric aggregator of type @xlink_complex{metric-aggregator-ref} to you @xlink{metric-custom} block.@n
-/// @dontinclude  tasks-new.conf.xml
-/// @skip  begin: following section is used for docu generation - custom aggregator usage
-/// @until end: following section is used for docu generation - custom aggregator usage
-
