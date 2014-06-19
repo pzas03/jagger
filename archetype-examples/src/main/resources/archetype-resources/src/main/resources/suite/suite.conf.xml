@@ -59,6 +59,7 @@
                     <load xsi:type="load-threads" count="1"/>
                     <termination xsi:type="termination-iterations" iterations="100" maxDuration="2m"/>
 
+                    <!-- Limit set 'myLimits' will be used to verify results of this test and make decision -->
                     <limits xsi:type="limits-ref" ref="myLimits"/>
                 </test>
             </test-group>
