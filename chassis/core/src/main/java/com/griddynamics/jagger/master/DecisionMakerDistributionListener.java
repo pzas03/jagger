@@ -58,7 +58,7 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
                     nodeContext,
                     JaggerPlace.TEST_GROUP_DECISION_MAKER_LISTENER));
 
-            DataService dataService = new DefaultDataService(nodeContext);
+            DefaultDataService dataService = new DefaultDataService(nodeContext);
 
             // Get tests in test group
             CompositeTask compositeTask = (CompositeTask) task;
@@ -112,9 +112,8 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
                         // Strategy to match sessions - we will use baseline only when all test parameters are matching
                         SessionMatchingSetup sessionMatchingSetup = new SessionMatchingSetup(true,
                                 EnumSet.of(SessionMatchingSetup.MatchBy.ALL));
-                        DefaultDataService defaultDataService = (DefaultDataService) dataService;
                         Map<String, Set<TestEntity>> matchingTestEntities =
-                                defaultDataService.getTestsWithName(Arrays.asList(sessionId,baselineId), testName, sessionMatchingSetup);
+                                dataService.getTestsWithName(Arrays.asList(sessionId,baselineId), testName, sessionMatchingSetup);
                         if (!matchingTestEntities.get(baselineId).isEmpty()) {
                             testEntityBaseline = matchingTestEntities.get(baselineId).iterator().next();
                         }
