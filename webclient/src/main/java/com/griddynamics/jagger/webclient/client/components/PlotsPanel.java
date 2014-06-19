@@ -15,6 +15,7 @@ import com.googlecode.gflot.client.Series;
 import com.googlecode.gflot.client.SeriesData;
 import com.googlecode.gflot.client.SimplePlot;
 import com.googlecode.gflot.client.Zoom;
+import com.griddynamics.jagger.dbapi.model.MetricNode;
 import com.sencha.gxt.widget.core.client.Slider;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
@@ -35,19 +36,19 @@ public class PlotsPanel extends Composite {
     protected DynamicLayoutPanel<PlotContainer> layoutPanel;
 
     @UiField
-    // temporary layout control panel todo: decide and implement final view of layout control.
-    protected HorizontalPanel buttonPanel;
+    /* Menu bar to control plot panel */
+    protected PlotButtonsPanel plotButtonsPanel;
 
-    /**
-     * default value for container height */
-    private Integer plotContainerHeight = 150;
+    @UiField
+    /* Scroll bar for layout panel */
+    protected ScrollPanel scrollPanelMetrics;
 
     private ControlTree<String> controlTree;
 
     public PlotsPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
 
-        setUpButtonPanel();
+        plotButtonsPanel.setupButtonPanel(this);
     }
 
     public void setControlTree(ControlTree<String> controlTree) {
@@ -55,42 +56,14 @@ public class PlotsPanel extends Composite {
     }
 
     /**
-     * Temporary solution of question how to change layout.
-     */
-    private void setUpButtonPanel() {
+     * Remove widget from layout panel by metric node
+     * @param metricNode metric node */
+    public void removeByMetricNode(MetricNode metricNode) {
 
-        buttonPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-
-        TextButton changeLayout = new TextButton("Change layout");
-        changeLayout.addSelectHandler(new ChangeLayoutHandler());
-
-        TextButton oneColumnLButton = new TextButton("One column");
-        oneColumnLButton.addSelectHandler(new OneColumnLHandler());
-
-        TextButton twoColumnsLButton = new TextButton("Two columns");
-        twoColumnsLButton.addSelectHandler(new TwoColumnsHandler());
-
-        Slider heightSlider = new Slider();
-        heightSlider.setValue(plotContainerHeight);
-        heightSlider.setMaxValue(500);
-        heightSlider.setMinValue(100);
-        heightSlider.addValueChangeHandler(new HeightSliderValueChangeHandler());
-
-        buttonPanel.add(changeLayout);
-        buttonPanel.add(oneColumnLButton);
-        buttonPanel.add(twoColumnsLButton);
-        buttonPanel.add(heightSlider);
-
-    }
-
-    /**
-     * Remove widget from layoutPanel by element id
-     * @param elementId Id of widget element (Widget.getElement.getId())*/
-    public void removeElementById(String elementId) {
-        layoutPanel.removeChild(elementId);
+        layoutPanel.removeChild(metricNode.getId());
         childrenCount = layoutPanel.getAllChildren().size();
+        controlTree.setChecked(metricNode, Tree.CheckState.UNCHECKED);
         setMaxRange();
-        controlTree.setCheckState(elementId, Tree.CheckState.UNCHECKED);
     }
 
     /**
@@ -104,7 +77,7 @@ public class PlotsPanel extends Composite {
      * Add widget to layoutPanel
      * @param plotContainer child widget */
     public void addElement(final PlotContainer plotContainer) {
-        plotContainer.setHeight(plotContainerHeight + "px");
+        plotContainer.setHeight(plotButtonsPanel.getPlotHeight() + "px");
         plotContainer.setPlotsPanel(this);
         scrollCalculations(plotContainer);
 
@@ -237,6 +210,11 @@ public class PlotsPanel extends Composite {
         double maxVisible = plotRepresentation.getSimplePlot().getAxes().getX().getMaximumValue();
 
         if (out) {
+            if (maxVisible >= maxRange && minVisible <= 0) {
+                // do nothing when plot in visible range
+                return;
+            }
+
             if (maxVisible >= maxRange) {
                 // to the end
                 plotRepresentation.panToPercent(1);
@@ -327,9 +305,9 @@ public class PlotsPanel extends Composite {
         assert layoutPanel.getWidgetCount() > 0;
 
         SimplePlot plot = layoutPanel.getFirstChild().getPlotRepresentation().getSimplePlot();
+
         return plot.getAxes().getX().getMaximumValue();
     }
-
 
     /**
      * @return minimum visible X axis value */
@@ -341,32 +319,21 @@ public class PlotsPanel extends Composite {
         return plot.getAxes().getX().getMinimumValue();
     }
 
-    private class ChangeLayoutHandler implements SelectEvent.SelectHandler {
-        @Override
-        public void onSelect(SelectEvent event) {
-            layoutPanel.changeLayout(layoutPanel.getLayout().getNext());
-        }
+    /**
+     * Change layout of plots (single columns, two columns) */
+    public void changeLayout() {
+        layoutPanel.changeLayout(layoutPanel.getLayout().getNext());
     }
 
-    private class OneColumnLHandler implements SelectEvent.SelectHandler {
-        @Override
-        public void onSelect(SelectEvent event) {
-            layoutPanel.changeLayout(DynamicLayoutPanel.Layout.ONE_COLUMN);
-        }
+    /**
+     * Change height of plots */
+    public void changeChildrenHeight(Integer height) {
+        layoutPanel.changeChildrenHeight(height + "px");
     }
 
-    private class TwoColumnsHandler implements SelectEvent.SelectHandler {
-        @Override
-        public void onSelect(SelectEvent event) {
-            layoutPanel.changeLayout(DynamicLayoutPanel.Layout.TWO_COLUMNS);
-        }
-    }
-
-    private class HeightSliderValueChangeHandler implements ValueChangeHandler<Integer> {
-        @Override
-        public void onValueChange(ValueChangeEvent<Integer> integerValueChangeEvent) {
-            plotContainerHeight = integerValueChangeEvent.getValue();
-            layoutPanel.changeChildrenHeight(plotContainerHeight + "px");
-        }
+    /**
+     * Scroll to bottom of layout panel (panel with plots) */
+    public void scrollToBottom() {
+        scrollPanelMetrics.scrollToBottom();
     }
 }

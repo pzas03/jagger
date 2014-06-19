@@ -20,10 +20,10 @@
   -->
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:util="http://www.springframework.org/schema/util" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-						http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+    <!--todo  JFG_791 remove this XML, because it duplicates reporting.conf.xml-->
     <bean id="monitoringPlotGroupsDyn" class="com.griddynamics.jagger.monitoring.reporting.DynamicPlotGroups">
         <property name="plotGroups">
             <bean class="java.util.LinkedHashMap">
@@ -213,6 +213,18 @@
                             </key>
                             <array value-type="com.griddynamics.jagger.dbapi.parameter.DefaultMonitoringParameters">
                                 <value>OPEN_FILE_DESCRIPTOR_COUNT</value>
+                            </array>
+                        </entry>
+
+                        <entry>
+                            <key>
+                                <bean class="com.griddynamics.jagger.dbapi.parameter.GroupKey">
+                                    <constructor-arg index="0" value="Thread Count"/>
+                                </bean>
+                            </key>
+                            <array value-type="com.griddynamics.jagger.dbapi.parameter.DefaultMonitoringParameters">
+                                <value>THREAD_COUNT</value>
+                                <value>THREAD_PEAK_COUNT</value>
                             </array>
                         </entry>
 

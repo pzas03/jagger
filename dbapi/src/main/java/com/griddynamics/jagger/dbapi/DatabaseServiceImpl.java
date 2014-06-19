@@ -1206,8 +1206,8 @@ public class DatabaseServiceImpl implements DatabaseService {
         for (MetricNode node : nodeList) {
             for (MetricNameDto metricNameDto : node.getMetricNameDtoList()) {
                 // old monitoring or new monitoring as metrics
-                if ((metricNameDto.getOrigin() == MetricNameDto.Origin.MONITORING) ||
-                        (metricNameDto.getOrigin() == MetricNameDto.Origin.TEST_GROUP_METRIC)) {
+                if ((metricNameDto.getOrigin().equals(MetricNameDto.Origin.MONITORING)) ||
+                        (metricNameDto.getOrigin().equals(MetricNameDto.Origin.TEST_GROUP_METRIC))) {
 
                     // if looks like monitoring parameter
                     MonitoringIdUtils.MonitoringId monitoringId = MonitoringIdUtils.splitMonitoringMetricId(metricNameDto.getMetricName());
@@ -1293,13 +1293,17 @@ public class DatabaseServiceImpl implements DatabaseService {
 
         @SuppressWarnings("all")
         List<Object[]> objectsList = (List<Object[]>)entityManager.createNativeQuery(
-                "select wtd.sessionId, wtd.clock, wtd.clockValue, wtd.termination, taskData.id " +
-                        "from WorkloadTaskData as wtd join " +
-                        "( select  td.id, td.sessionId, td.taskId from TaskData td where td.id in (:taskDataIds) " +
-                        ") as taskData " +
-                        "on wtd.sessionId=taskData.sessionId and wtd.taskId=taskData.taskId")
-                .setParameter("taskDataIds", taskIds)
-                .getResultList();
+            "select wtd.sessionId, wtd.clock, wtd.clockValue, wtd.termination, finalTaskData.id, finalTaskData.startTime, wtd.number, finalTaskData.status " +
+            "from WorkloadTaskData as wtd join " +
+                "(select wd.startTime, wd.taskId, wd.sessionId, taskData.id, taskData.status from WorkloadData " +
+                "as wd join " +
+                    "( select  td.id, td.sessionId, td.taskId, td.status from TaskData td where td.id in (:taskDataIds) " +
+                    ") as taskData " +
+                "on wd.taskId=taskData.taskId and wd.sessionId=taskData.sessionId" +
+                ") as finalTaskData " +
+            "on wtd.sessionId=finalTaskData.sessionId and wtd.taskId=finalTaskData.taskId")
+            .setParameter("taskDataIds", taskIds)
+            .getResultList();
 
         Map<Long, Map<String, TestInfoDto>> resultMap = new HashMap<Long, Map<String, TestInfoDto>>(taskIds.size());
 
@@ -1309,6 +1313,17 @@ public class DatabaseServiceImpl implements DatabaseService {
             String clock = objects[1] + " (" + objects[2] + ')';
             String termination = (String)objects[3];
             String sessionId = (String)objects[0];
+            Date date = (Date)objects[5];
+            String startTime = date.toString();
+            Integer number = (Integer)objects[6];
+            if (number == null) {
+                number = 0;
+            }
+            TaskData.ExecutionStatus executionStatus = TaskData.ExecutionStatus.valueOf((String) objects[7]);
+            Decision status = Decision.OK;
+            if (TaskData.ExecutionStatus.FAILED.equals(executionStatus)) {
+                status = Decision.FATAL;
+            }
 
             if (!resultMap.containsKey(taskId)) {
                 resultMap.put(taskId,new HashMap<String, TestInfoDto>());
@@ -1316,6 +1331,9 @@ public class DatabaseServiceImpl implements DatabaseService {
             TestInfoDto testInfo = new TestInfoDto();
             testInfo.setClock(clock);
             testInfo.setTermination(termination);
+            testInfo.setStartTime(startTime);
+            testInfo.setNumber(number);
+            testInfo.setStatus(status);
 
             resultMap.get(taskId).put(sessionId,testInfo);
         }
@@ -1471,7 +1489,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         for (MetricNameDto metricName : metricNames) {
             metricIds.add(metricName.getMetricName());
             taskIds.addAll(metricName.getTaskIds());
-            if (metricName.getOrigin() == MetricNameDto.Origin.TEST_GROUP_METRIC) {
+            if (metricName.getOrigin().equals(MetricNameDto.Origin.TEST_GROUP_METRIC)) {
                 taskIdsWhereParentIdIsRequired.addAll(metricName.getTaskIds());
             }
         }

@@ -30,21 +30,19 @@
     <template class="java.io.InputStream">
         <![CDATA[$P{context}.getResource("configuration/reporting/styles/default-styles.xml")]]></template>
     <parameter name="context" class="com.griddynamics.jagger.reporting.ReportingContext"/>
-    <field name="validator" class="java.lang.String"/>
-    <field name="total" class="java.lang.Integer"/>
-    <field name="failed" class="java.lang.Integer"/>
-    <field name="successPercent" class="java.math.BigDecimal"/>
+    <field name="key" class="java.lang.String"/>
+    <field name="value" class="java.lang.String"/>
     <detail>
         <band height="10" splitType="Stretch">
             <textField>
                 <reportElement style="Compact_Header_Bold" x="20" y="0" width="180" height="10"/>
                 <textElement textAlignment="Left"/>
-                <textFieldExpression><![CDATA[$F{validator}]]></textFieldExpression>
+                <textFieldExpression><![CDATA[$F{key}]]></textFieldExpression>
             </textField>
             <textField>
                 <reportElement style="Compact_Header_Bold" x="200" y="0" width="300" height="10"/>
                 <textElement/>
-                <textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{successPercent}]]></textFieldExpression>
+                <textFieldExpression><![CDATA[$F{value}]]></textFieldExpression>
             </textField>
         </band>
     </detail>

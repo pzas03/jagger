@@ -21,6 +21,7 @@
 package com.griddynamics.jagger.engine.e1.reporting;
 
 import com.griddynamics.jagger.dbapi.DatabaseService;
+import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
 import com.griddynamics.jagger.engine.e1.services.DataService;
 import com.griddynamics.jagger.engine.e1.services.DefaultDataService;
 import com.griddynamics.jagger.engine.e1.services.data.service.MetricEntity;
@@ -38,8 +39,10 @@ public class SummaryReporter {
     private DatabaseService databaseService;
     private String sessionId;
     private Map<TestEntity, Set<MetricEntity>> metricsPerTest;
-    private Map<String,List<SummaryDto>> summaryMap = new HashMap<String, List<SummaryDto>>();
-    private Map<String,List<SummaryDto>> latencyPercentilesMap = new HashMap<String, List<SummaryDto>>();
+    private Map<String, List<SummaryDto>> summaryMap = new HashMap<String, List<SummaryDto>>();
+    private Map<String, List<SummaryDto>> latencyPercentilesMap = new HashMap<String, List<SummaryDto>>();
+    private Map<String, List<SummaryDto>> validatorsMap = new HashMap<String, List<SummaryDto>>();
+    private Map<TestEntity, Map<MetricEntity, MetricSummaryValueEntity>> standardMetricsMap = new HashMap<TestEntity, Map<MetricEntity, MetricSummaryValueEntity>>();
 
     public List<SummaryDto> getSummary(String sessionId, String taskId) {
 
@@ -47,8 +50,18 @@ public class SummaryReporter {
 
         if (summaryMap.containsKey(taskId)) {
             return summaryMap.get(taskId);
+        } else {
+            return null;
         }
-        else {
+    }
+
+    public List<SummaryDto> getValidators(String sessionId, String taskId) {
+
+        getData(sessionId);
+
+        if (validatorsMap.containsKey(taskId)) {
+            return validatorsMap.get(taskId);
+        } else {
             return null;
         }
     }
@@ -59,10 +72,16 @@ public class SummaryReporter {
 
         if (latencyPercentilesMap.containsKey(taskId)) {
             return latencyPercentilesMap.get(taskId);
-        }
-        else {
+        } else {
             return null;
         }
+    }
+
+    public Map<TestEntity, Map<MetricEntity, MetricSummaryValueEntity>> getStandardMetricsPerTest(String sessionId) {
+
+        getData(sessionId);
+
+        return standardMetricsMap;
     }
 
     private void getData(String sessionId) {
@@ -74,12 +93,18 @@ public class SummaryReporter {
 
         // Reset data if new session id arrived
         if (!sessionId.equals(this.sessionId)) {
-            metricsPerTest.clear();
             metricsPerTest = null;
             this.sessionId = sessionId;
         }
 
         if (metricsPerTest == null) {
+
+            Set<String> standardMetricsIds = new HashSet<String>();
+            standardMetricsIds.add(StandardMetricsNamesUtil.THROUGHPUT_ID);
+            standardMetricsIds.add(StandardMetricsNamesUtil.FAIL_COUNT_ID);
+            standardMetricsIds.add(StandardMetricsNamesUtil.SUCCESS_RATE_ID);
+            standardMetricsIds.add(StandardMetricsNamesUtil.LATENCY_ID);
+            standardMetricsIds.add(StandardMetricsNamesUtil.LATENCY_STD_DEV_ID);
 
             LocalRankingProvider localRankingProvider = new LocalRankingProvider();
             DataService dataService = new DefaultDataService(databaseService);
@@ -89,12 +114,16 @@ public class SummaryReporter {
             for (Map.Entry<TestEntity, Set<MetricEntity>> entry : metricsPerTest.entrySet()) {
                 List<SummaryDto> summaryList = new ArrayList<SummaryDto>();
                 List<SummaryDto> latencyPercentilesList = new ArrayList<SummaryDto>();
+                List<SummaryDto> validatorsList = new ArrayList<SummaryDto>();
+                Map<MetricEntity, MetricSummaryValueEntity> standardMetricsPerTest = new HashMap<MetricEntity, MetricSummaryValueEntity>();
 
                 // Metrics
-                Map<MetricEntity,MetricSummaryValueEntity> summary = dataService.getMetricSummary(entry.getValue());
+                Map<MetricEntity, MetricSummaryValueEntity> summary = dataService.getMetricSummary(entry.getValue());
 
                 for (MetricEntity metricEntity : summary.keySet()) {
                     SummaryDto value = new SummaryDto();
+
+                    // All summary
                     value.setKey(metricEntity.getDisplayName());
 
                     MetricSummaryValueEntity metricSummaryValueEntity = summary.get(metricEntity);
@@ -105,43 +134,61 @@ public class SummaryReporter {
                         value.setDecision(metricSummaryValueEntity.getDecision().toString());
                     }
 
-                    if (metricEntity.getMetricId().matches(StandardMetricsNamesUtil.LATENCY_PERCENTILE_REGEX)) {
-                        // change key (name) for back compatibility
-                        value.setKey(metricEntity.getDisplayName().replace("Latency ","").concat("  -  "));
-                        latencyPercentilesList.add(value);
+                    // Validators
+                    if (metricEntity.getMetricNameDto().getOrigin().equals(MetricNameDto.Origin.VALIDATOR)) {
+                        validatorsList.add(value);
                     }
-                    else {
+
+                    // Latency percentiles
+                    if (metricEntity.getMetricId().matches("^" + StandardMetricsNamesUtil.LATENCY_PERCENTILE_REGEX)) {
+                        // change key (name) for back compatibility
+                        value.setKey(metricEntity.getDisplayName().replace("Latency ", "").concat("  -  "));
+                        latencyPercentilesList.add(value);
+                    } else {
                         summaryList.add(value);
+                    }
+
+                    // Standard metrics
+                    if (standardMetricsIds.contains(metricEntity.getMetricId())) {
+                        standardMetricsPerTest.put(metricEntity, summary.get(metricEntity));
                     }
                 }
 
                 localRankingProvider.sortSummaryDto(summaryList);
+                localRankingProvider.sortSummaryDto(validatorsList);
                 localRankingProvider.sortSummaryDto(latencyPercentilesList);
 
                 // Test info
                 SummaryDto description = new SummaryDto();
                 description.setKey("Test description");
                 description.setValue(entry.getKey().getDescription());
-                summaryList.add(0,description);
+                summaryList.add(0, description);
+
+                SummaryDto startTime = new SummaryDto();
+                startTime.setKey("Start time");
+                startTime.setValue(entry.getKey().getStartDate());
+                summaryList.add(0, startTime);
 
                 SummaryDto termination = new SummaryDto();
                 termination.setKey("Termination");
                 termination.setValue(entry.getKey().getTerminationStrategy());
-                summaryList.add(0,termination);
+                summaryList.add(0, termination);
 
                 SummaryDto load = new SummaryDto();
                 load.setKey("Load");
                 load.setValue(entry.getKey().getLoad());
-                summaryList.add(0,load);
+                summaryList.add(0, load);
 
                 summaryMap.put(entry.getKey().getId().toString(), summaryList);
                 latencyPercentilesMap.put(entry.getKey().getId().toString(), latencyPercentilesList);
+                validatorsMap.put(entry.getKey().getId().toString(), validatorsList);
+                standardMetricsMap.put(entry.getKey(), standardMetricsPerTest);
             }
         }
     }
 
     private class LocalRankingProvider extends MetricNamesRankingProvider {
-        public void sortSummaryDto(List<SummaryDto> list){
+        public void sortSummaryDto(List<SummaryDto> list) {
             Collections.sort(list, new Comparator<SummaryDto>() {
                 @Override
                 public int compare(SummaryDto o, SummaryDto o2) {

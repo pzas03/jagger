@@ -5,12 +5,13 @@ import java.util.List;
 
 public class MetricNamesRankingProvider {
     private static List<String> patterns = Arrays.asList(
-            StandardMetricsNamesUtil.ITERATIONS_SAMPLES_REGEX.concat(".*"),
-            StandardMetricsNamesUtil.DURATION_SEC_REGEX.concat(".*"),
-            StandardMetricsNamesUtil.THROUGHPUT_REGEX.concat(".*"),
-            StandardMetricsNamesUtil.SUCCESS_RATE_REGEX.concat(".*"),
-            StandardMetricsNamesUtil.LATENCY_REGEX.concat(".*"),
-            StandardMetricsNamesUtil.TIME_LATENCY_PERCENTILE_REGEX.concat(".*")
+            "^" + StandardMetricsNamesUtil.ITERATIONS_SAMPLES + ".*",
+            "^" + StandardMetricsNamesUtil.DURATION_SEC + ".*",
+            "^" + StandardMetricsNamesUtil.THROUGHPUT + ".*",
+            "^" + StandardMetricsNamesUtil.LATENCY + ".*",
+            "^" + StandardMetricsNamesUtil.TIME_LATENCY_PERCENTILE + ".*",
+            "^" + StandardMetricsNamesUtil.SUCCESS_RATE + ".*",
+            "^" + StandardMetricsNamesUtil.FAIL_COUNT + ".*"
     );
 
     protected static int compare(String o1, String o2){

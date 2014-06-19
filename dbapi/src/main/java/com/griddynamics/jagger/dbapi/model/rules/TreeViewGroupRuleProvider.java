@@ -20,20 +20,22 @@ public class TreeViewGroupRuleProvider {
 
         List<TreeViewGroupRule> firstLevelFilters = new ArrayList<TreeViewGroupRule>();
 
-        // Filter for Jagger main metrics. Space in display name will help to keep main parameters in the
-        // top of alphabetic sorting
         String filterRegex = "(" +
-        StandardMetricsNamesUtil.THROUGHPUT_TPS_REGEX + "$|" +
-        StandardMetricsNamesUtil.THROUGHPUT_REGEX + "$|" +
-        StandardMetricsNamesUtil.LATENCY_SEC_REGEX + "$|" +
-        StandardMetricsNamesUtil.LATENCY_REGEX + "$|" +
-        StandardMetricsNamesUtil.LATENCY_PERCENTILE_REGEX + "$|" +
-        StandardMetricsNamesUtil.ITERATIONS_SAMPLES_REGEX + "$|" +
-        StandardMetricsNamesUtil.SUCCESS_RATE_REGEX + "$|" +
-        StandardMetricsNamesUtil.DURATION_SEC_REGEX + "$|" +
-        StandardMetricsNamesUtil.TIME_LATENCY_PERCENTILE_REGEX + "$|" +
+        "^" + StandardMetricsNamesUtil.THROUGHPUT_TPS + "$|" +
+        "^" + StandardMetricsNamesUtil.THROUGHPUT + "$|" +
+        "^" + StandardMetricsNamesUtil.LATENCY_SEC + "$|" +
+        "^" + StandardMetricsNamesUtil.LATENCY_STD_DEV_SEC + "$|" +
+        "^" + StandardMetricsNamesUtil.LATENCY + "$|" +
+        "^" + StandardMetricsNamesUtil.LATENCY_PERCENTILE_REGEX + "$|" +
+        "^" + StandardMetricsNamesUtil.ITERATIONS_SAMPLES + "$|" +
+        "^" + StandardMetricsNamesUtil.SUCCESS_RATE + "$|" +
+        "^" + StandardMetricsNamesUtil.DURATION_SEC + "$|" +
+        "^" + StandardMetricsNamesUtil.TIME_LATENCY_PERCENTILE + "$|" +
+        "^" + StandardMetricsNamesUtil.FAIL_COUNT + "$|" +
         ")";
 
+        // Filter for Jagger main metrics. Space in display name will help to keep main parameters in the
+        // top of alphabetic sorting
         TreeViewGroupRule mainParams_FirstLevelFilter = new TreeViewGroupRule(Rule.By.DISPLAY_NAME,"main"," Main parameters",filterRegex);
         firstLevelFilters.add(mainParams_FirstLevelFilter);
 
