@@ -472,7 +472,7 @@ public class SessionComparisonPanel extends VerticalPanel {
         startTime.put(TEST_INFO, TEST_INFO);
         for (SessionDataDto session : chosenSessions) {
             if (testInfoMap.get(session.getSessionId()) != null)
-                startTime.put(SESSION_HEADER + session.getSessionId(), testInfoMap.get(session.getSessionId()).getStartTime());
+                startTime.put(SESSION_HEADER + session.getSessionId(), testInfoMap.get(session.getSessionId()).getFormattedStartTime());
         }
         treeStore.add(testInfo, startTime);
     }

@@ -1,7 +1,9 @@
 package com.griddynamics.jagger.dbapi.dto;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -9,8 +11,7 @@ import java.util.Set;
  * @since 5/29/12
  */
 public class TaskDataDto implements Serializable {
-    private Set<Long> ids;
-    private Set<String> sessionIds;
+    private Map<Long,String> idToSessionId = new HashMap<Long, String>();
     private String taskName;
     private String description;
     private int uniqueId;
@@ -18,20 +19,27 @@ public class TaskDataDto implements Serializable {
     public TaskDataDto() {
     }
 
-    public TaskDataDto(long id, String taskName, String description) {
+    public TaskDataDto(long id, String sessionId, String taskName, String description) {
         this.description = description;
-        this.ids = new HashSet<Long>();
-        ids.add(id);
+        idToSessionId.put(id, sessionId);
 
         this.taskName = taskName;
     }
 
-    public TaskDataDto(Set<Long> ids, String taskName) {
-        this.ids = ids;
+    public TaskDataDto(Map<Long, String> id2SessionId, String taskName, String description) {
+        this.description = description;
+        idToSessionId.putAll(id2SessionId);
+
         this.taskName = taskName;
+    } 
+
+    public Map<Long, String> getIdToSessionId() {
+        return idToSessionId;
     }
 
     public long getId() {
+        Set<Long> ids = getIds();
+
         if (ids == null || ids.size() != 1) {
             throw new UnsupportedOperationException("Cannot return id because ids is null or its size is not equal 1");
         }
@@ -39,6 +47,8 @@ public class TaskDataDto implements Serializable {
     }
 
     public String getSessionId() {
+        Set<String> sessionIds = getSessionIds();
+
         if (sessionIds == null || sessionIds.size() != 1) {
             throw new UnsupportedOperationException("Cannot return sessionId because sessionIds is null or its size is not equal 1");
         }
@@ -46,6 +56,9 @@ public class TaskDataDto implements Serializable {
     }
 
     public Set<Long> getIds() {
+        Set<Long> ids = new HashSet<Long>();
+        ids.addAll(idToSessionId.keySet());
+
         return ids;
     }
 
@@ -54,11 +67,12 @@ public class TaskDataDto implements Serializable {
     }
 
     public Set<String> getSessionIds() {
-        return sessionIds;
-    }
+        Set<String> sessionIds = new HashSet<String>();
+        for (Map.Entry<Long, String> entry : idToSessionId.entrySet()) {
+            sessionIds.add(entry.getValue());
+        }
 
-    public void setSessionIds(Set<String> sessionIds) {
-        this.sessionIds = sessionIds;
+        return sessionIds;
     }
 
     public void setUniqueId(int uniqueId) {
@@ -90,10 +104,10 @@ public class TaskDataDto implements Serializable {
     @Override
     public String toString() {
         return "TaskDataDto{" +
-                "ids=" + ids +
-                ", sessionIds=" + sessionIds +
+                "idToSessionId=" + idToSessionId +
                 ", taskName='" + taskName + '\'' +
                 ", description='" + description + '\'' +
+                ", uniqueId=" + uniqueId +
                 '}';
     }
 

@@ -22,6 +22,8 @@ public class DetailsNodeHandler extends TreeAwareHandler<DetailsNode> {
         for (TestDetailsNode test: detailsNode.getTests()) {
             testScopePlotNames.addAll(test.getMetrics());
         }
+        MetricGroupNode<PlotNode> sessionScopeNode = detailsNode.getSessionScopeNode();
+        testScopePlotNames.addAll(sessionScopeNode.getMetrics());
 
 
         if (Tree.CheckState.CHECKED.equals(event.getChecked())) {
