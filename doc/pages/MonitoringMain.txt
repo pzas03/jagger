@@ -1,4 +1,6 @@
 /// @page MonitoringMain Jagger Monitoring Metrics
+/// @brief Section provides full information about collection metrics on System Under Test site @n
+/// @details
 /// @n
 /// Jagger is able to collect information about resources utilization on System Under Test (SUT) site. @n
 /// For this purpose monitoring agents can be launched. Agent will collect following monitoring metrics: @n
@@ -16,6 +18,6 @@
 /// @n
 /// See also: @n
 /// @li @ref MonitoringSetup
-/// ???
+/// @li @ref MonitoringMetricsSetup
 /// @li @ref section_default_properties_for_monitoring_metrics "List of all monitoring metrics and default settings"
 ///

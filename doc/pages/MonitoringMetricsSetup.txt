@@ -1,21 +1,13 @@
-/// @page MonitoringMain Jagger Monitoring Metrics
+/// @page MonitoringMetricsSetup Monitoring metrics settings
+/// @brief Section describes available settings for monitoring metrics @n
+/// @details
 /// @n
-/// Jagger is able to collect information about resources utilization on System Under Test (SUT) site. @n
-/// For this purpose monitoring agents can be launched. Agent will collect following monitoring metrics: @n
+/// Back to @ref MonitoringMain @n
 /// @n
-/// 1. System resources (collected with use of [Sigar](http://www.hyperic.com/products/sigar))
-///   * CPU
-///   * Memory
-///   * Network
-///   * Disk
-/// 2. JVM resources (collected via JMX)
-///   * Heap memory and non heap memory
-///   * Minor and major GC runs
-///   * Thread count
-///
-/// @n
-/// See also: @n
-/// @li @ref MonitoringSetup
-/// ???
-/// @li @ref section_default_properties_for_monitoring_metrics "List of all monitoring metrics and default settings"
+/// Jagger provides access to some settings of monitoring metrics. Settings are available via properties. @n
+/// Default settings you can find here: @ref section_default_properties_for_monitoring_metrics @n
+/// Below is fragment of @e environment.properties file, explaining monitoring metrics setup: @n
+/// @dontinclude  environment.properties
+/// @skip  begin: following section is used for docu generation - Monitoring metrics ids
+/// @until end: following section is used for docu generation - Monitoring metrics ids
 ///

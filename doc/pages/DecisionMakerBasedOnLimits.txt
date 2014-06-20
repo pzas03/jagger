@@ -1,4 +1,6 @@
 /// @page DecisionMakerBasedOnLimits Making decision based on limits for measured parameters
+/// @brief Section describes approach how to automatically make decision about results of performance test @n
+/// @details
 /// @n
 /// @e @htmlonly <font color="#FF0000">BETA: </font>@endhtmlonly @n
 /// This page describes new functionality in beta state. Functionality is introduced in ver 1.2.5 and is feature complete. @n
@@ -77,9 +79,7 @@
 /// @skip  begin: following section is used for docu generation - standard metrics ids
 /// @until end: following section is used for docu generation - standard metrics ids
 /// @li monitoring metrics ids: @n
-/// @dontinclude  environment.properties
-/// @skip  begin: following section is used for docu generation - Monitoring metrics ids
-/// @until end: following section is used for docu generation - Monitoring metrics ids
+/// @ref MonitoringMetricsSetup
 /// @li custom metrics ids - you should know them. They are custom @n
 ///
 /// @n

@@ -1,4 +1,6 @@
 /// @page WebUiInstallation WebUi installation
+/// @brief Section describes installation of Jagger Web client @n
+/// @details
 /// @n
 /// Back to @ref WebUiMain @n
 /// @n

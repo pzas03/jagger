@@ -1,4 +1,6 @@
 /// @page MonitoringSetup How to start monitoring agent
+/// @brief Section describes how to start monitoring agents to collect metrics on System Under Test site @n
+/// @details
 /// @n
 /// Back to @ref MonitoringMain @n
 /// @n
@@ -95,27 +97,4 @@
 /// More reading: @n
 /// [JBoss Using jconsole to connect to JMX on AS7](https://community.jboss.org/wiki/UsingJconsoleToConnectToJMXOnAS7) @n
 /// [JBoss JMX subsystem configuration](https://docs.jboss.org/author/display/AS71/JMX+subsystem+configuration) @n
-
-
-
-
-
-/// 1. System resources (collected with use of [Sigar](http://www.hyperic.com/products/sigar))
-///   * CPU
-///   * Memory
-///   * Network
-///   * Disk
-/// 2. JVM resources (collected via JMX)
-///   * Heap memory and non heap memory
-///   * Minor and major GC runs
-///   * Thread count
-///
-/// List of all monitoring metrics you can find here: @ref section_default_properties_for_monitoring_metrics @n
-/// @n
-/// See also: @n
-???
-/// @li @ref WebUiOverview
-/// @li @ref WebUiInstallation
-/// @li @ref WebUiProperties
-/// @li @ref WebUiUserCommentsAndTags
 ///
