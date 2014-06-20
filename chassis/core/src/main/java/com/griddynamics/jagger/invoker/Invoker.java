@@ -79,6 +79,8 @@ public interface Invoker<Q,R,E> extends Serializable {
 ///
 /// @li @ref WebUiMain
 ///
+/// @li @ref MonitoringMain @e @htmlonly <font color="#009900">NEW ver 1.2.5</font>@endhtmlonly
+///
 /// @n
 /// @n
 /// Other documentation <a href='../archive/index.html'>versions</a>
