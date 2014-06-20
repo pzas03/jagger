@@ -153,6 +153,8 @@
         <property name="customMetricPlotFetcher" ref="customMetricPlotFetcher"/>
         <property name="customTestGroupMetricPlotFetcher" ref="customTestGroupMetricPlotFetcher"/>
         <property name="monitoringMetricPlotFetcher" ref="monitoringMetricPlotFetcher"/>
+        <property name="sessionScopeTestGroupMetricPlotFetcher" ref="sessionScopeTestGroupMetricPlotFetcher"/>
+        <property name="sessionScopeMonitoringMetricPlotFetcher" ref="sessionScopeMonitoringMetricPlotFetcher"/>
 
         <property name="standardMetricSummaryFetcher" ref="standardMetricSummaryFetcher"/>
         <property name="durationMetricSummaryFetcher" ref="durationMetricSummaryFetcher"/>
@@ -198,10 +200,25 @@
         <property name="fetchUtil" ref="fetchUtil"/>
     </bean>
 
+
     <bean id="monitoringMetricPlotFetcher" class="com.griddynamics.jagger.dbapi.fetcher.MonitoringMetricPlotFetcher" init-method="init">
         <property name="legendProvider" ref="legendProvider"/>
         <property name="threadPool" ref="executorService"/>
         <property name="monitoringPlotGroups" ref="monitoringPlotGroups"/>
+    </bean>
+
+    <bean id="sessionScopeTestGroupMetricPlotFetcher" class="com.griddynamics.jagger.dbapi.fetcher.SessionScopeTestGroupMetricPlotFetcher">
+        <property name="legendProvider" ref="legendProvider"/>
+        <property name="threadPool" ref="executorService"/>
+        <property name="abstractMetricPlotFetcher" ref="customTestGroupMetricPlotFetcher"/>
+        <property name="fetchUtil" ref="fetchUtil"/>
+    </bean>
+
+    <bean id="sessionScopeMonitoringMetricPlotFetcher" class="com.griddynamics.jagger.dbapi.fetcher.SessionScopeMonitoringMetricPlotFetcher">
+        <property name="legendProvider" ref="legendProvider"/>
+        <property name="threadPool" ref="executorService"/>
+        <property name="abstractMetricPlotFetcher" ref="monitoringMetricPlotFetcher"/>
+        <property name="fetchUtil" ref="fetchUtil"/>
     </bean>
 
     <!--=======Fetching data for Summary table=========-->

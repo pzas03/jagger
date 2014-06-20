@@ -6,13 +6,13 @@ import com.griddynamics.jagger.dbapi.entity.DecisionPerMetricEntity;
 import com.griddynamics.jagger.dbapi.entity.DecisionPerTaskEntity;
 import com.griddynamics.jagger.dbapi.entity.MetricDescriptionEntity;
 import com.griddynamics.jagger.dbapi.entity.TaskData;
+import com.griddynamics.jagger.dbapi.util.SessionMatchingSetup;
 import com.griddynamics.jagger.engine.e1.BasicTGDecisionMakerListener;
 import com.griddynamics.jagger.engine.e1.Provider;
 import com.griddynamics.jagger.engine.e1.ProviderUtil;
 import com.griddynamics.jagger.engine.e1.collector.limits.*;
 import com.griddynamics.jagger.engine.e1.collector.testgroup.TestGroupDecisionMakerInfo;
 import com.griddynamics.jagger.engine.e1.scenario.WorkloadTask;
-import com.griddynamics.jagger.engine.e1.services.DataService;
 import com.griddynamics.jagger.engine.e1.services.DefaultDataService;
 import com.griddynamics.jagger.engine.e1.services.JaggerPlace;
 import com.griddynamics.jagger.engine.e1.services.data.service.MetricEntity;
@@ -53,7 +53,7 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
     public void onTaskDistributionCompleted(String sessionId, String taskId, Task task) {
 
         if (task instanceof CompositeTask) {
-            DataService dataService = new DefaultDataService(nodeContext);
+            DefaultDataService dataService = new DefaultDataService(nodeContext);
 
             // Get tests in test group
             CompositeTask compositeTask = (CompositeTask) task;
@@ -99,11 +99,20 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
                     }
 
                     // Get data for baseline session
-                    //todo ??? JFG_745 check that tests match when getting baseline values
                     Map<String,Double> metricIdToValuesBaseline = new HashMap<String, Double>();
                     if (needBaselineSessionValue) {
                         String baselineId = workloadTask.getLimits().getBaselineId();
-                        TestEntity testEntityBaseline = dataService.getTestByName(baselineId, testName);
+                        TestEntity testEntityBaseline = null;
+
+                        // Strategy to match sessions - we will use baseline only when all test parameters are matching
+                        SessionMatchingSetup sessionMatchingSetup = new SessionMatchingSetup(true,
+                                EnumSet.of(SessionMatchingSetup.MatchBy.ALL));
+                        Map<String, Set<TestEntity>> matchingTestEntities =
+                                dataService.getTestsWithName(Arrays.asList(sessionId,baselineId), testName, sessionMatchingSetup);
+                        if (!matchingTestEntities.get(baselineId).isEmpty()) {
+                            testEntityBaseline = matchingTestEntities.get(baselineId).iterator().next();
+                        }
+
                         if (testEntityBaseline != null) {
                             Set<MetricEntity> metricEntitySetBaseline = dataService.getMetrics(testEntityBaseline);
                             Map<MetricEntity,MetricSummaryValueEntity> metricValuesBaseline = dataService.getMetricSummary(metricEntitySetBaseline);
@@ -112,7 +121,7 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
                             }
                         }
                         else {
-                            log.error("Was not able to find test {} in baseline session {}",testName,baselineId);
+                            log.error("Was not able to find matching test {} in baseline session {}",testName,baselineId);
                         }
                     }
 

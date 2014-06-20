@@ -567,9 +567,9 @@ public class Trends extends DefaultActivity {
         plotTrendsPanel.setControlTree(tree);
     }
 
-
+    // @param yMinimum - set null if you don't want to set y minimum (will be set automatically)
     private SimplePlot createPlot(PlotsPanel panel, final String id, Markings markings, String xAxisLabel,
-                                  double yMinimum, boolean isMetric, final List<Integer> sessionIds) {
+                                  Double yMinimum, boolean isMetric, final List<Integer> sessionIds) {
         PlotOptions plotOptions = PlotOptions.create();
         plotOptions.setZoomOptions(ZoomOptions.create().setAmount(1.02));
         plotOptions.setGlobalSeriesOptions(GlobalSeriesOptions.create()
@@ -608,7 +608,7 @@ public class Trends extends DefaultActivity {
         }
         plotOptions.addXAxisOptions(xAxisOptions);
 
-        plotOptions.addYAxisOptions(AxisOptions.create()
+        AxisOptions yAxisOptions = AxisOptions.create()
                 .setFont(fontOptions).setLabelWidth(40).setTickFormatter(new TickFormatter() {
 
                     private NumberFormat format;
@@ -629,7 +629,11 @@ public class Trends extends DefaultActivity {
                         return format.format(tickValue).replace('E', 'e');
                     }
                 })
-        .setZoomRange(false).setMinimum(yMinimum));
+                .setZoomRange(false);
+        if (yMinimum != null) {
+            yAxisOptions.setMinimum(yMinimum);
+        }
+        plotOptions.addYAxisOptions(yAxisOptions);
 
         plotOptions.setLegendOptions(LegendOptions.create().setPosition(LegendOptions.LegendPosition.NORTH_EAST)
                 .setNumOfColumns(2)
@@ -751,15 +755,8 @@ public class Trends extends DefaultActivity {
                 String plotHeader = metricDtos.get(0).getMetricName().getTest().getTaskName() + ", " +
                         entry.getKey().getDisplayName();
 
-                double yMin = Double.MAX_VALUE;
                 for (MetricDto metricDto : metricDtos) {
-                    PlotDatasetDto plotDataSet = metricDto.getPlotDatasetDto();
-                    plotDatasets.add(plotDataSet);
-                    for (PointDto point : plotDataSet.getPlotData()) {
-                        if (yMin > point.getY()) {
-                            yMin = point.getY();
-                        }
-                    }
+                    plotDatasets.add(metricDto.getPlotDatasetDto());
                 }
 
                 PlotSeriesDto plotSeriesDto = new PlotSeriesDto(plotDatasets, "Sessions", "", plotHeader);
@@ -769,7 +766,6 @@ public class Trends extends DefaultActivity {
                         entry.getKey(),
                         plotSeriesDto,
                         plotId,
-                        yMin,
                         true
                 );
                 plotTrendsPanel.scrollToBottom();
@@ -1038,10 +1034,10 @@ public class Trends extends DefaultActivity {
     }
 
     private void renderPlots(PlotsPanel panel, MetricNode metricNode, PlotSeriesDto plotSeriesDto, String id) {
-        renderPlots(panel, metricNode, plotSeriesDto, id, 0, false);
+        renderPlots(panel, metricNode, plotSeriesDto, id, false);
     }
 
-    private void renderPlots(final PlotsPanel panel, MetricNode metricNode, PlotSeriesDto plotSeriesDto, String id, double yMinimum, boolean isMetric) {
+    private void renderPlots(final PlotsPanel panel, MetricNode metricNode, PlotSeriesDto plotSeriesDto, String id, boolean isTrend) {
 
         Markings markings = null;
         if (plotSeriesDto.getMarkingSeries() != null) {
@@ -1056,7 +1052,9 @@ public class Trends extends DefaultActivity {
 
         final SimplePlot plot;
         PlotModel plotModel;
-        if (isMetric) {
+        if (isTrend) {
+            // Trends plot panel
+
             List<Integer> sessionIds = new ArrayList<Integer>();
             for (PlotDatasetDto plotDatasetDto : plotSeriesDto.getPlotSeries()) {
                 // find all sessions in plot
@@ -1068,6 +1066,7 @@ public class Trends extends DefaultActivity {
                 }
             }
             Collections.sort(sessionIds);
+            double yMinimum = getMinY(plotSeriesDto);
             plot = createPlot(panel, id, markings, plotSeriesDto.getXAxisLabel(), yMinimum, true, sessionIds);
             plotModel = plot.getModel();
             for (PlotDatasetDto plotDatasetDto : plotSeriesDto.getPlotSeries()) {
@@ -1079,12 +1078,13 @@ public class Trends extends DefaultActivity {
                 }
             }
         } else {
-            plot = createPlot(panel, id, markings, plotSeriesDto.getXAxisLabel(), yMinimum, false, null);
+            // Metrics plot panel
+
+            plot = createPlot(panel, id, markings, plotSeriesDto.getXAxisLabel(), null, false, null);
             plotModel = plot.getModel();
             for (PlotDatasetDto plotDatasetDto : plotSeriesDto.getPlotSeries()) {
                 Series se = Series.create().setLabel(plotDatasetDto.getLegend()).setColor(plotDatasetDto.getColor());
                 SeriesHandler handler = plotModel.addSeries(se);
-
                 // Populate plot with data
                 for (PointDto pointDto : plotDatasetDto.getPlotData()) {
                     handler.add(DataPoint.of(pointDto.getX(), pointDto.getY()));
@@ -1851,4 +1851,15 @@ public class Trends extends DefaultActivity {
         return str;
     }
 
+    private double getMinY(PlotSeriesDto plotSeriesDto) {
+        double yMin = Double.MAX_VALUE;
+        for (PlotDatasetDto plotDatasetDto : plotSeriesDto.getPlotSeries()) {
+            for (PointDto point : plotDatasetDto.getPlotData()) {
+                if (yMin > point.getY()) {
+                    yMin = point.getY();
+                }
+            }
+        }
+        return yMin;
+    }
 }

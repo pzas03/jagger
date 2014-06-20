@@ -277,6 +277,8 @@
         <property name="customTestGroupMetricSummaryFetcher" ref="customTestGroupMetricSummaryFetcher"/>
         <property name="latencyMetricDataFetcher" ref="latencyMetricSummaryFetcher"/>
         <property name="validatorSummaryFetcher" ref="validatorSummaryFetcher"/>
+        <property name="sessionScopeTestGroupMetricPlotFetcher" ref="sessionScopeTestGroupMetricPlotFetcher"/>
+        <property name="sessionScopeMonitoringMetricPlotFetcher" ref="sessionScopeMonitoringMetricPlotFetcher"/>
 
         <property name="fetchUtil" ref="fetchUtil"/>
     </bean>
@@ -319,6 +321,21 @@
         <property name="legendProvider" ref="legendProvider"/>
         <property name="threadPool" ref="executorService"/>
         <property name="monitoringPlotGroups" ref="monitoringPlotGroups"/>
+    </bean>
+
+
+    <bean id="sessionScopeTestGroupMetricPlotFetcher" class="com.griddynamics.jagger.dbapi.fetcher.SessionScopeTestGroupMetricPlotFetcher">
+        <property name="legendProvider" ref="legendProvider"/>
+        <property name="threadPool" ref="executorService"/>
+        <property name="abstractMetricPlotFetcher" ref="customTestGroupMetricPlotFetcher"/>
+        <property name="fetchUtil" ref="fetchUtil"/>
+    </bean>
+
+    <bean id="sessionScopeMonitoringMetricPlotFetcher" class="com.griddynamics.jagger.dbapi.fetcher.SessionScopeMonitoringMetricPlotFetcher">
+        <property name="legendProvider" ref="legendProvider"/>
+        <property name="threadPool" ref="executorService"/>
+        <property name="abstractMetricPlotFetcher" ref="monitoringMetricPlotFetcher"/>
+        <property name="fetchUtil" ref="fetchUtil"/>
     </bean>
 
     <!--=======Fetching data for Summary table=========-->

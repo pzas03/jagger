@@ -3,6 +3,7 @@ package com.griddynamics.jagger.dbapi.dto;
 import com.griddynamics.jagger.util.Decision;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * User: amikryukov
@@ -12,7 +13,8 @@ public class TestInfoDto implements Serializable {
 
     private String termination;
     private String clock;
-    private String startTime;
+    private Date startTime;
+    private Date endTime;
     // index of test group where this test was executed
     private Integer number;
     // status of this test (FATAL if task failed during configuration - f.e. by timeout)
@@ -34,12 +36,28 @@ public class TestInfoDto implements Serializable {
         this.clock = clock;
     }
 
-    public String getStartTime() {
+    public String getFormattedStartTime() {
+        return startTime.toString();
+    }
+
+    public String getFormattedEndTime() {
+        return endTime.toString();
+    }
+
+    public Date getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(String startTime) {
+    public Date getEndTime() {
+        return endTime;
+    }
+
+    public void setStartTime(Date startTime) {
         this.startTime = startTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
     }
 
     public Integer getNumber() {

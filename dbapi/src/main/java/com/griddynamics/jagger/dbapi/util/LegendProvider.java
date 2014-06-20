@@ -1,5 +1,7 @@
 package com.griddynamics.jagger.dbapi.util;
 
+import com.griddynamics.jagger.dbapi.model.NameTokens;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
@@ -31,6 +33,11 @@ public class LegendProvider {
 
         return generatePlotHeader(sessionList, taskName, plotName);
     }
+
+    public String getSessionScopePlotHeader(String plotName) {
+        return NameTokens.SESSION_SCOPE_PLOTS + ", " + plotName;
+    }
+
 
     public String generatePlotLegend(String sessionId, String description, boolean addSessionPrefix) {
         if (!addSessionPrefix) {
