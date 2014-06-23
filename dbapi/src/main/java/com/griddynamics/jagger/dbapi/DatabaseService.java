@@ -2,7 +2,6 @@ package com.griddynamics.jagger.dbapi;
 
 
 import com.griddynamics.jagger.dbapi.dto.*;
-import com.griddynamics.jagger.dbapi.model.WebClientProperties;
 import com.griddynamics.jagger.dbapi.model.MetricNode;
 import com.griddynamics.jagger.dbapi.model.RootNode;
 import com.griddynamics.jagger.dbapi.provider.SessionInfoProvider;
@@ -37,7 +36,7 @@ public interface DatabaseService {
     /** Returns summary values for current metrics
      * @param metricNames - metric names
      * @return list of summary values */
-    List<MetricDto> getSummaryByMetricNameDto(List<MetricNameDto> metricNames);
+    List<MetricDto> getSummaryByMetricNameDto(List<MetricNameDto> metricNames, boolean isEnableDecisionsPerMetricHighlighting);
 
     /** Returns test info for specified tests
      * @param taskDataDtos - selected tests
@@ -56,10 +55,6 @@ public interface DatabaseService {
 
     /** Returns default monitoring parameters. See class DefaultMonitoringParameters */
     Map<String,Set<String>> getDefaultMonitoringParameters();
-
-    /** Returns dbapi properties
-     * @return properties */
-    WebClientProperties getWebClientProperties();
 
     /** Returns SessionInfoProvider, which contains information about sessions
      * @return SessionInfoProvider */
@@ -99,5 +94,15 @@ public interface DatabaseService {
      * @return map <sessionId, decision> of decisions
      */
     Map<String,Decision> getDecisionsPerSession(Set<String> sessionIds);
+
+    /** Checks the possibility of storing storing user comments
+     * @return true if it is possible to store user comments and false otherwise
+     */
+    public boolean checkIfUserCommentStorageAvailable();
+
+    /** Checks the possibility of storing tags
+     * @return true if it is possible to store tags and false otherwise
+     */
+    public boolean checkIfTagsStorageAvailable();
 
 }

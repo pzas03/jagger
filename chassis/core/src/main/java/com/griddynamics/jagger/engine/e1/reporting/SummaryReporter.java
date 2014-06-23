@@ -40,6 +40,12 @@ public class SummaryReporter {
     private Map<TestEntity, Set<MetricEntity>> metricsPerTest;
     private Map<String,List<SummaryDto>> summaryMap = new HashMap<String, List<SummaryDto>>();
     private Map<String,List<SummaryDto>> latencyPercentilesMap = new HashMap<String, List<SummaryDto>>();
+    private boolean isMetricHighlighting;
+
+    @Required
+    public void setMetricHighlighting(boolean isMetricHighlighting) {
+        this.isMetricHighlighting = isMetricHighlighting;
+    }
 
     public List<SummaryDto> getSummary(String sessionId, String taskId) {
 
@@ -101,7 +107,7 @@ public class SummaryReporter {
 
                     Double summaryValue = metricSummaryValueEntity.getValue();
                     value.setValue(new DecimalFormat(NumberFormatCalculator.getNumberFormat(summaryValue)).format(summaryValue));
-                    if (metricSummaryValueEntity.getDecision() != null) {
+                    if (isMetricHighlighting && metricSummaryValueEntity.getDecision() != null) {
                         value.setDecision(metricSummaryValueEntity.getDecision().toString());
                     }
 

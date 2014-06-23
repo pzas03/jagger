@@ -1240,7 +1240,9 @@ public class Trends extends DefaultActivity {
             });
 
             disableControl();
-            ControlTreeCreatorService.Async.getInstance().getControlTreeForSessions(sessionIds, new AsyncCallback<RootNode>() {
+            ControlTreeCreatorService.Async.getInstance().getControlTreeForSessions(sessionIds,
+                webClientProperties.isShowOnlyMatchedTests(),
+                new AsyncCallback<RootNode>() {
                 @Override
                 public void onFailure(Throwable caught) {
                     caught.printStackTrace();
@@ -1632,7 +1634,8 @@ public class Trends extends DefaultActivity {
 
                 if (!notLoaded.isEmpty()) {
                     disableControl();
-                    MetricDataService.Async.getInstance().getMetrics(notLoaded, new AsyncCallback<Map<MetricNode, List<MetricDto>>>() {
+                    MetricDataService.Async.getInstance().getMetrics(notLoaded, webClientProperties.isEnableDecisionsPerMetricHighlighting(),
+                        new AsyncCallback<Map<MetricNode, List<MetricDto>>>() {
                         @Override
                         public void onFailure(Throwable caught) {
                             caught.printStackTrace();

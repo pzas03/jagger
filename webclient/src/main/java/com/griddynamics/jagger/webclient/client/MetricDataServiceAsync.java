@@ -16,5 +16,6 @@ import java.util.Map;
  * To change this template use File | Settings | File Templates.
  */
 public interface MetricDataServiceAsync {
-    void getMetrics(List<MetricNode> metricNames, AsyncCallback<Map<MetricNode, List<MetricDto>>> async);
+    void getMetrics(List<MetricNode> metricNames, boolean isEnableDecisionsPerMetricHighlighting,
+                    AsyncCallback<Map<MetricNode, List<MetricDto>>> async);
 }

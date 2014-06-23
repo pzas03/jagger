@@ -40,11 +40,12 @@ import java.util.concurrent.Future;
  */
 public class DatabaseServiceImpl implements DatabaseService {
 
+    private static Boolean isUserCommentStorageAvailable = null;
+    private static Boolean isTagsStorageAvailable = null;
+
     private Logger log = LoggerFactory.getLogger(this.getClass());
 
     private EntityManager entityManager;
-
-    private WebClientProperties webClientProperties;
 
     private ExecutorService threadPool;
     private LegendProvider legendProvider;
@@ -149,17 +150,6 @@ public class DatabaseServiceImpl implements DatabaseService {
     @Required
     public void setMonitoringMetricPlotFetcher(MonitoringMetricPlotFetcher monitoringMetricPlotFetcher) {
         this.monitoringMetricPlotFetcher = monitoringMetricPlotFetcher;
-    }
-
-    @Required
-    public void setWebClientProperties(WebClientProperties webClientProperties) {
-        this.webClientProperties = webClientProperties;
-        this.webClientProperties.setUserCommentStoreAvailable(checkIfUserCommentStorageAvailable());
-        this.webClientProperties.setTagsStoreAvailable(checkIfTagsStorageAvailable());
-    }
-
-    public WebClientProperties getWebClientProperties() {
-        return webClientProperties;
     }
 
     @Required
@@ -401,7 +391,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     //===========================
 
     @Override
-    public List<MetricDto> getSummaryByMetricNameDto(List<MetricNameDto> metricNames) {
+    public List<MetricDto> getSummaryByMetricNameDto(List<MetricNameDto> metricNames, boolean isEnableDecisionsPerMetricHighlighting) {
 
         long temp = System.currentTimeMillis();
         List<MetricDto> result = new ArrayList<MetricDto>(metricNames.size());
@@ -464,7 +454,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         }
 
         // Find what decisions were taken for metrics
-        if (webClientProperties.isEnableDecisionsPerMetricHighlighting()) {
+        if (isEnableDecisionsPerMetricHighlighting) {
             Map<MetricNameDto,Map<String,Decision>> metricDecisions = getDecisionsPerMetric(new HashSet<MetricNameDto>(metricNames));
             if (!metricDecisions.isEmpty()) {
                 for (MetricDto metricDto : result) {
@@ -976,33 +966,35 @@ public class DatabaseServiceImpl implements DatabaseService {
         return result;
     }
 
-    private boolean checkIfUserCommentStorageAvailable() {
-
-        try {
-            // even if table is empty we can set user comments
-            entityManager.createQuery(
-                    "select count(sm) from SessionMetaDataEntity sm")
-                    .getSingleResult();
-            return true;
-        } catch (Exception e) {
-            log.warn("Could not access SessionMetaDataTable", e);
+    public boolean checkIfUserCommentStorageAvailable() {
+        if (isUserCommentStorageAvailable == null) {
+            try {
+                // even if table is empty we can set user comments
+                entityManager.createQuery(
+                        "select count(sm) from SessionMetaDataEntity sm")
+                        .getSingleResult();
+                isUserCommentStorageAvailable = true;
+            } catch (Exception e) {
+                isUserCommentStorageAvailable = false;
+                log.warn("Could not access SessionMetaDataTable", e);
+            }
         }
-
-        return false;
+        return isUserCommentStorageAvailable;
     }
 
-    private boolean checkIfTagsStorageAvailable() {
-
-        try {
-            entityManager.createQuery(
-                    "select 1 from TagEntity")
-                    .getSingleResult();
-            return true;
-        } catch (Exception e) {
-            log.warn("Could not access TagEntity table");
+    public boolean checkIfTagsStorageAvailable() {
+        if (isTagsStorageAvailable == null) {
+            try {
+                entityManager.createQuery(
+                        "select 1 from TagEntity")
+                        .getSingleResult();
+                isTagsStorageAvailable = true;
+            } catch (Exception e) {
+                isTagsStorageAvailable = false;
+                log.warn("Could not access TagEntity table");
+            }
         }
-
-        return false;
+        return isTagsStorageAvailable;
     }
 
     private List<TaskDataDto> fetchTaskDatas(Set<String> sessionIds, SessionMatchingSetup sessionMatchingSetup) {
