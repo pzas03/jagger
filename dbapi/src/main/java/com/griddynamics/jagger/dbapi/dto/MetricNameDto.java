@@ -1,7 +1,6 @@
 package com.griddynamics.jagger.dbapi.dto;
 
 import java.util.Set;
-import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
