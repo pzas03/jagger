@@ -1083,9 +1083,10 @@ public class DatabaseServiceImpl implements DatabaseService {
             //get nodes for session scope and Session Scope Node
             Set<PlotNode> ssPlotNodes;
             if (sessionIds.size() == 1) {
-                ssPlotNodes = getSessionScopeNodes(mapSS);
+                String sessionId = sessionIds.iterator().next();
+                ssPlotNodes = getSessionScopeNodes(mapSS, sessionId);
                 if (!monitoringMap.isEmpty()) {
-                    ssPlotNodes.addAll(getSessionScopeNodes(monitoringMapSS));
+                    ssPlotNodes.addAll(getSessionScopeNodes(monitoringMapSS, sessionId));
                 }
 
                 if (ssPlotNodes.size() > 0) {
@@ -1568,7 +1569,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
 
-    private Set<PlotNode> getSessionScopeNodes(Map<TaskDataDto, List<PlotNode>> mapAfterFiltration) {
+    private Set<PlotNode> getSessionScopeNodes(Map<TaskDataDto, List<PlotNode>> mapAfterFiltration, String sessionId) {
         List<String> metricNameList = new ArrayList<String>();
         Map<String, List<Long>> nameId = new HashMap<String, List<Long>>();
         Set<PlotNode> ssPlotNodes = new HashSet<PlotNode>();
@@ -1605,11 +1606,11 @@ public class DatabaseServiceImpl implements DatabaseService {
             }
         }
 
-        for (PlotNode plotNode : ssPlotNodes) {
-            for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
-                metricNameDto.getTaskIds().addAll(nameId.get(metricNameDto.getMetricName()));
-            }
-        }
+        for (PlotNode plotNode : ssPlotNodes)
+            for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList())
+                for (Long taskId : nameId.get(metricNameDto.getMetricName()))
+                    metricNameDto.getTest().getIdToSessionId().put(taskId, sessionId);
+
         return ssPlotNodes;
     }
 
