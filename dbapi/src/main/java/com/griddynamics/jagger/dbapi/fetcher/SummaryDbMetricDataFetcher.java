@@ -34,7 +34,7 @@ public abstract class SummaryDbMetricDataFetcher extends DbMetricDataFetcher<Met
         return new PlotDatasetDto(
                 list,
                 legend,
-                ColorCodeGenerator.getHexColorCode()
+                ColorCodeGenerator.getHexColorCode(metricDto.getMetricName().getMetricName(), "")
         );
     }
 }
