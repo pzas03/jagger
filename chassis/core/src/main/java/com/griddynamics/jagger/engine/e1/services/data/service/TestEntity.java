@@ -11,28 +11,15 @@ import com.griddynamics.jagger.util.Decision;
  * Gribov Kirill
  */
 public class TestEntity {
-    /** Test id (aka task id) - unique id of this test */
     private Long id;
-
-    /** Test name in format [test group name] [test name] */
     private String name;
-
-    /** Test description */
     private String description;
 
     /** Description of the load for this test */
     private String load;
-
-    /** Description of the termination strategy for this test */
     private String terminationStrategy;
-
-    /** Start date of the test */
     private String startDate;
-
-    /** Index of test group where this test belongs */
     private Integer testGroupIndex;
-
-    /** Status of execution of this test. FATAL when test failed during execution (f.e. due to some workload configuration timeout) */
     private Decision testExecutionStatus;
     private Decision decision;
 
@@ -99,7 +86,7 @@ public class TestEntity {
         this.testGroupIndex = testGroupIndex;
     }
 
-    /** Get status of this test execution */
+    /** Get status of execution of this test. FATAL when test failed during execution (f.e. due to some workload configuration timeout) */
     public Decision getTestExecutionStatus() {
         return testExecutionStatus;
     }

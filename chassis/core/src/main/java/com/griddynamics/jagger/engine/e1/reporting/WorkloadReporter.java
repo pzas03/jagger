@@ -105,8 +105,6 @@ public class WorkloadReporter extends AbstractReportProvider {
 
             }
 
-            // ??? todo JFG_779 add decision per test based on limits comparison. This decision should influence test status in report
-
             reportData.setStatusImage(statusImageProvider.getImageByDecision(testStatus));
             reportData.setScenarioName(testEntity.getName() + "\n\n\n" + testStatusComment);
             result.add(reportData);
