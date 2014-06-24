@@ -70,6 +70,8 @@ public class DatabaseServiceImpl implements DatabaseService {
     private CustomMetricPlotFetcher customMetricPlotFetcher;
     private CustomTestGroupMetricPlotFetcher customTestGroupMetricPlotFetcher;
     private MonitoringMetricPlotFetcher monitoringMetricPlotFetcher;
+    private SessionScopeTestGroupMetricPlotFetcher sessionScopeTestGroupMetricPlotFetcher;
+    private SessionScopeMonitoringMetricPlotFetcher sessionScopeMonitoringMetricPlotFetcher;
 
     private StandardMetricSummaryFetcher standardMetricSummaryFetcher;
     private DurationMetricSummaryFetcher durationMetricSummaryFetcher;
@@ -150,6 +152,16 @@ public class DatabaseServiceImpl implements DatabaseService {
     @Required
     public void setMonitoringMetricPlotFetcher(MonitoringMetricPlotFetcher monitoringMetricPlotFetcher) {
         this.monitoringMetricPlotFetcher = monitoringMetricPlotFetcher;
+    }
+
+    @Required
+    public void setSessionScopeTestGroupMetricPlotFetcher(SessionScopeTestGroupMetricPlotFetcher sessionScopeTestGroupMetricPlotFetcher) {
+        this.sessionScopeTestGroupMetricPlotFetcher = sessionScopeTestGroupMetricPlotFetcher;
+    }
+
+    @Required
+    public void setSessionScopeMonitoringMetricPlotFetcher(SessionScopeMonitoringMetricPlotFetcher sessionScopeMonitoringMetricPlotFetcher) {
+        this.sessionScopeMonitoringMetricPlotFetcher = sessionScopeMonitoringMetricPlotFetcher;
     }
 
     @Required
@@ -260,14 +272,18 @@ public class DatabaseServiceImpl implements DatabaseService {
                 public int compare(PlotDatasetDto o1, PlotDatasetDto o2) {
                     String param1 = o1.getLegend();
                     String param2 = o2.getLegend();
-                    int res = String.CASE_INSENSITIVE_ORDER.compare(param1,param2);
+                    int res = String.CASE_INSENSITIVE_ORDER.compare(param1, param2);
                     return (res != 0) ? res : param1.compareTo(param2);
                 }
             });
 
-            // at the moment all MetricNameDtos in MetricNode have same taskIds => it is valid to use first one for legend provider
-            // TODO for session scope plot headers and legend will available after JFG-738
-            result.put(metricNode, new PlotSeriesDto(plotDatasetDtoList,"Time, sec", "",legendProvider.getPlotHeader(metricNode.getMetricNameDtoList().get(0).getTaskIds(), metricNode.getDisplayName())));
+            MetricNameDto firstMetricNameDto = metricNode.getMetricNameDtoList().get(0);
+            String plotHeader;
+            if (isSessionScopeMetric(firstMetricNameDto))
+                plotHeader = legendProvider.getSessionScopePlotHeader(metricNode.getDisplayName());
+            else
+                plotHeader = legendProvider.getPlotHeader(firstMetricNameDto.getTaskIds(), metricNode.getDisplayName());
+            result.put(metricNode, new PlotSeriesDto(plotDatasetDtoList, "Time, sec", "", plotHeader));
         }
 
         log.debug("Total time of plots for metricNodes retrieving : " + (System.currentTimeMillis() - temp));
@@ -306,8 +322,10 @@ public class DatabaseServiceImpl implements DatabaseService {
                     fetchMap.put(throughputMetricPlotFetcher, metricNameDto);
                     break;
                 case SESSION_SCOPE_MONITORING:
+                    fetchMap.put(sessionScopeMonitoringMetricPlotFetcher, metricNameDto);
                     break;
                 case SESSION_SCOPE_TG:
+                    fetchMap.put(sessionScopeTestGroupMetricPlotFetcher, metricNameDto);
                     break;
                 default:  // if anything else
                     log.error("MetricNameDto with origin : {} appears in metric name list for plot retrieving ({})", metricNameDto.getOrigin(), metricNameDto);
@@ -923,16 +941,12 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             // Provide matching
             if (map.containsKey(key.toString())){
-                map.get(key.toString()).getIds().add(id.longValue());
-                map.get(key.toString()).getSessionIds().add(sessionId);
+                map.get(key.toString()).getIdToSessionId().put(id.longValue(),sessionId);
 
                 Integer oldValue = mapIds.get(key.toString());
                 mapIds.put(key.toString(), (oldValue==null ? 0 : oldValue)+taskIdInt);
             }else{
-                TaskDataDto taskDataDto = new TaskDataDto(id.longValue(), name, description);
-                Set<String> sessionIdList = new TreeSet<String>();
-                sessionIdList.add(sessionId);
-                taskDataDto.setSessionIds(sessionIdList);
+                TaskDataDto taskDataDto = new TaskDataDto(id.longValue(), sessionId, name, description);
                 // generate unique id to make difference between tests with different matching parameters.
                 taskDataDto.setUniqueId(CommonUtils.generateUniqueId(uniqueIdParams));
 
@@ -1061,9 +1075,10 @@ public class DatabaseServiceImpl implements DatabaseService {
             //get nodes for session scope and Session Scope Node
             Set<PlotNode> ssPlotNodes;
             if (sessionIds.size() == 1) {
-                ssPlotNodes = getSessionScopeNodes(mapSS);
+                String sessionId = sessionIds.iterator().next();
+                ssPlotNodes = getSessionScopeNodes(mapSS, sessionId);
                 if (!monitoringMap.isEmpty()) {
-                    ssPlotNodes.addAll(getSessionScopeNodes(monitoringMapSS));
+                    ssPlotNodes.addAll(getSessionScopeNodes(monitoringMapSS, sessionId));
                 }
 
                 if (ssPlotNodes.size() > 0) {
@@ -1074,7 +1089,10 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             // get tree
             for (TaskDataDto tdd : taskList) {
-                List<PlotNode> metricNodeList = map.get(tdd);
+                List<PlotNode> metricNodeList = new ArrayList<PlotNode>();
+                if (map.containsKey(tdd)) {
+                    metricNodeList.addAll(map.get(tdd));
+                }
                 if (monitoringMap.containsKey(tdd)) {
                     metricNodeList.addAll(monitoringMap.get(tdd));
                 }
@@ -1198,8 +1216,8 @@ public class DatabaseServiceImpl implements DatabaseService {
         for (MetricNode node : nodeList) {
             for (MetricNameDto metricNameDto : node.getMetricNameDtoList()) {
                 // old monitoring or new monitoring as metrics
-                if ((metricNameDto.getOrigin() == MetricNameDto.Origin.MONITORING) ||
-                        (metricNameDto.getOrigin() == MetricNameDto.Origin.TEST_GROUP_METRIC)) {
+                if ((metricNameDto.getOrigin().equals(MetricNameDto.Origin.MONITORING)) ||
+                        (metricNameDto.getOrigin().equals(MetricNameDto.Origin.TEST_GROUP_METRIC))) {
 
                     // if looks like monitoring parameter
                     MonitoringIdUtils.MonitoringId monitoringId = MonitoringIdUtils.splitMonitoringMetricId(metricNameDto.getMetricName());
@@ -1276,46 +1294,9 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     @Override
     public Map<Long, Map<String, TestInfoDto>> getTestInfoByTaskIds(Set<Long> taskIds) throws RuntimeException {
-
-        if (taskIds.isEmpty()) {
-            return Collections.emptyMap();
-        }
-
-        long temp = System.currentTimeMillis();
-
-        @SuppressWarnings("all")
-        List<Object[]> objectsList = (List<Object[]>)entityManager.createNativeQuery(
-                "select wtd.sessionId, wtd.clock, wtd.clockValue, wtd.termination, taskData.id " +
-                        "from WorkloadTaskData as wtd join " +
-                        "( select  td.id, td.sessionId, td.taskId from TaskData td where td.id in (:taskDataIds) " +
-                        ") as taskData " +
-                        "on wtd.sessionId=taskData.sessionId and wtd.taskId=taskData.taskId")
-                .setParameter("taskDataIds", taskIds)
-                .getResultList();
-
-        Map<Long, Map<String, TestInfoDto>> resultMap = new HashMap<Long, Map<String, TestInfoDto>>(taskIds.size());
-
-        for (Object[] objects : objectsList) {
-
-            Long taskId = ((BigInteger)objects[4]).longValue();
-            String clock = objects[1] + " (" + objects[2] + ')';
-            String termination = (String)objects[3];
-            String sessionId = (String)objects[0];
-
-            if (!resultMap.containsKey(taskId)) {
-                resultMap.put(taskId,new HashMap<String, TestInfoDto>());
-            }
-            TestInfoDto testInfo = new TestInfoDto();
-            testInfo.setClock(clock);
-            testInfo.setTermination(termination);
-
-            resultMap.get(taskId).put(sessionId,testInfo);
-        }
-
-        log.debug("Time spent for testInfo fetching for {} tests ids: {}ms", new Object[]{taskIds.size(), System.currentTimeMillis() - temp});
-
-        return resultMap;
+        return fetchUtil.getTestInfoByTaskIds(taskIds);
     }
+
 
     @Override
     public SessionInfoProvider getSessionInfoService(){
@@ -1463,7 +1444,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         for (MetricNameDto metricName : metricNames) {
             metricIds.add(metricName.getMetricName());
             taskIds.addAll(metricName.getTaskIds());
-            if (metricName.getOrigin() == MetricNameDto.Origin.TEST_GROUP_METRIC) {
+            if (metricName.getOrigin().equals(MetricNameDto.Origin.TEST_GROUP_METRIC)) {
                 taskIdsWhereParentIdIsRequired.addAll(metricName.getTaskIds());
             }
         }
@@ -1580,7 +1561,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
 
-    private Set<PlotNode> getSessionScopeNodes(Map<TaskDataDto, List<PlotNode>> mapAfterFiltration) {
+    private Set<PlotNode> getSessionScopeNodes(Map<TaskDataDto, List<PlotNode>> mapAfterFiltration, String sessionId) {
         List<String> metricNameList = new ArrayList<String>();
         Map<String, List<Long>> nameId = new HashMap<String, List<Long>>();
         Set<PlotNode> ssPlotNodes = new HashSet<PlotNode>();
@@ -1594,10 +1575,9 @@ public class DatabaseServiceImpl implements DatabaseService {
                         metricNameList.add(metricNameDto.getMetricName());
                         PlotNode ssPlotNode = new PlotNode();
 
-                        TaskDataDto tempTaskDataDto = new TaskDataDto(taskDataDto.getId(),
+                        TaskDataDto tempTaskDataDto = new TaskDataDto(taskDataDto.getIdToSessionId(),
                                 taskDataDto.getTaskName(),
                                 taskDataDto.getDescription());
-                        tempTaskDataDto.setSessionIds(taskDataDto.getSessionIds());
 
                         MetricNameDto tempMetricNameDto = new MetricNameDto(tempTaskDataDto,
                                 metricNameDto.getMetricName(),
@@ -1618,11 +1598,11 @@ public class DatabaseServiceImpl implements DatabaseService {
             }
         }
 
-        for (PlotNode plotNode : ssPlotNodes) {
-            for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
-                metricNameDto.getTaskIds().addAll(nameId.get(metricNameDto.getMetricName()));
-            }
-        }
+        for (PlotNode plotNode : ssPlotNodes)
+            for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList())
+                for (Long taskId : nameId.get(metricNameDto.getMetricName()))
+                    metricNameDto.getTest().getIdToSessionId().put(taskId, sessionId);
+
         return ssPlotNodes;
     }
 
@@ -1634,8 +1614,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         for (TaskDataDto taskDataDto : map.keySet()) {
             for (PlotNode plotNode : map.get(taskDataDto)) {
                 for (MetricNameDto metricNameDto : plotNode.getMetricNameDtoList()) {
-                    if (metricNameDto.getOrigin().equals(MetricNameDto.Origin.SESSION_SCOPE_TG)
-                            || metricNameDto.getOrigin().equals(MetricNameDto.Origin.SESSION_SCOPE_MONITORING)) {
+                    if (isSessionScopeMetric(metricNameDto)) {
                         if (mapForSessionScope.get(taskDataDto) == null)
                             mapForSessionScope.put(taskDataDto, new ArrayList<PlotNode>());
                         mapForSessionScope.get(taskDataDto).add(plotNode);
@@ -1648,6 +1627,11 @@ public class DatabaseServiceImpl implements DatabaseService {
             }
         }
         return Lists.newArrayList(mapForTests, mapForSessionScope);
+    }
+
+    private boolean isSessionScopeMetric(MetricNameDto metricNameDto){
+        return  (metricNameDto.getOrigin().equals(MetricNameDto.Origin.SESSION_SCOPE_TG)
+                || metricNameDto.getOrigin().equals(MetricNameDto.Origin.SESSION_SCOPE_MONITORING));
     }
 
 

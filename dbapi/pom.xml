@@ -27,6 +27,13 @@
             <version>2.5.1</version>
         </dependency>
 
+        <!--Use for generating csv-->
+        <dependency>
+            <groupId>net.sf.supercsv</groupId>
+            <artifactId>super-csv</artifactId>
+            <version>2.2.0</version>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>

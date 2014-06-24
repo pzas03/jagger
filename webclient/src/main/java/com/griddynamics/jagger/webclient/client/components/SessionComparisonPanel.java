@@ -464,6 +464,17 @@ public class SessionComparisonPanel extends VerticalPanel {
                 termination.put(SESSION_HEADER + session.getSessionId(), testInfoMap.get(session.getSessionId()).getTermination());
         }
         treeStore.add(testInfo, termination);
+
+        TreeItem startTime = new TreeItem(testItem.getKey() + "Start time");
+        startTime.put(NAME, "Start time");
+        startTime.put(TEST_DESCRIPTION, test.getDescription());
+        startTime.put(TEST_NAME, testItemName);
+        startTime.put(TEST_INFO, TEST_INFO);
+        for (SessionDataDto session : chosenSessions) {
+            if (testInfoMap.get(session.getSessionId()) != null)
+                startTime.put(SESSION_HEADER + session.getSessionId(), testInfoMap.get(session.getSessionId()).getFormattedStartTime());
+        }
+        treeStore.add(testInfo, startTime);
     }
 
     public void removeTestInfo(TaskDataDto test) {

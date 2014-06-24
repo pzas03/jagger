@@ -24,16 +24,19 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.griddynamics.jagger.agent.model.*;
 import com.griddynamics.jagger.dbapi.parameter.DefaultMonitoringParameters;
-import com.griddynamics.jagger.util.AgentUtils;
+import com.griddynamics.jagger.util.ConfigurableExecutor;
 import com.sun.management.UnixOperatingSystemMXBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Required;
 
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import java.io.IOException;
 import java.lang.management.*;
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 
 import static com.griddynamics.jagger.util.Units.bytesToMiB;
 
@@ -53,14 +56,11 @@ public class JMXSystemUnderTestImpl implements SystemUnderTestService {
             ImmutableSet.of("MarkSweepCompact", "PS MarkSweep", "ConcurrentMarkSweep", "G1 Old Generation");
 
     private AgentContext context;
-    private String jmxServices;
     private String name;
-    private String urlFormat;
     private Map<String, MBeanServerConnection> connections = Maps.newHashMap();
-
-    public void setJmxServices(String jmxServices) {
-        this.jmxServices = jmxServices;
-    }
+    private ConfigurableExecutor executor;
+    private JmxConnector jmxConnector;
+    private Future<Map<String, MBeanServerConnection>> future;
 
     public String getName() {
         return name;
@@ -70,36 +70,63 @@ public class JMXSystemUnderTestImpl implements SystemUnderTestService {
         this.name = name;
     }
 
-    public void setUrlFormat(String urlFormat) {
-        this.urlFormat = urlFormat;
+    @Required
+    public void setExecutor(ConfigurableExecutor executor) {
+        this.executor = executor;
+    }
+
+    @Required
+    public void setJmxConnector(JmxConnector jmxConnector) {
+        this.jmxConnector = jmxConnector;
     }
 
     @Override
     public Map<String, SystemUnderTestInfo> getInfo() {
-        Map<String, SystemUnderTestInfo> result = Maps.newHashMap();
 
-        for (String identifier : connections.keySet()) {
-            result.put(identifier, analyzeJVM(identifier));
+        if (connections.size() == 0) {
+            connections = getEstablishedJmxConnections();
         }
-        return result;
+
+        if (connections.size() > 0) {
+            Map<String, SystemUnderTestInfo> result = Maps.newHashMap();
+
+            for (String identifier : connections.keySet()) {
+                result.put(identifier, analyzeJVM(identifier));
+            }
+            return result;
+        }
+        else {
+            log.warn("JMX connection is not initialized. Skip");
+            return null;
+        }
     }
 
     @Override
     public Map<String, Map<String,String>> getSystemProperties() {
-        Map<String, Map<String,String>> result = Maps.newHashMap();
 
-        try {
-            for (String identifier : connections.keySet()){
-                MBeanServerConnection connection = connections.get(identifier);
-                RuntimeMXBean runtimeMXBean = ManagementFactory.newPlatformMXBeanProxy(connection,
-                                                                                     ManagementFactory.RUNTIME_MXBEAN_NAME,
-                                                                                     RuntimeMXBean.class);
-                result.put(identifier, runtimeMXBean.getSystemProperties());
-            }
-        }catch (IOException ex){
-            log.error("Error in JMXSigarMonitorController.analyzeJVM", ex);
+        if (connections.size() == 0) {
+            connections = getEstablishedJmxConnections();
         }
-        return result;
+
+        if (connections.size() > 0) {
+            Map<String, Map<String,String>> result = Maps.newHashMap();
+            try {
+                for (String identifier : connections.keySet()){
+                    MBeanServerConnection connection = connections.get(identifier);
+                    RuntimeMXBean runtimeMXBean = ManagementFactory.newPlatformMXBeanProxy(connection,
+                                                                                         ManagementFactory.RUNTIME_MXBEAN_NAME,
+                                                                                         RuntimeMXBean.class);
+                    result.put(identifier, runtimeMXBean.getSystemProperties());
+                }
+            }catch (IOException ex){
+                log.error("Error in JMXSigarMonitorController.analyzeJVM", ex);
+            }
+            return result;
+        }
+        else {
+            log.warn("JMX connection is not initialized. Skip");
+            return null;
+        }
     }
 
     @Override
@@ -108,19 +135,34 @@ public class JMXSystemUnderTestImpl implements SystemUnderTestService {
     }
 
     public void init() {
-        try {
-            connections = AgentUtils.getMBeanConnections(
-                    AgentUtils.getJMXConnectors(AgentUtils.splitServices(jmxServices), name + " collect from jmx port ", urlFormat)
-            );
-        } catch (IOException e) {
-            log.error("Error during JMX initializing", e);
-        }
-        if (connections.size() == 0) {
-            // TODO: replace it with specific exception for such situations when it is created.
-            throw new RuntimeException("Error during JMX initialization. ZERO connections created for url "
-                    + jmxServices + ".");
-        }
+        future = executor.submit(new Callable<Map<String, MBeanServerConnection>>() {
+
+                @Override
+                public Map<String, MBeanServerConnection> call() throws Exception {
+                    return jmxConnector.connect(name);
+                }
+            });
     }
+
+    private Map<String, MBeanServerConnection> getEstablishedJmxConnections() {
+        Map<String, MBeanServerConnection> result;
+
+        if ((future == null) || (!future.isDone())) {
+            return Collections.emptyMap();
+        }
+
+        try {
+            result = future.get();
+        } catch (Exception ex) {
+            // connection failed
+            future = null;
+            log.error("Failed to establish JMX connection");
+            return Collections.emptyMap();
+        }
+
+        return result;
+    }
+
 
     private SystemUnderTestInfo analyzeJVM(String identifier) {
         SystemUnderTestInfo result = new SystemUnderTestInfo(identifier);
@@ -131,10 +173,8 @@ public class JMXSystemUnderTestImpl implements SystemUnderTestService {
         try {
             MBeanServerConnection connection = connections.get(identifier);
 
-            MemoryMXBean memoryMXBean = ManagementFactory.newPlatformMXBeanProxy(connection,
-                    ManagementFactory.MEMORY_MXBEAN_NAME, MemoryMXBean.class);
-            MemoryUsage heapMemoryUsage = memoryMXBean.getHeapMemoryUsage();
 
+            // File descriptors
             try {
                 UnixOperatingSystemMXBean unixOperatingSystemMXBean = ManagementFactory.newPlatformMXBeanProxy(connection,
                         ManagementFactory.OPERATING_SYSTEM_MXBEAN_NAME, UnixOperatingSystemMXBean.class);
@@ -143,6 +183,11 @@ public class JMXSystemUnderTestImpl implements SystemUnderTestService {
             } catch (Exception e) {
                 log.warn("Can not get count of open file descriptors from '{}' ", identifier, e);
             }
+
+            // Heap
+            MemoryMXBean memoryMXBean = ManagementFactory.newPlatformMXBeanProxy(connection,
+                    ManagementFactory.MEMORY_MXBEAN_NAME, MemoryMXBean.class);
+            MemoryUsage heapMemoryUsage = memoryMXBean.getHeapMemoryUsage();
 
             result.putSysUTEntry(DefaultMonitoringParameters.HEAP_MEMORY_MAX, bytesToMiB(heapMemoryUsage.getMax()));
             result.putSysUTEntry(DefaultMonitoringParameters.HEAP_MEMORY_COMMITTED, bytesToMiB(heapMemoryUsage.getCommitted()));
@@ -155,6 +200,7 @@ public class JMXSystemUnderTestImpl implements SystemUnderTestService {
             result.putSysUTEntry(DefaultMonitoringParameters.NON_HEAP_MEMORY_USED, bytesToMiB(nonHeapMemoryUsage.getUsed()));
             result.putSysUTEntry(DefaultMonitoringParameters.NON_HEAP_MEMORY_INIT, bytesToMiB(nonHeapMemoryUsage.getInit()));
 
+            // Garbage collection
             Set<ObjectName> srvMemMgrNames = connection.queryNames(
                     new ObjectName(ManagementFactory.GARBAGE_COLLECTOR_MXBEAN_DOMAIN_TYPE + ",*"), null);
             for (ObjectName gcMgr : srvMemMgrNames) {
@@ -182,6 +228,13 @@ public class JMXSystemUnderTestImpl implements SystemUnderTestService {
             result.putSysUTEntry(DefaultMonitoringParameters.JMX_GC_MINOR_TIME, (double) minor_time);
             result.putSysUTEntry(DefaultMonitoringParameters.JMX_GC_MINOR_UNIT, (double) minor_units);
 
+            // Threads
+            ThreadMXBean threadMXBean = ManagementFactory.newPlatformMXBeanProxy(connection,
+                    ManagementFactory.THREAD_MXBEAN_NAME, ThreadMXBean.class);
+            result.putSysUTEntry(DefaultMonitoringParameters.THREAD_COUNT, (double) threadMXBean.getThreadCount());
+            result.putSysUTEntry(DefaultMonitoringParameters.THREAD_PEAK_COUNT, (double) threadMXBean.getPeakThreadCount());
+
+            // Custom
             if (context != null) {
                 List<JmxMetric> jmxMetricList = (List<JmxMetric>) context.getProperty(AgentContext.AgentContextProperty.JMX_METRICS);
                 if (jmxMetricList != null) {

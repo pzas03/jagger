@@ -1,13 +1,18 @@
 package com.griddynamics.jagger.dbapi.util;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+import com.griddynamics.jagger.dbapi.dto.TestInfoDto;
+import com.griddynamics.jagger.dbapi.entity.TaskData;
+import com.griddynamics.jagger.util.Decision;
+import com.griddynamics.jagger.util.Pair;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.util.*;
 
 /**
  * Created by kgribov on 3/17/14.
@@ -78,6 +83,71 @@ public class FetchUtil {
                 "where taskData.id in (:ids)")
                 .setParameter("ids", taskIds)
                 .getResultList();
+    }
+
+    /** Returns test info for specified tests ids
+     * @param taskIds - selected test ids
+     * @return map <testId, map <sessionId, test info>> of test info
+     * */
+    public Map<Long, Map<String, TestInfoDto>> getTestInfoByTaskIds(Set<Long> taskIds) throws RuntimeException {
+
+        if (taskIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        @SuppressWarnings("all")
+        List<Object[]> objectsList = (List<Object[]>)entityManager.createNativeQuery(
+                "select wtd.sessionId, wtd.clock, wtd.clockValue, wtd.termination, finalTaskData.id," +
+                        "finalTaskData.startTime, finalTaskData.endTime, wtd.number, finalTaskData.status " +
+                        "from WorkloadTaskData as wtd join " +
+                        "(select wd.startTime, wd.endTime, wd.taskId, wd.sessionId, taskData.id, taskData.status from WorkloadData " +
+                        "as wd join " +
+                        "( select  td.id, td.sessionId, td.taskId, td.status from TaskData td where td.id in (:taskDataIds) " +
+                        ") as taskData " +
+                        "on wd.taskId=taskData.taskId and wd.sessionId=taskData.sessionId" +
+                        ") as finalTaskData " +
+                        "on wtd.sessionId=finalTaskData.sessionId and wtd.taskId=finalTaskData.taskId order by finalTaskData.startTime")
+                .setParameter("taskDataIds", taskIds)
+                .getResultList();
+
+        Map<Long, Map<String, TestInfoDto>> resultMap = Maps.newLinkedHashMap();
+
+        for (Object[] objects : objectsList) {
+
+            Long taskId = ((BigInteger)objects[4]).longValue();
+            String clock = objects[1] + " (" + objects[2] + ')';
+            String termination = (String)objects[3];
+            String sessionId = (String)objects[0];
+
+            Date startTime = (Date)objects[5];
+            Date endTime = (Date)objects[6];
+
+
+            Integer number = (Integer)objects[7];
+            if (number == null) {
+                number = 0;
+            }
+            TaskData.ExecutionStatus executionStatus = TaskData.ExecutionStatus.valueOf((String) objects[8]);
+            Decision status = Decision.OK;
+            if (TaskData.ExecutionStatus.FAILED.equals(executionStatus)) {
+                status = Decision.FATAL;
+            }
+
+            if (!resultMap.containsKey(taskId)) {
+                resultMap.put(taskId,new HashMap<String, TestInfoDto>());
+            }
+            TestInfoDto testInfo = new TestInfoDto();
+            testInfo.setClock(clock);
+            testInfo.setTermination(termination);
+            testInfo.setStartTime(startTime);
+            testInfo.setEndTime(endTime);
+            testInfo.setNumber(number);
+            testInfo.setStatus(status);
+
+            resultMap.get(taskId).put(sessionId,testInfo);
+        }
+
+        return resultMap;
     }
 
 }

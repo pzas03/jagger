@@ -7,6 +7,7 @@ import com.griddynamics.jagger.dbapi.model.MetricNode;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,6 +17,6 @@ import java.util.Map;
  * To change this template use File | Settings | File Templates.
  */
 public interface MetricDataServiceAsync {
-    void getMetrics(List<MetricNode> metricNames, boolean isEnableDecisionsPerMetricHighlighting,
+    void getMetrics(Set<MetricNode> metricNames, boolean isEnableDecisionsPerMetricHighlighting, 
                     AsyncCallback<Map<MetricNode, List<MetricDto>>> async);
 }
