@@ -95,7 +95,7 @@ public interface DatabaseService {
      */
     Map<String,Decision> getDecisionsPerSession(Set<String> sessionIds);
 
-    /** Checks the possibility of storing storing user comments
+    /** Checks the possibility of storing user comments
      * @return true if it is possible to store user comments and false otherwise
      */
     public boolean checkIfUserCommentStorageAvailable();

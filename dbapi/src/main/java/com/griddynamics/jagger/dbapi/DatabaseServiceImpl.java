@@ -40,9 +40,6 @@ import java.util.concurrent.Future;
  */
 public class DatabaseServiceImpl implements DatabaseService {
 
-    private static Boolean isUserCommentStorageAvailable = null;
-    private static Boolean isTagsStorageAvailable = null;
-
     private Logger log = LoggerFactory.getLogger(this.getClass());
 
     private EntityManager entityManager;
@@ -207,6 +204,8 @@ public class DatabaseServiceImpl implements DatabaseService {
     @Required
     public void setSessionInfoServiceImpl(SessionInfoProviderImpl sessionInfoServiceImpl) {
         this.sessionInfoServiceImpl = sessionInfoServiceImpl;
+        this.sessionInfoServiceImpl.setIsTagsStorageAvailable(checkIfTagsStorageAvailable());
+        this.sessionInfoServiceImpl.setIsUserCommentStorageAvailable(checkIfUserCommentStorageAvailable());
     }
 
     @Required
@@ -981,34 +980,28 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     public boolean checkIfUserCommentStorageAvailable() {
-        if (isUserCommentStorageAvailable == null) {
-            try {
-                // even if table is empty we can set user comments
-                entityManager.createQuery(
-                        "select count(sm) from SessionMetaDataEntity sm")
-                        .getSingleResult();
-                isUserCommentStorageAvailable = true;
-            } catch (Exception e) {
-                isUserCommentStorageAvailable = false;
-                log.warn("Could not access SessionMetaDataTable", e);
-            }
+        try {
+            // even if table is empty we can set user comments
+            entityManager.createQuery(
+                    "select count(sm) from SessionMetaDataEntity sm")
+                    .getSingleResult();
+            return true;
+        } catch (Exception e) {
+            log.warn("Could not access SessionMetaDataTable", e);
         }
-        return isUserCommentStorageAvailable;
+        return false;
     }
 
     public boolean checkIfTagsStorageAvailable() {
-        if (isTagsStorageAvailable == null) {
-            try {
-                entityManager.createQuery(
+        try {
+            entityManager.createQuery(
                         "select 1 from TagEntity")
                         .getSingleResult();
-                isTagsStorageAvailable = true;
-            } catch (Exception e) {
-                isTagsStorageAvailable = false;
-                log.warn("Could not access TagEntity table");
-            }
+                return true;
+        } catch (Exception e) {
+            log.warn("Could not access TagEntity table");
         }
-        return isTagsStorageAvailable;
+        return false;
     }
 
     private List<TaskDataDto> fetchTaskDatas(Set<String> sessionIds, SessionMatchingSetup sessionMatchingSetup) {

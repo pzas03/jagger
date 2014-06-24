@@ -169,7 +169,6 @@
     <!--=======Fetching session data=========-->
     <bean id="sessionInfoService" class="com.griddynamics.jagger.dbapi.provider.SessionInfoProviderImpl">
         <property name="dataSaverService" ref="dataSaverService"/>
-        <property name="databaseService" ref="databaseService"/>
     </bean>
 
     <!--=======Fetching data for plots=========-->

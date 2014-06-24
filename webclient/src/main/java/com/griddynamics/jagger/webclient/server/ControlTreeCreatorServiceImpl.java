@@ -32,7 +32,6 @@ public class ControlTreeCreatorServiceImpl implements ControlTreeCreatorService 
 
         SessionMatchingSetup sessionMatchingSetup = new SessionMatchingSetup(
                 isShowOnlyMatchedTests,
-//                databaseService.getWebClientProperties().isShowOnlyMatchedTests(),
                 EnumSet.of(SessionMatchingSetup.MatchBy.ALL));
 
         return databaseService.getControlTreeForSessions(sessionIds,sessionMatchingSetup);
