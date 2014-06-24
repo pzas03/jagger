@@ -228,9 +228,6 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
             Double value = metricValues.get(metricEntity).getValue();
             Decision decision = Decision.OK;
 
-            //todo ??? JFG-744 docu for decision making with use of limits
-            // !!! mention in docu
-
             // if metric entity already was used to take decision we will not use it
             // 'limit to metric' relation should be 'one to many' or 'one to one'
             if (duplicatedMetrics.contains(metricEntity)) {
