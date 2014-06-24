@@ -1410,7 +1410,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             for (DecisionPerTaskEntity decisionPerTaskEntity : decisionPerTaskEntityList) {
                 TaskDecisionDto taskDecisionDto = new TaskDecisionDto();
-                taskDecisionDto.setTaskId(decisionPerTaskEntity.getTaskData().getId());
+                taskDecisionDto.setId(decisionPerTaskEntity.getTaskData().getId());
                 taskDecisionDto.setDecision(Decision.valueOf(decisionPerTaskEntity.getDecision()));
 
                 taskDecisionDtoSet.add(taskDecisionDto);
@@ -1566,6 +1566,16 @@ public class DatabaseServiceImpl implements DatabaseService {
         }
 
         return result;
+    }
+
+    @Override
+    public TaskData getTaskData(String taskId, String sessionId) {
+        return fetchUtil.getTaskData(taskId,sessionId);
+    }
+
+    @Override
+    public Map<Long, TaskData> getTaskData(Collection<Long> ids) {
+        return fetchUtil.getTaskData(ids);
     }
 
 

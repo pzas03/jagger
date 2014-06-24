@@ -34,6 +34,7 @@ public class TestEntity {
 
     /** Status of execution of this test. FATAL when test failed during execution (f.e. due to some workload configuration timeout) */
     private Decision testExecutionStatus;
+    private Decision decision;
 
     /** Get test name in format [test group name] [test name] */
     public String getName() {
@@ -107,6 +108,15 @@ public class TestEntity {
         this.testExecutionStatus = testExecutionStatus;
     }
 
+    /** Get decision per test if limits based decision maker was used during this test */
+    public Decision getDecision() {
+        return decision;
+    }
+
+    public void setDecision(Decision decision) {
+        this.decision = decision;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -114,6 +124,7 @@ public class TestEntity {
 
         TestEntity that = (TestEntity) o;
 
+        if (decision != that.decision) return false;
         if (description != null ? !description.equals(that.description) : that.description != null) return false;
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (load != null ? !load.equals(that.load) : that.load != null) return false;
@@ -138,6 +149,7 @@ public class TestEntity {
         result = 31 * result + (startDate != null ? startDate.hashCode() : 0);
         result = 31 * result + (testGroupIndex != null ? testGroupIndex.hashCode() : 0);
         result = 31 * result + (testExecutionStatus != null ? testExecutionStatus.hashCode() : 0);
+        result = 31 * result + (decision != null ? decision.hashCode() : 0);
         return result;
     }
 
@@ -152,6 +164,7 @@ public class TestEntity {
                 ", startDate='" + startDate + '\'' +
                 ", testGroupIndex=" + testGroupIndex +
                 ", testExecutionStatus=" + testExecutionStatus +
+                ", decision=" + decision +
                 '}';
     }
 }
