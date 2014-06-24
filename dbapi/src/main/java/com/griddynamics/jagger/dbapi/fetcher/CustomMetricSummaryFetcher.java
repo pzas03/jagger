@@ -9,6 +9,7 @@ import com.griddynamics.jagger.dbapi.util.MetricNameUtil;
 
 import javax.persistence.PersistenceException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.*;
 
 public class CustomMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
@@ -67,7 +68,7 @@ public class CustomMetricSummaryFetcher extends SummaryDbMetricDataFetcher {
             if (mas[0] == null) continue;
 
             MetricValueDto value = new MetricValueDto();
-            value.setValue(new DecimalFormat("0.0###").format(mas[0]));
+            value.setValue(new DecimalFormat("0.0###", new DecimalFormatSymbols(Locale.ENGLISH)).format(mas[0]));
 
             value.setSessionId(Long.parseLong((String)mas[1]));
             metricDto.getValues().add(value);
