@@ -1057,7 +1057,6 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             //a first list element is a map with test nodes
             //a second is a map with nodes for session scope
-            //This is actually for both lists
             List<Map<TaskDataDto, List<PlotNode>>> maps = separateTestAndSessionScope(metricsPlotsMapFuture.get());
             List<Map<TaskDataDto, List<PlotNode>>> monitoringMaps = separateTestAndSessionScope(monitoringNewPlotsMapFuture.get());
 
