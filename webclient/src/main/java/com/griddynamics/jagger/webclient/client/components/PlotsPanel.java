@@ -10,7 +10,6 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.*;
-import com.google.gwt.user.client.ui.Composite;
 import com.googlecode.gflot.client.Series;
 import com.googlecode.gflot.client.SeriesData;
 import com.googlecode.gflot.client.SimplePlot;
@@ -47,6 +46,7 @@ public class PlotsPanel extends Composite {
     public PlotsPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
 
+        layoutPanel.setChildHeight(plotContainerHeight);
         setUpButtonPanel();
     }
 
@@ -118,6 +118,12 @@ public class PlotsPanel extends Composite {
             }
         });
 
+        layoutPanel.setAdditionalHeightForChild(
+                plotContainer.getDragPanelHeight()
+                + plotContainer.getPlotRepresentation().getZoomPanelHeight()
+                + plotContainer.getPlotRepresentation().getScrollPanelHeight()
+                + plotContainer.getPlotRepresentation().getXAxisLabelHeight()
+        );
         layoutPanel.addChild(plotContainer);
         childrenCount = layoutPanel.getAllChildren().size();
         setMaxRange();
@@ -371,7 +377,7 @@ public class PlotsPanel extends Composite {
         @Override
         public void onValueChange(ValueChangeEvent<Integer> integerValueChangeEvent) {
             plotContainerHeight = integerValueChangeEvent.getValue();
-            layoutPanel.changeChildrenHeight(plotContainerHeight + "px");
+            layoutPanel.changeChildrenHeight(plotContainerHeight);
         }
     }
 }

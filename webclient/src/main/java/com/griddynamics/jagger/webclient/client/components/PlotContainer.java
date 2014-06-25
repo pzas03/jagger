@@ -6,6 +6,7 @@ import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.*;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
 import com.sencha.gxt.dnd.core.client.*;
+import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
 import com.sencha.gxt.widget.core.client.menu.Item;
 import com.sencha.gxt.widget.core.client.menu.Menu;
 import com.sencha.gxt.widget.core.client.menu.MenuItem;
@@ -13,7 +14,7 @@ import com.sencha.gxt.widget.core.client.menu.MenuItem;
 
 /**
  * Draggable container that holds plot representation */
-public class PlotContainer extends VerticalPanel {
+public class PlotContainer extends  VerticalLayoutContainer {
 
     private PlotRepresentation plotRepresentation;
 
@@ -25,7 +26,13 @@ public class PlotContainer extends VerticalPanel {
 
     private HorizontalPanel dragPanel;
 
-    public PlotContainer(String id, String plotHeader, PlotRepresentation chart, PlotSaver plotSaver/*, boolean closeEnabled*/) {
+    private final int DRAG_PANEL_HEIGHT = 20;
+
+    public int getDragPanelHeight() {
+        return DRAG_PANEL_HEIGHT;
+    }
+
+    public PlotContainer(String id, String plotHeader, PlotRepresentation chart, PlotSaver plotSaver) {
         super();
         this.getElement().setId(id);
         this.plotRepresentation = chart;
@@ -33,6 +40,8 @@ public class PlotContainer extends VerticalPanel {
         this.plotHeader = new TextBox();
         this.plotHeader.setText(plotHeader);
         initContainer();
+
+        setStyleName(JaggerResources.INSTANCE.css().padding2px());
     }
 
     private void initDragAndDropBehavior() {
@@ -83,9 +92,10 @@ public class PlotContainer extends VerticalPanel {
 
         this.setWidth("100%");
         dragPanel = new HorizontalPanel();
-        dragPanel.setVerticalAlignment(ALIGN_MIDDLE);
+        dragPanel.setVerticalAlignment(HorizontalPanel.ALIGN_MIDDLE);
         dragPanel.addStyleName(JaggerResources.INSTANCE.css().dragLabel());
         dragPanel.addStyleName(JaggerResources.INSTANCE.css().draggable());
+        dragPanel.setHeight(DRAG_PANEL_HEIGHT + "px");
         dragPanel.add(plotHeader);
         plotHeader.setEnabled(false);
         plotHeader.setStyleName(JaggerResources.INSTANCE.css().plotHeader());
@@ -215,6 +225,7 @@ public class PlotContainer extends VerticalPanel {
 
     @Override
     public void setHeight(String height) {
+        plotRepresentation.setHeight("100%");
         plotRepresentation.getSimplePlot().setHeight(height);
     }
 }

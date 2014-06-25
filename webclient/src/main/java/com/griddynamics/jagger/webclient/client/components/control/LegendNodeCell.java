@@ -3,13 +3,15 @@ package com.griddynamics.jagger.webclient.client.components.control;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.griddynamics.jagger.dbapi.model.LegendNode;
+import com.sencha.gxt.core.client.util.Format;
 
 public class LegendNodeCell extends AbstractCell<LegendNode> {
+
     @Override
     public void render(Context context, LegendNode value, SafeHtmlBuilder sb) {
         sb.appendHtmlConstant(
                 (value.getLine() != null ? "<font color=\'" + value.getLine().getColor() + "\'>&#9604;&#9604;</font>" : "") +
-                        "<font>  " + value.getDisplayName() + "</font>");
+                        "<font qtip='" + Format.htmlEncode(value.getDisplayName()) + "'>  " + value.getDisplayName() + "</font>");
     }
 
     private static LegendNodeCell cell;

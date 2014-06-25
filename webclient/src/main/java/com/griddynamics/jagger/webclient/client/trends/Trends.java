@@ -87,12 +87,6 @@ public class Trends extends DefaultActivity {
     SimplePager sessionsPager;
 
     @UiField
-    ScrollPanel scrollPanelTrends;
-
-    @UiField
-    ScrollPanel scrollPanelMetrics;
-
-    @UiField
     PlotsPanel plotTrendsPanel;
 
     @UiField
@@ -640,17 +634,7 @@ public class Trends extends DefaultActivity {
                 })
         .setZoomRange(false).setMinimum(yMinimum));
 
-        // todo : setShow(false)
-        plotOptions.setLegendOptions(LegendOptions.create().setPosition(LegendOptions.LegendPosition.NORTH_EAST)
-                .setNumOfColumns(2)
-                .setBackgroundOpacity(0.7)
-                .setLabelFormatter(new LegendOptions.LabelFormatter() {
-                    @Override
-                    public String formatLabel(String s, Series series) {
-                        return "<span style=\"font-size:13px\">" + s + "</span> ";
-                    }
-                }));
-
+        plotOptions.setLegendOptions(LegendOptions.create().setShow(false));
 
         plotOptions.setCanvasEnabled(true);
         if (markings == null) {
@@ -760,7 +744,6 @@ public class Trends extends DefaultActivity {
                         true
                 );
             }
-            scrollPanelTrends.scrollToBottom();
             hasChanged = false;
         }
     }
@@ -772,7 +755,6 @@ public class Trends extends DefaultActivity {
         for (String plotId : chosenPlots.keySet()) {
             if (!plotPanel.containsElementWithId(plotId)) {
                 renderPlots(plotPanel, chosenPlots.get(plotId), plotId);
-                scrollPanelMetrics.scrollToBottom();
             }
         }
     }
@@ -1074,8 +1056,6 @@ public class Trends extends DefaultActivity {
 
             // Add X axis label
             final String xAxisLabel = plotSeriesDto.getXAxisLabel();
-            Label xLabel = new Label(xAxisLabel);
-            xLabel.addStyleName(getResources().css().xAxisLabel());
 
             Label plotLegend = new Label("PLOT LEGEND");
             plotLegend.addStyleName(getResources().css().plotLegend());
@@ -1113,11 +1093,7 @@ public class Trends extends DefaultActivity {
             zoomPanel.add(zoomOutLabel);
             zoomPanel.add(zoomBack);
 
-            SimplePanel sp = new SimplePanel();
-            sp.setWidget(legendTree);
-
-            PlotRepresentation plotRepresentation = new PlotRepresentation(zoomPanel, plot, xLabel);
-            plotRepresentation.setLegendPanel(sp);
+            PlotRepresentation plotRepresentation = new PlotRepresentation(zoomPanel, plot, legendTree, xAxisLabel);
             PlotContainer pc = new PlotContainer(id, plotSeriesDto.getPlotHeader(), plotRepresentation, plotSaver);
 
             panel.addElement(pc);

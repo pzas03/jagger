@@ -81,8 +81,6 @@ public interface JaggerResources extends ClientBundle {
 
         String plotLegend();
 
-        String plotPanel();
-
         String summaryPanel();
 
         String nodesPanel();
@@ -132,5 +130,11 @@ public interface JaggerResources extends ClientBundle {
         String plotSettingsMenu();
 
         String draggable();
+
+        String legendPanel();
+
+        String padding2px();
+
+        String overflowYScroll();
     }
 }

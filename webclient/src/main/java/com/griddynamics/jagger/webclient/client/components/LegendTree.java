@@ -12,6 +12,7 @@ import com.griddynamics.jagger.webclient.client.components.control.LegendNodeCel
 import com.sencha.gxt.core.client.ValueProvider;
 import com.sencha.gxt.data.shared.ModelKeyProvider;
 import com.sencha.gxt.data.shared.TreeStore;
+import com.sencha.gxt.widget.core.client.tips.QuickTip;
 
 /**
  * Implementation of AbstractTree that represents interactive legend as tree.
@@ -67,6 +68,11 @@ public class LegendTree extends AbstractTree<LegendNode, LegendNode> {
 
         this.setAutoExpand(true);
         this.setCell(LegendNodeCell.getInstance());
+        this.setSelectionModel(null);
+
+        // register tip manager for tree
+        QuickTip qt = new QuickTip(this);
+        qt.setShadow(false);
     }
 
     @Override
