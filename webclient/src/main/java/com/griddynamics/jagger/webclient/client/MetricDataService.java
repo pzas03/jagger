@@ -32,5 +32,5 @@ public interface MetricDataService extends RemoteService {
         }
     }
 
-    public Map<MetricNode, List<MetricDto>> getMetrics(Set<MetricNode> metricNames, boolean isEnableDecisionsPerMetricHighlighting) throws RuntimeException;
+    public Map<MetricNode, List<MetricDto>> getMetrics(Set<MetricNode> metricNames, boolean isEnableDecisionsPerMetricFetching) throws RuntimeException;
 }

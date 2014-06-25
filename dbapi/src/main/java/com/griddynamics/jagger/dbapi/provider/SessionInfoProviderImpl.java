@@ -33,8 +33,8 @@ public class SessionInfoProviderImpl implements SessionInfoProvider {
     private EntityManager entityManager;
     private DataSaverService dataSaverService;
 
-    private boolean isUserCommentStorageAvailable;
-    private boolean isTagsStorageAvailable;
+    private boolean isUserCommentStorageAvailable = false;
+    private boolean isTagsStorageAvailable = false;
 
 
     public void setIsUserCommentStorageAvailable(Boolean isUserCommentStorageAvailable) {
