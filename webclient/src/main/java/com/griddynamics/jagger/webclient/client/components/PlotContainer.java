@@ -11,8 +11,6 @@ import com.sencha.gxt.widget.core.client.menu.Item;
 import com.sencha.gxt.widget.core.client.menu.Menu;
 import com.sencha.gxt.widget.core.client.menu.MenuItem;
 
-import java.util.Arrays;
-
 /**
  * Draggable container that holds plot representation */
 public class PlotContainer extends VerticalPanel {
@@ -132,7 +130,7 @@ public class PlotContainer extends VerticalPanel {
         closeImageButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                plotsPanel.deselectMetricNodes(Arrays.asList(PlotContainer.this.getPlotRepresentation().getMetricNode()));
+                plotsPanel.deselectMetricNodes(PlotContainer.this.getPlotRepresentation().getMetricNode());
             }
         });
         closeImageButton.addMouseOverHandler(new MouseOverHandler() {
