@@ -130,7 +130,7 @@ public class PlotContainer extends VerticalPanel {
         closeImageButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                plotsPanel.deselectMetricNodes(PlotContainer.this.getPlotRepresentation().getMetricNode());
+                plotsPanel.deselectMetricNode(PlotContainer.this.getPlotRepresentation().getMetricNode());
             }
         });
         closeImageButton.addMouseOverHandler(new MouseOverHandler() {

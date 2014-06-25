@@ -59,7 +59,7 @@ public class PlotsPanel extends Composite {
     /**
      * Deselect metric node in control tree. This will lead to plot removal from plot panel
      * @param metricNode metric node */
-    public void deselectMetricNodes(MetricNode metricNode) {
+    public void deselectMetricNode(MetricNode metricNode) {
         controlTree.setChecked(metricNode, Tree.CheckState.UNCHECKED);
     }
 
