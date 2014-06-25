@@ -1587,12 +1587,17 @@ public class Trends extends DefaultActivity {
 
                 List<MetricDto> toRemoveFromTable = new ArrayList<MetricDto>();
                 // Remove plots from display which were unchecked
-                Set<MetricNode> metricIdsSet = new HashSet<MetricNode>(chosenMetrics.keySet());
-                for (MetricNode metricNode : metricIdsSet) {
+                Set<MetricNode> metricNodesToRemove = new HashSet<MetricNode>();
+                for (MetricNode metricNode : chosenMetrics.keySet()) {
                     if (!selectedMetricsIds.contains(metricNode.getId())) {
                         toRemoveFromTable.addAll(chosenMetrics.get(metricNode));
+                        metricNodesToRemove.add(metricNode);
+                    }
+                }
+                if (!metricNodesToRemove.isEmpty()) {
+                    plotTrendsPanel.removeByMetricNodes(metricNodesToRemove);
+                    for (MetricNode metricNode : metricNodesToRemove) {
                         chosenMetrics.remove(metricNode);
-                        plotTrendsPanel.removeByMetricNode(metricNode);
                     }
                 }
 
@@ -1693,8 +1698,8 @@ public class Trends extends DefaultActivity {
          */
         public void removePlots(Set<MetricNode> metricNodes) {
 
+            plotPanel.removeByMetricNodes(metricNodes);
             for (MetricNode metricNode : metricNodes) {
-                plotPanel.removeByMetricNode(metricNode);
                 chosenPlots.remove(metricNode);
             }
         }

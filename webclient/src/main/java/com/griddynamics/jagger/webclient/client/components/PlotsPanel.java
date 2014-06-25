@@ -5,21 +5,22 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.event.logical.shared.AttachEvent;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.NativeHorizontalScrollbar;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.gflot.client.Series;
 import com.googlecode.gflot.client.SeriesData;
 import com.googlecode.gflot.client.SimplePlot;
 import com.googlecode.gflot.client.Zoom;
 import com.griddynamics.jagger.dbapi.model.MetricNode;
-import com.sencha.gxt.widget.core.client.Slider;
-import com.sencha.gxt.widget.core.client.button.TextButton;
-import com.sencha.gxt.widget.core.client.event.SelectEvent;
 import com.sencha.gxt.widget.core.client.tree.Tree;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Class that hold widgets of type PlotContainer with dynamic layout feature.
@@ -56,13 +57,25 @@ public class PlotsPanel extends Composite {
     }
 
     /**
-     * Remove widget from layout panel by metric node
-     * @param metricNode metric node */
-    public void removeByMetricNode(MetricNode metricNode) {
+     * Deselect metric node in control tree. This will lead to plot removal from plot panel
+     * @param metricNodes metric nodes */
+    public void deselectMetricNodes(Collection<MetricNode> metricNodes) {
+        for (MetricNode metricNode : metricNodes) {
+            controlTree.setChecked(metricNode, Tree.CheckState.UNCHECKED);
+        }
+    }
 
-        layoutPanel.removeChild(metricNode.getId());
+    /**
+     * Remove widgets from layout panel by metric node
+     * @param metricNodes metric nodes */
+     public void removeByMetricNodes(Collection<MetricNode> metricNodes) {
+
+        Set<String> ids = new HashSet<String>();
+        for (MetricNode metricNode : metricNodes) {
+            ids.add(metricNode.getId());
+        }
+        layoutPanel.removeChildren(ids);
         childrenCount = layoutPanel.getAllChildren().size();
-        controlTree.setChecked(metricNode, Tree.CheckState.UNCHECKED);
         setMaxRange();
     }
 
