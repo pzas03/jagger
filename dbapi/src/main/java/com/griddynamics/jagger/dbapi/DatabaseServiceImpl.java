@@ -286,7 +286,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                 }
             });
 
-            result.put(metricNode, createPlotIntegratedDto(metricNode, plotDatasetDtoList));
+            result.put(metricNode, createPlotIntegratedDto(metricNode, plotDatasetDtoList, "Time, sec"));
         }
 
         log.debug("Total time of plots for metricNodes retrieving : " + (System.currentTimeMillis() - temp));
@@ -298,11 +298,10 @@ public class DatabaseServiceImpl implements DatabaseService {
      * Creates plot for given MetricNode and lines referred to it
      * @param metricNode metric node for witch plot should be created
      * @param curves lines of plot
+     * @param xAxisLabel x axis label
      * @return plot for given MetricNode */
-    private PlotIntegratedDto createPlotIntegratedDto(MetricNode metricNode, List<PlotSingleDto> curves) {
+    private PlotIntegratedDto createPlotIntegratedDto(MetricNode metricNode, List<PlotSingleDto> curves, String xAxisLabel) {
 
-        // at the moment all MetricNameDtos in MetricNode have same taskIds => it is valid to use first one for legend provider
-        // TODO for session scope plot headers and legend will available after JFG-738
         String taskName = metricNode.getMetricNameDtoList().get(0).getTest().getTaskName();
 
         MetricNameDto firstMetricNameDto = metricNode.getMetricNameDtoList().get(0);
@@ -311,7 +310,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             plotHeader = legendProvider.generateSessionScopePlotHeader(metricNode.getDisplayName());
         else
             plotHeader = legendProvider.generatePlotHeader(taskName, metricNode.getDisplayName());
-        PlotIntegratedDto psd = new PlotIntegratedDto(curves, "Time, sec", "", plotHeader);
+        PlotIntegratedDto psd = new PlotIntegratedDto(curves, xAxisLabel, "", plotHeader);
         psd.setLegendTree(createLegendTree(metricNode, curves));
         return psd;
     }
@@ -530,7 +529,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             SummaryIntegratedDto summaryDto = new SummaryIntegratedDto();
             summaryDto.setSummarySingleDtoList(sumCollection);
-            summaryDto.setPlotIntegratedDto(createPlotIntegratedDto(metricNode, plotSingleDtos));
+            summaryDto.setPlotIntegratedDto(createPlotIntegratedDto(metricNode, plotSingleDtos, "Sessions"));
             resultMap.put(metricNode, summaryDto);
         }
 
