@@ -48,7 +48,7 @@ public class DataProcessingUtil {
     }
 
     /**
-     * Generate Curve from values in MetricDto object as
+     * Generate Curve from values in SummarySingleDto object as
      * {(sessionId1, val1),(sessionId2, val2), ... (sessionIdn, valn)}
      *
      * @param metricDto contains values to generate curve

@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Set;
 
 /**
- * Represent single raw in summary table for one metric.
+ * Represent single row in summary table for one metric.
  * Refers to MetricNameDto
  *
  * @author kirilkadurilka

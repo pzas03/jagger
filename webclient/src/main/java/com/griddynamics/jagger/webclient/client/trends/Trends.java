@@ -411,8 +411,8 @@ public class Trends extends DefaultActivity {
      * fields that contain gid/plot information
      * to provide rendering in time of choosing special tab(mainTab) to avoid view problems
      */
-    HashMap<MetricNode, SummaryIntegratedDto> chosenMetrics = new HashMap<MetricNode, SummaryIntegratedDto>();
-    Map<MetricNode, PlotIntegratedDto> chosenPlots = new HashMap<MetricNode, PlotIntegratedDto>();
+    private HashMap<MetricNode, SummaryIntegratedDto> chosenMetrics = new HashMap<MetricNode, SummaryIntegratedDto>();
+    private Map<MetricNode, PlotIntegratedDto> chosenPlots = new HashMap<MetricNode, PlotIntegratedDto>();
 
     /**
      * Field to hold number of sessions that were chosen.
@@ -743,12 +743,10 @@ public class Trends extends DefaultActivity {
                     continue;
                 }
 
-                SummaryIntegratedDto cur = entry.getValue();
-
                 renderPlots(
                         plotTrendsPanel,
                         entry.getKey(),
-                        cur.getPlotIntegratedDto(),
+                        entry.getValue().getPlotIntegratedDto(),
                         plotId,
                         true
                 );
