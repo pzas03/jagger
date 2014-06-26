@@ -66,11 +66,9 @@ public class PlotRepresentation extends LayoutPanel {
         this.simplePlot = simplePlot;
         this.metricNode = metricNode;
 
-        this.add(zoomPanel);
-        this.add(simplePlot);
         this.xLabel = new Label(xLabelString);
         this.xLabel.addStyleName(JaggerResources.INSTANCE.css().xAxisLabel());
-        this.setHeight(X_AXIX_LABEL_HEIGHT + "px");
+        this.xLabel.setHeight(X_AXIX_LABEL_HEIGHT + "px");
 
         this.legendTree = legendTree;
 
