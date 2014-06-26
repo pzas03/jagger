@@ -91,6 +91,13 @@ public class MonitoringMetricPlotFetcher extends AbstractMetricPlotFetcher {
         return result;
     }
 
+    /**
+     * @param sessionIds is a collection of id of sessions
+     * @param workloadTaskDataIds is a collection of workload task id
+     * @param agentNames is a collection of all agent names
+     * @param monitoringDescriptions is a collection of monitoring descriptions
+     * @return  @return collection of objects {a description, a session id, an average value, a box identifier, an url of system under test, a task id}
+     */
     private List<Object[]> getRawDataDbCall(
             Collection<String> sessionIds, Collection<Long> workloadTaskDataIds,
             Collection<String> agentNames, Collection<String> monitoringDescriptions) {

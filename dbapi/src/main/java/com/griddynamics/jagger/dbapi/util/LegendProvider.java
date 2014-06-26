@@ -1,5 +1,7 @@
 package com.griddynamics.jagger.dbapi.util;
 
+import com.griddynamics.jagger.dbapi.model.NameTokens;
+
 /**
  * Class contains methods to create legends for metric`s curves and plot headers for plots.
  *
@@ -43,6 +45,18 @@ public class LegendProvider {
         return taskName + ", " + plotName;
     }
 
+
+    /**
+     * Creates plot header for the session scope plot
+     *
+     * @param plotName displayName of PlotNode for witch plot plot-header should be created
+     * @return plot header of the session scope plot
+     */
+    public String generateSessionScopePlotHeader(String plotName) {
+
+        return NameTokens.SESSION_SCOPE_PLOTS + ", " + plotName;
+    }
+    
 
     /**
      * Get metric description(displayName) from legend

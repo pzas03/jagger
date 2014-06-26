@@ -22,6 +22,6 @@ public class LegendTreeViewGroupRuleProvider {
         }
 
         // Root filter - will match all metrics
-        return new TreeViewGroupRule(Rule.By.ID,rootId,rootId,".*",firstLevelFilters);
+        return new TreeViewGroupRule(Rule.By.ID, rootId, rootId, ".*", firstLevelFilters);
     }
 }

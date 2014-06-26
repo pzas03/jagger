@@ -11,7 +11,6 @@ import java.util.*;
 
 public class LatencyMetricPlotFetcher extends StandardMetricPlotFetcher<LatencyMetricPlotFetcher.LatencyRawData> {
 
-
     @Override
     protected Iterable<? extends PlotSingleDto> assemble(Collection<LatencyRawData> rawDataList) {
 
@@ -31,11 +30,13 @@ public class LatencyMetricPlotFetcher extends StandardMetricPlotFetcher<LatencyM
         }
 
         String legend = legendProvider.generatePlotLegend(sessionId, DefaultWorkloadParameters.LATENCY.getDescription(), true);
-        PlotSingleDto plotDatasetDto = new PlotSingleDto(pointDtoLatencyList, legend, ColorCodeGenerator.getHexColorCode());
+        PlotSingleDto plotDatasetDto = new PlotSingleDto(pointDtoLatencyList, legend,
+                ColorCodeGenerator.getHexColorCode(ColorCodeGenerator.LATENCY_COLOR, sessionId));
         plotDatasetDtoList.add(plotDatasetDto);
 
         legend = legendProvider.generatePlotLegend(sessionId, DefaultWorkloadParameters.LATENCY_STD_DEV.getDescription(), true);
-        plotDatasetDto = new PlotSingleDto(pointDtoLatencyStdDevList, legend, ColorCodeGenerator.getHexColorCode());
+        plotDatasetDto = new PlotSingleDto(pointDtoLatencyStdDevList, legend,
+                ColorCodeGenerator.getHexColorCode(ColorCodeGenerator.LATENCY_STD_DEV_COLOR, sessionId));
         plotDatasetDtoList.add(plotDatasetDto);
 
         return plotDatasetDtoList;

@@ -15,6 +15,7 @@ import java.util.*;
  * Abstract class that deal with MetricRawData data to create PlotDatasetDto object
  * todo : all PlotFetchers can be refactored to extend this abstract class
  */
+
 public abstract class AbstractMetricPlotFetcher extends PlotsDbMetricDataFetcher {
 
     @Override
@@ -30,6 +31,10 @@ public abstract class AbstractMetricPlotFetcher extends PlotsDbMetricDataFetcher
             log.warn("No plot data found for metrics : {}", metricNames);
             return Collections.emptySet();
         }
+        return getResult(allRawData, metricNames);
+    }
+
+    protected Set<Pair<MetricNameDto, List<PlotSingleDto>>> getResult(Collection<MetricRawData> allRawData, List<MetricNameDto> metricNames) {
 
         Map<Long, Multimap<String, MetricRawData>> taskIdMetricIdRawMap = createMappedPlotDatasets(metricNames);
 
@@ -89,7 +94,7 @@ public abstract class AbstractMetricPlotFetcher extends PlotsDbMetricDataFetcher
                         sessionId,
                         metricNameDto.getMetricDisplayName(),
                         true),
-                ColorCodeGenerator.getHexColorCode());
+                ColorCodeGenerator.getHexColorCode(metricNameDto.getMetricName(), sessionId));
     }
 
 
@@ -119,14 +124,13 @@ public abstract class AbstractMetricPlotFetcher extends PlotsDbMetricDataFetcher
         return taskIdMap;
     }
 
+    public static class MetricRawData {
 
-    protected static class MetricRawData {
-
-        String metricId;
-        Long workloadTaskDataId;
-        String sessionId;
-        Long time;
-        Double value;
+        private String metricId;
+        private Long workloadTaskDataId;
+        private String sessionId;
+        private Long time;
+        private Double value;
 
         public void setMetricId(String metricId) {
             this.metricId = metricId;

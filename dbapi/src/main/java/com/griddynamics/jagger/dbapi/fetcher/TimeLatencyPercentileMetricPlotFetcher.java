@@ -31,12 +31,12 @@ public class TimeLatencyPercentileMetricPlotFetcher extends StandardMetricPlotFe
 
             previousPercentileValue = y;
         }
-
+        int colorId = 0;
         for (Map.Entry<Double, List<PointDto>> entry : percentiles.entrySet()) {
             DefaultWorkloadParameters parameter = DefaultWorkloadParameters.fromDescription(entry.getKey().toString());
             String description = (parameter == null ? entry.getKey().toString() : parameter.getDescription());
             String legend = legendProvider.generatePlotLegend(sessionId, description, true);
-            plotDatasetDtoList.add(new PlotSingleDto(entry.getValue(), legend, ColorCodeGenerator.getHexColorCode()));
+            plotDatasetDtoList.add(new PlotSingleDto(entry.getValue(), legend, ColorCodeGenerator.getHexColorCode(String.valueOf(colorId++), sessionId)));
         }
 
         return plotDatasetDtoList;

@@ -237,6 +237,18 @@
                     </array>
                 </entry>
 
+                <entry>
+                    <key>
+                        <bean class="com.griddynamics.jagger.dbapi.parameter.GroupKey">
+                            <constructor-arg index="0" value="Thread Count"/>
+                        </bean>
+                    </key>
+                    <array value-type="com.griddynamics.jagger.dbapi.parameter.DefaultMonitoringParameters">
+                        <value>THREAD_COUNT</value>
+                        <value>THREAD_PEAK_COUNT</value>
+                    </array>
+                </entry>
+
             </map>
         </constructor-arg>
     </bean>

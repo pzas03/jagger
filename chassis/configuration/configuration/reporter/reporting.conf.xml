@@ -34,10 +34,6 @@
         </property>
     </bean>
 
-    <bean id="defaultSessionStatusDecisionMaker" class="com.griddynamics.jagger.engine.e1.reporting.DefaultSessionStatusDecisionMaker" factory-method="getConfigurator">
-        <property name="successRateThreshold" value="${chassis.master.reporting.successrate.threshold}"/>
-    </bean>
-
     <alias name="sessionIdProviderReadOnly_${report.only}" alias="sessionIdProvider"/>
     <alias name="sessionIdProviderBean" alias="sessionIdProviderReadOnly_true"/>
     <alias name="sequenceSessionIdProvider" alias="sessionIdProviderReadOnly_false"/>
@@ -66,6 +62,8 @@
           class="com.griddynamics.jagger.engine.e1.reporting.DefaultSessionStatusDecisionMaker">
         <property name="description"
                   value="Status is based on success rate. Session status is a status of the worst test."/>
+        <property name="successRateThreshold" value="${chassis.master.reporting.successrate.threshold}"/>
+        <property name="doNotUseDeprecatedMethodToSetTestStatus" value="${chassis.decision.maker.with.limits.is.only.decision.maker}"/>
     </bean>
 
     <bean id="abstractReportProviderBean" class="com.griddynamics.jagger.reporting.AbstractReportProviderBean" abstract="true">
@@ -279,6 +277,8 @@
         <property name="customTestGroupMetricSummaryFetcher" ref="customTestGroupMetricSummaryFetcher"/>
         <property name="latencyMetricDataFetcher" ref="latencyMetricSummaryFetcher"/>
         <property name="validatorSummaryFetcher" ref="validatorSummaryFetcher"/>
+        <property name="sessionScopeTestGroupMetricPlotFetcher" ref="sessionScopeTestGroupMetricPlotFetcher"/>
+        <property name="sessionScopeMonitoringMetricPlotFetcher" ref="sessionScopeMonitoringMetricPlotFetcher"/>
 
         <property name="fetchUtil" ref="fetchUtil"/>
     </bean>
@@ -321,6 +321,21 @@
         <property name="legendProvider" ref="legendProvider"/>
         <property name="threadPool" ref="executorService"/>
         <property name="monitoringPlotGroups" ref="monitoringPlotGroups"/>
+    </bean>
+
+
+    <bean id="sessionScopeTestGroupMetricPlotFetcher" class="com.griddynamics.jagger.dbapi.fetcher.SessionScopeTestGroupMetricPlotFetcher">
+        <property name="legendProvider" ref="legendProvider"/>
+        <property name="threadPool" ref="executorService"/>
+        <property name="abstractMetricPlotFetcher" ref="customTestGroupMetricPlotFetcher"/>
+        <property name="fetchUtil" ref="fetchUtil"/>
+    </bean>
+
+    <bean id="sessionScopeMonitoringMetricPlotFetcher" class="com.griddynamics.jagger.dbapi.fetcher.SessionScopeMonitoringMetricPlotFetcher">
+        <property name="legendProvider" ref="legendProvider"/>
+        <property name="threadPool" ref="executorService"/>
+        <property name="abstractMetricPlotFetcher" ref="monitoringMetricPlotFetcher"/>
+        <property name="fetchUtil" ref="fetchUtil"/>
     </bean>
 
     <!--=======Fetching data for Summary table=========-->
@@ -675,6 +690,18 @@
                     <array value-type="com.griddynamics.jagger.dbapi.parameter.DefaultMonitoringParameters">
                         <value>DISKS_READ_BYTES_TOTAL</value>
                         <value>DISKS_WRITE_BYTES_TOTAL</value>
+                    </array>
+                </entry>
+
+                <entry>
+                    <key>
+                        <bean class="com.griddynamics.jagger.dbapi.parameter.GroupKey">
+                            <constructor-arg index="0" value="Thread Count"/>
+                        </bean>
+                    </key>
+                    <array value-type="com.griddynamics.jagger.dbapi.parameter.DefaultMonitoringParameters">
+                        <value>THREAD_COUNT</value>
+                        <value>THREAD_PEAK_COUNT</value>
                     </array>
                 </entry>
 

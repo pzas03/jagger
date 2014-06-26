@@ -80,7 +80,7 @@ public class DataProcessingUtil {
         return new PlotSingleDto(
                 list,
                 legend,
-                ColorCodeGenerator.getHexColorCode()
+                ColorCodeGenerator.getHexColorCode(metricDto.getMetricName().getMetricName(), "ss")
         );
     }
 }

@@ -64,7 +64,7 @@ public class LatencyMetricSummaryFetcher extends DbMetricDataFetcher<SummarySing
             SummarySingleDto metricDto = resultMap.get(metricNameDto);
 
             SummaryMetricValueDto value = new SummaryMetricValueDto();
-            value.setValue(String.format("%.3f", (Double)temp[0] / 1000));
+            value.setValue(String.format(Locale.ENGLISH, "%.3f", (Double)temp[0] / 1000));
             value.setSessionId(Long.parseLong(temp[2].toString()));
             metricDto.getValues().add(value);
         }
