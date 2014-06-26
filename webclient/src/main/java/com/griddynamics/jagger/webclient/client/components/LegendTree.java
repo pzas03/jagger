@@ -14,6 +14,8 @@ import com.sencha.gxt.data.shared.ModelKeyProvider;
 import com.sencha.gxt.data.shared.TreeStore;
 import com.sencha.gxt.widget.core.client.tips.QuickTip;
 
+import java.util.List;
+
 /**
  * Implementation of AbstractTree that represents interactive legend as tree.
  */
@@ -23,6 +25,11 @@ public class LegendTree extends AbstractTree<LegendNode, LegendNode> {
      * Plot that would controlled with Legend tree
      */
     private SimplePlot plot;
+
+    /**
+     * null if it is metric, not null if it is trend */
+    // todo : JFG-803 simplify trends plotting mechanism
+    private List<Integer> trendSessionIds;
 
     /**
      * Plots panel where plot is situated
@@ -53,8 +60,10 @@ public class LegendTree extends AbstractTree<LegendNode, LegendNode> {
 
     /**
      * Constructor matches super class
+     *
+     * @param trendSessionIds - set null if it is metric, sorted list of session ids if it is trend
      */
-    public LegendTree(SimplePlot plot, PlotsPanel plotsPanel) {
+    public LegendTree(SimplePlot plot, PlotsPanel plotsPanel, List<Integer> trendSessionIds) {
         super(
                 new TreeStore<LegendNode>(new ModelKeyProvider<LegendNode>() {
                     @Override
@@ -65,6 +74,7 @@ public class LegendTree extends AbstractTree<LegendNode, LegendNode> {
                 VALUE_PROVIDER);
         this.plot = plot;
         this.plotsPanel = plotsPanel;
+        this.trendSessionIds = trendSessionIds;
 
         this.setAutoExpand(true);
         this.setCell(LegendNodeCell.getInstance());
@@ -96,7 +106,12 @@ public class LegendTree extends AbstractTree<LegendNode, LegendNode> {
                 Series series = Series.create().setId(item.getId()).setColor(plotSingleDto.getColor()).setLabel(plotSingleDto.getLegend());
                 SeriesHandler sh = plot.getModel().addSeries(series);
                 for (PointDto point: plotSingleDto.getPlotData()) {
-                    sh.add(DataPoint.of(point.getX(), point.getY()));
+                    if (trendSessionIds != null) {
+                        // it is trend
+                        sh.add(DataPoint.of(trendSessionIds.indexOf((int) point.getX()), point.getY()));
+                    } else {
+                        sh.add(DataPoint.of(point.getX(), point.getY()));
+                    }
                 }
 
             } else if (state == CheckState.UNCHECKED) {

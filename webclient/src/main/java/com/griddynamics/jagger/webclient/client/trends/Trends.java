@@ -594,6 +594,7 @@ public class Trends extends DefaultActivity {
         }
 
         if (isMetric) {
+            // todo : JFG-803 simplify trends plotting mechanism
             xAxisOptions
                 .setTickDecimals(0)
                 .setTickFormatter(new TickFormatter() {
@@ -1026,28 +1027,32 @@ public class Trends extends DefaultActivity {
         }
 
         final SimplePlot plot;
-        PlotModel plotModel;
+        List<Integer> trendSessionIds = null;
         if (isTrend) {
             // Trends plot panel
 
-            List<Integer> sessionIds = new ArrayList<Integer>();
+            // todo : JFG-803 simplify trends plotting mechanism
+            trendSessionIds = new ArrayList<Integer>();
+            double yMin = Double.MAX_VALUE;
             for (PlotSingleDto plotDatasetDto : plotSeriesDto.getPlotSeries()) {
                 // find all sessions in plot
                 for (PointDto pointDto : plotDatasetDto.getPlotData()) {
                     int sId = (int) pointDto.getX();
-                    if (!sessionIds.contains(sId)) {
-                        sessionIds.add(sId);
+                    if (!trendSessionIds.contains(sId)) {
+                        trendSessionIds.add(sId);
+                    }
+                    if (pointDto.getY() < yMin) {
+                        yMin = pointDto.getY();
                     }
                 }
             }
-            Collections.sort(sessionIds);
-            System.out.println("sessionIds : " + sessionIds);
-            plot = createPlot(panel, id, markings, plotSeriesDto.getXAxisLabel(), null, true, sessionIds);
+            Collections.sort(trendSessionIds);
+            plot = createPlot(panel, id, markings, plotSeriesDto.getXAxisLabel(), yMin, true, trendSessionIds);
         } else {
             plot = createPlot(panel, id, markings, plotSeriesDto.getXAxisLabel(), null, false, null);
         }
 
-        LegendTree legendTree = new LegendTree(plot, panel);
+        LegendTree legendTree = new LegendTree(plot, panel, trendSessionIds);
         MetricGroupNode<LegendNode> inTree = plotSeriesDto.getLegendTree();
 
         // populate legend tree with data
