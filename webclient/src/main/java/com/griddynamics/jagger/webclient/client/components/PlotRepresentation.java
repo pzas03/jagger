@@ -32,12 +32,12 @@ public class PlotRepresentation extends LayoutPanel {
 
     private final int ZOOM_PANEL_HEIGHT = 20;
     private final int SCROLL_PANEL_HEIGHT = 20;
-    private final int X_AXIX_LABEL_HEIGHT = 20;
+    private final int X_AXIS_LABEL_HEIGHT = 20;
 
     private Label legendLabel;
 
     public int getXAxisLabelHeight() {
-        return X_AXIX_LABEL_HEIGHT;
+        return X_AXIS_LABEL_HEIGHT;
     }
 
     public int getScrollPanelHeight() {
@@ -62,13 +62,16 @@ public class PlotRepresentation extends LayoutPanel {
         legendLabel.setStyleName(JaggerResources.INSTANCE.css().zoomLabel());
         legendLabel.addClickHandler(new LegendLabelClickHandler());
 
+        // fixed size of show/hide legend label
+        legendLabel.setWidth("100px");
+
         zoomPanel.add(legendLabel);
         this.simplePlot = simplePlot;
         this.metricNode = metricNode;
 
         this.xLabel = new Label(xLabelString);
         this.xLabel.addStyleName(JaggerResources.INSTANCE.css().xAxisLabel());
-        this.xLabel.setHeight(X_AXIX_LABEL_HEIGHT + "px");
+        this.xLabel.setHeight(X_AXIS_LABEL_HEIGHT + "px");
 
         this.legendTree = legendTree;
 
