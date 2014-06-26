@@ -635,16 +635,7 @@ public class Trends extends DefaultActivity {
         }
         plotOptions.addYAxisOptions(yAxisOptions);
 
-        plotOptions.setLegendOptions(LegendOptions.create().setPosition(LegendOptions.LegendPosition.NORTH_EAST)
-                .setNumOfColumns(2)
-                .setBackgroundOpacity(0.7)
-                .setLabelFormatter(new LegendOptions.LabelFormatter() {
-                    @Override
-                    public String formatLabel(String s, Series series) {
-                        return "<span style=\"font-size:13px\">" + s + "</span> ";
-                    }
-                }));
-
+        plotOptions.setLegendOptions(LegendOptions.create().setShow(false));
 
         plotOptions.setCanvasEnabled(true);
         if (markings == null) {
@@ -1043,46 +1034,27 @@ public class Trends extends DefaultActivity {
             for (PlotSingleDto plotDatasetDto : plotSeriesDto.getPlotSeries()) {
                 // find all sessions in plot
                 for (PointDto pointDto : plotDatasetDto.getPlotData()) {
-                    int sId = (int)pointDto.getX();
+                    int sId = (int) pointDto.getX();
                     if (!sessionIds.contains(sId)) {
                         sessionIds.add(sId);
                     }
                 }
             }
             Collections.sort(sessionIds);
-            double yMinimum = getMinY(plotSeriesDto);
-            plot = createPlot(panel, id, markings, plotSeriesDto.getXAxisLabel(), yMinimum, true, sessionIds);
-            plotModel = plot.getModel();
-            for (PlotSingleDto plotDatasetDto : plotSeriesDto.getPlotSeries()) {
-                Series se = Series.create().setLabel(plotDatasetDto.getLegend()).setColor(plotDatasetDto.getColor());
-                SeriesHandler handler = plotModel.addSeries(se);
-                // Populate plot with data
-                for (PointDto pointDto : plotDatasetDto.getPlotData()) {
-                    handler.add(DataPoint.of(sessionIds.indexOf((int) pointDto.getX()), pointDto.getY()));
-                }
-            }
+            System.out.println("sessionIds : " + sessionIds);
+            plot = createPlot(panel, id, markings, plotSeriesDto.getXAxisLabel(), null, true, sessionIds);
         } else {
-            // Metrics plot panel
-
             plot = createPlot(panel, id, markings, plotSeriesDto.getXAxisLabel(), null, false, null);
-            plotModel = plot.getModel();
-            for (PlotSingleDto plotDatasetDto : plotSeriesDto.getPlotSeries()) {
-                Series se = Series.create().setLabel(plotDatasetDto.getLegend()).setColor(plotDatasetDto.getColor());
-                SeriesHandler handler = plotModel.addSeries(se);
-                // Populate plot with data
-                for (PointDto pointDto : plotDatasetDto.getPlotData()) {
-                    handler.add(DataPoint.of(pointDto.getX(), pointDto.getY()));
-                }
-            }
         }
+
+        LegendTree legendTree = new LegendTree(plot, panel);
+        MetricGroupNode<LegendNode> inTree = plotSeriesDto.getLegendTree();
+
+        // populate legend tree with data
+        translateIntoLegendTree(inTree, legendTree, null);
 
         // Add X axis label
         final String xAxisLabel = plotSeriesDto.getXAxisLabel();
-        Label xLabel = new Label(xAxisLabel);
-        xLabel.addStyleName(getResources().css().xAxisLabel());
-
-        Label plotLegend = new Label("PLOT LEGEND");
-        plotLegend.addStyleName(getResources().css().plotLegend());
 
         Label zoomInLabel = new Label("Zoom In");
         zoomInLabel.addStyleName(getResources().css().zoomLabel());
@@ -1117,11 +1089,66 @@ public class Trends extends DefaultActivity {
         zoomPanel.add(zoomOutLabel);
         zoomPanel.add(zoomBack);
 
-        PlotRepresentation plotRepresentation = new PlotRepresentation(metricNode, zoomPanel, plot, xLabel);
+
+        PlotRepresentation plotRepresentation = new PlotRepresentation(metricNode, zoomPanel, plot, legendTree, xAxisLabel);
         PlotContainer pc = new PlotContainer(id, plotSeriesDto.getPlotHeader(), plotRepresentation, plotSaver);
 
         panel.addElement(pc);
     }
+
+
+
+    /**
+     * Populate legend tree with data.
+     * @param inTree model of tree with data
+     * @param tree legend tree that will be populated with data
+     * @param parent parent legend node. Pass 'null' to add legend nodes, in current level, as root items.
+     */
+    private void translateIntoLegendTree(
+            MetricGroupNode<LegendNode> inTree,
+            LegendTree tree,
+            LegendNode parent) {
+
+        if (inTree == null)
+            return;
+
+        // child groups
+        if (inTree.getMetricGroupNodeList() != null) {
+            for (MetricGroupNode<LegendNode> metricGroup : inTree.getMetricGroupNodeList()) {
+
+                // create LegendNode that will represent group node
+                LegendNode metricNodeAsGroup = new LegendNode();
+                metricNodeAsGroup.setId(metricGroup.getId());
+                metricNodeAsGroup.setDisplayName(metricGroup.getDisplayName());
+
+                if (parent == null) {
+                    // add as root node
+                    tree.getStore().add(metricNodeAsGroup);
+                } else {
+                    tree.getStore().add(parent, metricNodeAsGroup);
+                }
+                tree.setCheckedNoEvents(metricNodeAsGroup, Tree.CheckState.CHECKED);
+
+                translateIntoLegendTree(metricGroup, tree, metricNodeAsGroup);
+            }
+        }
+
+        // metrics in group
+        if (inTree.getMetricsWithoutChildren() != null) {
+            for (LegendNode metricNode : inTree.getMetricsWithoutChildren()) {
+                if (parent == null) {
+                    // add as root nodes
+                    tree.getStore().add(metricNode);
+                } else {
+                    tree.getStore().add(parent, metricNode);
+                }
+
+                tree.setChecked(metricNode, Tree.CheckState.CHECKED);
+            }
+        }
+    }
+
+
 
 
     private void enableControl() {

@@ -5,26 +5,20 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.event.logical.shared.AttachEvent;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.*;
-import com.google.gwt.user.client.ui.Composite;
 import com.googlecode.gflot.client.Series;
 import com.googlecode.gflot.client.SeriesData;
 import com.googlecode.gflot.client.SimplePlot;
 import com.googlecode.gflot.client.Zoom;
 import com.griddynamics.jagger.dbapi.model.MetricNode;
-import com.sencha.gxt.widget.core.client.Slider;
-import com.sencha.gxt.widget.core.client.button.TextButton;
-import com.sencha.gxt.widget.core.client.event.SelectEvent;
 import com.sencha.gxt.widget.core.client.tree.Tree;
 
 /**
  * Class that hold widgets of type PlotContainer with dynamic layout feature.
  */
-public class PlotsPanel extends Composite {
+public class PlotsPanel extends ResizeComposite {
 
     interface PlotsPanelUiBinder extends UiBinder<Widget, PlotsPanel> {
     }
@@ -48,7 +42,9 @@ public class PlotsPanel extends Composite {
     public PlotsPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
 
+
         plotButtonsPanel.setupButtonPanel(this);
+        layoutPanel.setChildHeight(plotButtonsPanel.getPlotHeight());
     }
 
     public void setControlTree(ControlTree<String> controlTree) {
@@ -91,6 +87,12 @@ public class PlotsPanel extends Composite {
             }
         });
 
+        layoutPanel.setAdditionalHeightForChild(
+                plotContainer.getDragPanelHeight()
+                + plotContainer.getPlotRepresentation().getZoomPanelHeight()
+                + plotContainer.getPlotRepresentation().getScrollPanelHeight()
+                + plotContainer.getPlotRepresentation().getXAxisLabelHeight()
+        );
         layoutPanel.addChild(plotContainer);
         childrenCount = layoutPanel.getAllChildren().size();
         setMaxRange();
@@ -328,7 +330,7 @@ public class PlotsPanel extends Composite {
     /**
      * Change height of plots */
     public void changeChildrenHeight(Integer height) {
-        layoutPanel.changeChildrenHeight(height + "px");
+        layoutPanel.changeChildrenHeight(height);
     }
 
     /**
