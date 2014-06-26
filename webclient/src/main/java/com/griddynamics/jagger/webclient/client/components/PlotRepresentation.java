@@ -32,7 +32,7 @@ public class PlotRepresentation extends LayoutPanel {
 
     private final int ZOOM_PANEL_HEIGHT = 20;
     private final int SCROLL_PANEL_HEIGHT = 20;
-    private final int X_AXIX_LABEL_HEIGHT = 15;
+    private final int X_AXIX_LABEL_HEIGHT = 20;
 
     private Label legendLabel;
 
@@ -187,9 +187,7 @@ public class PlotRepresentation extends LayoutPanel {
     @Override
     public void onResize() {
 
-        System.out.println("!");
         calculateScrollWidth();
-
         calculateLegendPosition();
     }
 
