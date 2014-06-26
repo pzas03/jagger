@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * Represents raws in summary table and trend plot built with this raws
+ * Represents rows in summary table and trend plot built with this rows
  * Refers to MetricNode
  */
 public class SummaryIntegratedDto implements Serializable {
