@@ -2,6 +2,7 @@ package com.griddynamics.jagger.dbapi;
 
 
 import com.griddynamics.jagger.dbapi.dto.*;
+import com.griddynamics.jagger.dbapi.model.WebClientProperties;
 import com.griddynamics.jagger.dbapi.model.MetricNode;
 import com.griddynamics.jagger.dbapi.model.RootNode;
 import com.griddynamics.jagger.dbapi.provider.SessionInfoProvider;
@@ -26,17 +27,22 @@ public interface DatabaseService {
     /** Returns map <metricNode, plot values> for specific metric nodes from control tree
      * @param plots - set of metric nodes
      * @return plot values for metric nodes */
-    Map<MetricNode, PlotSeriesDto> getPlotDataByMetricNode(Set<MetricNode> plots) throws IllegalArgumentException;
+    Map<MetricNode, PlotIntegratedDto> getPlotDataByMetricNode(Set<MetricNode> plots) throws IllegalArgumentException;
 
     /** Returns map <metricNameDto, plot values> for specific metric names
      * @param metricNames - set of metric names
      * @return plot values for metric names */
-    Map<MetricNameDto, List<PlotDatasetDto>> getPlotDataByMetricNameDto(Set<MetricNameDto> metricNames) throws IllegalArgumentException;
+    Map<MetricNameDto, List<PlotSingleDto>> getPlotDataByMetricNameDto(Set<MetricNameDto> metricNames) throws IllegalArgumentException;
+
+    /** Returns map <metricNode, plot values> for specific metric nodes from control tree
+     * @param metricNodes - set of metric nodes
+     * @return plot values for metric nodes */
+    Map<MetricNode, SummaryIntegratedDto> getSummaryByMetricNodes(Set<MetricNode> metricNodes) throws IllegalArgumentException;
 
     /** Returns summary values for current metrics
      * @param metricNames - metric names
      * @return list of summary values */
-    List<MetricDto> getSummaryByMetricNameDto(List<MetricNameDto> metricNames, boolean isEnableDecisionsPerMetricHighlighting);
+    Map<MetricNameDto, SummarySingleDto> getSummaryByMetricNameDto(Set<MetricNameDto> metricNames, boolean isEnableDecisionsPerMetricHighlighting);
 
     /** Returns test info for specified tests
      * @param taskDataDtos - selected tests
