@@ -37,7 +37,7 @@ public interface DatabaseService {
     /** Returns map <metricNode, plot values> for specific metric nodes from control tree
      * @param metricNodes - set of metric nodes
      * @return plot values for metric nodes */
-    Map<MetricNode, SummaryIntegratedDto> getSummaryByMetricNodes(Set<MetricNode> metricNodes) throws IllegalArgumentException;
+     Map<MetricNode, SummaryIntegratedDto> getSummaryByMetricNodes(Set<MetricNode> metricNodes, boolean isEnableDecisionsPerMetricHighlighting);
 
     /** Returns summary values for current metrics
      * @param metricNames - metric names

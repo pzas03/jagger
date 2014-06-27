@@ -491,7 +491,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         long temp = System.currentTimeMillis();
         Set<MetricNameDto> metricNameDtoSet = MetricNameUtil.getMetricNameDtoSet(metricNodes);
 
-        Collection<SummarySingleDto> allMetricDto = getSummaryByMetricNameDto(metricNameDtoSet).values();
+        Collection<SummarySingleDto> allMetricDto = getSummaryByMetricNameDto(metricNameDtoSet, isEnableDecisionsPerMetricHighlighting).values();
 
         // filter results by MetricNode
         Multimap<MetricNode, SummarySingleDto> tempMap =  ArrayListMultimap.create();
@@ -529,7 +529,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
 
     @Override
-    public Map<MetricNameDto, SummarySingleDto> getSummaryByMetricNameDto(Set<MetricNameDto> metricNames) {
+    public Map<MetricNameDto, SummarySingleDto> getSummaryByMetricNameDto(Set<MetricNameDto> metricNames, boolean isEnableDecisionsPerMetricHighlighting) {
 
         long temp = System.currentTimeMillis();
         Set<SummarySingleDto> result = new HashSet<SummarySingleDto>(metricNames.size());
