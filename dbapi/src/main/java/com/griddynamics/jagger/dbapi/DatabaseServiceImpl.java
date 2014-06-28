@@ -310,9 +310,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             plotHeader = legendProvider.generateSessionScopePlotHeader(metricNode.getDisplayName());
         else
             plotHeader = legendProvider.generatePlotHeader(taskName, metricNode.getDisplayName());
-        PlotIntegratedDto psd = new PlotIntegratedDto(curves, xAxisLabel, "", plotHeader);
-        psd.setLegendTree(createLegendTree(metricNode, curves));
-        return psd;
+        return new PlotIntegratedDto(createLegendTree(metricNode, curves), xAxisLabel, "", plotHeader);
     }
 
 

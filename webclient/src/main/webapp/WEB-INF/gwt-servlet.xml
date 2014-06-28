@@ -64,9 +64,6 @@
     </bean>
 
     <bean id="downloadService" class="com.griddynamics.jagger.webclient.server.DownloadServiceImpl">
-
-        <property name="plotProviderService" ref="plotProviderService"/>
-        <property name="metricDataService" ref="metricDataService"/>
         <property name="fileStorage" ref="fileStore"/>
     </bean>
 

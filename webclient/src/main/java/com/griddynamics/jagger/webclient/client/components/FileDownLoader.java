@@ -3,7 +3,7 @@ package com.griddynamics.jagger.webclient.client.components;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.griddynamics.jagger.dbapi.model.MetricNode;
+import com.griddynamics.jagger.dbapi.dto.PlotIntegratedDto;
 import com.griddynamics.jagger.webclient.client.DownloadService;
 
 /**
@@ -16,12 +16,12 @@ public class FileDownLoader {
 
     /**
      * download plot in csv for MetricNode */
-    public static void downloadPlotInCsv(final MetricNode metricNode) {
+    public static void downloadPlotInCsv(final PlotIntegratedDto plot) {
 
-        DownloadService.Async.getInstance().createPlotCsvFile(metricNode, new AsyncCallback<String>() {
+        DownloadService.Async.getInstance().createPlotCsvFile(plot, new AsyncCallback<String>() {
             @Override
             public void onFailure(Throwable caught) {
-                new ExceptionPanel("Failed to create cvs file for " + metricNode.getDisplayName() + " :\n" + caught.getMessage());
+                new ExceptionPanel("Failed to create cvs file for " + plot.getPlotHeader() + " :\n" + caught.getMessage());
             }
 
             @Override
