@@ -37,12 +37,12 @@ public interface DatabaseService {
     /** Returns map <metricNode, plot values> for specific metric nodes from control tree
      * @param metricNodes - set of metric nodes
      * @return plot values for metric nodes */
-     Map<MetricNode, SummaryIntegratedDto> getSummaryByMetricNodes(Set<MetricNode> metricNodes, boolean isEnableDecisionsPerMetricHighlighting);
+     Map<MetricNode, SummaryIntegratedDto> getSummaryByMetricNodes(Set<MetricNode> metricNodes, boolean isEnableDecisionsPerMetricFetching);
 
     /** Returns summary values for current metrics
      * @param metricNames - metric names
      * @return list of summary values */
-    Map<MetricNameDto, SummarySingleDto> getSummaryByMetricNameDto(Set<MetricNameDto> metricNames, boolean isEnableDecisionsPerMetricHighlighting);
+    Map<MetricNameDto, SummarySingleDto> getSummaryByMetricNameDto(Set<MetricNameDto> metricNames, boolean isEnableDecisionsPerMetricFetching);
 
     /** Returns test info for specified tests
      * @param taskDataDtos - selected tests

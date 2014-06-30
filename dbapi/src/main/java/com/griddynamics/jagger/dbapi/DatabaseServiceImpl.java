@@ -482,7 +482,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     //===========================
 
     @Override
-    public Map<MetricNode, SummaryIntegratedDto> getSummaryByMetricNodes(Set<MetricNode> metricNodes, boolean isEnableDecisionsPerMetricHighlighting) {
+    public Map<MetricNode, SummaryIntegratedDto> getSummaryByMetricNodes(Set<MetricNode> metricNodes, boolean isEnableDecisionsPerMetricFetching) {
 
         if (metricNodes.isEmpty()) {
             return Collections.emptyMap();
@@ -491,7 +491,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         long temp = System.currentTimeMillis();
         Set<MetricNameDto> metricNameDtoSet = MetricNameUtil.getMetricNameDtoSet(metricNodes);
 
-        Collection<SummarySingleDto> allMetricDto = getSummaryByMetricNameDto(metricNameDtoSet, isEnableDecisionsPerMetricHighlighting).values();
+        Collection<SummarySingleDto> allMetricDto = getSummaryByMetricNameDto(metricNameDtoSet, isEnableDecisionsPerMetricFetching).values();
 
         // filter results by MetricNode
         Multimap<MetricNode, SummarySingleDto> tempMap =  ArrayListMultimap.create();
@@ -529,7 +529,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
 
     @Override
-    public Map<MetricNameDto, SummarySingleDto> getSummaryByMetricNameDto(Set<MetricNameDto> metricNames, boolean isEnableDecisionsPerMetricHighlighting) {
+    public Map<MetricNameDto, SummarySingleDto> getSummaryByMetricNameDto(Set<MetricNameDto> metricNames, boolean isEnableDecisionsPerMetricFetching) {
 
         long temp = System.currentTimeMillis();
         Set<SummarySingleDto> result = new HashSet<SummarySingleDto>(metricNames.size());
@@ -592,7 +592,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         }
 
         // Find what decisions were taken for metrics
-        if (isEnableDecisionsPerMetricHighlighting) {
+        if (isEnableDecisionsPerMetricFetching) {
             Map<MetricNameDto,Map<String,Decision>> metricDecisions = getDecisionsPerMetric(new HashSet<MetricNameDto>(metricNames));
             if (!metricDecisions.isEmpty()) {
                 for (SummarySingleDto metricDto : result) {
