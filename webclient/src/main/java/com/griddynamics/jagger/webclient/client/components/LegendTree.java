@@ -93,6 +93,8 @@ public class LegendTree extends AbstractTree<LegendNode, LegendNode> {
 
     /**
      * Adds or removes lines without redrawing plot. Changes can't be seen.
+     * If group item was checked, we want to redraw plot once (instead of firing redrawing for each line).
+     *
      * @param item chosen item
      * @param state check state
      */
@@ -124,11 +126,9 @@ public class LegendTree extends AbstractTree<LegendNode, LegendNode> {
                     // label used as id
                     if (curSeries.getId().equals(item.getId())) {
                         // found
+                        plot.getModel().removeSeries(k);
                         break;
                     }
-                }
-                if (k < seriesArray.length()) {
-                    plot.getModel().removeSeries(k);
                 }
             }
         } else {
