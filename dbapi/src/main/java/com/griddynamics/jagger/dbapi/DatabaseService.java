@@ -2,7 +2,7 @@ package com.griddynamics.jagger.dbapi;
 
 
 import com.griddynamics.jagger.dbapi.dto.*;
-import com.griddynamics.jagger.dbapi.model.WebClientProperties;
+import com.griddynamics.jagger.dbapi.entity.TaskData;
 import com.griddynamics.jagger.dbapi.model.MetricNode;
 import com.griddynamics.jagger.dbapi.model.RootNode;
 import com.griddynamics.jagger.dbapi.provider.SessionInfoProvider;
@@ -110,5 +110,18 @@ public interface DatabaseService {
      * @return true if it is possible to store tags and false otherwise
      */
     public boolean checkIfTagsStorageAvailable();
+
+    /** Returns task data, corresponding to defined pair of taskIs and sessionId
+     * @param taskId - TaskData taskId
+     * @param sessionId - session id
+     * @return TaskData for selected params
+     */
+    TaskData getTaskData(String taskId, String sessionId);
+
+    /** Returns task data, corresponding to TaskData ids
+     * @param ids - TaskData ids
+     * @return map <TaskData id, TaskData>
+     */
+    Map<Long, TaskData> getTaskData(Collection<Long> ids);
 
 }
