@@ -242,7 +242,7 @@ public class PlotRepresentation extends LayoutPanel {
      */
     private int calculateLegendHeight() {
         // height of all plot minus axis labels, borders height.
-        return simplePlot.getOffsetHeight() - 28;
+        return simplePlot.getOffsetHeight() - X_AXIS_LABEL_HEIGHT - 2 * TOTAL_BORDERS_WIDTH;
     }
 
 

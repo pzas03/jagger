@@ -1,15 +1,18 @@
 package com.griddynamics.jagger.webclient.client.components;
 
+import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.googlecode.gflot.client.DataPoint;
 import com.googlecode.gflot.client.Series;
 import com.googlecode.gflot.client.SeriesHandler;
 import com.googlecode.gflot.client.SimplePlot;
 import com.griddynamics.jagger.dbapi.dto.PlotSingleDto;
 import com.griddynamics.jagger.dbapi.dto.PointDto;
+import com.griddynamics.jagger.dbapi.model.AbstractIdentifyNode;
 import com.griddynamics.jagger.dbapi.model.LegendNode;
-import com.griddynamics.jagger.webclient.client.components.control.LegendNodeCell;
 import com.sencha.gxt.core.client.ValueProvider;
+import com.sencha.gxt.core.client.util.Format;
 import com.sencha.gxt.data.shared.ModelKeyProvider;
 import com.sencha.gxt.data.shared.TreeStore;
 import com.sencha.gxt.widget.core.client.tips.QuickTip;
@@ -20,7 +23,7 @@ import java.util.List;
 /**
  * Implementation of AbstractTree that represents interactive legend as tree.
  */
-public class LegendTree extends AbstractTree<LegendNode, LegendNode> {
+public class LegendTree extends AbstractTree<AbstractIdentifyNode, LegendTree.CellData> {
 
     /**
      * Plot that would controlled with Legend tree
@@ -38,26 +41,7 @@ public class LegendTree extends AbstractTree<LegendNode, LegendNode> {
     private PlotsPanel plotsPanel;
 
 
-    private final static ValueProvider<LegendNode, LegendNode> VALUE_PROVIDER =  new ValueProvider<LegendNode, LegendNode>() {
-
-        @Override
-        public LegendNode getValue(LegendNode object) {
-            return object;
-        }
-
-        @Override
-        public void setValue(LegendNode object, LegendNode value) {
-            object.setDisplayName(value.getDisplayName());
-            object.setMetricNameDtoList(value.getMetricNameDtoList());
-            object.setId(value.getId());
-            object.setLine(value.getLine());
-        }
-
-        @Override
-        public String getPath() {
-            return "legend";
-        }
-    };
+    private final static ValueProvider<AbstractIdentifyNode, CellData> VALUE_PROVIDER =  new LegendTreeValueProvider();
 
     /**
      * Constructor matches super class
@@ -66,9 +50,9 @@ public class LegendTree extends AbstractTree<LegendNode, LegendNode> {
      */
     public LegendTree(SimplePlot plot, PlotsPanel plotsPanel, List<Integer> trendSessionIds) {
         super(
-                new TreeStore<LegendNode>(new ModelKeyProvider<LegendNode>() {
+                new TreeStore<AbstractIdentifyNode>(new ModelKeyProvider<AbstractIdentifyNode>() {
                     @Override
-                    public String getKey(LegendNode item) {
+                    public String getKey(AbstractIdentifyNode item) {
                         return item.getId();
                     }
                 }),
@@ -78,7 +62,7 @@ public class LegendTree extends AbstractTree<LegendNode, LegendNode> {
         this.trendSessionIds = trendSessionIds;
 
         this.setAutoExpand(true);
-        this.setCell(LegendNodeCell.getInstance());
+        this.setCell(new LegendNodeCell());
         this.setSelectionModel(null);
 
         // register tip manager for tree
@@ -87,18 +71,35 @@ public class LegendTree extends AbstractTree<LegendNode, LegendNode> {
     }
 
     @Override
-    protected void check(LegendNode item, CheckState state) {
+    protected void check(AbstractIdentifyNode item, CheckState state) {
         noRedrawCheck(item, state);
         redrawPlot();
     }
 
     /**
+     * Check all items in tree
+     */
+    public void checkAll() {
+        for (AbstractIdentifyNode node : store.getRootItems()) {
+            setChecked(node, CheckState.CHECKED);
+        }
+    }
+
+    /**
      * Adds or removes lines without redrawing plot. Changes can't be seen.
+     * If group item was checked, we want to redraw plot once (instead of firing redrawing for each line).
+     *
      * @param item chosen item
      * @param state check state
      */
-    private void noRedrawCheck(LegendNode item, CheckState state) {
-        PlotSingleDto plotSingleDto = item.getLine();
+    private void noRedrawCheck(AbstractIdentifyNode item, CheckState state) {
+
+        PlotSingleDto plotSingleDto = null;
+
+        if (item instanceof LegendNode) {
+            plotSingleDto = ((LegendNode) item).getLine();
+        }
+
 
         if (plotSingleDto != null) {
 
@@ -125,15 +126,13 @@ public class LegendTree extends AbstractTree<LegendNode, LegendNode> {
                     // label used as id
                     if (curSeries.getId().equals(item.getId())) {
                         // found
+                        plot.getModel().removeSeries(k);
                         break;
                     }
                 }
-                if (k < seriesArray.length()) {
-                    plot.getModel().removeSeries(k);
-                }
             }
         } else {
-            for (LegendNode child : store.getAllChildren(item)) {
+            for (AbstractIdentifyNode child : store.getAllChildren(item)) {
                 noRedrawCheck(child, state);
             }
         }
@@ -168,11 +167,80 @@ public class LegendTree extends AbstractTree<LegendNode, LegendNode> {
      */
     public List<PlotSingleDto> getListOfUnChosenLines() {
         List<PlotSingleDto> result = new ArrayList<PlotSingleDto>();
-        for (LegendNode node : store.getAll()) {
-            if (!isChecked(node) && isLeaf(node)) {
-                result.add(node.getLine());
+        for (AbstractIdentifyNode node : store.getAll()) {
+            if ( (!isChecked(node)) && (node instanceof LegendNode) ) {
+                result.add(((LegendNode) node).getLine());
             }
         }
         return result;
     }
+
+
+    /**
+     * Model of cell to display.
+     */
+    protected static class CellData {
+
+        private String displayName;
+        private String color;
+
+        public void setDisplayName(String displayName) {
+            this.displayName = displayName;
+        }
+
+        public void setColor(String color) {
+            this.color = color;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
+
+        public String getColor() {
+            return color;
+        }
+    }
+
+    /**
+     * Cell to be displayed with specific cell model (CellData)
+     */
+    private static class LegendNodeCell extends AbstractCell<CellData> {
+
+        @Override
+        public void render(Context context, CellData value, SafeHtmlBuilder sb) {
+            sb.appendHtmlConstant(
+                    (value.getColor() != null ? "<font color=\'" + value.getColor() + "\'>&#9604;&#9604;</font>" : "") +
+                            "<font qtip='" + Format.htmlEncode(value.getDisplayName()) + "'>  " + value.getDisplayName() + "</font>");
+        }
+   }
+
+    /**
+     * Value provider to set up cell model depending on node model
+     */
+    private static class LegendTreeValueProvider implements ValueProvider<AbstractIdentifyNode, CellData> {
+
+        @Override
+        public CellData getValue(AbstractIdentifyNode object) {
+
+            CellData cellData = new CellData();
+            cellData.setDisplayName(object.getDisplayName());
+            if (object instanceof LegendNode) {
+                cellData.setColor(((LegendNode) object).getLine().getColor());
+            }
+            return cellData;
+        }
+
+        @Override
+        public void setValue(AbstractIdentifyNode object, CellData value) {
+            object.setDisplayName(value.getDisplayName());
+        }
+
+        @Override
+        public String getPath() {
+            return "legend";
+        }
+    }
+
+
+
 }
