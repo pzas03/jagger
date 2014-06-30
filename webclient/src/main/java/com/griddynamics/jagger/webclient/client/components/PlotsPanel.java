@@ -7,7 +7,7 @@ import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.ResizeComposite;
 import com.google.gwt.user.client.ui.NativeHorizontalScrollbar;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -25,7 +25,7 @@ import java.util.Set;
 /**
  * Class that hold widgets of type PlotContainer with dynamic layout feature.
  */
-public class PlotsPanel extends Composite {
+public class PlotsPanel extends ResizeComposite {
 
     interface PlotsPanelUiBinder extends UiBinder<Widget, PlotsPanel> {
     }
@@ -49,7 +49,9 @@ public class PlotsPanel extends Composite {
     public PlotsPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
 
+
         plotButtonsPanel.setupButtonPanel(this);
+        layoutPanel.setChildHeight(plotButtonsPanel.getPlotHeight());
     }
 
     public void setControlTree(ControlTree<String> controlTree) {
@@ -102,6 +104,12 @@ public class PlotsPanel extends Composite {
             }
         });
 
+        layoutPanel.setAdditionalHeightForChild(
+                plotContainer.getDragPanelHeight()
+                + plotContainer.getPlotRepresentation().getZoomPanelHeight()
+                + plotContainer.getPlotRepresentation().getScrollPanelHeight()
+                + plotContainer.getPlotRepresentation().getXAxisLabelHeight()
+        );
         layoutPanel.addChild(plotContainer);
         childrenCount = layoutPanel.getAllChildren().size();
         setMaxRange();
@@ -339,7 +347,7 @@ public class PlotsPanel extends Composite {
     /**
      * Change height of plots */
     public void changeChildrenHeight(Integer height) {
-        layoutPanel.changeChildrenHeight(height + "px");
+        layoutPanel.changeChildrenHeight(height);
     }
 
     /**
