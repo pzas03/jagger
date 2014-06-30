@@ -1053,8 +1053,11 @@ public class Trends extends DefaultActivity {
         LegendTree legendTree = new LegendTree(plot, panel, trendSessionIds);
         MetricGroupNode<LegendNode> inTree = plotSeriesDto.getLegendTree();
 
-        // populate legend tree with data
-        translateIntoLegendTree(inTree, legendTree, null);
+        translateIntoTree(inTree, legendTree);
+
+        // All lines checked by default
+        legendTree.checkAll();
+
 
         // Add X axis label
         final String xAxisLabel = plotSeriesDto.getXAxisLabel();
@@ -1100,58 +1103,44 @@ public class Trends extends DefaultActivity {
     }
 
 
-
     /**
-     * Populate legend tree with data.
+     * Populate Tree tree with data.
      * @param inTree model of tree with data
-     * @param tree legend tree that will be populated with data
-     * @param parent parent legend node. Pass 'null' to add legend nodes, in current level, as root items.
+     * @param tree tree that will be populated with data
      */
-    private void translateIntoLegendTree(
-            MetricGroupNode<LegendNode> inTree,
-            LegendTree tree,
-            LegendNode parent) {
+    private void translateIntoTree(
+            AbstractIdentifyNode inTree,
+            AbstractTree<AbstractIdentifyNode, ?> tree) {
 
-        if (inTree == null)
-            return;
+        TreeStore<AbstractIdentifyNode> ll = tree.getStore();
 
-        // child groups
-        if (inTree.getMetricGroupNodeList() != null) {
-            for (MetricGroupNode<LegendNode> metricGroup : inTree.getMetricGroupNodeList()) {
-
-                // create LegendNode that will represent group node
-                LegendNode metricNodeAsGroup = new LegendNode();
-                metricNodeAsGroup.setId(metricGroup.getId());
-                metricNodeAsGroup.setDisplayName(metricGroup.getDisplayName());
-
-                if (parent == null) {
-                    // add as root node
-                    tree.getStore().add(metricNodeAsGroup);
-                } else {
-                    tree.getStore().add(parent, metricNodeAsGroup);
-                }
-                tree.setCheckedNoEvents(metricNodeAsGroup, Tree.CheckState.CHECKED);
-
-                translateIntoLegendTree(metricGroup, tree, metricNodeAsGroup);
-            }
-        }
-
-        // metrics in group
-        if (inTree.getMetricsWithoutChildren() != null) {
-            for (LegendNode metricNode : inTree.getMetricsWithoutChildren()) {
-                if (parent == null) {
-                    // add as root nodes
-                    tree.getStore().add(metricNode);
-                } else {
-                    tree.getStore().add(parent, metricNode);
-                }
-
-                tree.setChecked(metricNode, Tree.CheckState.CHECKED);
-            }
+        for (AbstractIdentifyNode ln : inTree.getChildren()) {
+            addToStore(ll, ln);
         }
     }
 
 
+    private void addToStore(TreeStore<AbstractIdentifyNode> store, AbstractIdentifyNode node) {
+        store.add(node);
+
+        for (AbstractIdentifyNode child : node.getChildren()) {
+            addToStore(store, child, node);
+        }
+    }
+
+    private void addToStore(TreeStore<AbstractIdentifyNode> store, AbstractIdentifyNode node, AbstractIdentifyNode parent) {
+        store.add(parent, node);
+        for (AbstractIdentifyNode child : node.getChildren()) {
+
+            try {
+                addToStore(store, child, node);
+            }
+            catch (AssertionError e) {
+                new ExceptionPanel(place, "Was not able to insert node with id '" + child.getId() + "' and name '"
+                        + child.getDisplayName() + "' into control tree. Id is already in use. Error message:\n" + e.getMessage());
+            }
+        }
+    }
 
 
     private void enableControl() {
@@ -1499,33 +1488,9 @@ public class Trends extends DefaultActivity {
             ControlTree<String> newTree = new ControlTree<String>(temporaryStore, new SimpleNodeValueProvider());
             setupControlTree(newTree);
 
-            for (AbstractIdentifyNode node : result.getChildren()) {
-                addToStore(temporaryStore, node);
-            }
+            translateIntoTree(result, newTree);
 
-           return newTree;
-        }
-
-        private void addToStore(TreeStore<AbstractIdentifyNode> store, AbstractIdentifyNode node) {
-            store.add(node);
-
-            for (AbstractIdentifyNode child : node.getChildren()) {
-                addToStore(store, child, node);
-            }
-        }
-
-        private void addToStore(TreeStore<AbstractIdentifyNode> store, AbstractIdentifyNode node, AbstractIdentifyNode parent) {
-            store.add(parent, node);
-            for (AbstractIdentifyNode child : node.getChildren()) {
-
-                try {
-                    addToStore(store, child, node);
-                }
-                catch (AssertionError e) {
-                    new ExceptionPanel(place, "Was not able to insert node with id '" + child.getId() + "' and name '"
-                            + child.getDisplayName() + "' into control tree. Id is already in use. Error message:\n" + e.getMessage());
-                }
-            }
+            return newTree;
         }
     }
 
