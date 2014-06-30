@@ -5,6 +5,7 @@ import com.google.gwt.user.client.ui.*;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -138,15 +139,17 @@ public class DynamicLayoutPanel<M extends Widget> extends VerticalLayoutContaine
     }
 
     /**
-     * @param id id of widget to remove (id of plot container) */
+     * @param ids ids of widget to remove (ids of plot container) */
     @SuppressWarnings("unchecked")
-    public void removeChild(String id) {
+    public void removeChildren(Collection<String> ids) {
         if (layout == Layout.ONE_COLUMN) {
-            for (int i = 0; i < getWidgetCount(); i ++) {
-                LayoutPanel hp = (LayoutPanel) getWidget(i);
-                if (id.equals(hp.getWidget(0).getElement().getId())) {
-                    remove(i);
-                    return;
+            for (String id : ids) {
+                for (int i = 0; i < getWidgetCount(); i ++) {
+                    LayoutPanel hp = (LayoutPanel) getWidget(i);
+                    if (id.equals(hp.getWidget(0).getElement().getId())) {
+                        remove(i);
+                        break;
+                    }
                 }
             }
         } else {
@@ -155,7 +158,7 @@ public class DynamicLayoutPanel<M extends Widget> extends VerticalLayoutContaine
                 LayoutPanel hp = (LayoutPanel) getWidget(i);
                 for (int j = 0; j < hp.getWidgetCount(); j++) {
                     Widget widget = hp.getWidget(j);
-                    if (!id.equals(widget.getElement().getId()) && widget != stub) {
+                    if (!ids.contains(widget.getElement().getId()) && widget != stub) {
                         // only widgets with type M can appear here, except stub.
                         containers.add((M)widget);
                     }
