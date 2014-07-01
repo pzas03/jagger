@@ -19,19 +19,9 @@
  */
 package com.griddynamics.jagger.engine.e1.reporting;
 
-import com.griddynamics.jagger.dbapi.DatabaseService;
-import com.griddynamics.jagger.dbapi.dto.*;
-import com.griddynamics.jagger.dbapi.model.*;
-import com.griddynamics.jagger.dbapi.util.SessionMatchingSetup;
 import com.griddynamics.jagger.reporting.AbstractMappedReportProvider;
-import com.griddynamics.jagger.reporting.chart.ChartHelper;
-import com.griddynamics.jagger.util.Pair;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import net.sf.jasperreports.renderers.JCommonDrawableRenderer;
-import org.jfree.chart.JFreeChart;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -46,178 +36,26 @@ import java.util.*;
 public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
     private Logger log = LoggerFactory.getLogger(MetricPlotsReporter.class);
 
-    private Map<Long, MetricPlotDTOs> plots;
-    private Map<MetricNode, PlotIntegratedDto> plotsReal = Collections.emptyMap();
-
-    private String sessionId;
-    private DatabaseService databaseService;
+    private PlotsReporter plotsReporter;
 
     @Required
-    public void setDatabaseService(DatabaseService databaseService) {
-        this.databaseService = databaseService;
+    public void setPlotsReporter(PlotsReporter plotsReporter) {
+        this.plotsReporter = plotsReporter;
     }
 
-    public static class MetricPlotDTOs {
-        private Collection<MetricPlotDTO> metricPlotDTOs;
-
-        public MetricPlotDTOs() {
-            metricPlotDTOs = new LinkedList<MetricPlotDTO>();
-        }
-
-        public Collection<MetricPlotDTO> getMetricPlotDTOs() {
-            return metricPlotDTOs;
-        }
-
-        public void setPlot(Collection<MetricPlotDTO> metricPlotDTOs) {
-            this.metricPlotDTOs = metricPlotDTOs;
-        }
-
-        public void sortingByMetricName() {
-            Collections.sort((List<MetricPlotDTO>) metricPlotDTOs, new Comparator<MetricPlotDTO>() {
-                @Override
-                public int compare(MetricPlotDTO o1, MetricPlotDTO o2) {
-                    return o1.getMetricName().compareTo(o2.getMetricName());
-                }
-            });
-        }
-    }
-
-    public static class MetricPlotDTO {
-        private JCommonDrawableRenderer metricPlot;
-        private String metricName;
-        private String title;
-        private String groupTitle;
-
-        public MetricPlotDTO(String metricName, String title, String groupTitle, JCommonDrawableRenderer metricPlot) {
-            this.metricPlot = metricPlot;
-            this.metricName = metricName;
-            this.title = title;
-            this.groupTitle = groupTitle;
-        }
-
-        public MetricPlotDTO() {
-        }
-
-        public JCommonDrawableRenderer getMetricPlot() {
-            return metricPlot;
-        }
-
-        public void setMetricPlot(JCommonDrawableRenderer metricPlot) {
-            this.metricPlot = metricPlot;
-        }
-
-        public String getMetricName() {
-            return metricName;
-        }
-
-        public void setMetricName(String metricName) {
-            this.metricName = metricName;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public void setTitle(String title) {
-            this.title = title;
-        }
-
-        public String getGroupTitle() {
-            return groupTitle;
-        }
-
-        public void setGroupTitle(String groupTitle) {
-            this.groupTitle = groupTitle;
-        }
-
-    }
 
     @Override
     public JRDataSource getDataSource(String id) {
-        sessionId = getSessionIdProvider().getSessionId();
+        String sessionId = getSessionIdProvider().getSessionId();
 
-        if (plots == null) {
-            createFromTree();
-        }
-        if (plots.size() == 0) {
-            return null;
-        }
-        MetricPlotDTOs result = plots.get(new Long(id));
+        Map<Long, PlotsReporter.MetricPlotDTOs> testIdToPlotsMap = plotsReporter.getTestIdToPlotsMap(sessionId);
 
-        return new JRBeanCollectionDataSource(Collections.singleton(result));
-    }
-
-    private void createFromTree() {
-
-        plots = new HashMap<Long, MetricPlotDTOs>();
-
-        Set<MetricNode> allMetrics = new HashSet<MetricNode>();
-
-        SessionMatchingSetup sessionMatchingSetup = new SessionMatchingSetup(
-                databaseService.getWebClientProperties().isShowOnlyMatchedTests(),
-                EnumSet.of(SessionMatchingSetup.MatchBy.ALL));
-        RootNode rootNode = databaseService.getControlTreeForSessions(new HashSet<String>(Arrays.asList(sessionId)),sessionMatchingSetup);
-        DetailsNode detailsNode = rootNode.getDetailsNode();
-        if (detailsNode.getChildren().isEmpty())
-            return;
-
-        for (TestDetailsNode testDetailsNode : detailsNode.getTests()) {
-            allMetrics.addAll(testDetailsNode.getMetrics());
+        Long testId = Long.valueOf(id);
+        if (!testIdToPlotsMap.containsKey(testId)) {
+            log.warn("No metrics plot data found for test with id {}", testId);
+            return new JRBeanCollectionDataSource(Collections.emptyList());
         }
 
-        try {
-            plotsReal = databaseService.getPlotDataByMetricNode(allMetrics);
-        } catch (Exception e) {
-            log.error("Unable to get plots information for metrics");
-        }
-
-        for (TestDetailsNode testDetailsNode : detailsNode.getTests()) {
-            getReport(testDetailsNode, testDetailsNode.getTaskDataDto().getId());
-        }
-
-    }
-
-    public static JCommonDrawableRenderer makePlot(PlotIntegratedDto plotIntegratedDto) {
-        XYSeriesCollection plotCollection = new XYSeriesCollection();
-        for (PlotSingleDto datasetDto : plotIntegratedDto.getPlotSeries()) {
-            XYSeries plotEntry = new XYSeries(datasetDto.getLegend());
-            for (PointDto point : datasetDto.getPlotData()) {                            // draw one line
-                plotEntry.add(point.getX(), point.getY());
-            }
-            plotCollection.addSeries(plotEntry);
-        }
-        Pair<String, XYSeriesCollection> pair = ChartHelper.adjustTime(plotCollection, null);
-        plotCollection = pair.getSecond();
-
-        JFreeChart chartMetric = ChartHelper.createXYChart(null, plotCollection,
-                "Time, sec", null, 2, 2, ChartHelper.ColorTheme.LIGHT);
-        return new JCommonDrawableRenderer(chartMetric);
-    }
-
-
-    private void getReport(MetricGroupNode metricGroupNode, Long testId) {
-        try {
-
-            if (metricGroupNode.getMetricGroupNodeList() != null) {
-                for (MetricGroupNode metricGroup : (List<MetricGroupNode>) metricGroupNode.getMetricGroupNodeList())
-                    getReport(metricGroup, testId);
-            }
-            if (metricGroupNode.getMetricsWithoutChildren() != null) {
-
-                String groupTitle = metricGroupNode.getDisplayName();
-                for (MetricNode node : (List<MetricNode>) metricGroupNode.getMetricsWithoutChildren()) {
-                    if (plotsReal.get(node).getPlotSeries().isEmpty())   {
-                        log.warn("No plot data for "+ node.getDisplayName());
-                        continue;
-                    }
-                    if (!plots.containsKey(testId))
-                        plots.put(testId, new MetricPlotDTOs());
-                    plots.get(testId).getMetricPlotDTOs().add(new MetricPlotDTO(node.getDisplayName(), node.getDisplayName(), groupTitle, makePlot(plotsReal.get(node))));
-                    groupTitle = "";
-                }
-            }
-        } catch (Exception e) {
-            log.error("Unable to take plot data for {}", metricGroupNode.getDisplayName());
-        }
+        return new JRBeanCollectionDataSource(Collections.singleton(testIdToPlotsMap.get(Long.valueOf(id))));
     }
 }

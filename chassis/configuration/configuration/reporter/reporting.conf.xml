@@ -130,7 +130,8 @@
                 <entry key="sessionScopePlotsReporter">
                     <bean class="com.griddynamics.jagger.engine.e1.reporting.SessionScopePlotsReporter" parent="abstractReportProviderBean">
                         <property name="template" value="configuration/reporting/session-scope-plots-report.jrxml"/>
-                        <property name="databaseService" ref="databaseService"/>
+                        <property name="plotsReporter" ref="plotsReporter"/>
+                        <property name="summaryReporter" ref="summaryReporter"/>
                     </bean>
                 </entry>
 
@@ -189,7 +190,7 @@
                 <entry key="metricsResults">
                     <bean class="com.griddynamics.jagger.engine.e1.reporting.MetricPlotsReporter" parent="abstractReportProviderBean">
                         <property name="template" value="configuration/reporting/metrics-report.jrxml"/>
-                        <property name="databaseService" ref="databaseService"/>
+                        <property name="plotsReporter" ref="plotsReporter"/>
                     </bean>
                 </entry>
 
@@ -240,6 +241,10 @@
     <bean id= "dataSaverService" class="com.griddynamics.jagger.dbapi.DataSaverServiceImpl"/>
 
     <bean id="summaryReporter" class="com.griddynamics.jagger.engine.e1.reporting.SummaryReporter">
+        <property name="databaseService" ref="databaseService"/>
+    </bean>
+    
+    <bean id="plotsReporter" class="com.griddynamics.jagger.engine.e1.reporting.PlotsReporter">
         <property name="databaseService" ref="databaseService"/>
     </bean>
 

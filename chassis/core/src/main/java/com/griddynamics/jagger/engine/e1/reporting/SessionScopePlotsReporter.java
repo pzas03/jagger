@@ -19,13 +19,6 @@
  */
 package com.griddynamics.jagger.engine.e1.reporting;
 
-import com.griddynamics.jagger.dbapi.DatabaseService;
-import com.griddynamics.jagger.dbapi.dto.PlotIntegratedDto;
-import com.griddynamics.jagger.dbapi.model.MetricGroupNode;
-import com.griddynamics.jagger.dbapi.model.MetricNode;
-import com.griddynamics.jagger.dbapi.model.PlotNode;
-import com.griddynamics.jagger.dbapi.model.RootNode;
-import com.griddynamics.jagger.dbapi.util.SessionMatchingSetup;
 import com.griddynamics.jagger.reporting.AbstractReportProvider;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
@@ -43,69 +36,39 @@ import java.util.*;
 public class SessionScopePlotsReporter extends AbstractReportProvider {
     private Logger log = LoggerFactory.getLogger(SessionScopePlotsReporter.class);
 
+    private PlotsReporter plotsReporter;
 
-    private Map<MetricNode, PlotIntegratedDto> plots = Collections.EMPTY_MAP;
-
-    private DatabaseService databaseService;
+    private SummaryReporter summaryReporter;
 
     @Required
-    public void setDatabaseService(DatabaseService databaseService) {
-        this.databaseService = databaseService;
+    public void setPlotsReporter(PlotsReporter plotsReporter) {
+        this.plotsReporter = plotsReporter;
+    }
+
+    @Required
+    public void setSummaryReporter(SummaryReporter summaryReporter) {
+        this.summaryReporter = summaryReporter;
     }
 
     @Override
     public JRDataSource getDataSource() {
 
         String sessionId = getSessionIdProvider().getSessionId();
-        MetricPlotsReporter.MetricPlotDTOs result = new MetricPlotsReporter.MetricPlotDTOs();
 
-        SessionMatchingSetup sessionMatchingSetup = new SessionMatchingSetup(
-                databaseService.getWebClientProperties().isShowOnlyMatchedTests(),
-                EnumSet.of(SessionMatchingSetup.MatchBy.ALL));
-        RootNode rootNode = databaseService.getControlTreeForSessions(new HashSet<String>(Arrays.asList(sessionId)), sessionMatchingSetup);
-        MetricGroupNode<PlotNode> sessionScopeNode = rootNode.getDetailsNode().getSessionScopeNode();
+        int numberOfTestGroup = summaryReporter.getNumberOfTestGroups(sessionId);
+        if (numberOfTestGroup < 2) {
+            if (numberOfTestGroup == 0) {
+                log.error("No test groups were fetched for {} session.", sessionId);
+            } else {
+                log.info("There is one test group in current {} session. Skipping session scope plots fetching.", sessionId);
+            }
 
-        if (sessionScopeNode.getChildren().isEmpty())
-            return new JRBeanCollectionDataSource(Collections.singleton(result));
-
-        Set<MetricNode> allMetrics = new HashSet<MetricNode>(sessionScopeNode.getMetrics());
-        try {
-            plots = databaseService.getPlotDataByMetricNode(allMetrics);
-        } catch (Exception e) {
-            log.error("Unable to get plots information for metrics");
+            return new JRBeanCollectionDataSource(Collections.emptyList());
         }
 
-        getReport(sessionScopeNode, result);
-        return new JRBeanCollectionDataSource(Collections.singleton(result));
+        PlotsReporter.MetricPlotDTOs sessionScopePlots = plotsReporter.getSessionScopePlots(sessionId);
 
-    }
+        return new JRBeanCollectionDataSource(Collections.singleton(sessionScopePlots));
 
-    private void getReport(MetricGroupNode metricGroupNode, MetricPlotsReporter.MetricPlotDTOs result) {
-        try {
-
-            if (metricGroupNode.getMetricGroupNodeList() != null) {
-                for (MetricGroupNode metricGroup : (List<MetricGroupNode>) metricGroupNode.getMetricGroupNodeList())
-                    getReport(metricGroup, result);
-            }
-            if (metricGroupNode.getMetricsWithoutChildren() != null) {
-
-                String groupTitle = metricGroupNode.getDisplayName();
-                for (MetricNode node : (List<MetricNode>) metricGroupNode.getMetricsWithoutChildren()) {
-                    if (plots.get(node).getPlotSeries().isEmpty()) {
-                        log.warn("No plot data for " + node.getDisplayName());
-                        continue;
-                    }
-
-                    result.getMetricPlotDTOs().add(new MetricPlotsReporter.MetricPlotDTO(
-                            node.getDisplayName(),
-                            node.getDisplayName(),
-                            groupTitle,
-                            MetricPlotsReporter.makePlot(plots.get(node))));
-                    groupTitle = "";
-                }
-            }
-        } catch (Exception e) {
-            log.error("Unable to take plot data for {}", metricGroupNode.getDisplayName());
-        }
     }
 }

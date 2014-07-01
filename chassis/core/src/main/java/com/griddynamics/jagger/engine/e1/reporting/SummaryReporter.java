@@ -84,6 +84,27 @@ public class SummaryReporter {
         return standardMetricsMap;
     }
 
+    public int getNumberOfTestGroups(String sessionId) {
+
+        getData(sessionId);
+
+        int numberOfTestGroups = 0;
+        Integer groupIndex = null;
+        for (TestEntity testEntity : metricsPerTest.keySet()) {
+            if (groupIndex == null) {
+                groupIndex = testEntity.getTestGroupIndex();
+                numberOfTestGroups ++;
+            }
+
+            if (!groupIndex.equals(testEntity.getTestGroupIndex())) {
+                // there is more then one test group in current session
+                numberOfTestGroups ++;
+            }
+        }
+
+        return numberOfTestGroups;
+    }
+
     private void getData(String sessionId) {
 
         // Remember what session id was set for cashed data
