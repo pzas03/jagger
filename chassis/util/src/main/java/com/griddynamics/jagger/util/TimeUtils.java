@@ -32,8 +32,6 @@ public class TimeUtils {
     private static final long MILLIS_IN_SECONDS = 1000L;
     private static final BigDecimal MILLISECONDS_FACTOR = new BigDecimal(MILLIS_IN_SECONDS);
 
-    public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
-
     private static final PeriodFormatter formatter =  new PeriodFormatterBuilder()
                                                         .appendHours()
                                                         .appendSuffix("h")

@@ -27,10 +27,9 @@ import com.griddynamics.jagger.engine.e1.services.DefaultDataService;
 import com.griddynamics.jagger.engine.e1.services.data.service.MetricEntity;
 import com.griddynamics.jagger.engine.e1.services.data.service.MetricSummaryValueEntity;
 import com.griddynamics.jagger.engine.e1.services.data.service.TestEntity;
+import com.griddynamics.jagger.util.FormatCalculator;
 import com.griddynamics.jagger.util.MetricNamesRankingProvider;
-import com.griddynamics.jagger.util.NumberFormatCalculator;
 import com.griddynamics.jagger.util.StandardMetricsNamesUtil;
-import com.griddynamics.jagger.util.TimeUtils;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.text.DateFormat;
@@ -46,7 +45,7 @@ public class SummaryReporter {
     private Map<String, List<SummaryDto>> latencyPercentilesMap = new HashMap<String, List<SummaryDto>>();
     private Map<String, List<SummaryDto>> validatorsMap = new HashMap<String, List<SummaryDto>>();
     private Map<TestEntity, Map<MetricEntity, MetricSummaryValueEntity>> standardMetricsMap = new HashMap<TestEntity, Map<MetricEntity, MetricSummaryValueEntity>>();
-    private DateFormat dateFormatter = new SimpleDateFormat(TimeUtils.DATE_FORMAT);
+    private DateFormat dateFormatter = new SimpleDateFormat(FormatCalculator.DATE_FORMAT);
     private boolean isMetricHighlighting;
 
     @Required
@@ -139,7 +138,7 @@ public class SummaryReporter {
                     MetricSummaryValueEntity metricSummaryValueEntity = summary.get(metricEntity);
 
                     Double summaryValue = metricSummaryValueEntity.getValue();
-                    value.setValue(new DecimalFormat(NumberFormatCalculator.getNumberFormat(summaryValue)).format(summaryValue));
+                    value.setValue(new DecimalFormat(FormatCalculator.getNumberFormat(summaryValue)).format(summaryValue));
                     if (isMetricHighlighting && metricSummaryValueEntity.getDecision() != null) {
                         value.setDecision(metricSummaryValueEntity.getDecision().toString());
                     }
