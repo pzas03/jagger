@@ -162,13 +162,13 @@ public class LegendTree extends AbstractTree<AbstractIdentifyNode, LegendTree.Ce
 
 
     /**
-     * Returns list of un chosen lines
+     * Returns list of checked lines
      * @return list of PlotSingleDto objects
      */
-    public List<PlotSingleDto> getListOfNotSelectedLines() {
+    public List<PlotSingleDto> getListOfSelectedLines() {
         List<PlotSingleDto> result = new ArrayList<PlotSingleDto>();
         for (AbstractIdentifyNode node : store.getAll()) {
-            if ( (!isChecked(node)) && (node instanceof LegendNode) ) {
+            if ( (isChecked(node)) && (node instanceof LegendNode) ) {
                 result.add(((LegendNode) node).getLine());
             }
         }

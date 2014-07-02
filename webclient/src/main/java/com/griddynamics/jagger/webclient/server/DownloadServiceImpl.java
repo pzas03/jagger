@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.io.ByteArrayOutputStream;
+import java.util.List;
 
 public class DownloadServiceImpl implements DownloadService {
 
@@ -22,10 +23,10 @@ public class DownloadServiceImpl implements DownloadService {
     }
 
     @Override
-    public String createPlotCsvFile(PlotIntegratedDto plot) throws RuntimeException {
+    public String createPlotCsvFile(List<PlotSingleDto> lines, String plotHeader, String xAxisLabel) throws RuntimeException {
         try {
 
-            String fileKey = plot.getPlotHeader().replaceAll(",", "_");
+            String fileKey = plotHeader.replaceAll(",", "_");
 
             if (fileStorage.exists(fileKey)) {
                 // return same object
@@ -35,7 +36,7 @@ public class DownloadServiceImpl implements DownloadService {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
             // create csv file
-            PlotToCsvGenerator.generateCsvFile(plot, byteArrayOutputStream);
+            PlotToCsvGenerator.generateCsvFile(lines, xAxisLabel, byteArrayOutputStream);
 
             byte[] fileInBytes = byteArrayOutputStream.toByteArray();
 
@@ -43,8 +44,8 @@ public class DownloadServiceImpl implements DownloadService {
 
             return fileKey;
         } catch (Exception e) {
-            log.error("Errors while creating csv file for " + plot, e);
-            throw new RuntimeException("Errors while creating csv file for " + plot, e);
+            log.error("Errors while creating csv file for plot " + plotHeader + " ; lines : " + lines, e);
+            throw new RuntimeException("Errors while creating csv file for plot " + plotHeader, e);
         }
     }
 }

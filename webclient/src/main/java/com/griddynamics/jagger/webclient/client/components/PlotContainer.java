@@ -5,12 +5,15 @@ import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.*;
 import com.griddynamics.jagger.dbapi.dto.PlotIntegratedDto;
+import com.griddynamics.jagger.dbapi.dto.PlotSingleDto;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
 import com.sencha.gxt.dnd.core.client.*;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
 import com.sencha.gxt.widget.core.client.menu.Item;
 import com.sencha.gxt.widget.core.client.menu.Menu;
 import com.sencha.gxt.widget.core.client.menu.MenuItem;
+
+import java.util.List;
 
 /**
  * Draggable container that holds plot representation */
@@ -195,11 +198,10 @@ public class PlotContainer extends  VerticalLayoutContainer {
             public void onSelection(SelectionEvent<Item> event) {
 
                 LegendTree legendTree = plotRepresentation.getLegendTree();
-                PlotIntegratedDto pid = new PlotIntegratedDto(plotRepresentation.getPlotIntegratedDto());
 
-                pid.removeLines(legendTree.getListOfNotSelectedLines());
-
-                FileDownLoader.downloadPlotInCsv(pid);
+                PlotIntegratedDto pid = plotRepresentation.getPlotIntegratedDto();
+                List<PlotSingleDto> checkedLines = legendTree.getListOfSelectedLines();
+                FileDownLoader.downloadPlotInCsv(checkedLines, pid.getPlotHeader(), pid.getXAxisLabel());
             }
         });
 
