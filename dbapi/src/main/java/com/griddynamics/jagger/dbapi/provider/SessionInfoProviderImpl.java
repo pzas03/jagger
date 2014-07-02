@@ -16,8 +16,6 @@ import org.springframework.beans.factory.annotation.Required;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.math.BigInteger;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -28,8 +26,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class SessionInfoProviderImpl implements SessionInfoProvider {
     private static final Logger log = LoggerFactory.getLogger(SessionInfoProviderImpl.class);
-    private static final String dateFormat = "yyyy-MM-dd HH:mm:ss";
-    private final DateFormat dateFormatter = new SimpleDateFormat(dateFormat);
 
     private EntityManager entityManager;
     private WebClientProperties webClientProperties;
@@ -425,8 +421,8 @@ public class SessionInfoProviderImpl implements SessionInfoProvider {
         return new SessionDataDto(
                 sessionData.getId(),
                 sessionData.getSessionId(),
-                dateFormatter.format(sessionData.getStartTime()),
-                dateFormatter.format(sessionData.getEndTime()),
+                sessionData.getStartTime(),
+                sessionData.getEndTime(),
                 sessionData.getActiveKernels(),
                 sessionData.getTaskExecuted(),
                 sessionData.getTaskFailed(),

@@ -42,6 +42,7 @@ import com.griddynamics.jagger.webclient.client.mvp.JaggerPlaceHistoryMapper;
 import com.griddynamics.jagger.webclient.client.resources.JaggerResources;
 import com.griddynamics.jagger.webclient.client.resources.SessionDataGridResources;
 import com.griddynamics.jagger.webclient.client.resources.SessionPagerResources;
+import com.griddynamics.jagger.webclient.client.utils.DateFormatterHolder;
 import com.sencha.gxt.data.shared.ModelKeyProvider;
 import com.sencha.gxt.data.shared.TreeStore;
 import com.sencha.gxt.widget.core.client.ContentPanel;
@@ -831,7 +832,7 @@ public class Trends extends DefaultActivity {
 
             @Override
             public String getValue(SessionDataDto object) {
-                return object.getStartDate();
+                return DateFormatterHolder.getDateFormatter().format(object.getStartDate());
             }
         };
         sessionsDataGrid.addColumn(startDateColumn, "Start Date");
@@ -847,7 +848,7 @@ public class Trends extends DefaultActivity {
 
             @Override
             public String getValue(SessionDataDto object) {
-                return object.getEndDate();
+                return DateFormatterHolder.getDateFormatter().format(object.getEndDate());
             }
         };
         sessionsDataGrid.addColumn(endDateColumn, "End Date");

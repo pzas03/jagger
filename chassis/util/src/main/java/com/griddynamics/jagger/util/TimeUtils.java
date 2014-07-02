@@ -22,7 +22,6 @@ package com.griddynamics.jagger.util;
 
 import com.griddynamics.jagger.exception.TechnicalException;
 import org.joda.time.Period;
-import org.joda.time.format.PeriodFormat;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 
@@ -32,6 +31,8 @@ import java.math.MathContext;
 public class TimeUtils {
     private static final long MILLIS_IN_SECONDS = 1000L;
     private static final BigDecimal MILLISECONDS_FACTOR = new BigDecimal(MILLIS_IN_SECONDS);
+
+    public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     private static final PeriodFormatter formatter =  new PeriodFormatterBuilder()
                                                         .appendHours()
