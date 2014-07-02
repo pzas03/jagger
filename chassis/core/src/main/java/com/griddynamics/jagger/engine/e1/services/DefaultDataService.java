@@ -338,7 +338,7 @@ public class DefaultDataService implements DataService {
             }
         }
 
-        Collection<SummarySingleDto> metricDtoList = databaseService.getSummaryByMetricNameDto(metricNameDtoSet).values();
+        Collection<SummarySingleDto> metricDtoList = databaseService.getSummaryByMetricNameDto(metricNameDtoSet, true).values();
 
         Map<MetricEntity,MetricSummaryValueEntity> result = new HashMap<MetricEntity,MetricSummaryValueEntity>();
         for (SummarySingleDto metricDto : metricDtoList) {
