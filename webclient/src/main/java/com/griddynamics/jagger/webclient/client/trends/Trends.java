@@ -68,7 +68,7 @@ public class Trends extends DefaultActivity {
     private boolean allTagsLoadComplete = true;
     private Set<String> tagNames = new HashSet<String>();
 
-    DateTimeFormat dateFormatter = DateTimeFormat.getFormat(FormatCalculator.DATE_FORMAT);
+    private DateTimeFormat dateFormatter = DateTimeFormat.getFormat(FormatCalculator.DATE_FORMAT);
 
     private static TrendsUiBinder uiBinder = GWT.create(TrendsUiBinder.class);
 
