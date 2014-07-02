@@ -21,7 +21,6 @@ public class PlotIntegratedDto implements Serializable {
     private String xAxisLabel;
     private String yAxisLabel;
     private String plotHeader;
-    private double yAxisMin;
 
     private MetricGroupNode<LegendNode> legendTree;
 
@@ -29,7 +28,7 @@ public class PlotIntegratedDto implements Serializable {
         return legendTree;
     }
 
-    public PlotIntegratedDto() {
+    private PlotIntegratedDto() {
     }
 
     public PlotIntegratedDto(MetricGroupNode<LegendNode> legendTree, String xAxisLabel, String yAxisLabel, String plotHeader) {
@@ -58,6 +57,10 @@ public class PlotIntegratedDto implements Serializable {
     /**
      * get list of lines */
     public Collection<PlotSingleDto> getPlotSeries() {
+        if (legendTree == null) {
+            return Collections.emptyList();
+        }
+
         List<PlotSingleDto> plotSeries = new ArrayList<PlotSingleDto>();
         readLinesFromLegendTree(legendTree, plotSeries);
         return plotSeries;
@@ -101,14 +104,6 @@ public class PlotIntegratedDto implements Serializable {
         return markingSeries;
     }
 
-    public double getYAxisMin() {
-        return yAxisMin;
-    }
-
-    public void setYAxisMin(double yAxisMin) {
-        this.yAxisMin = yAxisMin;
-    }
-
     @Override
     public String toString() {
         return "PlotIntegratedDto{" +
@@ -127,7 +122,9 @@ public class PlotIntegratedDto implements Serializable {
      */
     public void removeLines(List<PlotSingleDto> list) {
 
-        recursiveRemoveLines(legendTree, list);
+        if (legendTree != null) {
+            recursiveRemoveLines(legendTree, list);
+        }
     }
 
 
