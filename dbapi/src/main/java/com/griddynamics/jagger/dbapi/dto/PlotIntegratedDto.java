@@ -39,6 +39,14 @@ public class PlotIntegratedDto implements Serializable {
         this.plotHeader = plotHeader;
     }
 
+    public PlotIntegratedDto (PlotIntegratedDto that) {
+
+        this.legendTree = new MetricGroupNode<LegendNode>(that.legendTree);
+        this.xAxisLabel = that.xAxisLabel;
+        this.yAxisLabel = that.yAxisLabel;
+        this.plotHeader = that.plotHeader;
+    }
+
     public PlotIntegratedDto(MetricGroupNode<LegendNode> legendTree, String xAxisLabel, String yAxisLabel, String plotHeader, Collection<MarkingDto> markingSeries) {
         this.legendTree = legendTree;
         this.xAxisLabel = xAxisLabel;
@@ -110,45 +118,6 @@ public class PlotIntegratedDto implements Serializable {
                 ", yAxisLabel='" + yAxisLabel + '\'' +
                 ", plotHeader='" + plotHeader + '\'' +
                 '}';
-    }
-
-
-    /**
-     * Make copy of this object
-     * @return copy of this object
-     */
-    public PlotIntegratedDto copy() {
-
-        return new PlotIntegratedDto(copy(legendTree), xAxisLabel, yAxisLabel, plotHeader);
-    }
-
-    /**
-     * Copy legend tree
-     * @param tree to copy
-     * @return copy of the given tree
-     */
-    private MetricGroupNode<LegendNode> copy(MetricGroupNode<LegendNode> tree) {
-        MetricGroupNode<LegendNode> copyTree = new MetricGroupNode<LegendNode>();
-        copyTree.setId(tree.getId());
-        copyTree.setDisplayName(tree.getDisplayName());
-
-        if (tree.getMetricGroupNodeList() != null) {
-            List<MetricGroupNode<LegendNode>> groupList =
-                    new ArrayList<MetricGroupNode<LegendNode>>(tree.getMetricGroupNodeList().size());
-
-            for (MetricGroupNode<LegendNode> group : tree.getMetricGroupNodeList()) {
-                groupList.add(copy(group));
-            }
-
-            copyTree.setMetricGroupNodeList(groupList);
-        }
-
-        if (tree.getMetricsWithoutChildren() != null) {
-            List<LegendNode> nodeList = new ArrayList<LegendNode>(tree.getMetricsWithoutChildren());
-            copyTree.setMetrics(nodeList);
-        }
-
-        return copyTree;
     }
 
 

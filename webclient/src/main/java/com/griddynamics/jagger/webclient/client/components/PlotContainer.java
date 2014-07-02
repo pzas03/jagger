@@ -195,10 +195,9 @@ public class PlotContainer extends  VerticalLayoutContainer {
             public void onSelection(SelectionEvent<Item> event) {
 
                 LegendTree legendTree = plotRepresentation.getLegendTree();
-                PlotIntegratedDto pid = plotRepresentation.getPlotIntegratedDto();
+                PlotIntegratedDto pid = new PlotIntegratedDto(plotRepresentation.getPlotIntegratedDto());
 
-                pid = pid.copy();
-                pid.removeLines(legendTree.getListOfUnChosenLines());
+                pid.removeLines(legendTree.getListOfNotSelectedLines());
 
                 FileDownLoader.downloadPlotInCsv(pid);
             }
