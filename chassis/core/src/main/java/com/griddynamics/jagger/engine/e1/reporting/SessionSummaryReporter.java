@@ -45,10 +45,10 @@ public class SessionSummaryReporter extends AbstractReportProvider {
                 sessionId);
 
         if (all.size() > 1) {
-            throw new IllegalStateException("To much session data was stored for the session.");
+            throw new IllegalStateException("To much session data was stored for the session " + sessionId);
         }
         if (all.isEmpty()) {
-            throw new IllegalStateException("Session data for session "+sessionId+" was not stored");
+            throw new IllegalStateException("Session data for session " + sessionId + " was not stored");
         }
         all.get(0).setSessionName(sessionId);
 

@@ -88,21 +88,13 @@ public class SummaryReporter {
 
         getData(sessionId);
 
-        int numberOfTestGroups = 0;
-        Integer groupIndex = null;
-        for (TestEntity testEntity : metricsPerTest.keySet()) {
-            if (groupIndex == null) {
-                groupIndex = testEntity.getTestGroupIndex();
-                numberOfTestGroups ++;
-            }
+        Set<Integer> testGroupsIndexes = new HashSet<Integer>();
 
-            if (!groupIndex.equals(testEntity.getTestGroupIndex())) {
-                // there is more then one test group in current session
-                numberOfTestGroups ++;
-            }
+        for (TestEntity testEntity : metricsPerTest.keySet()) {
+            testGroupsIndexes.add(testEntity.getTestGroupIndex());
         }
 
-        return numberOfTestGroups;
+        return testGroupsIndexes.size();
     }
 
     private void getData(String sessionId) {

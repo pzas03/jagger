@@ -63,7 +63,7 @@ public class PlotsReporter {
         this.sessionId = sessionId;
 
         SessionMatchingSetup sessionMatchingSetup = new SessionMatchingSetup(
-                databaseService.getWebClientProperties().isShowOnlyMatchedTests(),
+                true,
                 EnumSet.of(SessionMatchingSetup.MatchBy.ALL));
 
         RootNode controlTree = databaseService.getControlTreeForSessions(
@@ -81,7 +81,7 @@ public class PlotsReporter {
         Set<MetricNode> allMetrics = new HashSet<MetricNode>();
 
         DetailsNode detailsNode = controlTree.getDetailsNode();
-        if (detailsNode.getChildren().isEmpty())
+        if (detailsNode.getTests().isEmpty())
             return;
 
         for (TestDetailsNode testDetailsNode : detailsNode.getTests()) {
@@ -92,45 +92,50 @@ public class PlotsReporter {
             Map<MetricNode, PlotIntegratedDto> dataMap = databaseService.getPlotDataByMetricNode(allMetrics);
 
             for (TestDetailsNode testDetailsNode : detailsNode.getTests()) {
-                getDetailsPlotsReport(testDetailsNode, testDetailsNode.getTaskDataDto().getId(), dataMap);
+                getDetailsPlotsReport(
+                        testDetailsNode,
+                        testDetailsNode.getTaskDataDto().getId(),
+                        testDetailsNode.getTaskDataDto().getTaskName(),
+                        dataMap);
             }
         } catch (Exception e) {
-            log.error("Unable to get plots information for metrics");
+            log.error("Unable to get metrics plots information for session " + this.sessionId, e);
         }
     }
 
 
-    private void getDetailsPlotsReport(MetricGroupNode<PlotNode> metricGroupNode, Long testId, Map<MetricNode, PlotIntegratedDto> dataMap) {
-        try {
+    private void getDetailsPlotsReport(
+            MetricGroupNode<PlotNode> metricGroupNode,
+            Long testId,
+            String testName,
+            Map<MetricNode, PlotIntegratedDto> dataMap) {
 
-            if (metricGroupNode.getMetricGroupNodeList() != null) {
-                for (MetricGroupNode<PlotNode> metricGroup :  metricGroupNode.getMetricGroupNodeList())
-                    getDetailsPlotsReport(metricGroup, testId, dataMap);
-            }
-            if (metricGroupNode.getMetricsWithoutChildren() != null) {
+        if (metricGroupNode.getMetricGroupNodeList() != null) {
+            for (MetricGroupNode<PlotNode> metricGroup :  metricGroupNode.getMetricGroupNodeList())
+                getDetailsPlotsReport(metricGroup, testId, testName, dataMap);
+        }
+        if (metricGroupNode.getMetricsWithoutChildren() != null) {
 
-                String groupTitle = metricGroupNode.getDisplayName();
-                for (MetricNode node : metricGroupNode.getMetricsWithoutChildren()) {
-                    if (dataMap.get(node).getPlotSeries().isEmpty())   {
-                        log.warn("No plot data for "+ node.getDisplayName());
-                        continue;
-                    }
-                    if (!testIdToPlotsMap.containsKey(testId))
-                        testIdToPlotsMap.put(testId, new MetricPlotDTOs());
-                    testIdToPlotsMap.get(testId).getMetricPlotDTOs().add(
-                            new MetricPlotDTO(
-                                    node.getDisplayName(),
-                                    node.getDisplayName(),
-                                    groupTitle,
-                                    makePlot(dataMap.get(node))
-                            )
-                    );
-
-                    groupTitle = "";
+            String groupTitle = metricGroupNode.getDisplayName();
+            for (MetricNode node : metricGroupNode.getMetricsWithoutChildren()) {
+                if (dataMap.get(node).getPlotSeries().isEmpty())   {
+                    log.warn("No plot data for metric " + node.getDisplayName() + " in test " + testName + " in session " + sessionId);
+                    continue;
                 }
+                if (!testIdToPlotsMap.containsKey(testId))
+                    testIdToPlotsMap.put(testId, new MetricPlotDTOs());
+
+                testIdToPlotsMap.get(testId).getMetricPlotDTOs().add(
+                        new MetricPlotDTO(
+                                node.getDisplayName(),
+                                node.getDisplayName(),
+                                groupTitle,
+                                makePlot(dataMap.get(node))
+                        )
+                );
+
+                groupTitle = "";
             }
-        } catch (Exception e) {
-            log.error("Unable to take plot data for {}", metricGroupNode.getDisplayName());
         }
     }
 
@@ -165,32 +170,29 @@ public class PlotsReporter {
 
 
     private void getSessionScopePlotsReport(Map<MetricNode, PlotIntegratedDto> dataMap, MetricGroupNode<PlotNode> metricGroupNode) {
-        try {
 
-            if (metricGroupNode.getMetricGroupNodeList() != null) {
-                for (MetricGroupNode<PlotNode> metricGroup : metricGroupNode.getMetricGroupNodeList())
-                    getSessionScopePlotsReport(dataMap, metricGroup);
-            }
-            if (metricGroupNode.getMetricsWithoutChildren() != null) {
+        if (metricGroupNode.getMetricGroupNodeList() != null) {
+            for (MetricGroupNode<PlotNode> metricGroup : metricGroupNode.getMetricGroupNodeList())
+                getSessionScopePlotsReport(dataMap, metricGroup);
+        }
+        if (metricGroupNode.getMetricsWithoutChildren() != null) {
 
-                // useless groupTitle ??
-                String groupTitle = metricGroupNode.getDisplayName();
+            String groupTitle = metricGroupNode.getDisplayName();
 
-                for (PlotNode node : metricGroupNode.getMetricsWithoutChildren()) {
-                    if (dataMap.get(node).getPlotSeries().isEmpty()) {
-                        log.warn("No plot data for " + node.getDisplayName());
-                        continue;
-                    }
-
-                    sessionScopePlots.getMetricPlotDTOs().add(new MetricPlotDTO(
-                            node.getDisplayName(),
-                            node.getDisplayName(),
-                            groupTitle,
-                            makePlot(dataMap.get(node))));
+            for (PlotNode node : metricGroupNode.getMetricsWithoutChildren()) {
+                if (dataMap.get(node).getPlotSeries().isEmpty()) {
+                    log.warn("No session scope plot data for metric {} in session {}", node.getDisplayName(), this.sessionId);
+                    continue;
                 }
+
+                sessionScopePlots.getMetricPlotDTOs().add(new MetricPlotDTO(
+                        node.getDisplayName(),
+                        node.getDisplayName(),
+                        groupTitle,
+                        makePlot(dataMap.get(node))));
+
+                groupTitle = "";
             }
-        } catch (Exception e) {
-            log.error("Unable to take plot data for {}", metricGroupNode.getDisplayName());
         }
     }
 

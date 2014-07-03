@@ -56,6 +56,6 @@ public class MetricPlotsReporter extends AbstractMappedReportProvider<String> {
             return new JRBeanCollectionDataSource(Collections.emptyList());
         }
 
-        return new JRBeanCollectionDataSource(Collections.singleton(testIdToPlotsMap.get(Long.valueOf(id))));
+        return new JRBeanCollectionDataSource(Collections.singleton(testIdToPlotsMap.get(testId)));
     }
 }
