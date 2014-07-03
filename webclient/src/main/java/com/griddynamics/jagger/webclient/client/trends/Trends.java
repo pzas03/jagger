@@ -28,8 +28,8 @@ import com.googlecode.gflot.client.*;
 import com.googlecode.gflot.client.options.*;
 import com.griddynamics.jagger.dbapi.dto.*;
 import com.griddynamics.jagger.dbapi.model.*;
+import com.griddynamics.jagger.util.FormatCalculator;
 import com.griddynamics.jagger.util.MonitoringIdUtils;
-import com.griddynamics.jagger.util.NumberFormatCalculator;
 import com.griddynamics.jagger.webclient.client.*;
 import com.griddynamics.jagger.webclient.client.components.*;
 import com.griddynamics.jagger.webclient.client.components.control.CheckHandlerMap;
@@ -68,6 +68,7 @@ public class Trends extends DefaultActivity {
     private boolean allTagsLoadComplete = true;
     private Set<String> tagNames = new HashSet<String>();
 
+    private DateTimeFormat dateFormatter = DateTimeFormat.getFormat(FormatCalculator.DATE_FORMAT);
 
     private static TrendsUiBinder uiBinder = GWT.create(TrendsUiBinder.class);
 
@@ -624,7 +625,7 @@ public class Trends extends DefaultActivity {
 
                         if (format == null) {
                             double tempDouble = tickValue * 5;
-                            format = NumberFormat.getFormat(NumberFormatCalculator.getNumberFormat(tempDouble));
+                            format = NumberFormat.getFormat(FormatCalculator.getNumberFormat(tempDouble));
                         }
 
                         return format.format(tickValue).replace('E', 'e');
@@ -831,7 +832,7 @@ public class Trends extends DefaultActivity {
 
             @Override
             public String getValue(SessionDataDto object) {
-                return object.getStartDate();
+                return dateFormatter.format(object.getStartDate());
             }
         };
         sessionsDataGrid.addColumn(startDateColumn, "Start Date");
@@ -847,7 +848,7 @@ public class Trends extends DefaultActivity {
 
             @Override
             public String getValue(SessionDataDto object) {
-                return object.getEndDate();
+                return dateFormatter.format(object.getEndDate());
             }
         };
         sessionsDataGrid.addColumn(endDateColumn, "End Date");
@@ -1096,7 +1097,14 @@ public class Trends extends DefaultActivity {
         zoomPanel.add(zoomBack);
 
 
-        PlotRepresentation plotRepresentation = new PlotRepresentation(metricNode, zoomPanel, plot, legendTree, xAxisLabel);
+        PlotRepresentation plotRepresentation = new PlotRepresentation(
+                metricNode,
+                zoomPanel,
+                plot,
+                legendTree,
+                xAxisLabel,
+                plotSeriesDto);
+
         PlotContainer pc = new PlotContainer(id, plotSeriesDto.getPlotHeader(), plotRepresentation, plotSaver);
 
         panel.addElement(pc);
@@ -1169,7 +1177,7 @@ public class Trends extends DefaultActivity {
             //Refresh summary
             chosenMetrics.clear();
             chosenPlots.clear();
-            summaryPanel.updateSessions(selected, webClientProperties);
+            summaryPanel.updateSessions(selected, webClientProperties, dateFormatter);
             needRefresh = mainTabPanel.getSelectedIndex() != tabSummary.getTabIndex();
             // Reset node info and remember selected sessions
             // Fetch info when on Nodes tab
@@ -1211,7 +1219,9 @@ public class Trends extends DefaultActivity {
             });
 
             disableControl();
-            ControlTreeCreatorService.Async.getInstance().getControlTreeForSessions(sessionIds, new AsyncCallback<RootNode>() {
+            ControlTreeCreatorService.Async.getInstance().getControlTreeForSessions(sessionIds,
+                webClientProperties.isShowOnlyMatchedTests(),
+                new AsyncCallback<RootNode>() {
                 @Override
                 public void onFailure(Throwable caught) {
                     caught.printStackTrace();
@@ -1584,7 +1594,8 @@ public class Trends extends DefaultActivity {
 
                 if (!notLoaded.isEmpty()) {
                     disableControl();
-                    MetricDataService.Async.getInstance().getMetrics(notLoaded, new AsyncCallback<Map<MetricNode, SummaryIntegratedDto>>() {
+                    MetricDataService.Async.getInstance().getMetrics(notLoaded, webClientProperties.isEnableDecisionsPerMetricHighlighting(),
+                        new AsyncCallback<Map<MetricNode, SummaryIntegratedDto>>() {
                         @Override
                         public void onFailure(Throwable caught) {
                             caught.printStackTrace();
@@ -1834,17 +1845,4 @@ public class Trends extends DefaultActivity {
         }
         return str;
     }
-
-    private double getMinY(PlotIntegratedDto plotSeriesDto) {
-        double yMin = Double.MAX_VALUE;
-        for (PlotSingleDto plotDatasetDto : plotSeriesDto.getPlotSeries()) {
-            for (PointDto point : plotDatasetDto.getPlotData()) {
-                if (yMin > point.getY()) {
-                    yMin = point.getY();
-                }
-            }
-        }
-        return yMin;
-    }
-        
 }
