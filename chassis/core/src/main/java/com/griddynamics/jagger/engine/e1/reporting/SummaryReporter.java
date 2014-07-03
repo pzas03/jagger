@@ -93,6 +93,19 @@ public class SummaryReporter {
         return standardMetricsMap;
     }
 
+    public int getNumberOfTestGroups(String sessionId) {
+
+        getData(sessionId);
+
+        Set<Integer> testGroupsIndexes = new HashSet<Integer>();
+
+        for (TestEntity testEntity : metricsPerTest.keySet()) {
+            testGroupsIndexes.add(testEntity.getTestGroupIndex());
+        }
+
+        return testGroupsIndexes.size();
+    }
+
     private void getData(String sessionId) {
 
         // Remember what session id was set for cashed data
