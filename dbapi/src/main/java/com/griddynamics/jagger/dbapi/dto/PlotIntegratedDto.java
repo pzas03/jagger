@@ -38,14 +38,6 @@ public class PlotIntegratedDto implements Serializable {
         this.plotHeader = plotHeader;
     }
 
-    public PlotIntegratedDto (PlotIntegratedDto that) {
-
-        this.legendTree = new MetricGroupNode<LegendNode>(that.legendTree);
-        this.xAxisLabel = that.xAxisLabel;
-        this.yAxisLabel = that.yAxisLabel;
-        this.plotHeader = that.plotHeader;
-    }
-
     public PlotIntegratedDto(MetricGroupNode<LegendNode> legendTree, String xAxisLabel, String yAxisLabel, String plotHeader, Collection<MarkingDto> markingSeries) {
         this.legendTree = legendTree;
         this.xAxisLabel = xAxisLabel;
@@ -113,46 +105,5 @@ public class PlotIntegratedDto implements Serializable {
                 ", yAxisLabel='" + yAxisLabel + '\'' +
                 ", plotHeader='" + plotHeader + '\'' +
                 '}';
-    }
-
-
-    /**
-     * Removes lines from legendTree
-     * @param list list of lines to remove
-     */
-    public void removeLines(List<PlotSingleDto> list) {
-
-        if (legendTree != null) {
-            recursiveRemoveLines(legendTree, list);
-        }
-    }
-
-
-    /**
-     * @return true if there is no children
-     */
-    private boolean recursiveRemoveLines(MetricGroupNode<LegendNode> tree, List<PlotSingleDto> list) {
-
-        if (tree.getMetricsWithoutChildren() != null) {
-            List<LegendNode> toRemove = new ArrayList<LegendNode>();
-            for (LegendNode node : tree.getMetricsWithoutChildren()) {
-                if (list.contains(node.getLine())) {
-                    toRemove.add(node);
-                }
-            }
-            tree.getMetricsWithoutChildren().removeAll(toRemove);
-        }
-
-        if (tree.getMetricGroupNodeList() != null) {
-            List<MetricGroupNode<LegendNode>> subGroupsToRemove = new ArrayList<MetricGroupNode<LegendNode>>();
-            for (MetricGroupNode<LegendNode> subGroup : tree.getMetricGroupNodeList()) {
-                if (recursiveRemoveLines(subGroup, list)) {
-                    subGroupsToRemove.add(subGroup);
-                }
-            }
-            tree.getMetricGroupNodeList().removeAll(subGroupsToRemove);
-        }
-
-        return tree.getChildren().size() == 0;
     }
 }
