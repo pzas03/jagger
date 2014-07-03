@@ -1097,7 +1097,14 @@ public class Trends extends DefaultActivity {
         zoomPanel.add(zoomBack);
 
 
-        PlotRepresentation plotRepresentation = new PlotRepresentation(metricNode, zoomPanel, plot, legendTree, xAxisLabel);
+        PlotRepresentation plotRepresentation = new PlotRepresentation(
+                metricNode,
+                zoomPanel,
+                plot,
+                legendTree,
+                xAxisLabel,
+                plotSeriesDto);
+
         PlotContainer pc = new PlotContainer(id, plotSeriesDto.getPlotHeader(), plotRepresentation, plotSaver);
 
         panel.addElement(pc);
@@ -1838,17 +1845,4 @@ public class Trends extends DefaultActivity {
         }
         return str;
     }
-
-    private double getMinY(PlotIntegratedDto plotSeriesDto) {
-        double yMin = Double.MAX_VALUE;
-        for (PlotSingleDto plotDatasetDto : plotSeriesDto.getPlotSeries()) {
-            for (PointDto point : plotDatasetDto.getPlotData()) {
-                if (yMin > point.getY()) {
-                    yMin = point.getY();
-                }
-            }
-        }
-        return yMin;
-    }
-        
 }
