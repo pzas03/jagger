@@ -4,6 +4,7 @@ import com.griddynamics.jagger.dbapi.DatabaseService;
 import com.griddynamics.jagger.dbapi.dto.PlotIntegratedDto;
 import com.griddynamics.jagger.dbapi.dto.PlotSingleDto;
 import com.griddynamics.jagger.dbapi.dto.PointDto;
+import com.griddynamics.jagger.dbapi.dto.TaskDataDto;
 import com.griddynamics.jagger.dbapi.model.*;
 import com.griddynamics.jagger.dbapi.util.SessionMatchingSetup;
 import com.griddynamics.jagger.reporting.chart.ChartHelper;
@@ -76,8 +77,6 @@ public class PlotsReporter {
 
     private void fetchPerTestData(RootNode controlTree) {
 
-        testIdToPlotsMap = new HashMap<Long, MetricPlotDTOs>();
-
         Set<MetricNode> allMetrics = new HashSet<MetricNode>();
 
         DetailsNode detailsNode = controlTree.getDetailsNode();
@@ -92,50 +91,15 @@ public class PlotsReporter {
             Map<MetricNode, PlotIntegratedDto> dataMap = databaseService.getPlotDataByMetricNode(allMetrics);
 
             for (TestDetailsNode testDetailsNode : detailsNode.getTests()) {
-                getDetailsPlotsReport(
+                TaskDataDto taskDataDto = testDetailsNode.getTaskDataDto();
+                getPlotsReport(
+                        dataMap,
                         testDetailsNode,
-                        testDetailsNode.getTaskDataDto().getId(),
-                        testDetailsNode.getTaskDataDto().getTaskName(),
-                        dataMap);
+                        new PerTestReportPlotHelper(taskDataDto.getId(), taskDataDto.getTaskName())
+                );
             }
         } catch (Exception e) {
             log.error("Unable to get metrics plots information for session " + this.sessionId, e);
-        }
-    }
-
-
-    private void getDetailsPlotsReport(
-            MetricGroupNode<PlotNode> metricGroupNode,
-            Long testId,
-            String testName,
-            Map<MetricNode, PlotIntegratedDto> dataMap) {
-
-        if (metricGroupNode.getMetricGroupNodeList() != null) {
-            for (MetricGroupNode<PlotNode> metricGroup :  metricGroupNode.getMetricGroupNodeList())
-                getDetailsPlotsReport(metricGroup, testId, testName, dataMap);
-        }
-        if (metricGroupNode.getMetricsWithoutChildren() != null) {
-
-            String groupTitle = metricGroupNode.getDisplayName();
-            for (MetricNode node : metricGroupNode.getMetricsWithoutChildren()) {
-                if (dataMap.get(node).getPlotSeries().isEmpty())   {
-                    log.warn("No plot data for metric " + node.getDisplayName() + " in test " + testName + " in session " + sessionId);
-                    continue;
-                }
-                if (!testIdToPlotsMap.containsKey(testId))
-                    testIdToPlotsMap.put(testId, new MetricPlotDTOs());
-
-                testIdToPlotsMap.get(testId).getMetricPlotDTOs().add(
-                        new MetricPlotDTO(
-                                node.getDisplayName(),
-                                node.getDisplayName(),
-                                groupTitle,
-                                makePlot(dataMap.get(node))
-                        )
-                );
-
-                groupTitle = "";
-            }
         }
     }
 
@@ -156,36 +120,39 @@ public class PlotsReporter {
             return;
         }
 
-        sessionScopePlots = new MetricPlotDTOs();
-
-
-
         Set<MetricNode> allMetrics = new HashSet<MetricNode>(sessionScopeNode.getMetrics());
         try {
-            getSessionScopePlotsReport(databaseService.getPlotDataByMetricNode(allMetrics), sessionScopeNode);
+            getPlotsReport(
+                    databaseService.getPlotDataByMetricNode(allMetrics),
+                    sessionScopeNode,
+                    new SessionScopeReportPlotHelper());
         } catch (Exception e) {
             log.error("Unable to fetch session scope plots for metrics ", allMetrics);
         }
     }
 
 
-    private void getSessionScopePlotsReport(Map<MetricNode, PlotIntegratedDto> dataMap, MetricGroupNode<PlotNode> metricGroupNode) {
+    private void getPlotsReport(
+            Map<MetricNode, PlotIntegratedDto> dataMap,
+            MetricGroupNode<? extends MetricNode> metricGroupNode,
+            ReportPlotHelper reportPlotHelper) {
 
         if (metricGroupNode.getMetricGroupNodeList() != null) {
-            for (MetricGroupNode<PlotNode> metricGroup : metricGroupNode.getMetricGroupNodeList())
-                getSessionScopePlotsReport(dataMap, metricGroup);
+            for (MetricGroupNode<? extends MetricNode> metricGroup : metricGroupNode.getMetricGroupNodeList())
+                getPlotsReport(dataMap, metricGroup, reportPlotHelper);
         }
         if (metricGroupNode.getMetricsWithoutChildren() != null) {
 
             String groupTitle = metricGroupNode.getDisplayName();
 
-            for (PlotNode node : metricGroupNode.getMetricsWithoutChildren()) {
+            for (MetricNode node : metricGroupNode.getMetricsWithoutChildren()) {
                 if (dataMap.get(node).getPlotSeries().isEmpty()) {
-                    log.warn("No session scope plot data for metric {} in session {}", node.getDisplayName(), this.sessionId);
+                    log.warn(reportPlotHelper.getEmptyPlotSeriesWarnMessage(node));
                     continue;
                 }
 
-                sessionScopePlots.getMetricPlotDTOs().add(new MetricPlotDTO(
+                MetricPlotDTOs metricPlotDTOs = reportPlotHelper.getMetricPlotDTOs();
+                metricPlotDTOs.getMetricPlotDTOs().add(new MetricPlotDTO(
                         node.getDisplayName(),
                         node.getDisplayName(),
                         groupTitle,
@@ -265,6 +232,63 @@ public class PlotsReporter {
 
     }
 
+    /**
+     * Interface to use same function of plot generation for session scope and per test metrics (getPlotsReport(...))
+     */
+    private interface ReportPlotHelper {
+        MetricPlotDTOs getMetricPlotDTOs();
+
+        String getEmptyPlotSeriesWarnMessage(MetricNode metricNode);
+    }
+
+    /**
+     * Use while session scope plot generation
+     */
+    private class SessionScopeReportPlotHelper implements ReportPlotHelper {
+        @Override
+        public MetricPlotDTOs getMetricPlotDTOs() {
+            if (sessionScopePlots == null) {
+                sessionScopePlots = new MetricPlotDTOs();
+            }
+            return sessionScopePlots;
+        }
+
+        @Override
+        public String getEmptyPlotSeriesWarnMessage(MetricNode metricNode) {
+            return "No session scope plot data for metric " + metricNode.getDisplayName() + " in session " + sessionId;
+        }
+    }
+
+    /**
+     * Use while per test plot generation
+     */
+    private class PerTestReportPlotHelper implements ReportPlotHelper {
+
+        private final Long testId;
+        private final String testName;
+
+        public PerTestReportPlotHelper(Long testId, String testName) {
+            this.testId = testId;
+            this.testName = testName;
+        }
+
+        @Override
+        public MetricPlotDTOs getMetricPlotDTOs() {
+            if (testIdToPlotsMap == null) {
+                testIdToPlotsMap = new HashMap<Long, MetricPlotDTOs>();
+            }
+
+            if (!testIdToPlotsMap.containsKey(testId))
+                testIdToPlotsMap.put(testId, new MetricPlotDTOs());
+
+            return testIdToPlotsMap.get(testId);
+        }
+
+        @Override
+        public String getEmptyPlotSeriesWarnMessage(MetricNode metricNode) {
+            return "No plot data for metric " + metricNode.getDisplayName() + " in test " + testName + " in session " + sessionId;
+        }
+    }
 
     private JCommonDrawableRenderer makePlot(PlotIntegratedDto plotIntegratedDto) {
         XYSeriesCollection plotCollection = new XYSeriesCollection();
