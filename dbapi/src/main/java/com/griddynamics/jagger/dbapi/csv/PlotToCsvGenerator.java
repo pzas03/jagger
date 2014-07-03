@@ -44,7 +44,7 @@ public class PlotToCsvGenerator {
                     raw[0] = point.getX();
                     raw[i] = point.getY();
 
-                    writer.write(raw);
+                    writer.write((Object[])raw);
                 }
                 i++;
             }
