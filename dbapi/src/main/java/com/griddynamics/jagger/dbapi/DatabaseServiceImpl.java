@@ -1198,7 +1198,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
                 if (ssPlotNodes.size() > 0) {
                     String rootIdSS = NameTokens.SESSION_SCOPE_PLOTS;
-                    sessionScopeNode = buildTreeAccordingToRules(rootIdSS, agentNames, new ArrayList<PlotNode>(ssPlotNodes));
+                    sessionScopeNode = buildTreeAccordingToRules(rootIdSS, agentNames, new ArrayList<PlotNode>(ssPlotNodes), true);
                 }
             }
 
@@ -1216,7 +1216,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
                 if (metricNodeList != null && metricNodeList.size() > 0) {
                     // apply rules how to build tree
-                    MetricGroupNode<PlotNode> testDetailsNodeBase = buildTreeAccordingToRules(rootId, agentNames, metricNodeList);
+                    MetricGroupNode<PlotNode> testDetailsNodeBase = buildTreeAccordingToRules(rootId, agentNames, metricNodeList, true);
 
                     // full test details node
                     TestDetailsNode testNode = new TestDetailsNode(testDetailsNodeBase);
@@ -1257,7 +1257,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             if (metricNodeList.size() > 0) {
                 // apply rules how to build tree
-                MetricGroupNode<MetricNode> testNodeBase = buildTreeAccordingToRules(rootId, agentNames, metricNodeList);
+                MetricGroupNode<MetricNode> testNodeBase = buildTreeAccordingToRules(rootId, agentNames, metricNodeList, false);
 
                 // full test node with info data
                 TestNode testNode = new TestNode(testNodeBase);
@@ -1354,19 +1354,26 @@ public class DatabaseServiceImpl implements DatabaseService {
         return agentNames;
     }
 
-    private <M extends MetricNode> MetricGroupNode<M> buildTreeAccordingToRules(String rootId, Map<String, Set<String>> agentNames, List<M> metricNodeList) {
-        // rules to unite metrics in single plot
-        TreeViewGroupMetricsToNodeRule unitedMetricsRule = treeViewGroupMetricsToNodeRuleProvider.provide(agentNames);
-        // unite metrics and add result to original list
-        List<M> unitedMetrics = unitedMetricsRule.filter(rootId, metricNodeList);
-        if (unitedMetrics != null) {
-            metricNodeList.addAll(unitedMetrics);
+    private <M extends MetricNode> MetricGroupNode<M> buildTreeAccordingToRules(
+            String rootId, Map<String,
+            Set<String>> agentNames,
+            List<M> metricNodeList,
+            boolean groupMetricsToNodes) {
+
+        if (groupMetricsToNodes) {
+            // rules to unite metrics in single plot
+            TreeViewGroupMetricsToNodeRule unitedMetricsRule = treeViewGroupMetricsToNodeRuleProvider.provide(agentNames);
+            // unite metrics and add result to original list
+            List<M> unitedMetrics = unitedMetricsRule.filter(rootId, metricNodeList);
+            if (unitedMetrics != null) {
+                metricNodeList.addAll(unitedMetrics);
+            }
         }
 
         // rules to create test tree view
         TreeViewGroupRule groupedNodesRule = treeViewGroupRuleProvider.provide(rootId, rootId);
         // tree with metrics distributed by groups
-        MetricGroupNode<M> testNodeBase = groupedNodesRule.filter(null,metricNodeList);
+        MetricGroupNode<M> testNodeBase = groupedNodesRule.filter(null, metricNodeList);
 
         return testNodeBase;
     }
