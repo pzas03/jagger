@@ -148,7 +148,7 @@ public class Trends extends DefaultActivity {
     }
 
     @UiHandler("getHyperlink")
-    void getHyperlink(ClickEvent event){
+    void getHyperlink(ClickEvent event) {
         MultiSelectionModel<SessionDataDto> sessionModel = (MultiSelectionModel)sessionsDataGrid.getSelectionModel();
         if (sessionModel.getSelectedSet().isEmpty()) {
             return;
@@ -214,16 +214,15 @@ public class Trends extends DefaultActivity {
                 TestNode testNode = controlTree.findTestNode(taskDataDto);
                 if (testNode == null) continue;
 
-                Set<MetricNameDto> metricsNames = new HashSet<MetricNameDto>();
-                for (MetricNode metricNode : controlTree.getCheckedMetrics(testNode)) {
-                    metricsNames.addAll(metricNode.getMetricNameDtoList());
-                }
-
-                if (metricsNames.size() < testNode.getMetrics().size()) {
-                    for (MetricNameDto mnd : metricsNames) {
-                        testsMetrics.getMetrics().add(mnd.getMetricName());
+                Set<MetricNode> checkedNodes = controlTree.getCheckedMetrics(testNode);
+                if (checkedNodes.size() < testNode.getMetrics().size()) {
+                    for (MetricNode metricNode : checkedNodes) {
+                        for (MetricNameDto mnd : metricNode.getMetricNameDtoList()) {
+                            testsMetrics.getMetrics().add(mnd.getMetricName());
+                        }
                     }
                 }
+
                 testsMetricses.add(testsMetrics);
                 map.put(taskDataDto.getTaskName(), testsMetrics);
             }
