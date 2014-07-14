@@ -1360,8 +1360,9 @@ public class DatabaseServiceImpl implements DatabaseService {
      * @param agentNames map of monitoring parameter -> agent names
      * @param metricNodeList list of nodes to build tree
      * @param groupMetricsToNodes tells whether we should group several Nodes into one node. @n
-     *                            standard metrics should be grouped with plots (example Latency, LatencyStdDev -> Latency) @n
-     *                            but not grouped with summary
+     *                            for Summary&Trends tab view - we show standard metrics as separate metric nodes @n
+     *                            for Metrics tab view - we group metrics (metricnameDto) to single metric node @n
+     *                            (example Latency, LatencyStdDev -> Latency) @n
      * @param <M> Node type that extends MetricNode
      * @return Tree of nodes
      */
