@@ -51,6 +51,6 @@ public class StandardMetricsNamesUtil {
         return "Latency " + latencyKey + " %";
     }
 
-    // ?? temporary prefix
+    // ?? temporary prefix will be removed after JFG-596 is complete.
     public static final String TEMPORARY_PREFIX = "m-";
 }
