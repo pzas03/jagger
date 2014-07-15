@@ -46,7 +46,7 @@ public class StandardMetricSummaryFetcher extends DbMetricDataFetcher<SummarySin
         for (MetricNameDto metricName : restMetricNames) {
 
             SummarySingleDto metricDto = new SummarySingleDto();
-            resultSet.add(metricDto);
+
             metricDto.setMetricName(metricName);
             metricDto.setValues(new HashSet<SummaryMetricValueDto>());
             for (WorkloadTaskData workloadTaskData : workloadTaskDatas) {
@@ -61,17 +61,23 @@ public class StandardMetricSummaryFetcher extends DbMetricDataFetcher<SummarySin
 
                     String value = null;
                     if (metricId.equals(StandardMetricsNamesUtil.LATENCY_ID)) {
-                        value = workloadTaskData.getAvgLatency().toString();
+                        if (workloadTaskData.getAvgLatency() != null)
+                            value = workloadTaskData.getAvgLatency().toString();
                     } else if (metricId.equals(StandardMetricsNamesUtil.ITERATION_SAMPLES_ID)) {
-                        value = workloadTaskData.getSamples().toString();
+                        if (workloadTaskData.getSamples() != null)
+                            value = workloadTaskData.getSamples().toString();
                     } else if (metricId.equals(StandardMetricsNamesUtil.SUCCESS_RATE_ID)) {
-                        value = workloadTaskData.getSuccessRate().toString();
+                        if (workloadTaskData.getSuccessRate() != null)
+                            value = workloadTaskData.getSuccessRate().toString();
                     } else if (metricId.equals(StandardMetricsNamesUtil.THROUGHPUT_ID)) {
-                        value = workloadTaskData.getThroughput().toString();
+                        if (workloadTaskData.getThroughput() != null)
+                            value = workloadTaskData.getThroughput().toString();
                     } else if (metricId.equals(StandardMetricsNamesUtil.FAIL_COUNT_ID)) {
-                        value = workloadTaskData.getFailuresCount().toString();
+                        if (workloadTaskData.getFailuresCount() != null)
+                            value = workloadTaskData.getFailuresCount().toString();
                     } else if (metricId.equals(StandardMetricsNamesUtil.LATENCY_STD_DEV_ID)) {
-                        value = workloadTaskData.getStdDevLatency().toString();
+                        if (workloadTaskData.getStdDevLatency() != null)
+                            value = workloadTaskData.getStdDevLatency().toString();
                     }
 
                     if (value != null)  {
@@ -79,6 +85,10 @@ public class StandardMetricSummaryFetcher extends DbMetricDataFetcher<SummarySin
                         metricDto.getValues().add(mvd);
                     }
                 }
+            }
+
+            if (!metricDto.getValues().isEmpty()) {
+                resultSet.add(metricDto);
             }
         }
 
