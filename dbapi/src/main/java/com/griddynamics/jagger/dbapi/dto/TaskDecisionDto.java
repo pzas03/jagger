@@ -7,12 +7,8 @@ import java.io.Serializable;
 public class TaskDecisionDto implements Serializable {
 
     private Long id;
+    private String name;
     private Decision decision;
-
-    public TaskDecisionDto(Long id, Decision decision) {
-        this.id = id;
-        this.decision = decision;
-    }
 
     public TaskDecisionDto() {}
 
@@ -32,4 +28,11 @@ public class TaskDecisionDto implements Serializable {
         this.id = id;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

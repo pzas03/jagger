@@ -79,12 +79,13 @@ public class LimitsBasedFeatureComparator extends HibernateDaoSupport implements
             Set<TaskDecisionDto> taskDecisionDtoSet = databaseService.getDecisionsPerTask(testGroupIds);
             List<Decision> testGroupDecisions = new ArrayList<Decision>();
             for (TaskDecisionDto taskDecisionDto : taskDecisionDtoSet) {
+                log.info("Decision '{}' was made for test group {}",taskDecisionDto.getDecision(),taskDecisionDto.getName());
                 testGroupDecisions.add(taskDecisionDto.getDecision());
             }
 
             // Make decision per session
             decisionPerSession = worstCaseDecisionMaker.getDecision(testGroupDecisions);
-            log.info("Decision '{}' was made for session {}",decisionPerSession,currentSession);
+            log.info("As result, decision '{}' was made for session {}",decisionPerSession,currentSession);
 
             // Save decision per session
             final DecisionPerSessionEntity decisionPerSessionEntity = new DecisionPerSessionEntity(currentSession,decisionPerSession.toString());
