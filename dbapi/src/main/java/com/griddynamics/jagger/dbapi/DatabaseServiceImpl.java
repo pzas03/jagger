@@ -1537,6 +1537,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             for (DecisionPerTaskEntity decisionPerTaskEntity : decisionPerTaskEntityList) {
                 TaskDecisionDto taskDecisionDto = new TaskDecisionDto();
                 taskDecisionDto.setId(decisionPerTaskEntity.getTaskData().getId());
+                taskDecisionDto.setName(decisionPerTaskEntity.getTaskData().getTaskName());
                 taskDecisionDto.setDecision(Decision.valueOf(decisionPerTaskEntity.getDecision()));
 
                 taskDecisionDtoSet.add(taskDecisionDto);
