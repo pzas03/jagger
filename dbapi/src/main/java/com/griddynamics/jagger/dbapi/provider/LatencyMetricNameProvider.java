@@ -48,12 +48,13 @@ public class LatencyMetricNameProvider implements MetricNameProvider{
 
         if (!latency.isEmpty()){
 
+
             for(WorkloadProcessLatencyPercentile percentile : latency) {
                 for (TaskDataDto tdd : tests) {
 
                     if (tdd.getIds().contains(percentile.getWorkloadProcessDescriptiveStatistics().getTaskData().getId())) {
                         MetricNameDto dto = new MetricNameDto();
-                        String metricName = StandardMetricsNamesUtil.getLatencyMetricName(percentile.getPercentileKey());
+                        String metricName = StandardMetricsNamesUtil.getLatencyMetricName(percentile.getPercentileKey(),true);
                         dto.setMetricName(metricName);
                         dto.setMetricDisplayName(metricName);
                         dto.setTest(tdd);

@@ -7,8 +7,6 @@ import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
 import com.griddynamics.jagger.dbapi.util.DataProcessingUtil;
 import com.griddynamics.jagger.dbapi.util.MetricNameUtil;
 import com.griddynamics.jagger.util.FormatCalculator;
-import com.griddynamics.jagger.util.StandardMetricsNamesUtil;
-import com.griddynamics.jagger.util.TimeUtils;
 
 import javax.persistence.PersistenceException;
 import java.text.DecimalFormat;
@@ -16,8 +14,6 @@ import java.text.DecimalFormatSymbols;
 import java.util.*;
 
 public class CustomMetricSummaryFetcher extends DbMetricDataFetcher<SummarySingleDto> {
-
-    private final String DURATION_AS_CUSTOM_ID = StandardMetricsNamesUtil.DURATION_ID + StandardMetricsNamesUtil.STANDARD_METRICS_AS_CUSTOM_SUFFIX;
 
     @Override
     protected Set<SummarySingleDto> fetchData(List<MetricNameDto> metricNames) {
@@ -79,9 +75,6 @@ public class CustomMetricSummaryFetcher extends DbMetricDataFetcher<SummarySingl
                             .format(val)
             );
 
-            if (DURATION_AS_CUSTOM_ID.equals(metricId)) {
-                value.setValueRepresentation(TimeUtils.formatDuration(((Number) mas[0]).longValue() * 1000));
-            }
             value.setSessionId(Long.parseLong((String)mas[1]));
             metricDto.getValues().add(value);
         }

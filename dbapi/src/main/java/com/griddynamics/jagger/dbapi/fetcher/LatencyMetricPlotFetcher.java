@@ -6,6 +6,7 @@ import com.griddynamics.jagger.dbapi.util.ColorCodeGenerator;
 import com.griddynamics.jagger.dbapi.dto.PointDto;
 import com.griddynamics.jagger.dbapi.parameter.DefaultWorkloadParameters;
 import com.griddynamics.jagger.dbapi.util.DataProcessingUtil;
+import com.griddynamics.jagger.util.StandardMetricsNamesUtil;
 
 import java.util.*;
 
@@ -31,12 +32,12 @@ public class LatencyMetricPlotFetcher extends StandardMetricPlotFetcher<LatencyM
 
         String legend = legendProvider.generatePlotLegend(sessionId, DefaultWorkloadParameters.LATENCY.getDescription(), true);
         PlotSingleDto plotDatasetDto = new PlotSingleDto(pointDtoLatencyList, legend,
-                ColorCodeGenerator.getHexColorCode(ColorCodeGenerator.LATENCY_COLOR, sessionId));
+                ColorCodeGenerator.getHexColorCode(StandardMetricsNamesUtil.LATENCY_ID, sessionId));
         plotDatasetDtoList.add(plotDatasetDto);
 
         legend = legendProvider.generatePlotLegend(sessionId, DefaultWorkloadParameters.LATENCY_STD_DEV.getDescription(), true);
         plotDatasetDto = new PlotSingleDto(pointDtoLatencyStdDevList, legend,
-                ColorCodeGenerator.getHexColorCode(ColorCodeGenerator.LATENCY_STD_DEV_COLOR, sessionId));
+                ColorCodeGenerator.getHexColorCode(StandardMetricsNamesUtil.LATENCY_STD_DEV_ID, sessionId));
         plotDatasetDtoList.add(plotDatasetDto);
 
         return plotDatasetDtoList;

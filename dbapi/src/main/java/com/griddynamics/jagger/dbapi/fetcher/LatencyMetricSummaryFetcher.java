@@ -49,7 +49,7 @@ public class LatencyMetricSummaryFetcher extends DbMetricDataFetcher<SummarySing
             if (metricIdMap == null) {
                 continue;
             }
-            String metricId = StandardMetricsNamesUtil.getLatencyMetricName((Double) temp[3]);
+            String metricId = StandardMetricsNamesUtil.getLatencyMetricName((Double) temp[3], true);
             MetricNameDto metricNameDto = metricIdMap.get(metricId);
             if (metricNameDto == null) {
                 continue;

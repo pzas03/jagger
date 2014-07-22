@@ -103,9 +103,24 @@ public class WorkloadAggregator extends LogProcessor implements DistributionList
         double avgLatency = 0;
         double stdDevLatency = 0;
 
+        if (invoked > 1) {
+            avgLatency = Math.rint(totalDuration / invoked.doubleValue() * 1000) / 1000;
+            double avgDuration = totalDuration / invoked.doubleValue();
+            stdDevLatency = Math.sqrt(
+                    totalSqrDuration / invoked.doubleValue() - avgDuration * avgDuration
+            );
+            stdDevLatency = Math.rint(stdDevLatency * 1000) / 1000;
+        }
+
         double succeeded = (double) (invoked - failed);
         log.debug("Latency: avg {} stdev {}", avgLatency, stdDevLatency);
 
+        double throughput = Math.rint(succeeded / duration * 100) / 100;
+        if (Double.isNaN(throughput)) {
+            log.error("throughput is NaN (succeeded={},duration={}). Value for throughput will be set zero", succeeded, duration);
+            throughput = 0;
+        }
+        log.debug("Throughput: {}", throughput);
 
         double successRate = (invoked.doubleValue() > 0)
                 ? Math.rint(succeeded / invoked.doubleValue() * 10000) / 10000
@@ -116,10 +131,11 @@ public class WorkloadAggregator extends LogProcessor implements DistributionList
         }
         log.debug("Success rate: {}", successRate);
 
-        persistValues(sessionId, taskId, workloadTask, clock, clockValue, termination, startTime, endTime, kernels, totalDuration, failed, invoked, validationResults, diagnosticResults, successRate);
+        persistValues(sessionId, taskId, workloadTask, clock, clockValue, termination, startTime, endTime, kernels, totalDuration, failed, invoked, validationResults, diagnosticResults, avgLatency, stdDevLatency, throughput, successRate);
     }
 
-    private void persistValues(String sessionId, String taskId, WorkloadTask workloadTask, String clock, Integer clockValue, String termination, Long startTime, Long endTime, Collection<String> kernels, double totalDuration, Integer failed, Integer invoked, Map<String, ValidationResult> validationResults, Map<String, Double> diagnosticResults, double successRate) {
+    // ??? JFG_821 don't need to calculate and pass to this function throughput, latency, latency std dev when old model will be disabled
+    private void persistValues(String sessionId, String taskId, WorkloadTask workloadTask, String clock, Integer clockValue, String termination, Long startTime, Long endTime, Collection<String> kernels, double totalDuration, Integer failed, Integer invoked, Map<String, ValidationResult> validationResults, Map<String, Double> diagnosticResults, double avgLatency, double stdDevLatency, double throughput, double successRate) {
         String parentId = workloadTask.getParentTaskId();
 
         TaskData taskData = getTaskData(taskId, sessionId);
@@ -151,32 +167,33 @@ public class WorkloadAggregator extends LogProcessor implements DistributionList
         workloadTaskData.setTermination(termination);
         workloadTaskData.setKernels(kernels.size());
         workloadTaskData.setTotalDuration(BigDecimal.valueOf(totalDuration));
+        // ??? JFG_821 remove latency, std dev and Co
+        workloadTaskData.setSamples(invoked);
+        workloadTaskData.setThroughput(BigDecimal.valueOf(throughput));
+        workloadTaskData.setFailuresCount(failed);
+        workloadTaskData.setSuccessRate(BigDecimal.valueOf(successRate));
+        workloadTaskData.setAvgLatency(BigDecimal.valueOf(avgLatency));
+        workloadTaskData.setStdDevLatency(BigDecimal.valueOf(stdDevLatency));
 
         MetricDescriptionEntity successRateDescription = persistMetricDescription(
-                StandardMetricsNamesUtil.SUCCESS_RATE_ID + StandardMetricsNamesUtil.STANDARD_METRICS_AS_CUSTOM_SUFFIX,
+                StandardMetricsNamesUtil.SUCCESS_RATE_ID,
                 StandardMetricsNamesUtil.SUCCESS_RATE,
                 taskData);
         persistAggregatedMetricValue(successRate, successRateDescription);
 
 
         MetricDescriptionEntity samplesDescription = persistMetricDescription(
-                StandardMetricsNamesUtil.ITERATION_SAMPLES_ID + StandardMetricsNamesUtil.STANDARD_METRICS_AS_CUSTOM_SUFFIX,
+                StandardMetricsNamesUtil.ITERATION_SAMPLES_ID,
                 StandardMetricsNamesUtil.ITERATIONS_SAMPLES,
                 taskData);
         persistAggregatedMetricValue(invoked, samplesDescription);
 
 
         MetricDescriptionEntity failuresDescription = persistMetricDescription(
-                StandardMetricsNamesUtil.FAIL_COUNT_ID + StandardMetricsNamesUtil.STANDARD_METRICS_AS_CUSTOM_SUFFIX,
+                StandardMetricsNamesUtil.FAIL_COUNT_ID,
                 StandardMetricsNamesUtil.FAIL_COUNT,
                 taskData);
         persistAggregatedMetricValue(failed, failuresDescription);
-
-        MetricDescriptionEntity durationDescription = persistMetricDescription(
-                StandardMetricsNamesUtil.DURATION_ID + StandardMetricsNamesUtil.STANDARD_METRICS_AS_CUSTOM_SUFFIX,
-                StandardMetricsNamesUtil.DURATION_SEC,
-                taskData);
-        persistAggregatedMetricValue(Math.rint((endTime - startTime) / 1000D), durationDescription);
 
         getHibernateTemplate().persist(workloadTaskData);
 

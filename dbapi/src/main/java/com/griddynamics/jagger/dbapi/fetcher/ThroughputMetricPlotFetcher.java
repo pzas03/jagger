@@ -5,6 +5,7 @@ import com.griddynamics.jagger.dbapi.util.ColorCodeGenerator;
 import com.griddynamics.jagger.dbapi.dto.PointDto;
 import com.griddynamics.jagger.dbapi.parameter.DefaultWorkloadParameters;
 import com.griddynamics.jagger.dbapi.util.DataProcessingUtil;
+import com.griddynamics.jagger.util.StandardMetricsNamesUtil;
 
 import java.util.*;
 
@@ -24,7 +25,7 @@ public class ThroughputMetricPlotFetcher extends StandardMetricPlotFetcher<Throu
 
         String legend = legendProvider.generatePlotLegend(sessionId, DefaultWorkloadParameters.THROUGHPUT.getDescription(), true);
         return Arrays.asList(new PlotSingleDto(pointDtoList, legend,
-                ColorCodeGenerator.getHexColorCode(ColorCodeGenerator.THROUGHPUT_COLOR , sessionId)));
+                ColorCodeGenerator.getHexColorCode(StandardMetricsNamesUtil.THROUGHPUT_ID, sessionId)));
     }
 
     @Override

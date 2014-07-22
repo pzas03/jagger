@@ -147,6 +147,8 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
 
             StatisticsGenerator statisticsGenerator = new StatisticsGenerator(file, aggregationInfo, intervalSize, taskData).generate();
             final Collection<TimeInvocationStatistics> statistics = statisticsGenerator.getStatistics();
+            // ??? JFG_821 - remove saving of percentiles from here when migration to new model will be finished
+            final WorkloadProcessDescriptiveStatistics workloadProcessDescriptiveStatistics = statisticsGenerator.getWorkloadProcessDescriptiveStatistics();
             final Collection<MetricPointEntity> newStatistics = statisticsGenerator.getNewStatistics();
 
             log.info("BEGIN: Save to data base " + dir);
@@ -164,6 +166,9 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
                         session.persist(stat);
                     }
 
+                    // persist standard metrics as WorkloadProcessDescriptiveStatistics
+                    // ??? JFG_821 - remove saving of percentiles from here when migration to new model will be finished
+                    session.persist(workloadProcessDescriptiveStatistics);
                     session.flush();
                     return null;
                 }
@@ -182,6 +187,8 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
         private int intervalSize;
         private TaskData taskData;
         private Collection<TimeInvocationStatistics> statistics;
+        // ??? JFG_821 - remove saving of percentiles from here when migration to new model will be finished
+        private WorkloadProcessDescriptiveStatistics workloadProcessDescriptiveStatistics;
         private Collection<MetricPointEntity> newStatistics;
 
         public StatisticsGenerator(String path, AggregationInfo aggregationInfo, int intervalSize, TaskData taskData) {
@@ -193,6 +200,11 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
 
         public Collection<TimeInvocationStatistics> getStatistics() {
             return statistics;
+        }
+
+        // ??? JFG_821 - remove saving of percentiles from here when migration to new model will be finished
+        public WorkloadProcessDescriptiveStatistics getWorkloadProcessDescriptiveStatistics() {
+            return workloadProcessDescriptiveStatistics;
         }
 
         public Collection<MetricPointEntity> getNewStatistics() {
@@ -215,17 +227,17 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
             StatisticsCalculator globalStatisticsCalculator = new StatisticsCalculator();
 
             MetricDescriptionEntity throughputDescription = persistMetricDescription(
-                    StandardMetricsNamesUtil.THROUGHPUT_ID + StandardMetricsNamesUtil.STANDARD_METRICS_AS_CUSTOM_SUFFIX,
+                    StandardMetricsNamesUtil.THROUGHPUT_ID,
                     StandardMetricsNamesUtil.THROUGHPUT_TPS,
                     taskData);
 
             MetricDescriptionEntity latencyDescription = persistMetricDescription(
-                    StandardMetricsNamesUtil.LATENCY_ID + StandardMetricsNamesUtil.STANDARD_METRICS_AS_CUSTOM_SUFFIX,
+                    StandardMetricsNamesUtil.LATENCY_ID,
                     StandardMetricsNamesUtil.LATENCY_SEC,
                     taskData);
 
             MetricDescriptionEntity latencyStdDevDescription = persistMetricDescription(
-                    StandardMetricsNamesUtil.LATENCY_STD_DEV_ID + StandardMetricsNamesUtil.STANDARD_METRICS_AS_CUSTOM_SUFFIX,
+                    StandardMetricsNamesUtil.LATENCY_STD_DEV_ID,
                     StandardMetricsNamesUtil.LATENCY_STD_DEV_SEC,
                     taskData);
 
@@ -233,11 +245,11 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
                     new HashMap<Double, MetricDescriptionEntity>(getTimeWindowPercentilesKeys().size());
             for (Double percentileKey : getTimeWindowPercentilesKeys()) {
 
-                String metricStr =  StandardMetricsNamesUtil.getLatencyMetricName(percentileKey);
+                String metricStr =  StandardMetricsNamesUtil.getLatencyMetricName(percentileKey,false);
                 percentileMap.put(
                         percentileKey,
                         persistMetricDescription(
-                            metricStr + StandardMetricsNamesUtil.STANDARD_METRICS_AS_CUSTOM_SUFFIX
+                            metricStr
                           , metricStr
                           , taskData
                         )
@@ -303,8 +315,7 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
             }
 
             // persist summary values as custom metrics (since version 1.2.6)
-            WorkloadProcessDescriptiveStatistics workloadProcessDescriptiveStatistics
-                    = assembleDescriptiveScenarioStatistics(globalStatisticsCalculator, taskData);
+            workloadProcessDescriptiveStatistics = assembleDescriptiveScenarioStatistics(globalStatisticsCalculator, taskData);
             for (WorkloadProcessLatencyPercentile pp : workloadProcessDescriptiveStatistics.getPercentiles()) {
                 persistAggregatedMetricValue(Math.rint(pp.getPercentileValue()) / 1000D, percentileMap.get(pp.getPercentileKey()));
             }
