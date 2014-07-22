@@ -47,10 +47,16 @@ public class StandardMetricsNamesUtil {
     public static final String ITERATION_SAMPLES_ID = "samples";
     //end: following section is used for docu generation - standard metrics ids
 
+    public static final String STANDARD_METRICS_AS_CUSTOM_SUFFIX = "-new-model";
+
     public static String getLatencyMetricName(double latencyKey) {
         return "Latency " + latencyKey + " %";
     }
 
-    // ?? temporary prefix will be removed after JFG-596 is complete.
-    public static final String TEMPORARY_PREFIX = "m-";
+    public static Double parseLatencyPercentileKey(String metricName) {
+        return Double.parseDouble(metricName.substring(
+                metricName.indexOf("Latency ") + "Latency ".length(),
+                metricName.indexOf(" %")
+        ));
+    }
 }

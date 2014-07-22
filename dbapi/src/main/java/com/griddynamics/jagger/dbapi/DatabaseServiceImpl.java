@@ -18,6 +18,7 @@ import com.griddynamics.jagger.dbapi.model.*;
 import com.griddynamics.jagger.dbapi.dto.*;
 
 
+import com.griddynamics.jagger.util.StandardMetricsNamesUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -46,9 +47,9 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     private Map<GroupKey, DefaultWorkloadParameters[]> workloadPlotGroups;
     private Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups;
-    private List<MetricNameDto> standardMetricNameDtoList;
     private Map<String,Set<String>> defaultMonitoringParams = new HashMap<String, Set<String>>();
 
+    private StandardMetricNameProvider standardMetricNameProvider;
     private CustomMetricPlotNameProvider customMetricPlotNameProvider;
     private CustomMetricNameProvider customMetricNameProvider;
     private LatencyMetricNameProvider latencyMetricNameProvider;
@@ -57,7 +58,9 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     private TreeViewGroupRuleProvider treeViewGroupRuleProvider;
     private LegendTreeViewGroupRuleProvider legendTreeViewGroupRuleProvider;
-    private TreeViewGroupMetricsToNodeRuleProvider treeViewGroupMetricsToNodeRuleProvider;
+    private TreeViewGroupMonitoringMetricsToNodeRuleProvider treeViewGroupMonitoringMetricsToNodeRuleProvider;
+    private TreeViewGroupStandardMetricsPlotsToNodeRuleProvider treeViewGroupStandardMetricsPlotsToNodeRuleProvider;
+    private TreeViewGroupStandardMetricsToNodeRuleProvider treeViewGroupStandardMetricsToNodeRuleProvider;
 
     private ThroughputMetricPlotFetcher throughputMetricPlotFetcher;
     private LatencyMetricPlotFetcher latencyMetricPlotFetcher;
@@ -100,13 +103,13 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     @Required
-    public void setCustomMetricPlotNameProvider(CustomMetricPlotNameProvider customMetricPlotNameProvider) {
-        this.customMetricPlotNameProvider = customMetricPlotNameProvider;
+    public void setStandardMetricNameProvider(StandardMetricNameProvider standardMetricNameProvider) {
+        this.standardMetricNameProvider = standardMetricNameProvider;
     }
 
     @Required
-    public void setStandardMetricNameDtoList(List<MetricNameDto> standardMetricNameDtoList) {
-        this.standardMetricNameDtoList = standardMetricNameDtoList;
+    public void setCustomMetricPlotNameProvider(CustomMetricPlotNameProvider customMetricPlotNameProvider) {
+        this.customMetricPlotNameProvider = customMetricPlotNameProvider;
     }
 
     @Required
@@ -200,8 +203,18 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     @Required
-    public void setTreeViewGroupMetricsToNodeRuleProvider(TreeViewGroupMetricsToNodeRuleProvider treeViewGroupMetricsToNodeRuleProvider) {
-        this.treeViewGroupMetricsToNodeRuleProvider = treeViewGroupMetricsToNodeRuleProvider;
+    public void setTreeViewGroupMonitoringMetricsToNodeRuleProvider(TreeViewGroupMonitoringMetricsToNodeRuleProvider treeViewGroupMonitoringMetricsToNodeRuleProvider) {
+        this.treeViewGroupMonitoringMetricsToNodeRuleProvider = treeViewGroupMonitoringMetricsToNodeRuleProvider;
+    }
+
+    @Required
+     public void setTreeViewGroupStandardMetricsToNodeRuleProvider(TreeViewGroupStandardMetricsToNodeRuleProvider treeViewGroupStandardMetricsToNodeRuleProvider) {
+        this.treeViewGroupStandardMetricsToNodeRuleProvider = treeViewGroupStandardMetricsToNodeRuleProvider;
+    }
+
+    @Required
+    public void setTreeViewGroupStandardMetricsPlotsToNodeRuleProvider(TreeViewGroupStandardMetricsPlotsToNodeRuleProvider treeViewGroupStandardMetricsPlotsToNodeRuleProvider) {
+        this.treeViewGroupStandardMetricsPlotsToNodeRuleProvider = treeViewGroupStandardMetricsPlotsToNodeRuleProvider;
     }
 
     @Required
@@ -341,7 +354,10 @@ public class DatabaseServiceImpl implements DatabaseService {
             metricNodeList.addAll(entry.getValue());
             if (entry.getValue().size() > 1) {
                 for (MetricNode mn : entry.getValue()) {
-                    mn.setDisplayName(LegendProvider.parseSessionId(mn.getDisplayName()));
+                    String sessionId = LegendProvider.parseSessionId(mn.getDisplayName());
+                    if (sessionId  != null) {
+                        mn.setDisplayName(sessionId);
+                    }
                 }
                 legendGroups.add(entry.getKey());
             }
@@ -591,7 +607,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
         // Find what decisions were taken for metrics
         if (isEnableDecisionsPerMetricFetching) {
-            Map<MetricNameDto,Map<String,Decision>> metricDecisions = getDecisionsPerMetric(new HashSet<MetricNameDto>(metricNames));
+            Map<MetricNameDto,Map<String,Decision>> metricDecisions = getDecisionsPerMetric(metricNames);
             if (!metricDecisions.isEmpty()) {
                 for (SummarySingleDto metricDto : result) {
                     MetricNameDto metricName = metricDto.getMetricName();
@@ -710,17 +726,6 @@ public class DatabaseServiceImpl implements DatabaseService {
     private Map<TaskDataDto, List<MetricNode>> getTestMetricsMap(final List<TaskDataDto> tddos) {
         Long time = System.currentTimeMillis();
         List<MetricNameDto> list = new ArrayList<MetricNameDto>();
-        for (TaskDataDto taskDataDto : tddos){
-            for (MetricNameDto metricNameDto : standardMetricNameDtoList) {
-                MetricNameDto metric = new MetricNameDto();
-                metric.setMetricName(metricNameDto.getMetricName());
-                metric.setMetricDisplayName(metricNameDto.getMetricDisplayName());
-                metric.setOrigin(metricNameDto.getOrigin());
-                metric.setTest(taskDataDto);
-                metric.setMetricNameSynonyms(metricNameDto.getMetricNameSynonyms());
-                list.add(metric);
-            }
-        }
 
         try {
 
@@ -754,8 +759,26 @@ public class DatabaseServiceImpl implements DatabaseService {
                     }
             );
 
+
+            // trick to avoid adding standard metrics as standard metrics and as custom metrics at one time
+            Set<MetricNameDto> customMetrics = customMetricNamesFuture.get();
+            int numberOfStandardMetrics = 0;
+            for (MetricNameDto mnd: customMetrics) {
+                if (standardMetricNameProvider.getStandardAsCustomMetricIds().contains(mnd.getMetricName())) {
+                    numberOfStandardMetrics ++;
+                }
+            }
+            // different task ids
+            Set<Long> taskIds = new HashSet<Long>();
+            for (TaskDataDto tdd : tddos) {
+                taskIds.addAll(tdd.getIds());
+            }
+            if (numberOfStandardMetrics < taskIds.size() * standardMetricNameProvider.getStandardAsCustomMetricIds().size()) {
+                list.addAll(standardMetricNameProvider.getMetricNames(tddos));
+            }
+
             list.addAll(latencyMetricNamesFuture.get());
-            list.addAll(customMetricNamesFuture.get());
+            list.addAll(customMetrics);
             list.addAll(validatorsNamesFuture.get());
         } catch (Exception e) {
             log.error("Exception occurs while fetching MetricNames for tests : ", e);
@@ -1198,7 +1221,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
                 if (ssPlotNodes.size() > 0) {
                     String rootIdSS = NameTokens.SESSION_SCOPE_PLOTS;
-                    sessionScopeNode = buildTreeAccordingToRules(rootIdSS, agentNames, new ArrayList<PlotNode>(ssPlotNodes), true);
+                    sessionScopeNode = buildTreeAccordingToRules(rootIdSS, agentNames, new ArrayList<PlotNode>(ssPlotNodes), null, true);
                 }
             }
 
@@ -1216,7 +1239,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
                 if (metricNodeList != null && metricNodeList.size() > 0) {
                     // apply rules how to build tree
-                    MetricGroupNode<PlotNode> testDetailsNodeBase = buildTreeAccordingToRules(rootId, agentNames, metricNodeList, true);
+                    MetricGroupNode<PlotNode> testDetailsNodeBase = buildTreeAccordingToRules(rootId, agentNames, metricNodeList, null, true);
 
                     // full test details node
                     TestDetailsNode testNode = new TestDetailsNode(testDetailsNodeBase);
@@ -1255,9 +1278,21 @@ public class DatabaseServiceImpl implements DatabaseService {
             List<MetricNode> metricNodeList = map.get(tdd);
             String rootId = NameTokens.SUMMARY_PREFIX + tdd.hashCode();
 
+            // get percentiles
+            Set<Double> percentiles = new HashSet<Double>();
+            for (MetricNode mn : metricNodeList) {
+                for (MetricNameDto mnd : mn.getMetricNameDtoList()) {
+                    if (mnd.getMetricName().matches(StandardMetricsNamesUtil.LATENCY_PERCENTILE_REGEX +
+                            "(" + StandardMetricsNamesUtil.STANDARD_METRICS_AS_CUSTOM_SUFFIX+ ")?")) {
+                        Double percentileKey = StandardMetricsNamesUtil.parseLatencyPercentileKey(mnd.getMetricName());
+                        percentiles.add(percentileKey);
+                    }
+                }
+            }
+
             if (metricNodeList.size() > 0) {
                 // apply rules how to build tree
-                MetricGroupNode<MetricNode> testNodeBase = buildTreeAccordingToRules(rootId, agentNames, metricNodeList, false);
+                MetricGroupNode<MetricNode> testNodeBase = buildTreeAccordingToRules(rootId, agentNames, metricNodeList, percentiles, false);
 
                 // full test node with info data
                 TestNode testNode = new TestNode(testNodeBase);
@@ -1359,7 +1394,7 @@ public class DatabaseServiceImpl implements DatabaseService {
      * @param rootId id of root Node
      * @param agentNames map of monitoring parameter -> agent names
      * @param metricNodeList list of nodes to build tree
-     * @param groupMetricsToNodes tells whether we should group several Nodes into one node. @n
+     * @param groupPlotMetricsToNodes tells whether we should group several Nodes into one node. @n
      *                            for Summary&Trends tab view - we show standard metrics as separate metric nodes @n
      *                            for Metrics tab view - we group metrics (metricnameDto) to single metric node @n
      *                            (example Latency, LatencyStdDev -> Latency) @n
@@ -1370,16 +1405,33 @@ public class DatabaseServiceImpl implements DatabaseService {
             String rootId,
             Map<String, Set<String>> agentNames,
             List<M> metricNodeList,
-            boolean groupMetricsToNodes) {
+            Set<Double> percentiles,
+            boolean groupPlotMetricsToNodes) {
 
-        if (groupMetricsToNodes) {
-            // rules to unite metrics in single plot
-            TreeViewGroupMetricsToNodeRule unitedMetricsRule = treeViewGroupMetricsToNodeRuleProvider.provide(agentNames);
+        if (groupPlotMetricsToNodes) {
+            // rules to unite standard metrics in single plot
+            TreeViewGroupMetricsToNodeRule unitedMetricsRule = treeViewGroupStandardMetricsPlotsToNodeRuleProvider.provide();
             // unite metrics and add result to original list
             List<M> unitedMetrics = unitedMetricsRule.filter(rootId, metricNodeList);
             if (unitedMetrics != null) {
                 metricNodeList.addAll(unitedMetrics);
             }
+        } else {
+            // rules to unite standard metrics in node in tree
+            TreeViewGroupMetricsToNodeRule unitedMetricsRule = treeViewGroupStandardMetricsToNodeRuleProvider.provide(percentiles);
+            // unite metrics and add result to original list
+            List<M> unitedMetrics = unitedMetricsRule.filter(rootId, metricNodeList);
+            if (unitedMetrics != null) {
+                metricNodeList.addAll(unitedMetrics);
+            }
+        }
+
+        // rules to unite monitoring metrics in single plot
+        TreeViewGroupMetricsToNodeRule unitedMetricsRule = treeViewGroupMonitoringMetricsToNodeRuleProvider.provide(agentNames);
+        // unite metrics and add result to original list
+        List<M> unitedMetrics = unitedMetricsRule.filter(rootId, metricNodeList);
+        if (unitedMetrics != null) {
+            metricNodeList.addAll(unitedMetrics);
         }
 
         // rules to create test tree view

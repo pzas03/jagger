@@ -163,7 +163,10 @@ public class SummaryReporter {
                     }
 
                     // Latency percentiles
-                    if (metricEntity.getMetricId().matches("^" + StandardMetricsNamesUtil.LATENCY_PERCENTILE_REGEX)) {
+                    if (metricEntity.getMetricId().matches(
+                            "^" + StandardMetricsNamesUtil.LATENCY_PERCENTILE_REGEX + "$|" +
+                            "^" + StandardMetricsNamesUtil.LATENCY_PERCENTILE_REGEX + StandardMetricsNamesUtil.STANDARD_METRICS_AS_CUSTOM_SUFFIX + "$"
+                        )) {
                         // change key (name) for back compatibility
                         value.setKey(metricEntity.getDisplayName().replace("Latency ", "").concat("  -  "));
                         latencyPercentilesList.add(value);

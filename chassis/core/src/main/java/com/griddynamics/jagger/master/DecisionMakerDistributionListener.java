@@ -258,6 +258,7 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
 
             // if null - we are comparing to baseline
             if (refValue == null) {
+                // todo : JFG-810
                 if (metricValuesBaseline.containsKey(metricEntity.getMetricId())) {
                     refValue = metricValuesBaseline.get(metricEntity.getMetricId());
                 }

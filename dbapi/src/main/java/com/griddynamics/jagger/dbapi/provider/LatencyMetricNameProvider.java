@@ -48,7 +48,6 @@ public class LatencyMetricNameProvider implements MetricNameProvider{
 
         if (!latency.isEmpty()){
 
-
             for(WorkloadProcessLatencyPercentile percentile : latency) {
                 for (TaskDataDto tdd : tests) {
 

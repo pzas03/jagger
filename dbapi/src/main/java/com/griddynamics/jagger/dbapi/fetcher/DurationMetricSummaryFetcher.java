@@ -10,6 +10,7 @@ import com.griddynamics.jagger.util.TimeUtils;
 import java.math.BigInteger;
 import java.util.*;
 
+// todo Duration standard metric should be added only once for session in summary table JFG-811
 public class DurationMetricSummaryFetcher extends DbMetricDataFetcher<SummarySingleDto> {
 
     @Override

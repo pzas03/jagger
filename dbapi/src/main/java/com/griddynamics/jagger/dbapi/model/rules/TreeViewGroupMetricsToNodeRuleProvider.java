@@ -49,27 +49,6 @@ public class TreeViewGroupMetricsToNodeRuleProvider {
             }
         }
 
-        // Create rules to combine standard metrics together
-
-        // Latency
-        String regex = "^(" + StandardMetricsNamesUtil.TEMPORARY_PREFIX + StandardMetricsNamesUtil.LATENCY_ID + "|" +
-                StandardMetricsNamesUtil.TEMPORARY_PREFIX + StandardMetricsNamesUtil.LATENCY_STD_DEV_ID + ")$";
-        result.add(new TreeViewGroupMetricsToNodeRule(
-                Rule.By.ID,
-                StandardMetricsNamesUtil.LATENCY_ID + StandardMetricsNamesUtil.LATENCY_STD_DEV_ID,
-                StandardMetricsNamesUtil.LATENCY,
-                regex));
-
-        // Time Latency Percentile
-        regex = "^" + StandardMetricsNamesUtil.TEMPORARY_PREFIX + StandardMetricsNamesUtil.LATENCY_PERCENTILE_REGEX + "$";
-        result.add(new TreeViewGroupMetricsToNodeRule(
-                Rule.By.ID,
-                StandardMetricsNamesUtil.TIME_LATENCY_PERCENTILE + "_id",
-                StandardMetricsNamesUtil.TIME_LATENCY_PERCENTILE,
-                regex));
-
-
-
         return TreeViewGroupMetricsToNodeRule.Composer.compose(result);
     }
 }
