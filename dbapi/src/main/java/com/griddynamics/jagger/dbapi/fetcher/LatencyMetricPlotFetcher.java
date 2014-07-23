@@ -32,12 +32,16 @@ public class LatencyMetricPlotFetcher extends StandardMetricPlotFetcher<LatencyM
 
         String legend = legendProvider.generatePlotLegend(sessionId, DefaultWorkloadParameters.LATENCY.getDescription(), true);
         PlotSingleDto plotDatasetDto = new PlotSingleDto(pointDtoLatencyList, legend,
-                ColorCodeGenerator.getHexColorCode(StandardMetricsNamesUtil.LATENCY_ID, sessionId));
+                ColorCodeGenerator.getHexColorCode(StandardMetricsNamesUtil.LATENCY_OLD_ID,
+                        StandardMetricsNamesUtil.getSynonyms(StandardMetricsNamesUtil.LATENCY_OLD_ID),
+                        sessionId));
         plotDatasetDtoList.add(plotDatasetDto);
 
         legend = legendProvider.generatePlotLegend(sessionId, DefaultWorkloadParameters.LATENCY_STD_DEV.getDescription(), true);
         plotDatasetDto = new PlotSingleDto(pointDtoLatencyStdDevList, legend,
-                ColorCodeGenerator.getHexColorCode(StandardMetricsNamesUtil.LATENCY_STD_DEV_ID, sessionId));
+                ColorCodeGenerator.getHexColorCode(StandardMetricsNamesUtil.LATENCY_STD_DEV_OLD_ID,
+                        StandardMetricsNamesUtil.getSynonyms(StandardMetricsNamesUtil.LATENCY_STD_DEV_OLD_ID),
+                        sessionId));
         plotDatasetDtoList.add(plotDatasetDto);
 
         return plotDatasetDtoList;
