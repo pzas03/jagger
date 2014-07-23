@@ -17,7 +17,7 @@ import java.util.Set;
 /**
  * Created by kgribov on 4/7/14.
  */
-public class LatencyMetricNameProvider implements MetricNameProvider{
+public class LatencyMetricNameProvider implements MetricNameProvider {
     private Logger log = LoggerFactory.getLogger(LatencyMetricNameProvider.class);
 
     private EntityManager entityManager;
@@ -28,7 +28,7 @@ public class LatencyMetricNameProvider implements MetricNameProvider{
     }
 
     @Override
-    public Set<MetricNameDto> getMetricNames(List<TaskDataDto> tests){
+    public Set<MetricNameDto> getMetricNames(List<TaskDataDto> tests) {
         Set<MetricNameDto> latencyNames;
 
         Set<Long> testIds = new HashSet<Long>();
@@ -47,15 +47,15 @@ public class LatencyMetricNameProvider implements MetricNameProvider{
 
         latencyNames = new HashSet<MetricNameDto>(latency.size());
 
-        if (!latency.isEmpty()){
+        if (!latency.isEmpty()) {
 
 
-            for(WorkloadProcessLatencyPercentile percentile : latency) {
+            for (WorkloadProcessLatencyPercentile percentile : latency) {
                 for (TaskDataDto tdd : tests) {
 
                     if (tdd.getIds().contains(percentile.getWorkloadProcessDescriptiveStatistics().getTaskData().getId())) {
                         MetricNameDto dto = new MetricNameDto();
-                        String metricName = StandardMetricsNamesUtil.getLatencyMetricName(percentile.getPercentileKey(),true);
+                        String metricName = StandardMetricsNamesUtil.getLatencyMetricName(percentile.getPercentileKey(), true);
                         String metricNameSynonym = StandardMetricsNamesUtil.getLatencyMetricName(percentile.getPercentileKey(), false);
                         dto.setMetricName(metricName);
                         dto.setMetricDisplayName(metricNameSynonym); // done on purpose to have equal display names for old and new model

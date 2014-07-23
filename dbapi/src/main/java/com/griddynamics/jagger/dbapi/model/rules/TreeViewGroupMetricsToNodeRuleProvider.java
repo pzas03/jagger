@@ -21,12 +21,12 @@ public class TreeViewGroupMetricsToNodeRuleProvider {
     /// @param agentNames - required to group monitoring metrics by metric name, agent name (pass null when not required)
     /// @param percentiles - required to combine all percentiles to single node in Plots view (pass null when not required)
     /// @param forSummary = true => filters for Summary&Trends node in control tree, false => filters for Plots
-    public TreeViewGroupMetricsToNodeRule provide (Map<String, Set<String>> agentNames, Set<Double> percentiles, boolean forSummary) {
+    public TreeViewGroupMetricsToNodeRule provide(Map<String, Set<String>> agentNames, Set<Double> percentiles, boolean forSummary) {
         List<TreeViewGroupMetricsToNodeRule> result = new ArrayList<TreeViewGroupMetricsToNodeRule>();
 
         // Create rules to combine default monitor parameters
         if ((agentNames != null) && (agentNames.size() > 0)) {
-            for(Map.Entry<GroupKey,DefaultMonitoringParameters[]> groupKeyEntry : monitoringPlotGroups.entrySet()) {
+            for (Map.Entry<GroupKey, DefaultMonitoringParameters[]> groupKeyEntry : monitoringPlotGroups.entrySet()) {
                 String metricDisplayName = groupKeyEntry.getKey().getUpperName();
 
                 // group metrics to nodes by DefaultMonitoringParameters and AgentIds
@@ -37,8 +37,7 @@ public class TreeViewGroupMetricsToNodeRuleProvider {
                             // not first / first time
                             if (regex.length() != 0) {
                                 regex += "|";
-                            }
-                            else {
+                            } else {
                                 regex += "^.*(";
                             }
                             regex += defaultMonitoringParameters.getId();
@@ -46,7 +45,7 @@ public class TreeViewGroupMetricsToNodeRuleProvider {
                         String safeAgentId = MonitoringIdUtils.getEscapedStringForRegex(agentId);
                         regex += ").*" + safeAgentId + ".*";
 
-                        result.add(new TreeViewGroupMetricsToNodeRule(Rule.By.ID, metricDisplayName + "_" + agentId,agentId,regex));
+                        result.add(new TreeViewGroupMetricsToNodeRule(Rule.By.ID, metricDisplayName + "_" + agentId, agentId, regex));
                     }
                 }
             }
@@ -55,8 +54,7 @@ public class TreeViewGroupMetricsToNodeRuleProvider {
         // Create rules to combine standard metrics together
         if (forSummary) {
             result.addAll(provideRulesForSummaryNode(percentiles));
-        }
-        else {
+        } else {
             result.addAll(provideRulesForPlotsNode());
         }
 
@@ -148,8 +146,8 @@ public class TreeViewGroupMetricsToNodeRuleProvider {
 
         if ((percentiles != null) && (!percentiles.isEmpty())) {
             for (Double percentile : percentiles) {
-                String percentileNameNewModel = StandardMetricsNamesUtil.getLatencyMetricName(percentile,false);
-                String percentileNameOldModel = StandardMetricsNamesUtil.getLatencyMetricName(percentile,true);
+                String percentileNameNewModel = StandardMetricsNamesUtil.getLatencyMetricName(percentile, false);
+                String percentileNameOldModel = StandardMetricsNamesUtil.getLatencyMetricName(percentile, true);
                 regex = "^(" +
                         percentileNameNewModel + "|" +
                         percentileNameOldModel +

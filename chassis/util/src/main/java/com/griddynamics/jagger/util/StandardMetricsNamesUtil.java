@@ -32,7 +32,7 @@ public class StandardMetricsNamesUtil {
     public static final String LATENCY_SEC = "Latency, sec";
     public static final String LATENCY_STD_DEV_SEC = "Latency std dev, sec";
     public static final String LATENCY = "Latency";
-    public static final String LATENCY_PERCENTILE_REGEX = "Latency\\s\\S+\\s%(-old)*";
+    public static final String LATENCY_PERCENTILE_REGEX = "Latency\\s\\S+\\s%(-old)?";
     public static final String ITERATIONS_SAMPLES = "Iterations, samples";
     public static final String SUCCESS_RATE = "Success rate";
     public static final String DURATION_SEC = "Duration, sec";
@@ -89,6 +89,7 @@ public class StandardMetricsNamesUtil {
 
     private static Map<String,List<String>> synonyms = new HashMap<String, List<String>>();
 
+    //??? todo JFG-824: new model should also contain synonyms to support old links
     private static void populateSynonyms() {
         synonyms.put(THROUGHPUT_OLD_ID, Arrays.asList(THROUGHPUT_ID,"Throughput"));
         synonyms.put(LATENCY_OLD_ID, Arrays.asList(LATENCY_ID,"Latency"));

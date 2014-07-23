@@ -41,9 +41,9 @@ public class LatencyMetricSummaryFetcher extends DbMetricDataFetcher<SummarySing
 
         Map<MetricNameDto, SummarySingleDto> resultMap = new HashMap<MetricNameDto, SummarySingleDto>();
 
-        for (Object[] temp : latency){
+        for (Object[] temp : latency) {
 
-            Long taskId = (Long)temp[1];
+            Long taskId = (Long) temp[1];
 
             Map<String, MetricNameDto> metricIdMap = mappedMetricNames.get(taskId);
             if (metricIdMap == null) {
@@ -65,7 +65,7 @@ public class LatencyMetricSummaryFetcher extends DbMetricDataFetcher<SummarySing
             SummarySingleDto metricDto = resultMap.get(metricNameDto);
 
             SummaryMetricValueDto value = new SummaryMetricValueDto();
-            value.setValue(String.format(Locale.ENGLISH, "%.3f", (Double)temp[0] / 1000));
+            value.setValue(String.format(Locale.ENGLISH, "%.3f", (Double) temp[0] / 1000));
             value.setSessionId(Long.parseLong(temp[2].toString()));
             metricDto.getValues().add(value);
         }
