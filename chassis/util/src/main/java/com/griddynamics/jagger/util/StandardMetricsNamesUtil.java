@@ -20,6 +20,8 @@
 
 package com.griddynamics.jagger.util;
 
+import java.util.*;
+
 /**
  * Class is used in chassis, web UI server and web UI client
  * to use it in web UI client - keep it simple (use only standard java libraries)
@@ -30,7 +32,7 @@ public class StandardMetricsNamesUtil {
     public static final String LATENCY_SEC = "Latency, sec";
     public static final String LATENCY_STD_DEV_SEC = "Latency std dev, sec";
     public static final String LATENCY = "Latency";
-    public static final String LATENCY_PERCENTILE_REGEX = "Latency\\s\\S+\\s%";
+    public static final String LATENCY_PERCENTILE_REGEX = "Latency\\s\\S+\\s%(-old)?";
     public static final String ITERATIONS_SAMPLES = "Iterations, samples";
     public static final String SUCCESS_RATE = "Success rate";
     public static final String DURATION_SEC = "Duration, sec";
@@ -47,10 +49,54 @@ public class StandardMetricsNamesUtil {
     public static final String ITERATION_SAMPLES_ID = "samples";
     //end: following section is used for docu generation - standard metrics ids
 
-    public static String getLatencyMetricName(double latencyKey) {
-        return "Latency " + latencyKey + " %";
+    // ids for standard metrics saved with old model (in WorkloadTaskData, TimeLatencyPercentile, etc)
+    public static final String THROUGHPUT_OLD_ID = "throughput-old";
+    public static final String LATENCY_OLD_ID = "avgLatency-old";
+    public static final String LATENCY_STD_DEV_OLD_ID = "stdDevLatency-old";
+    public static final String FAIL_COUNT_OLD_ID = "failureCount-old";
+    public static final String SUCCESS_RATE_OLD_ID = "successRate-old";
+    public static final String DURATION_OLD_ID = "duration-old";
+    public static final String ITERATION_SAMPLES_OLD_ID = "samples-old";
+
+    public static String getLatencyMetricName(double latencyKey, boolean isOldModel) {
+        if (isOldModel) {
+            return "Latency " + latencyKey + " %-old";
+        }
+        else {
+            return "Latency " + latencyKey + " %";
+        }
     }
 
-    // ?? temporary prefix will be removed after JFG-596 is complete.
-    public static final String TEMPORARY_PREFIX = "m-";
+    public static Double parseLatencyPercentileKey(String metricName) {
+        return Double.parseDouble(metricName.substring(
+                metricName.indexOf("Latency ") + "Latency ".length(),
+                metricName.indexOf(" %")
+        ));
+    }
+
+
+    public static List<String> getSynonyms(String metricName) {
+        if (synonyms.isEmpty()) {
+            populateSynonyms();
+        }
+
+        if (synonyms.containsKey(metricName)) {
+            return new ArrayList<String>(synonyms.get(metricName));
+        }
+
+        return null;
+    }
+
+    private static Map<String,List<String>> synonyms = new HashMap<String, List<String>>();
+
+    //??? todo JFG-824: new model should also contain synonyms to support old links
+    private static void populateSynonyms() {
+        synonyms.put(THROUGHPUT_OLD_ID, Arrays.asList(THROUGHPUT_ID,"Throughput"));
+        synonyms.put(LATENCY_OLD_ID, Arrays.asList(LATENCY_ID,"Latency"));
+        synonyms.put(LATENCY_STD_DEV_OLD_ID, Arrays.asList(LATENCY_STD_DEV_ID));
+        synonyms.put(FAIL_COUNT_OLD_ID, Arrays.asList(FAIL_COUNT_ID));
+        synonyms.put(SUCCESS_RATE_OLD_ID, Arrays.asList(SUCCESS_RATE_ID,"Success rate"));
+        synonyms.put(DURATION_OLD_ID, Arrays.asList(DURATION_ID,"Duration"));
+        synonyms.put(ITERATION_SAMPLES_OLD_ID, Arrays.asList(ITERATION_SAMPLES_ID,"Iterations"));
+    }
 }

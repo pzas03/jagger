@@ -51,7 +51,7 @@ public class DurationMetricSummaryFetcher extends DbMetricDataFetcher<SummarySin
             if (metricIdMap == null) {
                 throw new IllegalArgumentException("unknown task id in mapped metrics : " + taskId.longValue());
             }
-            MetricNameDto metricNameDto = metricIdMap.get(StandardMetricsNamesUtil.DURATION_ID);
+            MetricNameDto metricNameDto = metricIdMap.get(StandardMetricsNamesUtil.DURATION_OLD_ID);
             if (metricNameDto == null) {
                 continue;
             }

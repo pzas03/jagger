@@ -50,9 +50,9 @@ import java.util.*;
 import static com.griddynamics.jagger.engine.e1.collector.CollectorConstants.*;
 
 /**
-* @author Alexey Kiselyov
-*         Date: 20.07.11
-*/
+ * @author Alexey Kiselyov
+ *         Date: 20.07.11
+ */
 public class DurationLogProcessor extends LogProcessor implements DistributionListener {
 
     private static final Logger log = LoggerFactory.getLogger(Master.class);
@@ -96,25 +96,23 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
         // do nothing
     }
 
+    public List<Double> getTimeWindowPercentilesKeys() {
+        return timeWindowPercentilesKeys;
+    }
+
     @Required
     public void setTimeWindowPercentilesKeys(List<Double> timeWindowPercentilesKeys) {
         this.timeWindowPercentilesKeys = new ArrayList<Double>(new HashSet<Double>(timeWindowPercentilesKeys));
-    }
-
-    @Required
-    public void setGlobalPercentilesKeys(List<Double> globalPercentilesKeys) {
-        this.globalPercentilesKeys = new ArrayList<Double>(new HashSet<Double>(globalPercentilesKeys));
-    }
-
-
-    public List<Double> getTimeWindowPercentilesKeys() {
-        return timeWindowPercentilesKeys;
     }
 
     public List<Double> getGlobalPercentilesKeys() {
         return globalPercentilesKeys;
     }
 
+    @Required
+    public void setGlobalPercentilesKeys(List<Double> globalPercentilesKeys) {
+        this.globalPercentilesKeys = new ArrayList<Double>(new HashSet<Double>(globalPercentilesKeys));
+    }
 
     @Override
     public void onTaskDistributionCompleted(String sessionId, String taskId, Task task) {
@@ -129,7 +127,7 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
             String file = dir + File.separatorChar + "aggregated.dat";
             AggregationInfo aggregationInfo = logAggregator.chronology(dir, file);
 
-            if(aggregationInfo.getCount() == 0) {
+            if (aggregationInfo.getCount() == 0) {
                 //no data collected
                 return;
             }
@@ -147,6 +145,7 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
 
             StatisticsGenerator statisticsGenerator = new StatisticsGenerator(file, aggregationInfo, intervalSize, taskData).generate();
             final Collection<TimeInvocationStatistics> statistics = statisticsGenerator.getStatistics();
+            // ??? JFG_821 - remove saving of percentiles from here when migration to new model will be finished
             final WorkloadProcessDescriptiveStatistics workloadProcessDescriptiveStatistics = statisticsGenerator.getWorkloadProcessDescriptiveStatistics();
             final Collection<MetricPointEntity> newStatistics = statisticsGenerator.getNewStatistics();
 
@@ -166,6 +165,7 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
                     }
 
                     // persist standard metrics as WorkloadProcessDescriptiveStatistics
+                    // ??? JFG_821 - remove saving of percentiles from here when migration to new model will be finished
                     session.persist(workloadProcessDescriptiveStatistics);
                     session.flush();
                     return null;
@@ -185,6 +185,7 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
         private int intervalSize;
         private TaskData taskData;
         private Collection<TimeInvocationStatistics> statistics;
+        // ??? JFG_821 - remove saving of percentiles from here when migration to new model will be finished
         private WorkloadProcessDescriptiveStatistics workloadProcessDescriptiveStatistics;
         private Collection<MetricPointEntity> newStatistics;
 
@@ -199,6 +200,7 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
             return statistics;
         }
 
+        // ??? JFG_821 - remove saving of percentiles from here when migration to new model will be finished
         public WorkloadProcessDescriptiveStatistics getWorkloadProcessDescriptiveStatistics() {
             return workloadProcessDescriptiveStatistics;
         }
@@ -223,17 +225,17 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
             StatisticsCalculator globalStatisticsCalculator = new StatisticsCalculator();
 
             MetricDescriptionEntity throughputDescription = persistMetricDescription(
-                    StandardMetricsNamesUtil.TEMPORARY_PREFIX + StandardMetricsNamesUtil.THROUGHPUT_ID,
+                    StandardMetricsNamesUtil.THROUGHPUT_ID,
                     StandardMetricsNamesUtil.THROUGHPUT_TPS,
                     taskData);
 
             MetricDescriptionEntity latencyDescription = persistMetricDescription(
-                    StandardMetricsNamesUtil.TEMPORARY_PREFIX + StandardMetricsNamesUtil.LATENCY_ID,
+                    StandardMetricsNamesUtil.LATENCY_ID,
                     StandardMetricsNamesUtil.LATENCY_SEC,
                     taskData);
 
             MetricDescriptionEntity latencyStdDevDescription = persistMetricDescription(
-                    StandardMetricsNamesUtil.TEMPORARY_PREFIX + StandardMetricsNamesUtil.LATENCY_STD_DEV_ID,
+                    StandardMetricsNamesUtil.LATENCY_STD_DEV_ID,
                     StandardMetricsNamesUtil.LATENCY_STD_DEV_SEC,
                     taskData);
 
@@ -241,13 +243,13 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
                     new HashMap<Double, MetricDescriptionEntity>(getTimeWindowPercentilesKeys().size());
             for (Double percentileKey : getTimeWindowPercentilesKeys()) {
 
-                String metricStr =  StandardMetricsNamesUtil.getLatencyMetricName(percentileKey);
+                String metricStr = StandardMetricsNamesUtil.getLatencyMetricName(percentileKey, false);
                 percentileMap.put(
                         percentileKey,
                         persistMetricDescription(
-                            StandardMetricsNamesUtil.TEMPORARY_PREFIX + metricStr
-                          , metricStr
-                          , taskData
+                                metricStr
+                                , metricStr
+                                , taskData
                         )
                 );
             }
@@ -333,7 +335,7 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
         }
 
         private TimeInvocationStatistics assembleInvocationStatistics(long time, StatisticsCalculator calculator,
-                                                                        Double throughput, TaskData taskData) {
+                                                                      Double throughput, TaskData taskData) {
             TimeInvocationStatistics statistics = new TimeInvocationStatistics(
                     time,
                     calculator.getMean() / 1000,

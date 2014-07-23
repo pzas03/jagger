@@ -6,6 +6,7 @@ import com.griddynamics.jagger.dbapi.dto.SummarySingleDto;
 import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
 import com.griddynamics.jagger.dbapi.util.DataProcessingUtil;
 import com.griddynamics.jagger.dbapi.util.MetricNameUtil;
+import com.griddynamics.jagger.util.FormatCalculator;
 
 import javax.persistence.PersistenceException;
 import java.text.DecimalFormat;
@@ -36,7 +37,7 @@ public class CustomMetricSummaryFetcher extends DbMetricDataFetcher<SummarySingl
 
         if (metrics.isEmpty()){
             log.warn("Could not find data for {}", metricNames);
-            return Collections.EMPTY_SET;
+            return Collections.emptySet();
         }
 
         Map<MetricNameDto, SummarySingleDto> resultMap = new HashMap<MetricNameDto, SummarySingleDto>();
@@ -68,7 +69,11 @@ public class CustomMetricSummaryFetcher extends DbMetricDataFetcher<SummarySingl
             if (mas[0] == null) continue;
 
             SummaryMetricValueDto value = new SummaryMetricValueDto();
-            value.setValue(new DecimalFormat("0.0###", new DecimalFormatSymbols(Locale.ENGLISH)).format(mas[0]));
+            Double val = (Double)mas[0];
+            value.setValue(
+                    new DecimalFormat(FormatCalculator.getNumberFormat(val), new DecimalFormatSymbols(Locale.ENGLISH))
+                            .format(val)
+            );
 
             value.setSessionId(Long.parseLong((String)mas[1]));
             metricDto.getValues().add(value);
@@ -105,7 +110,7 @@ public class CustomMetricSummaryFetcher extends DbMetricDataFetcher<SummarySingl
     protected List<Object[]> getCustomMetricsDataNewModel(Set<Long> taskIds, Set<String> metricId) {
         try {
             if (taskIds.isEmpty() || metricId.isEmpty()){
-                return Collections.EMPTY_LIST;
+                return Collections.emptyList();
             }
 
             return entityManager.createQuery(
@@ -117,7 +122,7 @@ public class CustomMetricSummaryFetcher extends DbMetricDataFetcher<SummarySingl
                     .getResultList();
         } catch (PersistenceException e) {
             log.debug("Could not fetch metric summary values from MetricSummaryEntity: {}", DataProcessingUtil.getMessageFromLastCause(e));
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
     }
 
