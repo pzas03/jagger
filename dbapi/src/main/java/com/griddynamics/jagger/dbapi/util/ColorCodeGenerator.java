@@ -3,14 +3,13 @@ package com.griddynamics.jagger.dbapi.util;
 import com.google.common.collect.ImmutableList;
 import com.griddynamics.jagger.util.MonitoringIdUtils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * @author "Artem Kirillov" (akirillov@griddynamics.com)
- * @since 5/31/12
- */
 public class ColorCodeGenerator {
     private static AtomicInteger counter = new AtomicInteger(0);
     private static ConcurrentMap<String, Integer> sessionsMap = new ConcurrentHashMap<String, Integer>();
@@ -37,20 +36,52 @@ public class ColorCodeGenerator {
     }
 
     public static String getHexColorCode(String metricId, String sessionId) {
-        String colorId;
-        MonitoringIdUtils.MonitoringId monitoringId = MonitoringIdUtils.splitMonitoringMetricId(metricId);
-        if (monitoringId != null) {
-            colorId = monitoringId.getMonitoringName() + sessionId;
-        } else {
-            colorId = metricId + sessionId;
+        return getHexColorCode(Arrays.asList(metricId),sessionId);
+    }
+
+    public static String getHexColorCode(String metricId, List<String> synonyms,  String sessionId) {
+        List<String> metricIds = new ArrayList<String>();
+        metricIds.add(metricId);
+        if (synonyms != null) {
+            metricIds.addAll(synonyms);
         }
+        return getHexColorCode(metricIds, sessionId);
+    }
+
+    private static String getHexColorCode(List<String> metricIds, String sessionId) {
+        List<String> colorIds = new ArrayList<String>();
+
+        if (!metricIds.isEmpty()) {
+            // Search if metricId or its synonyms already has color
+            for (String metricId : metricIds) {
+                String colorId;
+                MonitoringIdUtils.MonitoringId monitoringId = MonitoringIdUtils.splitMonitoringMetricId(metricId);
+                if (monitoringId != null) {
+                    colorId = monitoringId.getMonitoringName() + sessionId;
+                } else {
+                    colorId = metricId + sessionId;
+                }
+                colorIds.add(colorId);
+
+                // Color found
+                if (sessionsMap.containsKey(colorId)) {
+                    Integer result = sessionsMap.get(colorId);
+
+                    for (String id : colorIds) {
+                        sessionsMap.put(id,result);
+                    }
+                    return colorsHexCodes.get(result);
+                }
+            }
+
+        }
+
+        // Color was not set before
         int index = Math.abs(counter.getAndIncrement() % colorsHexCodes.size());
-        Integer result = sessionsMap.putIfAbsent(colorId, index);
-        if (result == null) {
-            return colorsHexCodes.get(index);
-        } else {
-            return colorsHexCodes.get(result);
+        for (String id : colorIds) {
+            sessionsMap.put(id, index);
         }
+        return colorsHexCodes.get(index);
     }
 
 }

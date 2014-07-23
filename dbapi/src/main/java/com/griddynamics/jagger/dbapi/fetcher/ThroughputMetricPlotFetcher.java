@@ -25,7 +25,9 @@ public class ThroughputMetricPlotFetcher extends StandardMetricPlotFetcher<Throu
 
         String legend = legendProvider.generatePlotLegend(sessionId, DefaultWorkloadParameters.THROUGHPUT.getDescription(), true);
         return Arrays.asList(new PlotSingleDto(pointDtoList, legend,
-                ColorCodeGenerator.getHexColorCode(StandardMetricsNamesUtil.THROUGHPUT_ID, sessionId)));
+                ColorCodeGenerator.getHexColorCode(StandardMetricsNamesUtil.THROUGHPUT_OLD_ID,
+                        StandardMetricsNamesUtil.getSynonyms(StandardMetricsNamesUtil.THROUGHPUT_OLD_ID),
+                        sessionId)));
     }
 
     @Override

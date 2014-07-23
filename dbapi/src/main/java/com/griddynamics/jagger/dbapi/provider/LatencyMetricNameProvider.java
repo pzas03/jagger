@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -55,9 +56,11 @@ public class LatencyMetricNameProvider implements MetricNameProvider{
                     if (tdd.getIds().contains(percentile.getWorkloadProcessDescriptiveStatistics().getTaskData().getId())) {
                         MetricNameDto dto = new MetricNameDto();
                         String metricName = StandardMetricsNamesUtil.getLatencyMetricName(percentile.getPercentileKey(),true);
+                        String metricNameSynonym = StandardMetricsNamesUtil.getLatencyMetricName(percentile.getPercentileKey(), false);
                         dto.setMetricName(metricName);
-                        dto.setMetricDisplayName(metricName);
+                        dto.setMetricDisplayName(metricNameSynonym); // done on purpose to have equal display names for old and new model
                         dto.setTest(tdd);
+                        dto.setMetricNameSynonyms(Arrays.asList(metricNameSynonym));
                         dto.setOrigin(MetricNameDto.Origin.LATENCY_PERCENTILE);
                         latencyNames.add(dto);
                         break;
