@@ -281,7 +281,7 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
                             List<TimeLatencyPercentile> percentileList = tis.getPercentiles();
                             for (TimeLatencyPercentile percentile : percentileList) {
                                 Double key = percentile.getPercentileKey();
-                                Double value = percentile.getPercentileValue();
+                                Double value = percentile.getPercentileValue() / 1000D;
                                 newStatistics.add(new MetricPointEntity(time, value, percentileMap.get(key)));
                             }
 
@@ -312,6 +312,13 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
                 newStatistics.add(new MetricPointEntity(currentTime, tis.getThroughput(), throughputDescription));
                 newStatistics.add(new MetricPointEntity(currentTime, tis.getLatency(), latencyDescription));
                 newStatistics.add(new MetricPointEntity(currentTime, tis.getLatencyStdDev(), latencyStdDevDescription));
+
+                List<TimeLatencyPercentile> percentileList = tis.getPercentiles();
+                for (TimeLatencyPercentile percentile : percentileList) {
+                    Double key = percentile.getPercentileKey();
+                    Double value = percentile.getPercentileValue() / 1000D;
+                    newStatistics.add(new MetricPointEntity(time, value, percentileMap.get(key)));
+                }
             }
 
             // persist summary values as custom metrics (since version 1.2.6)
