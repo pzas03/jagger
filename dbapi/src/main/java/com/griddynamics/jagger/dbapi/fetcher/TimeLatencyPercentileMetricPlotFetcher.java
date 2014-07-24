@@ -32,7 +32,7 @@ public class TimeLatencyPercentileMetricPlotFetcher extends StandardMetricPlotFe
             previousPercentileValue = y;
         }
         for (Map.Entry<Double, List<PointDto>> entry : percentiles.entrySet()) {
-            String latencyNameNewModel = StandardMetricsNamesUtil.getLatencyMetricName(entry.getKey(),false);
+            String latencyNameNewModel = StandardMetricsNamesUtil.getLatencyMetricName(entry.getKey(), false);
             String legend = legendProvider.generatePlotLegend(sessionId, latencyNameNewModel, true);
             plotDatasetDtoList.add(new PlotSingleDto(entry.getValue(), legend,
                     ColorCodeGenerator.getHexColorCode(StandardMetricsNamesUtil.getLatencyMetricName(entry.getKey(), true),
