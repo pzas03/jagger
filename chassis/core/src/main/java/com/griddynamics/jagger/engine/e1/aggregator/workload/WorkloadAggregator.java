@@ -51,6 +51,19 @@ public class WorkloadAggregator extends LogProcessor implements DistributionList
 
     private KeyValueStorage keyValueStorage;
 
+    // Legacy way: slow, distributed among many tables in DB
+    private boolean saveStandardMetricsWithOldModel = false;
+    // Unified metric representation: fast, single flow for all types of metrics
+    private boolean saveStandardMetricsWithNewModel = true;
+
+    public void setSaveStandardMetricsWithOldModel(boolean saveStandardMetricsWithOldModel) {
+        this.saveStandardMetricsWithOldModel = saveStandardMetricsWithOldModel;
+    }
+
+    public void setSaveStandardMetricsWithNewModel(boolean saveStandardMetricsWithNewModel) {
+        this.saveStandardMetricsWithNewModel = saveStandardMetricsWithNewModel;
+    }
+
     @Override
     public void onDistributionStarted(String sessionId, String taskId, Task task, Collection<NodeId> capableNodes) {
         // do nothing
@@ -134,7 +147,6 @@ public class WorkloadAggregator extends LogProcessor implements DistributionList
         persistValues(sessionId, taskId, workloadTask, clock, clockValue, termination, startTime, endTime, kernels, totalDuration, failed, invoked, validationResults, diagnosticResults, avgLatency, stdDevLatency, throughput, successRate);
     }
 
-    // ??? JFG_821 don't need to calculate and pass to this function throughput, latency, latency std dev when old model will be disabled
     private void persistValues(String sessionId, String taskId, WorkloadTask workloadTask, String clock, Integer clockValue, String termination, Long startTime, Long endTime, Collection<String> kernels, double totalDuration, Integer failed, Integer invoked, Map<String, ValidationResult> validationResults, Map<String, Double> diagnosticResults, double avgLatency, double stdDevLatency, double throughput, double successRate) {
         String parentId = workloadTask.getParentTaskId();
 
@@ -167,35 +179,39 @@ public class WorkloadAggregator extends LogProcessor implements DistributionList
         workloadTaskData.setTermination(termination);
         workloadTaskData.setKernels(kernels.size());
         workloadTaskData.setTotalDuration(BigDecimal.valueOf(totalDuration));
-        // ??? JFG_821 remove latency, std dev and Co
-        workloadTaskData.setSamples(invoked);
-        workloadTaskData.setThroughput(BigDecimal.valueOf(throughput));
-        workloadTaskData.setFailuresCount(failed);
-        workloadTaskData.setSuccessRate(BigDecimal.valueOf(successRate));
-        workloadTaskData.setAvgLatency(BigDecimal.valueOf(avgLatency));
-        workloadTaskData.setStdDevLatency(BigDecimal.valueOf(stdDevLatency));
-
-        MetricDescriptionEntity successRateDescription = persistMetricDescription(
-                StandardMetricsNamesUtil.SUCCESS_RATE_ID,
-                StandardMetricsNamesUtil.SUCCESS_RATE,
-                taskData);
-        persistAggregatedMetricValue(successRate, successRateDescription);
-
-
-        MetricDescriptionEntity samplesDescription = persistMetricDescription(
-                StandardMetricsNamesUtil.ITERATION_SAMPLES_ID,
-                StandardMetricsNamesUtil.ITERATIONS_SAMPLES,
-                taskData);
-        persistAggregatedMetricValue(invoked, samplesDescription);
-
-
-        MetricDescriptionEntity failuresDescription = persistMetricDescription(
-                StandardMetricsNamesUtil.FAIL_COUNT_ID,
-                StandardMetricsNamesUtil.FAIL_COUNT,
-                taskData);
-        persistAggregatedMetricValue(failed, failuresDescription);
+        if (saveStandardMetricsWithOldModel) {
+            // when saved with new model, following fields will be null
+            workloadTaskData.setSamples(invoked);
+            workloadTaskData.setThroughput(BigDecimal.valueOf(throughput));
+            workloadTaskData.setFailuresCount(failed);
+            workloadTaskData.setSuccessRate(BigDecimal.valueOf(successRate));
+            workloadTaskData.setAvgLatency(BigDecimal.valueOf(avgLatency));
+            workloadTaskData.setStdDevLatency(BigDecimal.valueOf(stdDevLatency));
+        }
 
         getHibernateTemplate().persist(workloadTaskData);
+
+        if (saveStandardMetricsWithNewModel) {
+            MetricDescriptionEntity successRateDescription = persistMetricDescription(
+                    StandardMetricsNamesUtil.SUCCESS_RATE_ID,
+                    StandardMetricsNamesUtil.SUCCESS_RATE,
+                    taskData);
+            persistAggregatedMetricValue(successRate, successRateDescription);
+
+
+            MetricDescriptionEntity samplesDescription = persistMetricDescription(
+                    StandardMetricsNamesUtil.ITERATION_SAMPLES_ID,
+                    StandardMetricsNamesUtil.ITERATIONS_SAMPLES,
+                    taskData);
+            persistAggregatedMetricValue(invoked, samplesDescription);
+
+
+            MetricDescriptionEntity failuresDescription = persistMetricDescription(
+                    StandardMetricsNamesUtil.FAIL_COUNT_ID,
+                    StandardMetricsNamesUtil.FAIL_COUNT,
+                    taskData);
+            persistAggregatedMetricValue(failed, failuresDescription);
+        }
 
         for (Map.Entry<String, ValidationResult> entry : validationResults.entrySet()) {
             ValidationResultEntity entity = new ValidationResultEntity();

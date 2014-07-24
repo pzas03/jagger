@@ -1,9 +1,8 @@
 package com.griddynamics.jagger.dbapi.fetcher;
 
 import com.griddynamics.jagger.dbapi.dto.PlotSingleDto;
-import com.griddynamics.jagger.dbapi.util.ColorCodeGenerator;
 import com.griddynamics.jagger.dbapi.dto.PointDto;
-import com.griddynamics.jagger.dbapi.parameter.DefaultWorkloadParameters;
+import com.griddynamics.jagger.dbapi.util.ColorCodeGenerator;
 import com.griddynamics.jagger.dbapi.util.DataProcessingUtil;
 import com.griddynamics.jagger.util.StandardMetricsNamesUtil;
 
@@ -33,12 +32,11 @@ public class TimeLatencyPercentileMetricPlotFetcher extends StandardMetricPlotFe
             previousPercentileValue = y;
         }
         for (Map.Entry<Double, List<PointDto>> entry : percentiles.entrySet()) {
-            DefaultWorkloadParameters parameter = DefaultWorkloadParameters.fromDescription(entry.getKey().toString());
-            String description = (parameter == null ? entry.getKey().toString() : parameter.getDescription());
-            String legend = legendProvider.generatePlotLegend(sessionId, description, true);
+            String latencyNameNewModel = StandardMetricsNamesUtil.getLatencyMetricName(entry.getKey(), false);
+            String legend = legendProvider.generatePlotLegend(sessionId, latencyNameNewModel, true);
             plotDatasetDtoList.add(new PlotSingleDto(entry.getValue(), legend,
-                    ColorCodeGenerator.getHexColorCode(StandardMetricsNamesUtil.getLatencyMetricName(entry.getKey(),true),
-                            Arrays.asList(StandardMetricsNamesUtil.getLatencyMetricName(entry.getKey(),false)),
+                    ColorCodeGenerator.getHexColorCode(StandardMetricsNamesUtil.getLatencyMetricName(entry.getKey(), true),
+                            Arrays.asList(latencyNameNewModel),
                             sessionId)));
         }
 
