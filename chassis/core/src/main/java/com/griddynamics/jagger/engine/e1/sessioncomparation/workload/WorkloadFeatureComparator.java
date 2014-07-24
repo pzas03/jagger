@@ -90,6 +90,7 @@ public class WorkloadFeatureComparator extends HibernateDaoSupport implements Fe
     }
 
     private WorkloadComparisonResult compareWorkloads(WorkloadTaskData first, WorkloadTaskData second) {
+        // ??? todo JFG-825 getThroughput, Latency, etc can return null
         return WorkloadComparisonResult.builder()
                 .throughputDeviation(calculateDeviation(first.getThroughput(), second.getThroughput()))
                 .avgLatencyDeviation(calculateDeviation(first.getAvgLatency(), second.getAvgLatency()))

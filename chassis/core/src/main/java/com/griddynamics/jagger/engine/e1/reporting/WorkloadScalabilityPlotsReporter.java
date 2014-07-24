@@ -146,6 +146,7 @@ public class WorkloadScalabilityPlotsReporter extends AbstractReportProvider {
         XYSeries throughput = new XYSeries("Throughput");
         throughput.add(0, 0);
         for (WorkloadTaskData workloadTaskData : resultData) {
+            // ??? todo JFG-825 getThroughput can return null
             throughput.add(workloadTaskData.getClockValue(), workloadTaskData.getThroughput());
         }
         return new XYSeriesCollection(throughput);
@@ -158,6 +159,7 @@ public class WorkloadScalabilityPlotsReporter extends AbstractReportProvider {
         meanLatency.add(0, 0);
         stdDevLatency.add(0, 0);
         for (WorkloadTaskData workloadTaskData : resultData) {
+            // ??? todo JFG-825 getXXXLatency can return null
             meanLatency.add(workloadTaskData.getClockValue(), workloadTaskData.getAvgLatency());
             stdDevLatency.add(workloadTaskData.getClockValue(), workloadTaskData.getStdDevLatency());
         }

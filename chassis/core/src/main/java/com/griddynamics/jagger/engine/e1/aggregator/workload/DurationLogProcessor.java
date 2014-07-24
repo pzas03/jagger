@@ -67,6 +67,11 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
 
     private KeyValueStorage keyValueStorage;
 
+    // Legacy way: slow, distributed among many tables in DB
+    private boolean saveStandardMetricsWithOldModel = false;
+    // Unified metric representation: fast, single flow for all types of metrics
+    private boolean saveStandardMetricsWithNewModel = true;
+
     @Required
     public void setKeyValueStorage(KeyValueStorage keyValueStorage) {
         this.keyValueStorage = keyValueStorage;
@@ -89,6 +94,14 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
     @Required
     public void setLogAggregator(LogAggregator logAggregator) {
         this.logAggregator = logAggregator;
+    }
+
+    public void setSaveStandardMetricsWithOldModel(boolean saveStandardMetricsWithOldModel) {
+        this.saveStandardMetricsWithOldModel = saveStandardMetricsWithOldModel;
+    }
+
+    public void setSaveStandardMetricsWithNewModel(boolean saveStandardMetricsWithNewModel) {
+        this.saveStandardMetricsWithNewModel = saveStandardMetricsWithNewModel;
     }
 
     @Override
@@ -145,7 +158,6 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
 
             StatisticsGenerator statisticsGenerator = new StatisticsGenerator(file, aggregationInfo, intervalSize, taskData).generate();
             final Collection<TimeInvocationStatistics> statistics = statisticsGenerator.getStatistics();
-            // ??? JFG_821 - remove saving of percentiles from here when migration to new model will be finished
             final WorkloadProcessDescriptiveStatistics workloadProcessDescriptiveStatistics = statisticsGenerator.getWorkloadProcessDescriptiveStatistics();
             final Collection<MetricPointEntity> newStatistics = statisticsGenerator.getNewStatistics();
 
@@ -155,18 +167,21 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
                 public Void doInHibernate(Session session) throws HibernateException, SQLException {
 
                     // persist standard metrics as custom metric (since version 1.2.6)
-                    for (MetricPointEntity point : newStatistics) {
-                        session.persist(point);
+                    if (saveStandardMetricsWithNewModel) {
+                        for (MetricPointEntity point : newStatistics) {
+                            session.persist(point);
+                        }
                     }
 
-                    // persist standard metrics as TimeInvocationStatistics
-                    for (TimeInvocationStatistics stat : statistics) {
-                        session.persist(stat);
+                    if (saveStandardMetricsWithOldModel) {
+                        // persist standard metrics as TimeInvocationStatistics
+                        for (TimeInvocationStatistics stat : statistics) {
+                            session.persist(stat);
+                        }
+                        // persist standard metrics as WorkloadProcessDescriptiveStatistics
+                        session.persist(workloadProcessDescriptiveStatistics);
                     }
 
-                    // persist standard metrics as WorkloadProcessDescriptiveStatistics
-                    // ??? JFG_821 - remove saving of percentiles from here when migration to new model will be finished
-                    session.persist(workloadProcessDescriptiveStatistics);
                     session.flush();
                     return null;
                 }
@@ -185,7 +200,6 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
         private int intervalSize;
         private TaskData taskData;
         private Collection<TimeInvocationStatistics> statistics;
-        // ??? JFG_821 - remove saving of percentiles from here when migration to new model will be finished
         private WorkloadProcessDescriptiveStatistics workloadProcessDescriptiveStatistics;
         private Collection<MetricPointEntity> newStatistics;
 
@@ -200,7 +214,6 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
             return statistics;
         }
 
-        // ??? JFG_821 - remove saving of percentiles from here when migration to new model will be finished
         public WorkloadProcessDescriptiveStatistics getWorkloadProcessDescriptiveStatistics() {
             return workloadProcessDescriptiveStatistics;
         }
@@ -319,24 +332,27 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
                 }
             }
 
-            // persist summary values as custom metrics (since version 1.2.6)
             workloadProcessDescriptiveStatistics = assembleDescriptiveScenarioStatistics(globalStatisticsCalculator, taskData);
-            for (WorkloadProcessLatencyPercentile pp : workloadProcessDescriptiveStatistics.getPercentiles()) {
-                persistAggregatedMetricValue(Math.rint(pp.getPercentileValue()) / 1000D, percentileMap.get(pp.getPercentileKey()));
+
+            // persist summary values as custom metrics (since version 1.2.6)
+            if (saveStandardMetricsWithNewModel) {
+                for (WorkloadProcessLatencyPercentile pp : workloadProcessDescriptiveStatistics.getPercentiles()) {
+                    persistAggregatedMetricValue(Math.rint(pp.getPercentileValue()) / 1000D, percentileMap.get(pp.getPercentileKey()));
+                }
+
+                persistAggregatedMetricValue(Math.rint(globalStatisticsCalculator.getMean()) / 1000D, latencyDescription);
+                persistAggregatedMetricValue(Math.rint(globalStatisticsCalculator.getStandardDeviation()) / 1000D, latencyStdDevDescription);
+
+                Namespace taskNamespace = Namespace.of(taskData.getSessionId(), taskData.getTaskId());
+
+                Long startTime = (Long) keyValueStorage.fetchNotNull(taskNamespace, START_TIME);
+                Long endTime = (Long) keyValueStorage.fetchNotNull(taskNamespace, END_TIME);
+
+                double duration = (double) (endTime - startTime) / 1000;
+                double totalThroughput = Math.rint(totalCount / duration * 100) / 100;
+
+                persistAggregatedMetricValue(Math.rint(totalThroughput * 100) / 100, throughputDescription);
             }
-
-            persistAggregatedMetricValue(Math.rint(globalStatisticsCalculator.getMean()) / 1000D, latencyDescription);
-            persistAggregatedMetricValue(Math.rint(globalStatisticsCalculator.getStandardDeviation()) / 1000D, latencyStdDevDescription);
-
-            Namespace taskNamespace = Namespace.of(taskData.getSessionId(), taskData.getTaskId());
-
-            Long startTime = (Long) keyValueStorage.fetchNotNull(taskNamespace, START_TIME);
-            Long endTime = (Long) keyValueStorage.fetchNotNull(taskNamespace, END_TIME);
-
-            double duration = (double) (endTime - startTime) / 1000;
-            double totalThroughput = Math.rint(totalCount / duration * 100) / 100;
-
-            persistAggregatedMetricValue(Math.rint(totalThroughput * 100) / 100, throughputDescription);
 
             return this;
         }

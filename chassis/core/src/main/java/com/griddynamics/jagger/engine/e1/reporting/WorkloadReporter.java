@@ -60,6 +60,7 @@ public class WorkloadReporter extends AbstractReportProvider {
             // create dummy workloadTaskData entity for decision maker
             WorkloadTaskData workloadTaskData = new WorkloadTaskData();
             Map<MetricEntity,MetricSummaryValueEntity> metricsForThisTest = metricsPerTest.get(testEntity);
+            //??? todo JFG_810 with new model for standard metrics ids can be different
             for (MetricEntity metricEntity : metricsForThisTest.keySet()) {
                 if (metricEntity.getMetricId().equals(StandardMetricsNamesUtil.THROUGHPUT_ID)) {
                     workloadTaskData.setThroughput(new BigDecimal(metricsForThisTest.get(metricEntity).getValue()));

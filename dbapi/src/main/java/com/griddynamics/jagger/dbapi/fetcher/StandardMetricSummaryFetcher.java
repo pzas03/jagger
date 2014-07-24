@@ -61,18 +61,29 @@ public class StandardMetricSummaryFetcher extends DbMetricDataFetcher<SummarySin
 
                     String value = null;
                     if (metricId.equals(StandardMetricsNamesUtil.LATENCY_OLD_ID)) {
-                        //??? JFG-821: values can be null here => take care when disable saving with old model
-                        value = workloadTaskData.getAvgLatency().toString();
+                        if (workloadTaskData.getAvgLatency() != null) {
+                            value = workloadTaskData.getAvgLatency().toString();
+                        }
                     } else if (metricId.equals(StandardMetricsNamesUtil.ITERATION_SAMPLES_OLD_ID)) {
-                        value = workloadTaskData.getSamples().toString();
+                        if (workloadTaskData.getSamples() != null) {
+                            value = workloadTaskData.getSamples().toString();
+                        }
                     } else if (metricId.equals(StandardMetricsNamesUtil.SUCCESS_RATE_OLD_ID)) {
-                        value = workloadTaskData.getSuccessRate().toString();
+                        if (workloadTaskData.getSuccessRate() != null) {
+                            value = workloadTaskData.getSuccessRate().toString();
+                        }
                     } else if (metricId.equals(StandardMetricsNamesUtil.THROUGHPUT_OLD_ID)) {
-                        value = workloadTaskData.getThroughput().toString();
+                        if (workloadTaskData.getThroughput() != null) {
+                            value = workloadTaskData.getThroughput().toString();
+                        }
                     } else if (metricId.equals(StandardMetricsNamesUtil.FAIL_COUNT_OLD_ID)) {
-                        value = workloadTaskData.getFailuresCount().toString();
+                        if (workloadTaskData.getFailuresCount() != null) {
+                            value = workloadTaskData.getFailuresCount().toString();
+                        }
                     } else if (metricId.equals(StandardMetricsNamesUtil.LATENCY_STD_DEV_OLD_ID)) {
-                        value = workloadTaskData.getStdDevLatency().toString();
+                        if (workloadTaskData.getStdDevLatency() != null) {
+                            value = workloadTaskData.getStdDevLatency().toString();
+                        }
                     }
 
                     if (value != null)  {
