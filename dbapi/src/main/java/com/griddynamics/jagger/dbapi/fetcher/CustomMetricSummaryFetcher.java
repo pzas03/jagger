@@ -69,7 +69,7 @@ public class CustomMetricSummaryFetcher extends DbMetricDataFetcher<SummarySingl
             if (mas[0] == null) continue;
 
             SummaryMetricValueDto value = new SummaryMetricValueDto();
-            Double val = (Double)mas[0];
+            double val = ((Number) mas[0]).doubleValue();
             value.setValue(
                     new DecimalFormat(FormatCalculator.getNumberFormat(val), new DecimalFormatSymbols(Locale.ENGLISH))
                             .format(val)
