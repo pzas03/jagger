@@ -9,6 +9,7 @@ import com.griddynamics.jagger.dbapi.util.CommonUtils;
 import com.griddynamics.jagger.dbapi.util.DataProcessingUtil;
 import com.griddynamics.jagger.dbapi.util.FetchUtil;
 
+import com.griddynamics.jagger.util.StandardMetricsNamesUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -121,7 +122,11 @@ public class CustomMetricPlotNameProvider {
                 if (plotName != null) {
                     for (TaskDataDto tdd : taskDataDtos) {
                         if (tdd.getIds().contains((Long)plotName[2])) {
-                            result.add(new MetricNameDto(tdd, (String)plotName[0], (String)plotName[1], MetricNameDto.Origin.METRIC));
+                            String metricName = (String) plotName[0];
+                            MetricNameDto metricNameDto = new MetricNameDto(tdd, metricName, (String)plotName[1], MetricNameDto.Origin.METRIC);
+                            // synonyms are required for new model of standard metrics for correct back compatibility
+                            metricNameDto.setMetricNameSynonyms(StandardMetricsNamesUtil.getSynonyms(metricName));
+                            result.add(metricNameDto);
                         }
                     }
                 }

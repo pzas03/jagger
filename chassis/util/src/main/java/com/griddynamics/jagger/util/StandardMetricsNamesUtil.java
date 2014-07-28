@@ -61,8 +61,7 @@ public class StandardMetricsNamesUtil {
     public static String getLatencyMetricName(double latencyKey, boolean isOldModel) {
         if (isOldModel) {
             return "Latency " + latencyKey + " %-old";
-        }
-        else {
+        } else {
             return "Latency " + latencyKey + " %";
         }
     }
@@ -80,23 +79,45 @@ public class StandardMetricsNamesUtil {
             populateSynonyms();
         }
 
+        // hard coded synonyms
         if (synonyms.containsKey(metricName)) {
             return new ArrayList<String>(synonyms.get(metricName));
+        }
+
+        // dynamic synonyms for latency percentiles
+        if (metricName.matches(LATENCY_PERCENTILE_REGEX)) {
+            Double value = parseLatencyPercentileKey(metricName);
+            String percentileNewModelMetricName = getLatencyMetricName(value, false);
+            if (metricName.equals(percentileNewModelMetricName)) {
+                return new ArrayList<String>(Arrays.asList(getLatencyMetricName(value, true), TIME_LATENCY_PERCENTILE));
+            } else {
+                return new ArrayList<String>(Arrays.asList(percentileNewModelMetricName));
+            }
+
         }
 
         return null;
     }
 
-    private static Map<String,List<String>> synonyms = new HashMap<String, List<String>>();
+    private static Map<String, List<String>> synonyms = new HashMap<String, List<String>>();
 
-    //??? todo JFG-824: new model should also contain synonyms to support old links
     private static void populateSynonyms() {
-        synonyms.put(THROUGHPUT_OLD_ID, Arrays.asList(THROUGHPUT_ID,"Throughput"));
-        synonyms.put(LATENCY_OLD_ID, Arrays.asList(LATENCY_ID,"Latency"));
+        // old to very old and new
+        synonyms.put(THROUGHPUT_OLD_ID, Arrays.asList(THROUGHPUT_ID, THROUGHPUT));
+        synonyms.put(LATENCY_OLD_ID, Arrays.asList(LATENCY_ID, LATENCY));
         synonyms.put(LATENCY_STD_DEV_OLD_ID, Arrays.asList(LATENCY_STD_DEV_ID));
         synonyms.put(FAIL_COUNT_OLD_ID, Arrays.asList(FAIL_COUNT_ID));
-        synonyms.put(SUCCESS_RATE_OLD_ID, Arrays.asList(SUCCESS_RATE_ID,"Success rate"));
-        synonyms.put(DURATION_OLD_ID, Arrays.asList(DURATION_ID,"Duration"));
-        synonyms.put(ITERATION_SAMPLES_OLD_ID, Arrays.asList(ITERATION_SAMPLES_ID,"Iterations"));
+        synonyms.put(SUCCESS_RATE_OLD_ID, Arrays.asList(SUCCESS_RATE_ID, SUCCESS_RATE));
+        synonyms.put(DURATION_OLD_ID, Arrays.asList(DURATION_ID, "Duration"));
+        synonyms.put(ITERATION_SAMPLES_OLD_ID, Arrays.asList(ITERATION_SAMPLES_ID, "Iterations"));
+
+        // new to old and very old :-)
+        synonyms.put(THROUGHPUT_ID, Arrays.asList(THROUGHPUT_OLD_ID, THROUGHPUT));
+        synonyms.put(LATENCY_ID, Arrays.asList(LATENCY_OLD_ID, LATENCY));
+        synonyms.put(LATENCY_STD_DEV_ID, Arrays.asList(LATENCY_STD_DEV_OLD_ID));
+        synonyms.put(FAIL_COUNT_ID, Arrays.asList(FAIL_COUNT_OLD_ID));
+        synonyms.put(SUCCESS_RATE_ID, Arrays.asList(SUCCESS_RATE_OLD_ID, SUCCESS_RATE));
+        synonyms.put(DURATION_ID, Arrays.asList(DURATION_OLD_ID, "Duration"));
+        synonyms.put(ITERATION_SAMPLES_ID, Arrays.asList(ITERATION_SAMPLES_OLD_ID, "Iterations"));
     }
 }
