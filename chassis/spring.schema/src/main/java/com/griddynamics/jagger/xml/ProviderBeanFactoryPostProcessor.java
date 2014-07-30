@@ -16,7 +16,10 @@ public class ProviderBeanFactoryPostProcessor implements BeanFactoryPostProcesso
         String[] beanNames = beanFactory.getBeanNamesForType(Provider.class);
         for (String beanName : beanNames) {
             BeanDefinition beanDefinition = beanFactory.getBeanDefinition(beanName);
-            beanDefinition.setScope(BeanDefinition.SCOPE_PROTOTYPE);
+            // if user doesn't use scope attribute, we set prototype scope as default
+            if ("".equals(beanDefinition.getScope())){
+                beanDefinition.setScope(BeanDefinition.SCOPE_PROTOTYPE);
+            }
         }
     }
 }
