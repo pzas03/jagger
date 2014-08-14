@@ -30,7 +30,7 @@
 /// @par Agent with system resources monitoring
 /// Simpliest example how to start agent:
 /// @code
-/// /start_agent.sh -Dchassis.coordination.http.url=http://192.168.56.1:8089 -Djmx.enabled=false -Dagent.name=someAgentOnSUT
+/// ./start_agent.sh -Dchassis.coordination.http.url=http://192.168.56.1:8089 -Djmx.enabled=false -Dagent.name=someAgentOnSUT
 /// @endcode
 /// @n
 /// `chassis.coordination.http.url` - URL of Jagger server node @n

@@ -117,11 +117,11 @@ public class SummaryReporter {
         if (metricsPerTest == null) {
 
             Set<String> standardMetricsIds = new HashSet<String>();
-            standardMetricsIds.add(StandardMetricsNamesUtil.THROUGHPUT_ID);
-            standardMetricsIds.add(StandardMetricsNamesUtil.FAIL_COUNT_ID);
-            standardMetricsIds.add(StandardMetricsNamesUtil.SUCCESS_RATE_ID);
-            standardMetricsIds.add(StandardMetricsNamesUtil.LATENCY_ID);
-            standardMetricsIds.add(StandardMetricsNamesUtil.LATENCY_STD_DEV_ID);
+            standardMetricsIds.addAll(StandardMetricsNamesUtil.getAllVariantsOfMetricName(StandardMetricsNamesUtil.THROUGHPUT_ID));
+            standardMetricsIds.addAll(StandardMetricsNamesUtil.getAllVariantsOfMetricName(StandardMetricsNamesUtil.FAIL_COUNT_ID));
+            standardMetricsIds.addAll(StandardMetricsNamesUtil.getAllVariantsOfMetricName(StandardMetricsNamesUtil.SUCCESS_RATE_ID));
+            standardMetricsIds.addAll(StandardMetricsNamesUtil.getAllVariantsOfMetricName(StandardMetricsNamesUtil.LATENCY_ID));
+            standardMetricsIds.addAll(StandardMetricsNamesUtil.getAllVariantsOfMetricName(StandardMetricsNamesUtil.LATENCY_STD_DEV_ID));
 
             LocalRankingProvider localRankingProvider = new LocalRankingProvider();
             DataService dataService = new DefaultDataService(databaseService);
