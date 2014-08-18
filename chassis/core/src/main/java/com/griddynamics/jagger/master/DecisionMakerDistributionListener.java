@@ -258,9 +258,20 @@ public class DecisionMakerDistributionListener extends HibernateDaoSupport imple
 
             // if null - we are comparing to baseline
             if (refValue == null) {
-                // todo : ??? JFG-810 check that new model will match to old limits setup
                 if (metricValuesBaseline.containsKey(metricEntity.getMetricId())) {
                     refValue = metricValuesBaseline.get(metricEntity.getMetricId());
+                } else {
+                    // After changing storage model for standard metrics (latency, throughput, etc)
+                    // for sessions with old model ids will differ => check synonyms to find correct reference value
+                    List<String> metricIdSynonyms = metricEntity.getMetricNameDto().getMetricNameSynonyms();
+                    if (metricIdSynonyms != null) {
+                        for (String synonym : metricIdSynonyms) {
+                            if (metricValuesBaseline.containsKey(synonym)) {
+                                refValue = metricValuesBaseline.get(synonym);
+                                break;
+                            }
+                        }
+                    }
                 }
             }
 

@@ -60,21 +60,20 @@ public class WorkloadReporter extends AbstractReportProvider {
             // create dummy workloadTaskData entity for decision maker
             WorkloadTaskData workloadTaskData = new WorkloadTaskData();
             Map<MetricEntity,MetricSummaryValueEntity> metricsForThisTest = metricsPerTest.get(testEntity);
-            //??? todo JFG_810 with new model for standard metrics ids can be different
             for (MetricEntity metricEntity : metricsForThisTest.keySet()) {
-                if (metricEntity.getMetricId().equals(StandardMetricsNamesUtil.THROUGHPUT_ID)) {
+                if (StandardMetricsNamesUtil.getAllVariantsOfMetricName(StandardMetricsNamesUtil.THROUGHPUT_ID).contains(metricEntity.getMetricId())) {
                     workloadTaskData.setThroughput(new BigDecimal(metricsForThisTest.get(metricEntity).getValue()));
                 }
-                if (metricEntity.getMetricId().equals(StandardMetricsNamesUtil.FAIL_COUNT_ID)) {
+                if (StandardMetricsNamesUtil.getAllVariantsOfMetricName(StandardMetricsNamesUtil.FAIL_COUNT_ID).contains(metricEntity.getMetricId())) {
                     workloadTaskData.setFailuresCount(metricsForThisTest.get(metricEntity).getValue().intValue());
                 }
-                if (metricEntity.getMetricId().equals(StandardMetricsNamesUtil.SUCCESS_RATE_ID)) {
+                if (StandardMetricsNamesUtil.getAllVariantsOfMetricName(StandardMetricsNamesUtil.SUCCESS_RATE_ID).contains(metricEntity.getMetricId())) {
                     workloadTaskData.setSuccessRate(new BigDecimal(metricsForThisTest.get(metricEntity).getValue()));
                 }
-                if (metricEntity.getMetricId().equals(StandardMetricsNamesUtil.LATENCY_ID)) {
+                if (StandardMetricsNamesUtil.getAllVariantsOfMetricName(StandardMetricsNamesUtil.LATENCY_ID).contains(metricEntity.getMetricId())) {
                     workloadTaskData.setAvgLatency(new BigDecimal(metricsForThisTest.get(metricEntity).getValue()));
                 }
-                if (metricEntity.getMetricId().equals(StandardMetricsNamesUtil.LATENCY_STD_DEV_ID)) {
+                if (StandardMetricsNamesUtil.getAllVariantsOfMetricName(StandardMetricsNamesUtil.LATENCY_STD_DEV_ID).contains(metricEntity.getMetricId())) {
                     workloadTaskData.setStdDevLatency(new BigDecimal(metricsForThisTest.get(metricEntity).getValue()));
                 }
             }
@@ -85,7 +84,7 @@ public class WorkloadReporter extends AbstractReportProvider {
             // Success rate
             Decision testSuccessRateStatus = decisionMaker.decideOnTest(workloadTaskData);
             if (testSuccessRateStatus.ordinal() > testStatus.ordinal()) {
-                testStatusComment = "Status is based on success rate. Success rate is below threshold defined by property: 'chassis.master.reporting.successrate.threshold'";
+                testStatusComment = "Status is based on success rate. Success rate is below the threshold defined by the property: 'chassis.master.reporting.successrate.threshold'";
                 testStatus = testSuccessRateStatus;
             }
 

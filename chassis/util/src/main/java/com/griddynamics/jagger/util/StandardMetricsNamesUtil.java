@@ -99,6 +99,20 @@ public class StandardMetricsNamesUtil {
         return null;
     }
 
+    // Standard metrics can be stored in DB under different ids due to back compatibility
+    public static Set<String> getAllVariantsOfMetricName(String metricName) {
+        Set<String> result = new HashSet<String>();
+
+        result.add(metricName);
+
+        List<String> synonyms = getSynonyms(metricName);
+        if (synonyms != null) {
+            result.addAll(synonyms);
+        }
+
+        return result;
+    }
+
     private static Map<String, List<String>> synonyms = new HashMap<String, List<String>>();
 
     private static void populateSynonyms() {
