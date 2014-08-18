@@ -54,8 +54,8 @@
                 <reportElement x="25" y="0" width="25" height="40"/>
                 <imageExpression class="java.awt.Image"><![CDATA[$F{statusImage}]]></imageExpression>
             </image>
-            <textField>
-                <reportElement style="Header_Bold" x="65" y="0" width="300" height="40"/>
+            <textField isStretchWithOverflow="true">
+                <reportElement style="Header_Bold" x="65" y="0" width="500" height="40"/>
                 <textElement textAlignment="Left" verticalAlignment="Middle"/>
                 <textFieldExpression><![CDATA[$F{message}]]></textFieldExpression>
             </textField>

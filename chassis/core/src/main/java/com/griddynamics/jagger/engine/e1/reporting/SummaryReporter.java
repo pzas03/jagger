@@ -22,16 +22,19 @@ package com.griddynamics.jagger.engine.e1.reporting;
 
 import com.griddynamics.jagger.dbapi.DatabaseService;
 import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
+import com.griddynamics.jagger.dbapi.entity.WorkloadTaskData;
 import com.griddynamics.jagger.engine.e1.services.DataService;
 import com.griddynamics.jagger.engine.e1.services.DefaultDataService;
 import com.griddynamics.jagger.engine.e1.services.data.service.MetricEntity;
 import com.griddynamics.jagger.engine.e1.services.data.service.MetricSummaryValueEntity;
 import com.griddynamics.jagger.engine.e1.services.data.service.TestEntity;
+import com.griddynamics.jagger.util.Decision;
 import com.griddynamics.jagger.util.FormatCalculator;
 import com.griddynamics.jagger.util.MetricNamesRankingProvider;
 import com.griddynamics.jagger.util.StandardMetricsNamesUtil;
 import org.springframework.beans.factory.annotation.Required;
 
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -48,11 +51,26 @@ public class SummaryReporter {
     private DateFormat dateFormatter = new SimpleDateFormat(FormatCalculator.DATE_FORMAT);
     private int numberOfTestGroups;
     private boolean isMetricHighlighting;
+    private List<SummaryTestDto> testSummaryData = new LinkedList<SummaryTestDto>();
+
+    private SessionStatusDecisionMaker decisionMaker;
+    private StatusImageProvider statusImageProvider;
 
     @Required
     public void setMetricHighlighting(boolean isMetricHighlighting) {
         this.isMetricHighlighting = isMetricHighlighting;
     }
+
+    @Required
+    public void setDecisionMaker(SessionStatusDecisionMaker decisionMaker) {
+        this.decisionMaker = decisionMaker;
+    }
+
+    @Required
+    public void setStatusImageProvider(StatusImageProvider statusImageProvider) {
+        this.statusImageProvider = statusImageProvider;
+    }
+
 
     public List<SummaryDto> getSummary(String sessionId, String taskId) {
 
@@ -101,6 +119,13 @@ public class SummaryReporter {
         return numberOfTestGroups;
     }
 
+    public List<SummaryTestDto> getTestSummaryData(String sessionId) {
+
+        getData(sessionId);
+
+        return testSummaryData;
+    }
+
     private void getData(String sessionId) {
 
         // Remember what session id was set for cashed data
@@ -112,6 +137,12 @@ public class SummaryReporter {
         if (!sessionId.equals(this.sessionId)) {
             metricsPerTest = null;
             this.sessionId = sessionId;
+
+            summaryMap.clear();
+            latencyPercentilesMap.clear();
+            validatorsMap.clear();
+            standardMetricsMap.clear();
+            testSummaryData.clear();
         }
 
         if (metricsPerTest == null) {
@@ -207,7 +238,82 @@ public class SummaryReporter {
                 validatorsMap.put(entry.getKey().getId().toString(), validatorsList);
                 standardMetricsMap.put(entry.getKey(), standardMetricsPerTest);
             }
+
+            fillTestSummaryData(this.sessionId);
         }
+    }
+
+    private void fillTestSummaryData(String sessionId) {
+
+        for (TestEntity testEntity : standardMetricsMap.keySet()) {
+            //??? todo JFG_777 - decide how to provide session comparison and decision making for back compatibility
+            // workaround for back compatibility
+            // create dummy workloadTaskData entity for decision maker
+            WorkloadTaskData workloadTaskData = new WorkloadTaskData();
+            Map<MetricEntity,MetricSummaryValueEntity> metricsForThisTest = standardMetricsMap.get(testEntity);
+            for (MetricEntity metricEntity : metricsForThisTest.keySet()) {
+                if (StandardMetricsNamesUtil.getAllVariantsOfMetricName(StandardMetricsNamesUtil.THROUGHPUT_ID).contains(metricEntity.getMetricId())) {
+                    workloadTaskData.setThroughput(new BigDecimal(metricsForThisTest.get(metricEntity).getValue()));
+                }
+                if (StandardMetricsNamesUtil.getAllVariantsOfMetricName(StandardMetricsNamesUtil.FAIL_COUNT_ID).contains(metricEntity.getMetricId())) {
+                    workloadTaskData.setFailuresCount(metricsForThisTest.get(metricEntity).getValue().intValue());
+                }
+                if (StandardMetricsNamesUtil.getAllVariantsOfMetricName(StandardMetricsNamesUtil.SUCCESS_RATE_ID).contains(metricEntity.getMetricId())) {
+                    workloadTaskData.setSuccessRate(new BigDecimal(metricsForThisTest.get(metricEntity).getValue()));
+                }
+                if (StandardMetricsNamesUtil.getAllVariantsOfMetricName(StandardMetricsNamesUtil.LATENCY_ID).contains(metricEntity.getMetricId())) {
+                    workloadTaskData.setAvgLatency(new BigDecimal(metricsForThisTest.get(metricEntity).getValue()));
+                }
+                if (StandardMetricsNamesUtil.getAllVariantsOfMetricName(StandardMetricsNamesUtil.LATENCY_STD_DEV_ID).contains(metricEntity.getMetricId())) {
+                    workloadTaskData.setStdDevLatency(new BigDecimal(metricsForThisTest.get(metricEntity).getValue()));
+                }
+            }
+
+            String testStatusComment = "";
+            Decision testStatus = Decision.OK;
+
+            // Success rate
+            Decision testSuccessRateStatus = decisionMaker.decideOnTest(workloadTaskData);
+            if (testSuccessRateStatus.ordinal() > testStatus.ordinal()) {
+                testStatusComment = "Test status is based on success rate. Success rate is below the threshold defined by the property: 'chassis.master.reporting.successrate.threshold'";
+                testStatus = testSuccessRateStatus;
+            }
+
+            // Errors during workload configuration
+            Decision testExecutionStatus = testEntity.getTestExecutionStatus();
+            if (testExecutionStatus.ordinal() > testStatus.ordinal()) {
+                testStatusComment = "Test status is based on test execution status. There were errors during test execution (f.e. timeouts)";
+                testStatus = testExecutionStatus;
+            }
+
+            // Limits based decision
+            Decision testDecisionBasedOLimits = testEntity.getDecision();
+            if (testDecisionBasedOLimits != null) {
+                if (testDecisionBasedOLimits.ordinal() > testStatus.ordinal()) {
+                    testStatusComment = "Test status is based on comparison of summary values to limits";
+                    testStatus = testDecisionBasedOLimits;
+                }
+
+            }
+
+            SummaryTestDto reportData = new SummaryTestDto();
+            reportData.setSessionId(sessionId);
+            reportData.setNumber(testEntity.getTestGroupIndex().toString());
+            reportData.setId(testEntity.getId().toString());
+            reportData.setTestStatus(testStatus);
+            reportData.setStatusImage(statusImageProvider.getImageByDecision(testStatus));
+            reportData.setTestName(testEntity.getName() + "\n\n\n" + testStatusComment);
+            testSummaryData.add(reportData);
+        }
+
+        Collections.sort(testSummaryData, new Comparator<SummaryTestDto>() {
+            @Override
+            public int compare(final SummaryTestDto result1, final SummaryTestDto result2) {
+                int val1 = Integer.parseInt(result1.getNumber());
+                int val2 = Integer.parseInt(result2.getNumber());
+                return val1 > val2 ? 1 : val1 < val2 ? -1 : 0;
+            }
+        } );
     }
 
     private class LocalRankingProvider extends MetricNamesRankingProvider {

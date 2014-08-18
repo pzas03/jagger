@@ -22,7 +22,17 @@ package com.griddynamics.jagger.engine.e1.sessioncomparation.workload;
 import com.griddynamics.jagger.dbapi.entity.WorkloadTaskData;
 
 public class WorkloadComparisonResult {
+    @Deprecated
+    /**
+     * @deprecated
+     * Starting from version 1.2.6 this parameter is null
+     */
     private final WorkloadTaskData currentData;
+    @Deprecated
+    /**
+     * @deprecated
+     * Starting from version 1.2.6 this parameter is null
+     */
     private final WorkloadTaskData baselineData;
 
     private final double throughputDeviation;
@@ -77,10 +87,21 @@ public class WorkloadComparisonResult {
         return stdDevLatencyDeviation;
     }
 
+    //??? really
+    @Deprecated
+    /**
+     * @deprecated
+     * Starting from version 1.2.6 this function returns null
+     */
     public WorkloadTaskData getCurrentData() {
         return currentData;
     }
 
+    @Deprecated
+    /**
+     * @deprecated
+     * Starting from version 1.2.6 this function returns null
+     */
     public WorkloadTaskData getBaselineData() {
         return baselineData;
     }
@@ -147,7 +168,17 @@ public class WorkloadComparisonResult {
         private double successRateDeviation;
         private double avgLatencyDeviation;
         private double stdDevLatencyDeviation;
+        @Deprecated
+        /**
+         * @deprecated
+         * Starting from version 1.2.6 this parameter is null
+         */
         private WorkloadTaskData currentData;
+        @Deprecated
+        /**
+         * @deprecated
+         * Starting from version 1.2.6 this parameter is null
+         */
         private WorkloadTaskData baselineData;
 
         private WorkloadComparisonResultBuilder() {
@@ -175,11 +206,13 @@ public class WorkloadComparisonResult {
             return this;
         }
 
+        @Deprecated
         public WorkloadComparisonResultBuilder baselineData(WorkloadTaskData baselineData) {
             this.baselineData = baselineData;
             return this;
         }
 
+        @Deprecated
         public WorkloadComparisonResultBuilder currentData(WorkloadTaskData currentData) {
             this.currentData = currentData;
             return this;
