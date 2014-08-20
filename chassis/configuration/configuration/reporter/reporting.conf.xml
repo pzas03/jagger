@@ -121,6 +121,7 @@
                                 <entry key="user" value="Invocations"/>
                             </map>
                         </property>
+                        <property name="summaryReporter" ref="summaryReporter"/>
                     </bean>
                 </entry>
 

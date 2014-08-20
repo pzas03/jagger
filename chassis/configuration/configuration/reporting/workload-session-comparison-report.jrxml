@@ -56,7 +56,7 @@
                 <text><![CDATA[Throughput Deviation]]></text>
             </staticText>
             <staticText>
-                <reportElement style="Compact_Header_Bold" mode="Opaque" x="4000" y="0" width="50" height="30"
+                <reportElement style="Compact_Header_Bold" mode="Opaque" x="400" y="0" width="50" height="30"
                                forecolor="#000000" backcolor="#D7FFB0"/>
                 <textElement textAlignment="Center" verticalAlignment="Middle"/>
                 <text><![CDATA[Mean Latency Deviation]]></text>

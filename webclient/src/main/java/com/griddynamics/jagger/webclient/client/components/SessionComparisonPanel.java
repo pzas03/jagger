@@ -465,7 +465,9 @@ public class SessionComparisonPanel extends VerticalPanel {
         clock.put(TEST_INFO, TEST_INFO);
         for (SessionDataDto session : chosenSessions) {
             if (testInfoMap.get(session.getSessionId()) != null)
-                clock.put(SESSION_HEADER + session.getSessionId(), testInfoMap.get(session.getSessionId()).getClock());
+                clock.put(SESSION_HEADER + session.getSessionId(),
+                        testInfoMap.get(session.getSessionId()).getClock() + " (" +
+                        testInfoMap.get(session.getSessionId()).getClockValue().toString() + ")");
         }
         treeStore.add(testInfo, clock);
 

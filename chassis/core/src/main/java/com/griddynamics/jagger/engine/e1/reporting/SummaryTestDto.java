@@ -4,10 +4,7 @@ import com.griddynamics.jagger.util.Decision;
 
 import java.awt.*;
 
-//??? docu
-/**
- * Created by dlatnikov on 14/08/14.
- */
+/** Class is used to pass information about tests values to jasper report templates */
 public class SummaryTestDto {
     private String sessionId;
     private String number;

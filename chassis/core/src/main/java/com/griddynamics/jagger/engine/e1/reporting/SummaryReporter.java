@@ -52,6 +52,7 @@ public class SummaryReporter {
     private int numberOfTestGroups;
     private boolean isMetricHighlighting;
     private List<SummaryTestDto> testSummaryData = new LinkedList<SummaryTestDto>();
+    private Map<TestEntity,Map<String,Double>> dataForScalabilityPlots = new HashMap<TestEntity, Map<String, Double>>();
 
     private SessionStatusDecisionMaker decisionMaker;
     private StatusImageProvider statusImageProvider;
@@ -126,6 +127,13 @@ public class SummaryReporter {
         return testSummaryData;
     }
 
+    public Map<TestEntity,Map<String,Double>> getDataForScalabilityPlots(String sessionId) {
+
+        getData(sessionId);
+
+        return dataForScalabilityPlots;
+    }
+
     private void getData(String sessionId) {
 
         // Remember what session id was set for cashed data
@@ -143,6 +151,7 @@ public class SummaryReporter {
             validatorsMap.clear();
             standardMetricsMap.clear();
             testSummaryData.clear();
+            dataForScalabilityPlots.clear();
         }
 
         if (metricsPerTest == null) {
@@ -239,13 +248,16 @@ public class SummaryReporter {
                 standardMetricsMap.put(entry.getKey(), standardMetricsPerTest);
             }
 
-            fillTestSummaryData(this.sessionId);
+            fillTestSummaryAndScalabilityData(this.sessionId);
         }
     }
 
-    private void fillTestSummaryData(String sessionId) {
+    private void fillTestSummaryAndScalabilityData(String sessionId) {
 
         for (TestEntity testEntity : standardMetricsMap.keySet()) {
+
+            dataForScalabilityPlots.put(testEntity, new HashMap<String, Double>());
+
             //??? todo JFG_777 - decide how to provide session comparison and decision making for back compatibility
             // workaround for back compatibility
             // create dummy workloadTaskData entity for decision maker
@@ -254,6 +266,7 @@ public class SummaryReporter {
             for (MetricEntity metricEntity : metricsForThisTest.keySet()) {
                 if (StandardMetricsNamesUtil.getAllVariantsOfMetricName(StandardMetricsNamesUtil.THROUGHPUT_ID).contains(metricEntity.getMetricId())) {
                     workloadTaskData.setThroughput(new BigDecimal(metricsForThisTest.get(metricEntity).getValue()));
+                    dataForScalabilityPlots.get(testEntity).put(StandardMetricsNamesUtil.THROUGHPUT_ID, metricsForThisTest.get(metricEntity).getValue());
                 }
                 if (StandardMetricsNamesUtil.getAllVariantsOfMetricName(StandardMetricsNamesUtil.FAIL_COUNT_ID).contains(metricEntity.getMetricId())) {
                     workloadTaskData.setFailuresCount(metricsForThisTest.get(metricEntity).getValue().intValue());
@@ -263,9 +276,11 @@ public class SummaryReporter {
                 }
                 if (StandardMetricsNamesUtil.getAllVariantsOfMetricName(StandardMetricsNamesUtil.LATENCY_ID).contains(metricEntity.getMetricId())) {
                     workloadTaskData.setAvgLatency(new BigDecimal(metricsForThisTest.get(metricEntity).getValue()));
+                    dataForScalabilityPlots.get(testEntity).put(StandardMetricsNamesUtil.LATENCY_ID, metricsForThisTest.get(metricEntity).getValue());
                 }
                 if (StandardMetricsNamesUtil.getAllVariantsOfMetricName(StandardMetricsNamesUtil.LATENCY_STD_DEV_ID).contains(metricEntity.getMetricId())) {
                     workloadTaskData.setStdDevLatency(new BigDecimal(metricsForThisTest.get(metricEntity).getValue()));
+                    dataForScalabilityPlots.get(testEntity).put(StandardMetricsNamesUtil.LATENCY_STD_DEV_ID, metricsForThisTest.get(metricEntity).getValue());
                 }
             }
 

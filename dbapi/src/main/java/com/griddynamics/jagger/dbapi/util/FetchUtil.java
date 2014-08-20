@@ -113,7 +113,8 @@ public class FetchUtil {
         for (Object[] objects : objectsList) {
 
             Long taskId = ((BigInteger)objects[4]).longValue();
-            String clock = objects[1] + " (" + objects[2] + ')';
+            String clock = (String)objects[1];
+            Integer clockValue = (Integer)objects[2];
             String termination = (String)objects[3];
             String sessionId = (String)objects[0];
 
@@ -136,6 +137,7 @@ public class FetchUtil {
             }
             TestInfoDto testInfo = new TestInfoDto();
             testInfo.setClock(clock);
+            testInfo.setClockValue(clockValue);
             testInfo.setTermination(termination);
             testInfo.setStartTime(startTime);
             testInfo.setEndTime(endTime);
