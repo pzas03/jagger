@@ -57,7 +57,7 @@ public class WorkloadFeatureComparator implements FeatureComparator<WorkloadComp
         DefaultDataService dataService = new DefaultDataService(databaseService);
 
         // Find if there are matching tests in sessions
-        // Strategy to match sessions - we will use baseline only when all test parameters are matching
+        // Strategy to match sessions: we will use baseline only when all test parameters are matching
         Set<TestEntity> baselineSessionTests = null;
         SessionMatchingSetup sessionMatchingSetup = new SessionMatchingSetup(true, EnumSet.of(SessionMatchingSetup.MatchBy.ALL));
         Map<String, Set<TestEntity>> matchingTestEntities =
@@ -110,9 +110,12 @@ public class WorkloadFeatureComparator implements FeatureComparator<WorkloadComp
 
                         Map<MetricEntity, MetricSummaryValueEntity> currentTestMetrics = currentSessionStandardMetrics.get(currentTest);
                         Map<MetricEntity, MetricSummaryValueEntity> baselineTestMetrics = null;
+                        TestEntity baselineTestEntity = null;
                         for (TestEntity baselineTest : baselineSessionStandardMetrics.keySet()) {
                             if (baselineTest.getName().equals(currentTest.getName())) {
                                 baselineTestMetrics = baselineSessionStandardMetrics.get(baselineTest);
+                                baselineTestEntity = baselineTest;
+                                break;
                             }
                         }
 
@@ -160,15 +163,18 @@ public class WorkloadFeatureComparator implements FeatureComparator<WorkloadComp
 
                         // make decision if there were no errors during data fetching
                         if (thereWereNoErrors) {
-                            // null ???
                             workloadComparisonResult = WorkloadComparisonResult.builder()
                                     .throughputDeviation(throughputDeviation)
                                     .avgLatencyDeviation(avgLatencyDeviation)
                                     .stdDevLatencyDeviation(stdDevLatencyDeviation)
                                     .successRateDeviation(successRateDeviation)
                                     .totalDurationDeviation(totalDurationDeviation)
-                                    .currentData(null)
-                                    .baselineData(null)
+                                    .currentSessionEntity(summaryReporter.getSessionEntity(currentSession))
+                                    .baselineSessionEntity(baselineSummaryReporter.getSessionEntity(baselineSession))
+                                    .currentTestEntity(currentTest)
+                                    .baselineTestEntity(baselineTestEntity)
+                                    .currentStandardMetrics(currentTestMetrics)
+                                    .baselineStandardMetrics(baselineTestMetrics)
                                     .build();
 
                             decision = workloadDecisionMaker.makeDecision(workloadComparisonResult);
@@ -196,12 +202,11 @@ public class WorkloadFeatureComparator implements FeatureComparator<WorkloadComp
         } else {
             decision = Decision.ERROR;
             description = "Error: no matching tests for sessions " + currentSession + ", " + baselineSession;
+            log.warn(description);
 
             Verdict<WorkloadComparisonResult> verdict = new Verdict<WorkloadComparisonResult>(description, decision, workloadComparisonResult);
             log.debug("Verdict {}", verdict);
             result.add(verdict);
-
-            log.warn(description);
         }
 
 

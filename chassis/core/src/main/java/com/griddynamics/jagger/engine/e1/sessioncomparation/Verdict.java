@@ -32,7 +32,6 @@ public class Verdict<T> {
     public Verdict(String description, Decision decision, T details) {
         Preconditions.checkNotNull(description);
         Preconditions.checkNotNull(decision);
-        Preconditions.checkNotNull(details);
 
         this.description = description;
         this.decision = decision;

@@ -27,6 +27,7 @@ import com.griddynamics.jagger.engine.e1.services.DataService;
 import com.griddynamics.jagger.engine.e1.services.DefaultDataService;
 import com.griddynamics.jagger.engine.e1.services.data.service.MetricEntity;
 import com.griddynamics.jagger.engine.e1.services.data.service.MetricSummaryValueEntity;
+import com.griddynamics.jagger.engine.e1.services.data.service.SessionEntity;
 import com.griddynamics.jagger.engine.e1.services.data.service.TestEntity;
 import com.griddynamics.jagger.util.Decision;
 import com.griddynamics.jagger.util.FormatCalculator;
@@ -53,6 +54,7 @@ public class SummaryReporter {
     private boolean isMetricHighlighting;
     private List<SummaryTestDto> testSummaryData = new LinkedList<SummaryTestDto>();
     private Map<TestEntity,Map<String,Double>> dataForScalabilityPlots = new HashMap<TestEntity, Map<String, Double>>();
+    private SessionEntity sessionEntity;
 
     private SessionStatusDecisionMaker decisionMaker;
     private StatusImageProvider statusImageProvider;
@@ -134,6 +136,13 @@ public class SummaryReporter {
         return dataForScalabilityPlots;
     }
 
+    public SessionEntity getSessionEntity(String sessionId) {
+
+        getData(sessionId);
+
+        return sessionEntity;
+    }
+
     private void getData(String sessionId) {
 
         // Remember what session id was set for cashed data
@@ -143,6 +152,7 @@ public class SummaryReporter {
 
         // Reset data if new session id arrived
         if (!sessionId.equals(this.sessionId)) {
+            sessionEntity = null;
             metricsPerTest = null;
             this.sessionId = sessionId;
 
@@ -162,10 +172,12 @@ public class SummaryReporter {
             standardMetricsIds.addAll(StandardMetricsNamesUtil.getAllVariantsOfMetricName(StandardMetricsNamesUtil.SUCCESS_RATE_ID));
             standardMetricsIds.addAll(StandardMetricsNamesUtil.getAllVariantsOfMetricName(StandardMetricsNamesUtil.LATENCY_ID));
             standardMetricsIds.addAll(StandardMetricsNamesUtil.getAllVariantsOfMetricName(StandardMetricsNamesUtil.LATENCY_STD_DEV_ID));
+            standardMetricsIds.addAll(StandardMetricsNamesUtil.getAllVariantsOfMetricName(StandardMetricsNamesUtil.ITERATION_SAMPLES_ID));
 
             LocalRankingProvider localRankingProvider = new LocalRankingProvider();
             DataService dataService = new DefaultDataService(databaseService);
             Set<TestEntity> testEntities = dataService.getTests(sessionId);
+            sessionEntity = dataService.getSession(sessionId);
             metricsPerTest = dataService.getMetricsByTests(testEntities);
 
             Set<Long> testIds = new HashSet<Long>();
