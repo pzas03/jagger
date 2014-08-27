@@ -126,10 +126,10 @@
                         <artifactId>maven-compiler-plugin</artifactId>
                         <version>2.0.2</version>
                         <configuration>
-                            <target>${targetJdkVersion}</target>
-                            <source>${targetJdkVersion}</source>
+                            <target>${jagger.targetJdkVersion}</target>
+                            <source>${jagger.targetJdkVersion}</source>
                             <fork>true</fork>
-                            <executable>${targetJdk}/bin/javac</executable>
+                            <executable>${jagger.targetJdk}/bin/javac</executable>
                         </configuration>
                     </plugin>
                     <plugin>

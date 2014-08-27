@@ -33,8 +33,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <targetJdkVersion>1.6</targetJdkVersion>
-        <targetJdk>${JAVA_HOME}</targetJdk>
+        <jagger.targetJdkVersion>1.6</jagger.targetJdkVersion>
+        <jagger.targetJdk>${JAVA_HOME}</jagger.targetJdk>
     </properties>
 
     <dependencies>

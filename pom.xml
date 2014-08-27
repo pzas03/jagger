@@ -32,8 +32,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <targetJdkVersion>1.6</targetJdkVersion>
-        <targetJdk>${JAVA_HOME}</targetJdk>
+        <jagger.targetJdkVersion>1.6</jagger.targetJdkVersion>
+        <jagger.targetJdk>${JAVA_HOME}</jagger.targetJdk>
 
         <spring.version>3.1.4.RELEASE</spring.version>
     </properties>
@@ -483,11 +483,6 @@
                 <version>1.8</version>
             </dependency>
 
-            <dependency>
-                <groupId>trove</groupId>
-                <artifactId>trove</artifactId>
-                <version>1.0.2</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -506,11 +501,11 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.0.2</version>
                 <configuration>
-                    <target>${targetJdkVersion}</target>
-                    <source>${targetJdkVersion}</source>
+                    <target>${jagger.targetJdkVersion}</target>
+                    <source>${jagger.targetJdkVersion}</source>
                     <fork>true</fork>
                     <debug>true</debug>
-                    <executable>${targetJdk}/bin/javac</executable>
+                    <executable>${jagger.targetJdk}/bin/javac</executable>
                 </configuration>
             </plugin>
             <plugin>
