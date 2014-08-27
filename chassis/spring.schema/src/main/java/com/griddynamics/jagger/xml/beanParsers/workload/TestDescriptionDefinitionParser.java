@@ -5,6 +5,7 @@ import com.griddynamics.jagger.engine.e1.scenario.SkipCalibration;
 import com.griddynamics.jagger.user.TestDescription;
 import com.griddynamics.jagger.xml.beanParsers.CustomBeanDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.XMLConstants;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
@@ -30,6 +31,7 @@ public class TestDescriptionDefinitionParser extends CustomBeanDefinitionParser 
 
     @Override
     protected void parse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
+        builder.setScope(BeanDefinition.SCOPE_PROTOTYPE);
         builder.addPropertyValue(XMLConstants.DESCRIPTION, element.getAttribute(XMLConstants.ID));
 
         ManagedList metrics = new ManagedList();
