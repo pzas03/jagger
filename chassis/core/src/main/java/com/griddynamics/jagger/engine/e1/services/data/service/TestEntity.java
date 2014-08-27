@@ -19,6 +19,7 @@ public class TestEntity {
 
     /** Description of the load for this test */
     private String load;
+    private Integer clockValue;
     private String terminationStrategy;
     private Date startDate;
     private Integer testGroupIndex;
@@ -106,6 +107,16 @@ public class TestEntity {
         this.decision = decision;
     }
 
+    /** Get numerical value of the load for this test */
+    public Integer getClockValue() {
+        return clockValue;
+    }
+
+    public void setClockValue(Integer clockValue) {
+        this.clockValue = clockValue;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -113,6 +124,7 @@ public class TestEntity {
 
         TestEntity that = (TestEntity) o;
 
+        if (clockValue != null ? !clockValue.equals(that.clockValue) : that.clockValue != null) return false;
         if (decision != that.decision) return false;
         if (description != null ? !description.equals(that.description) : that.description != null) return false;
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
@@ -134,6 +146,7 @@ public class TestEntity {
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + (load != null ? load.hashCode() : 0);
+        result = 31 * result + (clockValue != null ? clockValue.hashCode() : 0);
         result = 31 * result + (terminationStrategy != null ? terminationStrategy.hashCode() : 0);
         result = 31 * result + (startDate != null ? startDate.hashCode() : 0);
         result = 31 * result + (testGroupIndex != null ? testGroupIndex.hashCode() : 0);
@@ -149,8 +162,9 @@ public class TestEntity {
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", load='" + load + '\'' +
+                ", clockValue=" + clockValue +
                 ", terminationStrategy='" + terminationStrategy + '\'' +
-                ", startDate='" + startDate + '\'' +
+                ", startDate=" + startDate +
                 ", testGroupIndex=" + testGroupIndex +
                 ", testExecutionStatus=" + testExecutionStatus +
                 ", decision=" + decision +

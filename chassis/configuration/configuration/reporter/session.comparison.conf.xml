@@ -57,7 +57,16 @@
                           value="${chassis.engine.e1.reporting.session.comparison.decision.maker.warning.deviation.threshold}"/>
             </bean>
         </property>
-        <property name="sessionFactory" ref="sessionFactory"/>
+        <property name="databaseService" ref="databaseService"/>
+        <property name="summaryReporter" ref="summaryReporter"/>
+        <property name="baselineSummaryReporter" ref="baselineSummaryReporter"/>
+    </bean>
+
+    <bean id="baselineSummaryReporter" class="com.griddynamics.jagger.engine.e1.reporting.SummaryReporter">
+        <property name="databaseService" ref="databaseService"/>
+        <property name="metricHighlighting" value="${report.enable.decisions.per.metric.highlighting:true}"/>
+        <property name="decisionMaker" ref="sessionStatusDecisionMaker"/>
+        <property name="statusImageProvider" ref="statusImageProvider"/>
     </bean>
 
     <bean id="worstCaseDecisionMaker"

@@ -74,8 +74,7 @@
 
     <bean id="defaultOverallSessionComparisonReporter" class="com.griddynamics.jagger.engine.e1.reporting.OverallSessionComparisonReporter" parent="abstractReportProviderBean">
         <property name="template" value="configuration/reporting/session-comparison-report.jrxml"/>
-        <property name="baselineSessionProvider"
-                  ref="baselineSessionProvider"/>
+        <property name="baselineSessionProvider" ref="baselineSessionProvider"/>
         <property name="statusImageProvider" ref="statusImageProvider"/>
         <property name="sessionComparator" ref="sessionComparator"/>
     </bean>
@@ -100,7 +99,7 @@
                     <bean class="com.griddynamics.jagger.engine.e1.reporting.SessionStatusReporter" parent="abstractReportProviderBean">
                         <property name="template" value="configuration/reporting/session-status-report.jrxml"/>
                         <property name="statusImageProvider" ref="statusImageProvider"/>
-                        <property name="decisionMaker" ref="sessionStatusDecisionMaker"/>
+                        <property name="summaryReporter" ref="summaryReporter"/>
                     </bean>
                 </entry>
 
@@ -108,8 +107,6 @@
                     <bean class="com.griddynamics.jagger.engine.e1.reporting.WorkloadReporter" parent="abstractReportProviderBean">
                         <property name="template" value="configuration/reporting/workload-reporting.jrxml"/>
 
-                        <property name="decisionMaker" ref="sessionStatusDecisionMaker"/>
-                        <property name="statusImageProvider" ref="statusImageProvider"/>
                         <property name="summaryReporter" ref="summaryReporter"/>
                     </bean>
                 </entry>
@@ -124,6 +121,7 @@
                                 <entry key="user" value="Invocations"/>
                             </map>
                         </property>
+                        <property name="summaryReporter" ref="summaryReporter"/>
                     </bean>
                 </entry>
 
@@ -239,6 +237,8 @@
     <bean id="summaryReporter" class="com.griddynamics.jagger.engine.e1.reporting.SummaryReporter">
         <property name="databaseService" ref="databaseService"/>
         <property name="metricHighlighting" value="${report.enable.decisions.per.metric.highlighting:true}"/>
+        <property name="decisionMaker" ref="sessionStatusDecisionMaker"/>
+        <property name="statusImageProvider" ref="statusImageProvider"/>
     </bean>
     
     <bean id="plotsReporter" class="com.griddynamics.jagger.engine.e1.reporting.PlotsReporter">

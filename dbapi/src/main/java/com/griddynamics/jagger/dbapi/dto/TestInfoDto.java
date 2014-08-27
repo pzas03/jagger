@@ -13,6 +13,7 @@ public class TestInfoDto implements Serializable {
 
     private String termination;
     private String clock;
+    private Integer clockValue;
     private Date startTime;
     private Date endTime;
     // index of test group where this test was executed
@@ -66,6 +67,14 @@ public class TestInfoDto implements Serializable {
 
     public void setStatus(Decision status) {
         this.status = status;
+    }
+
+    public Integer getClockValue() {
+        return clockValue;
+    }
+
+    public void setClockValue(Integer clockValue) {
+        this.clockValue = clockValue;
     }
 
 }
