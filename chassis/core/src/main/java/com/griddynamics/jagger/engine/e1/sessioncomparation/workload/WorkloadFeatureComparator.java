@@ -172,7 +172,7 @@ public class WorkloadFeatureComparator implements FeatureComparator<WorkloadComp
                             if (!metricMatch) {
                                 thereWereNoErrors = false;
                                 description = "Error: can't find metric '" + currentMetricEntity.getMetricId() + "' in baseline results";
-                                log.warn(description);
+                                log.error(description);
                             }
                         }
 
@@ -210,14 +210,14 @@ public class WorkloadFeatureComparator implements FeatureComparator<WorkloadComp
                     // Not an error case => verdict is not set
                     // Possible situation when new test was added to suite
 
-                    description = "Error: no matching test " + currentTest.getName();
+                    description = "Warning: no matching test " + currentTest.getName();
                     log.warn(description);
                 }
             }
         } else {
             decision = Decision.ERROR;
             description = "Error: no matching tests for sessions " + currentSession + ", " + baselineSession;
-            log.warn(description);
+            log.error(description);
 
             Verdict<WorkloadComparisonResult> verdict = new Verdict<WorkloadComparisonResult>(description, decision, workloadComparisonResult);
             log.debug("Verdict {}", verdict);
