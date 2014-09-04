@@ -1,5 +1,6 @@
 package com.griddynamics.jagger.engine.e1.services.data.service;
 
+import com.griddynamics.jagger.dbapi.dto.TaskDataDto;
 import com.griddynamics.jagger.util.Decision;
 
 import java.util.Date;
@@ -25,6 +26,7 @@ public class TestEntity {
     private Integer testGroupIndex;
     private Decision testExecutionStatus;
     private Decision decision;
+    private TaskDataDto taskDataDto;
 
     /** Get test name in format [test group name] [test name] */
     public String getName() {
@@ -116,6 +118,14 @@ public class TestEntity {
         this.clockValue = clockValue;
     }
 
+    /** Get internal test model. Internal model is point to change in future. No compatibility guaranteed */
+    public TaskDataDto getTaskDataDto() {
+        return taskDataDto;
+    }
+
+    public void setTaskDataDto(TaskDataDto taskDataDto) {
+        this.taskDataDto = taskDataDto;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -131,6 +141,7 @@ public class TestEntity {
         if (load != null ? !load.equals(that.load) : that.load != null) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (startDate != null ? !startDate.equals(that.startDate) : that.startDate != null) return false;
+        if (taskDataDto != null ? !taskDataDto.equals(that.taskDataDto) : that.taskDataDto != null) return false;
         if (terminationStrategy != null ? !terminationStrategy.equals(that.terminationStrategy) : that.terminationStrategy != null)
             return false;
         if (testExecutionStatus != that.testExecutionStatus) return false;
@@ -152,6 +163,7 @@ public class TestEntity {
         result = 31 * result + (testGroupIndex != null ? testGroupIndex.hashCode() : 0);
         result = 31 * result + (testExecutionStatus != null ? testExecutionStatus.hashCode() : 0);
         result = 31 * result + (decision != null ? decision.hashCode() : 0);
+        result = 31 * result + (taskDataDto != null ? taskDataDto.hashCode() : 0);
         return result;
     }
 
@@ -168,6 +180,7 @@ public class TestEntity {
                 ", testGroupIndex=" + testGroupIndex +
                 ", testExecutionStatus=" + testExecutionStatus +
                 ", decision=" + decision +
+                ", taskDataDto=" + taskDataDto +
                 '}';
     }
 }
