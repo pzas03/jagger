@@ -766,7 +766,8 @@ public class DatabaseServiceImpl implements DatabaseService {
             throw new RuntimeException(e);
         }
 
-        log.info("For tasks {} was found {} metrics names for {} ms", new Object[]{tddos, list.size(), System.currentTimeMillis() - time});
+        log.debug("Search metric names for tasks: {}", tddos);
+        log.info("For {} tasks were found {} metrics names for {} ms", new Object[]{tddos.size(), list.size(), System.currentTimeMillis() - time});
 
         Map<TaskDataDto, List<MetricNode>> result = new HashMap<TaskDataDto, List<MetricNode>>();
 
@@ -882,7 +883,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                     }
 
                     if (monitoringId == null) {
-                        log.warn("Could not find monitoring key for description: '{}' and monitoing task id: '{}'", description, objects[2]);
+                        log.warn("Could not find monitoring key for description: '{}' and monitoring task id: '{}'", description, objects[2]);
                         break;
                     }
 
