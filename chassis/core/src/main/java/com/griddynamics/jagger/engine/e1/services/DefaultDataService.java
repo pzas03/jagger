@@ -152,6 +152,7 @@ public class DefaultDataService implements DataService {
                     testEntity.setId(testId);
                     testEntity.setDescription(taskDataDto.getDescription());
                     testEntity.setName(taskDataDto.getTaskName());
+                    testEntity.setTaskDataDto(taskDataDto);
 
                     if (testInfoMap.containsKey(taskDataDto)) {
                         TestInfoDto testInfoDto = testInfoMap.get(taskDataDto).entrySet().iterator().next().getValue();

@@ -81,6 +81,20 @@ public class WorkloadFeatureComparator implements FeatureComparator<WorkloadComp
 
         if (baselineSessionTests != null) {
 
+            // Mapping of matching tests from different sessions
+            HashMap<Long,Long> currentTestIdToBaselineTestId = new HashMap<Long, Long>();
+            for (TestEntity baselineSessionTest : baselineSessionTests) {
+                Long key = -1L;
+                Long value = -1L;
+                for (Map.Entry<Long, String> entry : baselineSessionTest.getTaskDataDto().getIdToSessionId().entrySet()) {
+                    if (entry.getValue().equals(currentSession)) {key = entry.getKey();}
+                    if (entry.getValue().equals(baselineSession)) {value = entry.getKey();}
+                }
+                if ((key > 0) && (value > 0)) {
+                    currentTestIdToBaselineTestId.put(key, value);
+                }
+            }
+
             Map<TestEntity, Map<MetricEntity, MetricSummaryValueEntity>> currentSessionStandardMetrics = summaryReporter.getStandardMetricsPerTest(currentSession);
             Map<TestEntity, Map<MetricEntity, MetricSummaryValueEntity>> baselineSessionStandardMetrics = baselineSummaryReporter.getStandardMetricsPerTest(baselineSession);
 
@@ -101,9 +115,9 @@ public class WorkloadFeatureComparator implements FeatureComparator<WorkloadComp
                 totalDurationDeviation = 0.0;
                 workloadComparisonResult = null;
 
-                // Check that baseline contains this particular test
-                for (TestEntity baselineTestCheck : baselineSessionTests) {
-                    if (baselineTestCheck.getName().equals(currentTest.getName())) {
+                for (Map.Entry<Long, Long> currentToBaseline : currentTestIdToBaselineTestId.entrySet()) {
+                    // Check that baseline contains this particular test
+                    if (currentTest.getId().equals(currentToBaseline.getKey())) {
                         testMatched = true;
 
                         log.debug("Going to compare workload {}", currentTest.getName());
@@ -112,7 +126,8 @@ public class WorkloadFeatureComparator implements FeatureComparator<WorkloadComp
                         Map<MetricEntity, MetricSummaryValueEntity> baselineTestMetrics = null;
                         TestEntity baselineTestEntity = null;
                         for (TestEntity baselineTest : baselineSessionStandardMetrics.keySet()) {
-                            if (baselineTest.getName().equals(currentTest.getName())) {
+                            // Check that we have summary values for this particular test
+                            if (baselineTest.getId().equals(currentToBaseline.getValue())) {
                                 baselineTestMetrics = baselineSessionStandardMetrics.get(baselineTest);
                                 baselineTestEntity = baselineTest;
                                 break;
@@ -157,7 +172,7 @@ public class WorkloadFeatureComparator implements FeatureComparator<WorkloadComp
                             if (!metricMatch) {
                                 thereWereNoErrors = false;
                                 description = "Error: can't find metric '" + currentMetricEntity.getMetricId() + "' in baseline results";
-                                log.warn(description);
+                                log.error(description);
                             }
                         }
 
@@ -195,14 +210,14 @@ public class WorkloadFeatureComparator implements FeatureComparator<WorkloadComp
                     // Not an error case => verdict is not set
                     // Possible situation when new test was added to suite
 
-                    description = "Error: no matching test " + currentTest.getName();
+                    description = "Warning: no matching test " + currentTest.getName();
                     log.warn(description);
                 }
             }
         } else {
             decision = Decision.ERROR;
             description = "Error: no matching tests for sessions " + currentSession + ", " + baselineSession;
-            log.warn(description);
+            log.error(description);
 
             Verdict<WorkloadComparisonResult> verdict = new Verdict<WorkloadComparisonResult>(description, decision, workloadComparisonResult);
             log.debug("Verdict {}", verdict);
