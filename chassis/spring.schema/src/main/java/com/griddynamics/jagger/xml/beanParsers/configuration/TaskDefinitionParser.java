@@ -6,9 +6,12 @@ import com.griddynamics.jagger.xml.beanParsers.CustomBeanDefinitionParser;
 import com.griddynamics.jagger.xml.beanParsers.XMLConstants;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
+
+import java.util.List;
 
 
 public class TaskDefinitionParser extends CustomBeanDefinitionParser {
@@ -23,8 +26,18 @@ public class TaskDefinitionParser extends CustomBeanDefinitionParser {
 
         setBeanProperty(XMLConstants.LOAD, DomUtils.getChildElementByTagName(element, XMLConstants.LOAD), parserContext, builder.getBeanDefinition());
         setBeanProperty(XMLConstants.TERMINATION_STRATEGY, DomUtils.getChildElementByTagName(element, XMLConstants.TERMINATION), parserContext, builder.getBeanDefinition());
-        setBeanProperty(XMLConstants.LISTENERS, DomUtils.getChildElementByTagName(element, XMLConstants.TEST_LISTENERS), parserContext, builder.getBeanDefinition());
         setBeanProperty(XMLConstants.LIMITS, DomUtils.getChildElementByTagName(element, XMLConstants.LIMITS), parserContext, builder.getBeanDefinition());
+
+        ManagedList listeners = new ManagedList();
+        listeners.setMergeEnabled(true);
+        Element testGroupListenersGroup = DomUtils.getChildElementByTagName(element, XMLConstants.TEST_LISTENERS);
+        if (testGroupListenersGroup != null) {
+            List<Element> testListenersElements = DomUtils.getChildElementsByTagName(testGroupListenersGroup, XMLConstants.TEST_LISTENER);
+            if (testListenersElements != null && !testListenersElements.isEmpty()) {
+                listeners.addAll(parseCustomElements(testListenersElements, parserContext, builder.getBeanDefinition()));
+            }
+        }
+        builder.addPropertyValue(XMLConstants.LISTENERS, listeners);
     }
 
     @Override

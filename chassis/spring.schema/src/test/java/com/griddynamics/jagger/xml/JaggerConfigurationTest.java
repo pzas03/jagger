@@ -15,8 +15,8 @@ import com.griddynamics.jagger.reporting.ReportingService;
 import com.griddynamics.jagger.user.TestGroupConfiguration;
 import com.griddynamics.jagger.util.TimeUnits;
 import com.griddynamics.jagger.xml.stubs.xml.ExampleDecisionMakerListener;
+import com.griddynamics.jagger.xml.stubs.xml.ExampleDistributionListener;
 import com.griddynamics.jagger.xml.stubs.xml.ExampleTestGroupListener;
-import com.griddynamics.jagger.xml.stubs.xml.ExampleTestListener;
 import junit.framework.Assert;
 import org.springframework.context.ApplicationContext;
 import org.testng.annotations.BeforeClass;
@@ -101,8 +101,8 @@ public class JaggerConfigurationTest {
     @Test
     public void conf1LatencyTest(){
         Configuration config1 = (Configuration) ctx.getBean("config1");
-        ExampleTestListener exampleTestListener = (ExampleTestListener)config1.getDistributionListeners().get(config1.getDistributionListeners().size()-1);
-        Assert.assertNotNull(exampleTestListener);
+        ExampleDistributionListener exampleDistributionListener = (ExampleDistributionListener)config1.getDistributionListeners().get(config1.getDistributionListeners().size()-1);
+        Assert.assertNotNull(exampleDistributionListener);
     }
 
     @Test

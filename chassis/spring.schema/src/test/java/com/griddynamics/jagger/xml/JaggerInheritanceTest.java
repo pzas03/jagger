@@ -134,6 +134,8 @@ public class JaggerInheritanceTest {
         tps = (TpsClockConfiguration)test2.getClockConfiguration();
         Assert.assertEquals(tps.getTps(), 20d);
 
+        Assert.assertEquals(test2.getListeners().size(), 2);
+
         testDescription = test1.getTestDescription();
         Assert.assertEquals(testDescription.getDescription(),"testIntDescrParent");
 
