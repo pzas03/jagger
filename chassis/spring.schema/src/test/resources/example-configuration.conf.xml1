@@ -60,7 +60,7 @@
     </configuration>
 
     <beans:bean name="sessionListener1" class="com.griddynamics.jagger.xml.stubs.xml.ExampleSessionListener"/>
-    <beans:bean name="testListener1" class="com.griddynamics.jagger.xml.stubs.xml.ExampleTestListener"/>
+    <beans:bean name="testListener1" class="com.griddynamics.jagger.xml.stubs.xml.ExampleDistributionListener"/>
     <beans:bean name="testGroupListener1" class="com.griddynamics.jagger.xml.stubs.xml.ExampleTestGroupListener"/>
     <beans:bean name="decisionMakerListener1" class="com.griddynamics.jagger.xml.stubs.xml.ExampleDecisionMakerListener"/>
     <beans:bean name="decisionMakerListener2" class="com.griddynamics.jagger.xml.stubs.xml.ExampleDecisionMakerListener"/>

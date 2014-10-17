@@ -1,31 +1,26 @@
 package com.griddynamics.jagger.xml.stubs.xml;
 
-import com.griddynamics.jagger.coordinator.NodeId;
-import com.griddynamics.jagger.master.DistributionListener;
-import com.griddynamics.jagger.master.configuration.Task;
-
-import java.util.Collection;
+import com.griddynamics.jagger.engine.e1.Provider;
+import com.griddynamics.jagger.engine.e1.collector.test.TestInfo;
+import com.griddynamics.jagger.engine.e1.collector.test.TestListener;
 
 /**
- * Created with IntelliJ IDEA.
- * User: kgribov
- * Date: 12/17/12
- * Time: 3:03 PM
- * To change this template use File | Settings | File Templates.
+ * @author kgribov
  */
-
-//Test class
-//for configuration
-
-public class ExampleTestListener implements DistributionListener {
+public class ExampleTestListener implements Provider<TestListener> {
 
     @Override
-    public void onDistributionStarted(String sessionId, String taskId, Task task, Collection<NodeId> capableNodes) {
+    public TestListener provide() {
+        return new TestListener() {
+            @Override
+            public void onStart(TestInfo infoStart) {
 
-    }
+            }
 
-    @Override
-    public void onTaskDistributionCompleted(String sessionId, String taskId, Task task) {
+            @Override
+            public void onStop(TestInfo infoStop) {
 
+            }
+        };
     }
 }

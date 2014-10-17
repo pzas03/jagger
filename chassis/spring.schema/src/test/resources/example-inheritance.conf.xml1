@@ -135,6 +135,9 @@
     <test id="testParent" startDelay="5" testDescription="testIntDescrParent">
         <load xsi:type="load-tps" value="100"/>
         <termination xsi:type="termination-iterations" iterations="255" maxDuration="1h"/>
+        <listeners-test>
+            <listener-test xsi:type="listener-test-threads"/>
+        </listeners-test>
     </test>
 
     <test id="testChild1" parent="testParent">
@@ -144,6 +147,11 @@
     <test id="testChild2" parent="testParent" startDelay="10" testDescription="testIntDescrChild">
         <load xsi:type="load-tps" value="20"/>
         <termination xsi:type="termination-iterations" iterations="25" maxDuration="2h"/>
+        <listeners-test>
+            <listener-test xsi:type="listener-test-ref" ref="testListenerStud"/>
+        </listeners-test>
     </test>
+
+    <beans:bean name="testListenerStud" class="com.griddynamics.jagger.xml.stubs.xml.ExampleTestListener"/>
 
 </beans:beans>
