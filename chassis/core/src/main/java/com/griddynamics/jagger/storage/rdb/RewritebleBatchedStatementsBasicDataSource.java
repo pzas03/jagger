@@ -20,7 +20,7 @@ public class RewritebleBatchedStatementsBasicDataSource extends BasicDataSource 
 
     @Override
     public void setRewriteBatchedStatements(final boolean rewriteBatchedStatements) {
-        super.addConnectionProperty("includeSynonyms", String.valueOf(rewriteBatchedStatements));
+        super.addConnectionProperty(REWRITE_BATCHED_STATEMENTS, String.valueOf(rewriteBatchedStatements));
     }
 
     @Override
