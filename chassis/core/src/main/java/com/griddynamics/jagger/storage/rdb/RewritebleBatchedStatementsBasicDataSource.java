@@ -10,12 +10,12 @@ import java.sql.SQLException;
  */
 public class RewritebleBatchedStatementsBasicDataSource extends BasicDataSource implements RewritebleBatchedStatementsDataSource {
 
-    public static final String REWRITE_BATCHED_STATEMENTS = "rewriteBatchedStatements";
+    private static final String REWRITE_BATCHED_STATEMENTS = "rewriteBatchedStatements";
 
     @Override
     public boolean getRewriteBatchedStatements() {
         final String isRewrite = super.connectionProperties.getProperty(REWRITE_BATCHED_STATEMENTS);
-        return isRewrite == null ? null : Boolean.valueOf(isRewrite);
+        return isRewrite == null ? false : Boolean.valueOf(isRewrite);
     }
 
     @Override
