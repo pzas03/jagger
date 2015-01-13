@@ -20,7 +20,7 @@
 
 package com.griddynamics.jagger.xml.beanParsers.task;
 
-import  com.griddynamics.jagger.engine.e1.scenario.RpsClockConfiguration;
+import com.griddynamics.jagger.engine.e1.scenario.QpsClockConfiguration;
 import com.griddynamics.jagger.xml.beanParsers.CustomBeanDefinitionParser;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -37,7 +37,7 @@ public class RpsDefinitionParser  extends CustomBeanDefinitionParser {
 
     @Override
     protected Class getBeanClass(Element element) {
-        return RpsClockConfiguration.class;
+        return QpsClockConfiguration.class;
     }
 
     @Override

@@ -4,14 +4,12 @@ import com.griddynamics.jagger.JaggerLauncher;
 import com.griddynamics.jagger.engine.e1.scenario.*;
 import com.griddynamics.jagger.user.ProcessingConfig;
 import com.griddynamics.jagger.user.TestConfiguration;
-import com.griddynamics.jagger.user.TestGroupConfiguration;
 import junit.framework.Assert;
 import org.springframework.context.ApplicationContext;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.net.URL;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -148,8 +146,8 @@ public class JaggerLoadTest {
 
         Assert.assertEquals(0, testConfiguration.generate(new AtomicBoolean(false)).getStartDelay());
 
-        RpsClockConfiguration tps = (RpsClockConfiguration) testConfiguration.getClockConfiguration();
+        QpsClockConfiguration tps = (QpsClockConfiguration) testConfiguration.getClockConfiguration();
         Assert.assertEquals(100d, tps.getTps());
-        Assert.assertEquals(RpsClock.class, tps.getClock().getClass());
+        Assert.assertEquals(QpsClock.class, tps.getClock().getClass());
     }
 }

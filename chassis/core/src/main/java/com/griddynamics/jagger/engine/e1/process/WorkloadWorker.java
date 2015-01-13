@@ -26,12 +26,14 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.Service;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.griddynamics.jagger.agent.model.GetGeneralNodeInfo;
-import com.griddynamics.jagger.coordinator.*;
+import com.griddynamics.jagger.coordinator.CommandExecutor;
+import com.griddynamics.jagger.coordinator.ConfigurableWorker;
+import com.griddynamics.jagger.coordinator.NodeContext;
+import com.griddynamics.jagger.coordinator.Qualifier;
 import com.griddynamics.jagger.engine.e1.scenario.CalibrationInfoCollector;
 import com.griddynamics.jagger.invoker.Scenario;
 import com.griddynamics.jagger.invoker.ScenarioFactory;
 import com.griddynamics.jagger.kernel.WorkloadWorkerCommandExecutor;
-import com.griddynamics.jagger.storage.KeyValueStorage;
 import com.griddynamics.jagger.storage.fs.logging.LogWriter;
 import com.griddynamics.jagger.util.*;
 import org.slf4j.Logger;
@@ -43,9 +45,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
- * Adapts {@link WorkloadProcess} to coordination API.
+ * Adapts {@link PerThreadWorkloadProcess} to coordination API.
  */
 public class WorkloadWorker extends ConfigurableWorker {
     private static final Logger log = LoggerFactory.getLogger(WorkloadWorker.class);
@@ -87,13 +90,29 @@ public class WorkloadWorker extends ConfigurableWorker {
                     throw new IllegalStateException("Error! Pool size is less then thread count");
                 }
 
-                WorkloadProcess process = new WorkloadProcess(command.getSessionId(), command, nodeContext,
-                        Executors.newFixedThreadPool(poolSize,
-                                new ThreadFactoryBuilder()
-                                        .setNameFormat("workload-thread %d")
-                                        .setUncaughtExceptionHandler(ExceptionLogger.INSTANCE)
-                                        .build()
-                        ), timeoutsConfiguration);
+                WorkloadProcess process;
+
+                log.info("decide what kind of workload process should be started \nperiod = {}", command.getScenarioContext().getWorkloadConfiguration().getPeriod());
+                if (command.getScenarioContext().getWorkloadConfiguration().getPeriod() > 0) {
+                    log.info("start periodic load process");
+                    // start periodic process
+                    process = new PeriodWorkloadProcess(command.getSessionId(), command, nodeContext,
+                            (ThreadPoolExecutor) Executors.newFixedThreadPool(poolSize,
+                                    new ThreadFactoryBuilder()
+                                            .setNameFormat("workload-thread %d")
+                                            .setUncaughtExceptionHandler(ExceptionLogger.INSTANCE)
+                                            .build()
+                            ), timeoutsConfiguration);
+                } else {
+                    log.info("start per thread load process");
+                    process = new PerThreadWorkloadProcess(command.getSessionId(), command, nodeContext,
+                            Executors.newFixedThreadPool(poolSize,
+                                    new ThreadFactoryBuilder()
+                                            .setNameFormat("workload-thread %d")
+                                            .setUncaughtExceptionHandler(ExceptionLogger.INSTANCE)
+                                            .build()
+                            ), timeoutsConfiguration);
+                }
                 String processId = generateId();
                 processes.put(processId, process);
                 pools.put(processId, poolSize);
