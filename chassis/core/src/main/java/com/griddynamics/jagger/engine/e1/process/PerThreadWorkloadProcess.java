@@ -129,11 +129,15 @@ public class PerThreadWorkloadProcess implements WorkloadProcess {
     public WorkloadStatus getStatus() {
         int started = samplesCountStartedFromTerminatedThreads;
         int finished = samplesCountFinishedFromTerminatedThreads;
+        int runningThreads = 0;
         for (WorkloadService thread : threads) {
             started += thread.getStartedSamples();
             finished += thread.getFinishedSamples();
+            if (thread.isRunning()) {
+                runningThreads ++;
+            }
         }
-        return new WorkloadStatus(started, finished);
+        return new WorkloadStatus(started, finished, runningThreads);
     }
 
     @Override
