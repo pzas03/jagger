@@ -14,4 +14,12 @@ public class QpsClockConfiguration extends AbstractRateClockConfiguration {
 
         return new QpsClock(tickInterval, maxThreadNumber, createDesiredTps(BigDecimal.valueOf(getTps())));
     }
+
+    @Override
+    public String toString() {
+        if (isRumpUp()){
+            return getTps() + " rump-up rps";
+        }
+        return getTps() + " rps";
+    }
 }

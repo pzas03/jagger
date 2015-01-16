@@ -79,4 +79,9 @@ public class QpsClock implements WorkloadClock {
     public int getValue() {
         return desiredQps.getDesiredTps().intValue();
     }
+
+    @Override
+    public String toString() {
+        return getValue() + " rps";
+    }
 }
