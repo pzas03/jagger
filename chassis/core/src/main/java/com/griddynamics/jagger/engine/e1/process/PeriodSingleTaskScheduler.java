@@ -67,7 +67,7 @@ public class PeriodSingleTaskScheduler {
                 // cancel task if running
                 if (lastStartedLoopProcess != null) {
                     // stop previous loop process, but do not interrupt
-                    lastStartedLoopProcess.cancel(true);
+                    lastStartedLoopProcess.cancel(false);
                 }
 
                 lastStartedLoopProcess = loopExecutor.scheduleAtFixedRate(new Runnable() {
@@ -84,20 +84,13 @@ public class PeriodSingleTaskScheduler {
 
 
     /**
-     * Change initialDelay, period at runtime
-     *
-     * @param delay new initialDelay
-     * @param period new period
-     * @param unit time unit for period, initialDelay
+     * Shutdown scheduler
      */
-    public void changePeriod(long delay, long period, TimeUnit unit) {
+    public void shutdown() {
         lock.lock();
         try {
-            if (currentConfiguration == null) {
-                throw new NullPointerException("Has no previously started process");
-            }
-
-            scheduleAtFixedRate(currentConfiguration.getCommand(), delay, period, unit);
+            loopExecutor.shutdownNow();
+            taskExecutor.shutdownNow();
         } finally {
             lock.unlock();
         }
@@ -105,38 +98,26 @@ public class PeriodSingleTaskScheduler {
 
 
     /**
-     * Shutdown scheduler
-     */
-    public void shutdown() {
-        loopExecutor.shutdownNow();
-        taskExecutor.shutdownNow();
-    }
-
-
-    /**
      * Disable Task
      */
     public void clear() {
-        if (lastStartedLoopProcess != null) {
-            lastStartedLoopProcess.cancel(true);
+        lock.lock();
+        try {
+            if (lastStartedLoopProcess != null) {
+                lastStartedLoopProcess.cancel(false);
+            }
+            currentConfiguration = null;
+        } finally {
+            lock.unlock();
         }
-        currentConfiguration = null;
-    }
 
-
-    /**
-     * Current configuration
-     * @return current configuration, null if no task has been scheduled
-     */
-    public Configuration getCurrentConfiguration() {
-        return currentConfiguration;
     }
 
 
     /**
      * Represents current configuration of loop process
      */
-    public class Configuration {
+    private class Configuration {
 
         private final Runnable command;
         private final long initialDelay;

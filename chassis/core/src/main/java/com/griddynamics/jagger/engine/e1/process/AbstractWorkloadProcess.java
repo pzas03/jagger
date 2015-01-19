@@ -11,7 +11,6 @@ import com.griddynamics.jagger.engine.e1.collector.invocation.InvocationListener
 import com.griddynamics.jagger.engine.e1.scenario.KernelSideObjectProvider;
 import com.griddynamics.jagger.engine.e1.scenario.NodeSideInitializable;
 import com.griddynamics.jagger.engine.e1.scenario.ScenarioCollector;
-import com.griddynamics.jagger.engine.e1.scenario.WorkloadConfiguration;
 import com.griddynamics.jagger.engine.e1.services.JaggerPlace;
 import com.griddynamics.jagger.exception.TechnicalException;
 import com.griddynamics.jagger.invoker.Scenario;
@@ -21,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -88,8 +86,6 @@ public abstract class AbstractWorkloadProcess implements WorkloadProcess {
      */
     public void stop() {
 
-        stopBeforeTerminating();
-
         log.debug("Going to terminate");
         List<ListenableFuture<Service.State>> futures = Lists.newLinkedList();
         for (WorkloadService thread : threads) {
@@ -105,38 +101,6 @@ public abstract class AbstractWorkloadProcess implements WorkloadProcess {
         executor.shutdown();
         log.debug("Shutting down executor");
     }
-
-    protected abstract void stopBeforeTerminating();
-
-
-    @Override
-    public void changeConfiguration(WorkloadConfiguration configuration) {
-        log.debug("Configuration change request received");
-
-        changeConfigurationBeforeStats(configuration);
-
-        for (Iterator<WorkloadService> it = threads.iterator(); it.hasNext(); ){
-            WorkloadService workloadService = it.next();
-            if (workloadService.state().equals(Service.State.TERMINATED)) {
-                samplesCountStartedFromTerminatedThreads += workloadService.getStartedSamples();
-                samplesCountFinishedFromTerminatedThreads += workloadService.getFinishedSamples();
-                it.remove();
-            }
-        }
-
-        changeConfigurationAfterStats(configuration);
-    }
-
-
-    /**
-     * Change configuration after collecting statistics for status.
-     */
-    protected abstract void changeConfigurationAfterStats(WorkloadConfiguration configuration);
-
-    /**
-     * Method invokes before collecting statistics for stats.
-     */
-    protected abstract void changeConfigurationBeforeStats(WorkloadConfiguration configuration);
 
 
     @Override
@@ -154,15 +118,11 @@ public abstract class AbstractWorkloadProcess implements WorkloadProcess {
         return new WorkloadStatus(started, finished, runningThreads);
     }
 
-
     /**
      * Common method to add new workload service with all listeners.
      */
     protected void startNewThread() {
 
-        if (executor.getActiveCount() >= executor.getMaximumPoolSize()) {
-            log.warn("Thread pool(size={}) is full. Skip adding new thread.", executor.getPoolSize());
-        }
         log.debug("Adding new workload thread");
         Scenario<Object, Object, Object> scenario = command.getScenarioFactory().get(context);
 
@@ -181,7 +141,7 @@ public abstract class AbstractWorkloadProcess implements WorkloadProcess {
             validators.add(provider.provide(sessionId, command.getTaskId(), context));
         }
 
-        WorkloadService.WorkloadServiceBuilder builder = WorkloadService
+        AbstractWorkloadService.WorkloadServiceBuilder builder = AbstractWorkloadService
                 .builder(scenario)
                 .addCollectors(collectors)
                 .addValidators(validators)
@@ -201,5 +161,5 @@ public abstract class AbstractWorkloadProcess implements WorkloadProcess {
      *
      * @return workload service to be started while adding new thread.
      */
-    protected abstract WorkloadService getService(WorkloadService.WorkloadServiceBuilder serviceBuilder);
+    protected abstract WorkloadService getService(AbstractWorkloadService.WorkloadServiceBuilder serviceBuilder);
 }
