@@ -37,8 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -307,26 +306,36 @@ public abstract class AbstractWorkloadService extends AbstractExecutionThreadSer
             public ListenableFuture<State> stop() {
 
                 lock.lock();
-
-                // todo: make flush in separate thread not to wait till flush ends on every thread in for-loop
-                ListenableFuture<State> lfs = delegate != null ? delegate.stop() : new AbstractListenableFuture<State>() {};
                 try {
-                    // wait till execution stops
-                    lfs.get();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                }
+                    final ListenableFuture<State> lfs = delegate != null ? delegate.stop() : new AbstractListenableFuture<State>() {
+                    };
 
-                try {
-                    for (Flushable flushable : flushables) {
-                        flushable.flush();
-                    }
-                    return lfs;
-                } catch (Throwable error) {
-                    log.error("Error during flushing", error);
-                    return lfs;
+                    Callable<State> foo = new Callable<State>() {
+                        @Override
+                        public State call() throws Exception {
+                            try {
+                                // wait till execution stops
+                                lfs.get();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            } catch (ExecutionException e) {
+                                e.printStackTrace();
+                            }
+
+                            try {
+                                for (Flushable flushable : flushables) {
+                                    flushable.flush();
+                                }
+                                return State.TERMINATED;
+                            } catch (Throwable error) {
+                                log.error("Error during flushing", error);
+                                return State.FAILED;
+                            }
+                        }
+                    };
+
+                    return Futures.makeListenable(Executors.newSingleThreadExecutor().submit(foo));
+
                 } finally {
                     lock.unlock();
                 }
