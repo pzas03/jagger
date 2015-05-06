@@ -4,8 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.*;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Loop scheduler that can execute one task with given period.
@@ -26,17 +24,9 @@ public class PeriodSingleTaskScheduler {
      * Last started configuration */
     private volatile Configuration currentConfiguration;
 
-    private Lock lock = new ReentrantLock();
-
-
     Logger log = LoggerFactory.getLogger(PeriodSingleTaskScheduler.class);
 
-
     public PeriodSingleTaskScheduler() {
-        this(DEFAULT_CORE_POOL_SIZE);
-    }
-
-    public PeriodSingleTaskScheduler(int corePoolSize) {
         loopExecutor = Executors.newScheduledThreadPool(DEFAULT_CORE_POOL_SIZE);
         taskExecutor = Executors.newFixedThreadPool(5);
     }
@@ -51,34 +41,29 @@ public class PeriodSingleTaskScheduler {
      * @param period period
      * @param unit time unit for period, initialDelay
      */
-    public void scheduleAtFixedRate(final Runnable command,
+    public synchronized void scheduleAtFixedRate(final Runnable command,
                                     long initialDelay,
                                     long period,
                                     TimeUnit unit) {
 
-        lock.lock();
-        try {
-            Configuration newConfiguration = new Configuration(command, initialDelay, period, unit);
+        Configuration newConfiguration = new Configuration(command, initialDelay, period, unit);
 
-            if (!newConfiguration.equals(currentConfiguration)) {
+        if (!newConfiguration.equals(currentConfiguration)) {
 
-                log.debug("Schedule new task {}", newConfiguration);
-                currentConfiguration = newConfiguration;
-                // cancel task if running
-                if (lastStartedLoopProcess != null) {
-                    // stop previous loop process, but do not interrupt
-                    lastStartedLoopProcess.cancel(false);
-                }
-
-                lastStartedLoopProcess = loopExecutor.scheduleAtFixedRate(new Runnable() {
-                    @Override
-                    public void run() {
-                        taskExecutor.submit(command);
-                    }
-                }, initialDelay, period, unit);
+            log.debug("Schedule new task {}", newConfiguration);
+            currentConfiguration = newConfiguration;
+            // cancel task if running
+            if (lastStartedLoopProcess != null) {
+                // stop previous loop process, but do not interrupt
+                lastStartedLoopProcess.cancel(false);
             }
-        } finally {
-            lock.unlock();
+
+            lastStartedLoopProcess = loopExecutor.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    taskExecutor.submit(command);
+                }
+            }, initialDelay, period, unit);
         }
     }
 
@@ -86,31 +71,20 @@ public class PeriodSingleTaskScheduler {
     /**
      * Shutdown scheduler
      */
-    public void shutdown() {
-        lock.lock();
-        try {
-            loopExecutor.shutdownNow();
-            taskExecutor.shutdownNow();
-        } finally {
-            lock.unlock();
-        }
+    public synchronized void shutdown() {
+        loopExecutor.shutdownNow();
+        taskExecutor.shutdownNow();
     }
 
 
     /**
      * Disable Task
      */
-    public void clear() {
-        lock.lock();
-        try {
-            if (lastStartedLoopProcess != null) {
-                lastStartedLoopProcess.cancel(false);
-            }
-            currentConfiguration = null;
-        } finally {
-            lock.unlock();
+    public synchronized void clear() {
+        if (lastStartedLoopProcess != null) {
+            lastStartedLoopProcess.cancel(false);
         }
-
+        currentConfiguration = null;
     }
 
 
