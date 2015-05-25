@@ -42,13 +42,13 @@ public class PeriodWorkloadProcess extends AbstractWorkloadProcess {
         loopExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                startNewThread();
+                startNewThread(0);
             }
         }, delay, period, TimeUnit.MILLISECONDS);
     }
 
     @Override
-    protected void startNewThread() {
+    protected void startNewThread(int delay) {
 
         for (WorkloadService thread : threads) {
             Future<Service.State> future = thread.start();
@@ -64,7 +64,7 @@ public class PeriodWorkloadProcess extends AbstractWorkloadProcess {
             return;
         }
 
-        super.startNewThread();
+        super.startNewThread(delay);
     }
 
     @Override
@@ -89,7 +89,7 @@ public class PeriodWorkloadProcess extends AbstractWorkloadProcess {
         loopExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                startNewThread();
+                startNewThread(0);
             }
         }, configuration.getDelay(), configuration.getPeriod(), TimeUnit.MILLISECONDS);
     }

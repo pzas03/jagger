@@ -120,8 +120,10 @@ public abstract class AbstractWorkloadProcess implements WorkloadProcess {
 
     /**
      * Common method to add new workload service with all listeners.
+     *
+     * @param delay delay in milliseconds that will be used in {@code WorkloadService}
      */
-    protected void startNewThread() {
+    protected void startNewThread(int delay) {
 
         log.debug("Adding new workload thread");
         Scenario<Object, Object, Object> scenario = command.getScenarioFactory().get(context);
@@ -148,6 +150,7 @@ public abstract class AbstractWorkloadProcess implements WorkloadProcess {
                 .addListeners(listeners)
                 .useExecutor(executor);
         WorkloadService thread = getService(builder);
+        thread.changeDelay(delay);
         log.debug("Starting workload");
         Future<Service.State> future = thread.start();
         Service.State state = Futures.get(future, timeoutsConfiguration.getWorkloadStartTimeout());

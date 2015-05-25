@@ -48,7 +48,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
- * Adapts {@link PerThreadWorkloadProcess} to coordination API.
+ * Adapts {@link PerThreadWorkloadProcess} and {@link PeriodWorkloadProcess} to coordination API.
  */
 public class WorkloadWorker extends ConfigurableWorker {
     private static final Logger log = LoggerFactory.getLogger(WorkloadWorker.class);
@@ -106,7 +106,7 @@ public class WorkloadWorker extends ConfigurableWorker {
                 } else {
                     log.info("start per thread load process");
                     process = new PerThreadWorkloadProcess(command.getSessionId(), command, nodeContext,
-                            Executors.newFixedThreadPool(poolSize,
+                            (ThreadPoolExecutor) Executors.newFixedThreadPool(poolSize,
                                     new ThreadFactoryBuilder()
                                             .setNameFormat("workload-thread %d")
                                             .setUncaughtExceptionHandler(ExceptionLogger.INSTANCE)
