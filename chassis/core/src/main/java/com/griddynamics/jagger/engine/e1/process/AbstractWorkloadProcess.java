@@ -154,7 +154,7 @@ public abstract class AbstractWorkloadProcess implements WorkloadProcess {
         log.debug("Starting workload");
         Future<Service.State> future = thread.start();
         Service.State state = Futures.get(future, timeoutsConfiguration.getWorkloadStartTimeout());
-        log.debug("Workload thread with is started with state {}", state);
+        log.debug("Workload thread was started with state {}", state);
         threads.add(thread);
     }
 
