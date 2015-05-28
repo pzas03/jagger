@@ -297,15 +297,22 @@
 
                 <test-group id="sleep-service-50-150ms-500-rps-5-min-10-threads">
                     <test testDescription="sleep-service-50-150ms">
-                        <load xsi:type="load-rps" value="500" tickInterval="500"/>
+                        <load xsi:type="load-rps" value="500" maxThreadNumber="500" tickInterval="500"/>
                         <termination xsi:type="termination-duration" duration="5m"/>
+                    </test>
+                </test-group>
+
+                <test-group id="pulse-service-30000-500-rps-200">
+                    <test testDescription="pulse-service-30000-500">
+                        <load xsi:type="load-rps" value="200" maxThreadNumber="500" tickInterval="500"/>
+                        <termination xsi:type="termination-duration" duration="2m"/>
                     </test>
                 </test-group>
 
             <!--RumpUpTps-->
                 <test-group id="sleep-service-50-150ms-600-rump-up-tps-5-min">
                     <test testDescription="sleep-service-50-150ms">
-                        <load xsi:type="load-tps" warmUpTime="100s" value="600" tickInterval="500"/>
+                        <load xsi:type="load-tps" warmUpTime="100s" value="600" maxThreadNumber="500"  tickInterval="500"/>
                         <termination xsi:type="termination-duration" duration="5m"/>
                     </test>
                 </test-group>

@@ -27,10 +27,12 @@ import java.io.Serializable;
 public class WorkloadStatus implements Serializable {
     private final int startedSamples;
     private final int finishedSamples;
+    private final int currentThreadNumber;
 
-    public WorkloadStatus(int startedSamples, int finishedSamples) {
+    public WorkloadStatus(int startedSamples, int finishedSamples, int currentThreadNumber) {
         this.startedSamples = startedSamples;
         this.finishedSamples = finishedSamples;
+        this.currentThreadNumber = currentThreadNumber;
     }
 
     public int getStartedSamples() {
@@ -41,11 +43,16 @@ public class WorkloadStatus implements Serializable {
         return finishedSamples;
     }
 
+    public int getCurrentThreadNumber() {
+        return currentThreadNumber;
+    }
+
     @Override
     public String toString() {
         return "WorkloadStatus{" +
                 "startedSamples=" + startedSamples +
                 ", finishedSamples=" + finishedSamples +
+                ", currentThreadNumber=" + currentThreadNumber +
                 '}';
     }
 }

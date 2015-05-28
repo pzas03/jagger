@@ -38,20 +38,29 @@ public class WorkloadConfiguration implements Serializable {
     private final int threads;
     private final int delay;
     private final int samples;
+    private final long period;
 
     public static WorkloadConfiguration with(int threads, int delay) {
         return with(threads, delay, -1);
     }
 
     public static WorkloadConfiguration with(int threads, int delay, int samples) {
-        return new WorkloadConfiguration(threads, delay, samples);
+        return with(threads, delay, samples, -1L);
+    }
+
+    public static WorkloadConfiguration with(long period, int maxThreads) {
+        return with(maxThreads, 0, -1, period);
+    }
+
+    public static WorkloadConfiguration with(int threads, int delay, int samples, long period) {
+        return new WorkloadConfiguration(threads, delay, samples, period);
     }
 
     public static WorkloadConfiguration zero() {
         return with(0, 0);
     }
 
-    private WorkloadConfiguration(int threads, int delay, int samples) {
+    private WorkloadConfiguration(int threads, int delay, int samples, long period) {
         try {
             Preconditions.checkArgument(threads >= 0);
             Preconditions.checkArgument(delay   >= 0);
@@ -64,6 +73,7 @@ public class WorkloadConfiguration implements Serializable {
         this.threads = threads;
         this.delay   = delay;
         this.samples = samples;
+        this.period = period;
     }
 
     public int getThreads() {
@@ -76,6 +86,10 @@ public class WorkloadConfiguration implements Serializable {
 
     public int getSamples() {
         return samples;
+    }
+
+    public long getPeriod() {
+        return period;
     }
 
     @Override
@@ -103,9 +117,10 @@ public class WorkloadConfiguration implements Serializable {
     @Override
     public String toString() {
         return "WorkloadConfiguration{" +
-                "delay=" + delay +
-                ", threads=" + threads +
+                "threads=" + threads +
+                ", delay=" + delay +
                 ", samples=" + samples +
+                ", period=" + period +
                 '}';
     }
 }
