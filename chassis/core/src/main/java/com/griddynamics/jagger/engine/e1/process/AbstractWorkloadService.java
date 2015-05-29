@@ -316,10 +316,8 @@ public abstract class AbstractWorkloadService extends AbstractExecutionThreadSer
                             try {
                                 // wait till execution stops
                                 lfs.get();
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            } catch (ExecutionException e) {
-                                e.printStackTrace();
+                            } catch (Exception e) {
+                                log.error("Exception during stopping workload service", e);
                             }
 
                             try {
@@ -372,12 +370,7 @@ public abstract class AbstractWorkloadService extends AbstractExecutionThreadSer
 
             @Override
             public boolean isRunning() {
-                lock.lock();
-                try {
-                    return delegate != null && delegate.isRunning();
-                } finally {
-                    lock.unlock();
-                }
+                return delegate != null && delegate.isRunning();
             }
 
             @Override

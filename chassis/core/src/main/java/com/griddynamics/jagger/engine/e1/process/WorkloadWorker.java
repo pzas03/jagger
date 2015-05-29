@@ -92,26 +92,15 @@ public class WorkloadWorker extends ConfigurableWorker {
 
                 WorkloadProcess process;
 
-                log.info("decide what kind of workload process should be started \nperiod = {}", command.getScenarioContext().getWorkloadConfiguration().getPeriod());
                 if (command.getScenarioContext().getWorkloadConfiguration().getPeriod() > 0) {
                     log.info("start periodic load process");
                     // start periodic process
                     process = new PeriodWorkloadProcess(command.getSessionId(), command, nodeContext,
-                            (ThreadPoolExecutor) Executors.newFixedThreadPool(poolSize,
-                                    new ThreadFactoryBuilder()
-                                            .setNameFormat("workload-thread %d")
-                                            .setUncaughtExceptionHandler(ExceptionLogger.INSTANCE)
-                                            .build()
-                            ), timeoutsConfiguration);
+                            getFixedThreadPoolExecutor(poolSize), timeoutsConfiguration);
                 } else {
                     log.info("start per thread load process");
                     process = new PerThreadWorkloadProcess(command.getSessionId(), command, nodeContext,
-                            (ThreadPoolExecutor) Executors.newFixedThreadPool(poolSize,
-                                    new ThreadFactoryBuilder()
-                                            .setNameFormat("workload-thread %d")
-                                            .setUncaughtExceptionHandler(ExceptionLogger.INSTANCE)
-                                            .build()
-                            ), timeoutsConfiguration);
+                            getFixedThreadPoolExecutor(poolSize), timeoutsConfiguration);
                 }
                 String processId = generateId();
                 processes.put(processId, process);
@@ -253,6 +242,19 @@ public class WorkloadWorker extends ConfigurableWorker {
                     }
                 });
 
+    }
+
+    /**
+     * @param poolSize size of fixed thread pool to create
+     * @return {@link ThreadPoolExecutor} instance with given pool size
+     */
+    private ThreadPoolExecutor getFixedThreadPoolExecutor(int poolSize) {
+        return (ThreadPoolExecutor) Executors.newFixedThreadPool(poolSize,
+                new ThreadFactoryBuilder()
+                        .setNameFormat("workload-thread %d")
+                        .setUncaughtExceptionHandler(ExceptionLogger.INSTANCE)
+                        .build()
+        );
     }
 
     private String generateId() {
