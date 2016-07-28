@@ -20,13 +20,14 @@
 
 package com.griddynamics.jagger.master;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.util.concurrent.Service;
 import com.griddynamics.jagger.agent.model.ManageAgent;
-import com.griddynamics.jagger.coordinator.*;
+import com.griddynamics.jagger.coordinator.Coordination;
+import com.griddynamics.jagger.coordinator.Coordinator;
+import com.griddynamics.jagger.coordinator.NodeContext;
+import com.griddynamics.jagger.coordinator.NodeContextBuilder;
+import com.griddynamics.jagger.coordinator.NodeId;
+import com.griddynamics.jagger.coordinator.NodeType;
+import com.griddynamics.jagger.coordinator.RemoteExecutor;
 import com.griddynamics.jagger.dbapi.DatabaseService;
 import com.griddynamics.jagger.engine.e1.ProviderUtil;
 import com.griddynamics.jagger.engine.e1.aggregator.session.GeneralNodeInfoAggregator;
@@ -35,8 +36,12 @@ import com.griddynamics.jagger.engine.e1.collector.testsuite.TestSuiteListener;
 import com.griddynamics.jagger.engine.e1.process.Services;
 import com.griddynamics.jagger.engine.e1.services.JaggerPlace;
 import com.griddynamics.jagger.engine.e1.services.SessionMetaDataStorage;
-import com.griddynamics.jagger.master.configuration.*;
-import com.griddynamics.jagger.master.database.DatabaseValidator;
+import com.griddynamics.jagger.master.configuration.Configuration;
+import com.griddynamics.jagger.master.configuration.SessionExecutionListener;
+import com.griddynamics.jagger.master.configuration.SessionExecutionStatus;
+import com.griddynamics.jagger.master.configuration.SessionListener;
+import com.griddynamics.jagger.master.configuration.Task;
+import com.griddynamics.jagger.master.database.MetricTablesChecker;
 import com.griddynamics.jagger.monitoring.reporting.DynamicPlotGroups;
 import com.griddynamics.jagger.reporting.ReportingService;
 import com.griddynamics.jagger.storage.KeyValueStorage;
@@ -47,6 +52,12 @@ import com.griddynamics.jagger.util.GeneralNodeInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.util.concurrent.Service;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -88,7 +99,7 @@ public class Master implements Runnable {
     private LogReader logReader;
     private GeneralNodeInfoAggregator generalNodeInfoAggregator;
     private SessionMetaDataStorage metaDataStorage;
-    private DatabaseValidator databaseValidator;
+    private MetricTablesChecker metricTablesChecker;
     private DatabaseService databaseService;
     private DecisionMakerDistributionListener decisionMakerDistributionListener;
 
@@ -147,8 +158,8 @@ public class Master implements Runnable {
         this.generalNodeInfoAggregator = generalNodeInfoAggregator;
     }
 
-    public void setDatabaseValidator(DatabaseValidator databaseValidator) {
-        this.databaseValidator = databaseValidator;
+    public void setMetricTablesChecker(MetricTablesChecker metricTablesChecker) {
+        this.metricTablesChecker = metricTablesChecker;
     }
 
     public void setDatabaseService(DatabaseService databaseService) {
@@ -162,9 +173,8 @@ public class Master implements Runnable {
 
     @Override
     public void run() {
-        databaseValidator.validate();
-
-        validateConfiguration();
+        metricTablesChecker.checkMetricColumnsHaveDoubleType();
+        metricTablesChecker.checkMetricDetailsIndex();
 
         String sessionId = sessionIdProvider.getSessionId();
 
@@ -297,10 +307,6 @@ public class Master implements Runnable {
             coordinator.getExecutor(agent).run(new ManageAgent(sessionId, agentManagementProps),
                     Coordination.<ManageAgent>doNothing());
         }
-    }
-
-    private void validateConfiguration() {
-        // TODO Auto-generated method stub
     }
 
     private SessionExecutionStatus runConfiguration(Multimap<NodeType, NodeId> allNodes, NodeContext nodeContext) {
