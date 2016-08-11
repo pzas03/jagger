@@ -7,12 +7,14 @@ import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
 import com.griddynamics.jagger.dbapi.util.DataProcessingUtil;
 import com.griddynamics.jagger.dbapi.util.MetricNameUtil;
 import com.griddynamics.jagger.util.FormatCalculator;
+import org.springframework.stereotype.Component;
 
 import javax.persistence.PersistenceException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
 
+@Component
 public class CustomMetricSummaryFetcher extends DbMetricDataFetcher<SummarySingleDto> {
 
     @Override
@@ -125,5 +127,4 @@ public class CustomMetricSummaryFetcher extends DbMetricDataFetcher<SummarySingl
             return Collections.emptyList();
         }
     }
-
 }

@@ -3,9 +3,11 @@ package com.griddynamics.jagger.dbapi.fetcher;
 
 import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
 import com.griddynamics.jagger.dbapi.util.DataProcessingUtil;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+@Component
 public class CustomMetricPlotFetcher extends AbstractMetricPlotFetcher {
 
     @Override
@@ -85,5 +87,4 @@ public class CustomMetricPlotFetcher extends AbstractMetricPlotFetcher {
             return Collections.emptyList();
         }
     }
-
 }
