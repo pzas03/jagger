@@ -3,6 +3,8 @@ package com.griddynamics.jagger.storage.rdb;
 import org.apache.commons.dbcp.BasicDataSource;
 
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
+import java.util.logging.Logger;
 
 /**
  * @author Artem Zhdanov <azhdanov@griddynamics.com>
@@ -31,5 +33,10 @@ public class RewritebleBatchedStatementsBasicDataSource extends BasicDataSource 
     @Override
     public boolean isWrapperFor(final Class<?> iface) throws SQLException {
         throw new UnsupportedOperationException("Is not implemented by org.apache.commons.dbcp.BasicDataSource so we will not implement it either");
+    }
+
+    @Override
+    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+        throw new SQLFeatureNotSupportedException();
     }
 }

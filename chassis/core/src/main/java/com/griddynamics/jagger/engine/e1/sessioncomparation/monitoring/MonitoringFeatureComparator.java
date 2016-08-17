@@ -146,7 +146,7 @@ public class MonitoringFeatureComparator extends HibernateDaoSupport implements 
 
     @SuppressWarnings("unchecked")
     private List<PerformedMonitoring> loadPerformedMonitoring(String sessionId) {
-        return getHibernateTemplate().find("from PerformedMonitoring where sessionId = ?", sessionId);
+        return (List<PerformedMonitoring>) getHibernateTemplate().find("from PerformedMonitoring where sessionId = ?", sessionId);
     }
 
     @Override

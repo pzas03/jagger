@@ -50,7 +50,7 @@ public class DatabaseValidator extends HibernateDaoSupport {
 
             //try to get the last MetricDetails entity
             try{
-                maxMetricId = getHibernateTemplate().findByCriteria(DetachedCriteria.forClass(MetricDetails.class)
+                maxMetricId = (List<Long>) getHibernateTemplate().findByCriteria(DetachedCriteria.forClass(MetricDetails.class)
                                                                                     .setProjection(Projections.max("id")));
             }catch (Exception ex){
                 log.debug("Database is new, use annotation @TableGenerator to create IdGenerator table");
