@@ -23,7 +23,6 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
-
     <bean id="h2KeyValueStorage" class="com.griddynamics.jagger.storage.rdb.HibernateKeyValueStorage">
         <property name="sessionFactory" ref="sessionFactory"/>
         <property name="hibernateBatchSize" value="${chassis.storage.hibernate.batch_size}"/>
@@ -39,7 +38,7 @@
 		<property name="url" value="${chassis.storage.rdb.client.url}" />
 		<property name="username" value="${chassis.storage.rdb.username}" />
 		<property name="password" value="${chassis.storage.rdb.password}" />
-    <property name="rewriteBatchedStatements" value="true"/>
+        <property name="rewriteBatchedStatements" value="true"/>
         <property name="testOnBorrow" value="true"/>
         <property name="validationQuery" value="SELECT 1;"/>
         <property name="minIdle" value="5"/>

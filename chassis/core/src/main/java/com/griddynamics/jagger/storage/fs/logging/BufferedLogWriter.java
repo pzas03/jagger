@@ -176,8 +176,7 @@ public abstract class BufferedLogWriter implements LogWriter {
                             objectOutput.writeObject(serializable);
                         }
                     }catch (Exception e){
-                        log.error("Error during saving data with path {} to fileStorage", logFilePath, e);
-
+                        log.error("Error during saving data with path "+ logFilePath + " to fileStorage", e);
                     } finally {
                         try {
                             Closeables.closeQuietly(objectOutput);

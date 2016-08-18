@@ -3,9 +3,13 @@ package com.griddynamics.jagger.dbapi.fetcher;
 import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Required;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -19,11 +23,12 @@ public abstract class ConcurrentMetricDataFetcher<R> extends MetricDataFetcher<R
 
     protected ExecutorService threadPool;
 
-    public void setMaxSizeOfBatch(int maxSizeOfBatsh) {
-        this.maxSizeOfBatch = maxSizeOfBatsh;
+    public void setMaxSizeOfBatch(int maxSizeOfBatch) {
+        this.maxSizeOfBatch = maxSizeOfBatch;
     }
 
-    @Required
+    @Autowired
+    @Qualifier("executorService")
     public void setThreadPool(ExecutorService threadPool) {
         this.threadPool = threadPool;
     }

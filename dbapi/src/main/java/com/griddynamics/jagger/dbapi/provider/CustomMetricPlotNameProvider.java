@@ -12,8 +12,12 @@ import com.griddynamics.jagger.dbapi.util.FetchUtil;
 import com.griddynamics.jagger.util.StandardMetricsNamesUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
@@ -21,12 +25,11 @@ import java.math.BigInteger;
 import java.util.*;
 
 /**
- * Created with IntelliJ IDEA.
  * User: kgribov
  * Date: 7/12/13
  * Time: 1:45 PM
- * To change this template use File | Settings | File Templates.
  */
+@Component
 public class CustomMetricPlotNameProvider {
 
     Logger log = LoggerFactory.getLogger(CustomMetricPlotNameProvider.class);
@@ -41,12 +44,12 @@ public class CustomMetricPlotNameProvider {
         this.entityManager = entityManager;
     }
 
-    @Required
+    @Autowired
     public void setFetchUtil(FetchUtil fetchUtil) {
         this.fetchUtil = fetchUtil;
     }
 
-    @Required
+    @Resource
     public void setMonitoringPlotGroups(Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups) {
         this.monitoringPlotGroups = monitoringPlotGroups;
     }
@@ -66,7 +69,6 @@ public class CustomMetricPlotNameProvider {
 
         return result;
     }
-
 
     public Set<MetricNameDto> getPlotNamesOldModel(List<TaskDataDto> taskDataDtos){
 
@@ -103,7 +105,6 @@ public class CustomMetricPlotNameProvider {
 
         return result;
     }
-
 
     public Set<MetricNameDto> getPlotNamesNewModel(List<TaskDataDto> taskDataDtos){
 
@@ -185,7 +186,4 @@ public class CustomMetricPlotNameProvider {
                 .setParameter("taskIds", testIds)
                 .getResultList();
     }
-
-
-
 }

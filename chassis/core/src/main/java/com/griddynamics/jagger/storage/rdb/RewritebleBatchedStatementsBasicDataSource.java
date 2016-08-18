@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 public class RewritebleBatchedStatementsBasicDataSource extends BasicDataSource implements RewritebleBatchedStatementsDataSource {
 
     private static final String REWRITE_BATCHED_STATEMENTS = "rewriteBatchedStatements";
+    private static final Logger logger = Logger.getLogger(RewritebleBatchedStatementsBasicDataSource.class.getName());
 
     @Override
     public boolean getRewriteBatchedStatements() {
@@ -35,8 +36,9 @@ public class RewritebleBatchedStatementsBasicDataSource extends BasicDataSource 
         throw new UnsupportedOperationException("Is not implemented by org.apache.commons.dbcp.BasicDataSource so we will not implement it either");
     }
 
+
     @Override
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
-        throw new SQLFeatureNotSupportedException();
+        return logger;
     }
 }

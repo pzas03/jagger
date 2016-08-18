@@ -1,235 +1,213 @@
 package com.griddynamics.jagger.dbapi;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
-import com.griddynamics.jagger.dbapi.entity.*;
-import com.griddynamics.jagger.dbapi.fetcher.*;
-import com.griddynamics.jagger.dbapi.model.rules.*;
+import com.griddynamics.jagger.dbapi.dto.MetricNameDto;
+import com.griddynamics.jagger.dbapi.dto.NodeInfoDto;
+import com.griddynamics.jagger.dbapi.dto.NodeInfoPerSessionDto;
+import com.griddynamics.jagger.dbapi.dto.PlotIntegratedDto;
+import com.griddynamics.jagger.dbapi.dto.PlotSingleDto;
+import com.griddynamics.jagger.dbapi.dto.SummaryIntegratedDto;
+import com.griddynamics.jagger.dbapi.dto.SummaryMetricValueDto;
+import com.griddynamics.jagger.dbapi.dto.SummarySingleDto;
+import com.griddynamics.jagger.dbapi.dto.TaskDataDto;
+import com.griddynamics.jagger.dbapi.dto.TaskDecisionDto;
+import com.griddynamics.jagger.dbapi.dto.TestInfoDto;
+import com.griddynamics.jagger.dbapi.entity.DecisionPerMetricEntity;
+import com.griddynamics.jagger.dbapi.entity.DecisionPerSessionEntity;
+import com.griddynamics.jagger.dbapi.entity.DecisionPerTaskEntity;
+import com.griddynamics.jagger.dbapi.entity.NodeInfoEntity;
+import com.griddynamics.jagger.dbapi.entity.NodePropertyEntity;
+import com.griddynamics.jagger.dbapi.entity.TaskData;
+import com.griddynamics.jagger.dbapi.fetcher.CustomMetricPlotFetcher;
+import com.griddynamics.jagger.dbapi.fetcher.CustomMetricSummaryFetcher;
+import com.griddynamics.jagger.dbapi.fetcher.CustomTestGroupMetricPlotFetcher;
+import com.griddynamics.jagger.dbapi.fetcher.CustomTestGroupMetricSummaryFetcher;
+import com.griddynamics.jagger.dbapi.fetcher.DurationMetricSummaryFetcher;
+import com.griddynamics.jagger.dbapi.fetcher.LatencyMetricPlotFetcher;
+import com.griddynamics.jagger.dbapi.fetcher.LatencyMetricSummaryFetcher;
+import com.griddynamics.jagger.dbapi.fetcher.MetricDataFetcher;
+import com.griddynamics.jagger.dbapi.fetcher.MonitoringMetricPlotFetcher;
+import com.griddynamics.jagger.dbapi.fetcher.PlotsDbMetricDataFetcher;
+import com.griddynamics.jagger.dbapi.fetcher.SessionScopeMonitoringMetricPlotFetcher;
+import com.griddynamics.jagger.dbapi.fetcher.SessionScopeTestGroupMetricPlotFetcher;
+import com.griddynamics.jagger.dbapi.fetcher.StandardMetricSummaryFetcher;
+import com.griddynamics.jagger.dbapi.fetcher.ThroughputMetricPlotFetcher;
+import com.griddynamics.jagger.dbapi.fetcher.TimeLatencyPercentileMetricPlotFetcher;
+import com.griddynamics.jagger.dbapi.fetcher.ValidatorSummaryFetcher;
+import com.griddynamics.jagger.dbapi.model.DetailsNode;
+import com.griddynamics.jagger.dbapi.model.LegendNode;
+import com.griddynamics.jagger.dbapi.model.MetricGroupNode;
+import com.griddynamics.jagger.dbapi.model.MetricNode;
+import com.griddynamics.jagger.dbapi.model.MetricRankingProvider;
+import com.griddynamics.jagger.dbapi.model.NameTokens;
+import com.griddynamics.jagger.dbapi.model.PlotNode;
+import com.griddynamics.jagger.dbapi.model.RootNode;
+import com.griddynamics.jagger.dbapi.model.SessionInfoNode;
+import com.griddynamics.jagger.dbapi.model.SummaryNode;
+import com.griddynamics.jagger.dbapi.model.TestDetailsNode;
+import com.griddynamics.jagger.dbapi.model.TestInfoNode;
+import com.griddynamics.jagger.dbapi.model.TestNode;
+import com.griddynamics.jagger.dbapi.model.rules.LegendTreeViewGroupRuleProvider;
+import com.griddynamics.jagger.dbapi.model.rules.TreeViewGroupMetricsToNodeRule;
+import com.griddynamics.jagger.dbapi.model.rules.TreeViewGroupMetricsToNodeRuleProvider;
+import com.griddynamics.jagger.dbapi.model.rules.TreeViewGroupRule;
+import com.griddynamics.jagger.dbapi.model.rules.TreeViewGroupRuleProvider;
 import com.griddynamics.jagger.dbapi.parameter.DefaultMonitoringParameters;
 import com.griddynamics.jagger.dbapi.parameter.DefaultWorkloadParameters;
 import com.griddynamics.jagger.dbapi.parameter.GroupKey;
-import com.griddynamics.jagger.dbapi.provider.*;
-import com.griddynamics.jagger.dbapi.util.*;
+import com.griddynamics.jagger.dbapi.provider.CustomMetricNameProvider;
+import com.griddynamics.jagger.dbapi.provider.CustomMetricPlotNameProvider;
+import com.griddynamics.jagger.dbapi.provider.LatencyMetricNameProvider;
+import com.griddynamics.jagger.dbapi.provider.SessionInfoProvider;
+import com.griddynamics.jagger.dbapi.provider.SessionInfoProviderImpl;
+import com.griddynamics.jagger.dbapi.provider.StandardMetricNameProvider;
+import com.griddynamics.jagger.dbapi.provider.ValidatorNamesProvider;
+import com.griddynamics.jagger.dbapi.util.CommonUtils;
+import com.griddynamics.jagger.dbapi.util.DataProcessingUtil;
+import com.griddynamics.jagger.dbapi.util.FetchUtil;
+import com.griddynamics.jagger.dbapi.util.LegendProvider;
+import com.griddynamics.jagger.dbapi.util.MetricNameUtil;
+import com.griddynamics.jagger.dbapi.util.SessionMatchingSetup;
 import com.griddynamics.jagger.util.Decision;
 import com.griddynamics.jagger.util.MonitoringIdUtils;
 import com.griddynamics.jagger.util.Pair;
-import com.griddynamics.jagger.dbapi.model.*;
-import com.griddynamics.jagger.dbapi.dto.*;
-
-
 import com.griddynamics.jagger.util.StandardMetricsNamesUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceException;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
+
 /**
  * Created by kgribov on 4/2/14.
  */
+@Service("databaseService")
 public class DatabaseServiceImpl implements DatabaseService {
 
     private Logger log = LoggerFactory.getLogger(this.getClass());
 
+    @PersistenceContext
     private EntityManager entityManager;
 
+    @Autowired
+    @Qualifier("executorService")
     private ExecutorService threadPool;
+
+    @Autowired
     private LegendProvider legendProvider;
 
+    @Resource
     private Map<GroupKey, DefaultWorkloadParameters[]> workloadPlotGroups;
+
+    @Resource
     private Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups;
+
     private Map<String,Set<String>> defaultMonitoringParams = new HashMap<String, Set<String>>();
 
+    @Autowired
     private StandardMetricNameProvider standardMetricNameProvider;
+
+    @Autowired
     private CustomMetricPlotNameProvider customMetricPlotNameProvider;
+
+    @Autowired
     private CustomMetricNameProvider customMetricNameProvider;
+
+    @Autowired
     private LatencyMetricNameProvider latencyMetricNameProvider;
+
+    @Autowired
     private ValidatorNamesProvider validatorNamesProvider;
+
+    @Autowired
     private SessionInfoProviderImpl sessionInfoServiceImpl;
 
+    @Autowired
     private TreeViewGroupRuleProvider treeViewGroupRuleProvider;
+
+    @Autowired
     private LegendTreeViewGroupRuleProvider legendTreeViewGroupRuleProvider;
+
+    @Autowired
     private TreeViewGroupMetricsToNodeRuleProvider treeViewGroupMetricsToNodeRuleProvider;
 
+    @Autowired
     private ThroughputMetricPlotFetcher throughputMetricPlotFetcher;
+
+    @Autowired
     private LatencyMetricPlotFetcher latencyMetricPlotFetcher;
+
+    @Autowired
     private TimeLatencyPercentileMetricPlotFetcher timeLatencyPercentileMetricPlotFetcher;
+
+    @Autowired
     private CustomMetricPlotFetcher customMetricPlotFetcher;
+
+    @Autowired
     private CustomTestGroupMetricPlotFetcher customTestGroupMetricPlotFetcher;
+
+    @Autowired
     private MonitoringMetricPlotFetcher monitoringMetricPlotFetcher;
+
+    @Autowired
     private SessionScopeTestGroupMetricPlotFetcher sessionScopeTestGroupMetricPlotFetcher;
+
+    @Autowired
     private SessionScopeMonitoringMetricPlotFetcher sessionScopeMonitoringMetricPlotFetcher;
 
+    @Autowired
     private StandardMetricSummaryFetcher standardMetricSummaryFetcher;
+
+    @Autowired
     private DurationMetricSummaryFetcher durationMetricSummaryFetcher;
+
+    @Autowired
     private LatencyMetricSummaryFetcher latencyMetricDataFetcher;
+
+    @Autowired
     private CustomMetricSummaryFetcher customMetricSummaryFetcher;
+
+    @Autowired
     private CustomTestGroupMetricSummaryFetcher customTestGroupMetricSummaryFetcher;
+
+    @Autowired
     private ValidatorSummaryFetcher validatorSummaryFetcher;
 
+    @Autowired
     private FetchUtil fetchUtil;
 
-    //==========Setters
-
-    @PersistenceContext
-    public void setEntityManager(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
-
-    public Map<GroupKey, DefaultMonitoringParameters[]> getMonitoringPlotGroups() {
-        return monitoringPlotGroups;
-    }
-
-    @Required
-    public void setMonitoringPlotGroups(Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups) {
-        this.monitoringPlotGroups = monitoringPlotGroups;
-        this.defaultMonitoringParams = getDefaultMonitoringParametersMap(monitoringPlotGroups);
-    }
-
-    @Required
-    public void setWorkloadPlotGroups(Map<GroupKey, DefaultWorkloadParameters[]> workloadPlotGroups) {
-        this.workloadPlotGroups = workloadPlotGroups;
-    }
-
-    @Required
-    public void setCustomMetricPlotNameProvider(CustomMetricPlotNameProvider customMetricPlotNameProvider) {
-        this.customMetricPlotNameProvider = customMetricPlotNameProvider;
-    }
-
-    @Required
-    public void setStandardMetricNameProvider(StandardMetricNameProvider standardMetricNameProvider) {
-        this.standardMetricNameProvider = standardMetricNameProvider;
-    }
-
-    @Required
-    public void setLegendProvider(LegendProvider legendProvider) {
-        this.legendProvider = legendProvider;
-    }
-
-    @Required
-    public void setThreadPool(ExecutorService threadPool) {
-        this.threadPool = threadPool;
-    }
-
-    @Required
-    public void setThroughputMetricPlotFetcher(ThroughputMetricPlotFetcher throughputMetricPlotFetcher) {
-        this.throughputMetricPlotFetcher = throughputMetricPlotFetcher;
-    }
-
-    @Required
-    public void setLatencyMetricPlotFetcher(LatencyMetricPlotFetcher latencyMetricPlotFetcher) {
-        this.latencyMetricPlotFetcher = latencyMetricPlotFetcher;
-    }
-
-    @Required
-    public void setTimeLatencyPercentileMetricPlotFetcher(TimeLatencyPercentileMetricPlotFetcher timeLatencyPercentileMetricPlotFetcher) {
-        this.timeLatencyPercentileMetricPlotFetcher = timeLatencyPercentileMetricPlotFetcher;
-    }
-
-    @Required
-    public void setCustomMetricPlotFetcher(CustomMetricPlotFetcher customMetricPlotFetcher) {
-        this.customMetricPlotFetcher = customMetricPlotFetcher;
-    }
-
-    @Required
-    public void setCustomTestGroupMetricPlotFetcher(CustomTestGroupMetricPlotFetcher customTestGroupMetricPlotFetcher) {
-        this.customTestGroupMetricPlotFetcher = customTestGroupMetricPlotFetcher;
-    }
-
-    @Required
-    public void setMonitoringMetricPlotFetcher(MonitoringMetricPlotFetcher monitoringMetricPlotFetcher) {
-        this.monitoringMetricPlotFetcher = monitoringMetricPlotFetcher;
-    }
-
-    @Required
-    public void setSessionScopeTestGroupMetricPlotFetcher(SessionScopeTestGroupMetricPlotFetcher sessionScopeTestGroupMetricPlotFetcher) {
-        this.sessionScopeTestGroupMetricPlotFetcher = sessionScopeTestGroupMetricPlotFetcher;
-    }
-
-    @Required
-    public void setSessionScopeMonitoringMetricPlotFetcher(SessionScopeMonitoringMetricPlotFetcher sessionScopeMonitoringMetricPlotFetcher) {
-        this.sessionScopeMonitoringMetricPlotFetcher = sessionScopeMonitoringMetricPlotFetcher;
-    }
-
-    @Required
-    public void setStandardMetricSummaryFetcher(StandardMetricSummaryFetcher standardMetricSummaryFetcher) {
-        this.standardMetricSummaryFetcher = standardMetricSummaryFetcher;
-    }
-
-    @Required
-    public void setDurationMetricSummaryFetcher(DurationMetricSummaryFetcher durationMetricSummaryFetcher) {
-        this.durationMetricSummaryFetcher = durationMetricSummaryFetcher;
-    }
-
-    @Required
-    public void setLatencyMetricDataFetcher(LatencyMetricSummaryFetcher latencyMetricDataFetcher) {
-        this.latencyMetricDataFetcher = latencyMetricDataFetcher;
-    }
-
-    @Required
-    public void setCustomMetricSummaryFetcher(CustomMetricSummaryFetcher customMetricSummaryFetcher) {
-        this.customMetricSummaryFetcher = customMetricSummaryFetcher;
-    }
-
-    @Required
-    public void setValidatorSummaryFetcher(ValidatorSummaryFetcher validatorSummaryFetcher) {
-        this.validatorSummaryFetcher = validatorSummaryFetcher;
-    }
-
-    @Required
-    public void setCustomTestGroupMetricSummaryFetcher(CustomTestGroupMetricSummaryFetcher customTestGroupMetricSummaryFetcher) {
-        this.customTestGroupMetricSummaryFetcher = customTestGroupMetricSummaryFetcher;
-    }
-
-    @Required
-    public void setTreeViewGroupRuleProvider(TreeViewGroupRuleProvider treeViewGroupRuleProvider) {
-        this.treeViewGroupRuleProvider = treeViewGroupRuleProvider;
-    }
-
-    @Required
-    public void setLegendTreeViewGroupRuleProvider(LegendTreeViewGroupRuleProvider legendTreeViewGroupRuleProvider) {
-        this.legendTreeViewGroupRuleProvider = legendTreeViewGroupRuleProvider;
-    }
-
-    @Required
-    public void setTreeViewGroupMetricsToNodeRuleProvider(TreeViewGroupMetricsToNodeRuleProvider treeViewGroupMetricsToNodeRuleProvider) {
-        this.treeViewGroupMetricsToNodeRuleProvider = treeViewGroupMetricsToNodeRuleProvider;
-    }
-
-    @Required
-    public void setSessionInfoServiceImpl(SessionInfoProviderImpl sessionInfoServiceImpl) {
-        this.sessionInfoServiceImpl = sessionInfoServiceImpl;
+    @PostConstruct
+    public void postConstruct() {
         this.sessionInfoServiceImpl.setIsTagsStorageAvailable(checkIfTagsStorageAvailable());
         this.sessionInfoServiceImpl.setIsUserCommentStorageAvailable(checkIfUserCommentStorageAvailable());
-    }
-
-    @Required
-    public void setCustomMetricNameProvider(CustomMetricNameProvider customMetricNameProvider) {
-        this.customMetricNameProvider = customMetricNameProvider;
-    }
-
-    @Required
-    public void setLatencyMetricNameProvider(LatencyMetricNameProvider latencyMetricNameProvider) {
-        this.latencyMetricNameProvider = latencyMetricNameProvider;
-    }
-
-    @Required
-    public void setValidatorNamesProvider(ValidatorNamesProvider validatorNamesProvider) {
-        this.validatorNamesProvider = validatorNamesProvider;
-    }
-
-    @Required
-    public void setFetchUtil(FetchUtil fetchUtil) {
-        this.fetchUtil = fetchUtil;
     }
 
     //===========================
@@ -1395,7 +1373,9 @@ public class DatabaseServiceImpl implements DatabaseService {
             List<M> metricNodeList) {
 
         // rules to unite metrics in single plot
-        TreeViewGroupMetricsToNodeRule unitedMetricsRule = treeViewGroupMetricsToNodeRuleProvider.provide(agentNames,percentiles,forSummary);
+        TreeViewGroupMetricsToNodeRule unitedMetricsRule = treeViewGroupMetricsToNodeRuleProvider.provide(
+                agentNames, percentiles, forSummary
+        );
         // unite metrics and add result to original list
         List<M> unitedMetrics = unitedMetricsRule.filter(rootId, metricNodeList);
         if (unitedMetrics != null) {
@@ -1798,7 +1778,5 @@ public class DatabaseServiceImpl implements DatabaseService {
         return  (metricNameDto.getOrigin().equals(MetricNameDto.Origin.SESSION_SCOPE_TG)
                 || metricNameDto.getOrigin().equals(MetricNameDto.Origin.SESSION_SCOPE_MONITORING));
     }
-
-
 }
 

@@ -10,7 +10,9 @@ import com.griddynamics.jagger.dbapi.entity.TagEntity;
 import com.griddynamics.jagger.dbapi.util.HTMLFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -23,6 +25,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * Created by kgribov on 4/7/14.
  */
+@Component
 public class SessionInfoProviderImpl implements SessionInfoProvider {
     private static final Logger log = LoggerFactory.getLogger(SessionInfoProviderImpl.class);
 
@@ -46,7 +49,7 @@ public class SessionInfoProviderImpl implements SessionInfoProvider {
         this.entityManager = entityManager;
     }
 
-    @Required
+    @Autowired
     public void setDataSaverService(DataSaverService dataSaverService) {
         this.dataSaverService = dataSaverService;
     }

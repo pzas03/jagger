@@ -65,7 +65,7 @@
         <property name="logReader" ref="bufferedLogReader"/>
         <property name="logWriter" ref="bufferedLogWriter"/>
         <property name="generalNodeInfoAggregator" ref="generalNodeInfoAggregator"/>
-        <property name="databaseValidator" ref="databaseValidator"/>
+        <property name="metricTablesChecker" ref="metricTablesChecker"/>
         <property name="metaDataStorage" ref="metaDataStorage"/>
         <property name="databaseService" ref="databaseService"/>
         <property name="decisionMakerDistributionListener" ref="decisionMakerDistributionListener"/>
@@ -148,7 +148,7 @@
         <property name="name"  value="chassis.master.collect.node.info.awaittime"/>
     </bean>
 
-    <bean id="databaseValidator" class="com.griddynamics.jagger.master.database.DatabaseValidator">
+    <bean id="metricTablesChecker" class="com.griddynamics.jagger.master.database.MetricTablesChecker">
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
 
