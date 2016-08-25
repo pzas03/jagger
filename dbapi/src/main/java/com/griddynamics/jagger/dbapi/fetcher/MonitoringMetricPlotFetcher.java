@@ -23,6 +23,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 @Component
+@Deprecated
 public class MonitoringMetricPlotFetcher extends AbstractMetricPlotFetcher {
 
     private Map<GroupKey, DefaultMonitoringParameters[]> monitoringPlotGroups;

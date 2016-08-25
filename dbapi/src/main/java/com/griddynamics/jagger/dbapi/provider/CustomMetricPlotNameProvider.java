@@ -70,6 +70,7 @@ public class CustomMetricPlotNameProvider {
         return result;
     }
 
+    @Deprecated
     public Set<MetricNameDto> getPlotNamesOldModel(List<TaskDataDto> taskDataDtos){
 
         Set<Long> testIds = new HashSet<Long>();

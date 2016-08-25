@@ -27,6 +27,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import java.util.List;
 
+@Deprecated
 public class DefaultMonitoringSummaryRetriever extends HibernateDaoSupport implements MonitoringSummaryRetriever {
     private static final Logger log = LoggerFactory.getLogger(DefaultMonitoringSummaryRetriever.class);
 

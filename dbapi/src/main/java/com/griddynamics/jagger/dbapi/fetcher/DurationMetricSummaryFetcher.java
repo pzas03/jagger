@@ -12,6 +12,7 @@ import java.math.BigInteger;
 import java.util.*;
 
 @Component
+@Deprecated
 public class DurationMetricSummaryFetcher extends DbMetricDataFetcher<SummarySingleDto> {
 
     @Override

@@ -154,6 +154,7 @@ public class ProfileReporter extends AbstractMonitoringReportProvider<String> {
         return new JRBeanCollectionDataSource(data);
     }
 
+    @Deprecated
     private Map<String, List<SysUnderTestDTO>> loadData() {
         final String sessionId = getSessionIdProvider().getSessionId();
         Map<String, List<SysUnderTestDTO>> result = Maps.newHashMap();

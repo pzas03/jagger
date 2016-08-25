@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 @Component
+@Deprecated
 public class TimeLatencyPercentileMetricPlotFetcher extends StandardMetricPlotFetcher<TimeLatencyPercentileMetricPlotFetcher.LatencyPercentileRawData> {
 
     @Override

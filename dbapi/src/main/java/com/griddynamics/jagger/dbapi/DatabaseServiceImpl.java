@@ -75,8 +75,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Required;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -168,22 +166,25 @@ public class DatabaseServiceImpl implements DatabaseService {
     @Autowired
     private TimeLatencyPercentileMetricPlotFetcher timeLatencyPercentileMetricPlotFetcher;
 
+    // true way
     @Autowired
     private CustomMetricPlotFetcher customMetricPlotFetcher;
 
+    // true way
     @Autowired
     private CustomTestGroupMetricPlotFetcher customTestGroupMetricPlotFetcher;
 
     @Autowired
     private MonitoringMetricPlotFetcher monitoringMetricPlotFetcher;
 
+    // true way
     @Autowired
     private SessionScopeTestGroupMetricPlotFetcher sessionScopeTestGroupMetricPlotFetcher;
 
     @Autowired
     private SessionScopeMonitoringMetricPlotFetcher sessionScopeMonitoringMetricPlotFetcher;
 
-    @Autowired
+    @Autowired // true way
     private StandardMetricSummaryFetcher standardMetricSummaryFetcher;
 
     @Autowired
@@ -195,6 +196,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     @Autowired
     private CustomMetricSummaryFetcher customMetricSummaryFetcher;
 
+    // true way
     @Autowired
     private CustomTestGroupMetricSummaryFetcher customTestGroupMetricSummaryFetcher;
 
@@ -213,23 +215,18 @@ public class DatabaseServiceImpl implements DatabaseService {
     //===========================
     //=======Get plot data=======
     //===========================
-
     @Override
     public Map<MetricNode, PlotIntegratedDto> getPlotDataByMetricNode(Set<MetricNode> metricNodes) {
 
         if (metricNodes.isEmpty()) {
             return Collections.emptyMap();
         }
-
-        long temp = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
 
         Set<MetricNameDto> metricNameDtoSet = MetricNameUtil.getMetricNameDtoSet(metricNodes);
-
-        Map<MetricNameDto,List<PlotSingleDto>> resultMap = getPlotDataByMetricNameDto(metricNameDtoSet);
-
+        Map<MetricNameDto, List<PlotSingleDto>> resultMap = getPlotDataByMetricNameDto(metricNameDtoSet);
         Multimap<MetricNode, PlotSingleDto> tempMultiMap = ArrayListMultimap.create();
-
-        for (Map.Entry<MetricNameDto,List<PlotSingleDto>> entry : resultMap.entrySet()) {
+        for (Map.Entry<MetricNameDto, List<PlotSingleDto>> entry : resultMap.entrySet()) {
             for (MetricNode metricNode : metricNodes) {
                 if (metricNode.getMetricNameDtoList().contains(entry.getKey())) {
                     tempMultiMap.putAll(metricNode, entry.getValue());
@@ -239,7 +236,6 @@ public class DatabaseServiceImpl implements DatabaseService {
         }
 
         Map<MetricNode, PlotIntegratedDto> result = new HashMap<MetricNode, PlotIntegratedDto>();
-
         for (MetricNode metricNode : metricNodes) {
             List<PlotSingleDto> plotDatasetDtoList = new ArrayList<PlotSingleDto>(tempMultiMap.get(metricNode));
 
@@ -257,7 +253,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             result.put(metricNode, createPlotIntegratedDto(metricNode, plotDatasetDtoList, "Time, sec"));
         }
 
-        log.debug("Total time of plots for metricNodes retrieving : " + (System.currentTimeMillis() - temp));
+        log.debug("Total time of plots for metricNodes retrieving : {}", System.currentTimeMillis() - startTime);
         return result;
     }
 
@@ -349,51 +345,48 @@ public class DatabaseServiceImpl implements DatabaseService {
         if (metricNames.isEmpty()) {
             return Collections.emptyMap();
         }
-
         long temp = System.currentTimeMillis();
 
         final Multimap<PlotsDbMetricDataFetcher, MetricNameDto> fetchMap = ArrayListMultimap.create();
-
         for (MetricNameDto metricNameDto : metricNames) {
             switch (metricNameDto.getOrigin()) {
-                case METRIC:
+                case METRIC: // true way
                     fetchMap.put(customMetricPlotFetcher, metricNameDto);
                     break;
-                case TEST_GROUP_METRIC:
+                case TEST_GROUP_METRIC: // true way
                     fetchMap.put(customTestGroupMetricPlotFetcher, metricNameDto);
                     break;
-                case MONITORING:
+                case MONITORING: // Deprecated
                     fetchMap.put(monitoringMetricPlotFetcher, metricNameDto);
                     break;
-                case LATENCY:
+                case LATENCY:  // Deprecated
                     fetchMap.put(latencyMetricPlotFetcher, metricNameDto);
                     break;
-                case LATENCY_PERCENTILE:
+                case LATENCY_PERCENTILE: // Deprecated
                     fetchMap.put(timeLatencyPercentileMetricPlotFetcher, metricNameDto);
                     break;
-                case THROUGHPUT:
+                case THROUGHPUT: // Deprecated
                     fetchMap.put(throughputMetricPlotFetcher, metricNameDto);
                     break;
-                case SESSION_SCOPE_MONITORING:
+                case SESSION_SCOPE_MONITORING: // Deprecated
                     fetchMap.put(sessionScopeMonitoringMetricPlotFetcher, metricNameDto);
                     break;
-                case SESSION_SCOPE_TG:
+                case SESSION_SCOPE_TG: // true way
                     fetchMap.put(sessionScopeTestGroupMetricPlotFetcher, metricNameDto);
                     break;
                 default:  // if anything else
-                    log.error("MetricNameDto with origin : {} appears in metric name list for plot retrieving ({})", metricNameDto.getOrigin(), metricNameDto);
-                    throw new RuntimeException("Unable to get plot for metric " + metricNameDto.getMetricName() +
-                            " with origin: " + metricNameDto.getOrigin());
+                    log.error("MetricNameDto with origin : {} appears in metric name list for plot retrieving ({})",
+                              metricNameDto.getOrigin(), metricNameDto);
+                    throw new RuntimeException(String.format(
+                            "Unable to get plot for metric %s with origin: %s",
+                            metricNameDto.getMetricName(), metricNameDto.getOrigin().toString()
+                    ));
             }
         }
 
-        Set<PlotsDbMetricDataFetcher> fetcherSet = fetchMap.keySet();
-
         List<Future<Set<Pair<MetricNameDto, List<PlotSingleDto>>>>> futures = new ArrayList<Future<Set<Pair<MetricNameDto, List<PlotSingleDto>>>>>();
-
-        for (final PlotsDbMetricDataFetcher fetcher : fetcherSet) {
+        for (final PlotsDbMetricDataFetcher fetcher : fetchMap.keySet()) {
             futures.add(threadPool.submit(new Callable<Set<Pair<MetricNameDto, List<PlotSingleDto>>>>() {
-
                 @Override
                 public Set<Pair<MetricNameDto, List<PlotSingleDto>>> call() throws Exception {
                     return fetcher.getResult(new ArrayList<MetricNameDto>(fetchMap.get(fetcher)));
@@ -401,8 +394,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             }));
         }
 
-        Set<Pair<MetricNameDto, List<PlotSingleDto>>>  resultSet = new HashSet<Pair<MetricNameDto, List<PlotSingleDto>>>();
-
+        Set<Pair<MetricNameDto, List<PlotSingleDto>>> resultSet = new HashSet<Pair<MetricNameDto, List<PlotSingleDto>>>();
         try {
             for (Future<Set<Pair<MetricNameDto, List<PlotSingleDto>>>> future : futures) {
                 resultSet.addAll(future.get());
@@ -413,13 +405,11 @@ public class DatabaseServiceImpl implements DatabaseService {
         }
 
         Map<MetricNameDto, List<PlotSingleDto>> result = new HashMap<MetricNameDto, List<PlotSingleDto>>();
-
         for (Pair<MetricNameDto, List<PlotSingleDto>> pair : resultSet) {
-            result.put(pair.getFirst(),pair.getSecond());
+            result.put(pair.getFirst(), pair.getSecond());
         }
 
-        log.debug("Total time of plots for metricNameDtos retrieving : " + (System.currentTimeMillis() - temp));
-
+        log.debug("Total time of plots for metricNameDtos retrieving: {}", System.currentTimeMillis() - temp);
         return result;
     }
 
@@ -512,25 +502,24 @@ public class DatabaseServiceImpl implements DatabaseService {
     public Map<MetricNameDto, SummarySingleDto> getSummaryByMetricNameDto(Set<MetricNameDto> metricNames, boolean isEnableDecisionsPerMetricFetching) {
 
         long temp = System.currentTimeMillis();
-        Set<SummarySingleDto> result = new HashSet<SummarySingleDto>(metricNames.size());
 
         final Multimap<MetricDataFetcher<SummarySingleDto>, MetricNameDto> fetchMap = ArrayListMultimap.create();
 
         for (MetricNameDto metricName : metricNames){
             switch (metricName.getOrigin()) {
-                case STANDARD_METRICS:
+                case STANDARD_METRICS: // Deprecated
                     fetchMap.put(standardMetricSummaryFetcher, metricName);
                     break;
-                case DURATION:
+                case DURATION: // Deprecated
                     fetchMap.put(durationMetricSummaryFetcher, metricName);
                     break;
-                case LATENCY_PERCENTILE:
+                case LATENCY_PERCENTILE: // Deprecated
                     fetchMap.put(latencyMetricDataFetcher, metricName);
                     break;
-                case METRIC:
+                case METRIC: // true way
                     fetchMap.put(customMetricSummaryFetcher, metricName);
                     break;
-                case TEST_GROUP_METRIC:
+                case TEST_GROUP_METRIC: // true way
                     fetchMap.put(customTestGroupMetricSummaryFetcher, metricName);
                     break;
                 case VALIDATOR:
@@ -547,20 +536,16 @@ public class DatabaseServiceImpl implements DatabaseService {
             }
         }
 
-        Set<MetricDataFetcher<SummarySingleDto>> fetcherSet = fetchMap.keySet();
-
         List<Future<Set<SummarySingleDto>>> futures = new ArrayList<Future<Set<SummarySingleDto>>>();
-
-        for (final MetricDataFetcher<SummarySingleDto> fetcher : fetcherSet) {
+        for (final MetricDataFetcher<SummarySingleDto> fetcher : fetchMap.keySet()) {
             futures.add(threadPool.submit(new Callable<Set<SummarySingleDto>>() {
-
                 @Override
                 public Set<SummarySingleDto> call() throws Exception {
                     return fetcher.getResult(new ArrayList<MetricNameDto>(fetchMap.get(fetcher)));
                 }
             }));
         }
-
+        Set<SummarySingleDto> result = new HashSet<SummarySingleDto>(metricNames.size());
         try {
             for (Future<Set<SummarySingleDto>> future : futures) {
                 result.addAll(future.get());
@@ -632,6 +617,7 @@ public class DatabaseServiceImpl implements DatabaseService {
      * @param taskDataDtos all tests
      * @return list of monitoring task ids
      */
+    @Deprecated
     private Map<TaskDataDto, List<BigInteger>> getMonitoringIds(Set<String> sessionIds, List<TaskDataDto> taskDataDtos) {
 
         Set<Long> taskIds = new HashSet<Long>();
@@ -775,12 +761,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     private Map<TaskDataDto, List<PlotNode>> getTestPlotsMap(Set<String> sessionIds, List<TaskDataDto> taskList) {
 
         Map<TaskDataDto, List<PlotNode>> result = new HashMap<TaskDataDto, List<PlotNode>>();
-
         List<MetricNameDto> metricNameDtoList = new ArrayList<MetricNameDto>();
         try {
-
-            Set<TaskDataDto> tasksWithWorkload = getTasksWithWorkloadStatistics(taskList);
-            for (TaskDataDto taskDataDto : tasksWithWorkload) {
+            for (TaskDataDto taskDataDto : getTasksWithWorkloadStatistics(taskList)) {
                 for (Map.Entry<GroupKey, DefaultWorkloadParameters[]> monitoringPlot : workloadPlotGroups.entrySet()) {
                     MetricNameDto metricNameDto = new MetricNameDto(taskDataDto, monitoringPlot.getKey().getUpperName());
                     metricNameDto.setOrigin(monitoringPlot.getValue()[0].getOrigin());
@@ -788,9 +771,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                 }
             }
 
-            Set<MetricNameDto> customMetrics = customMetricPlotNameProvider.getPlotNames(taskList);
-
-            metricNameDtoList.addAll(customMetrics);
+            metricNameDtoList.addAll(customMetricPlotNameProvider.getPlotNames(taskList));
 
             log.debug("For sessions {} are available these plots: {}", sessionIds, metricNameDtoList);
 
@@ -814,7 +795,6 @@ public class DatabaseServiceImpl implements DatabaseService {
                     }
                 }
             }
-
         } catch (Exception e) {
             log.error("Error was occurred during task scope plots data getting for session IDs " + sessionIds + ", tasks : " + taskList, e);
             throw new RuntimeException(e);
@@ -823,6 +803,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         return result;
     }
 
+    @Deprecated
     private Map<TaskDataDto, List<PlotNode>> getMonitoringPlotNames(Set<Map.Entry<GroupKey, DefaultMonitoringParameters[]>> monitoringParameters, Map<TaskDataDto, List<BigInteger>> monitoringIdsMap) {
         Set<BigInteger> monitoringIds = new HashSet<BigInteger>();
         for (List<BigInteger> mIds : monitoringIdsMap.values()) {
@@ -900,6 +881,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         return newResultMap;
     }
 
+    @Deprecated
     private Set<TaskDataDto> getTasksWithWorkloadStatistics(List<TaskDataDto> tests) {
 
         List<Long> testsIds = new ArrayList<Long>();
@@ -1197,7 +1179,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
                 String rootId = NameTokens.METRICS_PREFIX + tdd.hashCode();
 
-                if (metricNodeList != null && metricNodeList.size() > 0) {
+                if (metricNodeList.size() > 0) {
                     // apply rules how to build tree
                     MetricGroupNode<PlotNode> testDetailsNodeBase = buildTreeAccordingToRules(rootId, agentNames, null, false, metricNodeList);
 
@@ -1258,6 +1240,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         return taskDataDtoList;
     }
 
+    @Deprecated
     private Map<TaskDataDto, List<PlotNode>> getMonitoringPlots(Set<String> sessionIds, List<TaskDataDto> taskDataDtos) {
         try {
             Map<TaskDataDto, List<BigInteger>>  monitoringIds = getMonitoringIds(sessionIds, taskDataDtos);

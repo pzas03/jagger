@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 @Component
+@Deprecated
 public class LatencyMetricSummaryFetcher extends DbMetricDataFetcher<SummarySingleDto> {
 
     @Override

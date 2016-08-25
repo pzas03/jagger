@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 @Component
+@Deprecated
 public class LatencyMetricPlotFetcher extends StandardMetricPlotFetcher<LatencyMetricPlotFetcher.LatencyRawData> {
 
     @Override
@@ -50,6 +51,7 @@ public class LatencyMetricPlotFetcher extends StandardMetricPlotFetcher<LatencyM
     }
 
     @Override
+    @Deprecated
     protected List<LatencyRawData> findRawDataByTaskData(Set<Long> taskIds) {
 
         @SuppressWarnings("all")

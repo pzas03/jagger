@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
  * Time: 4:41 PM
  */
 @Component
+@Deprecated
 public class SessionScopeMonitoringMetricPlotFetcher extends AbstractSessionScopeFetcher<MonitoringMetricPlotFetcher> {
 
 }
