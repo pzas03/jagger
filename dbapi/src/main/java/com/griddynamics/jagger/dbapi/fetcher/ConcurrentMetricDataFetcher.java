@@ -39,7 +39,6 @@ public abstract class ConcurrentMetricDataFetcher<R> extends MetricDataFetcher<R
         List<Future<Set<R>>> futureList = new ArrayList<Future<Set<R>>>();
 
         int fromIndex = 0;
-
         while (fromIndex < metricNames.size()) {
             int toIndex = fromIndex + maxSizeOfBatch;
             if (toIndex > metricNames.size()) {

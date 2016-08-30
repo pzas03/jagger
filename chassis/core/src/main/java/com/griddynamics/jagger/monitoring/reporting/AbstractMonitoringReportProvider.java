@@ -35,6 +35,7 @@ public abstract class AbstractMonitoringReportProvider<T> extends AbstractMapped
         monitoringMap = null;
     }
 
+    @Deprecated
     protected void loadMonitoringMap() {
         if (monitoringMap != null) {
             return;
@@ -51,6 +52,7 @@ public abstract class AbstractMonitoringReportProvider<T> extends AbstractMapped
         monitoringMap = result;
     }
 
+    @Deprecated
     protected String relatedMonitoringTask(String taskId) {
         String parentId = parentOf(taskId);
 

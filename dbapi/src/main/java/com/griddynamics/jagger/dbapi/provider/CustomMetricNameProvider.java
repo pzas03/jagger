@@ -72,6 +72,7 @@ public class CustomMetricNameProvider implements MetricNameProvider {
         return metrics;
     }
 
+    @Deprecated
     private Set<MetricNameDto> getCustomMetricsNamesOldModel(List<TaskDataDto> tests) {
         Set<Long> taskIds = new HashSet<Long>();
         Set<String> sessionIds = new HashSet<String>();

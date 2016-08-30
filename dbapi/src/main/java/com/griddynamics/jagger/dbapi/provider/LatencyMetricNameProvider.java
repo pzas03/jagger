@@ -19,6 +19,7 @@ import java.util.Set;
  * Created by kgribov on 4/7/14.
  */
 @Component
+@Deprecated
 public class LatencyMetricNameProvider implements MetricNameProvider {
     private Logger log = LoggerFactory.getLogger(LatencyMetricNameProvider.class);
 
@@ -30,6 +31,7 @@ public class LatencyMetricNameProvider implements MetricNameProvider {
     }
 
     @Override
+    @Deprecated
     public Set<MetricNameDto> getMetricNames(List<TaskDataDto> tests) {
         Set<MetricNameDto> latencyNames;
 

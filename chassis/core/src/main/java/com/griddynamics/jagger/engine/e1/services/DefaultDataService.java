@@ -356,7 +356,7 @@ public class DefaultDataService implements DataService {
 
     @Override
     public List<MetricPlotPointEntity> getMetricPlotData(MetricEntity metric) {
-        Map<MetricEntity, List<MetricPlotPointEntity>> map = getMetricPlotData(Arrays.asList(metric));
+        Map<MetricEntity, List<MetricPlotPointEntity>> map = getMetricPlotData(Collections.singletonList(metric));
 
         return map.get(metric);
     }

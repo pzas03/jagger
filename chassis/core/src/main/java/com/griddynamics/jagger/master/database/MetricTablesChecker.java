@@ -1,5 +1,6 @@
 package com.griddynamics.jagger.master.database;
 
+import com.griddynamics.jagger.dbapi.entity.DiagnosticResultEntity;
 import com.griddynamics.jagger.dbapi.entity.MetricDetails;
 import org.hibernate.HibernateException;
 import org.hibernate.SQLQuery;
@@ -20,14 +21,15 @@ import java.util.List;
  * User: kgribov
  * Date: 1/17/14
  */
+@Deprecated
 public class MetricTablesChecker extends HibernateDaoSupport {
 
     private static final Logger log = LoggerFactory.getLogger(MetricTablesChecker.class);
 
+    @Deprecated
     public void checkMetricDetailsIndex() {
         //check if metricId record is already in IdGenerator table
         IdGeneratorEntity metricIdGenerator = null;
-
         try {
             metricIdGenerator = getHibernateTemplate().get(IdGeneratorEntity.class, MetricDetails.METRIC_ID);
         } catch (Exception ex) {
@@ -66,10 +68,11 @@ public class MetricTablesChecker extends HibernateDaoSupport {
         }
     }
 
+    @Deprecated
     public void checkMetricColumnsHaveDoubleType(){
         boolean needToPrintMessage = false;
-        List<ColumnType> metricColumnsToCheck = Arrays.asList(new ColumnType("MetricDetails", "value", "double"),
-                                                              new ColumnType("DiagnosticResultEntity", "total", "double"));
+        List<ColumnType> metricColumnsToCheck = Arrays.asList(new ColumnType(MetricDetails.class.getSimpleName(), "value", "double"),
+                                                              new ColumnType(DiagnosticResultEntity.class.getSimpleName(), "total", "double"));
         for (ColumnType metricColumn : metricColumnsToCheck){
             String oldType = validateType(metricColumn);
             if (oldType != null){
