@@ -1,0 +1,43 @@
+///
+/// @page JaaS module launch and configure description.
+/// @brief Section provides full information about how to launch and configure description JaaS @n
+/// @details
+/// @n
+/// JaaS in a main artifact in Jagger 2. It is an always listening component. @n
+/// It provides different information through its REST API. @n
+/// @n
+/// JaaS artifact packed as an all in jar (with all dependencies inside) with embedded Tomcat. @n
+/// JaaS based on Spring Boot, so its properties can be configured using one of Spring Boot ways - @n
+///    {@link <a href="http://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html">Boot External Config</a> @n
+/// @n
+/// To launch JaaS just execute: @n
+///   {@code java -jar <JaaS jar>} @n
+/// @n
+/// By default JaaS is listening on port 8080.
+/// To change it just override property "server.port".
+///
+
+
+We have com.griddynamics.jagger.master.configuration.Configuration class which is a main container
+ of test information. So, to switch to Java Spring Config we just need to crate a class like this
+   in a special package, say it is com.griddynamics.jagger.config.test
+
+   @org.springframework.context.annotation.Configuration
+   public class TestConfig {
+
+        @Bean
+        public Configuration getConfiguration() {
+            // construct instance of Configuration by any way
+            // we can use patterns to ease this process
+            // for example, builder pattern:
+            TestGroup testGroup = new TestGroupBuilder("myFirstSearchTest")
+                        .addTest(new Test("jaggerPageTest", <TestDescription>, <ExecutionStrategy))
+                        .addTest(new Test("googlePageTest", <TestDescription>, <ExecutionStrategy))
+                        .build();
+
+            return new ConfigurationBuilder
+                .setReportLocation("jagger-report.pdf") // create, configures and injects as instance of ReportingService undercover
+                .addTestSuit(new TestSuitBuilder("myFirstSearchTestSuit").addTestGroup(testGroup).addListener(<Listener>).build())
+                .build();
+        }
+   }
