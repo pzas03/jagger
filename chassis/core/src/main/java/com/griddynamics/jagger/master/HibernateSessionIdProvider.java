@@ -22,6 +22,7 @@ package com.griddynamics.jagger.master;
 
 import java.util.List;
 
+import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import com.griddynamics.jagger.exception.TechnicalException;
@@ -65,7 +66,8 @@ public class HibernateSessionIdProvider extends HibernateDaoSupport implements S
 
     @SuppressWarnings("unchecked")
 	private Session loadLastSession() {
-		List<Session> sessions = getHibernateTemplate().find("from Session s order by s.id desc");
+		HibernateTemplate hibernateTemplate = getHibernateTemplate();
+		List<Session> sessions = (List<Session>) hibernateTemplate.find("from Session s order by s.id desc");
 
 		if (sessions.isEmpty()) {
 			throw new TechnicalException("No session detected");
