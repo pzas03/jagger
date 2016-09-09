@@ -16,28 +16,3 @@
 /// By default JaaS is listening on port 8080.
 /// To change it just override property "server.port".
 ///
-
-
-We have com.griddynamics.jagger.master.configuration.Configuration class which is a main container
- of test information. So, to switch to Java Spring Config we just need to crate a class like this
-   in a special package, say it is com.griddynamics.jagger.config.test
-
-   @org.springframework.context.annotation.Configuration
-   public class TestConfig {
-
-        @Bean
-        public Configuration getConfiguration() {
-            // construct instance of Configuration by any way
-            // we can use patterns to ease this process
-            // for example, builder pattern:
-            TestGroup testGroup = new TestGroupBuilder("myFirstSearchTest")
-                        .addTest(new Test("jaggerPageTest", <TestDescription>, <ExecutionStrategy))
-                        .addTest(new Test("googlePageTest", <TestDescription>, <ExecutionStrategy))
-                        .build();
-
-            return new ConfigurationBuilder
-                .setReportLocation("jagger-report.pdf") // create, configures and injects as instance of ReportingService undercover
-                .addTestSuit(new TestSuitBuilder("myFirstSearchTestSuit").addTestGroup(testGroup).addListener(<Listener>).build())
-                .build();
-        }
-   }
