@@ -14,7 +14,7 @@ import java.util.Set;
  * @author asokol
  *         created 9/14/16
  */
-interface Controller {
+interface JaaSRestController {
 
     @ApiImplicitParams(
             @ApiImplicitParam(name = "sessionId", value = "Input session id", required = true, paramType = "path",

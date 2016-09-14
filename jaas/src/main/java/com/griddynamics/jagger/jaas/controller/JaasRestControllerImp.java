@@ -17,9 +17,9 @@ import java.util.Set;
  */
 @RequestMapping(value = "/jaas")
 @RestController
-public class JaasRestController implements Controller {
+public class JaasRestControllerImp implements JaaSRestController {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(JaasRestController.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(JaasRestControllerImp.class);
 
     @Autowired
     private DataService dataService;

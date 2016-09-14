@@ -1,9 +1,6 @@
 package com.griddynamics.jagger.jaas.config;
 
-import com.google.common.base.Predicates;
-import com.griddynamics.jagger.jaas.controller.JaasRestController;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RequestMethod;
 import springfox.documentation.builders.ApiInfoBuilder;
