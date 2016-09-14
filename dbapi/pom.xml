@@ -67,49 +67,16 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
-                <version>${findbugs-maven-plugin.version}</version>
                 <configuration>
-                    <effort>Max</effort>
-                    <threshold>Low</threshold>
                     <failOnError>false</failOnError>
-                    <xmlOutput>true</xmlOutput>
-                    <xmlOutputDirectory>${project.build.directory}/findbugs</xmlOutputDirectory>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>analyze-compile</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
-                <version>${maven-pmd-plugin.version}</version>
                 <configuration>
-                    <targetJdk>${jagger.targetJdkVersion}</targetJdk>
-                    <verbose>true</verbose>
                     <failOnViolation>false</failOnViolation>
-                    <printFailingErrors>true</printFailingErrors>
-                    <failurePriority>5</failurePriority>
-                    <aggregate>true</aggregate>
-                    <format>xml</format>
-                    <targetDirectory>${project.build.directory}/pmd</targetDirectory>
-                    <outputDirectory>${project.build.directory}/pmd</outputDirectory>
-                    <rulesets>${project.parent.basedir}/pmd-rulesets.xml</rulesets>
                 </configuration>
-                <executions>
-                    <execution>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>check</goal>
-                            <goal>cpd-check</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
