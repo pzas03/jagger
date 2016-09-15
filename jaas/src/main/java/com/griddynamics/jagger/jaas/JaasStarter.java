@@ -19,16 +19,16 @@ import org.springframework.context.annotation.PropertySources;
 @SpringBootApplication
 public class JaasStarter {
 
-    public static void main(String[] args) throws Exception {
-        SpringApplication.run(JaasStarter.class, args);
-    }
-
     @Autowired
     DatabaseService databaseService;
-
 
     @Bean
     public DataService getDataService() {
         return new DefaultDataService(databaseService);
+    }
+
+
+    public static void main(String[] args) throws Exception {
+        SpringApplication.run(JaasStarter.class, args);
     }
 }
