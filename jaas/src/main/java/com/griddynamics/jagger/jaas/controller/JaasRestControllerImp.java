@@ -1,7 +1,11 @@
 package com.griddynamics.jagger.jaas.controller;
 
 import com.griddynamics.jagger.engine.e1.services.DataService;
-import com.griddynamics.jagger.engine.e1.services.data.service.*;
+import com.griddynamics.jagger.engine.e1.services.data.service.MetricEntity;
+import com.griddynamics.jagger.engine.e1.services.data.service.MetricSummaryValueEntity;
+import com.griddynamics.jagger.engine.e1.services.data.service.SessionEntity;
+import com.griddynamics.jagger.engine.e1.services.data.service.TestEntity;
+import com.griddynamics.jagger.engine.e1.services.data.service.MetricPlotPointEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +21,7 @@ import java.util.Set;
  */
 @RequestMapping(value = "/jaas")
 @RestController
-public class JaasRestControllerImp implements JaaSRestController {
+public class JaasRestControllerImp implements JaasRestController {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(JaasRestControllerImp.class);
 

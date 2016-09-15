@@ -1,5 +1,6 @@
 package com.griddynamics.jagger.jaas.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -21,6 +22,9 @@ import java.util.List;
 @Configuration
 public class SwaggerConfig {
 
+    @Value("${application.version}")
+    private String version;
+
     @Bean
     public Docket docket() {
         return new Docket(DocumentationType.SWAGGER_2)
@@ -36,10 +40,15 @@ public class SwaggerConfig {
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 .title("Jagger as a Service")
-                .description("Some neat description")
-                .license("Do we have some kind of license?")
-                .licenseUrl("In case we have the one, there might be an URL to such")
-                .version("1.2.6")
+                .description("JaaS in a main artifact in Jagger 2. It is an always listening component.\n\n" +
+                        "It provides different information through its REST API.\n\n" +
+                        "JaaS artifact packed as an all in jar (with all dependencies inside) with embedded Tomcat.\n\n" +
+                        "JaaS based on Spring Boot, so its properties can be configured using one of Spring Boot ways" +
+                        "By default JaaS is listening on port 8080.\n" +
+                        "To change it just override property \"server.port\".")
+                .license("GNU LESSER GENERAL PUBLIC LICENSE Version 2.1")
+                .licenseUrl("https://github.com/griddynamics/jagger/blob/master/license.txt")
+                .version(version)
                 .build();
     }
 
@@ -47,7 +56,8 @@ public class SwaggerConfig {
         return new ArrayList<ResponseMessage>() {{
             add(new ResponseMessageBuilder()
                     .code(500)
-                    .message("500 message")
+                    .message("500 - Interna server error.\n\n" +
+                            "There is a problem with the resource you are looking for, and it can not be dispayed.")
                     .responseModel(new ModelRef("Error"))
                     .build());
         }};
