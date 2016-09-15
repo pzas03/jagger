@@ -33,8 +33,6 @@
 
     <properties>
         <spring.boot.version>1.4.0.RELEASE</spring.boot.version>
-        <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>
-        <checkstyle.version>7.1.1</checkstyle.version>
     </properties>
 
     <dependencies>
@@ -211,31 +209,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>${maven-checkstyle-plugin.version}</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.puppycrawl.tools</groupId>
-                        <artifactId>checkstyle</artifactId>
-                        <version>${checkstyle.version}</version>
-                    </dependency>
-                </dependencies>
-                <executions>
-                    <execution>
-                        <phase>validate</phase>
-                        <configuration>
-                            <configLocation>${project.parent.basedir}/checkstyle-checker.xml</configLocation>
-                            <encoding>UTF-8</encoding>
-                            <consoleOutput>true</consoleOutput>
-                            <failOnViolation>true</failOnViolation>
-                            <outputFile>${project.build.directory}/checkstyle/checkstyle.xml</outputFile>
-                            <outputFileFormat>xml</outputFileFormat>
-                            <violationSeverity>warning</violationSeverity>
-                        </configuration>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
