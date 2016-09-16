@@ -78,6 +78,14 @@
                     <failOnViolation>false</failOnViolation>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <failOnViolation>false</failOnViolation>
+                    <failsOnError>false</failsOnError>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>

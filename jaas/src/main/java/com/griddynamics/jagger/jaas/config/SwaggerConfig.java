@@ -25,6 +25,11 @@ public class SwaggerConfig {
     @Value("${application.version}")
     private String version;
 
+    /**
+     * Docket object for swagger configuration.
+     *
+     * @return Docket object.
+     */
     @Bean
     public Docket docket() {
         return new Docket(DocumentationType.SWAGGER_2)
@@ -40,12 +45,12 @@ public class SwaggerConfig {
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 .title("Jagger as a Service")
-                .description("JaaS in a main artifact in Jagger 2. It is an always listening component.\n\n" +
-                        "It provides different information through its REST API.\n\n" +
-                        "JaaS artifact packed as an all in jar (with all dependencies inside) with embedded Tomcat.\n\n" +
-                        "JaaS based on Spring Boot, so its properties can be configured using one of Spring Boot ways" +
-                        "By default JaaS is listening on port 8080.\n" +
-                        "To change it just override property \"server.port\".")
+                .description("JaaS in a main artifact in Jagger 2. It is an always listening component.\n\n"
+                        + "It provides different information through its REST API.\n\n"
+                        + "JaaS artifact packed as an all in jar (with all dependencies inside) with embedded Tomcat.\n\n"
+                        + "JaaS based on Spring Boot, so its properties can be configured using one of Spring Boot ways"
+                        + "By default JaaS is listening on port 8080.\n"
+                        + "To change it just override property \"server.port\".")
                 .license("GNU LESSER GENERAL PUBLIC LICENSE Version 2.1")
                 .licenseUrl("https://github.com/griddynamics/jagger/blob/master/license.txt")
                 .version(version)
@@ -53,13 +58,14 @@ public class SwaggerConfig {
     }
 
     private List<ResponseMessage> responseMessages() {
-        return new ArrayList<ResponseMessage>() {{
-            add(new ResponseMessageBuilder()
-                    .code(500)
-                    .message("500 - Interna server error.\n\n" +
-                            "There is a problem with the resource you are looking for, and it can not be dispayed.")
-                    .responseModel(new ModelRef("Error"))
-                    .build());
-        }};
+        List<ResponseMessage> responseMessages = new ArrayList<>();
+        responseMessages
+                .add(new ResponseMessageBuilder()
+                        .code(500)
+                        .message("500 - Interna server error.\n\n"
+                                + "There is a problem with the resource you are looking for, and it can not be dispayed.")
+                        .responseModel(new ModelRef("Error"))
+                        .build());
+        return responseMessages;
     }
 }

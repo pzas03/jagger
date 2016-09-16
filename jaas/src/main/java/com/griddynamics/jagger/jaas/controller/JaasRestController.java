@@ -1,24 +1,24 @@
 package com.griddynamics.jagger.jaas.controller;
 
 
-
-
 import com.griddynamics.jagger.engine.e1.services.data.service.MetricEntity;
+import com.griddynamics.jagger.engine.e1.services.data.service.MetricPlotPointEntity;
 import com.griddynamics.jagger.engine.e1.services.data.service.MetricSummaryValueEntity;
 import com.griddynamics.jagger.engine.e1.services.data.service.SessionEntity;
 import com.griddynamics.jagger.engine.e1.services.data.service.TestEntity;
-import com.griddynamics.jagger.engine.e1.services.data.service.MetricPlotPointEntity;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
+ * JaaS REST controller.
+ *
  * @author asokol
  *         created 9/14/16
  */
@@ -29,11 +29,9 @@ interface JaasRestController {
             response = SessionEntity.class)
     @ApiImplicitParams(
             @ApiImplicitParam(name = "sessionId", value = "Input session id", required = true, paramType = "path",
-                    dataType = "string")
-    )
+                    dataType = "string"))
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = SessionEntity.class),
-    })
+            @ApiResponse(code = 200, message = "Success", response = SessionEntity.class)})
     SessionEntity getSession(String sessionId);
 
     @ApiOperation(value = "getSessions",
@@ -41,8 +39,7 @@ interface JaasRestController {
             response = SessionEntity.class,
             responseContainer = "Set")
     @ApiImplicitParams(
-            @ApiImplicitParam(name = "id", value = "Input session ids", allowMultiple = true, dataType = "string")
-    )
+            @ApiImplicitParam(name = "id", value = "Input session ids", allowMultiple = true, dataType = "string"))
     Set<SessionEntity> getSessions(String[] sessionIds);
 
     @ApiOperation(value = "getTest",
@@ -52,8 +49,7 @@ interface JaasRestController {
             @ApiImplicitParam(name = "sessionId", value = "Input session id", required = true, paramType = "path",
                     dataType = "string"),
             @ApiImplicitParam(name = "testName", value = "Input test name", required = true, paramType = "path",
-                    dataType = "string")
-    })
+                    dataType = "string")})
     TestEntity getTest(String sessionId, String testName);
 
     @ApiOperation(value = "getTests",
@@ -62,8 +58,7 @@ interface JaasRestController {
             responseContainer = "Set")
     @ApiImplicitParams(
             @ApiImplicitParam(name = "sessionId", value = "Input session id", required = true, paramType = "path",
-                    dataType = "string")
-    )
+                    dataType = "string"))
     Set<TestEntity> getTests(String sessionId);
 
     @ApiOperation(value = "getMetrics",
@@ -72,8 +67,7 @@ interface JaasRestController {
             responseContainer = "Set")
     @ApiImplicitParams(
             @ApiImplicitParam(name = "testId", value = "Input test id", required = true, dataType = "long",
-                    paramType = "path")
-    )
+                    paramType = "path"))
     Set<MetricEntity> getMetrics(Long testId);
 
     @ApiOperation(value = "getMetrics",
@@ -84,8 +78,7 @@ interface JaasRestController {
             @ApiImplicitParam(name = "sessionId", value = "Input session id", required = true, paramType = "path",
                     dataType = "string"),
             @ApiImplicitParam(name = "testName", value = "Input test name", required = true, paramType = "path",
-                    dataType = "string")
-    })
+                    dataType = "string")})
     Set<MetricEntity> getMetrics(String sessionId, String testName);
 
     @ApiOperation(value = "getMetricsSummary",
@@ -96,8 +89,7 @@ interface JaasRestController {
             @ApiImplicitParam(name = "sessionId", value = "Input session id", required = true, paramType = "path",
                     dataType = "string"),
             @ApiImplicitParam(name = "testName", value = "Input test name", required = true, paramType = "path",
-                    dataType = "string")
-    })
+                    dataType = "string")})
     Map<MetricEntity, MetricSummaryValueEntity> getMetricsSummary(String sessionId, String testName);
 
     @ApiOperation(value = "getMetricPlotData",
@@ -108,7 +100,6 @@ interface JaasRestController {
             @ApiImplicitParam(name = "sessionId", value = "Input session id", required = true, paramType = "path",
                     dataType = "string"),
             @ApiImplicitParam(name = "testName", value = "Input test name", required = true, paramType = "path",
-                    dataType = "string")
-    })
+                    dataType = "string")})
     Map<MetricEntity, List<MetricPlotPointEntity>> getMetricPlotData(String sessionId, String testName);
 }
