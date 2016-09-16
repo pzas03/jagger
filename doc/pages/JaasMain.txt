@@ -1,4 +1,3 @@
-/// http://localhost:8080/swagger-ui.html#/ - available API documentation
 /// @page JaaS module launch and configure description.
 /// @brief Section provides full information about how to launch and configure description JaaS @n
 /// @details
@@ -15,4 +14,5 @@
 /// @n
 /// By default JaaS is listening on port 8080.
 /// To change it just override property "server.port".
-///
+/// @n
+/// http://localhost:8080/swagger-ui.html#/ - available API documentation
