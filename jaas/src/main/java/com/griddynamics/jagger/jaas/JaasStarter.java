@@ -22,12 +22,13 @@ public class JaasStarter {
     @Autowired
     DatabaseService databaseService;
 
-    public static void main(String[] args) throws Exception {
-        SpringApplication.run(JaasStarter.class, args);
-    }
-
     @Bean
     public DataService getDataService() {
         return new DefaultDataService(databaseService);
+    }
+
+
+    public static void main(String[] args) throws Exception {
+        SpringApplication.run(JaasStarter.class, args);
     }
 }
