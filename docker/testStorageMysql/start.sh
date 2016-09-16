@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 MYSQL_USER="jaggeruser"
 MYSQL_DATABASE="jaggerdb"
 MYSQL_CONTAINER_NAME="jagger_mysql"
