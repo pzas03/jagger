@@ -96,9 +96,9 @@
             </metric>
 
             <!-- begin: following section is used for docu generation - metrics with aggregators -->
+            <!-- Note: to use this example, you shall implement custom metric calculators "constant", "alwaysIncrease" and "sin". -->
 
             <!-- Math functions with aggregators with settings -->
-            <!-- Note: you shall implement custom metric calculators "constant", "alwaysIncrease" and "sin". -->
             <!-- Normalize metric value by seconds -->
             <metric id="constant1-sum-normalized-1s" xsi:type="metric-custom" calculator="constant" plotData="true" saveSummary="true">
                 <metric-aggregator xsi:type="metric-aggregator-sum" normalizeBy="SECOND"/>
