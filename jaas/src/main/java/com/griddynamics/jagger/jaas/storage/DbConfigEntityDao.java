@@ -9,9 +9,13 @@ import java.util.List;
  */
 public interface DbConfigEntityDao {
     
-    DbConfigEntity read(String configName);
+    DbConfigEntity read(Long configId);
     
     List<DbConfigEntity> readAll();
+    
+    void create(DbConfigEntity config);
+    
+    void update(DbConfigEntity config);
     
     void createOrUpdate(DbConfigEntity config);
     

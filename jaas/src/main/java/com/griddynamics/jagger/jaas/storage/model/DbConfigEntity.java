@@ -5,6 +5,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
 
@@ -12,9 +14,12 @@ import javax.validation.constraints.NotNull;
 @Entity
 public class DbConfigEntity {
     
-    @NotNull
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    private String name;
+    private Long id;
+    
+    @Column()
+    private String desc;
     
     @NotNull
     @Column(nullable = false)
@@ -41,12 +46,20 @@ public class DbConfigEntity {
     @JaggerPropertyName("chassis.storage.hibernate.dialect")
     private String hibernateDialect;
     
-    public String getName() {
-        return name;
+    public Long getId() {
+        return id;
     }
     
-    public void setName(String name) {
-        this.name = name;
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
+    public String getDesc() {
+        return desc;
+    }
+    
+    public void setDesc(String desc) {
+        this.desc = desc;
     }
     
     public String getUrl() {
@@ -91,8 +104,8 @@ public class DbConfigEntity {
     
     @Override
     public String toString() {
-        return "JaggerTestDbConfig{" + "name='" + name + '\'' + ", url='" + url + '\'' + ", user='" + user + '\''
-               + ", pass='" + pass + '\'' + ", jdbcDriver='" + jdbcDriver + '\'' + ", hibernateDialect='"
+        return "DbConfigEntity{" + "id='" + id + '\'' + ", desc='" + desc + '\'' + ", url='" + url + '\'' + ", user='"
+               + user + '\'' + ", pass='" + pass + '\'' + ", jdbcDriver='" + jdbcDriver + '\'' + ", hibernateDialect='"
                + hibernateDialect + '\'' + '}';
     }
 }

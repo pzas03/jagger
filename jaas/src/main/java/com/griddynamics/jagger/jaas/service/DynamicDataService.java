@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -40,7 +41,7 @@ public class DynamicDataService implements DbConfigEntityDao {
     private final ExecutorService destroyerService =
             Executors.newSingleThreadExecutor(r -> new Thread("DynamicDataServiceDestoyer"));
     
-    private final ConcurrentMap<String, AbstractApplicationContext> dataServiceContexts = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Long, AbstractApplicationContext> dataServiceContexts = new ConcurrentHashMap<>();
     
     @Autowired
     private DbConfigEntityDao jaasDao;
@@ -53,9 +54,11 @@ public class DynamicDataService implements DbConfigEntityDao {
     
     @PostConstruct
     public void init() {
-        LOGGER.info("Registering default jagger test db config: {}", defaultDbConfigEntity);
-        jaasDao.createOrUpdate(defaultDbConfigEntity);
-        getDataServiceFor(defaultDbConfigEntity.getName());
+        if (jaasDao.readAll().isEmpty()) {
+            LOGGER.info("Registering default jagger test db config: {}", defaultDbConfigEntity);
+            jaasDao.create(defaultDbConfigEntity);
+            getDataServiceFor(defaultDbConfigEntity.getId());
+        }
     }
     
     @PreDestroy
@@ -63,26 +66,26 @@ public class DynamicDataService implements DbConfigEntityDao {
         destroyerService.shutdown();
     }
     
-    protected void evictDataServiceFor(final String configName) {
-        LOGGER.info("Evicting jagger test db config with name: {}", configName);
-        AbstractApplicationContext context = dataServiceContexts.remove(configName);
+    protected void evictDataServiceFor(final Long configId) {
+        LOGGER.info("Evicting jagger test db config with id: {}", configId);
+        AbstractApplicationContext context = dataServiceContexts.remove(configId);
         if (context != null) {
             destroyerService.execute(context::destroy);
         }
     }
     
-    public DataService getDataServiceFor(final String configName) {
+    public DataService getDataServiceFor(final Long configId) {
         
-        Objects.requireNonNull(configName);
+        Objects.requireNonNull(configId);
         
-        ApplicationContext dataServiceContext = dataServiceContexts.get(configName);
+        ApplicationContext dataServiceContext = dataServiceContexts.get(configId);
         if (Objects.isNull(dataServiceContext)) {
-            DbConfigEntity config = jaasDao.read(configName);
+            DbConfigEntity config = jaasDao.read(configId);
             if (Objects.isNull(config)) {
                 return null;
             }
             synchronized (this) {
-                dataServiceContext = dataServiceContexts.computeIfAbsent(configName, s -> {
+                dataServiceContext = dataServiceContexts.computeIfAbsent(configId, s -> {
                     if (dataServiceContexts.size() >= dataServiceCacheSize) {
                         evictDataServiceFor(dataServiceContexts.keySet().iterator().next());
                     }
@@ -95,9 +98,9 @@ public class DynamicDataService implements DbConfigEntityDao {
     }
     
     protected AbstractApplicationContext initDataServiceContextFor(DbConfigEntity config) {
-    
+        
         LOGGER.debug("Initializing spring context for jagger test db config: {}", config);
-
+        
         PropertiesPropertySource propertySource =
                 new PropertiesPropertySource(this.getClass().getName(), extractPropsFrom(config));
         
@@ -105,7 +108,7 @@ public class DynamicDataService implements DbConfigEntityDao {
         applicationContext.getEnvironment().getPropertySources().addFirst(propertySource);
         applicationContext.register(DataServiceConfig.class);
         applicationContext.refresh();
-
+        
         LOGGER.debug("Spring context has been initialized for jagger test db config: {}", config);
         return applicationContext;
     }
@@ -124,8 +127,8 @@ public class DynamicDataService implements DbConfigEntityDao {
     }
     
     @Override
-    public DbConfigEntity read(String configName) {
-        return jaasDao.read(configName);
+    public DbConfigEntity read(Long configId) {
+        return jaasDao.read(configId);
     }
     
     @Override
@@ -134,14 +137,27 @@ public class DynamicDataService implements DbConfigEntityDao {
     }
     
     @Override
+    public void create(DbConfigEntity config) {
+        evictableOperation(c -> jaasDao.create(c), config);
+    }
+    
+    @Override
+    public void update(DbConfigEntity config) {
+        evictableOperation(c -> jaasDao.update(c), config);
+    }
+    
+    @Override
     public void createOrUpdate(DbConfigEntity config) {
-        jaasDao.createOrUpdate(config);
-        evictDataServiceFor(config.getName());
+        evictableOperation(c -> jaasDao.createOrUpdate(c), config);
     }
     
     @Override
     public void delete(DbConfigEntity config) {
-        jaasDao.delete(config);
-        evictDataServiceFor(config.getName());
+        evictableOperation(c -> jaasDao.delete(c), config);
+    }
+    
+    private void evictableOperation(Consumer<DbConfigEntity> op, DbConfigEntity config) {
+        op.accept(config);
+        evictDataServiceFor(config.getId());
     }
 }

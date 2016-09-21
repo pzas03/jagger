@@ -25,14 +25,26 @@ public class JaasDao implements DbConfigEntityDao {
     
     @Override
     @Transactional
-    public DbConfigEntity read(String configName) {
-        return (DbConfigEntity) getCurrentSession().get(DbConfigEntity.class, configName);
+    public DbConfigEntity read(Long configId) {
+        return (DbConfigEntity) getCurrentSession().get(DbConfigEntity.class, configId);
     }
     
     @Override
     @Transactional
     public List<DbConfigEntity> readAll() {
         return getCurrentSession().createCriteria(DbConfigEntity.class).list();
+    }
+    
+    @Override
+    @Transactional
+    public void create(DbConfigEntity config) {
+        getCurrentSession().save(config);
+    }
+    
+    @Override
+    @Transactional
+    public void update(DbConfigEntity config) {
+        getCurrentSession().update(config);
     }
     
     @Override
