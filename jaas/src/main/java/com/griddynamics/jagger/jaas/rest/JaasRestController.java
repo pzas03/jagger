@@ -127,7 +127,7 @@ public class JaasRestController {
         return produceDsResponse(dbId, dataService -> dataService.getTests(sessionId));
     }
     
-    @GetMapping(value = "/tests/{testId}/metrics", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/dbs/{dbId}/tests/{testId}/metrics", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Set<MetricEntity>> getMetrics(@PathVariable Long dbId, @PathVariable Long testId) {
         return produceDsResponse(dbId, dataService -> dataService.getMetrics(testId));
     }

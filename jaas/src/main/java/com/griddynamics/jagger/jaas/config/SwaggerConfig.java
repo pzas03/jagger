@@ -21,7 +21,7 @@ import java.util.List;
 @EnableSwagger2
 @Configuration
 /**
- * Configures Swagger REST API docs. Available at /swagger-ui.htm url.
+ * Configures Swagger REST API docs. Available at /swagger-ui.html url.
  */
 public class SwaggerConfig {
 
