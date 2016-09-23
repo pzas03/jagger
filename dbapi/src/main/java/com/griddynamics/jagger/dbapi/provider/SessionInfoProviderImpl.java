@@ -12,7 +12,6 @@ import com.griddynamics.jagger.dbapi.util.HTMLFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.HashMultimap;
@@ -23,10 +22,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -66,7 +65,7 @@ public class SessionInfoProviderImpl implements SessionInfoProvider {
 
     public List<TagDto> getAllTags() {
 
-        List<TagDto> allTags = new ArrayList<TagDto>();
+        List<TagDto> allTags = new ArrayList<>();
         if (isTagsStorageAvailable) {
             List<TagEntity> tags = entityManager.createQuery("select te from TagEntity as te").getResultList();
 
@@ -149,10 +148,10 @@ public class SessionInfoProviderImpl implements SessionInfoProvider {
         }
 
         if (sessionDataDtoList.isEmpty()) {
-            return Collections.<SessionDataDto>emptyList();
+            return Collections.emptyList();
         }
 
-        log.info("There was loaded {} sessions data for {} ms", new Object[]{sessionDataDtoList.size(), System.currentTimeMillis() - timestamp});
+        log.debug("There was loaded {} sessions data for {} ms", sessionDataDtoList.size(), System.currentTimeMillis() - timestamp);
 
         return sessionDataDtoList;
     }
@@ -166,7 +165,7 @@ public class SessionInfoProviderImpl implements SessionInfoProvider {
         if (sessionDataList == null || sessionDataList.isEmpty()) {
             return Collections.EMPTY_LIST;
         }
-        List<Long> sessionIds = new ArrayList<Long>();
+        List<Long> sessionIds = new ArrayList<>();
         for (int i = 0; i < sessionDataList.size(); i++) {
             sessionIds.add(sessionDataList.get(i).getId());
         }
@@ -269,7 +268,7 @@ public class SessionInfoProviderImpl implements SessionInfoProvider {
                 sessionDataDtoList.add(createSessionDataDto(sessionData, userCommentMap.get(sessionData.getId()), new ArrayList<TagDto>(tagMap.get(sessionData.getId()))));
             }
 
-            log.info("There was loaded {} sessions data for {} ms", new Object[]{sessionDataDtoList.size(), System.currentTimeMillis() - timestamp});
+            log.debug("There was loaded {} sessions data for {} ms", sessionDataDtoList.size(), System.currentTimeMillis() - timestamp);
         } catch (Exception e) {
             log.error("Error was occurred during session data between " + from + " to " + to + "; start " + start + ", length " + length, e);
             throw new RuntimeException(e);
@@ -294,27 +293,27 @@ public class SessionInfoProviderImpl implements SessionInfoProvider {
                     "order by sd.startTime asc"
             ).setFirstResult(start);
             if (!isFetchAll) {
-                query.setParameter("sessionIds", new ArrayList<String>(sessionIds))
+                query.setParameter("sessionIds", new ArrayList<>(sessionIds))
                      .setMaxResults(length);
             }
             @SuppressWarnings("unchecked")
             List<SessionData> sessionDataList = (List<SessionData>) query.getResultList();
             if (sessionDataList.isEmpty()) {
-                return Collections.<SessionDataDto>emptyList();
+                return Collections.emptyList();
             }
 
-            Map<Long, String> userCommentMap = Collections.EMPTY_MAP;
+            Map<Long, String> userCommentMap = Collections.emptyMap();
             if (isUserCommentStorageAvailable) {
                 query = entityManager.createQuery(
                         "select smd.sessionData.id, smd.userComment from SessionMetaDataEntity as smd "
-                        + (isFetchAll ? " " : "where smd.sessionData in (:sessionDataList)")
+                        + (isFetchAll ? " " : " where smd.sessionData in (:sessionDataList)")
                 );
                 if (!isFetchAll) {
                     query.setParameter("sessionDataList", sessionDataList);
                 }
                 List<Object[]> userComments = query.getResultList();
                 if (!userComments.isEmpty()) {
-                    userCommentMap = new HashMap<Long, String>(userComments.size());
+                    userCommentMap = new HashMap<>(userComments.size());
                     for (Object[] objects : userComments) {
                         userCommentMap.put((Long) objects[0], (String) objects[1]);
                     }
@@ -325,16 +324,16 @@ public class SessionInfoProviderImpl implements SessionInfoProvider {
             if (isTagsStorageAvailable) {
                 query = entityManager.createNativeQuery(
                         "select a.sessions_id, a.tags_name, te.description " +
-                        "from  TagEntity as te, (select distinct ste.sessions_id, ste.tags_name "
-                        + "from SessionTagEntity as ste"
-                        + (isFetchAll ? " " : " where ste.sessions_id in (:ids)) as a ")
-                        + "where a.tags_name=te.name"
+                        "from  TagEntity as te, " +
+                            " (" +
+                                "select distinct ste.sessions_id, ste.tags_name " +
+                                "from SessionTagEntity as ste " +
+                                (isFetchAll ? " " : " where ste.sessions_id in (:ids) ")+
+                            ") as a " +
+                        "where a.tags_name=te.name "
                 );
                 if (!isFetchAll) {
-                    Set<Long> ids = new HashSet<Long>();
-                    for (SessionData sd : sessionDataList) {
-                        ids.add(sd.getId());
-                    }
+                    Set<Long> ids = sessionDataList.stream().map(SessionData::getId).collect(Collectors.toSet());
                     query.setParameter("ids", ids);
                 }
                 List<Object[]> sessionTags = query.getResultList();
@@ -343,14 +342,18 @@ public class SessionInfoProviderImpl implements SessionInfoProvider {
                     tagMap.put(sessionId, new TagDto((String) tags[1], (String) tags[2]));
                 }
             }
-            sessionDataDtoList = new ArrayList<SessionDataDto>(sessionDataList.size());
+            sessionDataDtoList = new ArrayList<>(sessionDataList.size());
             for (SessionData sessionData : sessionDataList) {
-                sessionDataDtoList.add(createSessionDataDto(sessionData, userCommentMap.get(sessionData.getId()), new ArrayList<TagDto>(tagMap.get(sessionData.getId()))));
+                sessionDataDtoList.add(createSessionDataDto(sessionData, userCommentMap.get(sessionData.getId()),
+                                                            new ArrayList<>(tagMap.get(sessionData.getId()))));
             }
 
-            log.info("There was loaded {} sessions data for {} ms", new Object[]{sessionDataDtoList.size(), System.currentTimeMillis() - timestamp});
+            log.debug("There was loaded {} sessions data for {} ms", sessionDataDtoList.size(), System.currentTimeMillis() - timestamp);
         } catch (Exception e) {
-            log.error("Error was occurred during session data fetching for session Ids " + sessionIds + "; start " + start + ", length " + length, e);
+            log.error(
+                    "Error was occurred during session data fetching for session Ids {}; start {}, length {}", e,
+                    new Object[]{sessionIds, start, length}
+            );
             throw new RuntimeException(e);
         }
 
@@ -417,22 +420,22 @@ public class SessionInfoProviderImpl implements SessionInfoProvider {
                         "where a.tags_name=te.name")
                         .setParameter("sessionIds", sessionIds)
                         .getResultList();
-                tagMap = new HashMap<Long, ArrayList<TagDto>>();
+                tagMap = new HashMap<>();
                 for (Object[] tags : sessionTags) {
                     if (!tagMap.containsKey(((BigInteger) tags[0]).longValue())) {
-                        tagMap.put(((BigInteger) tags[0]).longValue(), new ArrayList<TagDto>());
+                        tagMap.put(((BigInteger) tags[0]).longValue(), new ArrayList<>());
                     }
                     tagMap.get(((BigInteger) tags[0]).longValue()).add(new TagDto((String) tags[1], (String) tags[2]));
                 }
 
             }
 
-            sessionDataDtoList = new ArrayList<SessionDataDto>(sessionDataList.size());
+            sessionDataDtoList = new ArrayList<>(sessionDataList.size());
             for (SessionData sessionData : sessionDataList) {
                 sessionDataDtoList.add(createSessionDataDto(sessionData, userCommentMap.get(sessionData.getId()), tagMap.get(sessionData.getId())));
             }
 
-            log.info("There was loaded {} sessions data for {} ms", new Object[]{sessionDataDtoList.size(), System.currentTimeMillis() - timestamp});
+            log.debug("There was loaded {} sessions data for {} ms", sessionDataDtoList.size(), System.currentTimeMillis() - timestamp);
         } catch (Exception e) {
             log.error("Error was occurred during session data fetching for session tags " + sessionTagNames + "; start " + start + ", length " + length, e);
             throw new RuntimeException(e);
