@@ -37,11 +37,7 @@ public class DynamicDataService implements DbConfigEntityDao {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(DynamicDataService.class);
     
-    private final ExecutorService destroyerService = Executors.newSingleThreadExecutor(r -> {
-        Thread thread = Executors.defaultThreadFactory().newThread(r);
-        thread.setName("DestroyerServiceThread");
-        return thread;
-    });
+    private final ExecutorService destroyerService = Executors.newSingleThreadExecutor(r -> new Thread(r, "DynamicDataServiceDestoyer"));
     
     private final ConcurrentMap<Long, AbstractApplicationContext> dataServiceContexts = new ConcurrentHashMap<>();
     private final DbConfigEntityDao jaasDao;
