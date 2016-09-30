@@ -64,12 +64,12 @@ public class DataServiceRestController {
         return responseEntity;
     }
     
-    @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<DbConfigEntity>> getDbConfigs() {
         return produceGetResponse(dynamicDataService, t -> dynamicDataService.readAll());
     }
     
-    @PostMapping(value = "/", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createDbConfig(@RequestBody DbConfigEntity config) {
         dynamicDataService.create(config);
         return ResponseEntity.created(
