@@ -31,6 +31,7 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.contains;
 
 /**
  * Provides {@link com.griddynamics.jagger.engine.e1.services.DataService} service
@@ -134,7 +135,7 @@ public class DynamicDataService implements DbConfigEntityDao {
             DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPass());
         } catch (SQLException e) {
             Throwable rootCause = ExceptionUtils.getRootCause(e);
-            if (rootCause instanceof ConnectException && rootCause.getMessage().contains("Connection refused")) {
+            if (rootCause instanceof ConnectException && contains(rootCause.getMessage(), "Connection refused")) {
                 LOGGER.error(format("Cannot establish connection to data base %s. ", config));
                 throw new RuntimeException(e);
             }
