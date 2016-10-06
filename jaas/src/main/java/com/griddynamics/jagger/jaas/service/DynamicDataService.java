@@ -19,6 +19,7 @@ import org.springframework.util.ReflectionUtils;
 import javax.annotation.PreDestroy;
 import java.lang.reflect.Field;
 import java.net.ConnectException;
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
@@ -131,8 +132,8 @@ public class DynamicDataService implements DbConfigEntityDao {
     }
 
     private void checkConnectionToDb(DbConfigEntity config) {
-        try {
-            DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPass());
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPass())) {
+            connection.isValid(1);
         } catch (SQLException e) {
             Throwable rootCause = ExceptionUtils.getRootCause(e);
             if (rootCause instanceof ConnectException && contains(rootCause.getMessage(), "Connection refused")) {
