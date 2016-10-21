@@ -1,7 +1,5 @@
 package com.griddynamics.jagger.xml;
 
-import static org.testng.Assert.assertEquals;
-
 import com.griddynamics.jagger.JaggerLauncher;
 import com.griddynamics.jagger.engine.e1.reporting.OverallSessionComparisonReporter;
 import com.griddynamics.jagger.engine.e1.sessioncomparation.ConfigurableSessionComparator;
@@ -14,6 +12,8 @@ import com.griddynamics.jagger.extension.ExtensionExporter;
 import com.griddynamics.jagger.master.SessionIdProvider;
 import com.griddynamics.jagger.reporting.ReportProvider;
 import com.griddynamics.jagger.reporting.ReportingService;
+import com.griddynamics.jagger.storage.rdb.H2DatabaseServer;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
@@ -21,6 +21,9 @@ import org.testng.Assert;
 
 import java.net.URL;
 import java.util.Properties;
+
+import static com.griddynamics.jagger.JaggerLauncher.RDB_CONFIGURATION;
+import static org.testng.Assert.assertEquals;
 
 
 /**
@@ -30,7 +33,8 @@ import java.util.Properties;
  */
 
 public class JaggerReportTest {
-    static ApplicationContext context=null;
+    private static ApplicationContext context=null;
+    private static H2DatabaseServer dbServer;
 
     @BeforeClass
     public static void testInit() throws Exception{
@@ -38,6 +42,11 @@ public class JaggerReportTest {
         Properties environmentProperties = new Properties();
         JaggerLauncher.loadBootProperties(directory, "profiles/local/environment.properties", environmentProperties);
         environmentProperties.put("chassis.reporter.configuration.include",environmentProperties.get("chassis.reporter.configuration.include")+", ../spring.schema/src/test/resources/example-report.conf.xml");
+
+        ApplicationContext rdbContext = JaggerLauncher.loadContext(directory, RDB_CONFIGURATION, environmentProperties);
+        dbServer = (H2DatabaseServer) rdbContext.getBean("databaseServer");
+        dbServer.run();
+
         context = JaggerLauncher.loadContext(directory,"chassis.reporter.configuration",environmentProperties);
     }
 
@@ -46,6 +55,11 @@ public class JaggerReportTest {
     public void checkExtensionRef(){
         String s=((ExtensionExporter)context.getBean("ext_stringBean")).getExtension().toString();
         assertEquals(s,"stringValue");
+    }
+
+    @AfterClass
+    public void testShutdown() {
+        dbServer.terminate();
     }
 
     @Test
