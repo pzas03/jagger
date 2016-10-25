@@ -7,7 +7,6 @@ import com.griddynamics.jagger.engine.e1.services.data.service.MetricSummaryValu
 import com.griddynamics.jagger.engine.e1.services.data.service.SessionEntity;
 import com.griddynamics.jagger.engine.e1.services.data.service.TestEntity;
 import com.griddynamics.jagger.jaas.service.DynamicDataService;
-import com.griddynamics.jagger.jaas.service.DynamicReportingService;
 import com.griddynamics.jagger.jaas.storage.model.DbConfigEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +43,7 @@ public class DataServiceRestController {
 
     @Autowired
     private DynamicDataService dynamicDataService;
-    
+
     private DataService getDataService(Long id) {
         return dynamicDataService.getDataServiceFor(id);
     }
