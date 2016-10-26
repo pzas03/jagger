@@ -13,8 +13,12 @@ import static com.google.common.collect.Lists.newArrayList;
 @Service
 public class ProjectServiceImpl implements ProjectService {
 
-    @Autowired
     private ProjectDao projectDao;
+
+    @Autowired
+    public ProjectServiceImpl(ProjectDao projectDao) {
+        this.projectDao = projectDao;
+    }
 
     @Override
     public ProjectEntity read(Long projectId) {

@@ -23,7 +23,7 @@ public class TestEnvironmentEntity {
     @Id
     private String environmentId;
 
-    @OneToMany(mappedBy = "testEnvironmentEntity", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "testEnvironmentEntity", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TestSuiteEntity> testSuites;
 
     @Column(nullable = false)
@@ -74,7 +74,8 @@ public class TestEnvironmentEntity {
         TestEnvironmentEntity that = (TestEnvironmentEntity) obj;
 
         if (!environmentId.equals(that.environmentId)) return false;
-        if (testSuites != null ? !isEqualCollection(testSuites, that.testSuites) : that.testSuites != null) return false;
+        if (testSuites != null && that.testSuites == null || testSuites == null && that.testSuites != null) return false;
+        if (testSuites != null && that.getTestSuites() != null && !isEqualCollection(testSuites, that.testSuites)) return false;
         if (status != that.status) return false;
         return runningTestSuite != null ? runningTestSuite.equals(that.runningTestSuite) : that.runningTestSuite == null;
 

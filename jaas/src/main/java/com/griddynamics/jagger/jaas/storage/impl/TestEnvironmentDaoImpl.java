@@ -3,6 +3,7 @@ package com.griddynamics.jagger.jaas.storage.impl;
 import com.griddynamics.jagger.jaas.storage.AbstractCrudDao;
 import com.griddynamics.jagger.jaas.storage.TestEnvironmentDao;
 import com.griddynamics.jagger.jaas.storage.model.TestEnvironmentEntity;
+import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,5 +75,13 @@ public class TestEnvironmentDaoImpl extends AbstractCrudDao<TestEnvironmentEntit
     @Transactional
     public long count() {
         return (Long) getCurrentSession().createCriteria(TestEnvironmentEntity.class).setProjection(rowCount()).uniqueResult();
+    }
+
+    @Override
+    @Transactional
+    public boolean exists(String testEnvironmentId) {
+        Query query = getCurrentSession().createQuery("select 1 from TestEnvironmentEntity t where t.environmentId = :id");
+        query.setString("id", testEnvironmentId);
+        return query.uniqueResult() != null;
     }
 }

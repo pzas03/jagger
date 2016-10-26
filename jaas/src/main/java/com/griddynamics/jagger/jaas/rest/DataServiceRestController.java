@@ -37,21 +37,19 @@ import java.util.function.Function;
  */
 @RequestMapping(value = "/dbs")
 @RestController
-public class DataServiceRestController {
+public class DataServiceRestController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataServiceRestController.class);
 
-    @Autowired
     private DynamicDataService dynamicDataService;
+
+    @Autowired
+    public DataServiceRestController(DynamicDataService dynamicDataService) {
+        this.dynamicDataService = dynamicDataService;
+    }
 
     private DataService getDataService(Long id) {
         return dynamicDataService.getDataServiceFor(id);
-    }
-
-    private <T, R> ResponseEntity<R> produceGetResponse(T responseSource, Function<T, R> responseFunction) {
-        ResponseEntity<R> responseEntity = HttpGetResponseProducer.produce(responseSource, responseFunction);
-        LOGGER.debug("Produced response: {}", responseEntity);
-        return responseEntity;
     }
 
     private <R> ResponseEntity<R> produceDsResponse(Long dbId, Function<DataService, R> responseFunction) {

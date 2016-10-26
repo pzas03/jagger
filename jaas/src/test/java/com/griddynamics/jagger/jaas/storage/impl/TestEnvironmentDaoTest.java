@@ -78,6 +78,69 @@ public class TestEnvironmentDaoTest {
     }
 
     @Test
+    public void updateRemoveTestSuitesTest() {
+        TestEnvironmentEntity expected = getTestEnvironmentEntity();
+        testEnvironmentDao.create(expected);
+
+        expected.setRunningTestSuite(null);
+        expected.getTestSuites().clear();
+        testEnvironmentDao.update(expected);
+
+        TestEnvironmentEntity actual = testEnvironmentDao.read(ENVIRONMENT_ID_1);
+
+        assertThat(actual, is(notNullValue()));
+        assertThat(actual, is(expected));
+        assertThat(testEnvironmentDao.readAll().size(), is(1));
+    }
+
+    @Test
+    public void updateSetTestSuitesTest() {
+        TestEnvironmentEntity expected = new TestEnvironmentEntity();
+        expected.setEnvironmentId(ENVIRONMENT_ID_1);
+        testEnvironmentDao.create(expected);
+
+        TestSuiteEntity runningTestSuite = new TestSuiteEntity();
+        runningTestSuite.setTestSuiteId(TEST_SUITE_ID_1);
+        runningTestSuite.setTestEnvironmentEntity(expected);
+        expected.setRunningTestSuite(runningTestSuite);
+        expected.setTestSuites(newArrayList(runningTestSuite));
+        testEnvironmentDao.update(expected);
+
+        TestEnvironmentEntity actual = testEnvironmentDao.read(ENVIRONMENT_ID_1);
+
+        assertThat(actual, is(notNullValue()));
+        assertThat(actual, is(expected));
+        assertThat(actual.getTestSuites().size(), is(expected.getTestSuites().size()));
+        assertThat(testEnvironmentDao.readAll().size(), is(1));
+    }
+
+    @Test
+    public void updateTestSuitesTest() {
+        TestEnvironmentEntity expected = getTestEnvironmentEntity();
+        expected.setRunningTestSuite(null);
+        TestSuiteEntity testSuiteEntity1 = new TestSuiteEntity();
+        testSuiteEntity1.setTestSuiteId(TEST_SUITE_ID_3);
+        testSuiteEntity1.setTestEnvironmentEntity(expected);
+        expected.getTestSuites().add(testSuiteEntity1);
+        testEnvironmentDao.create(expected);
+
+        TestSuiteEntity testSuiteEntity = new TestSuiteEntity();
+        testSuiteEntity.setTestSuiteId(TEST_SUITE_ID_2);
+        testSuiteEntity.setTestEnvironmentEntity(expected);
+
+        expected.getTestSuites().clear();
+        expected.getTestSuites().add(testSuiteEntity);
+        expected.getTestSuites().add(testSuiteEntity1);
+        testEnvironmentDao.update(expected);
+
+        TestEnvironmentEntity actual = testEnvironmentDao.read(ENVIRONMENT_ID_1);
+
+        assertThat(actual, is(notNullValue()));
+        assertThat(actual, is(expected));
+        assertThat(testEnvironmentDao.readAll().size(), is(1));
+    }
+
+    @Test
     public void createOrUpdate_Create_Test() {
         TestEnvironmentEntity expected = getTestEnvironmentEntity();
         testEnvironmentDao.createOrUpdate(expected);
@@ -137,6 +200,16 @@ public class TestEnvironmentDaoTest {
         int actual = (int) testEnvironmentDao.count();
 
         assertThat(actual, is(expected.size()));
+    }
+
+    @Test
+    public void existsTest() {
+        TestEnvironmentEntity expected = getTestEnvironmentEntity();
+        testEnvironmentDao.create(expected);
+
+        boolean actual = testEnvironmentDao.exists(ENVIRONMENT_ID_1);
+
+        assertThat(actual, is(true));
     }
 
 

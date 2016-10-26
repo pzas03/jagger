@@ -13,7 +13,7 @@ public interface TestEnvironmentService {
 
     void update(TestEnvironmentEntity testEnvironment);
 
-    void createOrUpdate(TestEnvironmentEntity testEnvironment);
-
     void delete(String envId);
+
+    boolean exists(String envId);
 }

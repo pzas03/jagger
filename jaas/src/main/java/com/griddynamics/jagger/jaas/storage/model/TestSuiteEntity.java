@@ -1,6 +1,7 @@
 package com.griddynamics.jagger.jaas.storage.model;
 
-import javax.persistence.CascadeType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -16,7 +17,8 @@ public class TestSuiteEntity {
     @Id
     private String testSuiteId;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @JsonIgnore
+    @ManyToOne
     @JoinColumn(name = "environmentId")
     private TestEnvironmentEntity testEnvironmentEntity;
 
@@ -47,5 +49,10 @@ public class TestSuiteEntity {
     @Override
     public int hashCode() {
         return testSuiteId.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return testSuiteId;
     }
 }
