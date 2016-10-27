@@ -1,13 +1,17 @@
 package com.griddynamics.jagger.jaas.rest;
 
-import com.griddynamics.jagger.jaas.exceptions.*;
+import com.griddynamics.jagger.jaas.exceptions.ResourceAlreadyExistsException;
+import com.griddynamics.jagger.jaas.exceptions.ResourceNotFoundException;
+import com.griddynamics.jagger.jaas.exceptions.TestEnvironmentNoSessionException;
+import com.griddynamics.jagger.jaas.exceptions.TestEnvironmentSessionNotFoundException;
+import com.griddynamics.jagger.jaas.exceptions.WrongTestEnvironmentRunningTestSuiteException;
+import com.griddynamics.jagger.jaas.exceptions.WrongTestEnvironmentStatusException;
 import com.griddynamics.jagger.jaas.rest.error.ErrorResponse;
 import org.hibernate.StaleStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -19,7 +23,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import static com.griddynamics.jagger.jaas.rest.error.ErrorResponse.errorResponse;
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 /**
@@ -41,9 +48,11 @@ public class GlobalControllerExceptionHandler {
     }
 
     /**
-     * Catches:<p>
+     * Catches:
+     * <p>
      * - {@link ResourceNotFoundException} exception which occurs
-     * once requested resource not found. <p>
+     * once requested resource not found.
+     * <p>
      * - {@link TestEnvironmentSessionNotFoundException} exception which occurs once session id
      * from PUT request to /envs/{envId} doesn't match to env's session id.
      */
@@ -74,7 +83,7 @@ public class GlobalControllerExceptionHandler {
         LOGGER.error(error.getMessage(), error);
         ResponseEntity<?> responseEntity;
         if (error.getMessage().contains("FOREIGN KEY")) {
-            responseEntity = new ResponseEntity<>("There is no such database.", HttpStatus.BAD_REQUEST);
+            responseEntity = new ResponseEntity<>("There is no such database.", BAD_REQUEST);
         } else {
             responseEntity = new ResponseEntity<>(error, INTERNAL_SERVER_ERROR);
         }
@@ -102,9 +111,11 @@ public class GlobalControllerExceptionHandler {
     }
 
     /**
-     * Handles:<p>
+     * Handles:
+     * <p>
      * - {@link WrongTestEnvironmentRunningTestSuiteException} client tries to set runningTestSuite which doesn't belong to that Test
-     * Environment; <p>
+     * Environment;
+     * <p>
      * - {@link WrongTestEnvironmentStatusException} client tries to set status which doesn't corresponds to runningTestSuite value; <p>
      * - {@link TestEnvironmentNoSessionException} client tries to perform PUT /envs/{envId} request without Environment-Session cookie. <p>
      */
