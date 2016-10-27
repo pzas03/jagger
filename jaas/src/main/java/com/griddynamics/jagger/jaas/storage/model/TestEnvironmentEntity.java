@@ -98,11 +98,9 @@ public class TestEnvironmentEntity {
         TestEnvironmentEntity that = (TestEnvironmentEntity) obj;
 
         if (!environmentId.equals(that.environmentId)) return false;
-        if (!sessionId.equals(that.sessionId)) return false;
-        if (testSuites != null && that.testSuites == null || testSuites == null && that.testSuites != null)
-            return false;
-        if (testSuites != null && that.getTestSuites() != null && !isEqualCollection(testSuites, that.testSuites))
-            return false;
+        if (sessionId != null ? !sessionId.equals(that.sessionId) : that.sessionId != null) return false;
+        if (testSuites != null && that.testSuites == null || testSuites == null && that.testSuites != null) return false;
+        if (testSuites != null && that.getTestSuites() != null && !isEqualCollection(testSuites, that.testSuites)) return false;
         if (status != that.status) return false;
         if (expirationTimestamp != that.expirationTimestamp) return false;
         return runningTestSuite != null ? runningTestSuite.equals(that.runningTestSuite) : that.runningTestSuite == null;

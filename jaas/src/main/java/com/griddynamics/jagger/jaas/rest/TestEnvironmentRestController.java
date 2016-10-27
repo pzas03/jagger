@@ -74,6 +74,7 @@ public class TestEnvironmentRestController extends AbstractController {
         testEnv.setEnvironmentId(envId);
         TestEnvironmentEntity updated = testEnvService.update(testEnv);
         setExpiresHeader(response, updated);
+        // TODO: update cookie max age somehow. Now it's not updating.
         setSessionCookie(response, updated, environmentsTtlMinutes * 60);
         return ResponseEntity.accepted().build();
     }
