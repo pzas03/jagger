@@ -94,14 +94,6 @@ public class TestEnvironmentRestController extends AbstractController {
         response.addCookie(cookie);
     }
 
-    private void updateSessionCookie(HttpServletRequest request, HttpServletResponse response, TestEnvironmentEntity testEnv,
-                                     int cookieMaxAgeSeconds) {
-
-        Cookie cookie = new Cookie(ENVIRONMENT_SESSION_COOKIE, testEnv.getSessionId());
-        cookie.setMaxAge(cookieMaxAgeSeconds);
-        response.addCookie(cookie);
-    }
-
     private String getSessionCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
