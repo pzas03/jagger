@@ -73,6 +73,12 @@ public class TestEnvironmentDaoImpl extends AbstractCrudDao<TestEnvironmentEntit
 
     @Override
     @Transactional
+    public void delete(Iterable<TestEnvironmentEntity> testEnvs) {
+        testEnvs.forEach(this::delete);
+    }
+
+    @Override
+    @Transactional
     public long count() {
         return (Long) getCurrentSession().createCriteria(TestEnvironmentEntity.class).setProjection(rowCount()).uniqueResult();
     }
@@ -83,5 +89,31 @@ public class TestEnvironmentDaoImpl extends AbstractCrudDao<TestEnvironmentEntit
         Query query = getCurrentSession().createQuery("select 1 from TestEnvironmentEntity t where t.environmentId = :id");
         query.setString("id", testEnvironmentId);
         return query.uniqueResult() != null;
+    }
+
+    @Override
+    @Transactional
+    public boolean existsWithSessionId(String testEnvironmentId, String sessionId) {
+        Query query = getCurrentSession()
+                .createQuery("select 1 from TestEnvironmentEntity t where t.environmentId = :id and t.sessionId = :sessionId" );
+        query.setString("id", testEnvironmentId);
+        query.setString("sessionId", sessionId);
+        return query.uniqueResult() != null;
+    }
+
+    @Override
+    @Transactional
+    public List<TestEnvironmentEntity> readExpired(long timestamp) {
+        Query query = getCurrentSession().createQuery("select t from TestEnvironmentEntity t where t.expirationTimestamp < :timestamp");
+        query.setLong("timestamp", timestamp);
+        return query.list();
+    }
+
+    @Override
+    @Transactional
+    public int deleteExpired(long timestamp) {
+        List<TestEnvironmentEntity> expiredEnvs = readExpired(timestamp);
+        delete(expiredEnvs);
+        return expiredEnvs.size();
     }
 }

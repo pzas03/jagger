@@ -12,7 +12,11 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.griddynamics.jagger.jaas.storage.model.TestEnvironmentEntity.TestEnvironmentStatus.PENDING;
@@ -32,6 +36,8 @@ public class TestEnvironmentDaoTest {
     private static final String TEST_SUITE_ID_1 = "test1";
     private static final String TEST_SUITE_ID_2 = "test2";
     private static final String TEST_SUITE_ID_3 = "test3";
+    private static final String SESSION_1 = "session1";
+    private static final String SESSION_2 = "session2";
 
     @Autowired
     private TestEnvironmentDao testEnvironmentDao;
@@ -193,6 +199,19 @@ public class TestEnvironmentDaoTest {
     }
 
     @Test
+    public void deleteManyTest() {
+        List<TestEnvironmentEntity> expected = getTestEnvironmentEntities();
+        testEnvironmentDao.create(expected);
+
+        testEnvironmentDao.delete(expected);
+
+        Collection<TestEnvironmentEntity> actual = testEnvironmentDao.readAll();
+
+        assertThat(actual, is(notNullValue()));
+        assertThat(actual.size(), is(0));
+    }
+
+    @Test
     public void countTest() {
         List<TestEnvironmentEntity> expected = getTestEnvironmentEntities();
         testEnvironmentDao.create(expected);
@@ -208,8 +227,50 @@ public class TestEnvironmentDaoTest {
         testEnvironmentDao.create(expected);
 
         boolean actual = testEnvironmentDao.exists(ENVIRONMENT_ID_1);
+        boolean actual2 = testEnvironmentDao.exists(ENVIRONMENT_ID_2);
 
         assertThat(actual, is(true));
+        assertThat(actual2, is(false));
+    }
+
+    @Test
+    public void existsWithSessionIdTest() {
+        TestEnvironmentEntity expected = getTestEnvironmentEntity();
+        testEnvironmentDao.create(expected);
+
+        boolean actual = testEnvironmentDao.existsWithSessionId(ENVIRONMENT_ID_1, SESSION_1);
+        boolean actual2 = testEnvironmentDao.existsWithSessionId(ENVIRONMENT_ID_1, SESSION_2);
+
+        assertThat(actual, is(true));
+        assertThat(actual2, is(false));
+    }
+
+    @Test
+    public void readExpiredTest() throws InterruptedException {
+        List<TestEnvironmentEntity> expected = getTestEnvironmentEntities();
+        testEnvironmentDao.create(expected);
+
+        TimeUnit.SECONDS.sleep(1);
+        List<TestEnvironmentEntity> actual = testEnvironmentDao.readExpired(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC));
+
+        assertThat(actual, is(notNullValue()));
+        assertThat(actual.size(), is(1));
+        assertThat(actual.get(0), is(expected.get(1)));
+    }
+
+    @Test
+    public void deleteExpiredTest() throws InterruptedException {
+        List<TestEnvironmentEntity> expected = getTestEnvironmentEntities();
+        testEnvironmentDao.create(expected);
+
+        TimeUnit.SECONDS.sleep(1);
+        testEnvironmentDao.deleteExpired(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC));
+
+        List<TestEnvironmentEntity> actual = (List<TestEnvironmentEntity>) testEnvironmentDao.readAll();
+
+        assertThat(actual, is(notNullValue()));
+        assertThat(actual.size(), is(1));
+        assertThat(actual.get(0), is(expected.get(0)));
     }
 
 
@@ -222,6 +283,8 @@ public class TestEnvironmentDaoTest {
         testSuiteEntity.setTestEnvironmentEntity(testEnvironmentEntity);
         testEnvironmentEntity.setTestSuites(newArrayList(testSuiteEntity));
         testEnvironmentEntity.setRunningTestSuite(testSuiteEntity);
+        testEnvironmentEntity.setExpirationTimestamp(LocalDateTime.now().plusMinutes(5).toEpochSecond(ZoneOffset.UTC));
+        testEnvironmentEntity.setSessionId(SESSION_1);
         return testEnvironmentEntity;
     }
 
@@ -234,6 +297,8 @@ public class TestEnvironmentDaoTest {
         testSuiteEntity.setTestEnvironmentEntity(testEnvironmentEntity1);
         testEnvironmentEntity1.setTestSuites(newArrayList(testSuiteEntity));
         testEnvironmentEntity1.setRunningTestSuite(testSuiteEntity);
+        testEnvironmentEntity1.setExpirationTimestamp(LocalDateTime.now().plusMinutes(5).toEpochSecond(ZoneOffset.UTC));
+        testEnvironmentEntity1.setSessionId(SESSION_1);
 
         TestEnvironmentEntity testEnvironmentEntity2 = new TestEnvironmentEntity();
         testEnvironmentEntity2.setEnvironmentId(ENVIRONMENT_ID_2);
@@ -245,6 +310,8 @@ public class TestEnvironmentDaoTest {
         testSuiteEntity3.setTestSuiteId(TEST_SUITE_ID_3);
         testSuiteEntity3.setTestEnvironmentEntity(testEnvironmentEntity2);
         testEnvironmentEntity2.setTestSuites(newArrayList(testSuiteEntity2, testSuiteEntity3));
+        testEnvironmentEntity2.setExpirationTimestamp(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC));
+        testEnvironmentEntity2.setSessionId(SESSION_2);
 
         return newArrayList(testEnvironmentEntity1, testEnvironmentEntity2);
     }

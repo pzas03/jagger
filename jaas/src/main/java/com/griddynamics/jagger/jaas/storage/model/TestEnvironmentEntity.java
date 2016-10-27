@@ -1,5 +1,7 @@
 package com.griddynamics.jagger.jaas.storage.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -34,6 +36,12 @@ public class TestEnvironmentEntity {
     @JoinColumn(name = "runningTestSuite")
     private TestSuiteEntity runningTestSuite;
 
+    @JsonIgnore
+    private long expirationTimestamp;
+
+    @JsonIgnore
+    private String sessionId;
+
     public String getEnvironmentId() {
         return environmentId;
     }
@@ -66,6 +74,22 @@ public class TestEnvironmentEntity {
         this.runningTestSuite = runningTestSuite;
     }
 
+    public long getExpirationTimestamp() {
+        return expirationTimestamp;
+    }
+
+    public void setExpirationTimestamp(long expirationTimestamp) {
+        this.expirationTimestamp = expirationTimestamp;
+    }
+
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
@@ -74,9 +98,13 @@ public class TestEnvironmentEntity {
         TestEnvironmentEntity that = (TestEnvironmentEntity) obj;
 
         if (!environmentId.equals(that.environmentId)) return false;
-        if (testSuites != null && that.testSuites == null || testSuites == null && that.testSuites != null) return false;
-        if (testSuites != null && that.getTestSuites() != null && !isEqualCollection(testSuites, that.testSuites)) return false;
+        if (!sessionId.equals(that.sessionId)) return false;
+        if (testSuites != null && that.testSuites == null || testSuites == null && that.testSuites != null)
+            return false;
+        if (testSuites != null && that.getTestSuites() != null && !isEqualCollection(testSuites, that.testSuites))
+            return false;
         if (status != that.status) return false;
+        if (expirationTimestamp != that.expirationTimestamp) return false;
         return runningTestSuite != null ? runningTestSuite.equals(that.runningTestSuite) : that.runningTestSuite == null;
 
     }
@@ -87,6 +115,8 @@ public class TestEnvironmentEntity {
         result = 31 * result + (testSuites != null ? testSuites.hashCode() : 0);
         result = 31 * result + status.hashCode();
         result = 31 * result + (runningTestSuite != null ? runningTestSuite.hashCode() : 0);
+        result = 31 * result + Long.hashCode(expirationTimestamp);
+        result = 31 * result + sessionId.hashCode();
         return result;
     }
 
@@ -97,6 +127,8 @@ public class TestEnvironmentEntity {
                 + ", testSuites=" + testSuites
                 + ", status=" + status
                 + ", runningTestSuite=" + runningTestSuite
+                + ", expirationTimestamp=" + expirationTimestamp
+                + ", sessionId=" + sessionId
                 + '}';
     }
 }

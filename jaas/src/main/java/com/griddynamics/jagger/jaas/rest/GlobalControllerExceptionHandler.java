@@ -1,9 +1,6 @@
 package com.griddynamics.jagger.jaas.rest;
 
-import com.griddynamics.jagger.jaas.exceptions.ResourceAlreadyExistsException;
-import com.griddynamics.jagger.jaas.exceptions.ResourceNotFoundException;
-import com.griddynamics.jagger.jaas.exceptions.TestSuiteNotFoundException;
-import com.griddynamics.jagger.jaas.exceptions.WrongTestEnvironmentStatusException;
+import com.griddynamics.jagger.jaas.exceptions.*;
 import com.griddynamics.jagger.jaas.rest.error.ErrorResponse;
 import org.hibernate.StaleStateException;
 import org.slf4j.Logger;
@@ -22,10 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import static com.griddynamics.jagger.jaas.rest.error.ErrorResponse.errorResponse;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 /**
@@ -47,15 +41,18 @@ public class GlobalControllerExceptionHandler {
     }
 
     /**
-     * Catches an {@link com.griddynamics.jagger.jaas.exceptions.ResourceNotFoundException} exception which occurs
-     * once requested resource not found.
+     * Catches:<p>
+     * - {@link ResourceNotFoundException} exception which occurs
+     * once requested resource not found. <p>
+     * - {@link TestEnvironmentSessionNotFoundException} exception which occurs once session id
+     * from PUT request to /envs/{envId} doesn't match to env's session id.
      */
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> resourceNotFound(ResourceNotFoundException rnfe) {
-        LOGGER.error(rnfe.getMessage(), rnfe);
+    @ExceptionHandler({ResourceNotFoundException.class, TestEnvironmentSessionNotFoundException.class})
+    public ResponseEntity<ErrorResponse> resourceNotFound(RuntimeException exception) {
+        LOGGER.error(exception.getMessage(), exception);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(APPLICATION_JSON);
-        return new ResponseEntity<>(errorResponse(rnfe.getMessage(), NOT_FOUND), httpHeaders, NOT_FOUND);
+        return new ResponseEntity<>(errorResponse(exception.getMessage(), NOT_FOUND), httpHeaders, NOT_FOUND);
     }
 
     /**
@@ -105,12 +102,15 @@ public class GlobalControllerExceptionHandler {
     }
 
     /**
-     * Handles exceptions which occur if client tries to set:
-     * - runningTestSuite which doesn't belong to that Test Environment or
-     * - status which doesn't corresponds to runningTestSuite value.
+     * Handles:<p>
+     * - {@link WrongTestEnvironmentRunningTestSuiteException} client tries to set runningTestSuite which doesn't belong to that Test
+     * Environment; <p>
+     * - {@link WrongTestEnvironmentStatusException} client tries to set status which doesn't corresponds to runningTestSuite value; <p>
+     * - {@link TestEnvironmentNoSessionException} client tries to perform PUT /envs/{envId} request without Environment-Session cookie. <p>
      */
-    @ExceptionHandler({TestSuiteNotFoundException.class, WrongTestEnvironmentStatusException.class})
-    public ResponseEntity<ErrorResponse> badTestSuite(TestSuiteNotFoundException exception) {
+    @ExceptionHandler({WrongTestEnvironmentRunningTestSuiteException.class, WrongTestEnvironmentStatusException.class,
+            TestEnvironmentNoSessionException.class})
+    public ResponseEntity<ErrorResponse> badTestSuite(RuntimeException exception) {
         LOGGER.error(exception.getMessage(), exception);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(APPLICATION_JSON);

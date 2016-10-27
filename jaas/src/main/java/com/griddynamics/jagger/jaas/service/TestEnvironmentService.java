@@ -9,11 +9,13 @@ public interface TestEnvironmentService {
 
     List<TestEnvironmentEntity> readAll();
 
-    void create(TestEnvironmentEntity testEnvironment);
+    TestEnvironmentEntity create(TestEnvironmentEntity testEnvironment);
 
-    void update(TestEnvironmentEntity testEnvironment);
+    TestEnvironmentEntity update(TestEnvironmentEntity testEnvironment);
 
     void delete(String envId);
 
     boolean exists(String envId);
+
+    boolean existsWithSessionId(String envId, String sessionId);
 }

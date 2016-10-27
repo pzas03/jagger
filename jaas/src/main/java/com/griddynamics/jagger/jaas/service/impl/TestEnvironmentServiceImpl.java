@@ -1,18 +1,18 @@
 package com.griddynamics.jagger.jaas.service.impl;
 
-import com.griddynamics.jagger.jaas.exceptions.TestSuiteNotFoundException;
+import com.griddynamics.jagger.jaas.exceptions.WrongTestEnvironmentRunningTestSuiteException;
 import com.griddynamics.jagger.jaas.exceptions.WrongTestEnvironmentStatusException;
 import com.griddynamics.jagger.jaas.service.TestEnvironmentService;
 import com.griddynamics.jagger.jaas.storage.TestEnvironmentDao;
 import com.griddynamics.jagger.jaas.storage.model.TestEnvironmentEntity;
 import com.griddynamics.jagger.jaas.storage.model.TestSuiteEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
@@ -26,6 +26,9 @@ import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 
 @Service
 public class TestEnvironmentServiceImpl implements TestEnvironmentService {
+
+    @Value("${environments.ttl.minutes}")
+    private int environmentsTtlMinutes;
 
     private TestEnvironmentDao testEnvironmentDao;
 
@@ -45,13 +48,16 @@ public class TestEnvironmentServiceImpl implements TestEnvironmentService {
     }
 
     @Override
-    public void create(TestEnvironmentEntity testEnvironment) {
+    public TestEnvironmentEntity create(TestEnvironmentEntity testEnvironment) {
         fillTestSuites(testEnvironment);
+        testEnvironment.setExpirationTimestamp(getExpirationTimestamp());
+        testEnvironment.setSessionId(UUID.randomUUID().toString());
         testEnvironmentDao.create(testEnvironment);
+        return testEnvironment;
     }
 
     @Override
-    public void update(TestEnvironmentEntity newTestEnv) {
+    public TestEnvironmentEntity update(TestEnvironmentEntity newTestEnv) {
         TestEnvironmentEntity testEnvToUpdate = read(newTestEnv.getEnvironmentId());
 
         if (newTestEnv.getRunningTestSuite() != null && newTestEnv.getStatus() == RUNNING
@@ -80,7 +86,9 @@ public class TestEnvironmentServiceImpl implements TestEnvironmentService {
             testEnvToUpdate.setRunningTestSuite(getNewRunningTestSuite(newTestEnv, testEnvToUpdate));
         }
         fillTestSuites(testEnvToUpdate);
+        testEnvToUpdate.setExpirationTimestamp(getExpirationTimestamp());
         testEnvironmentDao.update(testEnvToUpdate);
+        return testEnvToUpdate;
     }
 
     @Override
@@ -93,6 +101,11 @@ public class TestEnvironmentServiceImpl implements TestEnvironmentService {
         return testEnvironmentDao.exists(envId);
     }
 
+    @Override
+    public boolean existsWithSessionId(String envId, String sessionId) {
+        return testEnvironmentDao.existsWithSessionId(envId, sessionId);
+    }
+
     private TestSuiteEntity getNewRunningTestSuite(TestEnvironmentEntity newTestEnv, TestEnvironmentEntity testEnvToUpdate) {
         if (newTestEnv.getRunningTestSuite() == null)
             return null;
@@ -102,12 +115,12 @@ public class TestEnvironmentServiceImpl implements TestEnvironmentService {
                     .collect(toMap(TestSuiteEntity::getTestSuiteId, identity()));
             TestSuiteEntity newRunningTestSuite = testSuites.get(newTestEnv.getRunningTestSuite().getTestSuiteId());
 
-            return Optional.ofNullable(newRunningTestSuite).orElseThrow(() -> new TestSuiteNotFoundException(
+            return Optional.ofNullable(newRunningTestSuite).orElseThrow(() -> new WrongTestEnvironmentRunningTestSuiteException(
                     format("Running TestSuite[id=%s] cannot be set to TestEnvironment[id=%s]. Possible TestSuites: %s.",
                             newTestEnv.getRunningTestSuite().getTestSuiteId(), newTestEnv.getEnvironmentId(), testSuites.keySet())));
         }
 
-        throw new TestSuiteNotFoundException(
+        throw new WrongTestEnvironmentRunningTestSuiteException(
                 format("Running TestSuite[id=%s] cannot be set to TestEnvironment[id=%s], since it doesn't belong to it.",
                         newTestEnv.getRunningTestSuite().getTestSuiteId(), newTestEnv.getEnvironmentId()));
     }
@@ -119,5 +132,9 @@ public class TestEnvironmentServiceImpl implements TestEnvironmentService {
                     .forEach(suite -> suite.setTestEnvironmentEntity(testEnv));
         if (testEnv.getRunningTestSuite() != null && testEnv.getRunningTestSuite().getTestEnvironmentEntity() == null)
             testEnv.getRunningTestSuite().setTestEnvironmentEntity(testEnv);
+    }
+
+    private long getExpirationTimestamp() {
+        return ZonedDateTime.now().plusMinutes(environmentsTtlMinutes).withZoneSameInstant(ZoneOffset.UTC).toInstant().toEpochMilli();
     }
 }
