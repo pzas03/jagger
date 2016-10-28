@@ -12,8 +12,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -21,6 +19,8 @@ import java.util.concurrent.TimeUnit;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.griddynamics.jagger.jaas.storage.model.TestEnvironmentEntity.TestEnvironmentStatus.PENDING;
 import static com.griddynamics.jagger.jaas.storage.model.TestEnvironmentEntity.TestEnvironmentStatus.RUNNING;
+import static java.time.ZoneOffset.UTC;
+import static java.time.ZonedDateTime.now;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -251,11 +251,17 @@ public class TestEnvironmentDaoTest {
         testEnvironmentDao.create(expected);
 
         TimeUnit.SECONDS.sleep(1);
-        List<TestEnvironmentEntity> actual = testEnvironmentDao.readExpired(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC));
+        List<TestEnvironmentEntity> actual = testEnvironmentDao.readExpired(now().withZoneSameInstant(UTC).toInstant().toEpochMilli());
+
+        TimeUnit.SECONDS.sleep(4);
+        List<TestEnvironmentEntity> actual2 = testEnvironmentDao.readExpired(now().withZoneSameInstant(UTC).toInstant().toEpochMilli());
 
         assertThat(actual, is(notNullValue()));
         assertThat(actual.size(), is(1));
         assertThat(actual.get(0), is(expected.get(1)));
+
+        assertThat(actual2, is(notNullValue()));
+        assertThat(actual2.size(), is(2));
     }
 
     @Test
@@ -264,13 +270,19 @@ public class TestEnvironmentDaoTest {
         testEnvironmentDao.create(expected);
 
         TimeUnit.SECONDS.sleep(1);
-        testEnvironmentDao.deleteExpired(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC));
-
+        testEnvironmentDao.deleteExpired(now().withZoneSameInstant(UTC).toInstant().toEpochMilli());
         List<TestEnvironmentEntity> actual = (List<TestEnvironmentEntity>) testEnvironmentDao.readAll();
+
+        TimeUnit.SECONDS.sleep(4);
+        testEnvironmentDao.deleteExpired(now().withZoneSameInstant(UTC).toInstant().toEpochMilli());
+        List<TestEnvironmentEntity> actual2 = (List<TestEnvironmentEntity>) testEnvironmentDao.readAll();
 
         assertThat(actual, is(notNullValue()));
         assertThat(actual.size(), is(1));
         assertThat(actual.get(0), is(expected.get(0)));
+
+        assertThat(actual2, is(notNullValue()));
+        assertThat(actual2.size(), is(0));
     }
 
 
@@ -283,7 +295,7 @@ public class TestEnvironmentDaoTest {
         testSuiteEntity.setTestEnvironmentEntity(testEnvironmentEntity);
         testEnvironmentEntity.setTestSuites(newArrayList(testSuiteEntity));
         testEnvironmentEntity.setRunningTestSuite(testSuiteEntity);
-        testEnvironmentEntity.setExpirationTimestamp(LocalDateTime.now().plusMinutes(5).toEpochSecond(ZoneOffset.UTC));
+        testEnvironmentEntity.setExpirationTimestamp(now().plusSeconds(5).withZoneSameInstant(UTC).toInstant().toEpochMilli());
         testEnvironmentEntity.setSessionId(SESSION_1);
         return testEnvironmentEntity;
     }
@@ -297,7 +309,7 @@ public class TestEnvironmentDaoTest {
         testSuiteEntity.setTestEnvironmentEntity(testEnvironmentEntity1);
         testEnvironmentEntity1.setTestSuites(newArrayList(testSuiteEntity));
         testEnvironmentEntity1.setRunningTestSuite(testSuiteEntity);
-        testEnvironmentEntity1.setExpirationTimestamp(LocalDateTime.now().plusMinutes(5).toEpochSecond(ZoneOffset.UTC));
+        testEnvironmentEntity1.setExpirationTimestamp(now().plusSeconds(5).withZoneSameInstant(UTC).toInstant().toEpochMilli());
         testEnvironmentEntity1.setSessionId(SESSION_1);
 
         TestEnvironmentEntity testEnvironmentEntity2 = new TestEnvironmentEntity();
@@ -310,7 +322,7 @@ public class TestEnvironmentDaoTest {
         testSuiteEntity3.setTestSuiteId(TEST_SUITE_ID_3);
         testSuiteEntity3.setTestEnvironmentEntity(testEnvironmentEntity2);
         testEnvironmentEntity2.setTestSuites(newArrayList(testSuiteEntity2, testSuiteEntity3));
-        testEnvironmentEntity2.setExpirationTimestamp(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC));
+        testEnvironmentEntity2.setExpirationTimestamp(now().withZoneSameInstant(UTC).toInstant().toEpochMilli());
         testEnvironmentEntity2.setSessionId(SESSION_2);
 
         return newArrayList(testEnvironmentEntity1, testEnvironmentEntity2);

@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import static java.time.ZoneOffset.UTC;
+import static java.time.ZonedDateTime.now;
 
 @Service
 public class TestEnvironmentExpirationService {
@@ -24,7 +24,7 @@ public class TestEnvironmentExpirationService {
 
     @Scheduled(fixedRateString = "${environments.cleaning.job.periodicity}")
     public void deleteExpiredEnvironmentsTask() {
-        long nowTimestampInUtc = LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli();
+        long nowTimestampInUtc = now().withZoneSameInstant(UTC).toInstant().toEpochMilli();
         int deleted = testEnvironmentDao.deleteExpired(nowTimestampInUtc);
         LOGGER.info(deleted + " expired test environments deleted.");
     }

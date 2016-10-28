@@ -2,6 +2,7 @@ package com.griddynamics.jagger.jaas.rest;
 
 import com.griddynamics.jagger.jaas.exceptions.ResourceAlreadyExistsException;
 import com.griddynamics.jagger.jaas.exceptions.ResourceNotFoundException;
+import com.griddynamics.jagger.jaas.exceptions.TestEnvironmentInvalidIdException;
 import com.griddynamics.jagger.jaas.exceptions.TestEnvironmentNoSessionException;
 import com.griddynamics.jagger.jaas.exceptions.TestEnvironmentSessionNotFoundException;
 import com.griddynamics.jagger.jaas.exceptions.WrongTestEnvironmentRunningTestSuiteException;
@@ -118,9 +119,10 @@ public class GlobalControllerExceptionHandler {
      * <p>
      * - {@link WrongTestEnvironmentStatusException} client tries to set status which doesn't corresponds to runningTestSuite value; <p>
      * - {@link TestEnvironmentNoSessionException} client tries to perform PUT /envs/{envId} request without Environment-Session cookie. <p>
+     * - {@link TestEnvironmentInvalidIdException} client tries to create TestEnvironment with invalid id. <p>
      */
     @ExceptionHandler({WrongTestEnvironmentRunningTestSuiteException.class, WrongTestEnvironmentStatusException.class,
-            TestEnvironmentNoSessionException.class})
+            TestEnvironmentNoSessionException.class, TestEnvironmentInvalidIdException.class})
     public ResponseEntity<ErrorResponse> badTestSuite(RuntimeException exception) {
         LOGGER.error(exception.getMessage(), exception);
         HttpHeaders httpHeaders = new HttpHeaders();

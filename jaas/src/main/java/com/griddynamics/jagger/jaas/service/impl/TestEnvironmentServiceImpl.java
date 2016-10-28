@@ -10,8 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +21,8 @@ import static com.google.common.collect.Sets.newHashSet;
 import static com.griddynamics.jagger.jaas.storage.model.TestEnvironmentEntity.TestEnvironmentStatus.PENDING;
 import static com.griddynamics.jagger.jaas.storage.model.TestEnvironmentEntity.TestEnvironmentStatus.RUNNING;
 import static java.lang.String.format;
+import static java.time.ZoneOffset.UTC;
+import static java.time.ZonedDateTime.now;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.collections.CollectionUtils.isEqualCollection;
@@ -139,6 +139,6 @@ public class TestEnvironmentServiceImpl implements TestEnvironmentService {
     }
 
     private long getExpirationTimestamp() {
-        return ZonedDateTime.now().plusMinutes(environmentsTtlMinutes).withZoneSameInstant(ZoneOffset.UTC).toInstant().toEpochMilli();
+        return now().plusMinutes(environmentsTtlMinutes).withZoneSameInstant(UTC).toInstant().toEpochMilli();
     }
 }
