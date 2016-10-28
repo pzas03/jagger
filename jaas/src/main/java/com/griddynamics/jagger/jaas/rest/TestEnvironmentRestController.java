@@ -39,6 +39,7 @@ public class TestEnvironmentRestController extends AbstractController {
 
     private static final String ENVIRONMENT_SESSION_COOKIE = "Environment-Session";
     private static final String HEADER_DATE_FORMAT = "dd MMM yyyy HH:mm:ss O";
+    private static final String ENV_ID_PATTERN = "^[a-zA-Z0-9\\._\\-]{1,249}$";
 
     @Value("${environments.ttl.minutes}")
     private int environmentsTtlMinutes;
@@ -97,7 +98,7 @@ public class TestEnvironmentRestController extends AbstractController {
 
     private void validateTestEnvId(TestEnvironmentEntity testEnv) {
         String envId = testEnv.getEnvironmentId();
-        Pattern envIdPattern = Pattern.compile("^[a-zA-Z0-9\\._\\-]{1,249}$");
+        Pattern envIdPattern = Pattern.compile(ENV_ID_PATTERN);
         Matcher matcher = envIdPattern.matcher(envId);
         if (!matcher.matches())
             throw new TestEnvironmentInvalidIdException(envId, envIdPattern);
