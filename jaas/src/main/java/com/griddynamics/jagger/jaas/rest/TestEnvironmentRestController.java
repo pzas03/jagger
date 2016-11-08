@@ -132,8 +132,8 @@ public class TestEnvironmentRestController extends AbstractController {
         if (!matcher.matches())
             throw new TestEnvironmentInvalidIdException(envId, envIdPattern);
 
-        if (testEnv.getRunningTestSuite() != null && testEnv.getStatus() == RUNNING
-                || testEnv.getRunningTestSuite() == null && testEnv.getStatus() == PENDING)
+        if (testEnv.getRunningTestSuite() == null && testEnv.getStatus() == RUNNING
+                || testEnv.getRunningTestSuite() != null && testEnv.getStatus() == PENDING)
             throw new WrongTestEnvironmentStatusException(testEnv.getStatus(), testEnv.getRunningTestSuite());
     }
 
