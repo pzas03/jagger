@@ -112,7 +112,7 @@ public class TestEnvironmentRestController extends AbstractController {
             + "which is required for PUT request. This cookie is valid only for Test Environment with envId which was specified in request body.")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Creation is successful."),
-            @ApiResponse(code = 400, message = "envId doesn't match " + ENV_ID_PATTERN + " OR status doesn't correspond to runningTestSuite value."),
+            @ApiResponse(code = 400, message = "envId doesn't match " + ENV_ID_PATTERN + " OR status is inconsistent with runningTestSuite."),
             @ApiResponse(code = 409, message = "Test Environment with provided envId already exists.")})
     public ResponseEntity<?> createTestEnvironment(@RequestBody TestEnvironmentEntity testEnv, HttpServletResponse response) {
         validateTestEnv(testEnv);
