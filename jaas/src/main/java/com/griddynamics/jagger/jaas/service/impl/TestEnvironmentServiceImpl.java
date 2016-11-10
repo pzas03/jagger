@@ -1,16 +1,5 @@
 package com.griddynamics.jagger.jaas.service.impl;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newHashSet;
-import static com.griddynamics.jagger.jaas.storage.model.TestEnvironmentEntity.TestEnvironmentStatus.PENDING;
-import static com.griddynamics.jagger.jaas.storage.model.TestEnvironmentEntity.TestEnvironmentStatus.RUNNING;
-import static java.lang.String.format;
-import static java.time.ZonedDateTime.now;
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toMap;
-import static org.apache.commons.collections.CollectionUtils.isEqualCollection;
-import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
-
 import com.griddynamics.jagger.jaas.exceptions.WrongTestEnvironmentRunningTestSuiteException;
 import com.griddynamics.jagger.jaas.exceptions.WrongTestEnvironmentStatusException;
 import com.griddynamics.jagger.jaas.service.TestEnvironmentService;
@@ -26,6 +15,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
+import static com.griddynamics.jagger.jaas.storage.model.TestEnvironmentEntity.TestEnvironmentStatus.PENDING;
+import static com.griddynamics.jagger.jaas.storage.model.TestEnvironmentEntity.TestEnvironmentStatus.RUNNING;
+import static java.lang.String.format;
+import static java.time.ZonedDateTime.now;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
+import static org.apache.commons.collections.CollectionUtils.isEqualCollection;
+import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 
 @Service
 public class TestEnvironmentServiceImpl implements TestEnvironmentService {
@@ -62,6 +62,7 @@ public class TestEnvironmentServiceImpl implements TestEnvironmentService {
     @Override
     public TestEnvironmentEntity update(TestEnvironmentEntity newTestEnv) {
         TestEnvironmentEntity testEnvToUpdate = read(newTestEnv.getEnvironmentId());
+        fillTestSuites(newTestEnv, testEnvToUpdate);
 
         if (newTestEnv.getRunningTestSuite() != null && newTestEnv.getStatus() == RUNNING
                 || newTestEnv.getRunningTestSuite() == null && newTestEnv.getStatus() == PENDING)
@@ -129,12 +130,16 @@ public class TestEnvironmentServiceImpl implements TestEnvironmentService {
     }
 
     private void fillTestSuites(TestEnvironmentEntity testEnv) {
-        if (isNotEmpty(testEnv.getTestSuites()))
-            testEnv.getTestSuites().stream()
+        fillTestSuites(testEnv, testEnv);
+    }
+
+    private void fillTestSuites(TestEnvironmentEntity testEnvToBeFilled, TestEnvironmentEntity testEnvToSet) {
+        if (isNotEmpty(testEnvToBeFilled.getTestSuites()))
+            testEnvToBeFilled.getTestSuites().stream()
                     .filter(suite -> suite.getTestEnvironmentEntity() == null)
-                    .forEach(suite -> suite.setTestEnvironmentEntity(testEnv));
-        if (testEnv.getRunningTestSuite() != null && testEnv.getRunningTestSuite().getTestEnvironmentEntity() == null)
-            testEnv.getRunningTestSuite().setTestEnvironmentEntity(testEnv);
+                    .forEach(suite -> suite.setTestEnvironmentEntity(testEnvToSet));
+        if (testEnvToBeFilled.getRunningTestSuite() != null && testEnvToBeFilled.getRunningTestSuite().getTestEnvironmentEntity() == null)
+            testEnvToBeFilled.getRunningTestSuite().setTestEnvironmentEntity(testEnvToSet);
     }
 
     private long getExpirationTimestamp() {
