@@ -79,4 +79,12 @@ public class TestSuiteEntity implements Serializable {
         result = 31 * result + (envId != null ? envId.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "TestSuiteEntity{" +
+                "testSuiteId='" + testSuiteId + '\'' +
+                ", testEnvironmentId=" + (testEnvironmentEntity != null ? testEnvironmentEntity.getEnvironmentId() : null) +
+                '}';
+    }
 }
