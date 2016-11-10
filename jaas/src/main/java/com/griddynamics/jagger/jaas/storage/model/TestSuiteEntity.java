@@ -59,11 +59,11 @@ public class TestSuiteEntity implements Serializable {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
 
-        TestSuiteEntity that = (TestSuiteEntity) o;
+        TestSuiteEntity that = (TestSuiteEntity) obj;
 
         if (testSuiteId != null ? !testSuiteId.equals(that.testSuiteId) : that.testSuiteId != null) return false;
         String envId = testEnvironmentEntity != null ? testEnvironmentEntity.getEnvironmentId() : null;
