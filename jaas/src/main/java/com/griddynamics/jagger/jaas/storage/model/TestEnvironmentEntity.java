@@ -13,14 +13,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import java.io.Serializable;
 import java.util.List;
 
 import static org.apache.commons.collections.CollectionUtils.isEqualCollection;
 
 @Entity
 @Table(name = "test_environment_entity")
-public class TestEnvironmentEntity implements Serializable {
+public class TestEnvironmentEntity {
     public enum TestEnvironmentStatus {
         PENDING, RUNNING
     }

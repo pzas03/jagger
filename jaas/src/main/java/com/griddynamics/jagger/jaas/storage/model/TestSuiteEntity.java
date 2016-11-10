@@ -11,7 +11,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import java.io.Serializable;
 
 /**
  * This entity represents Test Suite configuration. Currently it has only testSuiteId field, but in future it will be extended
@@ -19,7 +18,7 @@ import java.io.Serializable;
  */
 @Entity
 @Table(name = "test_suite_entity", uniqueConstraints = @UniqueConstraint(columnNames = {"`test_suite_id`", "`environment_id`"}))
-public class TestSuiteEntity implements Serializable {
+public class TestSuiteEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
