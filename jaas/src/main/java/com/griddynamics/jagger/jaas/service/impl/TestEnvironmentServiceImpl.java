@@ -55,7 +55,20 @@ public class TestEnvironmentServiceImpl implements TestEnvironmentService {
         fillTestSuites(testEnvironment);
         testEnvironment.setExpirationTimestamp(getExpirationTimestamp());
         testEnvironment.setSessionId(UUID.randomUUID().toString());
-        testEnvironmentDao.create(testEnvironment);
+        if (testEnvironment.getRunningTestSuite() == null) {
+            testEnvironmentDao.create(testEnvironment);
+        } else {
+            // Due to unique constraint in TestSuite runningTestSuite cannot be persisted until all test suites are persisted.
+            // Hence, firstly test env is persisted without running test suite and after running test suite can be set
+            TestSuiteEntity runningTestSuite = testEnvironment.getRunningTestSuite();
+            testEnvironment.setRunningTestSuite(null);
+            testEnvironment.setStatus(PENDING);
+            testEnvironmentDao.create(testEnvironment);
+
+            testEnvironment.setRunningTestSuite(runningTestSuite);
+            testEnvironment.setStatus(RUNNING);
+            update(testEnvironment);
+        }
         return testEnvironment;
     }
 
