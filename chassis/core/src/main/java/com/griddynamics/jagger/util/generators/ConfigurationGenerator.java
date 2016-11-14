@@ -67,7 +67,11 @@ public class ConfigurationGenerator {
     
     public Configuration generate() {
         if (useBuilders) {
-            return generate(jTestSuiteNameToExecute);
+            JTestSuite jTestSuite = userJTestSuites.get(jTestSuiteNameToExecute);
+            if (jTestSuite == null) {
+                throw new IllegalArgumentException(String.format("No Jagger test suite with name %s", jTestSuiteNameToExecute));
+            }
+            return generate(jTestSuite);
         }
 
         Configuration configuration = configurations.get(jTestSuiteNameToExecute);
@@ -75,15 +79,6 @@ public class ConfigurationGenerator {
             throw new IllegalArgumentException(String.format("No Jagger configuration with name %s", jTestSuiteNameToExecute));
         }
         return configuration;
-    }
-    
-    
-    public Configuration generate(String userJTestSuiteName) {
-        JTestSuite jTestSuite = userJTestSuites.get(userJTestSuiteName);
-        if (jTestSuite == null) {
-            throw new IllegalArgumentException(String.format("No Jagger test suite with name %s", userJTestSuiteName));
-        }
-        return generate(jTestSuite);
     }
     
     /**
