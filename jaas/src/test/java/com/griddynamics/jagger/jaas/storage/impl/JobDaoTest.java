@@ -141,6 +141,19 @@ public class JobDaoTest {
         assertThat(jobDao.readAll().size(), is(1));
     }
 
+    @Test
+    public void existsTest() {
+        JobEntity expected = getJobEntity();
+        jobDao.create(expected);
+
+        boolean actual = jobDao.exists(1L);
+        boolean actual2 = jobDao.exists(2L);
+
+        assertThat(actual, is(true));
+        assertThat(actual2, is(false));
+    }
+
+
     private JobEntity getJobEntity() {
         JobEntity jobEntity = new JobEntity();
 
@@ -151,7 +164,7 @@ public class JobDaoTest {
         return jobEntity;
     }
 
-    private List<JobEntity> getJobEntities() {
+    static List<JobEntity> getJobEntities() {
         JobEntity jobEntity1 = new JobEntity();
         jobEntity1.setEnvId(ENVIRONMENT_ID_1);
         jobEntity1.setTestSuiteId(TEST_SUITE_ID_1);
