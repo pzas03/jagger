@@ -1,4 +1,4 @@
-package com.griddynamics.jagger.util.generators;
+package com.griddynamics.jagger;
 
 import com.griddynamics.jagger.invoker.v2.JHttpQuery;
 
@@ -16,11 +16,18 @@ public class ExampleQueriesProvider  implements Iterable {
         List<JHttpQuery> queries = new ArrayList<>();
         queries.add(new JHttpQuery()
                 .get()
-                .path("/files/archive/spec/2.11/"));
+                .path("index.html"));
+
         queries.add(new JHttpQuery()
                 .get()
                 .responseBodyType(String.class)
-                .path("files", "archive", "spec", "2.11"));
+                .path("screenshots.html"));
+
+        queries.add(new JHttpQuery()
+                .get()
+                .responseBodyType(String.class)
+                .path("download.html"));
+        
         return queries.iterator();
     }
 }
