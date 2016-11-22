@@ -28,7 +28,7 @@ import java.util.Objects;
  * {@link JHttpEndpoint#hostname} and {@link JHttpEndpoint#port} fields. <p>
  *
  * @author Anton Antonenko
- * @since 1.3
+ * @since 2.0
  */
 public class JHttpEndpoint implements Serializable {
 
