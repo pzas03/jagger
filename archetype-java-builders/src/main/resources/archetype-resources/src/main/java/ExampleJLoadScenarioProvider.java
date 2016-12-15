@@ -46,6 +46,7 @@ import ${package}.util.JaggerPropertiesProvider;
 @Configuration
 public class ExampleJLoadScenarioProvider extends JaggerPropertiesProvider {
 
+    // begin: following section is used for docu generation - Detailed load test scenario configuration
     @Bean
     public JLoadScenario exampleJaggerLoadScenario() {
 
@@ -105,6 +106,7 @@ public class ExampleJLoadScenarioProvider extends JaggerPropertiesProvider {
                             .addListener(new ExampleLoadScenarioListener())
                             .build();
     }
+    // end: following section is used for docu generation - Detailed load test scenario configuration
 
     @Bean
     public JLoadScenario myFirstJaggerLoadScenario() {

@@ -79,10 +79,14 @@ public class ExampleJLoadScenarioProvider {
                 .withLimits(successrateLimit, throughputLimit)
                 .build();
 
+        // begin: following section is used for docu generation - example of the test group listener
+
         JParallelTestsGroup jParallelTestsGroup = JParallelTestsGroup
                 .builder(Id.of("exampleJaggerParallelTestsGroup"), jLoadTest)
                 .addListener(new ExampleTestGroupListener())
                 .build();
+
+        // end: following section is used for docu generation - example of the test group listener
 
         // For JLoadScenario which is supposed to be executed by Jagger its ID must be set to 'jagger.load.scenario.id.to.execute' property's value
         return JLoadScenario.builder(Id.of("exampleJaggerLoadScenario"), jParallelTestsGroup)
