@@ -23,7 +23,7 @@
 
     <groupId>com.griddynamics.jagger</groupId>
     <artifactId>parent</artifactId>
-    <version>2.0-SNAPSHOT</version>
+    <version>2.0-rc1</version>
     <packaging>pom</packaging>
 
     <name>${groupId}.${artifactId}</name>
@@ -70,7 +70,8 @@
         <url>https://github.com/griddynamics/jagger</url>
         <connection>scm:git:git://github.com/griddynamics/jagger.git</connection>
         <developerConnection>scm:git:git@github.com:griddynamics/jagger.git</developerConnection>
-    </scm>
+      <tag>parent-2.0-rc1</tag>
+  </scm>
 
     <issueManagement>
         <url>https://github.com/griddynamics/jagger/issues</url>
