@@ -23,9 +23,9 @@ import java.util.Random;
  * Provides load balancer aka distributor (how to pair endpoints and queries) (subtypes of {@link QueryPoolLoadBalancer}).
  */
 public class JLoadBalancer implements Serializable {
-    
+
     private final static Logger log = LoggerFactory.getLogger(JLoadBalancer.class);
-    
+
     /**
      * Creates {@link Builder} of load balancer
      *
@@ -34,7 +34,7 @@ public class JLoadBalancer implements Serializable {
     public static Builder builder(DefaultLoadBalancer loadBalancer) {
         return new Builder(loadBalancer);
     }
-    
+
     /**
      * Default load balancers.
      *
@@ -44,13 +44,13 @@ public class JLoadBalancer implements Serializable {
     public enum DefaultLoadBalancer {
         ROUND_ROBIN, ONE_BY_ONE
     }
-    
+
     public static class Builder {
         private final DefaultLoadBalancer loadBalancer;
         private Long seed;
         private boolean exclusiveAccess;
         private boolean oneIterationOnly;
-        
+
         /**
          * Creates {@link Builder} of load balancer
          *
@@ -59,7 +59,7 @@ public class JLoadBalancer implements Serializable {
         public Builder(DefaultLoadBalancer loadBalancer) {
             this.loadBalancer = loadBalancer;
         }
-        
+
         /**
          * Optional: Calling this setter will produce a load balancer
          * which randomly picks an endpoint & query pair to provide
@@ -73,7 +73,7 @@ public class JLoadBalancer implements Serializable {
             this.seed = seed;
             return this;
         }
-        
+
         /**
          * Optional: If this flag is true the builder will produce a load balancer with an exclusive access
          * to each endpoint & query pair. That means once a virtual user acquires a pair
@@ -86,7 +86,7 @@ public class JLoadBalancer implements Serializable {
             this.exclusiveAccess = true;
             return this;
         }
-    
+
         /**
          * Optional: If this flag is true the builder will produce a load balancer
          * which provides each pair only once (does only one iteration over a sequence of those pairs)
@@ -96,15 +96,15 @@ public class JLoadBalancer implements Serializable {
         public Builder withUniqueAccess() {
             this.oneIterationOnly = true;
             this.exclusiveAccess = true;
-            
+
             return this;
         }
-        
+
         /**
          * @return Load balancer (subtype of {@link QueryPoolLoadBalancer})
          */
         public QueryPoolLoadBalancer build() {
-            
+
             PairSupplierFactory pairSupplierFactory = null;
             switch (loadBalancer) {
                 case ONE_BY_ONE:
@@ -115,7 +115,7 @@ public class JLoadBalancer implements Serializable {
                     pairSupplierFactory = new RoundRobinPairSupplierFactory();
                     break;
             }
-    
+
             PairSupplierFactoryLoadBalancer loadBalancer = null;
             if (exclusiveAccess) {
                 if (oneIterationOnly) {
@@ -131,7 +131,7 @@ public class JLoadBalancer implements Serializable {
                     loadBalancer = new SimpleCircularLoadBalancer(pairSupplierFactory);
                 }
             }
-    
+
             log.info("Built a {} load balancer", loadBalancer);
             return loadBalancer;
         }
