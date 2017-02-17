@@ -174,7 +174,7 @@ public class SummaryReporter {
             standardMetricsIds.add(StandardMetricsNamesUtil.THROUGHPUT_ID);
             standardMetricsIds.add(StandardMetricsNamesUtil.SUCCESS_RATE_ID);
             standardMetricsIds.add(StandardMetricsNamesUtil.LATENCY_ID);
-            standardMetricsIds.add(StandardMetricsNamesUtil.LATENCY_STD_DEV_ID);
+            standardMetricsIds.add(StandardMetricsNamesUtil.LATENCY_STD_DEV_AGG_ID);
             standardMetricsIds.add(StandardMetricsNamesUtil.ITERATION_SAMPLES_ID);
             standardMetricsIds.add(StandardMetricsNamesUtil.VIRTUAL_USERS_ID);
 
@@ -220,9 +220,9 @@ public class SummaryReporter {
                     }
 
                     // Latency percentiles
-                    if (metricEntity.getMetricId().matches("^" + StandardMetricsNamesUtil.LATENCY_PERCENTILE_REGEX)) {
+                    if (metricEntity.getMetricId().matches("^" + StandardMetricsNamesUtil.LATENCY_PERCENTILE_ID_REGEX)) {
                         // change key (name) for back compatibility
-                        value.setKey(metricEntity.getDisplayName().replace("Latency ", "").concat("  -  "));
+                        value.setKey(StandardMetricsNamesUtil.parseLatencyPercentileKey(metricEntity.getMetricId()) + "% - ");
                         latencyPercentilesList.add(value);
                     } else {
                         summaries.put(metricEntity.getMetricId(), value);
@@ -236,7 +236,7 @@ public class SummaryReporter {
 
                 if (summaries.keySet().stream().anyMatch(StandardMetricsNamesUtil::isBelongingToScenario)) {
                       summaryList.addAll(ScenarioSummaryExtractor.extractScenarioSummary(summaries));
-                    
+
                 } else {
                     summaryList.addAll(summaries.values());
                     localRankingProvider.sortSummaryDto(summaryList);

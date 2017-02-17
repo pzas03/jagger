@@ -701,6 +701,7 @@
                 <artifactId>maven-overview-plugin</artifactId>
                 <version>1.6</version>
             </plugin>
+
         </plugins>
     </reporting>
     <profiles>
