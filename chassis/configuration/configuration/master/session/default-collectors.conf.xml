@@ -4,8 +4,7 @@
   ~ http://www.griddynamics.com
   ~
   ~ This library is free software; you can redistribute it and/or modify it under the terms of
-  ~ the GNU Lesser General Public License as published by the Free Software Foundation; either
-  ~ version 2.1 of the License, or any later version.
+  ~ Apache License; either version 2.0 of the License, or any later version
   ~
   ~ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
   ~ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -25,6 +24,7 @@
 
 	<bean id="basicSessionCollector" class="com.griddynamics.jagger.engine.e1.collector.BasicSessionCollector">
 		<property name="keyValueStorage" ref="h2KeyValueStorage"/>
+        <property name="taskExecutionStatusProvider" ref="taskStatusProvider"/>
 	</bean>
 
 	<bean id="e1MasterCollector" class="com.griddynamics.jagger.engine.e1.collector.MasterWorkloadCollector">
@@ -38,10 +38,6 @@
 	<bean id="informationCollector" class="com.griddynamics.jagger.engine.e1.scenario.ReflectionProvider">
         <property name="clazz" value="com.griddynamics.jagger.engine.e1.collector.InformationCollector"/>
     </bean>
-
-	<bean id="diagnosticCollector" class="com.griddynamics.jagger.engine.e1.collector.DiagnosticCollectorProvider">
-		<property name="metricCalculator" ref="simpleMetricCalculator"/>
-	</bean>
 
 	<bean id="simpleMetricCalculator" class="com.griddynamics.jagger.engine.e1.collector.SimpleMetricCalculator"/>
 

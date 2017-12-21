@@ -3,8 +3,8 @@
  * http://www.griddynamics.com
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of
- * the GNU Lesser General Public License as published by the Free Software Foundation; either
- * version 2.1 of the License, or any later version.
+ * the Apache License; either
+ * version 2.0 of the License, or any later version.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -24,6 +24,17 @@ import java.math.BigDecimal;
 
 public interface DesiredTps {
 
+    /**
+     * Get value of TPS in depending of time
+     * @param period - time for function
+     * @return TPS for this time
+     */
     BigDecimal get(long period);
+
+    /**
+     * Get some value, which describes distribution of TPS
+     * @return TPS
+     */
+    BigDecimal getDesiredTps();
 
 }

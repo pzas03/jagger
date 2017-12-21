@@ -3,8 +3,8 @@
  * http://www.griddynamics.com
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of
- * the GNU Lesser General Public License as published by the Free Software Foundation; either
- * version 2.1 of the License, or any later version.
+ * the Apache License; either
+ * version 2.0 of the License, or any later version.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -20,33 +20,104 @@
 
 package com.griddynamics.jagger.invoker;
 
-import com.google.common.collect.ImmutableList;
 import com.griddynamics.jagger.util.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
-import java.util.List;
 
+/** LoadBalancer which uses query and endpoint provider
+ * @author Gribov Kirill
+ * @n
+ * @par Details:
+ * @details Abstract implementation of LoadBalancer. Contains query and endpoint providers.
+ * Create pairs of queries and endpoints, which you can take from providers, in your implementation.
+ *
+ * @ingroup Main_Distributors_group */
 public abstract class QueryPoolLoadBalancer<Q, E> implements LoadBalancer<Q, E> {
-    protected final List<Q> queries;
-    protected final List<E> endpoints;
+    
+    private final static Logger log = LoggerFactory.getLogger(QueryPoolLoadBalancer.class);
+    
+    protected Iterable<Q> queryProvider;
+    protected Iterable<E> endpointProvider;
+    protected KernelInfo kernelInfo;
+    
+    protected volatile boolean initialized = false;
+    protected final Object lock = new Object();
 
-    public QueryPoolLoadBalancer(List<Q> querySupplier, List<E> endpointSupplier) {
-        this.queries = ImmutableList.copyOf(querySupplier);
-        this.endpoints = ImmutableList.copyOf(endpointSupplier);
+    public QueryPoolLoadBalancer(){
     }
 
+    public QueryPoolLoadBalancer(Iterable<Q> queryProvider, Iterable<E> endpointProvider){
+        this.queryProvider = queryProvider;
+        this.endpointProvider = endpointProvider;
+    }
+
+    public void setQueryProvider(Iterable<Q> queryProvider){
+        this.queryProvider = queryProvider;
+    }
+
+    public void setEndpointProvider(Iterable<E> endpointProvider){
+        this.endpointProvider = endpointProvider;
+    }
+    
+    public void setKernelInfo(KernelInfo kernelInfo) {
+        this.kernelInfo = kernelInfo;
+    }
+    
     @Override
     public final Iterator<Pair<Q, E>> iterator() {
         return provide();
     }
 
     @Override
-    public int querySize() {
-        return queries.size();
+    public int endpointSize() {
+        return getIterableSize(endpointProvider);
+    }
+    
+    /**
+     * To be called after all dependencies are injected.
+     */
+    public void init() {
+        synchronized (lock) {
+            if (initialized) {
+                log.debug("already initialized. returning...");
+                return;
+            }
+        
+            if (endpointProvider == null) {
+                throw new IllegalStateException("Endpoint provider is null");
+            } else {
+                log.info("total endpoints number - {}", endpointSize());
+            }
+        
+            if (queryProvider == null) {
+                log.info("Query provider is null.");
+            } else {
+                log.info("total queries number - {}", querySize());
+            }
+    
+            log.info("kernel info: {}", kernelInfo);
+        
+            initialized = true;
+        }
     }
 
     @Override
-    public int endpointSize() {
-        return endpoints.size();
+    public int querySize() {
+        return getIterableSize(queryProvider);
+    }
+
+    public int getIterableSize(Iterable iterable){
+        if (iterable == null)
+            return 0;
+
+        Iterator<Q> iterator = iterable.iterator();
+        int size = 0;
+        while (iterator.hasNext()){
+            iterator.next();
+            size++;
+        }
+        return size;
     }
 }

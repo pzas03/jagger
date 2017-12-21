@@ -4,8 +4,7 @@
   ~ http://www.griddynamics.com
   ~
   ~ This library is free software; you can redistribute it and/or modify it under the terms of
-  ~ the GNU Lesser General Public License as published by the Free Software Foundation; either
-  ~ version 2.1 of the License, or any later version.
+  ~ Apache License; either version 2.0 of the License, or any later version
   ~
   ~ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
   ~ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -25,34 +24,41 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 						http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
 
-
-    <bean id="httpInvokerOld" class="com.griddynamics.jagger.invoker.http.HttpVisitorInvoker" />
-
-    <bean id="tcpTrafficInvoker" class="com.griddynamics.jagger.invoker.http.TcpTrafficInvoker" />
-
-    <bean id="commonHttpMultithreadedConnectionManager"
-          class="org.apache.commons.httpclient.MultiThreadedHttpConnectionManager">
-        <property name="params">
-            <bean class="org.apache.commons.httpclient.params.HttpConnectionManagerParams">
-                <property name="connectionTimeout" value="60000"/>
-                <property name="soTimeout" value="60000"/>
-                <property name="staleCheckingEnabled" value="true"/>
-                <property name="receiveBufferSize" value="65536"/>
-                <property name="sendBufferSize" value="65536"/>
-                <property name="tcpNoDelay" value="true"/>
-                <property name="defaultMaxConnectionsPerHost" value="100"/>
-                <property name="maxTotalConnections" value="1000"/>
-            </bean>
-        </property>
+    <bean id="poolingClientConnectionManager"
+          class="org.apache.http.impl.conn.PoolingClientConnectionManager">
+        <property name="maxTotal" value="0x7fffffff"/>
+        <property name="defaultMaxPerRoute" value="0x7fffffff"/>
     </bean>
 
-    <bean id="apacheHttpClient" class="org.apache.commons.httpclient.HttpClient">
-        <property name="httpConnectionManager" ref="commonHttpMultithreadedConnectionManager"/>
+    <bean id="httpClient" class="org.apache.http.impl.client.DefaultHttpClient">
+        <constructor-arg name="conman" ref="poolingClientConnectionManager"/>
+        <property name="params" ref="defaultHttpParams"/>
     </bean>
 
-    <bean id="httpInvoker" class="com.griddynamics.jagger.invoker.http.HttpInvoker">
-        <property name="httpClient" ref="apacheHttpClient" />
+    <bean id="defaultHttpParams" class="org.apache.http.params.BasicHttpParams"/>
+
+    <bean class="org.apache.http.params.HttpConnectionParamBean">
+        <constructor-arg name="params" ref="defaultHttpParams"/>
+
+        <property name="connectionTimeout" value="60000"/>
+        <property name="soTimeout" value="60000"/>
+        <property name="tcpNoDelay" value="true"/>
+        <property name="staleCheckingEnabled" value="true"/>
+        <property name="socketBufferSize" value="65536"/>
     </bean>
 
+    <!-- New invoker from 2.0 -->
+    <bean id="defaultHttpInvoker" class="com.griddynamics.jagger.invoker.v2.DefaultHttpInvoker">
+        <constructor-arg name="httpClient" ref="springBasedHttpClient" />
+    </bean>
 
+    <bean id="springBasedHttpClient" class="com.griddynamics.jagger.invoker.v2.SpringBasedHttpClient">
+        <constructor-arg name="clientParams">
+            <map>
+                <entry key="max_conn_total" value="${chassis.default.invoker.max.connections.total:2147483647}" value-type="java.lang.Integer"/>
+                <entry key="max_conn_per_route" value="${chassis.default.invoker.max.connections.route:2147483647}" value-type="java.lang.Integer"/>
+                <entry key="connect_timeout" value="${chassis.default.invoker.connect.timeout.in.milliseconds:60000}" value-type="java.lang.Integer"/>
+            </map>
+        </constructor-arg>
+    </bean>
 </beans>

@@ -3,8 +3,8 @@
  * http://www.griddynamics.com
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of
- * the GNU Lesser General Public License as published by the Free Software Foundation; either
- * version 2.1 of the License, or any later version.
+ * the Apache License; either
+ * version 2.0 of the License, or any later version.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -20,19 +20,30 @@
 
 package com.griddynamics.jagger.engine.e1.collector;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
+import static com.griddynamics.jagger.engine.e1.collector.CollectorConstants.AVAILABLE_KERNELS;
+import static com.griddynamics.jagger.engine.e1.collector.CollectorConstants.END_TIME;
+import static com.griddynamics.jagger.engine.e1.collector.CollectorConstants.ERROR_MESSAGE;
+import static com.griddynamics.jagger.engine.e1.collector.CollectorConstants.FAILED;
+import static com.griddynamics.jagger.engine.e1.collector.CollectorConstants.KERNELS_COUNT;
+import static com.griddynamics.jagger.engine.e1.collector.CollectorConstants.SESSION;
+import static com.griddynamics.jagger.engine.e1.collector.CollectorConstants.START_TIME;
+import static com.griddynamics.jagger.engine.e1.collector.CollectorConstants.TASK_EXECUTED;
+
 import com.griddynamics.jagger.coordinator.NodeId;
 import com.griddynamics.jagger.coordinator.NodeType;
+import com.griddynamics.jagger.dbapi.entity.TaskData;
 import com.griddynamics.jagger.master.DistributionListener;
-import com.griddynamics.jagger.master.configuration.SessionExecutionListener;
+import com.griddynamics.jagger.master.TaskExecutionStatusProvider;
+import com.griddynamics.jagger.master.configuration.SessionExecutionStatus;
+import com.griddynamics.jagger.master.configuration.SessionListener;
 import com.griddynamics.jagger.master.configuration.Task;
 import com.griddynamics.jagger.storage.KeyValueStorage;
 import com.griddynamics.jagger.storage.Namespace;
 
-import java.util.Collection;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 
-import static com.griddynamics.jagger.engine.e1.collector.CollectorConstants.*;
+import java.util.Collection;
 
 /**
  * Collects basic information on master side. Stores session start/end time,
@@ -40,9 +51,15 @@ import static com.griddynamics.jagger.engine.e1.collector.CollectorConstants.*;
  *
  * @author Mairbek Khadikov
  */
-public class BasicSessionCollector implements SessionExecutionListener, DistributionListener {
+public class BasicSessionCollector implements SessionListener, DistributionListener {
     private KeyValueStorage keyValueStorage;
     private Integer taskCounter;
+
+    TaskExecutionStatusProvider taskExecutionStatusProvider;
+
+    public void setTaskExecutionStatusProvider(TaskExecutionStatusProvider taskExecutionStatusProvider) {
+        this.taskExecutionStatusProvider = taskExecutionStatusProvider;
+    }
 
     public void setKeyValueStorage(KeyValueStorage keyValueStorage) {
         this.keyValueStorage = keyValueStorage;
@@ -66,10 +83,24 @@ public class BasicSessionCollector implements SessionExecutionListener, Distribu
 
     @Override
     public void onSessionExecuted(String sessionId, String sessionComment) {
+        onSessionExecuted(sessionId, sessionComment, SessionExecutionStatus.EMPTY);
+    }
+
+    @Override
+    public void onSessionExecuted(String sessionId, String sessionComment, SessionExecutionStatus status) {
         Namespace namespace = Namespace.of(SESSION, sessionId);
         Multimap<String, Object> objectsMap = HashMultimap.create();
         objectsMap.put(END_TIME, System.currentTimeMillis());
         objectsMap.put(TASK_EXECUTED, taskCounter);
+        Integer failedTasks = taskExecutionStatusProvider.getTaskIdsWithStatus(TaskData.ExecutionStatus.FAILED).size();
+        objectsMap.put(FAILED, failedTasks);
+        if(failedTasks > 0) {
+            if(SessionExecutionStatus.EMPTY.equals(status)){
+                status = SessionExecutionStatus.TASK_FAILED;
+            }
+        }
+        objectsMap.put(ERROR_MESSAGE, status.getMessage());
+
         keyValueStorage.putAll(namespace, objectsMap);
     }
 

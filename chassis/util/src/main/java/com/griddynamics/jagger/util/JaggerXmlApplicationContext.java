@@ -3,8 +3,8 @@
  * http://www.griddynamics.com
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of
- * the GNU Lesser General Public License as published by the Free Software Foundation; either
- * version 2.1 of the License, or any later version.
+ * the Apache License; either
+ * version 2.0 of the License, or any later version.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -34,8 +34,8 @@ import java.util.Properties;
 public class JaggerXmlApplicationContext extends AbstractXmlApplicationContext {
     private final URL directory;
     private final Properties environmentProperties;
-
-    public JaggerXmlApplicationContext(URL directory, Properties environmentProperties, String[] configLocations) {
+    
+    public JaggerXmlApplicationContext(URL directory, Properties environmentProperties, String[] configLocations, ClassLoader classLoader) {
         if (directory.toString().endsWith("/")) {
             this.directory = directory;
         } else {
@@ -45,11 +45,16 @@ public class JaggerXmlApplicationContext extends AbstractXmlApplicationContext {
                 throw new RuntimeException(e);
             }
         }
-
+        
         this.environmentProperties = environmentProperties;
-
+        
+        setClassLoader(classLoader);
         setConfigLocations(configLocations);
         refresh();
+    }
+    
+    public JaggerXmlApplicationContext(URL directory, Properties environmentProperties, String[] configLocations) {
+        this(directory, environmentProperties, configLocations, JaggerXmlApplicationContext.class.getClassLoader());
     }
 
     public URL getDirectory() {
@@ -58,22 +63,6 @@ public class JaggerXmlApplicationContext extends AbstractXmlApplicationContext {
 
     public Properties getEnvironmentProperties() {
         return environmentProperties;
-    }
-
-    public String getEnvironmentPropertiesLocation() {
-        return environmentProperties.getProperty("jagger.environment.properties");
-    }
-
-    public void setEnvironmentPropertiesLocation(String environmentPropertiesLocation) {
-        this.environmentProperties.setProperty("jagger.environment.properties", environmentPropertiesLocation);
-    }
-
-    public String getDefaultEnvironmentPropertiesLocation() {
-        return environmentProperties.getProperty("jagger.default.environment.properties");
-    }
-
-    public void setDefaultEnvironmentPropertiesLocation(String defaultEnvironmentPropertiesLocation) {
-        this.environmentProperties.setProperty("jagger.default.environment.properties", defaultEnvironmentPropertiesLocation);
     }
 
     @Override

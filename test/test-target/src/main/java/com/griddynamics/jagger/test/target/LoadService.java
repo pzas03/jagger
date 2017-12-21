@@ -3,8 +3,8 @@
  * http://www.griddynamics.com
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of
- * the GNU Lesser General Public License as published by the Free Software Foundation; either
- * version 2.1 of the License, or any later version.
+ * the Apache License; either
+ * version 2.0 of the License, or any later version.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -30,6 +30,14 @@ import java.util.Random;
 public class LoadService {
     private static final Random rnd = new Random();
 
+    /** Call to this endpoint will produce and sum random value n-times (n = cycles param value) before sending response back.
+     *
+     * Example of request: /load/100
+     *
+     * @param cycles number of cycles.
+     * @return Actual delay, number of cycles, sum of generated random values.
+     * @throws InterruptedException
+     */
     @GET
     @Produces("text/plain")
     @Path("{cycles}")

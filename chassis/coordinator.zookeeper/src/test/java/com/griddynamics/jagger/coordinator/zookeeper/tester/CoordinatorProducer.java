@@ -3,8 +3,8 @@
  * http://www.griddynamics.com
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of
- * the GNU Lesser General Public License as published by the Free Software Foundation; either
- * version 2.1 of the License, or any later version.
+ * the Apache License; either
+ * version 2.0 of the License, or any later version.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -25,6 +25,7 @@ import com.griddynamics.jagger.coordinator.zookeeper.ZNode;
 import com.griddynamics.jagger.coordinator.zookeeper.Zoo;
 import com.griddynamics.jagger.coordinator.zookeeper.ZooKeeperFactory;
 import com.griddynamics.jagger.coordinator.zookeeper.ZookeeperCoordinator;
+import com.griddynamics.jagger.util.UrlClassLoaderHolder;
 
 import java.util.Collections;
 import java.util.Set;
@@ -43,7 +44,7 @@ public class CoordinatorProducer {
 
         ZNode root = zoo.root().child(args[0]);
 
-        Coordinator coordinator = new ZookeeperCoordinator(root, Executors.newSingleThreadExecutor());
+        Coordinator coordinator = new ZookeeperCoordinator(root, Executors.newSingleThreadExecutor(), new UrlClassLoaderHolder());
 
         NodeId nodeId = NodeId.masterNode("master");
         Set<Worker> workers = Collections.singleton(Coordination.emptyWorker());

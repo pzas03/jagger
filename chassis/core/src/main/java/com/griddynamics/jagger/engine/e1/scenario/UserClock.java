@@ -3,8 +3,8 @@
  * http://www.griddynamics.com
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of
- * the GNU Lesser General Public License as published by the Free Software Foundation; either
- * version 2.1 of the License, or any later version.
+ * the Apache License; either
+ * version 2.0 of the License, or any later version.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -20,13 +20,15 @@
 
 package com.griddynamics.jagger.engine.e1.scenario;
 
-import com.google.common.collect.Maps;
 import com.griddynamics.jagger.coordinator.NodeId;
 import com.griddynamics.jagger.user.ProcessingConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Maps;
+
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -46,9 +48,9 @@ public class UserClock implements WorkloadClock {
     private final AtomicBoolean shutdown;
     private boolean userStarted = false;
 
-    public UserClock(ProcessingConfig.Test.Task config, int tickInterval, AtomicBoolean shutdown) {
+    public UserClock(List<ProcessingConfig.Test.Task.User> users, int delay, int tickInterval, AtomicBoolean shutdown) {
         this.random = new Random(0);
-        this.workload = new UserWorkload(true, this, config, startTime);
+        this.workload = new UserWorkload(true, this, users, delay, startTime);
         this.totalUserCount = workload.getTotalUserCount();
         this.tickInterval = tickInterval;
         this.shutdown = shutdown;
@@ -116,7 +118,8 @@ public class UserClock implements WorkloadClock {
             }
         }
 
-        if (userStarted && (workload.getActiveUserCount() == 0)) {
+        if (userStarted && (workload.getStartedUserCount()==workload.getTotalUserCount())
+                && (workload.getActiveUserCount() == 0)) {
             shutdown.set(true);
         }
     }

@@ -3,8 +3,8 @@
  * http://www.griddynamics.com
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of
- * the GNU Lesser General Public License as published by the Free Software Foundation; either
- * version 2.1 of the License, or any later version.
+ * the Apache License; either
+ * version 2.0 of the License, or any later version.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -20,7 +20,7 @@
 
 package com.griddynamics.jagger.engine.e1.reporting;
 
-import com.griddynamics.jagger.engine.e1.sessioncomparation.Decision;
+import com.griddynamics.jagger.util.Decision;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -36,12 +36,14 @@ public class StatusImageProvider {
     private Image statusImageOK;
     private Image statusImageWarning;
     private Image statusImageFatal;
+    private Image statusImageError;
 
     public Image getImageByDecision(Decision decision) {
         switch (decision) {
             case OK: return statusImageOK;
             case WARNING: return statusImageWarning;
             case FATAL: return statusImageFatal;
+            case ERROR: return statusImageError;
         }
 
         throw new IllegalStateException("Unknown decision : " + decision);
@@ -68,6 +70,14 @@ public class StatusImageProvider {
             this.statusImageFatal = ImageIO.read(statusImageFatalLocation.getInputStream());
         } catch (IOException e) {
             log.error("Failed to resolve image [" + statusImageFatalLocation + "]");
+        }
+    }
+
+    public void setStatusImageErrorLocation(Resource statusImageErrorLocation) {
+        try {
+            this.statusImageError = ImageIO.read(statusImageErrorLocation.getInputStream());
+        } catch (IOException e) {
+            log.error("Failed to resolve image [" + statusImageErrorLocation + "]");
         }
     }
 }

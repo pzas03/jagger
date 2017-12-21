@@ -3,8 +3,8 @@
  * http://www.griddynamics.com
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of
- * the GNU Lesser General Public License as published by the Free Software Foundation; either
- * version 2.1 of the License, or any later version.
+ * the Apache License; either
+ * version 2.0 of the License, or any later version.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -25,12 +25,43 @@ import com.griddynamics.jagger.util.Pair;
 import java.io.Serializable;
 import java.util.Iterator;
 
+/** An object which provides pairs of queries and endpoints for Invoker
+ * @author Grid Dynamics
+ * @n
+ * @par Details:
+ * @details LoadBalancer (distributor) can use query and endpoint providers to load data and create pairs by some algorithm. @n
+ * (if you choose @ref QueryPoolLoadBalancer<Q,E> as an abstract implementation). @n
+ * You can use no providers and load all necessary data in your implementation of LoadBalancer. @n
+ * @n
+ * To view all distributors implementations click here @ref Main_Distributors_group
+ *
+ * @param <Q> - Query type
+ * @param <E> - Endpoint type
+ *
+ * @ingroup Main_Distributors_group */
 public interface LoadBalancer<Q, E> extends Iterable<Pair<Q, E>>, Serializable {
 
+    /** Returns an iterator over pairs
+     * @author Grid Dynamics
+     * @n
+     * @par Details:
+     * @details Scenario take the next pair of queries and endpoints and try to execute invocation with this data
+     *
+     *  @return iterator over pairs */
     Iterator<Pair<Q, E>> provide();
 
+    /** Returns number of queries
+     * @author Grid Dynamics
+     * @n
+     *
+     *  @return number of queries */
     int querySize();
 
+    /** Returns number of endpoints
+     * @author Grid Dynamics
+     * @n
+     *
+     *  @return number of endpoints*/
     int endpointSize();
 
 }

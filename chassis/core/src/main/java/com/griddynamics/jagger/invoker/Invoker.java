@@ -3,8 +3,8 @@
  * http://www.griddynamics.com
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of
- * the GNU Lesser General Public License as published by the Free Software Foundation; either
- * version 2.1 of the License, or any later version.
+ * the Apache License; either
+ * version 2.0 of the License, or any later version.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -22,30 +22,33 @@ package com.griddynamics.jagger.invoker;
 
 import java.io.Serializable;
 
-/**
- * Responsible for action invocation on specified endpoint.
- * 
- * @param <Q>
- *            Query type
- * @param <R>
- *            Result type
- * @param <E>
- *            Endpoint type
- * 
+/** Responsible for action invocation on specified endpoint and query
  * @author Mairbek Khadikov
+ * @n
+ * @par Details:
+ * @details Create a request to some target with specified query. The result of invocation can be collected by metrics and validators. Note that Invoker is used in multi thread environment, so realize thread-safe implementation @n
+ *
+ * @param <Q> - Query type
+ * @param <R> - Result type
+ * @param <E> - Endpoint type
  */
-public interface Invoker<Q, R, E> extends Serializable {
-	/**
-	 * Executes action with given input parameters.
-	 * 
-	 * @param query
-	 *            input data for the invocation
-	 * @param endpoint
-	 *            endpoint
-	 * @return invocation result
-	 * @throws InvocationException
-	 *             when invocation failed
-	 */
-	R invoke(Q query, E endpoint) throws InvocationException;
+public interface Invoker<Q,R,E> extends Serializable {
+
+
+	/** Makes an invocation to target
+     * @author Mairbek Khadikov
+     * @n
+     * @par Details:
+     * @details If method throw some exception current invocation will be marked as failed
+     * @n
+     * @param query    - input data for the invocation
+	 * @param endpoint - endpoint
+     *
+     * @return invocation result
+     * @throws InvocationException when invocation failed */
+      R invoke(Q query, E endpoint) throws InvocationException;
 
 }
+
+/* Below is doxygen documentation for Jagger customization */
+

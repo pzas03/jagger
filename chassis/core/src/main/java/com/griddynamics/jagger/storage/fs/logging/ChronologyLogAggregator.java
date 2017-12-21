@@ -3,8 +3,8 @@
  * http://www.griddynamics.com
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of
- * the GNU Lesser General Public License as published by the Free Software Foundation; either
- * version 2.1 of the License, or any later version.
+ * the Apache License; either
+ * version 2.0 of the License, or any later version.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -20,18 +20,18 @@
 
 package com.griddynamics.jagger.storage.fs.logging;
 
-import com.caucho.hessian.io.Hessian2Input;
-import com.caucho.hessian.io.Hessian2Output;
-import com.google.common.collect.MinMaxPriorityQueue;
 import com.griddynamics.jagger.storage.FileStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
-import java.io.*;
+import com.google.common.io.Closeables;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.PriorityQueue;
 import java.util.Set;
 
 /**
@@ -57,32 +57,36 @@ public class ChronologyLogAggregator implements LogAggregator {
 
     @Override
     public AggregationInfo chronology(String dir, String targetFile) throws IOException {
-        log.info("Try to aggregate {} into file {}", dir, targetFile);
-        Collection<Iterable<LogEntry>> readers = new ArrayList<Iterable<LogEntry>>();
-        Set<String> fileNameList = fileStorage.getFileNameList(dir);
-        if (fileNameList.isEmpty()) {
-            log.info("Nothing to aggregate. Directory {} is empty.", dir);
-            fileStorage.create(targetFile);
-            return new AggregationInfo(0, 0, 0);
-        }
-        for (String fileName : fileNameList) {
-            try {
-                readers.add(logReader.read(fileName, LogEntry.class));
-            } catch (Exception e) {
-                // TODO
-                log.warn(e.getMessage(), e);
-            }
-        }
-
-        int count = 0;
-        long minTime = 0;
-        long maxTime = 0;
+        log.info("Aggregate {}", targetFile);
+    
+        BufferedLogWriter.LogWriterOutput objectOutput = null;
         try {
-            if (fileStorage.delete(targetFile, false)) {
-                log.warn("Target file {} did not deleted!", targetFile);
+            if (!fileStorage.delete(targetFile, false)) {
+                log.debug("Target file {} was not deleted!", targetFile);
             }
-
-            MinMaxPriorityQueue<StreamInfo> queue = MinMaxPriorityQueue.create();
+    
+            Collection<Iterable<LogEntry>> readers = new ArrayList<Iterable<LogEntry>>();
+            Set<String> fileNameList = fileStorage.getFileNameList(dir);
+            if (fileNameList.isEmpty()) {
+                log.info("Nothing to aggregate. Directory {} is empty.", dir);
+                fileStorage.create(targetFile);
+                return new AggregationInfo(0, 0, 0);
+            }
+            for (String fileName : fileNameList) {
+                try {
+                    readers.add(logReader.read(fileName, LogEntry.class));
+                } catch (Exception e) {
+                    // TODO
+                    log.warn(e.getMessage(), e);
+                }
+            }
+    
+            int count = 0;
+            long minTime = 0;
+            long maxTime = 0;
+            objectOutput = logWriter.getOutput(fileStorage.create(targetFile));
+    
+            PriorityQueue<StreamInfo> queue = new PriorityQueue<StreamInfo>();
             for (Iterable<LogEntry> inputStream : readers) {
                 LogEntry logEntry;
                 Iterator<LogEntry> it = inputStream.iterator();
@@ -90,13 +94,13 @@ public class ChronologyLogAggregator implements LogAggregator {
                     logEntry = it.next();
                 } else {
                     continue;
-                } 
+                }
                 queue.add(new StreamInfo(it, logEntry));
             }
 
             while (!queue.isEmpty()) {
-                StreamInfo<LogEntry> streamInfo = queue.removeFirst();
-                logWriter.log(targetFile, streamInfo.lastLogEntry);
+                StreamInfo<LogEntry> streamInfo = queue.poll();
+                objectOutput.writeObject(streamInfo.lastLogEntry);
 
                 if (count == 0) {
                     minTime = streamInfo.lastLogEntry.getTime();
@@ -115,11 +119,15 @@ public class ChronologyLogAggregator implements LogAggregator {
                 streamInfo.lastLogEntry = logEntry;
                 queue.add(streamInfo);
             }
+    
+            return new AggregationInfo(minTime, maxTime, count);
         } finally {
-            logWriter.flush();
+            try {
+                Closeables.close(objectOutput, true);
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+            }
         }
-
-        return new AggregationInfo(minTime, maxTime, count);
     }
 
     @Required

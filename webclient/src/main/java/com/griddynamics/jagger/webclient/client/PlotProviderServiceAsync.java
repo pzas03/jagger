@@ -1,11 +1,10 @@
 package com.griddynamics.jagger.webclient.client;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.griddynamics.jagger.webclient.client.dto.PlotNameDto;
-import com.griddynamics.jagger.webclient.client.dto.PlotSeriesDto;
-import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
+import com.griddynamics.jagger.dbapi.dto.PlotIntegratedDto;
+import com.griddynamics.jagger.dbapi.model.MetricNode;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -13,13 +12,6 @@ import java.util.Set;
  * @since 5/30/12
  */
 public interface PlotProviderServiceAsync {
-    void getPlotData(long taskId, String plotType, AsyncCallback<List<PlotSeriesDto>> async);
 
-    void getSessionScopePlotList(String sessionId, AsyncCallback<Set<String>> async);
-
-    void getSessionScopePlotData(String sessionId, String plotType, AsyncCallback<List<PlotSeriesDto>> async);
-
-    void getTaskScopePlotList(Set<String> sessionIds, TaskDataDto taskDataDto, AsyncCallback<Set<PlotNameDto>> async);
-
-    void getPlotData(Set<Long> taskId, String plotType, AsyncCallback<List<PlotSeriesDto>> async);
+    void getPlotData(Set<MetricNode> plots, AsyncCallback<Map<MetricNode, PlotIntegratedDto>> async);
 }

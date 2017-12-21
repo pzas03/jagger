@@ -1,10 +1,10 @@
 package com.griddynamics.jagger.webclient.client.callback;
 
-import com.google.gwt.user.client.Window;
+import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.griddynamics.jagger.webclient.client.TaskDataTreeViewModel;
-import com.griddynamics.jagger.webclient.client.data.TaskPlotNamesAsyncDataProvider;
-import com.griddynamics.jagger.webclient.client.dto.TaskDataDto;
+import com.google.gwt.view.client.MultiSelectionModel;
+import com.griddynamics.jagger.dbapi.dto.TaskDataDto;
+import com.griddynamics.jagger.webclient.client.components.ExceptionPanel;
 
 import java.util.List;
 import java.util.Set;
@@ -16,11 +16,11 @@ import java.util.Set;
 public class TaskDataDtoListQueryAsyncCallback implements AsyncCallback<List<TaskDataDto>> {
 
     private Set<String> sessionIds;
-    private final TaskDataTreeViewModel taskDataTreeViewModel;
+    private final CellTable<TaskDataDto> testGrid;
 
-    public TaskDataDtoListQueryAsyncCallback(Set<String> sessionIds, TaskDataTreeViewModel taskDataTreeViewModel) {
+    public TaskDataDtoListQueryAsyncCallback(Set<String> sessionIds, CellTable<TaskDataDto> testGrid) {
         this.sessionIds = sessionIds;
-        this.taskDataTreeViewModel = taskDataTreeViewModel;
+        this.testGrid = testGrid;
     }
 
     public void setSessionIds(Set<String> sessionIds) {
@@ -29,7 +29,7 @@ public class TaskDataDtoListQueryAsyncCallback implements AsyncCallback<List<Tas
 
     @Override
     public void onFailure(Throwable caught) {
-        Window.alert("Error is occurred during server request processing (Task data fetching)");
+        new ExceptionPanel("Error is occurred during server request processing (Task data fetching)");
     }
 
     @Override
@@ -37,14 +37,10 @@ public class TaskDataDtoListQueryAsyncCallback implements AsyncCallback<List<Tas
         if (result.isEmpty()) {
             return;
         }
+        MultiSelectionModel model = (MultiSelectionModel)testGrid.getSelectionModel();
+        model.clear();
 
-        // Populate task first level tree with server data
-        taskDataTreeViewModel.populateTaskList(result);
-
-        // Populate available plots tree level for each task for selected session
-        for (TaskDataDto taskDataDto : result) {
-            taskDataTreeViewModel.getPlotNameDataProviders().put
-                    (taskDataDto, new TaskPlotNamesAsyncDataProvider(taskDataDto, sessionIds));
-        }
+        testGrid.redraw();
+        testGrid.setRowData(result);
     }
 }

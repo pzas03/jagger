@@ -3,8 +3,8 @@
  * http://www.griddynamics.com
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of
- * the GNU Lesser General Public License as published by the Free Software Foundation; either
- * version 2.1 of the License, or any later version.
+ * the Apache License; either
+ * version 2.0 of the License, or any later version.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -54,9 +54,7 @@ public class DefaultTpsRouter implements TpsRouter {
         // todo maybe pass interval?
         BigDecimal tps = desiredTps.get(clock.currentTimeMillis());
 
-        if (desiredTpsPerNode.isEmpty()) {
-            initialize(tpsStat.keySet());
-        }
+        initialize(tpsStat.keySet());
 
         final Map<NodeId, BigDecimal> maxTpsPerNode = Maps.newHashMap();
 
@@ -136,7 +134,7 @@ public class DefaultTpsRouter implements TpsRouter {
 
     @Override
     public BigDecimal getDesiredTps() {
-        return desiredTps.get(clock.currentTimeMillis());
+        return desiredTps.getDesiredTps();
     }
 
     private void initialize(Set<NodeId> nodes) {

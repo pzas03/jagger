@@ -1,0 +1,17 @@
+// file defines order of the pages in the documentation tree view
+
+/// @page Installation Installation
+/// @page GettingStarted Getting started
+/// @page WritingTest Creating load test
+/// @page HttpUserScenarioTest Http scenario load test
+/// @page ListenersMain User actions during the load test
+/// @page MetricsMain Collecting metrics
+/// @page MainDecisionMaker Making decision
+/// @page JaggerProperties Jagger configuration
+/// @page FrameworkComponents Components and execution modes
+/// @page CIMain Continuous Integration
+/// @page TestResultsMain Test results
+/// @page ReportingMain Reporting
+/// @page Licence Licence
+/// @page AuxComponents Auxiliary Jagger components
+///

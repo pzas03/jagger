@@ -1,0 +1,23 @@
+<archetype xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype/1.0.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype/1.0.0 http://maven.apache.org/xsd/archetype-1.0.0.xsd">
+
+    <id>archetype-java-builders</id>
+
+    <sources>
+        <source>src/main/java/util/JaggerPropertiesProvider.java</source>
+        <source>src/main/java/simple.examples/EndpointsProvider.java</source>
+        <source>src/main/java/simple.examples/CustomHttpInvokerProvider.java</source>
+        <source>src/main/java/simple.examples/QueriesProvider.java</source>
+        <source>src/main/java/simple.examples/JLoadScenarioProvider.java</source>
+        <source>src/main/java/simple.examples/SimpleJLoadScenarioProvider.java</source>
+        <source>src/main/java/user.scenario.example/UserScenarioJLoadScenarioProvider.java</source>
+        <source>src/main/java/user.scenario.example/UserScenarioEndpointsProvider.java</source>
+    </sources>
+    <resources>
+        <resource>src/main/resources/profiles/basic/environment.properties</resource>
+        <resource>src/main/resources/jagger.log4j.properties</resource>
+        <resource>src/main/resources/test.properties</resource>
+        <resource>assembly-config.xml</resource>
+    </resources>
+</archetype>

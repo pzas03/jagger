@@ -3,8 +3,8 @@
  * http://www.griddynamics.com
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of
- * the GNU Lesser General Public License as published by the Free Software Foundation; either
- * version 2.1 of the License, or any later version.
+ * the Apache License; either
+ * version 2.0 of the License, or any later version.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -20,25 +20,27 @@
 
 package com.griddynamics.jagger.coordinator.zookeeper;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import static com.griddynamics.jagger.coordinator.zookeeper.ZooMock.mockZnode;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
 import com.griddynamics.jagger.coordinator.Command;
 import com.griddynamics.jagger.coordinator.NodeId;
 import com.griddynamics.jagger.coordinator.NodeType;
 import com.griddynamics.jagger.coordinator.Qualifier;
+import com.griddynamics.jagger.util.UrlClassLoaderHolder;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
-
-import static com.griddynamics.jagger.coordinator.zookeeper.ZooMock.mockZnode;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
-import static org.mockito.Mockito.when;
 
 public class ZookeeperCoordinatorTest {
     private ZookeeperCoordinator coordinator;
@@ -59,7 +61,7 @@ public class ZookeeperCoordinatorTest {
         agent = mockZnode();
         when(root.child("agent")).thenReturn(agent);
 
-        coordinator = new ZookeeperCoordinator(root, Executors.newSingleThreadExecutor());
+        coordinator = new ZookeeperCoordinator(root, Executors.newSingleThreadExecutor(), new UrlClassLoaderHolder());
     }
 
     @Test

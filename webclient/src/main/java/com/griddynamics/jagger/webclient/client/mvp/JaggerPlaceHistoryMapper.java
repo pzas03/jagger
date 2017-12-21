@@ -1,8 +1,9 @@
 package com.griddynamics.jagger.webclient.client.mvp;
 
 import com.google.gwt.place.shared.Place;
+import com.google.gwt.user.client.Window;
+import com.griddynamics.jagger.dbapi.model.NameTokens;
 import com.griddynamics.jagger.webclient.client.trends.TrendsPlace;
-import com.griddynamics.jagger.webclient.client.viewresults.ViewResultsPlace;
 
 /**
  * @author "Artem Kirillov" (akirillov@griddynamics.com)
@@ -14,10 +15,19 @@ public class JaggerPlaceHistoryMapper extends AbstractPlaceHistoryMapper {
     protected Place getPlaceFromToken(String token) {
         // Add any new place here
 
-        if (token.startsWith(NameTokens.TRENDS)) {
-            return new TrendsPlace();
-        } else if (token.startsWith(NameTokens.VIEW_RESULTS)) {
-            return new ViewResultsPlace();
+        TrendsPlace place = null;
+
+        if (token.startsWith(NameTokens.SUMMARY)) {
+            place = new TrendsPlace(NameTokens.SUMMARY);
+        } else if (token.startsWith(NameTokens.TRENDS)) {
+            place = new TrendsPlace(NameTokens.TRENDS);
+        } else if (token.startsWith(NameTokens.METRICS)) {
+            place = new TrendsPlace(NameTokens.METRICS);
+        }
+
+        if (place != null) {
+            place.setUrl(Window.Location.getHost() + Window.Location.getPath() + "#" + token);
+            return place;
         }
 
         throw new UnsupportedOperationException("Token " + token + " is unsupported now");
@@ -28,9 +38,8 @@ public class JaggerPlaceHistoryMapper extends AbstractPlaceHistoryMapper {
         // Add any new place here
 
         if (place instanceof TrendsPlace) {
-            return NameTokens.TRENDS;
-        } else if (place instanceof ViewResultsPlace) {
-            return NameTokens.VIEW_RESULTS;
+            TrendsPlace trendsPlace = (TrendsPlace)place;
+            return trendsPlace.getToken();
         }
 
         throw new UnsupportedOperationException("Place " + place + " is unsupported now");

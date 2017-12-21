@@ -3,8 +3,8 @@
  * http://www.griddynamics.com
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of
- * the GNU Lesser General Public License as published by the Free Software Foundation; either
- * version 2.1 of the License, or any later version.
+ * the Apache License; either
+ * version 2.0 of the License, or any later version.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -57,11 +57,28 @@ public class UserClockConfiguration implements WorkloadClockConfiguration {
 
     @Override
     public WorkloadClock getClock() {
-        if (taskConfig.invocation == null) {
-            return new UserClock(taskConfig, tickInterval, shutdown);
-        } else {
-            return new ExactInvocationsClock(taskConfig.invocation.count, taskConfig.invocation.threads, taskConfig.delay);
-        }
+        if (taskConfig.getTps() != null){
+            TpsClockConfiguration tpsClockConfiguration = new TpsClockConfiguration();
+            tpsClockConfiguration.setTickInterval(tickInterval);
+            tpsClockConfiguration.setTps(taskConfig.getTps().getValue());
+            return tpsClockConfiguration.getClock();
+        }else
+        if (taskConfig.getVirtualUser() != null){
+            VirtualUsersClockConfiguration conf = new VirtualUsersClockConfiguration();
+            conf.setTickInterval(taskConfig.getVirtualUser().getTickInterval());
+            conf.setUsers(taskConfig.getVirtualUser().getCount());
+            return conf.getClock();
+        }else
+        if (taskConfig.getInvocation() != null){
+            ExactInvocationsClockConfiguration conf = new ExactInvocationsClockConfiguration();
+            conf.setExactcount(taskConfig.getInvocation().getExactcount());
+            conf.setThreads(taskConfig.getInvocation().getThreads());
+            conf.setDelay(taskConfig.getDelay());
+            return conf.getClock();
+        }else
+        if (taskConfig.getUsers() != null && taskConfig.getUsers().size()>0) {
+                return new UserClock(taskConfig.getUsers(), taskConfig.getDelay(), tickInterval, shutdown);
+        }else return null;
     }
 
     @Override

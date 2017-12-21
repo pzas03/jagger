@@ -3,8 +3,8 @@
  * http://www.griddynamics.com
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of
- * the GNU Lesser General Public License as published by the Free Software Foundation; either
- * version 2.1 of the License, or any later version.
+ * the Apache License; either
+ * version 2.0 of the License, or any later version.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -19,15 +19,23 @@
  */
 package com.griddynamics.jagger.monitoring;
 
+import com.griddynamics.jagger.coordinator.Coordinator;
+import com.griddynamics.jagger.coordinator.NodeContext;
+import com.griddynamics.jagger.coordinator.NodeId;
+import com.griddynamics.jagger.coordinator.NodeType;
+import com.griddynamics.jagger.coordinator.Qualifier;
+import com.griddynamics.jagger.coordinator.RemoteExecutor;
+import com.griddynamics.jagger.dbapi.entity.TaskData;
+import com.griddynamics.jagger.master.AbstractDistributor;
+import com.griddynamics.jagger.master.TaskExecutionStatusProvider;
+import com.griddynamics.jagger.util.TimeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.AbstractExecutionThreadService;
 import com.google.common.util.concurrent.Service;
-import com.griddynamics.jagger.coordinator.*;
-import com.griddynamics.jagger.master.AbstractDistributor;
-import com.griddynamics.jagger.util.TimeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Set;
@@ -36,6 +44,8 @@ import java.util.concurrent.ExecutorService;
 public class MonitoringTaskDistributor extends AbstractDistributor<MonitoringTask> {
     private static Logger log = LoggerFactory.getLogger(MonitoringTaskDistributor.class);
     private long ttl;
+
+    private TaskExecutionStatusProvider taskExecutionStatusProvider;
 
     @Override
     protected Set<Qualifier<?>> getQualifiers() {
@@ -49,35 +59,49 @@ public class MonitoringTaskDistributor extends AbstractDistributor<MonitoringTas
     @Override
     protected Service performDistribution(final ExecutorService executor, final String sessionId, final String taskId, final MonitoringTask task,
                                           final Map<NodeId, RemoteExecutor> remotes, final Multimap<NodeType, NodeId> availableNodes,
-                                          final Coordinator coordinator) {
+                                          final Coordinator coordinator, final NodeContext nodeContext) {
 
         return new AbstractExecutionThreadService() {
             @Override
             protected void run() throws Exception {
-                MonitoringTerminationStrategy terminationStrategy = task.getTerminationStrategy().get();
+    
+                MonitoringController monitoringController = null;
+                try {
+                    taskExecutionStatusProvider.setStatus(taskId, TaskData.ExecutionStatus.IN_PROGRESS);
+                    MonitoringTerminationStrategy terminationStrategy = task.getTerminationStrategy().get();
 
-                MonitoringController monitoringController =
-                        new MonitoringController(sessionId, taskId, availableNodes, coordinator, remotes.keySet(), ttl);
-                monitoringController.startMonitoring();
+                    monitoringController =
+                            new MonitoringController(sessionId, task.getParentTaskId(), availableNodes, coordinator, remotes.keySet(), ttl);
+                    monitoringController.startMonitoring();
 
-                while (true) {
-                    if (!isRunning()) {
-                        log.debug("Going to terminate work. Requested from outside");
-                        break;
+                    while (true) {
+                        if (!isRunning()) {
+                            log.info("Going to terminate work {}. Requested from outside", task.getTaskName());
+                            break;
+                        }
+
+                        Map<NodeId, MonitoringStatus> status = monitoringController.getStatus();
+
+                        if (terminationStrategy.isTerminationRequired(status)) {
+                            log.info("Going to terminate work {}. According to termination strategy",task.getTaskName());
+                            break;
+                        }
+
+                        // todo mairbek: configure
+                        TimeUtils.sleepMillis(500);
                     }
 
-                    Map<NodeId, MonitoringStatus> status = monitoringController.getStatus();
-
-                    if (terminationStrategy.isTerminationRequired(status)) {
-                        log.debug("Going to terminate work. According to termination strategy");
-                        break;
+                    taskExecutionStatusProvider.setStatus(taskId, TaskData.ExecutionStatus.SUCCEEDED);
+                } catch (Exception e) {
+                    taskExecutionStatusProvider.setStatus(taskId, TaskData.ExecutionStatus.FAILED);
+                    log.error("Monitoring task error: ", e);
+                } finally {
+                    if (monitoringController != null) {
+                        log.debug("Going to stop monitoring");
+                        monitoringController.stopMonitoring();
+                        log.debug("Monitoring stopped");
                     }
-
-                    // todo mairbek: configure
-                    TimeUtils.sleepMillis(500);
                 }
-
-                monitoringController.stopMonitoring();
             }
 
             @Override
@@ -86,6 +110,10 @@ public class MonitoringTaskDistributor extends AbstractDistributor<MonitoringTas
             }
 
         };
+    }
+
+    public void setTaskExecutionStatusProvider(TaskExecutionStatusProvider taskExecutionStatusProvider) {
+        this.taskExecutionStatusProvider = taskExecutionStatusProvider;
     }
 
     public void setTtl(long ttl) {

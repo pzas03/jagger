@@ -3,8 +3,8 @@
  * http://www.griddynamics.com
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of
- * the GNU Lesser General Public License as published by the Free Software Foundation; either
- * version 2.1 of the License, or any later version.
+ * the Apache License; either
+ * version 2.0 of the License, or any later version.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -20,10 +20,12 @@
 
 package com.griddynamics.jagger.agent.model;
 
+import com.google.common.collect.Lists;
 import com.griddynamics.jagger.coordinator.Command;
 import com.griddynamics.jagger.coordinator.VoidResult;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -35,6 +37,7 @@ public class ManageAgent implements Command<VoidResult> {
     public enum ActionProp {
         WAIT_BEFORE(Long.class, 60000L),
         NEW_MESSAGE_SERVICE_URL(String.class, ""),
+        SET_JMX_METRICS(ArrayList.class, Lists.newArrayListWithExpectedSize(0)),
         HALT(Boolean.class, false);
 
         private Class clazz;

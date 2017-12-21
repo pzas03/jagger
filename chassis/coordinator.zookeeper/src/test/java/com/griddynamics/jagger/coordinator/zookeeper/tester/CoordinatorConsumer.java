@@ -3,8 +3,8 @@
  * http://www.griddynamics.com
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of
- * the GNU Lesser General Public License as published by the Free Software Foundation; either
- * version 2.1 of the License, or any later version.
+ * the Apache License; either
+ * version 2.0 of the License, or any later version.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -20,12 +20,19 @@
 
 package com.griddynamics.jagger.coordinator.zookeeper.tester;
 
-import com.google.common.collect.Sets;
-import com.griddynamics.jagger.coordinator.*;
+import com.griddynamics.jagger.coordinator.Coordination;
+import com.griddynamics.jagger.coordinator.Coordinator;
+import com.griddynamics.jagger.coordinator.NodeId;
+import com.griddynamics.jagger.coordinator.NodeStatus;
+import com.griddynamics.jagger.coordinator.StatusChangeListener;
+import com.griddynamics.jagger.coordinator.Worker;
 import com.griddynamics.jagger.coordinator.zookeeper.ZNode;
 import com.griddynamics.jagger.coordinator.zookeeper.Zoo;
 import com.griddynamics.jagger.coordinator.zookeeper.ZooKeeperFactory;
 import com.griddynamics.jagger.coordinator.zookeeper.ZookeeperCoordinator;
+import com.griddynamics.jagger.util.UrlClassLoaderHolder;
+
+import com.google.common.collect.Sets;
 
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -37,9 +44,10 @@ public class CoordinatorConsumer {
         zooKeeperFactory.setConnectString("localhost:2181");
         zooKeeperFactory.setSessionTimeout(1000000);
         Zoo zoo = new Zoo(zooKeeperFactory.create());
+        
         ZNode root = zoo.root().child(args[0]);
 
-        Coordinator coordinator = new ZookeeperCoordinator(root, Executors.newSingleThreadExecutor());
+        Coordinator coordinator = new ZookeeperCoordinator(root, Executors.newSingleThreadExecutor(), new UrlClassLoaderHolder());
 
         Set<Worker> workers = Sets.newLinkedHashSet();
         workers.add(new PrintValWorker());

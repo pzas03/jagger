@@ -4,8 +4,7 @@
   ~ http://www.griddynamics.com
   ~
   ~ This library is free software; you can redistribute it and/or modify it under the terms of
-  ~ the GNU Lesser General Public License as published by the Free Software Foundation; either
-  ~ version 2.1 of the License, or any later version.
+  ~ Apache License; either version 2.0 of the License, or any later version
   ~
   ~ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
   ~ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -30,7 +29,7 @@
                 <bean id="connector" class="org.eclipse.jetty.server.nio.SelectChannelConnector">
                     <property name="port" value="${chassis.coordination.http.port}"/>
                     <property name="requestBufferSize" value="262144"/>
-                    <property name="requestHeaderSize" value="262144"/>
+                    <property name="requestHeaderSize" value="524288"/>
                     <property name="responseBufferSize" value="262144"/>
                     <property name="responseHeaderSize" value="262144"/>
                 </bean>

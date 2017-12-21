@@ -3,8 +3,8 @@
  * http://www.griddynamics.com
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of
- * the GNU Lesser General Public License as published by the Free Software Foundation; either
- * version 2.1 of the License, or any later version.
+ * the Apache License; either
+ * version 2.0 of the License, or any later version.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -23,28 +23,41 @@ package com.griddynamics.jagger.invoker;
 import com.griddynamics.jagger.util.Pair;
 
 import java.util.Iterator;
-import java.util.List;
 
-/**
- * Schedules queries across endpoints one by one. For input: endpoints [e1,
- * e2] and queries [q1, q2, q3] executes actions in following order: (e1, q1),
- * (e2, q1), (e1, q2), (e2, q2), (e1, q3), (e2, q3).
+/** Schedules queries across endpoints one by one
+ * @author Mairbek Khadikov
+ * @n
+ * @par Details:
+ * @details . "One by one" algorithm - for input endpoints [e1, e2] and queries [q1, q2, q3]
+ * executes actions in following order: @n
+ * (e1, q1), (e2, q1), (e1, q2), (e2, q2), (e1, q3), (e2, q3). @n
+ *  @n
  *
  * @param <Q> Query type
  * @param <E> Endpoint type
- * @author Mairbek Khadikov
- */
+ *
+ * @ingroup Main_Distributors_group */
 public class OneByOneLoadBalancer<Q, E> extends QueryPoolLoadBalancer<Q, E> {
 
-
-    public OneByOneLoadBalancer(List<Q> querySupplier, List<E> endpointSupplier) {
-        super(querySupplier, endpointSupplier);
+    public OneByOneLoadBalancer(){
+        super();
     }
 
+    public OneByOneLoadBalancer(Iterable<Q> queryProvider, Iterable<E> endpointProvider){
+        super(queryProvider, endpointProvider);
+    }
+
+    /** Returns an iterator over pairs
+     * @author Grid Dynamics
+     * @n
+     * @par Details:
+     * @details Returns an iterator over pairs, which were created by "One by one" algorithm
+     *
+     *  @return iterator over pairs */
     @Override
     public Iterator<Pair<Q, E>> provide() {
-        final CircularSupplier<Q> querySupplier = CircularSupplier.create(queries);
-        final CircularSupplier<E> endpointSupplier = CircularSupplier.create(endpoints);
+        final CircularSupplier<Q> querySupplier = CircularSupplier.create(queryProvider);
+        final CircularSupplier<E> endpointSupplier = CircularSupplier.create(endpointProvider);
 
         return new Iterator<Pair<Q, E>>() {
             @Override
@@ -78,10 +91,6 @@ public class OneByOneLoadBalancer<Q, E> extends QueryPoolLoadBalancer<Q, E> {
 
     @Override
     public String toString() {
-        return "OneByOneLoadBalancer" +
-                "\n {" +
-                "\n queries " + queries +
-                "\n endpoints " + endpoints +
-                "\n }";
+        return "OneByOneLoadBalancer";
     }
 }

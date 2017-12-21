@@ -3,8 +3,8 @@
  * http://www.griddynamics.com
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of
- * the GNU Lesser General Public License as published by the Free Software Foundation; either
- * version 2.1 of the License, or any later version.
+ * the Apache License; either
+ * version 2.0 of the License, or any later version.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -20,7 +20,6 @@
 
 package com.griddynamics.jagger.agent;
 
-import com.google.common.base.Objects;
 import com.griddynamics.jagger.agent.worker.AgentWorker;
 import com.griddynamics.jagger.coordinator.Coordination;
 import com.griddynamics.jagger.coordinator.NodeId;
@@ -34,11 +33,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -47,7 +43,6 @@ public class AgentStarter {
     public static CountDownLatch agentLatch;
     public static AtomicBoolean alive = new AtomicBoolean(false);
     public static final int REGISTRATION_PERIOD = 10000;
-    private static final String RANDOM_IDENTIFIER = "#RANDOM";
 
     public static void main(String[] args) {
         log.info("Going to start agent");
@@ -67,17 +62,12 @@ public class AgentStarter {
         }
 
         ApplicationContext context = new ClassPathXmlApplicationContext("spring/agent.config.xml");
-        String name = getAgentNameFromContext(context);
-        if (Objects.equal(name, RANDOM_IDENTIFIER)) {
-            name = generateAgentName();
-        }
-        name += " [" + getLocalHostAddress() + "]";
-
+        String name = ((AgentConfig) context.getBean("agentConfig")).getName();
         Agent agent = (Agent) context.getBean("agent");
-
-        AgentWorker agentWorker = (AgentWorker) context.getBean("agentWorker");
         agent.setNodeContext(Coordination.emptyContext(NodeId.agentNode(name)));
         agent.init();
+
+        AgentWorker agentWorker = (AgentWorker) context.getBean("agentWorker");
 
         log.info("Agent {} initialized", agent.getNodeContext().getId());
 
@@ -95,9 +85,9 @@ public class AgentStarter {
                         if (Ack.SUCCESS.equals(ack)) break;
                     } catch (IOException e) {
                         log.info("Agent {} can't do registration {}", agent.getNodeContext().getId(), e);
-                        log.info("Wait 10 seconds and try again");
-                        Thread.sleep(REGISTRATION_PERIOD);
                     }
+                    log.info("Wait 10 seconds and try register  again");
+                    Thread.sleep(REGISTRATION_PERIOD);
                 }
                 while (true);
                 log.info("Registration agent {} has been done", agent.getNodeContext().getId());
@@ -116,27 +106,11 @@ public class AgentStarter {
         log.info("Agent finish work");
     }
 
-    private static String generateAgentName() {
-        return "AGENT-" + new Random().nextInt();
-    }
 
-    private static String getAgentNameFromContext(ApplicationContext context) {
-        AgentConfig agentConfig = (AgentConfig) context.getBean("agentConfig");
-
-        return agentConfig.getName();
-    }
 
     public static void resetAgent(Agent agent) {
         alive.set(true);
         agent.stop();
         agentLatch.countDown();
-    }
-
-    private static String getLocalHostAddress() {
-        try {
-            return InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

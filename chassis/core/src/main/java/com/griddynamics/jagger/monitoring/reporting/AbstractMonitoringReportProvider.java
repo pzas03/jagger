@@ -3,8 +3,8 @@
  * http://www.griddynamics.com
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of
- * the GNU Lesser General Public License as published by the Free Software Foundation; either
- * version 2.1 of the License, or any later version.
+ * the Apache License; either
+ * version 2.0 of the License, or any later version.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -19,53 +19,19 @@
  */
 package com.griddynamics.jagger.monitoring.reporting;
 
-import com.google.common.collect.Maps;
-import com.griddynamics.jagger.engine.e1.aggregator.workload.model.WorkloadData;
-import com.griddynamics.jagger.monitoring.model.PerformedMonitoring;
+import com.griddynamics.jagger.dbapi.entity.WorkloadData;
 import com.griddynamics.jagger.reporting.AbstractMappedReportProvider;
-import net.sf.jasperreports.engine.JRDataSource;
 
 import java.util.List;
-import java.util.Map;
 
 public abstract class AbstractMonitoringReportProvider<T> extends AbstractMappedReportProvider<T> {
-    private Map<String, String> monitoringMap;
 
     public void clearCache() {
-        monitoringMap = null;
     }
-
-    protected void loadMonitoringMap() {
-        if (monitoringMap != null) {
-            return;
-        }
-
-        String sessionId = getSessionIdProvider().getSessionId();
-        List<PerformedMonitoring> list = getHibernateTemplate().find("select pf from PerformedMonitoring pf where pf.sessionId =? and pf.parentId is not null", sessionId);
-        Map<String, String> result = Maps.newHashMap();
-
-        for (PerformedMonitoring performedMonitoring : list) {
-            result.put(performedMonitoring.getParentId(), performedMonitoring.getMonitoringId());
-        }
-
-        monitoringMap = result;
-    }
-
-    protected String relatedMonitoringTask(String taskId) {
-        String parentId = parentOf(taskId);
-
-        if (parentId == null) {
-            return null;
-        }
-
-        return monitoringMap.get(parentId);
-
-    }
-
 
     protected String parentOf(String workloadTaskId) {
         String sessionId = getSessionIdProvider().getSessionId();
-        List<WorkloadData> list = getHibernateTemplate().find("select wd from WorkloadData wd where wd.sessionId =? and wd.taskId =? and wd.parentId is not null", sessionId, workloadTaskId);
+        List<WorkloadData> list = (List<WorkloadData>) getHibernateTemplate().find("select wd from WorkloadData wd where wd.sessionId =? and wd.taskId =? and wd.parentId is not null", sessionId, workloadTaskId);
 
         if (list.size() == 1) {
             return list.get(0).getParentId();
@@ -73,7 +39,4 @@ public abstract class AbstractMonitoringReportProvider<T> extends AbstractMapped
 
         return null;
     }
-
-    @Override
-    public abstract JRDataSource getDataSource(T key);
 }

@@ -3,8 +3,8 @@
  * http://www.griddynamics.com
  *
  * This library is free software; you can redistribute it and/or modify it under the terms of
- * the GNU Lesser General Public License as published by the Free Software Foundation; either
- * version 2.1 of the License, or any later version.
+ * the Apache License; either
+ * version 2.0 of the License, or any later version.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -30,6 +30,14 @@ import java.util.Random;
 public class NetService {
     private static final Random rnd = new Random();
 
+    /** Call to this endpoint will produce random text (with length of bytes param value) before sending response back.
+     *
+     * Example of request: /net/text/1000
+     *
+     * @param bytes length of produced text.
+     * @return Actual delay, length of produced text, randomly produced text.
+     * @throws InterruptedException
+     */
     @GET
     @Produces("text/plain")
     @Path("text/{bytes}")
