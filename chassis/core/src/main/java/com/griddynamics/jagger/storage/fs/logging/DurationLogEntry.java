@@ -20,7 +20,7 @@
 
 package com.griddynamics.jagger.storage.fs.logging;
 
-public class DurationLogEntry extends LogEntry<DurationLogEntry> {
+public class DurationLogEntry extends LogEntry {
 
     private long duration;
 

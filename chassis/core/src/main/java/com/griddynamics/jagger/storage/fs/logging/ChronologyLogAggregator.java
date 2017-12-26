@@ -20,14 +20,18 @@
 
 package com.griddynamics.jagger.storage.fs.logging;
 
+import com.google.common.io.Closeables;
+
 import com.griddynamics.jagger.storage.FileStorage;
+import com.griddynamics.jagger.util.SerializationUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
-import com.google.common.io.Closeables;
-
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -65,7 +69,7 @@ public class ChronologyLogAggregator implements LogAggregator {
                 log.debug("Target file {} was not deleted!", targetFile);
             }
     
-            Collection<Iterable<LogEntry>> readers = new ArrayList<Iterable<LogEntry>>();
+            Collection<Iterable<LogEntry>> readers = new ArrayList<>();
             Set<String> fileNameList = fileStorage.getFileNameList(dir);
             if (fileNameList.isEmpty()) {
                 log.info("Nothing to aggregate. Directory {} is empty.", dir);
@@ -86,7 +90,7 @@ public class ChronologyLogAggregator implements LogAggregator {
             long maxTime = 0;
             objectOutput = logWriter.getOutput(fileStorage.create(targetFile));
     
-            PriorityQueue<StreamInfo> queue = new PriorityQueue<StreamInfo>();
+            PriorityQueue<StreamInfo> queue = new PriorityQueue<>();
             for (Iterable<LogEntry> inputStream : readers) {
                 LogEntry logEntry;
                 Iterator<LogEntry> it = inputStream.iterator();
@@ -99,7 +103,7 @@ public class ChronologyLogAggregator implements LogAggregator {
             }
 
             while (!queue.isEmpty()) {
-                StreamInfo<LogEntry> streamInfo = queue.poll();
+                StreamInfo streamInfo = queue.poll();
                 objectOutput.writeObject(streamInfo.lastLogEntry);
 
                 if (count == 0) {
@@ -119,7 +123,6 @@ public class ChronologyLogAggregator implements LogAggregator {
                 streamInfo.lastLogEntry = logEntry;
                 queue.add(streamInfo);
             }
-    
             return new AggregationInfo(minTime, maxTime, count);
         } finally {
             try {

@@ -88,7 +88,6 @@
 
         <property name="timeWindowPercentilesKeys" ref="standardPercentilesTimeSeries"/>
         <property name="globalPercentilesKeys" ref="standardPercentilesGlobal"/>
-        <property name="keyValueStorage" ref="h2KeyValueStorage"/>
         <property name="databaseService" ref="databaseService"/>
     </bean>
 

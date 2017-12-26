@@ -20,6 +20,13 @@
 
 package com.griddynamics.jagger.engine.e1.aggregator.workload;
 
+import static com.griddynamics.jagger.util.StandardMetricsNamesUtil.LATENCY_ID;
+import static com.griddynamics.jagger.util.StandardMetricsNamesUtil.LATENCY_SEC;
+import static com.griddynamics.jagger.util.StandardMetricsNamesUtil.LATENCY_STD_DEV_AGG_ID;
+import static com.griddynamics.jagger.util.StandardMetricsNamesUtil.LATENCY_STD_DEV_SEC;
+import static com.griddynamics.jagger.util.StandardMetricsNamesUtil.THROUGHPUT_ID;
+import static com.griddynamics.jagger.util.StandardMetricsNamesUtil.THROUGHPUT_TPS;
+
 import com.griddynamics.jagger.coordinator.NodeId;
 import com.griddynamics.jagger.dbapi.entity.MetricDescriptionEntity;
 import com.griddynamics.jagger.dbapi.entity.MetricPointEntity;
@@ -31,7 +38,6 @@ import com.griddynamics.jagger.master.Master;
 import com.griddynamics.jagger.master.SessionIdProvider;
 import com.griddynamics.jagger.master.configuration.Task;
 import com.griddynamics.jagger.reporting.interval.IntervalSizeProvider;
-import com.griddynamics.jagger.storage.KeyValueStorage;
 import com.griddynamics.jagger.storage.fs.logging.AggregationInfo;
 import com.griddynamics.jagger.storage.fs.logging.DurationLogEntry;
 import com.griddynamics.jagger.storage.fs.logging.LogAggregator;
@@ -39,6 +45,7 @@ import com.griddynamics.jagger.storage.fs.logging.LogProcessor;
 import com.griddynamics.jagger.storage.fs.logging.LogReader;
 import com.griddynamics.jagger.util.StandardMetricsNamesUtil;
 import com.griddynamics.jagger.util.statistics.StatisticsCalculator;
+
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.slf4j.Logger;
@@ -56,13 +63,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import static com.griddynamics.jagger.util.StandardMetricsNamesUtil.LATENCY_ID;
-import static com.griddynamics.jagger.util.StandardMetricsNamesUtil.LATENCY_SEC;
-import static com.griddynamics.jagger.util.StandardMetricsNamesUtil.LATENCY_STD_DEV_AGG_ID;
-import static com.griddynamics.jagger.util.StandardMetricsNamesUtil.LATENCY_STD_DEV_SEC;
-import static com.griddynamics.jagger.util.StandardMetricsNamesUtil.THROUGHPUT_ID;
-import static com.griddynamics.jagger.util.StandardMetricsNamesUtil.THROUGHPUT_TPS;
-
 /**
  * @author Alexey Kiselyov
  *         Date: 20.07.11
@@ -78,13 +78,6 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
 
     private List<Double> timeWindowPercentilesKeys;
     private List<Double> globalPercentilesKeys;
-
-    private KeyValueStorage keyValueStorage;
-
-    @Required
-    public void setKeyValueStorage(KeyValueStorage keyValueStorage) {
-        this.keyValueStorage = keyValueStorage;
-    }
 
     @Required
     public void setLogReader(LogReader logReader) {
@@ -157,8 +150,7 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
                 return;
             }
 
-            StatisticsGenerator statisticsGenerator = new StatisticsGenerator(file, aggregationInfo, intervalSize, taskData).generate();
-            final Collection<MetricPointEntity> statistics = statisticsGenerator.getStatistics();
+          final Collection<MetricPointEntity> statistics = new StatisticsGenerator(file, aggregationInfo, intervalSize, taskData).generate();
 
             log.info("BEGIN: Save to data base " + dir);
             getHibernateTemplate().execute(new HibernateCallback<Void>() {
@@ -183,22 +175,18 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
         private AggregationInfo aggregationInfo;
         private int intervalSize;
         private TaskData taskData;
-        private Collection<MetricPointEntity> statistics;
 
         StatisticsGenerator(String path, AggregationInfo aggregationInfo, int intervalSize, TaskData taskData) {
             this.path = path;
             this.aggregationInfo = aggregationInfo;
             this.intervalSize = intervalSize;
             this.taskData = taskData;
-            this.statistics = new ArrayList<>();
         }
 
-        Collection<MetricPointEntity> getStatistics() {
-            return statistics;
-        }
+        public Collection<MetricPointEntity> generate() throws IOException {
+          Collection<MetricPointEntity> statisticsAccumulator = new ArrayList<>();
 
-        public StatisticsGenerator generate() throws IOException {
-            StatisticsCalculator windowStatisticsCalc = new StatisticsCalculator();
+          StatisticsCalculator windowStatisticsCalc = new StatisticsCalculator();
             StatisticsCalculator globalStatisticsCalc = new StatisticsCalculator();
             MetricDescriptionEntity throughputDesc = persistMetricDescription(THROUGHPUT_ID, THROUGHPUT_TPS, taskData);
             MetricDescriptionEntity latencyDesc = persistMetricDescription(LATENCY_ID, LATENCY_SEC, taskData);
@@ -213,9 +201,14 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
             int totalCount = 0;
             int extendedInterval = intervalSize;
             int addedStatistics = 0;
+            DurationLogEntry latestDurationLogEntry = new DurationLogEntry(0, 0);
+
             try (LogReader.FileReader<DurationLogEntry> fileReader = logReader.read(path, DurationLogEntry.class)) {
                 for (DurationLogEntry logEntry : fileReader) {
+                  if (latestDurationLogEntry.getTime() < logEntry.getTime()) {
+                    latestDurationLogEntry = logEntry;
                     log.debug("Log entry {} time", logEntry.getTime());
+                  }
                     while (logEntry.getTime() > currentInterval) {
                         log.debug("Processing count {} interval {}", currentCount, intervalSize);
                         if (currentCount > 0) {
@@ -224,7 +217,7 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
                             // first point is removed because it's value very high due to the first invocation of invoker taking longer than the other
                             // and it breaks statistics JFG-729
                             if (++addedStatistics > 1)
-                                addStatistics(time, currentTime, throughput, windowStatisticsCalc, throughputDesc, latencyDesc, latencyStdDevDesc, percentiles);
+                                addStatistics(time, currentTime, throughput, windowStatisticsCalc, throughputDesc, latencyDesc, latencyStdDevDesc, percentiles, statisticsAccumulator);
                             currentCount = 0;
                             extendedInterval = 0;
                             windowStatisticsCalc.reset();
@@ -244,7 +237,7 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
             if (currentCount > 0 && ++addedStatistics > 1) {
                 double throughput = (double) currentCount * 1000 / intervalSize;
                 long currentTime = time - extendedInterval / 2;
-                addStatistics(time, currentTime, throughput, windowStatisticsCalc, throughputDesc, latencyDesc, latencyStdDevDesc, percentiles);
+                addStatistics(time, currentTime, throughput, windowStatisticsCalc, throughputDesc, latencyDesc, latencyStdDevDesc, percentiles, statisticsAccumulator);
             }
 
             for (double percentileKey : getGlobalPercentilesKeys()) {
@@ -255,12 +248,14 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
             persistAggregatedMetricValue(Math.rint(globalStatisticsCalc.getStandardDeviation()) / 1000D, latencyStdDevDesc);
 
             Long startTime = aggregationInfo.getMinTime();
-            Long endTime = aggregationInfo.getMaxTime();
+            Long endTime = latestDurationLogEntry.getTime() + latestDurationLogEntry.getDuration();
+
             double duration = (double) (endTime - startTime) / 1000;
             double totalThroughput = Math.rint(totalCount / duration * 100) / 100;
+
             persistAggregatedMetricValue(Math.rint(totalThroughput * 100) / 100, throughputDesc);
 
-            return this;
+            return statisticsAccumulator;
         }
 
         private Map<Double, MetricDescriptionEntity> initPercentileMap() {
@@ -275,14 +270,14 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
 
         private void addStatistics(long time, long currentTime, Double throughput, StatisticsCalculator windowStatisticCalculator,
                                    MetricDescriptionEntity throughputDesc, MetricDescriptionEntity latencyDesc,
-                                   MetricDescriptionEntity latencyStdDevDesc, Map<Double, MetricDescriptionEntity> percentileMap) {
+                                   MetricDescriptionEntity latencyStdDevDesc, Map<Double, MetricDescriptionEntity> percentileMap, Collection<MetricPointEntity> statisticsAccumulator) {
 
-            statistics.add(new MetricPointEntity(currentTime, throughput, throughputDesc));
-            statistics.add(new MetricPointEntity(currentTime, windowStatisticCalculator.getMean() / 1000, latencyDesc));
-            statistics.add(new MetricPointEntity(currentTime, windowStatisticCalculator.getStandardDeviation() / 1000, latencyStdDevDesc));
+            statisticsAccumulator.add(new MetricPointEntity(currentTime, throughput, throughputDesc));
+            statisticsAccumulator.add(new MetricPointEntity(currentTime, windowStatisticCalculator.getMean() / 1000, latencyDesc));
+            statisticsAccumulator.add(new MetricPointEntity(currentTime, windowStatisticCalculator.getStandardDeviation() / 1000, latencyStdDevDesc));
             for (Double percentileKey : getTimeWindowPercentilesKeys()) {
                 Double value = windowStatisticCalculator.getPercentile(percentileKey) / 1000D;
-                statistics.add(new MetricPointEntity(time, value, percentileMap.get(percentileKey)));
+                statisticsAccumulator.add(new MetricPointEntity(time, value, percentileMap.get(percentileKey)));
             }
         }
     }
