@@ -233,7 +233,7 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
                 String metricId = metricDescription.getMetricId() + '-' + aggregatorIdSuffix;
                 MetricDescriptionEntity metricDesc = persistMetricDescription(metricId, displayName, taskData);
 
-                long currentInterval = aggregationInfo.getMinTime() + intervalSize;
+                long currentInterval = aggregationInfo.getStartTime() + intervalSize;
                 long time = intervalSize;
                 long extendedInterval = intervalSize;
                 int addedStatistics = 0;
@@ -304,8 +304,8 @@ public class MetricLogProcessor extends LogProcessor implements DistributionList
                                     MetricAggregatorSettings aggregatorSettings,
                                     AggregationInfo aggregationInfo) {
 
-            long maxTime = aggregationInfo.getMaxTime();
-            long minTime = aggregationInfo.getMinTime();
+            long maxTime = aggregationInfo.getEndTime();
+            long minTime = aggregationInfo.getStartTime();
             int pointsCount = aggregatorSettings.getPointCount();
             int aggregationInterval = aggregatorSettings.getPointInterval();
 

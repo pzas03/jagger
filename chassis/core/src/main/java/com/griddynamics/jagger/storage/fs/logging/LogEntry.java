@@ -41,6 +41,10 @@ public abstract class LogEntry implements Serializable {
         this.time = time;
     }
 
+    public long getEndTime() {
+        return getTime();
+    }
+
     public int compareTo(LogEntry otherLogEntry) {
         return Long.compare(this.getTime(), otherLogEntry.getTime());
     }

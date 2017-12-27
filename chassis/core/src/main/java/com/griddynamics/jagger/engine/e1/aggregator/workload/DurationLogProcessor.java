@@ -139,7 +139,7 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
                 return;
             }
 
-            int intervalSize = intervalSizeProvider.getIntervalSize(aggregationInfo.getMinTime(), aggregationInfo.getMaxTime());
+            int intervalSize = intervalSizeProvider.getIntervalSize(aggregationInfo.getStartTime(), aggregationInfo.getEndTime());
             if (intervalSize < 1) {
                 intervalSize = 1;
             }
@@ -193,23 +193,19 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
             MetricDescriptionEntity latencyStdDevDesc = persistMetricDescription(LATENCY_STD_DEV_AGG_ID, LATENCY_STD_DEV_SEC, taskData);
             Map<Double, MetricDescriptionEntity> percentiles = initPercentileMap();
 
-            // starting point is aggregationInfo.getMinTime()
-            long currentInterval = aggregationInfo.getMinTime() + intervalSize;
+            // starting point is aggregationInfo.getStartTime()
+            long currentInterval = aggregationInfo.getStartTime() + intervalSize;
             // starting point is 0
             long time = intervalSize;
             int currentCount = 0;
             int totalCount = 0;
             int extendedInterval = intervalSize;
             int addedStatistics = 0;
-            DurationLogEntry latestDurationLogEntry = new DurationLogEntry(0, 0);
 
             try (LogReader.FileReader<DurationLogEntry> fileReader = logReader.read(path, DurationLogEntry.class)) {
                 for (DurationLogEntry logEntry : fileReader) {
-                  if (latestDurationLogEntry.getTime() < logEntry.getTime()) {
-                    latestDurationLogEntry = logEntry;
-                    log.debug("Log entry {} time", logEntry.getTime());
-                  }
-                    while (logEntry.getTime() > currentInterval) {
+                  log.debug("Log entry {} time", logEntry.getTime());
+                  while (logEntry.getTime() > currentInterval) {
                         log.debug("Processing count {} interval {}", currentCount, intervalSize);
                         if (currentCount > 0) {
                             double throughput = (double) currentCount * 1000 / extendedInterval;
@@ -247,8 +243,10 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
             persistAggregatedMetricValue(Math.rint(globalStatisticsCalc.getMean()) / 1000D, latencyDesc);
             persistAggregatedMetricValue(Math.rint(globalStatisticsCalc.getStandardDeviation()) / 1000D, latencyStdDevDesc);
 
-            Long startTime = aggregationInfo.getMinTime();
-            Long endTime = latestDurationLogEntry.getTime() + latestDurationLogEntry.getDuration();
+            Long startTime = aggregationInfo.getStartTime();
+            Long endTime = aggregationInfo.getEndTime();
+
+            log.info("qwe startTime: [{}], endTime: [{}]", startTime, endTime);
 
             double duration = (double) (endTime - startTime) / 1000;
             double totalThroughput = Math.rint(totalCount / duration * 100) / 100;

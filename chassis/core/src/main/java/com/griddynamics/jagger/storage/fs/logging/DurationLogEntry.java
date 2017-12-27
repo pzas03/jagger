@@ -38,6 +38,11 @@ public class DurationLogEntry extends LogEntry {
     }
 
     @Override
+    public long getEndTime() {
+        return getTime() + duration;
+    }
+
+    @Override
     public String toString() {
         return "LogEntry [time=" + this.time + ", duration=" + this.duration + "]";
     }

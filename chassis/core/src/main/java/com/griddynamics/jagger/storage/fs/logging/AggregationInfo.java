@@ -22,39 +22,33 @@ package com.griddynamics.jagger.storage.fs.logging;
 
 public class AggregationInfo {
 
-	private long minTime;
+    private LogEntry firstEntry;
 
-	private long maxTime;
+    private LogEntry lastEntry;
 
-	private int count;
+    private int count;
 
-	public AggregationInfo(long minTime, long maxTime, int count) {
-		this.minTime = minTime;
-		this.maxTime = maxTime;
-		this.count = count;
-	}
+    public AggregationInfo(LogEntry firstEntry, LogEntry lastEntry, int count) {
+        this.firstEntry = firstEntry;
+        this.lastEntry = lastEntry;
+        this.count = count;
+    }
 
-	public long getMinTime() {
-		return minTime;
-	}
+    public long getStartTime() {
+        if (firstEntry != null) {
+            return firstEntry.getTime();
+        }
+        return 0;
+    }
 
-	public void setMinTime(long minTime) {
-		this.minTime = minTime;
-	}
+    public long getEndTime() {
+        if (lastEntry != null) {
+            return lastEntry.getEndTime();
+        }
+        return 0;
+    }
 
-	public long getMaxTime() {
-		return maxTime;
-	}
-
-	public void setMaxTime(long maxTime) {
-		this.maxTime = maxTime;
-	}
-
-	public int getCount() {
-		return count;
-	}
-
-	public void setCount(int count) {
-		this.count = count;
-	}
+    public int getCount() {
+        return count;
+    }
 }
