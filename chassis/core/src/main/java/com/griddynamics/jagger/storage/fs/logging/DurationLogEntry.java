@@ -37,6 +37,11 @@ public class DurationLogEntry extends LogEntry {
         this.duration = duration;
     }
 
+    /**
+     * This is required for throughput calculation,
+     * which requires start time of the first log entry and end time of the last entry
+     * @return end time of entry
+     */
     @Override
     public long getEndTime() {
         return getTime() + duration;

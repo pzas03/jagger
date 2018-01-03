@@ -246,7 +246,7 @@ public class DurationLogProcessor extends LogProcessor implements DistributionLi
             Long startTime = aggregationInfo.getStartTime();
             Long endTime = aggregationInfo.getEndTime();
 
-            log.info("qwe startTime: [{}], endTime: [{}]", startTime, endTime);
+            log.debug("aggregated info, startTime: [{}], endTime: [{}]", startTime, endTime);
 
             double duration = (double) (endTime - startTime) / 1000;
             double totalThroughput = Math.rint(totalCount / duration * 100) / 100;

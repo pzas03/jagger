@@ -27,7 +27,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.PriorityQueue;
+import java.util.Set;
 
 /**
  * @author Alexey Kiselyov
