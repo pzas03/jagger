@@ -6,5 +6,5 @@ package com.griddynamics.jagger.reporting.interval;
  */
 
 public interface IntervalSizeProvider {
-    public int getIntervalSize(long minTime, long maxTime);
+    int getIntervalSize(long minTime, long maxTime);
 }

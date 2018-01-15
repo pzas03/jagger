@@ -20,7 +20,7 @@
 
 package com.griddynamics.jagger.storage.fs.logging;
 
-public class DurationLogEntry extends LogEntry<DurationLogEntry> {
+public class DurationLogEntry extends LogEntry {
 
     private long duration;
 
@@ -35,6 +35,16 @@ public class DurationLogEntry extends LogEntry<DurationLogEntry> {
 
     public void setDuration(long duration) {
         this.duration = duration;
+    }
+
+    /**
+     * This is required for throughput calculation,
+     * which requires start time of the first log entry and end time of the last entry
+     * @return end time of entry
+     */
+    @Override
+    public long getEndTime() {
+        return getTime() + duration;
     }
 
     @Override

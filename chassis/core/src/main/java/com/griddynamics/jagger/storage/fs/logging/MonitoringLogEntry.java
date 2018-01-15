@@ -26,7 +26,7 @@ import com.griddynamics.jagger.agent.model.SystemInfo;
  * @author Alexey Kiselyov
  *         Date: 22.07.11
  */
-public class MonitoringLogEntry extends LogEntry<MonitoringLogEntry> {
+public class MonitoringLogEntry extends LogEntry {
 
     private SystemInfo systemInfo;
 

@@ -22,7 +22,7 @@ package com.griddynamics.jagger.storage.fs.logging;
 
 import java.io.Serializable;
 
-public abstract class LogEntry<E extends LogEntry> implements Serializable {
+public abstract class LogEntry implements Serializable {
 
     protected long time;
 
@@ -41,8 +41,12 @@ public abstract class LogEntry<E extends LogEntry> implements Serializable {
         this.time = time;
     }
 
-    public int compareTo(E otherLogEntry) {
-        return new Long(this.getTime()).compareTo(otherLogEntry.getTime());
+    public long getEndTime() {
+        return getTime();
+    }
+
+    public int compareTo(LogEntry otherLogEntry) {
+        return Long.compare(this.getTime(), otherLogEntry.getTime());
     }
 
 }

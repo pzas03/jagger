@@ -20,12 +20,11 @@
 
 package com.griddynamics.jagger.storage.fs.logging;
 
+import com.google.common.io.Closeables;
 import com.griddynamics.jagger.storage.FileStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
-
-import com.google.common.io.Closeables;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -58,19 +57,19 @@ public class ChronologyLogAggregator implements LogAggregator {
     @Override
     public AggregationInfo chronology(String dir, String targetFile) throws IOException {
         log.info("Aggregate {}", targetFile);
-    
+
         BufferedLogWriter.LogWriterOutput objectOutput = null;
         try {
             if (!fileStorage.delete(targetFile, false)) {
                 log.debug("Target file {} was not deleted!", targetFile);
             }
-    
-            Collection<Iterable<LogEntry>> readers = new ArrayList<Iterable<LogEntry>>();
+
+            Collection<Iterable<LogEntry>> readers = new ArrayList<>();
             Set<String> fileNameList = fileStorage.getFileNameList(dir);
             if (fileNameList.isEmpty()) {
                 log.info("Nothing to aggregate. Directory {} is empty.", dir);
                 fileStorage.create(targetFile);
-                return new AggregationInfo(0, 0, 0);
+                return new AggregationInfo(null, null, 0);
             }
             for (String fileName : fileNameList) {
                 try {
@@ -80,13 +79,13 @@ public class ChronologyLogAggregator implements LogAggregator {
                     log.warn(e.getMessage(), e);
                 }
             }
-    
+
             int count = 0;
-            long minTime = 0;
-            long maxTime = 0;
+            LogEntry firstEntry = null;
+            LogEntry lastEntry = null;
             objectOutput = logWriter.getOutput(fileStorage.create(targetFile));
-    
-            PriorityQueue<StreamInfo> queue = new PriorityQueue<StreamInfo>();
+
+            PriorityQueue<StreamInfo> queue = new PriorityQueue<>();
             for (Iterable<LogEntry> inputStream : readers) {
                 LogEntry logEntry;
                 Iterator<LogEntry> it = inputStream.iterator();
@@ -99,14 +98,14 @@ public class ChronologyLogAggregator implements LogAggregator {
             }
 
             while (!queue.isEmpty()) {
-                StreamInfo<LogEntry> streamInfo = queue.poll();
+                StreamInfo streamInfo = queue.poll();
                 objectOutput.writeObject(streamInfo.lastLogEntry);
 
                 if (count == 0) {
-                    minTime = streamInfo.lastLogEntry.getTime();
-                    maxTime = streamInfo.lastLogEntry.getTime();
+                  firstEntry = streamInfo.lastLogEntry;
+                  lastEntry = streamInfo.lastLogEntry;
                 } else {
-                    maxTime = streamInfo.lastLogEntry.getTime();
+                  lastEntry = streamInfo.lastLogEntry;
                 }
 
                 count++;
@@ -119,8 +118,7 @@ public class ChronologyLogAggregator implements LogAggregator {
                 streamInfo.lastLogEntry = logEntry;
                 queue.add(streamInfo);
             }
-    
-            return new AggregationInfo(minTime, maxTime, count);
+            return new AggregationInfo(firstEntry, lastEntry, count);
         } finally {
             try {
                 Closeables.close(objectOutput, true);
